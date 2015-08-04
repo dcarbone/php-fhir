@@ -152,7 +152,8 @@ class ClassTemplate
         $outputPath = sprintf('%s/%s/%s.php',
             $outputPath,
             FileUtils::buildDirPathFromNS($this->getNamespace()),
-            $this->getClassName());
+            $this->getClassName()
+        );
 
         return (bool)file_put_contents($outputPath, (string)$this);
     }

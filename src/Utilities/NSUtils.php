@@ -11,8 +11,8 @@ abstract class NSUtils
 {
     /** @var array */
     private static $_simpleNSMap = array(
-        'primitive' => 'Primitive',
-        'list' => 'List',
+        'primitive' => 'FHIRPrimitive',
+        'list' => 'FHIRList',
         '' => '',
     );
 
@@ -57,13 +57,12 @@ abstract class NSUtils
         switch((string)$type)
         {
             case 'Resource':
-                return 'Resource';
+                return 'FHIRResource';
             case 'Element':
-                return 'Element';
+                return 'FHIRElement';
 
             case 'Component':
-                $root = strstr($name, '.', true);
-                return sprintf('Resource\\%s', $root);
+                return sprintf('FHIRResource\\FHIR%s', strstr($name, '.', true));
 
             default:
                 return '';

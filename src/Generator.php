@@ -1,10 +1,7 @@
 <?php namespace PHPFHIR;
 
-use PHPFHIR\Utilities\ComplexTypeClassGenerator;
 use PHPFHIR\Utilities\FileUtils;
 use PHPFHIR\Utilities\GeneratorUtils;
-use PHPFHIR\Utilities\SimpleTypeClassGenerator;
-use PHPFHIR\Utilities\SimpleXMLBuilder;
 use PHPFHIR\Utilities\XMLUtils;
 
 /**
