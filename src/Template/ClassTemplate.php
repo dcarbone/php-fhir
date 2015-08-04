@@ -1,5 +1,6 @@
 <?php namespace PHPFHIR\Template;
 
+use PHPFHIR\Utilities\FileUtils;
 use PHPFHIR\Utilities\NameUtils;
 
 /**
@@ -51,7 +52,7 @@ class ClassTemplate
      */
     public function getUseStatement()
     {
-        return sprintf('use %s\\%s;', $this->namespace, $this->className);
+        return sprintf('%s\\%s;', $this->namespace, $this->className);
     }
 
     /**
@@ -142,9 +143,18 @@ class ClassTemplate
         $this->parameters[$method->getName()] = $method;
     }
 
+    /**
+     * @param string $outputPath
+     * @return bool
+     */
     public function writeToFile($outputPath)
     {
+        $outputPath = sprintf('%s/%s/%s.php',
+            $outputPath,
+            FileUtils::buildDirPathFromNS($this->getNamespace()),
+            $this->getClassName());
 
+        return (bool)file_put_contents($outputPath, (string)$this);
     }
 
     public function __toString()
@@ -157,8 +167,11 @@ class ClassTemplate
 
         foreach($this->uses as $use)
         {
-//            $output = sprintf()
+            $output = sprintf("%suse %s;\n", $use);
         }
+
+        if ("\n\n" !== substr($output, -2))
+            $output = sprintf("%s\n", $output);
 
         return $output;
     }

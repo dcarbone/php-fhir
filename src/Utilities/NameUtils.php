@@ -61,4 +61,13 @@ abstract class NameUtils
 
         return sprintf('FHIR%s', $name);
     }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public static function getComplexTypeClassName($name)
+    {
+        return sprintf('FHIR%s', ucfirst(str_replace('.', '', $name)));
+    }
 }

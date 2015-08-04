@@ -1,5 +1,6 @@
 <?php namespace PHPFHIR\Utilities;
 
+use PHPFHIR\Enum\ComplexClassTypesEnum;
 use PHPFHIR\Enum\SimpleClassTypesEnum;
 
 /**
@@ -29,12 +30,12 @@ abstract class NSUtils
             return '';
 
         if ('' === $outputNS)
-            return sprintf('%s\\', $classNS);
+            return $classNS;
 
         if ('' === $classNS)
-            return sprintf('%s\\', $outputNS);
+            return $outputNS;
 
-        return sprintf('%s\\%s\\', $outputNS, $classNS);
+        return sprintf('%s\\%s', $outputNS, $classNS);
     }
 
     /**
@@ -44,5 +45,28 @@ abstract class NSUtils
     public static function getSimpleTypeNamespace(SimpleClassTypesEnum $type)
     {
         return self::$_simpleNSMap[(string)$type];
+    }
+
+    /**
+     * @param string $name
+     * @param ComplexClassTypesEnum|null $type
+     * @return string
+     */
+    public static function getComplexTypeNamespace($name, ComplexClassTypesEnum $type = null)
+    {
+        switch((string)$type)
+        {
+            case 'Resource':
+                return 'Resource';
+            case 'Element':
+                return 'Element';
+
+            case 'Component':
+                $root = strstr($name, '.', true);
+                return sprintf('Resource\\%s', $root);
+
+            default:
+                return '';
+        }
     }
 }

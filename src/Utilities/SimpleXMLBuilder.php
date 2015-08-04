@@ -1,7 +1,5 @@
 <?php namespace PHPFHIR\Utilities;
 
-use Symfony\Component\Finder\SplFileInfo;
-
 /**
  * Class SimpleXMLBuilder
  * @package PHPFHIR
@@ -18,12 +16,12 @@ abstract class SimpleXMLBuilder
     }
 
     /**
-     * @param SplFileInfo $file
+     * @param \SplFileInfo $file
      * @return \SimpleXMLElement
      */
-    public static function constructWithFileInfo(SplFileInfo $file)
+    public static function constructWithFileInfo(\SplFileInfo $file)
     {
-        return self::_constructSXE($file->getBasename(true), $file->getContents());
+        return self::_constructSXE($file->getBasename(true), file_get_contents($file->getRealPath()));
     }
 
     /**

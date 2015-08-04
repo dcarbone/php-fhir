@@ -16,7 +16,7 @@ abstract class FileUtils
         if ('\\' === $namespace)
             return true;
 
-        $path = trim($outputPath, "\\");
+        $path = trim($outputPath, "/\\");
         foreach(explode('\\', $namespace) as $dirName)
         {
             $path = sprintf('%s/%s', $path, $dirName);
@@ -29,5 +29,14 @@ abstract class FileUtils
         }
 
         return true;
+    }
+
+    /**
+     * @param string $namespace
+     * @return string
+     */
+    public static function buildDirPathFromNS($namespace)
+    {
+        return preg_replace('{[/]{2,}}S', '', str_replace('\\', '/', $namespace));
     }
 }

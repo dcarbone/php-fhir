@@ -1,8 +1,11 @@
 <?php namespace PHPFHIR;
 
 use PHPFHIR\Utilities\ComplexTypeClassGenerator;
+use PHPFHIR\Utilities\FileUtils;
+use PHPFHIR\Utilities\GeneratorUtils;
 use PHPFHIR\Utilities\SimpleTypeClassGenerator;
 use PHPFHIR\Utilities\SimpleXMLBuilder;
+use PHPFHIR\Utilities\XMLUtils;
 
 /**
  * Class Generator
@@ -41,42 +44,20 @@ class Generator
 
         $this->outputNamespace = trim($outputNamespace, '\\');
         $this->outputPath = $outputPath;
-        $this->XSDMap = new XSDMap($this->xsdPath);
+        $this->XSDMap = XMLUtils::buildXSDMap($this->xsdPath, $this->outputNamespace);
         $this->ClassMap = new ClassMap();
     }
 
-    public function buildClasses()
+    public function generate()
     {
-        $this->buildBase();
-    }
-
-    protected function buildBase()
-    {
-        $sxe = SimpleXMLBuilder::constructWithFilePath($this->XSDMap->getXSDPath().'fhir-base.xsd');
-
-        foreach($sxe->children('xs', true) as $child)
+        foreach($this->XSDMap as $objectName=>$data)
         {
-            /** @var \SimpleXMLElement $child */
-            $type = $child->getName();
-            $attributes = $child->attributes();
-            $name = (string)$attributes['name'];
+            $classTemplate = GeneratorUtils::buildClassTemplate($data);
 
-            $class = null;
-            switch($type)
-            {
-                case 'simpleType':
-                    $class = SimpleTypeClassGenerator::generate($child, $name, $this->outputNamespace);
-                    break;
-
-                case 'complexType':
-                    $class = ComplexTypeClassGenerator::generate($child, $name, $this->outputNamespace);
-                    break;
-            }
-
-            if (null === $class)
-                continue;
-
-
+            FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
+            // Just test what we have so far.
+            $classTemplate->writeToFile($this->outputPath);
         }
     }
+
 }
