@@ -1,10 +1,10 @@
 <?php namespace PHPFHIR\Utilities;
 
 /**
- * Class CopyrightUtil
+ * Class CopyrightUtils
  * @package PHPFHIR\Utilities
  */
-abstract class CopyrightUtil
+abstract class CopyrightUtils
 {
     private static $_copyright = null;
 
@@ -13,7 +13,17 @@ abstract class CopyrightUtil
      */
     public static function loadCopyright($xsdPath)
     {
-        $comment = '';
+        $today = date('F jS, Y');
+        $comment = <<<STRING
+/*!
+ * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
+ * class definitions from HL7 FHIR (https://www.hl7.org/fhir/)
+ *
+ * Class creation date: {$today}
+ *
+ * FHIR Copyright Notice:
+ *
+STRING;
         $fh = fopen($xsdPath.'fhir-all.xsd', 'r');
         $inComment = false;
         while($line = fgets($fh))
@@ -24,7 +34,7 @@ abstract class CopyrightUtil
                 break;
 
             if ($inComment)
-                $comment = sprintf("%s\n%s", $comment, $line);
+                $comment = sprintf("%s\n * %s", $comment, $line);
 
             if ('<!--' === $line)
                 $inComment = true;
@@ -32,7 +42,7 @@ abstract class CopyrightUtil
 
         fclose($fh);
 
-        self::$_copyright = $comment;
+        self::$_copyright = sprintf("%s\n */", $comment);
     }
 
     /**

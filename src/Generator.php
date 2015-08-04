@@ -1,7 +1,7 @@
 <?php namespace PHPFHIR;
 
 use PHPFHIR\Template\ClassTemplate;
-use PHPFHIR\Utilities\CopyrightUtil;
+use PHPFHIR\Utilities\CopyrightUtils;
 use PHPFHIR\Utilities\FileUtils;
 use PHPFHIR\Utilities\GeneratorUtils;
 use PHPFHIR\Utilities\XMLUtils;
@@ -46,7 +46,7 @@ class Generator
         $this->XSDMap = XMLUtils::buildXSDMap($this->xsdPath, $this->outputNamespace);
         $this->ClassMap = new ClassMap();
 
-        CopyrightUtil::loadCopyright($this->xsdPath);
+        CopyrightUtils::loadCopyright($this->xsdPath);
     }
 
     public function generate()

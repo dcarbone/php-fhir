@@ -1,6 +1,6 @@
 <?php namespace PHPFHIR\Template;
 
-use PHPFHIR\Utilities\CopyrightUtil;
+use PHPFHIR\Utilities\CopyrightUtils;
 use PHPFHIR\Utilities\FileUtils;
 use PHPFHIR\Utilities\NameUtils;
 
@@ -172,7 +172,7 @@ class ClassTemplate
         else
             $output = sprintf("<?php namespace %s;\n\n", $ns);
 
-        $output = sprintf("%s/*%s\n */\n\n", $output, CopyrightUtil::getHL7Copyright());
+        $output = sprintf("%s%s\n\n", $output, CopyrightUtils::getHL7Copyright());
 
         foreach($this->uses as $use)
         {
