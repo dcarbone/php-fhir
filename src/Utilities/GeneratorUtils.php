@@ -20,4 +20,5 @@ abstract class GeneratorUtils
             XMLUtils::getDocumentation($data['sxe'])
         );
     }
+
 }

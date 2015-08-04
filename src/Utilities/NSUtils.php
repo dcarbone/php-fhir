@@ -9,13 +9,6 @@ use PHPFHIR\Enum\SimpleClassTypesEnum;
  */
 abstract class NSUtils
 {
-    /** @var array */
-    private static $_simpleNSMap = array(
-        'primitive' => 'FHIRPrimitive',
-        'list' => 'FHIRList',
-        '' => '',
-    );
-
     /**
      * @param string|null $outputNS
      * @param string|null $classNS
@@ -44,7 +37,16 @@ abstract class NSUtils
      */
     public static function getSimpleTypeNamespace(SimpleClassTypesEnum $type)
     {
-        return self::$_simpleNSMap[(string)$type];
+        switch((string)$type)
+        {
+            case SimpleClassTypesEnum::_LIST:
+                return 'FHIRList';
+            case SimpleClassTypesEnum::PRIMITIVE:
+                return 'FHIRPrimitive';
+
+            default:
+                return '';
+        }
     }
 
     /**
@@ -56,12 +58,11 @@ abstract class NSUtils
     {
         switch((string)$type)
         {
-            case 'Resource':
+            case ComplexClassTypesEnum::RESOURCE:
                 return 'FHIRResource';
-            case 'Element':
+            case ComplexClassTypesEnum::ELEMENT:
                 return 'FHIRElement';
-
-            case 'Component':
+            case ComplexClassTypesEnum::COMPONENT:
                 return sprintf('FHIRResource\\FHIR%s', strstr($name, '.', true));
 
             default:

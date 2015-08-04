@@ -3,10 +3,10 @@
 use MyCLabs\Enum\Enum;
 
 /**
- * Class ExtensionBaseTypeEnum
+ * Class BaseObjectTypeEnum
  * @package PHPFHIR\Enum
  */
-class ExtensionBaseTypeEnum extends Enum
+class BaseObjectTypeEnum extends Enum
 {
     const ELEMENT = 'Element';
     const BACKBONE_ELEMENT = 'BackboneElement';

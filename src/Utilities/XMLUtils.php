@@ -1,6 +1,5 @@
 <?php namespace PHPFHIR\Utilities;
 
-use PHPFHIR\Enum\ExtensionBaseTypeEnum;
 use PHPFHIR\XSDMap;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -13,16 +12,16 @@ abstract class XMLUtils
 {
     /**
      * @param \SimpleXMLElement $sxe
-     * @return null|ExtensionBaseTypeEnum
+     * @return null|string
      */
-    public static function getExtensionBaseType(\SimpleXMLElement $sxe)
+    public static function getBaseObjectName(\SimpleXMLElement $sxe)
     {
         $xpath = $sxe->xpath('xs:complexContent/xs:extension');
         if (0 === count($xpath))
             return null;
 
         $attributes = $xpath[0]->attributes();
-        return new ExtensionBaseTypeEnum((string)$attributes['base']);
+        return (string)$attributes['base'];
     }
 
     /**

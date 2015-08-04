@@ -1,5 +1,6 @@
 <?php namespace PHPFHIR\Utilities;
 
+use PHPFHIR\Enum\BaseObjectTypeEnum;
 use PHPFHIR\Enum\ComplexClassTypesEnum;
 use PHPFHIR\Enum\SimpleClassTypesEnum;
 
@@ -36,13 +37,14 @@ abstract class ClassTypeUtils
         if (false !== strpos($name, '.'))
             return new ComplexClassTypesEnum('Component');
 
-        $baseType = XMLUtils::getExtensionBaseType($sxe);
-        if (null === $baseType)
+        $baseName = XMLUtils::getBaseObjectName($sxe);
+        if (null === $baseName)
             return null;
 
+        $baseType = new BaseObjectTypeEnum($baseName);
         switch((string)$baseType)
         {
-            case 'BackboneElement':
+            case BaseObjectTypeEnum::BACKBONE_ELEMENT:
                 return new ComplexClassTypesEnum('Resource');
 
             default:

@@ -10,13 +10,19 @@ class XSDMap extends AbstractCollectionPlus
 {
     /**
      * @param string $objectName
+     * @return string|null
+     */
+    public function getClassNameForObject($objectName)
+    {
+        return $this[$objectName]['className'];
+    }
+
+    /**
+     * @param string $objectName
      * @return null|string
      */
     public function getClassUseStatementForObject($objectName)
     {
-        if (isset($this[$objectName]))
-            return sprintf('%s\\%s', $this[$objectName]['rootNS'], $this[$objectName]['className']);
-
-        return null;
+        return sprintf('%s\\%s', $this[$objectName]['rootNS'], $this[$objectName]['className']);
     }
 }

@@ -1,5 +1,6 @@
 <?php namespace PHPFHIR\Template;
 
+use PHPFHIR\Utilities\CopyrightUtil;
 use PHPFHIR\Utilities\FileUtils;
 use PHPFHIR\Utilities\NameUtils;
 
@@ -143,6 +144,8 @@ class ClassTemplate
         $this->parameters[$method->getName()] = $method;
     }
 
+    // TODO: Possibly omit __toString use, and write directly to file.  Might be faster.
+
     /**
      * @param string $outputPath
      * @return bool
@@ -158,6 +161,9 @@ class ClassTemplate
         return (bool)file_put_contents($outputPath, (string)$this);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         $ns = $this->getNamespace();
@@ -166,14 +172,38 @@ class ClassTemplate
         else
             $output = sprintf("<?php namespace %s;\n\n", $ns);
 
+        $output = sprintf("%s/*%s\n */\n\n", $output, CopyrightUtil::getHL7Copyright());
+
         foreach($this->uses as $use)
         {
-            $output = sprintf("%suse %s;\n", $use);
+            $output = sprintf("%suse %s;\n", $output, $use);
         }
 
         if ("\n\n" !== substr($output, -2))
             $output = sprintf("%s\n", $output);
 
-        return $output;
+        if ($this->documentation)
+        {
+            $documentation = $this->documentation;
+            if (is_string($this->documentation))
+                $documentation = array($documentation);
+
+            $docs = '';
+            foreach($documentation as $doc)
+            {
+                $docs = sprintf("%s * %s\n", $docs, $doc);
+            }
+
+            $output = sprintf("%s/**\n%s */\n", $output, $docs);
+        }
+
+        if ($this->extends)
+            $output = sprintf("%sclass %s extends %s\n", $output, $this->getClassName(), $this->getExtends());
+        else
+            $output = sprintf("%sclass %s\n", $output, $this->getClassName());
+
+        $output = sprintf("%s{\n", $output);
+
+        return sprintf("%s\n}", $output);
     }
 }

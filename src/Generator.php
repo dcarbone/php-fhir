@@ -1,5 +1,7 @@
 <?php namespace PHPFHIR;
 
+use PHPFHIR\Template\ClassTemplate;
+use PHPFHIR\Utilities\CopyrightUtil;
 use PHPFHIR\Utilities\FileUtils;
 use PHPFHIR\Utilities\GeneratorUtils;
 use PHPFHIR\Utilities\XMLUtils;
@@ -34,7 +36,7 @@ class Generator
         $this->xsdPath = rtrim($xsdPath, "/\\").'/';
 
         if (null === $outputPath)
-            $outputPath = __DIR__.'/../output';
+            $outputPath = sprintf('%s/../output', __DIR__);
 
         if (!is_dir($outputPath))
             throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');
@@ -43,6 +45,8 @@ class Generator
         $this->outputPath = $outputPath;
         $this->XSDMap = XMLUtils::buildXSDMap($this->xsdPath, $this->outputNamespace);
         $this->ClassMap = new ClassMap();
+
+        CopyrightUtil::loadCopyright($this->xsdPath);
     }
 
     public function generate()
@@ -51,10 +55,31 @@ class Generator
         {
             $classTemplate = GeneratorUtils::buildClassTemplate($data);
 
+            $this->determineBaseClass($data['sxe'], $classTemplate);
+            $this->addClassParameters($objectName, $data, $classTemplate);
+
             FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
             // Just test what we have so far.
             $classTemplate->writeToFile($this->outputPath);
         }
+    }
+
+    protected function determineBaseClass(\SimpleXMLElement $sxe, ClassTemplate $classTemplate)
+    {
+        $baseObjectName = XMLUtils::getBaseObjectName($sxe);
+        if (null === $baseObjectName)
+            return null;
+
+        $baseClassName = $this->XSDMap->getClassNameForObject($baseObjectName);
+        $useStatement = $this->XSDMap->getClassUseStatementForObject($baseObjectName);
+
+        $classTemplate->addUse($useStatement);
+        $classTemplate->setExtends($baseClassName);
+    }
+
+    protected function addClassParameters($objectName, array $data, ClassTemplate $classTemplate)
+    {
+
     }
 
 }
