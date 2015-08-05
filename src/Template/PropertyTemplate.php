@@ -1,42 +1,38 @@
 <?php namespace PHPFHIR\Template;
 
-use PHPFHIR\Enum\ParameterScopeEnum;
+use PHPFHIR\Enum\PropertyScopeEnum;
+use PHPFHIR\Enum\PropertyTypeEnum;
 use PHPFHIR\Utilities\NameUtils;
 
 /**
- * Class ParameterTemplate
+ * Class PropertyTemplate
  * @package PHPFHIR\Template
  */
-class ParameterTemplate
+class PropertyTemplate extends AbstractTemplate
 {
     /** @var string */
     protected $name;
-    /** @var ParameterScopeEnum */
+    /** @var PropertyScopeEnum */
     protected $scope;
-    /** @var string */
-    protected $varType;
-    /** @var string */
-    protected $documentation;
+    /** @var PropertyTypeEnum */
+    protected $type;
 
     /**
      * Constructor
      *
      * @param string $name
-     * @param string $scope
-     * @param string $varType
-     * @param null|string $documentation
+     * @param PropertyScopeEnum $scope
+     * @param PropertyTypeEnum $type
      */
-    public function __construct($name, $scope, $varType, $documentation = null)
+    public function __construct($name, PropertyScopeEnum $scope, PropertyTypeEnum $type)
     {
-        $this->scope = new ParameterScopeEnum($scope);
-
-        if (NameUtils::isValidVariableName($name))
+        if (NameUtils::isValidPropertyName($name))
             $this->name = $name;
         else
             throw new \InvalidArgumentException('Specified parameter name "'.$name.'" is not valid.');
 
-        $this->varType = $varType;
-        $this->documentation = $documentation;
+        $this->scope = $scope;
+        $this->type = $type;
     }
 
     /**
@@ -58,17 +54,9 @@ class ParameterTemplate
     /**
      * @return string
      */
-    public function getVarType()
+    public function getType()
     {
-        return $this->varType;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDocumentation()
-    {
-        return $this->documentation;
+        return $this->type;
     }
 
     /**
@@ -83,7 +71,7 @@ class ParameterTemplate
 
         return <<<STRING
 {$output}
-     * @var {$this->varType}
+     * @var {$this->type}
      */
     {$this->scope} \${$this->name};
 STRING;

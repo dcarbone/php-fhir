@@ -18,10 +18,37 @@ abstract class XMLUtils
     {
         $xpath = $sxe->xpath('xs:complexContent/xs:extension');
         if (0 === count($xpath))
+            $xpath = $sxe->xpath('xs:extension');
+
+        if (0 === count($xpath))
             return null;
 
         $attributes = $xpath[0]->attributes();
         return (string)$attributes['base'];
+    }
+
+    /**
+     * @param \SimpleXMLElement $sxe
+     * @return null|string
+     */
+    public static function getRestrictionObjectName(\SimpleXMLElement $sxe)
+    {
+        $xpath = $sxe->xpath('xs:complexContent/xs:restriction');
+        if (0 === count($xpath))
+            $xpath = $sxe->xpath('xs:restriction');
+
+        if (0 === count($xpath))
+            return null;
+
+        $attributes = $xpath[0]->attributes();
+
+        // For now, we are not imposing any kind of primitive type value restriction
+        // TODO: Implement this.
+        $base = (string)$attributes['base'];
+        if (0 === strpos($base, 'xs:'))
+            return null;
+
+        return $base;
     }
 
     /**
@@ -120,6 +147,12 @@ abstract class XMLUtils
             $name = (string)$attributes['name'];
 
             if ('' === $name)
+                continue;
+
+            // For now, we are not creating classes for primitive types
+            // Instead, they will be just scalar type'd
+            // TODO: Maybe make classes?
+            if (false !== strpos($name, '-primitive'))
                 continue;
 
             $objectType = $child->getName();

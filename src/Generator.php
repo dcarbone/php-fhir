@@ -1,9 +1,8 @@
 <?php namespace PHPFHIR;
 
-use PHPFHIR\Template\ClassTemplate;
 use PHPFHIR\Utilities\CopyrightUtils;
 use PHPFHIR\Utilities\FileUtils;
-use PHPFHIR\Utilities\GeneratorUtils;
+use PHPFHIR\Utilities\ClassGeneratorUtils;
 use PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -53,33 +52,17 @@ class Generator
     {
         foreach($this->XSDMap as $objectName=>$data)
         {
-            $classTemplate = GeneratorUtils::buildClassTemplate($data);
+            $classTemplate = ClassGeneratorUtils::buildClassTemplate($data);
 
-            $this->determineBaseClass($data['sxe'], $classTemplate);
-            $this->addClassParameters($objectName, $data, $classTemplate);
+            $classTemplate->setDocumentation(XMLUtils::getDocumentation($data['sxe']));
+
+            ClassGeneratorUtils::determineExtendedClass($this->XSDMap, $data['sxe'], $classTemplate);
+            ClassGeneratorUtils::determineRootProperties($this->XSDMap, $data['sxe'], $classTemplate);
 
             FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
             // Just test what we have so far.
             $classTemplate->writeToFile($this->outputPath);
         }
-    }
-
-    protected function determineBaseClass(\SimpleXMLElement $sxe, ClassTemplate $classTemplate)
-    {
-        $baseObjectName = XMLUtils::getBaseObjectName($sxe);
-        if (null === $baseObjectName)
-            return null;
-
-        $baseClassName = $this->XSDMap->getClassNameForObject($baseObjectName);
-        $useStatement = $this->XSDMap->getClassUseStatementForObject($baseObjectName);
-
-        $classTemplate->addUse($useStatement);
-        $classTemplate->setExtends($baseClassName);
-    }
-
-    protected function addClassParameters($objectName, array $data, ClassTemplate $classTemplate)
-    {
-
     }
 
 }

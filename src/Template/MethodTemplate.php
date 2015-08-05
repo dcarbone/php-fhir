@@ -7,7 +7,7 @@ use PHPFHIR\Utilities\NameUtils;
  * Class MethodTemplate
  * @package PHPFHIR\Template
  */
-class MethodTemplate
+class MethodTemplate extends AbstractTemplate
 {
     /** @var string */
     protected $name;
@@ -74,6 +74,6 @@ class MethodTemplate
 
     public function __toString()
     {
-
+        return '';
     }
 }

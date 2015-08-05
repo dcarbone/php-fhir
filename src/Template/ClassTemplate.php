@@ -8,44 +8,38 @@ use PHPFHIR\Utilities\NameUtils;
  * Class ClassTemplate
  * @package PHPFHIR\Template
  */
-class ClassTemplate
+class ClassTemplate extends AbstractTemplate
 {
     /** @var string */
     protected $namespace;
-    /** @var string[] */
+    /** @var array */
     protected $uses = array();
     /** @var string */
     protected $className;
     /** @var string */
     protected $extends;
-    /** @var string */
-    protected $documentation;
     /** @var array */
     protected $parameters = array();
     /** @var array */
     protected $methods = array();
 
     /**
+     * Constructor
+     *
      * @param string $namespace
      * @param string $className
-     * @param string|null $documentation
      */
-    public function __construct($namespace, $className, $documentation = null)
+    public function __construct($namespace, $className)
     {
         if (NameUtils::isValidNSName($namespace))
             $this->namespace = $namespace;
         else
-            throw new \InvalidArgumentException('Namespace "'.$namespace.'" is not valid.');
+            throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
 
         if (NameUtils::isValidClassName($className))
             $this->className = $className;
         else
-            throw new \InvalidArgumentException('Class Name "'.$className.'" is not valid.');
-
-        if (null === $documentation || is_string($documentation) || is_array($documentation))
-            $this->documentation = $documentation;
-        else
-            throw new \InvalidArgumentException('Documentation expected to be null or string.');
+            throw new \InvalidArgumentException('Class Name "' . $className . '" is not valid.');
     }
 
     /**
@@ -65,7 +59,7 @@ class ClassTemplate
     }
 
     /**
-     * @return \string[]
+     * @return array
      */
     public function getUses()
     {
@@ -105,14 +99,6 @@ class ClassTemplate
     }
 
     /**
-     * @return string
-     */
-    public function getDocumentation()
-    {
-        return $this->documentation;
-    }
-
-    /**
      * @return array
      */
     public function getParameters()
@@ -129,9 +115,9 @@ class ClassTemplate
     }
 
     /**
-     * @param ParameterTemplate $parameter
+     * @param PropertyTemplate $parameter
      */
-    public function addParameter(ParameterTemplate $parameter)
+    public function addParameter(PropertyTemplate $parameter)
     {
         $this->parameters[$parameter->getName()] = $parameter;
     }
@@ -182,14 +168,10 @@ class ClassTemplate
         if ("\n\n" !== substr($output, -2))
             $output = sprintf("%s\n", $output);
 
-        if ($this->documentation)
+        if (isset($this->documentation))
         {
-            $documentation = $this->documentation;
-            if (is_string($this->documentation))
-                $documentation = array($documentation);
-
             $docs = '';
-            foreach($documentation as $doc)
+            foreach($this->documentation as $doc)
             {
                 $docs = sprintf("%s * %s\n", $docs, $doc);
             }

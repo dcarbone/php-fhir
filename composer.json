@@ -12,7 +12,6 @@
     "require": {
         "php": ">=5.3.3",
         "symfony/finder": "2.6.*",
-        "phpdocumentor/phpdocumentor": "2.*",
         "dcarbone/collection-plus": "3.1.*",
         "myclabs/php-enum": "1.4.*"
     },
