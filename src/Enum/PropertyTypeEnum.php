@@ -11,5 +11,6 @@ class PropertyTypeEnum extends Enum
     const STRING = 'string';
     const _ARRAY = 'array';
     const INTEGER = 'integer';
-    const DATETIME = 'float';
+    const FLOAT = 'float';
+    const DATETIME = 'datetime';
 }
