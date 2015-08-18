@@ -1,5 +1,6 @@
 <?php namespace PHPFHIR\Utilities;
 
+use PHPFHIR\Enum\ElementTypeEnum;
 use PHPFHIR\XSDMap;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -11,36 +12,46 @@ use Symfony\Component\Finder\SplFileInfo;
 abstract class XMLUtils
 {
     /**
-     * @param \SimpleXMLElement $sxe
+     * @param \SimpleXMLElement $extensionElement
      * @return null|string
      */
-    public static function getBaseObjectName(\SimpleXMLElement $sxe)
+    public static function getBaseObjectName(\SimpleXMLElement $extensionElement)
     {
-        $xpath = $sxe->xpath('xs:complexContent/xs:extension');
-        if (0 === count($xpath))
-            $xpath = $sxe->xpath('xs:extension');
+        if ('extension' !== $extensionElement->getName())
+        {
+            $xpath = $extensionElement->xpath('xs:complexContent/xs:extension');
+            if (0 === count($xpath))
+                $xpath = $extensionElement->xpath('xs:extension');
 
-        if (0 === count($xpath))
-            return null;
+            if (0 === count($xpath))
+                return null;
 
-        $attributes = $xpath[0]->attributes();
+            $extensionElement = $xpath[0];
+        }
+
+        $attributes = $extensionElement->attributes();
         return (string)$attributes['base'];
     }
 
     /**
-     * @param \SimpleXMLElement $sxe
+     * @param \SimpleXMLElement $restrictionElement
      * @return null|string
      */
-    public static function getRestrictionObjectName(\SimpleXMLElement $sxe)
+    public static function getRestrictionObjectName(\SimpleXMLElement $restrictionElement)
     {
-        $xpath = $sxe->xpath('xs:complexContent/xs:restriction');
-        if (0 === count($xpath))
-            $xpath = $sxe->xpath('xs:restriction');
+        if ('restriction' !== $restrictionElement->getName())
+        {
+            $xpath = $restrictionElement->xpath('xs:complexContent/xs:restriction');
+            if (0 === count($xpath))
+                $xpath = $restrictionElement->xpath('xs:restriction');
 
-        if (0 === count($xpath))
-            return null;
+            if (0 === count($xpath))
+                return null;
 
-        $attributes = $xpath[0]->attributes();
+            $restrictionElement = $xpath[0];
+        }
+
+        $attributes = $restrictionElement->attributes();
 
         // For now, we are not imposing any kind of primitive type value restriction
         // TODO: Implement this.
@@ -79,12 +90,18 @@ abstract class XMLUtils
     }
 
     /**
-     * @param \SimpleXMLElement $parent
+     * @param \SimpleXMLElement $annotation
      * @return null|string|array
      */
-    public static function getDocumentation(\SimpleXMLElement $parent)
+    public static function getDocumentation(\SimpleXMLElement $annotation)
     {
-        $documentation = $parent->xpath('xs:annotation/xs:documentation');
+        if ('annotation' !== $annotation->getName())
+            $annotation = self::getAnnotationElement($annotation);
+
+        if (null === $annotation)
+            return null;
+
+        $documentation = $annotation->xpath('xs:documentation');
         switch(count($documentation))
         {
             case 0: return null;
@@ -155,18 +172,9 @@ abstract class XMLUtils
             if (false !== strpos($name, '-primitive'))
                 continue;
 
-            $objectType = $child->getName();
-            switch($objectType)
+            switch(strtolower($child->getName()))
             {
-                case 'simpleType':
-                    $type = ClassTypeUtils::getSimpleClassType($name);
-                    $rootNS = NSUtils::generateRootNamespace(
-                        $outputNS,
-                        NSUtils::getSimpleTypeNamespace($type)
-                    );
-                    $className = NameUtils::getSimpleTypeClassName($name);
-                    break;
-                case 'complexType':
+                case ElementTypeEnum::COMPLEX_TYPE:
                     $type = ClassTypeUtils::getComplexClassType($child);
                     $rootNS = NSUtils::generateRootNamespace(
                         $outputNS,
@@ -175,6 +183,16 @@ abstract class XMLUtils
                     $className = NameUtils::getComplexTypeClassName($name);
                     break;
 
+                case ElementTypeEnum::SIMPLE_TYPE:
+                    $type = ClassTypeUtils::getSimpleClassType($name);
+                    $rootNS = NSUtils::generateRootNamespace(
+                        $outputNS,
+                        NSUtils::getSimpleTypeNamespace($type)
+                    );
+                    $className = NameUtils::getSimpleTypeClassName($name);
+                    break;
+
+
                 default: continue 2;
             }
 
@@ -182,7 +200,6 @@ abstract class XMLUtils
                 'sxe' => $child,
                 'rootNS' => $rootNS,
                 'className' => $className,
-                'objectType' => $objectType,
             );
         }
     }

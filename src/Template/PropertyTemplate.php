@@ -1,7 +1,6 @@
 <?php namespace PHPFHIR\Template;
 
-use PHPFHIR\Enum\PropertyScopeEnum;
-use PHPFHIR\Enum\PropertyTypeEnum;
+use PHPFHIR\Enum\PHPScopeEnum;
 use PHPFHIR\Utilities\NameUtils;
 
 /**
@@ -12,28 +11,12 @@ class PropertyTemplate extends AbstractTemplate
 {
     /** @var string */
     protected $name;
-    /** @var PropertyScopeEnum */
+    /** @var PHPScopeEnum */
     protected $scope;
-    /** @var PropertyTypeEnum */
-    protected $type;
 
-    /**
-     * Constructor
-     *
-     * @param string $name
-     * @param PropertyScopeEnum $scope
-     * @param PropertyTypeEnum $type
-     */
-    public function __construct($name, PropertyScopeEnum $scope, PropertyTypeEnum $type)
-    {
-        if (NameUtils::isValidPropertyName($name))
-            $this->name = $name;
-        else
-            throw new \InvalidArgumentException('Specified parameter name "'.$name.'" is not valid.');
+    protected $isCollection = false;
 
-        $this->scope = $scope;
-        $this->type = $type;
-    }
+    protected $types = array();
 
     /**
      * @return string
@@ -44,7 +27,19 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @return string
+     * @param $name
+     */
+    public function setName($name)
+    {
+        if (NameUtils::isValidPropertyName($name))
+            $this->name = $name;
+        else
+            throw new \InvalidArgumentException('Specified property name "'.$name.'" is not valid.');
+
+    }
+
+    /**
+     * @return PHPScopeEnum
      */
     public function getScope()
     {
@@ -52,11 +47,43 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @return string
+     * @param PHPScopeEnum $scope
      */
-    public function getType()
+    public function setScope(PHPScopeEnum $scope)
     {
-        return $this->type;
+        $this->scope = $scope;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isCollection()
+    {
+        return $this->isCollection;
+    }
+
+    /**
+     * @param boolean $isCollection
+     */
+    public function setIsCollection($isCollection)
+    {
+        $this->isCollection = $isCollection;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function addType($type)
+    {
+        $this->types[] = $type;
     }
 
     /**
@@ -66,14 +93,31 @@ class PropertyTemplate extends AbstractTemplate
     {
         $output = "    /**\n";
 
-        if ($this->documentation)
-            $output = sprintf("%s     * %s\n", $this->documentation);
+        if (isset($this->documentation))
+        {
+            foreach($this->documentation as $doc)
+            {
+                $output = sprintf("%s     * %s\n", $output, $doc);
+            }
+        }
 
-        return <<<STRING
-{$output}
-     * @var {$this->type}
-     */
-    {$this->scope} \${$this->name};
-STRING;
+        if ($this->isCollection())
+        {
+            return sprintf("%s     * @var %s[]\n     */\n    %s %s = array();\n\n",
+                $output,
+                implode('|', $this->types),
+                (string)$this->getScope(),
+                NameUtils::getPropertyVariableName($this->getName())
+            );
+        }
+        else
+        {
+            return sprintf("%s     * @var %s\n     */\n    %s %s;\n\n",
+                $output,
+                implode('|', $this->types),
+                (string)$this->getScope(),
+                NameUtils::getPropertyVariableName($this->getName())
+            );
+        }
     }
 }

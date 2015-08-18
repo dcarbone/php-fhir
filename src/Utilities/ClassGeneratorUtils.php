@@ -1,6 +1,6 @@
 <?php namespace PHPFHIR\Utilities;
 
-use PHPFHIR\Enum\PropertySourceTypeEnum;
+use PHPFHIR\Enum\ElementTypeEnum;
 use PHPFHIR\Template\ClassTemplate;
 use PHPFHIR\XSDMap;
 
@@ -11,15 +11,82 @@ use PHPFHIR\XSDMap;
 abstract class ClassGeneratorUtils
 {
     /**
+     * @param XSDMap $XSDMap
      * @param array $data
      * @return ClassTemplate
      */
-    public static function buildClassTemplate(array $data)
+    public static function buildClassTemplate(XSDMap $XSDMap, array $data)
     {
-        return new ClassTemplate(
-            $data['rootNS'],
-            $data['className']
-        );
+        $classTemplate = new ClassTemplate();
+        $classTemplate->setClassName($data['className']);
+        $classTemplate->setNamespace($data['rootNS']);
+
+        foreach($data['sxe']->children('xs', true) as $_element)
+        {
+            /** @var \SimpleXMLElement $_element */
+
+            switch(strtolower($_element->getName()))
+            {
+                case ElementTypeEnum::ATTRIBUTE:
+                case ElementTypeEnum::CHOICE:
+                case ElementTypeEnum::SEQUENCE:
+                case ElementTypeEnum::UNION:
+                    PropertyGeneratorUtils::implementProperty($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::ANNOTATION:
+                    $classTemplate->setDocumentation(XMLUtils::getDocumentation($_element));
+                    break;
+
+                case ElementTypeEnum::COMPLEX_CONTENT:
+                    self::parseComplexContent($XSDMap, $_element, $classTemplate);
+                    break;
+            }
+        }
+
+        return $classTemplate;
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $complexContent
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseComplexContent(XSDMap $XSDMap, \SimpleXMLElement $complexContent, ClassTemplate $classTemplate)
+    {
+        foreach($complexContent->children('xs', true) as $_element)
+        {
+            /** @var \SimpleXMLElement $_element */
+            switch(strtolower($_element->getName()))
+            {
+                case ElementTypeEnum::EXTENSION:
+                    self::parseExtension($XSDMap, $_element, $classTemplate);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $extension
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseExtension(XSDMap $XSDMap, \SimpleXMLElement $extension, ClassTemplate $classTemplate)
+    {
+        self::determineExtendedClass($XSDMap, $extension, $classTemplate);
+        foreach($extension->children('xs', true) as $_element)
+        {
+            /** @var \SimpleXMLElement $_element */
+            switch(strtolower($_element->getName()))
+            {
+                case ElementTypeEnum::ATTRIBUTE:
+                case ElementTypeEnum::CHOICE:
+                case ElementTypeEnum::SEQUENCE:
+                case ElementTypeEnum::UNION:
+                    PropertyGeneratorUtils::implementProperty($XSDMap, $_element, $classTemplate);
+                    break;
+            }
+        }
     }
 
     /**
@@ -27,29 +94,6 @@ abstract class ClassGeneratorUtils
      * @param \SimpleXMLElement $sxe
      * @param ClassTemplate $classTemplate
      */
-    public static function determineRootProperties(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
-    {
-        foreach($sxe->xpath('xs:sequence') as $sequenceProperty)
-        {
-            PropertyGeneratorUtilities::implementSequenceProperty($XSDMap, $sequenceProperty, $classTemplate);
-        }
-
-        foreach($sxe->xpath('xs:choice') as $choiceProperty)
-        {
-
-        }
-
-        foreach($sxe->xpath('xs:attribute') as $attributeProperty)
-        {
-
-        }
-
-        foreach($sxe->xpath('xs:union') as $unionProperty)
-        {
-
-        }
-    }
-
     public static function determineExtendedClass(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
     {
         // First, attempt to determine if this class extends a base class

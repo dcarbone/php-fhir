@@ -70,4 +70,22 @@ abstract class NameUtils
     {
         return sprintf('FHIR%s', ucfirst(str_replace('.', '', $name)));
     }
+
+    /**
+     * @param string $propName
+     * @return string
+     */
+    public static function getPropertyMethodName($propName)
+    {
+        return ucfirst($propName);
+    }
+
+    /**
+     * @param string $propName
+     * @return string
+     */
+    public static function getPropertyVariableName($propName)
+    {
+        return sprintf('$%s', $propName);
+    }
 }

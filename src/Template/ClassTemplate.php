@@ -18,29 +18,10 @@ class ClassTemplate extends AbstractTemplate
     protected $className;
     /** @var string */
     protected $extends;
-    /** @var array */
-    protected $parameters = array();
-    /** @var array */
+    /** @var PropertyTemplate[] */
+    protected $properties = array();
+    /** @var MethodTemplate[] */
     protected $methods = array();
-
-    /**
-     * Constructor
-     *
-     * @param string $namespace
-     * @param string $className
-     */
-    public function __construct($namespace, $className)
-    {
-        if (NameUtils::isValidNSName($namespace))
-            $this->namespace = $namespace;
-        else
-            throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
-
-        if (NameUtils::isValidClassName($className))
-            $this->className = $className;
-        else
-            throw new \InvalidArgumentException('Class Name "' . $className . '" is not valid.');
-    }
 
     /**
      * @return string
@@ -56,6 +37,17 @@ class ClassTemplate extends AbstractTemplate
     public function getNamespace()
     {
         return $this->namespace;
+    }
+
+    /**
+     * @param string $namespace
+     */
+    public function setNamespace($namespace)
+    {
+        if (NameUtils::isValidNSName($namespace))
+            $this->namespace = $namespace;
+        else
+            throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
     }
 
     /**
@@ -83,6 +75,17 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
+     * @param string $className
+     */
+    public function setClassName($className)
+    {
+        if (NameUtils::isValidClassName($className))
+            $this->className = $className;
+        else
+            throw new \InvalidArgumentException('Class Name "' . $className . '" is not valid.');
+    }
+
+    /**
      * @param string $extends
      */
     public function setExtends($extends)
@@ -101,9 +104,9 @@ class ClassTemplate extends AbstractTemplate
     /**
      * @return array
      */
-    public function getParameters()
+    public function getProperties()
     {
-        return $this->parameters;
+        return $this->properties;
     }
 
     /**
@@ -115,11 +118,11 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @param PropertyTemplate $parameter
+     * @param PropertyTemplate $property
      */
-    public function addParameter(PropertyTemplate $parameter)
+    public function addProperty(PropertyTemplate $property)
     {
-        $this->parameters[$parameter->getName()] = $parameter;
+        $this->properties[$property->getName()] = $property;
     }
 
     /**
@@ -127,7 +130,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function addMethod(MethodTemplate $method)
     {
-        $this->parameters[$method->getName()] = $method;
+        $this->methods[$method->getName()] = $method;
     }
 
     // TODO: Possibly omit __toString use, and write directly to file.  Might be faster.
@@ -185,6 +188,16 @@ class ClassTemplate extends AbstractTemplate
             $output = sprintf("%sclass %s\n", $output, $this->getClassName());
 
         $output = sprintf("%s{\n", $output);
+
+        foreach($this->getProperties() as $property)
+        {
+            $output = sprintf('%s%s', $output, (string)$property);
+        }
+
+        foreach($this->getMethods() as $method)
+        {
+            $output = sprintf('%s%s', $output, (string)$method);
+        }
 
         return sprintf("%s\n}", $output);
     }

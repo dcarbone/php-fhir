@@ -3,6 +3,7 @@
 use PHPFHIR\Utilities\CopyrightUtils;
 use PHPFHIR\Utilities\FileUtils;
 use PHPFHIR\Utilities\ClassGeneratorUtils;
+use PHPFHIR\Utilities\PropertyGeneratorUtils;
 use PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -52,12 +53,7 @@ class Generator
     {
         foreach($this->XSDMap as $objectName=>$data)
         {
-            $classTemplate = ClassGeneratorUtils::buildClassTemplate($data);
-
-            $classTemplate->setDocumentation(XMLUtils::getDocumentation($data['sxe']));
-
-            ClassGeneratorUtils::determineExtendedClass($this->XSDMap, $data['sxe'], $classTemplate);
-            ClassGeneratorUtils::determineRootProperties($this->XSDMap, $data['sxe'], $classTemplate);
+            $classTemplate = ClassGeneratorUtils::buildClassTemplate($this->XSDMap, $data);
 
             FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
             // Just test what we have so far.

@@ -3,10 +3,10 @@
 use MyCLabs\Enum\Enum;
 
 /**
- * Class PropertyScopeEnum
+ * Class PHPScopeEnum
  * @package PHPFHIR\Enum
  */
-class PropertyScopeEnum extends Enum
+class PHPScopeEnum extends Enum
 {
     const _PRIVATE = 'private';
     const _PROTECTED = 'protected';
