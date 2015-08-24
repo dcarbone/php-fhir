@@ -11,12 +11,31 @@ class PropertyTemplate extends AbstractTemplate
 {
     /** @var string */
     protected $name;
+
     /** @var PHPScopeEnum */
     protected $scope;
 
+    /** @var bool */
     protected $isCollection = false;
 
+    /** @var array  */
     protected $types = array();
+
+    /**
+     * @param string $name
+     * @param PHPScopeEnum $scope
+     * @param bool $isCollection
+     */
+    public function __construct($name, PHPScopeEnum $scope, $isCollection)
+    {
+        if (NameUtils::isValidPropertyName($name))
+            $this->name = $name;
+        else
+            throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
+
+        $this->scope = $scope;
+        $this->isCollection = $isCollection;
+    }
 
     /**
      * @return string
@@ -24,18 +43,6 @@ class PropertyTemplate extends AbstractTemplate
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * @param $name
-     */
-    public function setName($name)
-    {
-        if (NameUtils::isValidPropertyName($name))
-            $this->name = $name;
-        else
-            throw new \InvalidArgumentException('Specified property name "'.$name.'" is not valid.');
-
     }
 
     /**
@@ -47,27 +54,11 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param PHPScopeEnum $scope
-     */
-    public function setScope(PHPScopeEnum $scope)
-    {
-        $this->scope = $scope;
-    }
-
-    /**
      * @return boolean
      */
     public function isCollection()
     {
         return $this->isCollection;
-    }
-
-    /**
-     * @param boolean $isCollection
-     */
-    public function setIsCollection($isCollection)
-    {
-        $this->isCollection = $isCollection;
     }
 
     /**
@@ -91,15 +82,7 @@ class PropertyTemplate extends AbstractTemplate
      */
     public function __toString()
     {
-        $output = "    /**\n";
-
-        if (isset($this->documentation))
-        {
-            foreach($this->documentation as $doc)
-            {
-                $output = sprintf("%s     * %s\n", $output, $doc);
-            }
-        }
+        $output = sprintf("    /**\n%s", self::_getDocumentationOutput());
 
         if ($this->isCollection())
         {

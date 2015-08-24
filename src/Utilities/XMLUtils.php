@@ -156,7 +156,7 @@ abstract class XMLUtils
      */
     public static function getClassesFromXSD(\SplFileInfo $file, XSDMap $xsdMap, $outputNS)
     {
-        $sxe = SimpleXMLBuilder::constructWithFileInfo($file);
+        $sxe = SimpleXMLUtils::constructWithFileInfo($file);
         foreach($sxe->children('xs', true) as $child)
         {
             /** @var \SimpleXMLElement $child */

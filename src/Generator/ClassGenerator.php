@@ -1,14 +1,15 @@
-<?php namespace PHPFHIR\Utilities;
+<?php namespace PHPFHIR\Generator;
 
 use PHPFHIR\Enum\ElementTypeEnum;
 use PHPFHIR\Template\ClassTemplate;
+use PHPFHIR\Utilities\XMLUtils;
 use PHPFHIR\XSDMap;
 
 /**
- * Class ClassGeneratorUtils
+ * Class ClassGenerator
  * @package PHPFHIR\Utilities
  */
-abstract class ClassGeneratorUtils
+abstract class ClassGenerator
 {
     /**
      * @param XSDMap $XSDMap
@@ -31,7 +32,7 @@ abstract class ClassGeneratorUtils
                 case ElementTypeEnum::CHOICE:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
-                    PropertyGeneratorUtils::implementProperty($XSDMap, $_element, $classTemplate);
+                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::ANNOTATION:
@@ -83,7 +84,7 @@ abstract class ClassGeneratorUtils
                 case ElementTypeEnum::CHOICE:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
-                    PropertyGeneratorUtils::implementProperty($XSDMap, $_element, $classTemplate);
+                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
                     break;
             }
         }

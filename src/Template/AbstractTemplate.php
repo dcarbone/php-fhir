@@ -33,4 +33,21 @@ abstract class AbstractTemplate
                 throw new \InvalidArgumentException('Documentation expected to be array, string, or null.');
         }
     }
+
+    /**
+     * @param int $spaces
+     * @return string
+     */
+    protected function _getDocumentationOutput($spaces = 5)
+    {
+        $output = '';
+        if (isset($this->documentation))
+        {
+            foreach($this->documentation as $doc)
+            {
+                $output = sprintf("%s%s* %s\n", str_repeat(' ', $spaces), $output, $doc);
+            }
+        }
+        return $output;
+    }
 }

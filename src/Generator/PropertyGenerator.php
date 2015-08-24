@@ -1,17 +1,19 @@
-<?php namespace PHPFHIR\Utilities;
+<?php namespace PHPFHIR\Generator;
 
 use PHPFHIR\Enum\ElementTypeEnum;
 use PHPFHIR\Enum\PHPScopeEnum;
 use PHPFHIR\Enum\SimplePropertyTypesEnum;
 use PHPFHIR\Template\ClassTemplate;
 use PHPFHIR\Template\PropertyTemplate;
+use PHPFHIR\Utilities\NameUtils;
+use PHPFHIR\Utilities\XMLUtils;
 use PHPFHIR\XSDMap;
 
 /**
- * Class PropertyGeneratorUtils
+ * Class PropertyGenerator
  * @package PHPFHIR\Utilities
  */
-abstract class PropertyGeneratorUtils
+abstract class PropertyGenerator
 {
     /**
      * @param SimplePropertyTypesEnum $type
@@ -79,16 +81,16 @@ abstract class PropertyGeneratorUtils
         switch(strtolower($propertyElement->getName()))
         {
             case ElementTypeEnum::ATTRIBUTE:
-                PropertyGeneratorUtils::implementAttributeProperty($XSDMap, $propertyElement, $classTemplate);
+                PropertyGenerator::implementAttributeProperty($XSDMap, $propertyElement, $classTemplate);
                 break;
             case ElementTypeEnum::CHOICE:
-                PropertyGeneratorUtils::implementChoiceProperty($XSDMap, $propertyElement, $classTemplate);
+                PropertyGenerator::implementChoiceProperty($XSDMap, $propertyElement, $classTemplate);
                 break;
             case ElementTypeEnum::SEQUENCE:
-                PropertyGeneratorUtils::implementSequenceProperty($XSDMap, $propertyElement, $classTemplate);
+                PropertyGenerator::implementSequenceProperty($XSDMap, $propertyElement, $classTemplate);
                 break;
             case ElementTypeEnum::UNION:
-                PropertyGeneratorUtils::implementUnionProperty($XSDMap, $propertyElement, $classTemplate);
+                PropertyGenerator::implementUnionProperty($XSDMap, $propertyElement, $classTemplate);
                 break;
         }
     }
@@ -104,7 +106,7 @@ abstract class PropertyGeneratorUtils
      */
     public static function buildProperty(XSDMap $XSDMap, $name, $type, $maxOccurs, $documentation, ClassTemplate $classTemplate)
     {
-        // TODO: Implement this better:
+        // TODO: Implement this better
         $type = str_replace('-primitive', '', $type);
 
         if (preg_match('{^[A-Z]}S', $type))
@@ -122,13 +124,8 @@ abstract class PropertyGeneratorUtils
      */
     public static function buildSimpleProperty($name, $type, $maxOccurs, $documentation)
     {
-        $propertyTemplate = new PropertyTemplate();
-
-        $propertyTemplate->setName($name);
+        $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
         $propertyTemplate->addType(self::getSimpleTypeVariableType(new SimplePropertyTypesEnum(strtolower($type))));
-        $propertyTemplate->setIsCollection('unbounded' === $maxOccurs || (is_numeric($maxOccurs) && (int)$maxOccurs > 1));
-        $propertyTemplate->setDocumentation($documentation);
-
         return $propertyTemplate;
     }
 
@@ -143,15 +140,39 @@ abstract class PropertyGeneratorUtils
      */
     public static function buildComplexProperty(XSDMap $XSDMap, $name, $type, $maxOccurs, $documentation, ClassTemplate $classTemplate)
     {
-        $propertyTemplate = new PropertyTemplate();
+        $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
+        $propertyTemplate->addType($XSDMap->getClassNameForObject($type));
 
         $classTemplate->addUse($XSDMap->getClassUseStatementForObject($type));
-        $propertyTemplate->addType($XSDMap->getClassNameForObject($type));
-        $propertyTemplate->setName($name);
-        $propertyTemplate->setIsCollection('unbounded' === $maxOccurs || (is_numeric($maxOccurs) && (int)$maxOccurs > 1));
+
+        return $propertyTemplate;
+    }
+
+    /**
+     * @param string $name
+     * @param string|number $maxOccurs
+     * @param array|string|null $documentation
+     * @return PropertyTemplate
+     */
+    public static function newPropertyTemplate($name, $maxOccurs, $documentation)
+    {
+        $propertyTemplate = new PropertyTemplate(
+            $name,
+            new PHPScopeEnum(PHPScopeEnum::_PRIVATE),
+            self::determineIfCollection($maxOccurs));
+
         $propertyTemplate->setDocumentation($documentation);
 
         return $propertyTemplate;
+    }
+
+    /**
+     * @param string|number $maxOccurs
+     * @return bool
+     */
+    public static function determineIfCollection($maxOccurs)
+    {
+        return 'unbounded' === $maxOccurs || (is_numeric($maxOccurs) && (int)$maxOccurs > 1);
     }
 
     /**
@@ -193,12 +214,9 @@ abstract class PropertyGeneratorUtils
                 XMLUtils::getDocumentation($element),
                 $classTemplate);
 
-            $propertyTemplate->setScope(new PHPScopeEnum('private'));
-            $propertyTemplate->setDocumentation(XMLUtils::getDocumentation($element));
-
             $classTemplate->addProperty($propertyTemplate);
 
-            MethodGeneratorUtils::implementMethodsForProperty($classTemplate, $propertyTemplate);
+            MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
         }
     }
 
@@ -239,12 +257,9 @@ abstract class PropertyGeneratorUtils
                 continue;
             }
 
-            $propTemplate->setScope(new PHPScopeEnum('private'));
-            $propTemplate->setDocumentation($documentation);
-
             $classTemplate->addProperty($propTemplate);
 
-            MethodGeneratorUtils::implementMethodsForProperty($classTemplate, $propTemplate);
+            MethodGenerator::implementMethodsForProperty($classTemplate, $propTemplate);
         }
     }
 
@@ -263,7 +278,7 @@ abstract class PropertyGeneratorUtils
 
         $classTemplate->addProperty($propertyTemplate);
 
-        MethodGeneratorUtils::implementMethodsForProperty($classTemplate, $propertyTemplate);
+        MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
     }
 
     public static function implementUnionProperty(XSDMap $XSDMap, \SimpleXMLElement $union, ClassTemplate $classTemplate)

@@ -1,9 +1,8 @@
 <?php namespace PHPFHIR;
 
+use PHPFHIR\Generator\ClassGenerator;
 use PHPFHIR\Utilities\CopyrightUtils;
 use PHPFHIR\Utilities\FileUtils;
-use PHPFHIR\Utilities\ClassGeneratorUtils;
-use PHPFHIR\Utilities\PropertyGeneratorUtils;
 use PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -41,7 +40,7 @@ class Generator
         if (!is_dir($outputPath))
             throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');
 
-        $this->outputNamespace = trim($outputNamespace, '\\');
+        $this->outputNamespace = trim($outputNamespace, "\\");
         $this->outputPath = $outputPath;
         $this->XSDMap = XMLUtils::buildXSDMap($this->xsdPath, $this->outputNamespace);
         $this->ClassMap = new ClassMap();
@@ -49,11 +48,14 @@ class Generator
         CopyrightUtils::loadCopyright($this->xsdPath);
     }
 
+    /**
+     * Generate FHIR object classes based on XSD
+     */
     public function generate()
     {
         foreach($this->XSDMap as $objectName=>$data)
         {
-            $classTemplate = ClassGeneratorUtils::buildClassTemplate($this->XSDMap, $data);
+            $classTemplate = ClassGenerator::buildClassTemplate($this->XSDMap, $data);
 
             FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
             // Just test what we have so far.

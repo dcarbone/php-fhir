@@ -1,10 +1,10 @@
 <?php namespace PHPFHIR\Utilities;
 
 /**
- * Class SimpleXMLBuilder
- * @package PHPFHIR
+ * Class SimpleXMLUtils
+ * @package PHPFHIR\Utilities
  */
-abstract class SimpleXMLBuilder
+abstract class SimpleXMLUtils
 {
     /**
      * @param string $filePath

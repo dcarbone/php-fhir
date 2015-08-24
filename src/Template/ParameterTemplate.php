@@ -11,15 +11,22 @@ class ParameterTemplate
     /** @var string */
     protected $name;
 
+    /** @var array */
+    protected $propertyTypes;
+
+    /** @var bool */
+    protected $propertyIsCollection;
+
     /**
-     * @param string $name
+     * Constructor
+     *
+     * @param PropertyTemplate $propertyTemplate
      */
-    public function __construct($name)
+    public function __construct(PropertyTemplate $propertyTemplate)
     {
-        if (NameUtils::isValidPropertyName($name))
-            $this->name = $name;
-        else
-            throw new \InvalidArgumentException('Specified parameter name "'.$name.'" is not valid.');
+        $this->name = $propertyTemplate->getName();
+        $this->propertyTypes = $propertyTemplate->getTypes();
+        $this->propertyIsCollection = $propertyTemplate->isCollection();
     }
 
     /**
@@ -31,11 +38,30 @@ class ParameterTemplate
     }
 
     /**
+     * @return array
+     */
+    public function getPropertyTypes()
+    {
+        return $this->propertyTypes;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function propertyIsCollection()
+    {
+        return $this->propertyIsCollection;
+    }
+
+    /**
      * @return string
      */
     public function getParamDocBlock()
     {
-        return sprintf('@param %s', NameUtils::getPropertyVariableName($this->getName()));
+        if ($this->propertyIsCollection)
+            return sprintf('@param %s[] %s', implode('[]|', $this->getPropertyTypes()), NameUtils::getPropertyVariableName($this->getName()));
+
+        return sprintf('@param %s %s', implode('|', $this->getPropertyTypes()), NameUtils::getPropertyVariableName($this->getName()));
     }
 
     /**
