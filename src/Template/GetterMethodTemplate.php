@@ -7,7 +7,7 @@ use PHPFHIR\Utilities\NameUtils;
  * Class GetterMethodTemplate
  * @package PHPFHIR\Template
  */
-class GetterMethodTemplate extends MethodTemplate
+class GetterMethodTemplate extends AbstractMethodTemplate
 {
     /** @var array */
     protected $propertyTypes;

@@ -4,10 +4,10 @@ use PHPFHIR\Enum\PHPScopeEnum;
 use PHPFHIR\Utilities\NameUtils;
 
 /**
- * Class MethodTemplate
+ * Class AbstractMethodTemplate
  * @package PHPFHIR\Template
  */
-abstract class MethodTemplate extends AbstractTemplate
+abstract class AbstractMethodTemplate extends AbstractTemplate
 {
     /** @var string */
     protected $name;

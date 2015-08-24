@@ -7,7 +7,7 @@ use PHPFHIR\Utilities\NameUtils;
  * Class SetterMethodTemplate
  * @package PHPFHIR\Template
  */
-class SetterMethodTemplate extends MethodTemplate
+class SetterMethodTemplate extends AbstractMethodTemplate
 {
     /** @var ParameterTemplate[] */
     protected $parameters = array();

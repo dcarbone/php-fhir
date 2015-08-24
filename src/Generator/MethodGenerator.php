@@ -1,9 +1,7 @@
 <?php namespace PHPFHIR\Generator;
 
-use PHPFHIR\Enum\PHPScopeEnum;
 use PHPFHIR\Template\ClassTemplate;
 use PHPFHIR\Template\GetterMethodTemplate;
-use PHPFHIR\Template\MethodTemplate;
 use PHPFHIR\Template\ParameterTemplate;
 use PHPFHIR\Template\PropertyTemplate;
 use PHPFHIR\Template\SetterMethodTemplate;

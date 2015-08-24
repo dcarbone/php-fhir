@@ -20,7 +20,7 @@ class ClassTemplate extends AbstractTemplate
     protected $extends;
     /** @var PropertyTemplate[] */
     protected $properties = array();
-    /** @var MethodTemplate[] */
+    /** @var AbstractMethodTemplate[] */
     protected $methods = array();
 
     /**
@@ -126,9 +126,9 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @param MethodTemplate $method
+     * @param AbstractMethodTemplate $method
      */
-    public function addMethod(MethodTemplate $method)
+    public function addMethod(AbstractMethodTemplate $method)
     {
         $this->methods[$method->getName()] = $method;
     }
