@@ -41,11 +41,12 @@ abstract class AbstractTemplate
     protected function _getDocumentationOutput($spaces = 5)
     {
         $output = '';
+        $spaces = str_repeat(' ', $spaces);
         if (isset($this->documentation))
         {
             foreach($this->documentation as $doc)
             {
-                $output = sprintf("%s%s* %s\n", str_repeat(' ', $spaces), $output, $doc);
+                $output = sprintf("%s%s* %s\n", $output, $spaces, $doc);
             }
         }
         return $output;

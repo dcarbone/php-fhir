@@ -163,7 +163,7 @@ class ClassTemplate extends AbstractTemplate
 
         $output = sprintf("%s%s\n\n", $output, CopyrightUtils::getHL7Copyright());
 
-        foreach($this->uses as $use)
+        foreach(array_unique($this->uses) as $use)
         {
             $output = sprintf("%suse %s;\n", $output, $use);
         }

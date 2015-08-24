@@ -199,24 +199,34 @@ abstract class PropertyGenerator
         }
         else
         {
-            $element = $elements[0];
+            foreach($elements as $element)
+            {
+                $attributes = $element->attributes();
+                $name = (string)$attributes['name'];
 
-            $attributes = $element->attributes();
-            $name = (string)$attributes['name'];
-            $type = (string)$attributes['type'];
-            $maxOccurs = (string)$attributes['maxOccurs'];
+                if ('' === $name)
+                {
+                    $ref = (string)$attributes['ref'];
+                    trigger_error(sprintf('Encountered property with no name and ref value "%s" on class "%s"', $ref, $classTemplate->getClassName()));
 
-            $propertyTemplate = self::buildProperty(
-                $XSDMap,
-                $name,
-                $type,
-                $maxOccurs,
-                XMLUtils::getDocumentation($element),
-                $classTemplate);
+                    continue;
+                }
 
-            $classTemplate->addProperty($propertyTemplate);
+                $type = (string)$attributes['type'];
+                $maxOccurs = (string)$attributes['maxOccurs'];
 
-            MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
+                $propertyTemplate = self::buildProperty(
+                    $XSDMap,
+                    $name,
+                    $type,
+                    $maxOccurs,
+                    XMLUtils::getDocumentation($element),
+                    $classTemplate);
+
+                $classTemplate->addProperty($propertyTemplate);
+
+                MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
+            }
         }
     }
 
