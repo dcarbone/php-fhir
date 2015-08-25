@@ -6,6 +6,7 @@ use PHPFHIR\Enum\SimplePropertyTypesEnum;
 use PHPFHIR\Template\ClassTemplate;
 use PHPFHIR\Template\PropertyTemplate;
 use PHPFHIR\Utilities\NameUtils;
+use PHPFHIR\Utilities\SimpleTypeUtils;
 use PHPFHIR\Utilities\XMLUtils;
 use PHPFHIR\XSDMap;
 
@@ -15,60 +16,6 @@ use PHPFHIR\XSDMap;
  */
 abstract class PropertyGenerator
 {
-    /**
-     * @param SimplePropertyTypesEnum $type
-     * @return string
-     */
-    public static function getSimpleTypeVariableType(SimplePropertyTypesEnum $type)
-    {
-        $strType = (string)$type;
-        switch($strType)
-        {
-            case SimplePropertyTypesEnum::BOOLEAN:
-            case SimplePropertyTypesEnum::INTEGER:
-            case SimplePropertyTypesEnum::STRING:
-                return $strType;
-
-            case SimplePropertyTypesEnum::DECIMAL:
-                return 'float';
-
-            case SimplePropertyTypesEnum::UUID:
-            case SimplePropertyTypesEnum::OID:
-            case SimplePropertyTypesEnum::ID:
-            case SimplePropertyTypesEnum::XML_ID_REF:
-            case SimplePropertyTypesEnum::URI:
-            case SimplePropertyTypesEnum::BASE_64_BINARY:
-            case SimplePropertyTypesEnum::CODE:
-                return 'string';
-
-            case SimplePropertyTypesEnum::INSTANT:
-            case SimplePropertyTypesEnum::DATE:
-            case SimplePropertyTypesEnum::DATETIME:
-                return '\\DateTime';
-
-            default:
-                throw new \RuntimeException('No variable type mapping exists for simple property "'.$strType.'"');
-        }
-    }
-
-    /**
-     * @param SimplePropertyTypesEnum $type
-     * @return null|string
-     */
-    public static function getSimpleTypeVariableTypeHintingValue(SimplePropertyTypesEnum $type)
-    {
-        switch((string)$type)
-        {
-            case SimplePropertyTypesEnum::INSTANT:
-            case SimplePropertyTypesEnum::DATE:
-            case SimplePropertyTypesEnum::DATETIME:
-                return '\\DateTime';
-
-            default:
-                return null;
-        }
-    }
-
     /**
      * TODO: I don't like how this is utilized, really.  Should think of a better way to do it.
      *
@@ -106,9 +53,6 @@ abstract class PropertyGenerator
      */
     public static function buildProperty(XSDMap $XSDMap, $name, $type, $maxOccurs, $documentation, ClassTemplate $classTemplate)
     {
-        // TODO: Implement this better
-        $type = str_replace('-primitive', '', $type);
-
         if (preg_match('{^[A-Z]}S', $type))
             return self::buildComplexProperty($XSDMap, $name, $type, $maxOccurs, $documentation, $classTemplate);
 
@@ -124,8 +68,15 @@ abstract class PropertyGenerator
      */
     public static function buildSimpleProperty($name, $type, $maxOccurs, $documentation)
     {
+        if (false !== ($pos = strpos($type, '-primitive')))
+            $type = substr($type, 0, $pos);
+
         $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
-        $propertyTemplate->addType(self::getSimpleTypeVariableType(new SimplePropertyTypesEnum(strtolower($type))));
+        $propertyTemplate->addType(
+            SimpleTypeUtils::getSimpleTypeVariableType(
+                new SimplePropertyTypesEnum(strtolower($type))
+            )
+        );
         return $propertyTemplate;
     }
 
@@ -172,7 +123,7 @@ abstract class PropertyGenerator
      */
     public static function determineIfCollection($maxOccurs)
     {
-        return 'unbounded' === $maxOccurs || (is_numeric($maxOccurs) && (int)$maxOccurs > 1);
+        return 'unbounded' === strtolower($maxOccurs) || (is_numeric($maxOccurs) && (int)$maxOccurs > 1);
     }
 
     /**
@@ -204,10 +155,11 @@ abstract class PropertyGenerator
                 $attributes = $element->attributes();
                 $name = (string)$attributes['name'];
 
+                // TODO: Handle these situations
                 if ('' === $name)
                 {
                     $ref = (string)$attributes['ref'];
-                    trigger_error(sprintf('Encountered property with no name and ref value "%s" on class "%s"', $ref, $classTemplate->getClassName()));
+                    trigger_error(sprintf('Encountered property with no name and with ref value "%s" on class "%s". Will not create property for it.', $ref, $classTemplate->getClassName()));
 
                     continue;
                 }
@@ -293,6 +245,6 @@ abstract class PropertyGenerator
 
     public static function implementUnionProperty(XSDMap $XSDMap, \SimpleXMLElement $union, ClassTemplate $classTemplate)
     {
-
+        // TODO: Implement these!
     }
 }

@@ -35,7 +35,7 @@ abstract class ClassTypeUtils
     {
         $name = XMLUtils::getObjectName($sxe);
         if (false !== strpos($name, '.'))
-            return new ComplexClassTypesEnum('Component');
+            return new ComplexClassTypesEnum(ComplexClassTypesEnum::COMPONENT);
 
         $baseName = XMLUtils::getBaseObjectName($sxe);
         if (null === $baseName)
@@ -45,7 +45,7 @@ abstract class ClassTypeUtils
         switch((string)$baseType)
         {
             case BaseObjectTypeEnum::BACKBONE_ELEMENT:
-                return new ComplexClassTypesEnum('Resource');
+                return new ComplexClassTypesEnum(ComplexClassTypesEnum::RESOURCE);
 
             default:
                 return new ComplexClassTypesEnum((string)$baseType);

@@ -6,6 +6,7 @@
  */
 abstract class CopyrightUtils
 {
+    /** @var string */
     private static $_copyright = null;
 
     /**

@@ -82,7 +82,7 @@ class ClassTemplate extends AbstractTemplate
         if (NameUtils::isValidClassName($className))
             $this->className = $className;
         else
-            throw new \InvalidArgumentException('Class Name "' . $className . '" is not valid.');
+            throw new \InvalidArgumentException('Class Name "'.$className.'" is not valid.');
     }
 
     /**

@@ -1,5 +1,5 @@
 {
-    "name": "php-fhir",
+    "name": "php-fhir/php-fhir",
     "description": "Tools for creating FHIR classes in PHP for use by a client.",
     "license": "GPL-2.0",
     "homepage": "https://github.com/dcarbone/php-fhir",

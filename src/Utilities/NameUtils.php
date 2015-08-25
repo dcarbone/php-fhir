@@ -53,8 +53,11 @@ abstract class NameUtils
      */
     public static function getSimpleTypeClassName($name)
     {
-        if (false !== strpos($name, '-'))
-            $name = strstr($name, '-', true);
+        if (false !== ($pos = strpos($name, '-primitive')))
+            $name = sprintf('%sPrimitive', substr($name, 0, $pos));
+
+        if (false !== ($pos = strpos($name, '-list')))
+            $name = sprintf('%sList', substr($name, 0, $pos));
 
         if (preg_match('{^[a-z]}S', $name))
             $name = ucfirst($name);

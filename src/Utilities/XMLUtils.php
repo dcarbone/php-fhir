@@ -132,6 +132,7 @@ abstract class XMLUtils
         self::getClassesFromXSD(new \SplFileInfo($xsdPath . 'fhir-base.xsd'), $xsdMap, $outputNS);
 
         // Then scoop up the rest
+        // TODO: Validate that, yes, certain files can be ignored.
         $finder = new Finder();
         $finder->files()
             ->in($xsdPath)
@@ -166,12 +167,6 @@ abstract class XMLUtils
             if ('' === $name)
                 continue;
 
-            // For now, we are not creating classes for primitive types
-            // Instead, they will be just scalar type'd
-            // TODO: Maybe make classes?
-            if (false !== strpos($name, '-primitive'))
-                continue;
-
             switch(strtolower($child->getName()))
             {
                 case ElementTypeEnum::COMPLEX_TYPE:
@@ -196,10 +191,17 @@ abstract class XMLUtils
                 default: continue 2;
             }
 
+            $nsSegments = explode('\\', $rootNS);
+            if (0 === count($nsSegments))
+                $pseudonym = sprintf('%sBase', $className);
+            else
+                $pseudonym = sprintf('%s%s', $className, end($nsSegments));
+
             $xsdMap[$name] = array(
                 'sxe' => $child,
                 'rootNS' => $rootNS,
                 'className' => $className,
+                'pseudonym' => $pseudonym,
             );
         }
     }

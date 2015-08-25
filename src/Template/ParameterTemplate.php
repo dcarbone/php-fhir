@@ -54,11 +54,12 @@ class ParameterTemplate
     }
 
     /**
+     * @param bool $forceSingle
      * @return string
      */
-    public function getParamDocBlock()
+    public function getParamDocBlock($forceSingle = false)
     {
-        if ($this->propertyIsCollection)
+        if ($this->propertyIsCollection && !$forceSingle)
             return sprintf('@param %s[] %s', implode('[]|', $this->getPropertyTypes()), NameUtils::getPropertyVariableName($this->getName()));
 
         return sprintf('@param %s %s', implode('|', $this->getPropertyTypes()), NameUtils::getPropertyVariableName($this->getName()));

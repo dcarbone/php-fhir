@@ -22,6 +22,18 @@ class XSDMap extends AbstractCollectionPlus
 
     /**
      * @param string $objectName
+     * @return string|null
+     */
+    public function getClassPseudonymForObject($objectName)
+    {
+        if (isset($this[$objectName]))
+            return $this[$objectName]['pseudonym'];
+
+        return null;
+    }
+
+    /**
+     * @param string $objectName
      * @return null|string
      */
     public function getClassUseStatementForObject($objectName)
