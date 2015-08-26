@@ -17,8 +17,6 @@ class Generator
     protected $outputNamespace;
     /** @var XSDMap */
     protected $XSDMap;
-    /** @var ClassMap */
-    protected $ClassMap;
 
     /**
      * Constructor
@@ -43,7 +41,6 @@ class Generator
         $this->outputNamespace = trim($outputNamespace, "\\");
         $this->outputPath = $outputPath;
         $this->XSDMap = XMLUtils::buildXSDMap($this->xsdPath, $this->outputNamespace);
-        $this->ClassMap = new ClassMap();
 
         CopyrightUtils::loadCopyright($this->xsdPath);
     }
