@@ -251,7 +251,7 @@ abstract class PropertyGenerator
         // TODO: Implement these!
     }
 
-    public function implementEnumerationProperty(XSDMap $XSDMap, \SimpleXMLElement $enumeration, ClassTemplate $classTemplate)
+    public static function implementEnumerationProperty(XSDMap $XSDMap, \SimpleXMLElement $enumeration, ClassTemplate $classTemplate)
     {
         // TODO: Implement these!
     }

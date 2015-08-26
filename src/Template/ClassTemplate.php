@@ -171,7 +171,8 @@ class ClassTemplate extends AbstractTemplate
         if ("\n\n" !== substr($output, -2))
             $output = sprintf("%s\n", $output);
 
-        $output = sprintf("%s/**\n%s */\n", $output, self::_getDocumentationOutput(1));
+        if (isset($this->documentation) && count($this->documentation) > 0)
+            $output = sprintf("%s/**\n%s */\n", $output, self::_getDocumentationOutput(1));
 
         if ($this->extends)
             $output = sprintf("%sclass %s extends %s\n", $output, $this->getClassName(), $this->getExtends());
