@@ -3,10 +3,10 @@
 use MyCLabs\Enum\Enum;
 
 /**
- * Class SimplePropertyTypesEnum
+ * Class PrimitivePropertyTypesEnum
  * @package PHPFHIR\Enum
  */
-class SimplePropertyTypesEnum extends Enum
+class PrimitivePropertyTypesEnum extends Enum
 {
     const BOOLEAN = 'boolean';
     const INTEGER = 'integer';

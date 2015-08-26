@@ -37,7 +37,7 @@ abstract class XMLUtils
      * @param \SimpleXMLElement $restrictionElement
      * @return null|string
      */
-    public static function getRestrictionObjectName(\SimpleXMLElement $restrictionElement)
+    public static function getObjectRestrictionBaseName(\SimpleXMLElement $restrictionElement)
     {
         if ('restriction' !== $restrictionElement->getName())
         {
@@ -52,21 +52,14 @@ abstract class XMLUtils
         }
 
         $attributes = $restrictionElement->attributes();
-
-        // For now, we are not imposing any kind of primitive type value restriction
-        // TODO: Implement this.
-        $base = (string)$attributes['base'];
-        if (0 === strpos($base, 'xs:'))
-            return null;
-
-        return $base;
+        return (string)$attributes['base'];
     }
 
     /**
      * @param \SimpleXMLElement $sxe
      * @return null|string
      */
-    public static function getObjectName(\SimpleXMLElement $sxe)
+    public static function getObjectNameFromElement(\SimpleXMLElement $sxe)
     {
         $attributes = $sxe->attributes();
 
@@ -102,18 +95,16 @@ abstract class XMLUtils
             return null;
 
         $documentation = $annotation->xpath('xs:documentation');
-        switch(count($documentation))
+
+        if (0 === count($documentation))
+            return null;
+
+        $return = array();
+        foreach($documentation as $element)
         {
-            case 0: return null;
-            case 1: return (string)$documentation[0];
-            default:
-                $return = array();
-                foreach($documentation as $element)
-                {
-                    $return[] = (string)$element;
-                }
-                return $return;
+            $return[] = (string)$element;
         }
+        return $return;
     }
 
     /**
@@ -166,6 +157,11 @@ abstract class XMLUtils
 
             if ('' === $name)
                 continue;
+
+//            // Primitive types represented as internal PHP types for the moment
+//            // TODO: Implement primitive type classes with support for XML facets
+//            if (false !== strpos($name, '-primitive'))
+//                continue;
 
             switch(strtolower($child->getName()))
             {

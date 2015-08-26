@@ -1,5 +1,5 @@
 {
-    "name": "php-fhir/php-fhir",
+    "name": "php-fhir",
     "description": "Tools for creating FHIR classes in PHP for use by a client.",
     "license": "GPL-2.0",
     "homepage": "https://github.com/dcarbone/php-fhir",
@@ -12,8 +12,9 @@
     "require": {
         "php": ">=5.3.3",
         "symfony/finder": "2.6.*",
-        "dcarbone/collection-plus": "3.1.*",
-        "myclabs/php-enum": "1.4.*"
+        "myclabs/php-enum": "1.4.*",
+        "dcarbone/xml-primitive-types": "0.0.*",
+        "dcarbone/collection-plus": "3.1.*"
     },
 
     "autoload": {

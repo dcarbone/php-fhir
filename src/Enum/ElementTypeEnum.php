@@ -22,4 +22,5 @@ class ElementTypeEnum extends Enum
     const UNION = 'union';
     const ELEMENT = 'element';
     const CHOICE = 'choice';
+    const ENUMERATION = 'enumeration';
 }

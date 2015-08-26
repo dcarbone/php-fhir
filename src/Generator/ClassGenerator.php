@@ -2,6 +2,7 @@
 
 use PHPFHIR\Enum\ElementTypeEnum;
 use PHPFHIR\Template\ClassTemplate;
+use PHPFHIR\Utilities\PrimitiveTypeUtils;
 use PHPFHIR\Utilities\XMLUtils;
 use PHPFHIR\XSDMap;
 
@@ -25,7 +26,6 @@ abstract class ClassGenerator
         foreach($data['sxe']->children('xs', true) as $_element)
         {
             /** @var \SimpleXMLElement $_element */
-
             switch(strtolower($_element->getName()))
             {
                 case ElementTypeEnum::ATTRIBUTE:
@@ -41,6 +41,10 @@ abstract class ClassGenerator
 
                 case ElementTypeEnum::COMPLEX_CONTENT:
                     self::parseComplexContent($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::RESTRICTION:
+                    self::parseRestriction($XSDMap, $_element, $classTemplate);
                     break;
             }
         }
@@ -69,12 +73,36 @@ abstract class ClassGenerator
 
     /**
      * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $restriction
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseRestriction(XSDMap $XSDMap, \SimpleXMLElement $restriction, ClassTemplate $classTemplate)
+    {
+        self::determineParentClass($XSDMap, $restriction, $classTemplate);
+        foreach($restriction->children('xs', true) as $_element)
+        {
+            /** @var \SimpleXMLElement $_element */
+            switch(strtolower($_element->getName()))
+            {
+                case ElementTypeEnum::ATTRIBUTE:
+                case ElementTypeEnum::CHOICE:
+                case ElementTypeEnum::SEQUENCE:
+                case ElementTypeEnum::UNION:
+                case ElementTypeEnum::ENUMERATION:
+                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @param XSDMap $XSDMap
      * @param \SimpleXMLElement $extension
      * @param ClassTemplate $classTemplate
      */
     public static function parseExtension(XSDMap $XSDMap, \SimpleXMLElement $extension, ClassTemplate $classTemplate)
     {
-        self::determineExtendedClass($XSDMap, $extension, $classTemplate);
+        self::determineParentClass($XSDMap, $extension, $classTemplate);
         foreach($extension->children('xs', true) as $_element)
         {
             /** @var \SimpleXMLElement $_element */
@@ -84,6 +112,7 @@ abstract class ClassGenerator
                 case ElementTypeEnum::CHOICE:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
+                case ElementTypeEnum::ENUMERATION:
                     PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
                     break;
             }
@@ -95,7 +124,7 @@ abstract class ClassGenerator
      * @param \SimpleXMLElement $sxe
      * @param ClassTemplate $classTemplate
      */
-    public static function determineExtendedClass(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
+    public static function determineParentClass(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
     {
         // First, attempt to determine if this class extends a base class
         if ($baseObjectName = XMLUtils::getBaseObjectName($sxe))
@@ -106,10 +135,20 @@ abstract class ClassGenerator
             $classTemplate->setExtends($baseClassName);
         }
         // Otherwise, attempt to find a "restriction" class to extend
-        else if ($restrictionObjectName = XMLUtils::getRestrictionObjectName($sxe))
+        else if ($restrictionObjectName = XMLUtils::getObjectRestrictionBaseName($sxe))
         {
-            $baseClassName = $XSDMap->getClassNameForObject($restrictionObjectName);
-            $useStatement = $XSDMap->getClassUseStatementForObject($restrictionObjectName);
+            if (0 === strpos($restrictionObjectName, 'xs:'))
+            {
+                $xmlPrimitive = PrimitiveTypeUtils::getXMLPrimitiveTypeClass(substr($restrictionObjectName, 3));
+                $useStatement = get_class($xmlPrimitive);
+                $baseClassName = basename($useStatement);
+            }
+            else
+            {
+                $baseClassName = $XSDMap->getClassNameForObject($restrictionObjectName);
+                $useStatement = $XSDMap->getClassUseStatementForObject($restrictionObjectName);
+            }
+
             $classTemplate->addUse($useStatement);
             $classTemplate->setExtends($baseClassName);
         }

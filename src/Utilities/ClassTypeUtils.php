@@ -17,7 +17,7 @@ abstract class ClassTypeUtils
     public static function getSimpleClassType($input)
     {
         if ($input instanceof \SimpleXMLElement)
-            $name = XMLUtils::getObjectName($input);
+            $name = XMLUtils::getObjectNameFromElement($input);
         else
             $name = $input;
 
@@ -33,7 +33,7 @@ abstract class ClassTypeUtils
      */
     public static function getComplexClassType(\SimpleXMLElement $sxe)
     {
-        $name = XMLUtils::getObjectName($sxe);
+        $name = XMLUtils::getObjectNameFromElement($sxe);
         if (false !== strpos($name, '.'))
             return new ComplexClassTypesEnum(ComplexClassTypesEnum::COMPONENT);
 

@@ -2,11 +2,11 @@
 
 use PHPFHIR\Enum\ElementTypeEnum;
 use PHPFHIR\Enum\PHPScopeEnum;
-use PHPFHIR\Enum\SimplePropertyTypesEnum;
+use PHPFHIR\Enum\PrimitivePropertyTypesEnum;
 use PHPFHIR\Template\ClassTemplate;
 use PHPFHIR\Template\PropertyTemplate;
 use PHPFHIR\Utilities\NameUtils;
-use PHPFHIR\Utilities\SimpleTypeUtils;
+use PHPFHIR\Utilities\PrimitiveTypeUtils;
 use PHPFHIR\Utilities\XMLUtils;
 use PHPFHIR\XSDMap;
 
@@ -28,16 +28,19 @@ abstract class PropertyGenerator
         switch(strtolower($propertyElement->getName()))
         {
             case ElementTypeEnum::ATTRIBUTE:
-                PropertyGenerator::implementAttributeProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementAttributeProperty($XSDMap, $propertyElement, $classTemplate);
                 break;
             case ElementTypeEnum::CHOICE:
-                PropertyGenerator::implementChoiceProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementChoiceProperty($XSDMap, $propertyElement, $classTemplate);
                 break;
             case ElementTypeEnum::SEQUENCE:
-                PropertyGenerator::implementSequenceProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementSequenceProperty($XSDMap, $propertyElement, $classTemplate);
                 break;
             case ElementTypeEnum::UNION:
-                PropertyGenerator::implementUnionProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementUnionProperty($XSDMap, $propertyElement, $classTemplate);
+                break;
+            case ElementTypeEnum::ENUMERATION:
+                self::implementEnumerationProperty($XSDMap, $propertyElement, $classTemplate);
                 break;
         }
     }
@@ -73,8 +76,8 @@ abstract class PropertyGenerator
 
         $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
         $propertyTemplate->addType(
-            SimpleTypeUtils::getSimpleTypeVariableType(
-                new SimplePropertyTypesEnum(strtolower($type))
+            PrimitiveTypeUtils::getSimpleTypeVariableType(
+                new PrimitivePropertyTypesEnum(strtolower($type))
             )
         );
         return $propertyTemplate;
@@ -244,6 +247,11 @@ abstract class PropertyGenerator
     }
 
     public static function implementUnionProperty(XSDMap $XSDMap, \SimpleXMLElement $union, ClassTemplate $classTemplate)
+    {
+        // TODO: Implement these!
+    }
+
+    public function implementEnumerationProperty(XSDMap $XSDMap, \SimpleXMLElement $enumeration, ClassTemplate $classTemplate)
     {
         // TODO: Implement these!
     }
