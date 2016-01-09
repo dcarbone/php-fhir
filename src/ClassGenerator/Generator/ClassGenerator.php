@@ -1,14 +1,30 @@
-<?php namespace PHPFHIR\Generator;
+<?php namespace PHPFHIR\ClassGenerator\Generator;
 
-use PHPFHIR\Enum\ElementTypeEnum;
-use PHPFHIR\Template\ClassTemplate;
-use PHPFHIR\Utilities\PrimitiveTypeUtils;
-use PHPFHIR\Utilities\XMLUtils;
-use PHPFHIR\XSDMap;
+/*
+ * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use PHPFHIR\ClassGenerator\Template\ClassTemplate;
+use PHPFHIR\ClassGenerator\Utilities\PrimitiveTypeUtils;
+use PHPFHIR\ClassGenerator\Utilities\XMLUtils;
+use PHPFHIR\ClassGenerator\XSDMap;
 
 /**
  * Class ClassGenerator
- * @package PHPFHIR\Utilities
+ * @package PHPFHIR\ClassGenerator\Utilities
  */
 abstract class ClassGenerator
 {
@@ -19,9 +35,7 @@ abstract class ClassGenerator
      */
     public static function buildClassTemplate(XSDMap $XSDMap, array $data)
     {
-        $classTemplate = new ClassTemplate();
-        $classTemplate->setClassName($data['className']);
-        $classTemplate->setNamespace($data['rootNS']);
+        $classTemplate = new ClassTemplate($data['className'], $data['rootNS'], $data['pseudonym']);
 
         foreach($data['sxe']->children('xs', true) as $_element)
         {
@@ -130,9 +144,11 @@ abstract class ClassGenerator
         if ($baseObjectName = XMLUtils::getBaseObjectName($sxe))
         {
             $baseClassName = $XSDMap->getClassNameForObject($baseObjectName);
-            $useStatement = $XSDMap->getClassUseStatementForObject($baseObjectName);
-            $classTemplate->addUse($useStatement);
             $classTemplate->setExtends($baseClassName);
+
+            $useStatement = $XSDMap->getClassUseStatementForObject($baseObjectName);
+            if ($useStatement)
+                $classTemplate->addUse($useStatement);
         }
         // Otherwise, attempt to find a "restriction" class to extend
         else if ($restrictionObjectName = XMLUtils::getObjectRestrictionBaseName($sxe))
@@ -149,8 +165,10 @@ abstract class ClassGenerator
                 $useStatement = $XSDMap->getClassUseStatementForObject($restrictionObjectName);
             }
 
-            $classTemplate->addUse($useStatement);
             $classTemplate->setExtends($baseClassName);
+
+            if ($useStatement)
+                $classTemplate->addUse($useStatement);
         }
     }
 }

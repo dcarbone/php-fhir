@@ -1,18 +1,34 @@
-<?php namespace PHPFHIR\Generator;
+<?php namespace PHPFHIR\ClassGenerator\Generator;
 
-use PHPFHIR\Enum\ElementTypeEnum;
-use PHPFHIR\Enum\PHPScopeEnum;
-use PHPFHIR\Enum\PrimitivePropertyTypesEnum;
-use PHPFHIR\Template\ClassTemplate;
-use PHPFHIR\Template\PropertyTemplate;
-use PHPFHIR\Utilities\NameUtils;
-use PHPFHIR\Utilities\PrimitiveTypeUtils;
-use PHPFHIR\Utilities\XMLUtils;
-use PHPFHIR\XSDMap;
+/*
+ * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
+use PHPFHIR\ClassGenerator\Enum\PrimitivePropertyTypesEnum;
+use PHPFHIR\ClassGenerator\Template\ClassTemplate;
+use PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use PHPFHIR\ClassGenerator\Utilities\PrimitiveTypeUtils;
+use PHPFHIR\ClassGenerator\Utilities\XMLUtils;
+use PHPFHIR\ClassGenerator\XSDMap;
 
 /**
  * Class PropertyGenerator
- * @package PHPFHIR\Utilities
+ * @package PHPFHIR\ClassGenerator\Utilities
  */
 abstract class PropertyGenerator
 {
@@ -97,7 +113,9 @@ abstract class PropertyGenerator
         $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
         $propertyTemplate->addType($XSDMap->getClassNameForObject($type));
 
-        $classTemplate->addUse($XSDMap->getClassUseStatementForObject($type));
+        $useStatement = $XSDMap->getClassUseStatementForObject($type);
+        if ($useStatement)
+            $classTemplate->addUse($useStatement);
 
         return $propertyTemplate;
     }
@@ -162,7 +180,14 @@ abstract class PropertyGenerator
                 if ('' === $name)
                 {
                     $ref = (string)$attributes['ref'];
-                    trigger_error(sprintf('Encountered property with no name and with ref value "%s" on class "%s". Will not create property for it.', $ref, $classTemplate->getClassName()));
+                    trigger_error(
+                        sprintf(
+                            'Encountered property with no name and with ref value "%s" on class "%s". Will not create property for it.',
+                            $ref,
+                            $classTemplate->getClassName()
+                        ),
+                        E_USER_NOTICE
+                    );
 
                     continue;
                 }

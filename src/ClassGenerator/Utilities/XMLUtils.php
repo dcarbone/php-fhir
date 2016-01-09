@@ -1,13 +1,29 @@
-<?php namespace PHPFHIR\Utilities;
+<?php namespace PHPFHIR\ClassGenerator\Utilities;
 
-use PHPFHIR\Enum\ElementTypeEnum;
-use PHPFHIR\XSDMap;
+/*
+ * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use PHPFHIR\ClassGenerator\XSDMap;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Class XMLUtils
- * @package PHPFHIR\Utilities
+ * @package PHPFHIR\ClassGenerator\Utilities
  */
 abstract class XMLUtils
 {
@@ -120,7 +136,7 @@ abstract class XMLUtils
             throw new \RuntimeException('Unable to locate "fhir-base.xsd"');
 
         // First get class references in fhir-base.xsd
-        self::getClassesFromXSD(new \SplFileInfo($xsdPath . 'fhir-base.xsd'), $xsdMap, $outputNS);
+        self::parseClassesFromXSD(new \SplFileInfo($xsdPath . 'fhir-base.xsd'), $xsdMap, $outputNS);
 
         // Then scoop up the rest
         // TODO: Validate that, yes, certain files can be ignored.
@@ -135,7 +151,7 @@ abstract class XMLUtils
         foreach($finder as $file)
         {
             /** @var SplFileInfo $file */
-            self::getClassesFromXSD($file, $xsdMap, $outputNS);
+            self::parseClassesFromXSD($file, $xsdMap, $outputNS);
         }
 
         return $xsdMap;
@@ -146,7 +162,7 @@ abstract class XMLUtils
      * @param XSDMap $xsdMap
      * @param string $outputNS
      */
-    public static function getClassesFromXSD(\SplFileInfo $file, XSDMap $xsdMap, $outputNS)
+    public static function parseClassesFromXSD(\SplFileInfo $file, XSDMap $xsdMap, $outputNS)
     {
         $sxe = SimpleXMLUtils::constructWithFileInfo($file);
         foreach($sxe->children('xs', true) as $child)

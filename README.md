@@ -23,6 +23,11 @@ $generator->generate();
 
 The generated classes will be placed under ` php-fhir/output/ `.
 
+## Known Things
+
+- Implementation of value-restricted properties and objects
+- Optional value validity checking
+
 ## Testing
 
 At the moment, due to how much change is happening within the lib, I am testing this lib against the DSTU 1 spec.

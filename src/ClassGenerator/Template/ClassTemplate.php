@@ -1,27 +1,77 @@
-<?php namespace PHPFHIR\Template;
+<?php namespace PHPFHIR\ClassGenerator\Template;
 
-use PHPFHIR\Utilities\CopyrightUtils;
-use PHPFHIR\Utilities\FileUtils;
-use PHPFHIR\Utilities\NameUtils;
+/*
+ * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use PHPFHIR\ClassGenerator\Utilities\FileUtils;
+use PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
  * Class ClassTemplate
- * @package PHPFHIR\Template
+ * @package PHPFHIR\ClassGenerator\Template
  */
 class ClassTemplate extends AbstractTemplate
 {
     /** @var string */
+    protected $className;
+
+    /** @var string */
+    protected $pseudonym;
+
+    /** @var string */
     protected $namespace;
+
     /** @var array */
     protected $uses = array();
-    /** @var string */
-    protected $className;
+
     /** @var string */
     protected $extends;
+
     /** @var PropertyTemplate[] */
     protected $properties = array();
+
     /** @var AbstractMethodTemplate[] */
     protected $methods = array();
+
+    /**
+     * Constructor
+     *
+     * @param string $className
+     * @param string $namespace
+     * @param string $pseudonym
+     */
+    public function __construct($className, $namespace, $pseudonym)
+    {
+        if (NameUtils::isValidClassName($className))
+            $this->className = $className;
+        else
+            throw new \InvalidArgumentException('Class Name "'.$className.'" is not valid.');
+
+        if (NameUtils::isValidNSName($namespace))
+            $this->namespace = $namespace;
+        else
+            throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
+
+
+        if (NameUtils::isValidClassName($pseudonym))
+            $this->pseudonym = $pseudonym;
+        else
+            throw new \InvalidArgumentException('Class Pseudonym "'.$pseudonym.'" is not valid.');
+    }
 
     /**
      * @return string
@@ -37,17 +87,6 @@ class ClassTemplate extends AbstractTemplate
     public function getNamespace()
     {
         return $this->namespace;
-    }
-
-    /**
-     * @param string $namespace
-     */
-    public function setNamespace($namespace)
-    {
-        if (NameUtils::isValidNSName($namespace))
-            $this->namespace = $namespace;
-        else
-            throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
     }
 
     /**
@@ -75,14 +114,11 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @param string $className
+     * @return string
      */
-    public function setClassName($className)
+    public function getPseudonym()
     {
-        if (NameUtils::isValidClassName($className))
-            $this->className = $className;
-        else
-            throw new \InvalidArgumentException('Class Name "'.$className.'" is not valid.');
+        return $this->pseudonym;
     }
 
     /**
@@ -133,7 +169,7 @@ class ClassTemplate extends AbstractTemplate
         $this->methods[$method->getName()] = $method;
     }
 
-    // TODO: Possibly omit __toString use, and write directly to file.  Might be faster.
+    // TODO: Possibly omit __toString use and write directly to file.
 
     /**
      * @param string $outputPath
@@ -161,12 +197,7 @@ class ClassTemplate extends AbstractTemplate
         else
             $output = sprintf("<?php namespace %s;\n\n", $ns);
 
-        $output = sprintf("%s%s\n\n", $output, CopyrightUtils::getHL7Copyright());
-
-        foreach(array_unique($this->uses) as $use)
-        {
-            $output = sprintf("%suse %s;\n", $output, $use);
-        }
+        $output = sprintf("%s%s\n\n%s", $output, CopyrightUtils::getHL7Copyright(), $this->_compileUseStatements());
 
         if ("\n\n" !== substr($output, -2))
             $output = sprintf("%s\n", $output);
@@ -192,5 +223,33 @@ class ClassTemplate extends AbstractTemplate
         }
 
         return sprintf("%s\n}", $output);
+    }
+
+    /**
+     * @return string
+     */
+    private function _compileUseStatements()
+    {
+        $useStatement = '';
+
+        $thisClassName = $this->getClassName();
+        $usedClasses = array();
+        foreach(array_unique($this->getUses()) as $use)
+        {
+            $usedClasses[] = $use;
+        }
+
+        $usedClasses = array_count_values($usedClasses);
+        ksort($usedClasses);
+
+        foreach($usedClasses as $usedClass=>$timesImported)
+        {
+            if ($usedClass == $thisClassName)
+                continue;
+
+            $useStatement = sprintf("%suse %s;\n", $useStatement, ltrim($usedClass, "\\"));
+        }
+
+        return $useStatement;
     }
 }
