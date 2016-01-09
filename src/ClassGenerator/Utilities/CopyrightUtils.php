@@ -51,7 +51,7 @@ abstract class CopyrightUtils
             sprintf('Class creation date: %s', self::$_standardDate),
         );
 
-        $fhirBase = sprintf('%sfhir-all.xsd', $xsdPath);
+        $fhirBase = sprintf('%s/fhir-all.xsd', $xsdPath);
         $fh = fopen($fhirBase, 'rb');
         if ($fh)
         {

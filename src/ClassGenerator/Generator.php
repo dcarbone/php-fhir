@@ -24,8 +24,6 @@ use PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 
 /**
- *
- *
  * Class Generator
  * @package PHPFHIR
  */
@@ -59,10 +57,10 @@ class Generator
         if (false === NameUtils::isValidNSName($outputNamespace))
             throw new \InvalidArgumentException('Invalid namespace "'.$outputNamespace.'" specified.');
 
-        $this->xsdPath = rtrim($xsdPath, "/\\").'/';
+        $this->xsdPath = rtrim($xsdPath, "/\\");
 
         if (null === $outputPath)
-            $outputPath = sprintf('%s/../../output', __DIR__);
+            $outputPath = realpath(sprintf('%s/../../output', __DIR__));
 
         if (!is_dir($outputPath))
             throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');

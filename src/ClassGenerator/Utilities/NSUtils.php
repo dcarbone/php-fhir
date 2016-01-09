@@ -74,10 +74,15 @@ abstract class NSUtils
     {
         switch((string)$type)
         {
+            case ComplexClassTypesEnum::DOMAIN_RESOURCE:
+                return 'FHIRDomainResource';
+
             case ComplexClassTypesEnum::RESOURCE:
                 return 'FHIRResource';
+
             case ComplexClassTypesEnum::ELEMENT:
                 return 'FHIRElement';
+
             case ComplexClassTypesEnum::COMPONENT:
                 return sprintf('FHIRResource\\FHIR%s', strstr($name, '.', true));
 

@@ -132,11 +132,11 @@ abstract class XMLUtils
     {
         $xsdMap = new XSDMap();
 
-        if (!file_exists($xsdPath.'fhir-base.xsd'))
+        if (!file_exists($xsdPath.'/fhir-base.xsd'))
             throw new \RuntimeException('Unable to locate "fhir-base.xsd"');
 
         // First get class references in fhir-base.xsd
-        self::parseClassesFromXSD(new \SplFileInfo($xsdPath . 'fhir-base.xsd'), $xsdMap, $outputNS);
+        self::parseClassesFromXSD(new \SplFileInfo($xsdPath.'/fhir-base.xsd'), $xsdMap, $outputNS);
 
         // Then scoop up the rest
         // TODO: Validate that, yes, certain files can be ignored.
