@@ -51,20 +51,20 @@ abstract class CopyrightUtils
             sprintf('Class creation date: %s', self::$_standardDate),
         );
 
-        $fhirBase = sprintf('%s/fhir-all.xsd', $xsdPath);
+        $fhirBase = sprintf('%s/fhir-base.xsd', $xsdPath);
         $fh = fopen($fhirBase, 'rb');
         if ($fh)
         {
             $inComment = false;
             while($line = fgets($fh))
             {
-                $line = trim($line);
+                $line = rtrim($line);
 
                 if ('-->' === $line)
                     break;
 
                 if ($inComment)
-                    self::$_fhirCopyright[] = $line;
+                    self::$_fhirCopyright[] = html_entity_decode($line);
 
                 if ('<!--' === $line)
                     $inComment = true;
