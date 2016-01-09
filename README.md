@@ -30,8 +30,8 @@ The generated classes will be placed under ` php-fhir/output/ `.
 
 ## Testing
 
-At the moment, due to how much change is happening within the lib, I am testing this lib against the DSTU 1 spec.
-Future development will support all official DSTU releases of FHIR.
+Currently this library is being tested against v0.0.82 and v1.0.2.  For a version history of FHIR, see here:
+[http://hl7.org/fhir/directory.html](http://hl7.org/fhir/directory.html)
 
 ## Suggestions and help
 

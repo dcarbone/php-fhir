@@ -244,7 +244,7 @@ class ClassTemplate extends AbstractTemplate
 
         foreach($usedClasses as $usedClass=>$timesImported)
         {
-            if ($usedClass == $thisClassName)
+            if ($usedClass == $thisClassName || $timesImported < 1)
                 continue;
 
             $useStatement = sprintf("%suse %s;\n", $useStatement, ltrim($usedClass, "\\"));

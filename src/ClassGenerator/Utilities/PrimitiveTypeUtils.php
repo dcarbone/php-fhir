@@ -37,13 +37,16 @@ abstract class PrimitiveTypeUtils
         $strType = (string)$type;
         switch($strType)
         {
-            case PrimitivePropertyTypesEnum::NEGATIVE_INTEGER:
-            case PrimitivePropertyTypesEnum::POSITIVE_INTEGER:
             case PrimitivePropertyTypesEnum::BOOLEAN:
             case PrimitivePropertyTypesEnum::INTEGER:
-            case PrimitivePropertyTypesEnum::UNSIGNED_INTEGER:
             case PrimitivePropertyTypesEnum::STRING:
                 return $strType;
+
+
+            case PrimitivePropertyTypesEnum::NEGATIVE_INTEGER:
+            case PrimitivePropertyTypesEnum::POSITIVE_INTEGER:
+            case PrimitivePropertyTypesEnum::UNSIGNED_INTEGER:
+                return 'integer';
 
             case PrimitivePropertyTypesEnum::DECIMAL:
                 return 'float';

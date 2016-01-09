@@ -27,6 +27,18 @@ abstract class NameUtils
     const CLASSNAME_REGEX = '{^[a-zA-Z0-9_]+$}S';
     const NSNAME_REGEX = '{^[a-zA-Z\\\_]+$}S';
 
+    /** @var array */
+    public static $classNameSearch = array(
+        '.',
+        '-',
+    );
+
+    /** @var array */
+    public static $classNameReplace = array(
+        '',
+        '_'
+    );
+
     /**
      * @param string $name
      * @return bool
@@ -78,7 +90,7 @@ abstract class NameUtils
         if (preg_match('{^[a-z]}S', $name))
             $name = ucfirst($name);
 
-        return sprintf('FHIR%s', $name);
+        return sprintf('FHIR%s', str_replace(self::$classNameSearch, self::$classNameReplace, $name));
     }
 
     /**
@@ -87,7 +99,7 @@ abstract class NameUtils
      */
     public static function getComplexTypeClassName($name)
     {
-        return sprintf('FHIR%s', ucfirst(str_replace('.', '', $name)));
+        return sprintf('FHIR%s', ucfirst(str_replace(self::$classNameSearch, self::$classNameReplace, $name)));
     }
 
     /**
