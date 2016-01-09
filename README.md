@@ -5,8 +5,8 @@ This library is a work in progress.
 
 ## Basic Usage
 
-After installation via Composer, you will need to procure XSD's for your desired FHIR spec version
-(https://www.hl7.org/fhir/downloads.html provides links to DSTU 1 XSD's, for example).
+After installation via Composer, you will need to procure XSD's for your desired FHIR spec version.  See
+[http://hl7.org/fhir/directory.html](http://hl7.org/fhir/directory.html) for a version list.
 
 Once this directory is downloaded and un-zipped, a simple script to build classes from the above XSD's is as follows:
 
