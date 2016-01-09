@@ -22,51 +22,114 @@
  */
 abstract class CopyrightUtils
 {
+    /** @var array */
+    private static $_phpFHIRCopyright = array();
+
+    /** @var array */
+    private static $_fhirCopyright = array();
+
     /** @var string */
-    private static $_copyright = null;
+    private static $_basePHPFHIRCopyrightComment = '';
+
+    /** @var string */
+    private static $_fullPHPFHIRCopyrightComment = '';
+
+    /** @var string */
+    private static $_standardDate;
 
     /**
      * @param string $xsdPath
      */
-    public static function loadCopyright($xsdPath)
+    public static function compileCopyrights($xsdPath)
     {
-        $today = date('F jS, Y');
-        $comment = <<<STRING
-/*!
- * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
- * class definitions from HL7 FHIR (https://www.hl7.org/fhir/)
- *
- * Class creation date: {$today}
- *
- * FHIR Copyright Notice:
- *
-STRING;
-        $fh = fopen($xsdPath.'fhir-all.xsd', 'r');
-        $inComment = false;
-        while($line = fgets($fh))
+        self::$_standardDate = date('F jS, Y');
+
+        self::$_phpFHIRCopyright = array(
+            'This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using',
+            'class definitions from HL7 FHIR (https://www.hl7.org/fhir/)',
+            '',
+            sprintf('Class creation date: %s', self::$_standardDate),
+        );
+
+        $fhirBase = sprintf('%sfhir-all.xsd', $xsdPath);
+        $fh = fopen($fhirBase, 'rb');
+        if ($fh)
         {
-            $line = trim($line);
+            $inComment = false;
+            while($line = fgets($fh))
+            {
+                $line = trim($line);
 
-            if ('-->' === $line)
-                break;
+                if ('-->' === $line)
+                    break;
 
-            if ($inComment)
-                $comment = sprintf("%s\n * %s", $comment, $line);
+                if ($inComment)
+                    self::$_fhirCopyright[] = $line;
 
-            if ('<!--' === $line)
-                $inComment = true;
+                if ('<!--' === $line)
+                    $inComment = true;
+            }
+
+            fclose($fh);
+        }
+        else
+        {
+            throw new \RuntimeException(sprintf(
+                '%s::compileCopyrights - Unable to open %s to extract FHIR copyright.',
+                get_called_class(),
+                $fhirBase
+            ));
         }
 
-        fclose($fh);
+        self::$_basePHPFHIRCopyrightComment = sprintf(
+            "/*!\n * %s\n */",
+            implode("\n * ", self::$_phpFHIRCopyright)
+        );
 
-        self::$_copyright = sprintf("%s\n */", $comment);
+        self::$_fullPHPFHIRCopyrightComment = sprintf(
+            "/*!\n * %s\n *\n * FHIR Copyright Notice:\n *\n * %s\n */",
+            implode("\n * ", self::$_phpFHIRCopyright),
+            implode("\n * ", self::$_fhirCopyright)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public static function getPHPFHIRCopyright()
+    {
+        return self::$_phpFHIRCopyright;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getFHIRCopyright()
+    {
+        return self::$_fhirCopyright;
     }
 
     /**
      * @return string
      */
-    public static function getHL7Copyright()
+    public static function getBasePHPFHIRCopyrightComment()
     {
-        return self::$_copyright;
+        return self::$_basePHPFHIRCopyrightComment;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getFullPHPFHIRCopyrightComment()
+    {
+        return self::$_fullPHPFHIRCopyrightComment;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getStandardDate()
+    {
+        return self::$_standardDate;
     }
 }

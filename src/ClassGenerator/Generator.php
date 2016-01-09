@@ -17,8 +17,10 @@
  */
 
 use PHPFHIR\ClassGenerator\Generator\ClassGenerator;
+use PHPFHIR\ClassGenerator\Template\AutoloaderTemplate;
 use PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use PHPFHIR\ClassGenerator\Utilities\FileUtils;
+use PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 
 /**
@@ -36,6 +38,9 @@ class Generator
     /** @var XSDMap */
     protected $XSDMap;
 
+    /** @var array */
+    private $autoloadMap = array();
+
     /**
      * Constructor
      *
@@ -43,10 +48,16 @@ class Generator
      * @param string $outputNamespace
      * @param null|string $outputPath
      */
-    public function __construct($xsdPath, $outputNamespace = '', $outputPath = null)
+    public function __construct($xsdPath, $outputNamespace = 'PHPFHIRGenerated', $outputPath = null)
     {
-        if (!is_dir($xsdPath))
+        if (false === is_dir($xsdPath))
             throw new \RuntimeException('Unable to locate XSD dir "'.$xsdPath.'"');
+
+        if (false === is_readable($xsdPath))
+            throw new \RuntimeException('This process does not have read access to directory "'.$xsdPath.'"');
+
+        if (false === NameUtils::isValidNSName($outputNamespace))
+            throw new \InvalidArgumentException('Invalid namespace "'.$outputNamespace.'" specified.');
 
         $this->xsdPath = rtrim($xsdPath, "/\\").'/';
 
@@ -56,11 +67,11 @@ class Generator
         if (!is_dir($outputPath))
             throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');
 
-        $this->outputNamespace = trim($outputNamespace, "\\");
+        $this->outputNamespace = trim($outputNamespace, "\\;");
         $this->outputPath = $outputPath;
         $this->XSDMap = XMLUtils::buildXSDMap($this->xsdPath, $this->outputNamespace);
 
-        CopyrightUtils::loadCopyright($this->xsdPath);
+        CopyrightUtils::compileCopyrights($this->xsdPath);
     }
 
     /**
@@ -73,9 +84,16 @@ class Generator
             $classTemplate = ClassGenerator::buildClassTemplate($this->XSDMap, $data);
 
             FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
-            // Just test what we have so far.
+
+            // Generate class file
             $classTemplate->writeToFile($this->outputPath);
+
+            // Add entry to autoload map
+            $this->autoloadMap[rtrim($classTemplate->getUseStatement(), ";")] = $classTemplate->compileFullOutputPath($this->outputPath);
         }
+
+        $autoloaderTemplate = new AutoloaderTemplate($this->outputPath, $this->outputNamespace, $this->autoloadMap);
+        $autoloaderTemplate->writeToFile();
     }
 
 }

@@ -66,7 +66,6 @@ class ClassTemplate extends AbstractTemplate
         else
             throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
 
-
         if (NameUtils::isValidClassName($pseudonym))
             $this->pseudonym = $pseudonym;
         else
@@ -177,19 +176,29 @@ class ClassTemplate extends AbstractTemplate
      */
     public function writeToFile($outputPath)
     {
-        $outputPath = sprintf('%s/%s/%s.php',
+        return (bool)file_put_contents(
+            $this->compileFullOutputPath($outputPath),
+            $this->compileClassDefinition()
+        );
+    }
+
+    /**
+     * @param string $outputPath
+     * @return string
+     */
+    public function compileFullOutputPath($outputPath)
+    {
+        return sprintf('%s/%s/%s.php',
             $outputPath,
             FileUtils::buildDirPathFromNS($this->getNamespace()),
             $this->getClassName()
         );
-
-        return (bool)file_put_contents($outputPath, (string)$this);
     }
 
     /**
      * @return string
      */
-    public function __toString()
+    public function compileClassDefinition()
     {
         $ns = $this->getNamespace();
         if ('' === $ns)
@@ -197,7 +206,7 @@ class ClassTemplate extends AbstractTemplate
         else
             $output = sprintf("<?php namespace %s;\n\n", $ns);
 
-        $output = sprintf("%s%s\n\n%s", $output, CopyrightUtils::getHL7Copyright(), $this->_compileUseStatements());
+        $output = sprintf("%s%s\n\n%s", $output, CopyrightUtils::getFullPHPFHIRCopyrightComment(), $this->_compileUseStatements());
 
         if ("\n\n" !== substr($output, -2))
             $output = sprintf("%s\n", $output);
@@ -223,6 +232,14 @@ class ClassTemplate extends AbstractTemplate
         }
 
         return sprintf("%s\n}", $output);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->compileClassDefinition();
     }
 
     /**
