@@ -14,7 +14,7 @@ Once this directory is downloaded and un-zipped, a simple script to build classe
 <?php
 require __DIR__.'/vendor/autoload.php';
 
-$xsdPath = 'path to wherever you un-zipped the xsd's';
+$xsdPath = 'path to wherever you un-zipped the xsd\'s';
 
 $generator = new \PHPFHIR\Generator($xsdPath);
 
