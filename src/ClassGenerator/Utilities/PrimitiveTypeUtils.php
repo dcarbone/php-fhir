@@ -42,7 +42,6 @@ abstract class PrimitiveTypeUtils
             case PrimitivePropertyTypesEnum::STRING:
                 return $strType;
 
-
             case PrimitivePropertyTypesEnum::NEGATIVE_INTEGER:
             case PrimitivePropertyTypesEnum::POSITIVE_INTEGER:
             case PrimitivePropertyTypesEnum::UNSIGNED_INTEGER:
