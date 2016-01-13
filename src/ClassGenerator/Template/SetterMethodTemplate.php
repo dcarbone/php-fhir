@@ -64,16 +64,16 @@ class SetterMethodTemplate extends AbstractMethodTemplate
     /**
      * @return string
      */
-    public function __toString()
+    public function compileTemplate()
     {
-        $output = sprintf("    /**\n%s", self::_getDocumentationOutput());
+        $output = sprintf("    /**\n%s", $this->getDocBlockDocumentationFragment());
 
         foreach($this->getParameters() as $param)
         {
             $output = sprintf(
                 "%s     * %s\n",
                 $output,
-                $param->getParamDocBlock(true)
+                $param->getParamDocBlockFragment(true)
             );
         }
 

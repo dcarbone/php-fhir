@@ -96,9 +96,9 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function __toString()
+    public function compileTemplate()
     {
-        $output = sprintf("    /**\n%s", self::_getDocumentationOutput());
+        $output = sprintf("    /**\n%s", $this->getDocBlockDocumentationFragment());
 
         if ($this->isCollection())
         {

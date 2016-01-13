@@ -178,7 +178,7 @@ class ClassTemplate extends AbstractTemplate
     {
         return (bool)file_put_contents(
             $this->compileFullOutputPath($outputPath),
-            $this->compileClassDefinition()
+            $this->compileTemplate()
         );
     }
 
@@ -198,7 +198,7 @@ class ClassTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function compileClassDefinition()
+    public function compileTemplate()
     {
         $ns = $this->getNamespace();
         if ('' === $ns)
@@ -212,7 +212,7 @@ class ClassTemplate extends AbstractTemplate
             $output = sprintf("%s\n", $output);
 
         if (isset($this->documentation) && count($this->documentation) > 0)
-            $output = sprintf("%s/**\n%s */\n", $output, self::_getDocumentationOutput(1));
+            $output = sprintf("%s/**\n%s */\n", $output, $this->getDocBlockDocumentationFragment(1));
 
         if ($this->extends)
             $output = sprintf("%sclass %s extends %s\n", $output, $this->getClassName(), $this->getExtends());
@@ -232,14 +232,6 @@ class ClassTemplate extends AbstractTemplate
         }
 
         return sprintf("%s\n}", $output);
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->compileClassDefinition();
     }
 
     /**

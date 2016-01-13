@@ -22,7 +22,7 @@ use PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class ParameterTemplate
  * @package PHPFHIR\ClassGenerator\Template
  */
-class ParameterTemplate
+class ParameterTemplate extends AbstractTemplate
 {
     /** @var string */
     protected $name;
@@ -73,7 +73,7 @@ class ParameterTemplate
      * @param bool $forceSingle
      * @return string
      */
-    public function getParamDocBlock($forceSingle = false)
+    public function getParamDocBlockFragment($forceSingle = false)
     {
         if ($this->propertyIsCollection && !$forceSingle)
             return sprintf('@param %s[] %s', implode('[]|', $this->getPropertyTypes()), NameUtils::getPropertyVariableName($this->getName()));
@@ -84,7 +84,7 @@ class ParameterTemplate
     /**
      * @return string
      */
-    public function __toString()
+    public function compileTemplate()
     {
         return NameUtils::getPropertyVariableName($this->getName());
     }

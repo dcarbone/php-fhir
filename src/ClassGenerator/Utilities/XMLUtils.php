@@ -193,11 +193,6 @@ abstract class XMLUtils
             if ('' === $name)
                 continue;
 
-//            // Primitive types represented as internal PHP types for the moment
-//            // TODO: Implement primitive type classes with support for XML facets
-//            if (false !== strpos($name, '-primitive'))
-//                continue;
-
             switch(strtolower($child->getName()))
             {
                 case ElementTypeEnum::COMPLEX_TYPE:
@@ -225,10 +220,11 @@ abstract class XMLUtils
             if (0 === count($nsSegments))
                 $pseudonym = sprintf('%sBase', $className);
             else
-                $pseudonym = sprintf('%s%s', $className, end($nsSegments));
+                $pseudonym = sprintf('%s%s', end($nsSegments), $className);
 
             $xsdMap[$name] = array(
                 'sxe' => $child,
+                'elementName' => $name,
                 'rootNS' => $rootNS,
                 'className' => $className,
                 'pseudonym' => $pseudonym,
@@ -246,10 +242,10 @@ abstract class XMLUtils
         libxml_clear_errors();
         libxml_use_internal_errors(true);
         $sxe = new \SimpleXMLElement($contents, LIBXML_COMPACT | LIBXML_NSCLEAN);
+        libxml_use_internal_errors(false);
 
         if ($sxe instanceof \SimpleXMLElement)
         {
-            libxml_use_internal_errors(false);
             $sxe->registerXPathNamespace('xs', 'http://www.w3.org/2001/XMLSchema');
             $sxe->registerXPathNamespace('', 'http://hl7.org/fhir');
             return $sxe;

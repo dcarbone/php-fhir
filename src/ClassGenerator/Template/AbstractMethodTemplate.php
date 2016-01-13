@@ -89,9 +89,4 @@ abstract class AbstractMethodTemplate extends AbstractTemplate
     {
         return $this->scope;
     }
-
-    /**
-     * @return string
-     */
-    abstract public function __toString();
 }

@@ -21,7 +21,7 @@ use PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
  * Class AutoloaderTemplate
  * @package PHPFHIR\ClassGenerator\Template
  */
-class AutoloaderTemplate
+class AutoloaderTemplate extends AbstractTemplate
 {
     /** @var string  */
     private static $_classTemplate = <<<STRING
@@ -130,7 +130,7 @@ STRING;
     /**
      * @return string
      */
-    public function compileClassDefinition()
+    public function compileTemplate()
     {
         return sprintf(
             self::$_classTemplate,
@@ -147,7 +147,7 @@ STRING;
     {
         return (bool)file_put_contents(
             $this->_classPath,
-            $this->compileClassDefinition()
+            $this->compileTemplate()
         );
     }
 

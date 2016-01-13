@@ -17,6 +17,8 @@
  */
 
 /**
+ * TODO: Restructure template system so documentation is not implemented where applicable.
+ *
  * Class AbstractTemplate
  * @package PHPFHIR\ClassGenerator\Template
  */
@@ -51,12 +53,24 @@ abstract class AbstractTemplate
     }
 
     /**
-     * TODO: Do this better...
-     *
+     * @return string
+     */
+    abstract public function compileTemplate();
+
+    /**
+     * @see compileTemplate
+     * @return string By default, returns output of compileTemplate
+     */
+    public function __toString()
+    {
+        return $this->compileTemplate();
+    }
+
+    /**
      * @param int $spaces
      * @return string
      */
-    protected function _getDocumentationOutput($spaces = 5)
+    protected function getDocBlockDocumentationFragment($spaces = 5)
     {
         $output = '';
         $spaces = str_repeat(' ', $spaces);

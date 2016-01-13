@@ -18,6 +18,7 @@
 
 use PHPFHIR\ClassGenerator\Generator\ClassGenerator;
 use PHPFHIR\ClassGenerator\Template\AutoloaderTemplate;
+use PHPFHIR\ClassGenerator\Template\ParserMapTemplate;
 use PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -77,6 +78,8 @@ class Generator
      */
     public function generate()
     {
+        $mapTemplate = new ParserMapTemplate($this->outputPath, $this->outputNamespace);
+
         foreach($this->XSDMap as $objectName=>$data)
         {
             $classTemplate = ClassGenerator::buildClassTemplate($this->XSDMap, $data);
@@ -88,10 +91,13 @@ class Generator
 
             // Add entry to autoload map
             $this->autoloadMap[rtrim($classTemplate->getUseStatement(), ";")] = $classTemplate->compileFullOutputPath($this->outputPath);
+
+            $mapTemplate->addElementClass($objectName, $classTemplate);
         }
 
         $autoloaderTemplate = new AutoloaderTemplate($this->outputPath, $this->outputNamespace, $this->autoloadMap);
         $autoloaderTemplate->writeToFile();
-    }
 
+        $mapTemplate->writeToFile();
+    }
 }

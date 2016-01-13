@@ -87,15 +87,9 @@ abstract class PropertyGenerator
      */
     public static function buildSimpleProperty($name, $type, $maxOccurs, $documentation)
     {
-        if (false !== ($pos = strpos($type, '-primitive')))
-            $type = substr($type, 0, $pos);
-
         $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
-        $propertyTemplate->addType(
-            PrimitiveTypeUtils::getSimpleTypeVariableType(
-                new PrimitivePropertyTypesEnum(strtolower($type))
-            )
-        );
+        $propertyTemplate->addType($type);
+
         return $propertyTemplate;
     }
 
@@ -131,7 +125,8 @@ abstract class PropertyGenerator
         $propertyTemplate = new PropertyTemplate(
             $name,
             new PHPScopeEnum(PHPScopeEnum::_PRIVATE),
-            self::determineIfCollection($maxOccurs));
+            self::determineIfCollection($maxOccurs)
+        );
 
         $propertyTemplate->setDocumentation($documentation);
 
