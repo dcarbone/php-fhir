@@ -17,6 +17,10 @@
         "dcarbone/collection-plus": "3.1.*"
     },
 
+    "require-dev": {
+        "league/oauth2-client" : "0.3.*"
+    },
+
     "autoload": {
         "psr-4": {"PHPFHIR\\": "src/"}
     }

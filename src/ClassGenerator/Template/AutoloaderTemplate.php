@@ -96,9 +96,9 @@ class PHPFHIRAutoloader
 STRING;
 
     /** @var string */
-    private $_baseDir;
+    private $_outputPath;
     /** @var string */
-    private $_baseNS;
+    private $_outputNamespace;
 
     /** @var array */
     private $_classMap;
@@ -112,19 +112,19 @@ STRING;
     /**
      * Constructor
      *
-     * @param string $baseDir
-     * @param string $baseNS
+     * @param string $outputPath
+     * @param string $outputNamespace
      * @param array $classMap
      */
-    public function __construct($baseDir, $baseNS, array $classMap)
+    public function __construct($outputPath, $outputNamespace, array $classMap)
     {
-        $this->_baseDir = rtrim($baseDir, "\\/");
-        $this->_baseNS = $baseNS;
+        $this->_outputPath = rtrim($outputPath, "\\/");
+        $this->_outputNamespace = $outputNamespace;
 
         $this->_classMap = $classMap;
 
-        $this->_classPath = sprintf('%s/PHPFHIRAutoloader.php', $this->_baseDir);
-        $this->_className = sprintf('%s\\PHPFHIRAutoloader', $this->_baseNS);
+        $this->_classPath = sprintf('%s/%s/PHPFHIRAutoloader.php', $this->_outputPath, $this->_outputNamespace);
+        $this->_className = sprintf('%s\\PHPFHIRAutoloader', $this->_outputNamespace);
     }
 
     /**
@@ -134,7 +134,7 @@ STRING;
     {
         return sprintf(
             self::$_classTemplate,
-            $this->_baseNS,
+            $this->_outputNamespace,
             implode("\n * ", CopyrightUtils::getPHPFHIRCopyright()),
             var_export($this->_classMap, true)
         );

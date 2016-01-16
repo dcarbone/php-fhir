@@ -38,7 +38,7 @@ class Generator
     protected $XSDMap;
 
     /** @var array */
-    private $autoloadMap = array();
+    private $_autoloadMap = array();
 
     /**
      * Constructor
@@ -90,12 +90,12 @@ class Generator
             $classTemplate->writeToFile($this->outputPath);
 
             // Add entry to autoload map
-            $this->autoloadMap[rtrim($classTemplate->getUseStatement(), ";")] = $classTemplate->compileFullOutputPath($this->outputPath);
+            $this->_autoloadMap[rtrim($classTemplate->getUseStatement(), ";")] = $classTemplate->compileFullOutputPath($this->outputPath);
 
             $mapTemplate->addElementClass($objectName, $classTemplate);
         }
 
-        $autoloaderTemplate = new AutoloaderTemplate($this->outputPath, $this->outputNamespace, $this->autoloadMap);
+        $autoloaderTemplate = new AutoloaderTemplate($this->outputPath, $this->outputNamespace, $this->_autoloadMap);
         $autoloaderTemplate->writeToFile();
 
         $mapTemplate->writeToFile();

@@ -76,9 +76,19 @@ class ParameterTemplate extends AbstractTemplate
     public function getParamDocBlockFragment($forceSingle = false)
     {
         if ($this->propertyIsCollection && !$forceSingle)
-            return sprintf('@param %s[] %s', implode('[]|', $this->getPropertyTypes()), NameUtils::getPropertyVariableName($this->getName()));
+        {
+            return sprintf(
+                '@param %s[] %s',
+                implode('[]|', array_values($this->getPropertyTypes())),
+                NameUtils::getPropertyVariableName($this->getName())
+            );
+        }
 
-        return sprintf('@param %s %s', implode('|', $this->getPropertyTypes()), NameUtils::getPropertyVariableName($this->getName()));
+        return sprintf(
+            '@param %s %s',
+            implode('|', array_values($this->getPropertyTypes())),
+            NameUtils::getPropertyVariableName($this->getName())
+        );
     }
 
     /**

@@ -86,11 +86,12 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param string $type
+     * @param string $elementType
+     * @param $objectType
      */
-    public function addType($type)
+    public function addType($elementType, $objectType)
     {
-        $this->types[] = $type;
+        $this->types[$elementType] = $objectType;
     }
 
     /**

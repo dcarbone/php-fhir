@@ -88,7 +88,7 @@ abstract class PropertyGenerator
     public static function buildSimpleProperty($name, $type, $maxOccurs, $documentation)
     {
         $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
-        $propertyTemplate->addType($type);
+        $propertyTemplate->addType($name, $type);
 
         return $propertyTemplate;
     }
@@ -105,7 +105,7 @@ abstract class PropertyGenerator
     public static function buildComplexProperty(XSDMap $XSDMap, $name, $type, $maxOccurs, $documentation, ClassTemplate $classTemplate)
     {
         $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
-        $propertyTemplate->addType($XSDMap->getClassNameForObject($type));
+        $propertyTemplate->addType($type, $XSDMap->getClassNameForObject($type));
 
         $useStatement = $XSDMap->getClassUseStatementForObject($type);
         if ($useStatement)
