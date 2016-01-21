@@ -151,11 +151,18 @@ abstract class XMLUtils
     {
         $xsdMap = new XSDMap();
 
-        if (!file_exists($xsdPath.'/fhir-base.xsd'))
-            throw new \RuntimeException('Unable to locate "fhir-base.xsd"');
+        $fhirBaseXML = sprintf('%s/fhir-base.xsd', $xsdPath);
+
+        if (!file_exists($fhirBaseXML))
+        {
+            throw new \RuntimeException(sprintf(
+                'Unable to locate "fhir-base.xsd" at expected path "%s".',
+                $fhirBaseXML
+            ));
+        }
 
         // First get class references in fhir-base.xsd
-        self::parseClassesFromXSD(new \SplFileInfo($xsdPath.'/fhir-base.xsd'), $xsdMap, $outputNS);
+        self::parseClassesFromXSD(new \SplFileInfo($fhirBaseXML), $xsdMap, $outputNS);
 
         // Then scoop up the rest
         // TODO: Validate that, yes, certain files can be ignored.
@@ -188,9 +195,9 @@ abstract class XMLUtils
         {
             /** @var \SimpleXMLElement $child */
             $attributes = $child->attributes();
-            $name = (string)$attributes['name'];
+            $fhirElementName = (string)$attributes['name'];
 
-            if ('' === $name)
+            if ('' === $fhirElementName)
                 continue;
 
             switch(strtolower($child->getName()))
@@ -199,18 +206,18 @@ abstract class XMLUtils
                     $type = ClassTypeUtils::getComplexClassType($child);
                     $rootNS = NSUtils::generateRootNamespace(
                         $outputNS,
-                        NSUtils::getComplexTypeNamespace($name, $type)
+                        NSUtils::getComplexTypeNamespace($fhirElementName, $type)
                     );
-                    $className = NameUtils::getComplexTypeClassName($name);
+                    $className = NameUtils::getComplexTypeClassName($fhirElementName);
                     break;
 
                 case ElementTypeEnum::SIMPLE_TYPE:
-                    $type = ClassTypeUtils::getSimpleClassType($name);
+                    $type = ClassTypeUtils::getSimpleClassType($fhirElementName);
                     $rootNS = NSUtils::generateRootNamespace(
                         $outputNS,
                         NSUtils::getSimpleTypeNamespace($type)
                     );
-                    $className = NameUtils::getSimpleTypeClassName($name);
+                    $className = NameUtils::getSimpleTypeClassName($fhirElementName);
                     break;
 
                 default: continue 2;
@@ -222,9 +229,9 @@ abstract class XMLUtils
             else
                 $pseudonym = sprintf('%s%s', end($nsSegments), $className);
 
-            $xsdMap[$name] = array(
+            $xsdMap[$fhirElementName] = array(
                 'sxe' => $child,
-                'elementName' => $name,
+                'elementName' => $fhirElementName,
                 'rootNS' => $rootNS,
                 'className' => $className,
                 'pseudonym' => $pseudonym,

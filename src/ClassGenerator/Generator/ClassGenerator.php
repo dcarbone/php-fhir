@@ -35,7 +35,12 @@ abstract class ClassGenerator
      */
     public static function buildClassTemplate(XSDMap $XSDMap, array $data)
     {
-        $classTemplate = new ClassTemplate($data['className'], $data['rootNS'], $data['pseudonym']);
+        $classTemplate = new ClassTemplate(
+            $data['elementName'],
+            $data['className'],
+            $data['rootNS'],
+            $data['pseudonym']
+        );
 
         foreach($data['sxe']->children('xs', true) as $_element)
         {
@@ -81,6 +86,10 @@ abstract class ClassGenerator
                 case ElementTypeEnum::EXTENSION:
                     self::parseExtension($XSDMap, $_element, $classTemplate);
                     break;
+
+                case ElementTypeEnum::RESTRICTION:
+                    self::parseRestriction($XSDMap, $_element, $classTemplate);
+                    break;
             }
         }
     }
@@ -100,8 +109,8 @@ abstract class ClassGenerator
             {
                 case ElementTypeEnum::ATTRIBUTE:
                 case ElementTypeEnum::CHOICE:
-                case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
+                case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::ENUMERATION:
                     PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
                     break;
@@ -143,32 +152,50 @@ abstract class ClassGenerator
         // First, attempt to determine if this class extends a base class
         if ($baseObjectName = XMLUtils::getBaseObjectName($sxe))
         {
-            $baseClassName = $XSDMap->getClassNameForObject($baseObjectName);
-            $classTemplate->setExtends($baseClassName);
-
-            $useStatement = $XSDMap->getClassUseStatementForObject($baseObjectName);
-            if ($useStatement)
-                $classTemplate->addUse($useStatement);
+            self::determineParentFHIRObject($baseObjectName, $XSDMap, $classTemplate);
         }
         // Otherwise, attempt to find a "restriction" class to extend
         else if ($restrictionObjectName = XMLUtils::getObjectRestrictionBaseName($sxe))
         {
-            if (0 === strpos($restrictionObjectName, 'xs:'))
+            if (0 === strpos($baseObjectName, 'xs'))
             {
-                $xmlPrimitive = PrimitiveTypeUtils::getXMLPrimitiveTypeClass(substr($restrictionObjectName, 3));
-                $useStatement = get_class($xmlPrimitive);
-                $baseClassName = basename($useStatement);
+                self::determineParentPrimitive($restrictionObjectName, $classTemplate);
             }
             else
             {
-                $baseClassName = $XSDMap->getClassNameForObject($restrictionObjectName);
-                $useStatement = $XSDMap->getClassUseStatementForObject($restrictionObjectName);
+                self::determineParentFHIRObject($restrictionObjectName, $XSDMap, $classTemplate);
             }
-
-            $classTemplate->setExtends($baseClassName);
-
-            if ($useStatement)
-                $classTemplate->addUse($useStatement);
         }
+    }
+
+    /**
+     * @param string $restrictionObjectName
+     * @param ClassTemplate $classTemplate
+     */
+    public static function determineParentPrimitive($restrictionObjectName, ClassTemplate $classTemplate)
+    {
+        $xmlPrimitive = PrimitiveTypeUtils::getXMLPrimitiveTypeClass(substr($restrictionObjectName, 3));
+
+        $useStatement = get_class($xmlPrimitive);
+        $classTemplate->addUse($useStatement);
+
+        $classTemplate->setExtendedClassName(basename($useStatement));
+        $classTemplate->setExtendedElementName('primitive');
+    }
+
+    /**
+     * @param string $baseObjectName
+     * @param XSDMap $XSDMap
+     * @param ClassTemplate $classTemplate
+     */
+    public static function determineParentFHIRObject($baseObjectName, XSDMap $XSDMap, ClassTemplate $classTemplate)
+    {
+        $baseClassName = $XSDMap->getClassNameForObject($baseObjectName);
+        $classTemplate->setExtendedClassName($baseClassName);
+        $classTemplate->setExtendedElementName($baseObjectName);
+
+        $useStatement = $XSDMap->getClassUseStatementForObject($baseObjectName);
+        if ($useStatement)
+            $classTemplate->addUse($useStatement);
     }
 }

@@ -27,49 +27,66 @@ use PHPFHIR\ClassGenerator\Utilities\NameUtils;
 class ClassTemplate extends AbstractTemplate
 {
     /** @var string */
-    protected $className;
+    private $_elementName;
 
     /** @var string */
-    protected $pseudonym;
+    private $_className;
 
     /** @var string */
-    protected $namespace;
+    private $_pseudonym;
+
+    /** @var string */
+    private $_namespace;
 
     /** @var array */
-    protected $uses = array();
+    private $_uses = array();
 
     /** @var string */
-    protected $extends;
+    private $_extendedElementName;
+
+    /** @var string */
+    private $_extendedClassName;
 
     /** @var PropertyTemplate[] */
-    protected $properties = array();
+    private $_properties = array();
 
     /** @var AbstractMethodTemplate[] */
-    protected $methods = array();
+    private $_methods = array();
 
     /**
      * Constructor
      *
+     * @param string $elementName
      * @param string $className
      * @param string $namespace
      * @param string $pseudonym
      */
-    public function __construct($className, $namespace, $pseudonym)
+    public function __construct($elementName, $className, $namespace, $pseudonym)
     {
         if (NameUtils::isValidClassName($className))
-            $this->className = $className;
+            $this->_className = $className;
         else
             throw new \InvalidArgumentException('Class Name "'.$className.'" is not valid.');
 
         if (NameUtils::isValidNSName($namespace))
-            $this->namespace = $namespace;
+            $this->_namespace = $namespace;
         else
             throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
 
         if (NameUtils::isValidClassName($pseudonym))
-            $this->pseudonym = $pseudonym;
+            $this->_pseudonym = $pseudonym;
         else
             throw new \InvalidArgumentException('Class Pseudonym "'.$pseudonym.'" is not valid.');
+
+        $this->_elementName = $elementName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getElementName()
+    {
+        return $this->_elementName;
     }
 
     /**
@@ -77,7 +94,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getUseStatement()
     {
-        return sprintf('%s\\%s;', $this->namespace, $this->className);
+        return sprintf('%s\\%s;', $this->_namespace, $this->_className);
     }
 
     /**
@@ -85,7 +102,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getNamespace()
     {
-        return $this->namespace;
+        return $this->_namespace;
     }
 
     /**
@@ -93,7 +110,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getUses()
     {
-        return $this->uses;
+        return $this->_uses;
     }
 
     /**
@@ -101,7 +118,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function addUse($use)
     {
-        $this->uses[] = $use;
+        $this->_uses[] = $use;
     }
 
     /**
@@ -109,7 +126,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getClassName()
     {
-        return $this->className;
+        return $this->_className;
     }
 
     /**
@@ -117,39 +134,55 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getPseudonym()
     {
-        return $this->pseudonym;
+        return $this->_pseudonym;
     }
 
     /**
-     * @param string $extends
+     * @param string $extendedClassName
      */
-    public function setExtends($extends)
+    public function setExtendedClassName($extendedClassName)
     {
-        $this->extends = $extends;
+        $this->_extendedClassName = $extendedClassName;
     }
 
     /**
      * @return string
      */
-    public function getExtends()
+    public function getExtendedClassName()
     {
-        return $this->extends;
+        return $this->_extendedClassName;
     }
 
     /**
-     * @return array
+     * @param string $extendedElementName
+     */
+    public function setExtendedElementName($extendedElementName)
+    {
+        $this->_extendedElementName = $extendedElementName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtendedElementName()
+    {
+        return $this->_extendedElementName;
+    }
+
+    /**
+     * @return \PHPFHIR\ClassGenerator\Template\PropertyTemplate[]
      */
     public function getProperties()
     {
-        return $this->properties;
+        return $this->_properties;
     }
 
     /**
-     * @return array
+     * @return \PHPFHIR\ClassGenerator\Template\AbstractMethodTemplate[]
      */
     public function getMethods()
     {
-        return $this->methods;
+        return $this->_methods;
     }
 
     /**
@@ -157,7 +190,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function addProperty(PropertyTemplate $property)
     {
-        $this->properties[$property->getName()] = $property;
+        $this->_properties[$property->getName()] = $property;
     }
 
     /**
@@ -165,10 +198,20 @@ class ClassTemplate extends AbstractTemplate
      */
     public function addMethod(AbstractMethodTemplate $method)
     {
-        $this->methods[$method->getName()] = $method;
+        $this->_methods[$method->getName()] = $method;
     }
 
-    // TODO: Possibly omit __toString use and write directly to file.
+    /**
+     * @param bool|true $leadingSlashes
+     * @return string
+     */
+    public function getFullyQualifiedClassName($leadingSlashes = true)
+    {
+        if ($leadingSlashes)
+            return sprintf('\\%s\\%s', $this->getNamespace(), $this->getClassName());
+
+        return sprintf('%s\\%s', $this->getNamespace(), $this->getClassName());
+    }
 
     /**
      * @param string $outputPath
@@ -206,18 +249,42 @@ class ClassTemplate extends AbstractTemplate
         else
             $output = sprintf("<?php namespace %s;\n\n", $ns);
 
-        $output = sprintf("%s%s\n\n%s", $output, CopyrightUtils::getFullPHPFHIRCopyrightComment(), $this->_compileUseStatements());
+        $output = sprintf(
+            "%s%s\n\n%s",
+            $output,
+            CopyrightUtils::getFullPHPFHIRCopyrightComment(),
+            $this->_compileUseStatements()
+        );
 
         if ("\n\n" !== substr($output, -2))
             $output = sprintf("%s\n", $output);
 
         if (isset($this->documentation) && count($this->documentation) > 0)
-            $output = sprintf("%s/**\n%s */\n", $output, $this->getDocBlockDocumentationFragment(1));
+        {
+            $output = sprintf(
+                "%s/**\n%s */\n",
+                $output,
+                $this->getDocBlockDocumentationFragment(1)
+            );
+        }
 
-        if ($this->extends)
-            $output = sprintf("%sclass %s extends %s\n", $output, $this->getClassName(), $this->getExtends());
+        if ($this->_extendedClassName)
+        {
+            $output = sprintf(
+                "%sclass %s extends %s\n",
+                $output,
+                $this->getClassName(),
+                $this->getExtendedClassName()
+            );
+        }
         else
-            $output = sprintf("%sclass %s\n", $output, $this->getClassName());
+        {
+            $output = sprintf(
+                "%sclass %s\n",
+                $output,
+                $this->getClassName()
+            );
+        }
 
         $output = sprintf("%s{\n", $output);
 
