@@ -70,46 +70,91 @@ class PHPFHIRResponseParser
         libxml_use_internal_errors(false);
 
         if ($sxe instanceof \SimpleXMLElement)
-        {
-            return $this->parseNode($sxe);
-        }
-        else
-        {
-            throw new \RuntimeException(sprintf(
-                'Unable to parse response: "%s"',
-                ($error ? $error->message : 'Unknown Error')
-            ));
-        }
+            return $this->_parseNode($sxe, $sxe->getName());
+
+        throw new \RuntimeException(sprintf(
+            'Unable to parse response: "%s"',
+            ($error ? $error->message : 'Unknown Error')
+        ));
     }
 
     /**
      * @param \SimpleXMLElement $element
+     * @param string $fhirElementName
      * @return mixed
      */
-    protected function parseNode(\SimpleXMLElement $element)
+    private function _parseNode(\SimpleXMLElement $element, $fhirElementName)
     {
-        $name = $element->getName();
-        $class = $this->_parserMap->getElementClass($name);
-        $structure = $this->_parserMap->getElementStructure($name);
-
-        $object = new $class;
-
-        foreach($structure as $parameter=>$types)
+        if (!isset($this->_parserMap[$fhirElementName]))
         {
-            if (isset($element->{$parameter}))
+            throw new \RuntimeException(sprintf(
+                'Element map does not contain entry for "%s".  This indicates either malformed response or bug in class generation.',
+                $fhirElementName
+            ));
+        }
+
+        $map = $this->_parserMap[$fhirElementName];
+        $fullClassName = $map['fullClassName'];
+        $properties = $map['properties'];
+
+        $object = new $fullClassName;
+
+        if (isset($element['value']))
+        {
+            $propertyMap = $properties['value'];
+            $setter = $propertyMap['setter'];
+            $object->$setter($this->_createPrimitive($element, $propertyMap['type']));
+        }
+        else
+        {
+            /** @var \SimpleXMLElement $childElement */
+            foreach($element->children() as $childElement)
             {
-                $paramElement = $element->{$parameter};
-                $paramObject = $this->parseChild($paramElement, $parameter, key($types));
-                $setter = sprintf('set%s', ucfirst($parameter));
-                $object->{$setter}($paramObject);
+                $childName = $childElement->getName();
+                if (!isset($properties[$childName]))
+                {
+                    trigger_error(sprintf(
+                        'Could not find mapped property called "%s" on object "%s".  This could indicate malformed response or bug in class generator.',
+                        $childName,
+                        $fhirElementName
+                    ));
+                    continue;
+                }
+
+                $propertyMap = $properties[$childName];
+                $setter = $propertyMap['setter'];
+                $type = $propertyMap['type'];
+
+                $object->$setter($this->_parseNode($childElement, $type));
             }
         }
 
         return $object;
     }
 
-    protected function parseChild(\SimpleXMLElement $element, $paramName, $paramType)
+    /**
+     * @param \SimpleXMLElement $element
+     * @param $type
+     * @return mixed
+     */
+    private function _createPrimitive(\SimpleXMLElement $element, $type)
     {
+        if (!isset($this->_parserMap[$type]))
+        {
+            trigger_error(sprintf(
+                'Unable to find definition for primitive %s.  This indicates either malformed response or bug in class generator.',
+                $type
+            ));
 
+            return null;
+        }
+
+        $primitiveMap = $this->_parserMap[$type];
+        $fullClassName = $primitiveMap['fullClassName'];
+
+        $primitiveObject = new $fullClassName;
+        $primitiveObject->setValue((string)$element['value']);
+
+        return $primitiveObject;
     }
 }

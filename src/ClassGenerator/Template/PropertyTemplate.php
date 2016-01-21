@@ -38,6 +38,8 @@ class PropertyTemplate extends AbstractTemplate
     protected $types = array();
 
     /**
+     * Constructor
+     *
      * @param string $name
      * @param PHPScopeEnum $scope
      * @param bool $isCollection
@@ -86,12 +88,29 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param string $elementType
-     * @param $objectType
+     * @param string $elementName
+     * @param string $objectClassName
+     * @param string $objectElementName
      */
-    public function addType($elementType, $objectType)
+    public function addType($elementName, $objectClassName, $objectElementName)
     {
-        $this->types[$elementType] = $objectType;
+        $this->types[$elementName] = array(
+            'className' => $objectClassName,
+            'elementName' => $objectElementName
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getObjectTypes()
+    {
+        $objects = array();
+        foreach($this->getTypes() as $type)
+        {
+            $objects[] = $type['className'];
+        }
+        return $objects;
     }
 
     /**
@@ -105,7 +124,7 @@ class PropertyTemplate extends AbstractTemplate
         {
             return sprintf("%s     * @var %s[]\n     */\n    %s %s = array();\n\n",
                 $output,
-                implode('|', $this->types),
+                implode('|', $this->getObjectTypes()),
                 (string)$this->getScope(),
                 NameUtils::getPropertyVariableName($this->getName())
             );
@@ -114,7 +133,7 @@ class PropertyTemplate extends AbstractTemplate
         {
             return sprintf("%s     * @var %s\n     */\n    %s %s;\n\n",
                 $output,
-                implode('|', $this->types),
+                implode('|', $this->getObjectTypes()),
                 (string)$this->getScope(),
                 NameUtils::getPropertyVariableName($this->getName())
             );

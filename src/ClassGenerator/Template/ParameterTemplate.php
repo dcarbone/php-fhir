@@ -25,13 +25,16 @@ use PHPFHIR\ClassGenerator\Utilities\NameUtils;
 class ParameterTemplate extends AbstractTemplate
 {
     /** @var string */
-    protected $name;
+    private $_name;
 
-    /** @var array */
-    protected $propertyTypes;
+    /** @var array[] */
+    private $_propertyTypes;
+
+    /** @var string[] */
+    private $_propertyObjectTypes;
 
     /** @var bool */
-    protected $propertyIsCollection;
+    private $_propertyIsCollection;
 
     /**
      * Constructor
@@ -40,9 +43,10 @@ class ParameterTemplate extends AbstractTemplate
      */
     public function __construct(PropertyTemplate $propertyTemplate)
     {
-        $this->name = $propertyTemplate->getName();
-        $this->propertyTypes = $propertyTemplate->getTypes();
-        $this->propertyIsCollection = $propertyTemplate->isCollection();
+        $this->_name = $propertyTemplate->getName();
+        $this->_propertyTypes = $propertyTemplate->getTypes();
+        $this->_propertyObjectTypes = $propertyTemplate->getObjectTypes();
+        $this->_propertyIsCollection = $propertyTemplate->isCollection();
     }
 
     /**
@@ -50,15 +54,23 @@ class ParameterTemplate extends AbstractTemplate
      */
     public function getName()
     {
-        return $this->name;
+        return $this->_name;
     }
 
     /**
-     * @return array
+     * @return array[]
      */
     public function getPropertyTypes()
     {
-        return $this->propertyTypes;
+        return $this->_propertyTypes;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPropertyObjectTypes()
+    {
+        return $this->_propertyObjectTypes;
     }
 
     /**
@@ -66,7 +78,7 @@ class ParameterTemplate extends AbstractTemplate
      */
     public function propertyIsCollection()
     {
-        return $this->propertyIsCollection;
+        return $this->_propertyIsCollection;
     }
 
     /**
@@ -75,18 +87,18 @@ class ParameterTemplate extends AbstractTemplate
      */
     public function getParamDocBlockFragment($forceSingle = false)
     {
-        if ($this->propertyIsCollection && !$forceSingle)
+        if ($this->_propertyIsCollection && !$forceSingle)
         {
             return sprintf(
                 '@param %s[] %s',
-                implode('[]|', array_values($this->getPropertyTypes())),
+                implode('[]|', array_values($this->getPropertyObjectTypes())),
                 NameUtils::getPropertyVariableName($this->getName())
             );
         }
 
         return sprintf(
             '@param %s %s',
-            implode('|', array_values($this->getPropertyTypes())),
+            implode('|', array_values($this->getPropertyObjectTypes())),
             NameUtils::getPropertyVariableName($this->getName())
         );
     }

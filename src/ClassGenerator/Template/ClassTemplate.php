@@ -92,14 +92,6 @@ class ClassTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function getUseStatement()
-    {
-        return sprintf('%s\\%s;', $this->_namespace, $this->_className);
-    }
-
-    /**
-     * @return string
-     */
     public function getNamespace()
     {
         return $this->_namespace;
@@ -205,7 +197,7 @@ class ClassTemplate extends AbstractTemplate
      * @param bool|true $leadingSlashes
      * @return string
      */
-    public function getFullyQualifiedClassName($leadingSlashes = true)
+    public function compileFullyQualifiedClassName($leadingSlashes = true)
     {
         if ($leadingSlashes)
             return sprintf('\\%s\\%s', $this->getNamespace(), $this->getClassName());
@@ -231,9 +223,11 @@ class ClassTemplate extends AbstractTemplate
      */
     public function compileFullOutputPath($outputPath)
     {
-        return sprintf('%s/%s/%s.php',
+        return sprintf('%s%s%s%s%s.php',
             $outputPath,
+            DIRECTORY_SEPARATOR,
             FileUtils::buildDirPathFromNS($this->getNamespace()),
+            DIRECTORY_SEPARATOR,
             $this->getClassName()
         );
     }

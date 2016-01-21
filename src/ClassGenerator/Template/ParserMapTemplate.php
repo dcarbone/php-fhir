@@ -35,48 +35,89 @@ use PHPFHIR\\Parser\\ParserMapInterface;
 class PHPFHIRParserMap implements ParserMapInterface
 {
     /** @var array */
-    private \$_elementClassMap = %s;
-
-    /** @var array */
-    private \$_structureMap = %s;
+    private \$_bigDumbMap = %s;
 
     /**
-     * @var string \$elementName
-     * @return array|null
+     * @param mixed \$offset
+     * @return bool
      */
-    public function getElementStructure(\$elementName)
+    public function offsetExists(\$offset)
     {
-        if (isset(\$this->_structureMap[\$elementName]))
-            return \$this->_structureMap[\$elementName];
+        return isset(\$this->_bigDumbMap[\$offset]);
+    }
+
+    /**
+     * @param mixed \$offset
+     * @return mixed
+     */
+    public function offsetGet(\$offset)
+    {
+        if (isset(\$this->_bigDumbMap[\$offset]))
+            return \$this->_bigDumbMap[\$offset];
+
+        trigger_error(sprintf(
+            'Offset %%s does not exist in the FHIR element map, this could either mean a malformed response or a bug in the generator.',
+            \$offset
+        ));
 
         return null;
     }
 
     /**
-     * @var string \$name
-     * @return array|null
+     * @param mixed \$offset
+     * @param mixed \$value
      */
-    public function getElementClass(\$name)
+    public function offsetSet(\$offset, \$value)
     {
-        if (isset(\$this->_elementClassMap[\$name]))
-            return \$this->_elementClassMap[\$name];
+        throw new \\BadMethodCallException('Not allowed to set values on the FHIR parser element map');
+    }
 
-        return null;
+    /**
+     * @param mixed \$offset
+     */
+    public function offsetUnset(\$offset)
+    {
+        throw new \\BadMethodCallException('Not allowed to unset values in this FHIR parser element map');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function current()
+    {
+        return current(\$this->_bigDumbMap);
+    }
+
+    /**
+     * @return string
+     */
+    public function key()
+    {
+        return key(\$this->_bigDumbMap);
+    }
+
+    public function next()
+    {
+        next(\$this->_bigDumbMap);
+    }
+
+    public function rewind()
+    {
+        reset(\$this->_bigDumbMap);
+    }
+
+    /**
+     * @return bool
+     */
+    public function valid()
+    {
+        return key(\$this->_bigDumbMap) !== null;
     }
 }
 STRING;
 
     /** @var array */
-    private $_elementClassMap = array();
-    /** @var array */
-    private $_classMap = array();
-
-    /** @var array */
-    private $_extendsMap = array();
-    /** @var array */
-    private $_setterMap = array();
-    /** @var array */
-    private $_propertyMap = array();
+    private $_bigDumbMap = array();
 
     /** @var string */
     private $_outputPath;
@@ -104,61 +145,51 @@ STRING;
     }
 
     /**
-     * @param string $elementName
+     * TODO: Make this not terrible.
+     *
      * @param ClassTemplate $classTemplate
      */
-    public function addElementClass($elementName, ClassTemplate $classTemplate)
+    public function addClass(ClassTemplate $classTemplate)
     {
-        if (isset($this->_elementClassMap[$elementName]))
-        {
-            throw new \RuntimeException(sprintf(
-                    'Element with name %s is already defined with class %s.  New input: %s',
-                    $elementName,
-                    $this->_elementClassMap[$elementName],
-                    $classTemplate->getClassName()
-                )
-            );
-        }
-
+        $fhirElementName = $classTemplate->getElementName();
         $className = $classTemplate->getClassName();
-        $classNamespace = $classTemplate->getNamespace();
-        $fullClassName = sprintf('\\%s\\%s', $classNamespace, $className);
-        $extendedClass = $classTemplate->getExtends();
+
         $isPrimitive = false !== stripos($className, 'primitive');
         $isList = false !== stripos($className, 'list');
 
-        $this->_elementClassMap[$elementName] = $fullClassName;
-        $this->_classMap[$className] = $this->_elementClassMap[$elementName];
-        $this->_propertyMap[$elementName] = array();
+        $this->_bigDumbMap[$fhirElementName] = array(
+            'className' => $className,
+            'fullClassName' => $classTemplate->compileFullyQualifiedClassName(true),
+            'extendedClass' => $classTemplate->getExtendedClassName(),
+            'extendedElement' => $classTemplate->getExtendedElementName(),
+            'primitive' => $isPrimitive,
+            'list' => $isList,
+            'properties' => array()
+        );
 
-        if ($isPrimitive || $isList)
+        if ($isList || $isPrimitive)
         {
-            $this->_setterMap[$elementName]['value'] = 'setValue';
-            $this->_propertyMap[$elementName]['value'] = 'primitive';
+            $this->_bigDumbMap[$fhirElementName]['properties']['value'] = array(
+                'setter' => 'setValue',
+                'type' => 'primitive'
+            );
         }
         else
         {
-            if ($extendedClass)
-                $this->_extendsMap[$fullClassName] = $extendedClass;
-
-            $this->_setterMap[$elementName] = array();
-
             foreach($classTemplate->getMethods() as $method)
             {
                 if ($method instanceof SetterMethodTemplate)
                 {
-                    /** @var \PHPFHIR\ClassGenerator\Template\ParameterTemplate $parameter */
                     foreach($method->getParameters() as $parameter)
                     {
-                        $this->_setterMap[$elementName][$parameter->getName()] = $method->getName();
+                        $types = $parameter->getPropertyTypes();
+                        $types = reset($types);
+                        $this->_bigDumbMap[$fhirElementName]['properties'][$parameter->getName()] = array(
+                            'setter' => $method->getName(),
+                            'type' => $types['elementName']
+                        );
                     }
                 }
-            }
-
-            /** @var \PHPFHIR\ClassGenerator\Template\PropertyTemplate $property */
-            foreach($classTemplate->getProperties() as $property)
-            {
-                $this->_propertyMap[$elementName][$property->getName()] = $property->getTypes();
             }
         }
     }
@@ -168,26 +199,13 @@ STRING;
      */
     public function compileTemplate()
     {
-        $structure = array();
-
-        foreach($this->_elementClassMap as $elementName=>$fullClassName)
-        {
-            $structure[$elementName] = array(
-                'class' => $fullClassName,
-                'properties' => array()
-            );
-
-            $this->buildPropertiesStructure($elementName, $fullClassName, $structure[$elementName]['properties']);
-        }
-
-        var_dump($structure);
+        $this->addExtendedClassProperties();
 
         return sprintf(
             self::$_template,
             $this->_outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment(),
-            var_export($this->_elementClassMap, true),
-            var_export($structure, true)
+            var_export($this->_bigDumbMap, true)
         );
     }
 
@@ -202,86 +220,41 @@ STRING;
         );
     }
 
-    protected function buildPropertiesStructure($elementName, $fullClassName, array &$_map = array())
+    protected function addExtendedClassProperties()
     {
-        if (isset($this->_extendsMap[$fullClassName]))
-            $this->getExtendedClassProperties($fullClassName, $_map);
-
-        foreach($this->_propertyMap[$elementName] as $paramName=>$paramDef)
+        $elementNames = array_keys($this->_bigDumbMap);
+        foreach($elementNames as $elementName)
         {
-            if ('extension' === $paramName)
-            {
-                $_map['extension'] = array(
-                    'class' => $this->_classMap['FHIRExtension'],
-                    'setter' => 'addExtension'
-                );
-            }
-            else
-            {
-                if ($paramDef === 'primitive')
-                {
-
-                }
-                else
-                {
-                    foreach($paramDef as $paramElementName=>$paramType)
-                    {
-                        if (false === strpos($paramType, '-primitive')
-                            && false === strpos($paramType, '-list'))
-                        {
-//                        if (isset($this->_elementClassMap))
-//
-//                            var_dump(
-//                                $paramType,
-//                                isset($this->_elementClassMap[$paramType]),
-//                                isset($this->_classMap[$paramType]));
-//                        echo str_repeat('-', 50);
-//                        echo "\n";
-//                        $_map[$paramElementName] = array(
-////                                'class' =>
-//                        );
-                        }
-                        else if (isset($this->_classMap[$paramType]))
-                        {
-                            $_map[$paramElementName] = array(
-                                'class' => $this->_classMap[$paramType],
-                                'setter' => 'setValue'
-                            );
-                        }
-                        else if (isset($this->_elementClassMap[$paramType]))
-                        {
-                            $_map[$paramElementName] = array(
-                                'class' => $this->_elementClassMap[$paramType],
-                                'setter' => $this->_setterMap[$elementName][$paramElementName]
-                            );
-                        }
-                    }
-                }
-            }
+            $this->getExtendedProperties($elementName, $this->_bigDumbMap[$elementName]['properties']);
         }
     }
 
     /**
-     * @param string $fullClassName
-     * @param array $_map
+     * @param string $elementName
+     * @param array $_properties
      */
-    protected function getExtendedClassProperties($fullClassName, array &$_map)
+    protected function getExtendedProperties($elementName, array &$_properties)
     {
-        $extendedClass = $this->_extendsMap[$fullClassName];
-        $fullExtendedClassName = $this->_classMap[$extendedClass];
-        $extendedElementName = array_search($fullExtendedClassName, $this->_elementClassMap);
+        // This indicates we are at a primitive element.
+        if (!isset($this->_bigDumbMap[$elementName]['extendedClass']))
+            return;
 
-        if (-1 === $extendedElementName)
+        $extendedElement = $this->_bigDumbMap[$elementName]['extendedElement'];
+
+        if ('primitive' === $extendedElement)
+            return;
+
+        if (!isset($this->_bigDumbMap[$extendedElement]))
         {
             throw new \RuntimeException(sprintf(
-                'Unable to find element name for class "%s".  This indicates corrupted internal element -> class mapping, and should be reported as a bug.',
-                $fullExtendedClassName
+                'Unable to find element named %s.  This indicates corrupted internal element mapping and should be reported as a bug',
+                $extendedElement
             ));
         }
 
-        $this->buildPropertiesStructure($extendedElementName, $fullExtendedClassName, $_map);
+        // Extended class properties go first, yo.
+        $_properties = $this->_bigDumbMap[$extendedElement]['properties'] + $_properties;
 
-        if (isset($this->_extendsMap[$fullExtendedClassName]))
-            $this->getExtendedClassProperties($fullExtendedClassName, $_map);
+        $this->getExtendedProperties($extendedElement, $_properties);
     }
 }

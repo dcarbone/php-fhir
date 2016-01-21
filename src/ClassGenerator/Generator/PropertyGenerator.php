@@ -18,11 +18,9 @@
 
 use PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
-use PHPFHIR\ClassGenerator\Enum\PrimitivePropertyTypesEnum;
 use PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use PHPFHIR\ClassGenerator\Template\PropertyTemplate;
 use PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use PHPFHIR\ClassGenerator\Utilities\PrimitiveTypeUtils;
 use PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use PHPFHIR\ClassGenerator\XSDMap;
 
@@ -88,7 +86,7 @@ abstract class PropertyGenerator
     public static function buildSimpleProperty($name, $type, $maxOccurs, $documentation)
     {
         $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
-        $propertyTemplate->addType($name, $type);
+        $propertyTemplate->addType($name, $type, $type);
 
         return $propertyTemplate;
     }
@@ -105,7 +103,7 @@ abstract class PropertyGenerator
     public static function buildComplexProperty(XSDMap $XSDMap, $name, $type, $maxOccurs, $documentation, ClassTemplate $classTemplate)
     {
         $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
-        $propertyTemplate->addType($type, $XSDMap->getClassNameForObject($type));
+        $propertyTemplate->addType($type, $XSDMap->getClassNameForObject($type), $type);
 
         $useStatement = $XSDMap->getClassUseStatementForObject($type);
         if ($useStatement)
@@ -124,7 +122,7 @@ abstract class PropertyGenerator
     {
         $propertyTemplate = new PropertyTemplate(
             $name,
-            new PHPScopeEnum(PHPScopeEnum::_PRIVATE),
+            new PHPScopeEnum(PHPScopeEnum::_PUBLIC),
             self::determineIfCollection($maxOccurs)
         );
 

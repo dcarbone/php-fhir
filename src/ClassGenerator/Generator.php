@@ -90,9 +90,9 @@ class Generator
             $classTemplate->writeToFile($this->outputPath);
 
             // Add entry to autoload map
-            $this->_autoloadMap[rtrim($classTemplate->getUseStatement(), ";")] = $classTemplate->compileFullOutputPath($this->outputPath);
+            $this->_autoloadMap[$classTemplate->compileFullyQualifiedClassName(false)] = $classTemplate->compileFullOutputPath($this->outputPath);
 
-            $mapTemplate->addElementClass($objectName, $classTemplate);
+            $mapTemplate->addClass($classTemplate);
         }
 
         $autoloaderTemplate = new AutoloaderTemplate($this->outputPath, $this->outputNamespace, $this->_autoloadMap);

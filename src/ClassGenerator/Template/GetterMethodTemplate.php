@@ -25,11 +25,14 @@ use PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class GetterMethodTemplate extends AbstractMethodTemplate
 {
-    /** @var array */
-    protected $propertyTypes;
+    /** @var array[] */
+    private $_propertyTypes;
+
+    /** @var string[] */
+    private $_propertyObjectTypes;
 
     /** @var bool */
-    protected $propertyIsCollection;
+    private $_propertyIsCollection;
 
     /**
      * Constructor
@@ -43,8 +46,10 @@ class GetterMethodTemplate extends AbstractMethodTemplate
         parent::__construct($name, new PHPScopeEnum(PHPScopeEnum::_PUBLIC));
 
         $this->setDocumentation($propertyTemplate->getDocumentation());
-        $this->propertyTypes = $propertyTemplate->getTypes();
-        $this->propertyIsCollection = $propertyTemplate->isCollection();
+
+        $this->_propertyTypes = $propertyTemplate->getTypes();
+        $this->_propertyObjectTypes = $propertyTemplate->getObjectTypes();
+        $this->_propertyIsCollection = $propertyTemplate->isCollection();
     }
 
     /**
@@ -52,7 +57,15 @@ class GetterMethodTemplate extends AbstractMethodTemplate
      */
     public function getPropertyTypes()
     {
-        return $this->propertyTypes;
+        return $this->_propertyTypes;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPropertyObjectTypes()
+    {
+        return $this->_propertyObjectTypes;
     }
 
     /**
@@ -60,7 +73,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
      */
     public function propertyIsCollection()
     {
-        return $this->propertyIsCollection;
+        return $this->_propertyIsCollection;
     }
 
     /**
@@ -75,7 +88,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
             $output = sprintf(
                 "%s     * @return %s[]\n",
                 $output,
-                implode('[]|', $this->getPropertyTypes())
+                implode('[]|', $this->getPropertyObjectTypes())
             );
         }
         else
@@ -83,7 +96,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
             $output = sprintf(
                 "%s     * @return %s\n",
                 $output,
-                implode('[]', $this->getPropertyTypes())
+                implode('[]', $this->getPropertyObjectTypes())
             );
         }
 

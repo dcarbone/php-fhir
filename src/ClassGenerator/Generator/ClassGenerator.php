@@ -157,7 +157,7 @@ abstract class ClassGenerator
         // Otherwise, attempt to find a "restriction" class to extend
         else if ($restrictionObjectName = XMLUtils::getObjectRestrictionBaseName($sxe))
         {
-            if (0 === strpos($baseObjectName, 'xs'))
+            if (0 === strpos($restrictionObjectName, 'xs'))
             {
                 self::determineParentPrimitive($restrictionObjectName, $classTemplate);
             }
