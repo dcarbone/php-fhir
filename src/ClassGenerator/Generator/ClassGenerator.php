@@ -166,6 +166,15 @@ abstract class ClassGenerator
                 self::determineParentFHIRObject($restrictionObjectName, $XSDMap, $classTemplate);
             }
         }
+        /*
+         * As of 2016-01-21, Date and DateTime primitives did NOT directly extend an XML primitive.
+         */
+        else
+        {
+            $classTemplate->addUse('\\DCarbone\\XMLPrimitiveTypes\\Types\\XMLString');
+            $classTemplate->setExtendedClassName('XMLString');
+            $classTemplate->setExtendedElementName('primitive');
+        }
     }
 
     /**

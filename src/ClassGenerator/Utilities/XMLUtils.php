@@ -87,7 +87,11 @@ abstract class XMLUtils
         }
 
         $attributes = $restrictionElement->attributes();
-        return (string)$attributes['base'];
+
+        if (isset($attributes['base']))
+            return (string)$attributes['base'];
+
+        return null;
     }
 
     /**
