@@ -161,6 +161,7 @@ class PropertyTemplate extends AbstractTemplate
             case 'string':
             case 'integer':
             case 'double':
+            case 'float':
                 return $default;
 
             case 'boolean':
