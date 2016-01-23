@@ -37,14 +37,18 @@ class PropertyTemplate extends AbstractTemplate
     /** @var array  */
     protected $types = array();
 
+    /** @var mixed */
+    protected $defaultValue;
+
     /**
      * Constructor
      *
      * @param string $name
      * @param PHPScopeEnum $scope
      * @param bool $isCollection
+     * @param null $defaultValue
      */
-    public function __construct($name, PHPScopeEnum $scope, $isCollection)
+    public function __construct($name, PHPScopeEnum $scope, $isCollection, $defaultValue = null)
     {
         if (NameUtils::isValidPropertyName($name))
             $this->name = $name;
@@ -53,6 +57,7 @@ class PropertyTemplate extends AbstractTemplate
 
         $this->scope = $scope;
         $this->isCollection = $isCollection;
+        $this->defaultValue = $defaultValue;
     }
 
     /**
@@ -69,6 +74,22 @@ class PropertyTemplate extends AbstractTemplate
     public function getScope()
     {
         return $this->scope;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function setDefaultValue($value)
+    {
+        $this->defaultValue = $value;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getDefaultValue()
+    {
+        return $this->defaultValue;
     }
 
     /**
@@ -118,25 +139,38 @@ class PropertyTemplate extends AbstractTemplate
      */
     public function compileTemplate()
     {
-        $output = sprintf("    /**\n%s", $this->getDocBlockDocumentationFragment());
+        return sprintf(
+            "    /**\n%s     * @var %s%s\n     */\n    %s %s = %s;\n\n",
+            $this->getDocBlockDocumentationFragment(),
+            implode('|', $this->getObjectTypes()),
+            ($this->isCollection() ? '[]' : ''),
+            (string)$this->getScope(),
+            NameUtils::getPropertyVariableName($this->getName()),
+            ($this->isCollection() ? 'array()' : $this->determineDefaultValueOutput())
+        );
+    }
 
-        if ($this->isCollection())
+    /**
+     * @return mixed|null|string
+     */
+    protected function determineDefaultValueOutput()
+    {
+        $default = $this->getDefaultValue();
+        switch(gettype($default))
         {
-            return sprintf("%s     * @var %s[]\n     */\n    %s %s = array();\n\n",
-                $output,
-                implode('|', $this->getObjectTypes()),
-                (string)$this->getScope(),
-                NameUtils::getPropertyVariableName($this->getName())
-            );
-        }
-        else
-        {
-            return sprintf("%s     * @var %s\n     */\n    %s %s;\n\n",
-                $output,
-                implode('|', $this->getObjectTypes()),
-                (string)$this->getScope(),
-                NameUtils::getPropertyVariableName($this->getName())
-            );
+            case 'string':
+            case 'integer':
+            case 'double':
+                return $default;
+
+            case 'boolean':
+                return ($default ? 'true' : 'false');
+
+            case 'array':
+                return var_export($default, true);
+
+            default:
+                return 'null';
         }
     }
 }

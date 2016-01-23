@@ -61,19 +61,26 @@ abstract class PropertyGenerator
 
     /**
      * @param XSDMap $XSDMap
+     * @param ClassTemplate $classTemplate
      * @param string $name
      * @param string $type
      * @param string|null $maxOccurs
      * @param string|null|array $documentation
-     * @param ClassTemplate $classTemplate
+     * @param mixed $defaultValue
      * @return PropertyTemplate
      */
-    public static function buildProperty(XSDMap $XSDMap, $name, $type, $maxOccurs, $documentation, ClassTemplate $classTemplate)
+    public static function buildProperty(XSDMap $XSDMap,
+                                         ClassTemplate $classTemplate,
+                                         $name,
+                                         $type,
+                                         $maxOccurs,
+                                         $documentation,
+                                         $defaultValue = null)
     {
         if (preg_match('{^[A-Z]}S', $type))
-            return self::buildComplexProperty($XSDMap, $name, $type, $maxOccurs, $documentation, $classTemplate);
+            return self::buildComplexProperty($XSDMap, $classTemplate, $name, $type, $maxOccurs, $documentation, $defaultValue);
 
-        return self::buildSimpleProperty($name, $type, $maxOccurs, $documentation);
+        return self::buildSimpleProperty($name, $type, $maxOccurs, $documentation, $defaultValue);
     }
 
     /**
@@ -81,11 +88,12 @@ abstract class PropertyGenerator
      * @param string $type
      * @param string|null $maxOccurs
      * @param string|array|null $documentation
+     * @param $defaultValue
      * @return PropertyTemplate
      */
-    public static function buildSimpleProperty($name, $type, $maxOccurs, $documentation)
+    public static function buildSimpleProperty($name, $type, $maxOccurs, $documentation, $defaultValue)
     {
-        $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
+        $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation, $defaultValue);
         $propertyTemplate->addType($name, $type, $type);
 
         return $propertyTemplate;
@@ -93,16 +101,23 @@ abstract class PropertyGenerator
 
     /**
      * @param XSDMap $XSDMap
+     * @param ClassTemplate $classTemplate
      * @param string $name
      * @param string $type
      * @param string|null $maxOccurs
      * @param string|array|null $documentation
-     * @param ClassTemplate $classTemplate
+     * @param $defaultValue
      * @return PropertyTemplate
      */
-    public static function buildComplexProperty(XSDMap $XSDMap, $name, $type, $maxOccurs, $documentation, ClassTemplate $classTemplate)
+    public static function buildComplexProperty(XSDMap $XSDMap,
+                                                ClassTemplate $classTemplate,
+                                                $name,
+                                                $type,
+                                                $maxOccurs,
+                                                $documentation,
+                                                $defaultValue)
     {
-        $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation);
+        $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation, $defaultValue);
         $propertyTemplate->addType($type, $XSDMap->getClassNameForObject($type), $type);
 
         $useStatement = $XSDMap->getClassUseStatementForObject($type);
@@ -116,14 +131,16 @@ abstract class PropertyGenerator
      * @param string $name
      * @param string|number $maxOccurs
      * @param array|string|null $documentation
+     * @param $defaultValue
      * @return PropertyTemplate
      */
-    public static function newPropertyTemplate($name, $maxOccurs, $documentation)
+    public static function newPropertyTemplate($name, $maxOccurs, $documentation, $defaultValue)
     {
         $propertyTemplate = new PropertyTemplate(
             $name,
             new PHPScopeEnum(PHPScopeEnum::_PUBLIC),
-            self::determineIfCollection($maxOccurs)
+            self::determineIfCollection($maxOccurs),
+            $defaultValue
         );
 
         $propertyTemplate->setDocumentation($documentation);
@@ -189,12 +206,7 @@ abstract class PropertyGenerator
                 $maxOccurs = (string)$attributes['maxOccurs'];
 
                 $propertyTemplate = self::buildProperty(
-                    $XSDMap,
-                    $name,
-                    $type,
-                    $maxOccurs,
-                    XMLUtils::getDocumentation($element),
-                    $classTemplate);
+                    $XSDMap, $classTemplate, $name, $type, $maxOccurs, XMLUtils::getDocumentation($element), null);
 
                 $classTemplate->addProperty($propertyTemplate);
 
@@ -227,12 +239,12 @@ abstract class PropertyGenerator
 
             if ('' === $ref)
             {
-                $propTemplate = self::buildProperty($XSDMap, $name, $type, $maxOccurs, $documentation, $classTemplate);
+                $propTemplate = self::buildProperty($XSDMap, $classTemplate, $name, $type, $maxOccurs, $documentation, null);
             }
             else if ('' === $name)
             {
                 $type = NameUtils::getComplexTypeClassName($ref);
-                $propTemplate = self::buildProperty($XSDMap, $type, $type, $maxOccurs, $documentation, $classTemplate);
+                $propTemplate = self::buildProperty($XSDMap, $classTemplate, $type, $type, $maxOccurs, $documentation, null);
             }
             else
             {
@@ -257,7 +269,7 @@ abstract class PropertyGenerator
         $name = (string)$attributes['name'];
         $type = (string)$attributes['type'];
 
-        $propertyTemplate = self::buildProperty($XSDMap, $name, $type, 1, XMLUtils::getDocumentation($attribute), $classTemplate);
+        $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $name, $type, 1, XMLUtils::getDocumentation($attribute), null);
 
         $classTemplate->addProperty($propertyTemplate);
 
