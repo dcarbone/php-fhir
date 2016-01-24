@@ -29,7 +29,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
     private $_propertyTypes;
 
     /** @var string[] */
-    private $_propertyObjectTypes;
+    private $_propertyPHPTypes;
 
     /** @var bool */
     private $_propertyIsCollection;
@@ -48,7 +48,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
         $this->setDocumentation($propertyTemplate->getDocumentation());
 
         $this->_propertyTypes = $propertyTemplate->getTypes();
-        $this->_propertyObjectTypes = $propertyTemplate->getObjectTypes();
+        $this->_propertyPHPTypes = $propertyTemplate->getPHPTypes();
         $this->_propertyIsCollection = $propertyTemplate->isCollection();
     }
 
@@ -63,9 +63,9 @@ class GetterMethodTemplate extends AbstractMethodTemplate
     /**
      * @return string[]
      */
-    public function getPropertyObjectTypes()
+    public function getPropertyPHPTypes()
     {
-        return $this->_propertyObjectTypes;
+        return $this->_propertyPHPTypes;
     }
 
     /**
@@ -88,7 +88,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
             $output = sprintf(
                 "%s     * @return %s[]\n",
                 $output,
-                implode('[]|', $this->getPropertyObjectTypes())
+                implode('[]|', $this->getPropertyPHPTypes())
             );
         }
         else
@@ -96,7 +96,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
             $output = sprintf(
                 "%s     * @return %s\n",
                 $output,
-                implode('[]', $this->getPropertyObjectTypes())
+                implode('[]', $this->getPropertyPHPTypes())
             );
         }
 

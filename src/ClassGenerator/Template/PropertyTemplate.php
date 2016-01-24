@@ -135,6 +135,47 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
+     * @return string[]
+     */
+    public function getPHPTypes()
+    {
+        $phpTypes = array();
+
+        foreach($this->getTypes() as $type)
+        {
+            if (preg_match('{^[a-z]}', $type['className']))
+            {
+                switch(strtolower($type['className']))
+                {
+                    case 'decimal':
+                        $phpTypes[] = 'float';
+                        break;
+
+                    case 'unsignedint':
+                    case 'positiveint':
+                    case 'negativeint':
+                    case 'integer':
+                        $phpTypes[] = 'integer';
+                        break;
+
+                    case 'boolean':
+                        $phpTypes[] = 'boolean';
+                        break;
+
+                    default:
+                        $phpTypes[] = 'string';
+                }
+            }
+            else
+            {
+                $phpTypes[] = $type['className'];
+            }
+        }
+
+        return $phpTypes;
+    }
+
+    /**
      * @return string
      */
     public function compileTemplate()
@@ -142,7 +183,7 @@ class PropertyTemplate extends AbstractTemplate
         return sprintf(
             "    /**\n%s     * @var %s%s\n     */\n    %s %s = %s;\n\n",
             $this->getDocBlockDocumentationFragment(),
-            implode('|', $this->getObjectTypes()),
+            implode('|', $this->getPHPTypes()),
             ($this->isCollection() ? '[]' : ''),
             (string)$this->getScope(),
             NameUtils::getPropertyVariableName($this->getName()),

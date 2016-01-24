@@ -31,7 +31,7 @@ class ParameterTemplate extends AbstractTemplate
     private $_propertyTypes;
 
     /** @var string[] */
-    private $_propertyObjectTypes;
+    private $_propertyPHPTypes;
 
     /** @var bool */
     private $_propertyIsCollection;
@@ -45,7 +45,7 @@ class ParameterTemplate extends AbstractTemplate
     {
         $this->_name = $propertyTemplate->getName();
         $this->_propertyTypes = $propertyTemplate->getTypes();
-        $this->_propertyObjectTypes = $propertyTemplate->getObjectTypes();
+        $this->_propertyPHPTypes = $propertyTemplate->getPHPTypes();
         $this->_propertyIsCollection = $propertyTemplate->isCollection();
     }
 
@@ -68,9 +68,9 @@ class ParameterTemplate extends AbstractTemplate
     /**
      * @return string[]
      */
-    public function getPropertyObjectTypes()
+    public function getPropertyPHPTypes()
     {
-        return $this->_propertyObjectTypes;
+        return $this->_propertyPHPTypes;
     }
 
     /**
@@ -91,14 +91,14 @@ class ParameterTemplate extends AbstractTemplate
         {
             return sprintf(
                 '@param %s[] %s',
-                implode('[]|', array_values($this->getPropertyObjectTypes())),
+                implode('[]|', array_values($this->getPropertyPHPTypes())),
                 NameUtils::getPropertyVariableName($this->getName())
             );
         }
 
         return sprintf(
             '@param %s %s',
-            implode('|', array_values($this->getPropertyObjectTypes())),
+            implode('|', array_values($this->getPropertyPHPTypes())),
             NameUtils::getPropertyVariableName($this->getName())
         );
     }
