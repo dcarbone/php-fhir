@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
-use PHPFHIR\ClassGenerator\Utilities\FileUtils;
-use PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
  * Class ClassTemplate
- * @package PHPFHIR\ClassGenerator\Template
+ * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
 class ClassTemplate extends AbstractTemplate
 {
@@ -162,7 +162,7 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @return \PHPFHIR\ClassGenerator\Template\PropertyTemplate[]
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate[]
      */
     public function getProperties()
     {
@@ -170,7 +170,7 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @return \PHPFHIR\ClassGenerator\Template\AbstractMethodTemplate[]
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\AbstractMethodTemplate[]
      */
     public function getMethods()
     {

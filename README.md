@@ -37,7 +37,7 @@ require __DIR__.'/vendor/autoload.php';
 
 $xsdPath = 'path to wherever you un-zipped the xsd files';
 
-$generator = new \PHPFHIR\Generator($xsdPath);
+$generator = new \DCarbone\PHPFHIR\Generator($xsdPath);
 
 $generator->generate();
 ```
@@ -67,7 +67,7 @@ The one you use is determined by the response data type, but both are used in th
 ### Example:
 
 ```php
-$parser = new \PHPFHIR\Parser\YourTypeParser();
+$parser = new \DCarbone\PHPFHIR\Parser\YourTypeParser();
 
 $data = $parser->parse($yourResponseData);
 ```

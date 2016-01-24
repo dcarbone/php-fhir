@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Generator;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-use PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use PHPFHIR\ClassGenerator\Template\GetterMethodTemplate;
-use PHPFHIR\ClassGenerator\Template\ParameterTemplate;
-use PHPFHIR\ClassGenerator\Template\PropertyTemplate;
-use PHPFHIR\ClassGenerator\Template\SetterMethodTemplate;
-use PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\GetterMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\ParameterTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\SetterMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
  * Class MethodGenerator
- * @package PHPFHIR\ClassGenerator\Generator
+ * @package DCarbone\PHPFHIR\ClassGenerator\Generator
  */
 abstract class MethodGenerator
 {

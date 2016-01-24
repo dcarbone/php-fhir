@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Utilities;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,7 +18,7 @@
 
 /**
  * Class NameUtils
- * @package PHPFHIR\ClassGenerator\Utilities
+ * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
 abstract class NameUtils
 {

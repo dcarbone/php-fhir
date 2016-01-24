@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Utilities;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-use PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
-use PHPFHIR\ClassGenerator\XSDMap;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Class XMLUtils
- * @package PHPFHIR\ClassGenerator\Utilities
+ * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
 abstract class XMLUtils
 {

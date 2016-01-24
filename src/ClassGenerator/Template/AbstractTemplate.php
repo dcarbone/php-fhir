@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -20,7 +20,7 @@
  * TODO: Restructure template system so documentation is not implemented where applicable.
  *
  * Class AbstractTemplate
- * @package PHPFHIR\ClassGenerator\Template
+ * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
 abstract class AbstractTemplate
 {

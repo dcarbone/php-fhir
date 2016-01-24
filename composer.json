@@ -1,5 +1,5 @@
 {
-    "name": "php-fhir",
+    "name": "dcarbone/php-fhir",
     "description": "Tools for creating FHIR classes in PHP for use by a client.",
     "license": "Apache-2.0",
     "homepage": "https://github.com/dcarbone/php-fhir",
@@ -19,6 +19,6 @@
     },
 
     "autoload": {
-        "psr-4": {"PHPFHIR\\": "src/"}
+        "psr-4": {"DCarbone\\PHPFHIR\\": "src/"}
     }
 }

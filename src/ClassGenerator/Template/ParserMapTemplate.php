@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-use PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 
 /**
  * Class ParserMapTemplate
- * @package PHPFHIR\ClassGenerator\Template
+ * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
 class ParserMapTemplate extends AbstractTemplate
 {
@@ -30,7 +30,7 @@ class ParserMapTemplate extends AbstractTemplate
 
 %s
 
-use PHPFHIR\\Parser\\ParserMapInterface;
+use DCarbone\\PHPFHIR\\Parser\\ParserMapInterface;
 
 class PHPFHIRParserMap implements ParserMapInterface
 {

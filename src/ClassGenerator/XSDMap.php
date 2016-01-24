@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)

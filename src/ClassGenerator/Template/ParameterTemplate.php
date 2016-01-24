@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-use PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
  * Class ParameterTemplate
- * @package PHPFHIR\ClassGenerator\Template
+ * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
 class ParameterTemplate extends AbstractTemplate
 {

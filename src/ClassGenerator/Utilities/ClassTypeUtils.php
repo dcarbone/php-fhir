@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Utilities;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use PHPFHIR\ClassGenerator\Enum\BaseObjectTypeEnum;
-use PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
-use PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\BaseObjectTypeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 
 /**
  * Class ClassTypeUtils
- * @package PHPFHIR\ClassGenerator\Utilities
+ * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
 abstract class ClassTypeUtils
 {

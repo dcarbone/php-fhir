@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-use PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 
 /**
  * Class AutoloaderTemplate
- * @package PHPFHIR\ClassGenerator\Template
+ * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
 class AutoloaderTemplate extends AbstractTemplate
 {

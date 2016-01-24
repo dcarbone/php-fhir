@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Enum;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Enum;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -20,7 +20,7 @@ use MyCLabs\Enum\Enum;
 
 /**
  * Class ComplexClassTypesEnum
- * @package PHPFHIR\ClassGenerator\Enum
+ * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
 class ComplexClassTypesEnum extends Enum
 {

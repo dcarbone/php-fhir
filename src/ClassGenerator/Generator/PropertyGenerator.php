@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator\Generator;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-use PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
-use PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
-use PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use PHPFHIR\ClassGenerator\Template\PropertyTemplate;
-use PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use PHPFHIR\ClassGenerator\Utilities\XMLUtils;
-use PHPFHIR\ClassGenerator\XSDMap;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
+use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
 /**
  * Class PropertyGenerator
- * @package PHPFHIR\ClassGenerator\Utilities
+ * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
 abstract class PropertyGenerator
 {

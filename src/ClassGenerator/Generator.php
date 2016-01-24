@@ -1,4 +1,4 @@
-<?php namespace PHPFHIR\ClassGenerator;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use PHPFHIR\ClassGenerator\Generator\ClassGenerator;
-use PHPFHIR\ClassGenerator\Template\AutoloaderTemplate;
-use PHPFHIR\ClassGenerator\Template\ParserMapTemplate;
-use PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
-use PHPFHIR\ClassGenerator\Utilities\FileUtils;
-use PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use PHPFHIR\ClassGenerator\Utilities\XMLUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
+use DCarbone\PHPFHIR\ClassGenerator\Template\AutoloaderTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\ParserMapTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 
 /**
  * Class Generator
