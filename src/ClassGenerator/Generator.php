@@ -44,10 +44,10 @@ class Generator
      * Constructor
      *
      * @param string $xsdPath
-     * @param string $outputNamespace
      * @param null|string $outputPath
+     * @param string $outputNamespace
      */
-    public function __construct($xsdPath, $outputNamespace = 'PHPFHIRGenerated', $outputPath = null)
+    public function __construct($xsdPath, $outputPath = null, $outputNamespace = 'PHPFHIRGenerated')
     {
         if (false === is_dir($xsdPath))
             throw new \RuntimeException('Unable to locate XSD dir "'.$xsdPath.'"');

@@ -20,8 +20,11 @@ abstract class AbstractResponseParser
      * @param string $outputPath
      * @param string $outputNamespace
      */
-    public function __construct($outputPath, $outputNamespace)
+    public function __construct($outputPath = null, $outputNamespace = 'PHPFHIRGenerated')
     {
+        if (null === $outputPath)
+            $outputPath = realpath(sprintf('%s/../../output', __DIR__));
+
         $this->outputPath = $outputPath;
         $this->outputNamespace = $outputNamespace;
 
