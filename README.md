@@ -78,7 +78,7 @@ constructor arguments respectively.
 ## Testing
 
 Currently this library is being tested against v0.0.82 and v1.0.2. using the open server available here:
-http://fhir2.healthintersections.com.au/open/Observation .
+http://fhir2.healthintersections.com.au/open/ .
 
 ## TODO
 
