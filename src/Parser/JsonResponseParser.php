@@ -54,6 +54,7 @@ class JsonResponseParser extends AbstractResponseParser
         // This indicates we are at a primitive value...
         if (is_scalar($jsonEntry))
         {
+            // TODO: There is a bug somewhere in here that allows for this...should fix.
             if (($map['primitive'] || $map['list']))
             {
                 $object->setValue($jsonEntry);
@@ -64,6 +65,14 @@ class JsonResponseParser extends AbstractResponseParser
                 $setter = $propertyMap['setter'];
                 $object->$setter($this->createPrimitive($jsonEntry, $propertyMap['type']));
             }
+        }
+        // TODO: This is probably very not ok...
+        else if (isset($jsonEntry['resourceType']) && $jsonEntry['resourceType'] !== $fhirElementName)
+        {
+            $propertyMap = $properties[$jsonEntry['resourceType']];
+            $setter = $propertyMap['setter'];
+            $type = $propertyMap['type'];
+            $object->$setter($this->_parseObject($jsonEntry, $type));
         }
         else
         {
@@ -88,10 +97,7 @@ class JsonResponseParser extends AbstractResponseParser
 
                     if (is_string($firstKey))
                     {
-                        if (isset($v['resourceType']))
-                            $object->$setter($this->_parseObject($v, $v['resourceType']));
-                        else
-                            $object->$setter($this->_parseObject($v, $type));
+                        $object->$setter($this->_parseObject($v, $type));
                     }
                     else
                     {
@@ -110,6 +116,4 @@ class JsonResponseParser extends AbstractResponseParser
 
         return $object;
     }
-
-
 }
