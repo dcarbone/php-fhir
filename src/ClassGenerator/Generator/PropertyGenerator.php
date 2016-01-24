@@ -185,28 +185,53 @@ abstract class PropertyGenerator
             {
                 $attributes = $element->attributes();
                 $name = (string)$attributes['name'];
+                $type = (string)$attributes['type'];
 
-                // TODO: Handle these situations
+                // At the moment it appears this happens when a property
+                // is supposed to contain HTML.  We'll see how long this holds true...
                 if ('' === $name)
                 {
-                    $ref = (string)$attributes['ref'];
-                    trigger_error(
-                        sprintf(
-                            'Encountered property with no name and with ref value "%s" on class "%s". Will not create property for it.',
-                            $ref,
-                            $classTemplate->getClassName()
-                        ),
-                        E_USER_NOTICE
-                    );
+                    if (isset($attributes['ref']))
+                    {
+                        $ref = (string)$attributes['ref'];
 
-                    continue;
+                        if (0 === strpos($ref, 'xhtml'))
+                        {
+                            $name = substr($ref, 6);
+                            $type = 'string';
+                        }
+                        else
+                        {
+                            trigger_error(sprintf(
+                                'Encountered property with no name attribute and with ref value "%s" on FHIR object "%s". Will not create property for it.',
+                                $ref,
+                                $classTemplate->getElementName()
+                            ));
+
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        trigger_error(sprintf(
+                            'Encountered property element with no "name" or "ref" attribute on FHIR object "%s".  Will not create property for it.',
+                            $classTemplate->getElementName()
+                        ));
+
+                        continue;
+                    }
                 }
 
-                $type = (string)$attributes['type'];
                 $maxOccurs = (string)$attributes['maxOccurs'];
 
                 $propertyTemplate = self::buildProperty(
-                    $XSDMap, $classTemplate, $name, $type, $maxOccurs, XMLUtils::getDocumentation($element), null);
+                    $XSDMap,
+                    $classTemplate,
+                    $name,
+                    $type,
+                    $maxOccurs,
+                    XMLUtils::getDocumentation($element)
+                );
 
                 $classTemplate->addProperty($propertyTemplate);
 
