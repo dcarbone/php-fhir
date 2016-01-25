@@ -18,8 +18,6 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Class XMLUtils
@@ -35,16 +33,6 @@ abstract class XMLUtils
     {
         return self::_constructSXE(basename($filePath), file_get_contents($filePath));
     }
-
-    /**
-     * @param \SplFileInfo $file
-     * @return \SimpleXMLElement
-     */
-    public static function constructSXEWithFileInfo(\SplFileInfo $file)
-    {
-        return self::_constructSXE($file->getBasename(true), file_get_contents($file->getRealPath()));
-    }
-
 
     /**
      * @param \SimpleXMLElement $extensionElement
@@ -170,17 +158,17 @@ abstract class XMLUtils
 
         // Then scoop up the rest
         // TODO: Validate that, yes, certain files can be ignored.
-        $finder = new Finder();
-        $finder->files()
-            ->in($xsdPath)
-            ->ignoreDotFiles(true)
-            ->name('*.xsd')
-            ->notName('fhir-*.xsd')
-            ->notName('xml.xsd');
 
-        foreach($finder as $file)
+        foreach(glob(sprintf('%s/*.xsd', $xsdPath), GLOB_NOSORT) as $file)
         {
-            /** @var SplFileInfo $file */
+            $basename = basename($file);
+
+            if (0 === strpos($basename, 'fhir-'))
+                continue;
+
+            if ('xml.xsd' === $basename)
+                continue;
+
             self::parseClassesFromXSD($file, $xsdMap, $outputNS);
         }
 
@@ -188,13 +176,13 @@ abstract class XMLUtils
     }
 
     /**
-     * @param \SplFileInfo $file
+     * @param string $file
      * @param XSDMap $xsdMap
      * @param string $outputNS
      */
-    public static function parseClassesFromXSD(\SplFileInfo $file, XSDMap $xsdMap, $outputNS)
+    public static function parseClassesFromXSD($file, XSDMap $xsdMap, $outputNS)
     {
-        $sxe = self::constructSXEWithFileInfo($file);
+        $sxe = self::constructSXEWithFilePath($file);
         foreach($sxe->children('xs', true) as $child)
         {
             /** @var \SimpleXMLElement $child */
