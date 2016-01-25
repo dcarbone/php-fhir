@@ -82,7 +82,7 @@ class SetterMethodTemplate extends AbstractMethodTemplate
         $params = array();
         foreach($this->getParameters() as $param)
         {
-            $params[] = NameUtils::getPropertyVariableName($param->getName());
+            $params[] = NameUtils::getPropertyVariableName($param->getProperty()->getName());
         }
         $output = sprintf("%s%s)\n    {\n", $output, implode(', ', $params));
 

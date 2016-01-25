@@ -25,37 +25,25 @@ use DCarbone\AbstractCollectionPlus;
 class XSDMap extends AbstractCollectionPlus
 {
     /**
-     * @param string $objectName
+     * @param string $fhirElementName
      * @return string|null
      */
-    public function getClassNameForObject($objectName)
+    public function getClassNameForFHIRElementName($fhirElementName)
     {
-        if (isset($this[$objectName]))
-            return $this[$objectName]['className'];
+        if (isset($this[$fhirElementName]))
+            return $this[$fhirElementName]['className'];
 
         return null;
     }
 
     /**
-     * @param string $objectName
-     * @return string|null
-     */
-    public function getClassPseudonymForObject($objectName)
-    {
-        if (isset($this[$objectName]))
-            return $this[$objectName]['pseudonym'];
-
-        return null;
-    }
-
-    /**
-     * @param string $objectName
+     * @param string $fhirElementName
      * @return null|string
      */
-    public function getClassUseStatementForObject($objectName)
+    public function getClassUseStatementForFHIRElementName($fhirElementName)
     {
-        if (isset($this[$objectName]))
-            return sprintf('%s\\%s', $this[$objectName]['rootNS'], $this[$objectName]['className']);
+        if (isset($this[$fhirElementName]))
+            return sprintf('%s\\%s', $this[$fhirElementName]['rootNS'], $this[$fhirElementName]['className']);
 
         return null;
     }

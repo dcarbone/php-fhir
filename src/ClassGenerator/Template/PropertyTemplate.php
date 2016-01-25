@@ -32,32 +32,42 @@ class PropertyTemplate extends AbstractTemplate
     protected $scope;
 
     /** @var bool */
-    protected $isCollection = false;
+    protected $collection = false;
 
-    /** @var array  */
-    protected $types = array();
+    /** @var string */
+    protected $fhirElementName;
+
+    /**
+     * Will either be PHP class or scalar type string equivalent to end result of "gettype()"
+     * @var string
+     */
+    protected $phpType;
+
+    /** @var string */
+    protected $fhirElementType;
+
+    /** @var bool */
+    protected $primitive = false;
+
+    /** @var bool */
+    protected $list = false;
+
+    /** @var bool */
+    protected $html = false;
 
     /** @var mixed */
     protected $defaultValue;
 
     /**
      * Constructor
-     *
-     * @param string $name
      * @param PHPScopeEnum $scope
-     * @param bool $isCollection
-     * @param null $defaultValue
      */
-    public function __construct($name, PHPScopeEnum $scope, $isCollection, $defaultValue = null)
+    public function __construct(PHPScopeEnum $scope = null)
     {
-        if (NameUtils::isValidPropertyName($name))
-            $this->name = $name;
+        if (null === $scope)
+            $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
         else
-            throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
-
-        $this->scope = $scope;
-        $this->isCollection = $isCollection;
-        $this->defaultValue = $defaultValue;
+            $this->scope = $scope;
     }
 
     /**
@@ -69,6 +79,19 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        if (NameUtils::isValidPropertyName($name))
+            $this->name = $name;
+        else
+            throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
+
+        $this->name = $name;
+    }
+
+    /**
      * @return PHPScopeEnum
      */
     public function getScope()
@@ -77,19 +100,11 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param mixed $value
+     * @param PHPScopeEnum $scope
      */
-    public function setDefaultValue($value)
+    public function setScope(PHPScopeEnum $scope)
     {
-        $this->defaultValue = $value;
-    }
-
-    /**
-     * @return mixed|null
-     */
-    public function getDefaultValue()
-    {
-        return $this->defaultValue;
+        $this->scope = $scope;
     }
 
     /**
@@ -97,82 +112,127 @@ class PropertyTemplate extends AbstractTemplate
      */
     public function isCollection()
     {
-        return $this->isCollection;
+        return $this->collection;
     }
 
     /**
-     * @return array
+     * @param boolean $collection
      */
-    public function getTypes()
+    public function setCollection($collection)
     {
-        return $this->types;
+        $this->collection = $collection;
     }
 
     /**
-     * @param string $elementName
-     * @param string $objectClassName
-     * @param string $objectElementName
+     * @return string
      */
-    public function addType($elementName, $objectClassName, $objectElementName)
+    public function getFhirElementName()
     {
-        $this->types[$elementName] = array(
-            'className' => $objectClassName,
-            'elementName' => $objectElementName
-        );
+        return $this->fhirElementName;
     }
 
     /**
-     * @return string[]
+     * @param string $fhirElementName
      */
-    public function getObjectTypes()
+    public function setFhirElementName($fhirElementName)
     {
-        $objects = array();
-        foreach($this->getTypes() as $type)
-        {
-            $objects[] = $type['className'];
-        }
-        return $objects;
+        $this->fhirElementName = $fhirElementName;
     }
 
     /**
-     * @return string[]
+     * @return string
      */
-    public function getPHPTypes()
+    public function getPhpType()
     {
-        $phpTypes = array();
+        return $this->phpType;
+    }
 
-        foreach($this->getTypes() as $type)
-        {
-            if (preg_match('{^[a-z]}', $type['className']))
-            {
-                switch(strtolower($type['className']))
-                {
-                    case 'decimal':
-                        $phpTypes[] = 'float';
-                        break;
+    /**
+     * @param string $phpType
+     */
+    public function setPhpType($phpType)
+    {
+        $this->phpType = $phpType;
+    }
 
-                    case 'unsignedint':
-                    case 'positiveint':
-                    case 'negativeint':
-                    case 'integer':
-                        $phpTypes[] = 'integer';
-                        break;
+    /**
+     * @return string
+     */
+    public function getFhirElementType()
+    {
+        return $this->fhirElementType;
+    }
 
-                    case 'boolean':
-                        $phpTypes[] = 'boolean';
-                        break;
+    /**
+     * @param string $fhirElementType
+     */
+    public function setFhirElementType($fhirElementType)
+    {
+        $this->fhirElementType = $fhirElementType;
+    }
 
-                    default:
-                        $phpTypes[] = 'string';
-                }
-            }
-            else
-            {
-                $phpTypes[] = $type['className'];
-            }
-        }
+    /**
+     * @return boolean
+     */
+    public function isPrimitive()
+    {
+        return $this->primitive;
+    }
 
-        return $phpTypes;
+    /**
+     * @param boolean $primitive
+     */
+    public function setPrimitive($primitive)
+    {
+        $this->primitive = $primitive;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isList()
+    {
+        return $this->list;
+    }
+
+    /**
+     * @param boolean $list
+     */
+    public function setList($list)
+    {
+        $this->list = $list;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isHtml()
+    {
+        return $this->html;
+    }
+
+    /**
+     * @param boolean $html
+     */
+    public function setHtml($html)
+    {
+        $this->html = $html;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultValue()
+    {
+        return $this->defaultValue;
+    }
+
+    /**
+     * @param mixed $defaultValue
+     */
+    public function setDefaultValue($defaultValue)
+    {
+        $this->defaultValue = $defaultValue;
     }
 
     /**
@@ -183,7 +243,7 @@ class PropertyTemplate extends AbstractTemplate
         return sprintf(
             "    /**\n%s     * @var %s%s\n     */\n    %s %s = %s;\n\n",
             $this->getDocBlockDocumentationFragment(),
-            implode('|', $this->getPHPTypes()),
+            $this->getPhpType(),
             ($this->isCollection() ? '[]' : ''),
             (string)$this->getScope(),
             NameUtils::getPropertyVariableName($this->getName()),

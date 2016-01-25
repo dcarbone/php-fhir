@@ -51,7 +51,7 @@ abstract class ClassGenerator
                 case ElementTypeEnum::CHOICE:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
-                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
                     break;
 
                 case ElementTypeEnum::ANNOTATION:
@@ -66,6 +66,16 @@ abstract class ClassGenerator
                     self::parseRestriction($XSDMap, $_element, $classTemplate);
                     break;
             }
+        }
+
+        foreach($classTemplate->getProperties() as $propertyTemplate)
+        {
+            // TODO: Stop repeating yourself!
+            $useStatement = $XSDMap->getClassUseStatementForFHIRElementName($propertyTemplate->getPhpType());
+            if ($useStatement)
+                $classTemplate->addUse($useStatement);
+
+            MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
         }
 
         return $classTemplate;
@@ -112,7 +122,7 @@ abstract class ClassGenerator
                 case ElementTypeEnum::UNION:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::ENUMERATION:
-                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
                     break;
             }
         }
@@ -136,7 +146,7 @@ abstract class ClassGenerator
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
                 case ElementTypeEnum::ENUMERATION:
-                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
                     break;
             }
         }
@@ -199,11 +209,11 @@ abstract class ClassGenerator
      */
     public static function determineParentFHIRObject($baseObjectName, XSDMap $XSDMap, ClassTemplate $classTemplate)
     {
-        $baseClassName = $XSDMap->getClassNameForObject($baseObjectName);
+        $baseClassName = $XSDMap->getClassNameForFHIRElementName($baseObjectName);
         $classTemplate->setExtendedClassName($baseClassName);
         $classTemplate->setExtendedElementName($baseObjectName);
 
-        $useStatement = $XSDMap->getClassUseStatementForObject($baseObjectName);
+        $useStatement = $XSDMap->getClassUseStatementForFHIRElementName($baseObjectName);
         if ($useStatement)
             $classTemplate->addUse($useStatement);
     }

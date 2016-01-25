@@ -17,10 +17,10 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\PrimitivePropertyTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\PrimitiveTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
@@ -34,27 +34,27 @@ abstract class PropertyGenerator
      * TODO: I don't like how this is utilized, really.  Should think of a better way to do it.
      *
      * @param XSDMap $XSDMap
-     * @param \SimpleXMLElement $propertyElement
      * @param ClassTemplate $classTemplate
+     * @param \SimpleXMLElement $propertyElement
      */
-    public static function implementProperty(XSDMap $XSDMap, \SimpleXMLElement $propertyElement, ClassTemplate $classTemplate)
+    public static function implementProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $propertyElement)
     {
         switch(strtolower($propertyElement->getName()))
         {
             case ElementTypeEnum::ATTRIBUTE:
-                self::implementAttributeProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementAttributeProperty($XSDMap, $classTemplate, $propertyElement);
                 break;
             case ElementTypeEnum::CHOICE:
-                self::implementChoiceProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementChoiceProperty($XSDMap, $classTemplate, $propertyElement);
                 break;
             case ElementTypeEnum::SEQUENCE:
-                self::implementSequenceProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementSequenceProperty($XSDMap, $classTemplate, $propertyElement);
                 break;
             case ElementTypeEnum::UNION:
-                self::implementUnionProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementUnionProperty($XSDMap, $classTemplate, $propertyElement);
                 break;
             case ElementTypeEnum::ENUMERATION:
-                self::implementEnumerationProperty($XSDMap, $propertyElement, $classTemplate);
+                self::implementEnumerationProperty($XSDMap, $classTemplate, $propertyElement);
                 break;
         }
     }
@@ -62,88 +62,89 @@ abstract class PropertyGenerator
     /**
      * @param XSDMap $XSDMap
      * @param ClassTemplate $classTemplate
-     * @param string $name
-     * @param string $type
-     * @param string|null $maxOccurs
-     * @param string|null|array $documentation
-     * @param mixed $defaultValue
-     * @return PropertyTemplate
+     * @param \SimpleXMLElement $element
+     * @param string $documentation
+     * @param string $maxOccurs
+     * @return PropertyTemplate|null
      */
     public static function buildProperty(XSDMap $XSDMap,
                                          ClassTemplate $classTemplate,
-                                         $name,
-                                         $type,
-                                         $maxOccurs,
-                                         $documentation,
-                                         $defaultValue = null)
+                                         \SimpleXMLElement $element,
+                                         $documentation = null,
+                                         $maxOccurs = null)
     {
-        if (preg_match('{^[A-Z]}S', $type))
-            return self::buildComplexProperty($XSDMap, $classTemplate, $name, $type, $maxOccurs, $documentation, $defaultValue);
+        $propertyTemplate = new PropertyTemplate();
 
-        return self::buildSimpleProperty($name, $type, $maxOccurs, $documentation, $defaultValue);
-    }
+        $attributes = $element->attributes();
 
-    /**
-     * @param string $name
-     * @param string $type
-     * @param string|null $maxOccurs
-     * @param string|array|null $documentation
-     * @param $defaultValue
-     * @return PropertyTemplate
-     */
-    public static function buildSimpleProperty($name, $type, $maxOccurs, $documentation, $defaultValue)
-    {
-        $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation, $defaultValue);
-        $propertyTemplate->addType($name, $type, $type);
+        if (null === $documentation)
+            $propertyTemplate->setDocumentation(XMLUtils::getDocumentation($element));
 
-        return $propertyTemplate;
-    }
+        if (null === $maxOccurs && isset($attributes['maxOccurs']))
+            $maxOccurs = (string)$attributes['maxOccurs'];
 
-    /**
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
-     * @param string $name
-     * @param string $type
-     * @param string|null $maxOccurs
-     * @param string|array|null $documentation
-     * @param $defaultValue
-     * @return PropertyTemplate
-     */
-    public static function buildComplexProperty(XSDMap $XSDMap,
-                                                ClassTemplate $classTemplate,
-                                                $name,
-                                                $type,
-                                                $maxOccurs,
-                                                $documentation,
-                                                $defaultValue)
-    {
-        $propertyTemplate = self::newPropertyTemplate($name, $maxOccurs, $documentation, $defaultValue);
-        $propertyTemplate->addType($type, $XSDMap->getClassNameForObject($type), $type);
+        if (null !== $maxOccurs && '' !== $maxOccurs)
+            $propertyTemplate->setCollection(self::determineIfCollection($maxOccurs));
 
-        $useStatement = $XSDMap->getClassUseStatementForObject($type);
-        if ($useStatement)
-            $classTemplate->addUse($useStatement);
+        $name = (string)$attributes['name'];
+        $type = (string)$attributes['type'];
+        $ref = (string)$attributes['ref'];
 
-        return $propertyTemplate;
-    }
+        if ('' === $name)
+        {
+            if ('' === $ref)
+            {
+                trigger_error(sprintf(
+                    'Encountered property on FHIR object "%s" with no "name" or "ref" attribute, cannot create property for it.  Property definition: "%s"',
+                    $classTemplate->getElementName(),
+                    $element->saveXML()
+                ));
 
-    /**
-     * @param string $name
-     * @param string|number $maxOccurs
-     * @param array|string|null $documentation
-     * @param $defaultValue
-     * @return PropertyTemplate
-     */
-    public static function newPropertyTemplate($name, $maxOccurs, $documentation, $defaultValue)
-    {
-        $propertyTemplate = new PropertyTemplate(
-            $name,
-            new PHPScopeEnum(PHPScopeEnum::_PUBLIC),
-            self::determineIfCollection($maxOccurs),
-            $defaultValue
-        );
+                return null;
+            }
 
-        $propertyTemplate->setDocumentation($documentation);
+            if (0 === strpos($ref, 'xhtml'))
+            {
+                $propertyTemplate->setName(substr($ref, 6));
+                $propertyTemplate->setFhirElementType('html');
+                $propertyTemplate->setHtml(true);
+                $propertyTemplate->setPhpType('string');
+
+                return $propertyTemplate;
+            }
+
+            trigger_error(sprintf(
+                'Unable to determine property name on object "%s" with ref value "%s".  Property definition: "%s"',
+                $classTemplate->getElementName(),
+                $element->saveXML()
+            ));
+
+            return null;
+        }
+
+        $propertyTemplate->setName($name);
+        $propertyTemplate->setFhirElementType($type);
+
+        if (false !== strpos($name, '-primitive'))
+        {
+            $propertyTemplate->setPrimitive(true);
+            $propertyTemplate->setPhpType(
+                PrimitiveTypeUtils::getSimpleTypeVariableType(
+                    new PrimitivePropertyTypesEnum($type)
+                )
+            );
+        }
+        else if (false !== strpos($name, '-list'))
+        {
+            $propertyTemplate->setList(true);
+            $propertyTemplate->setPhpType('string');
+        }
+        else
+        {
+            $propertyTemplate->setPhpType(
+                $XSDMap->getClassNameForFHIRElementName($type)
+            );
+        }
 
         return $propertyTemplate;
     }
@@ -159,10 +160,10 @@ abstract class PropertyGenerator
 
     /**
      * @param XSDMap $XSDMap
-     * @param \SimpleXMLElement $sequence
      * @param ClassTemplate $classTemplate
+     * @param \SimpleXMLElement $sequence
      */
-    public static function implementSequenceProperty(XSDMap $XSDMap, \SimpleXMLElement $sequence, ClassTemplate $classTemplate)
+    public static function implementSequenceProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $sequence)
     {
         // Check if this is a simple or complex sequence
         $elements = $sequence->xpath('xs:element');
@@ -174,7 +175,7 @@ abstract class PropertyGenerator
                 switch(strtolower($_element->getName()))
                 {
                     case ElementTypeEnum::CHOICE:
-                        self::implementChoiceProperty($XSDMap, $_element, $classTemplate);
+                        self::implementChoiceProperty($XSDMap, $classTemplate, $_element);
                         break;
                 }
             }
@@ -183,69 +184,19 @@ abstract class PropertyGenerator
         {
             foreach($elements as $element)
             {
-                $attributes = $element->attributes();
-                $name = (string)$attributes['name'];
-                $type = (string)$attributes['type'];
-
-                // At the moment it appears this happens when a property
-                // is supposed to contain HTML.  We'll see how long this holds true...
-                if ('' === $name)
-                {
-                    if (isset($attributes['ref']))
-                    {
-                        $ref = (string)$attributes['ref'];
-
-                        if (0 === strpos($ref, 'xhtml'))
-                        {
-                            $name = substr($ref, 6);
-                            $type = 'string';
-                        }
-                        else
-                        {
-                            trigger_error(sprintf(
-                                'Encountered property with no name attribute and with ref value "%s" on FHIR object "%s". Will not create property for it.',
-                                $ref,
-                                $classTemplate->getElementName()
-                            ));
-
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        trigger_error(sprintf(
-                            'Encountered property element with no "name" or "ref" attribute on FHIR object "%s".  Will not create property for it.',
-                            $classTemplate->getElementName()
-                        ));
-
-                        continue;
-                    }
-                }
-
-                $maxOccurs = (string)$attributes['maxOccurs'];
-
-                $propertyTemplate = self::buildProperty(
-                    $XSDMap,
-                    $classTemplate,
-                    $name,
-                    $type,
-                    $maxOccurs,
-                    XMLUtils::getDocumentation($element)
-                );
-
-                $classTemplate->addProperty($propertyTemplate);
-
-                MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
+                $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $element);
+                if ($propertyTemplate)
+                    $classTemplate->addProperty($propertyTemplate);
             }
         }
     }
 
     /**
      * @param XSDMap $XSDMap
-     * @param \SimpleXMLElement $choice
      * @param ClassTemplate $classTemplate
+     * @param \SimpleXMLElement $choice
      */
-    public static function implementChoiceProperty(XSDMap $XSDMap, \SimpleXMLElement $choice, ClassTemplate $classTemplate)
+    public static function implementChoiceProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $choice)
     {
         $attributes = $choice->attributes();
 //        $minOccurs = (int)$attributes['minOccurs'];
@@ -254,59 +205,63 @@ abstract class PropertyGenerator
 
         foreach($choice->xpath('xs:element') as $_element)
         {
-            $attributes = $_element->attributes();
-            $name = (string)$attributes['name'];
-            $ref = (string)$attributes['ref'];
-            $type = (string)$attributes['type'];
+            $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $_element, $documentation, $maxOccurs);
+            if ($propertyTemplate)
+                $classTemplate->addProperty($propertyTemplate);
 
-            if ('' === $name && '' === $ref)
-                throw new \RuntimeException('Unable to determine name of choice property in class '.$classTemplate->getClassName().'.');
-
-            if ('' === $ref)
-            {
-                $propTemplate = self::buildProperty($XSDMap, $classTemplate, $name, $type, $maxOccurs, $documentation, null);
-            }
-            else if ('' === $name)
-            {
-                $type = NameUtils::getComplexTypeClassName($ref);
-                $propTemplate = self::buildProperty($XSDMap, $classTemplate, $type, $type, $maxOccurs, $documentation, null);
-            }
-            else
-            {
-                trigger_error('Unable to parse choice property with definition '.(string)$_element);
-                continue;
-            }
-
-            $classTemplate->addProperty($propTemplate);
-
-            MethodGenerator::implementMethodsForProperty($classTemplate, $propTemplate);
+//            $attributes = $_element->attributes();
+//            $name = (string)$attributes['name'];
+//            $ref = (string)$attributes['ref'];
+//            $type = (string)$attributes['type'];
+//
+//            if ('' === $name && '' === $ref)
+//                throw new \RuntimeException('Unable to determine name of choice property in class '.$classTemplate->getClassName().'.');
+//
+//            if ('' === $ref)
+//            {
+//                $propTemplate = self::buildProperty($XSDMap, $classTemplate, $name, $type, $maxOccurs, $documentation, null);
+//            }
+//            else if ('' === $name)
+//            {
+//                $type = NameUtils::getComplexTypeClassName($ref);
+//                $propTemplate = self::buildProperty($XSDMap, $classTemplate, $type, $type, $maxOccurs, $documentation, null);
+//            }
+//            else
+//            {
+//                trigger_error('Unable to parse choice property with definition '.(string)$_element);
+//                continue;
+//            }
         }
     }
 
     /**
      * @param XSDMap $XSDMap
-     * @param \SimpleXMLElement $attribute
      * @param ClassTemplate $classTemplate
+     * @param \SimpleXMLElement $attribute
      */
-    public static function implementAttributeProperty(XSDMap $XSDMap, \SimpleXMLElement $attribute, ClassTemplate $classTemplate)
+    public static function implementAttributeProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $attribute)
     {
-        $attributes = $attribute->attributes();
-        $name = (string)$attributes['name'];
-        $type = (string)$attributes['type'];
-
-        $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $name, $type, 1, XMLUtils::getDocumentation($attribute), null);
-
-        $classTemplate->addProperty($propertyTemplate);
-
-        MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
+        $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $attribute, null, 1);
+        if ($propertyTemplate)
+            $classTemplate->addProperty($propertyTemplate);
     }
 
-    public static function implementUnionProperty(XSDMap $XSDMap, \SimpleXMLElement $union, ClassTemplate $classTemplate)
+    /**
+     * @param XSDMap $XSDMap
+     * @param ClassTemplate $classTemplate
+     * @param \SimpleXMLElement $union
+     */
+    public static function implementUnionProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $union)
     {
         // TODO: Implement these!
     }
 
-    public static function implementEnumerationProperty(XSDMap $XSDMap, \SimpleXMLElement $enumeration, ClassTemplate $classTemplate)
+    /**
+     * @param XSDMap $XSDMap
+     * @param ClassTemplate $classTemplate
+     * @param \SimpleXMLElement $enumeration
+     */
+    public static function implementEnumerationProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $enumeration)
     {
         // TODO: Implement these!
     }

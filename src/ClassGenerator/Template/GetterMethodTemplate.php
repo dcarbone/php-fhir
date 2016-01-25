@@ -25,14 +25,8 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class GetterMethodTemplate extends AbstractMethodTemplate
 {
-    /** @var array[] */
-    private $_propertyTypes;
-
-    /** @var string[] */
-    private $_propertyPHPTypes;
-
-    /** @var bool */
-    private $_propertyIsCollection;
+    /** @var PropertyTemplate */
+    private $_property;
 
     /**
      * Constructor
@@ -47,33 +41,15 @@ class GetterMethodTemplate extends AbstractMethodTemplate
 
         $this->setDocumentation($propertyTemplate->getDocumentation());
 
-        $this->_propertyTypes = $propertyTemplate->getTypes();
-        $this->_propertyPHPTypes = $propertyTemplate->getPHPTypes();
-        $this->_propertyIsCollection = $propertyTemplate->isCollection();
+        $this->_property = $propertyTemplate;
     }
 
     /**
-     * @return array
+     * @return PropertyTemplate
      */
-    public function getPropertyTypes()
+    public function getProperty()
     {
-        return $this->_propertyTypes;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPropertyPHPTypes()
-    {
-        return $this->_propertyPHPTypes;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function propertyIsCollection()
-    {
-        return $this->_propertyIsCollection;
+        return $this->_property;
     }
 
     /**
@@ -83,12 +59,12 @@ class GetterMethodTemplate extends AbstractMethodTemplate
     {
         $output = sprintf("    /**\n%s", $this->getDocBlockDocumentationFragment());
 
-        if ($this->propertyIsCollection())
+        if ($this->getProperty()->isCollection())
         {
             $output = sprintf(
                 "%s     * @return %s[]\n",
                 $output,
-                implode('[]|', $this->getPropertyPHPTypes())
+                $this->getProperty()->getPhpType()
             );
         }
         else
@@ -96,7 +72,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
             $output = sprintf(
                 "%s     * @return %s\n",
                 $output,
-                implode('[]', $this->getPropertyPHPTypes())
+                $this->getProperty()->getPhpType()
             );
         }
 

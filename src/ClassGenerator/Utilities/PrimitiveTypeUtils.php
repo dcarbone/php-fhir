@@ -50,6 +50,11 @@ abstract class PrimitiveTypeUtils
             case PrimitivePropertyTypesEnum::DECIMAL:
                 return 'float';
 
+            case PrimitivePropertyTypesEnum::TIME:
+            case PrimitivePropertyTypesEnum::INSTANT:
+            case PrimitivePropertyTypesEnum::DATE:
+            case PrimitivePropertyTypesEnum::DATETIME:
+
             case PrimitivePropertyTypesEnum::MARKDOWN:
             case PrimitivePropertyTypesEnum::UUID:
             case PrimitivePropertyTypesEnum::OID:
@@ -60,11 +65,12 @@ abstract class PrimitiveTypeUtils
             case PrimitivePropertyTypesEnum::CODE:
                 return 'string';
 
-            case PrimitivePropertyTypesEnum::TIME:
-            case PrimitivePropertyTypesEnum::INSTANT:
-            case PrimitivePropertyTypesEnum::DATE:
-            case PrimitivePropertyTypesEnum::DATETIME:
-                return '\\DateTime';
+            // TODO: At somepoint, would looooove to turn this value into a real DateTime object...
+//            case PrimitivePropertyTypesEnum::TIME:
+//            case PrimitivePropertyTypesEnum::INSTANT:
+//            case PrimitivePropertyTypesEnum::DATE:
+//            case PrimitivePropertyTypesEnum::DATETIME:
+//                return '\\DateTime';
 
             default:
                 throw new \RuntimeException('No variable type mapping exists for simple property "'.$strType.'"');

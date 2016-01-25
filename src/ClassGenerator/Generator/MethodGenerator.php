@@ -63,7 +63,7 @@ abstract class MethodGenerator
             $methodBody = sprintf(
                 '$this->%s[] = %s;',
                 $propertyTemplate->getName(),
-                NameUtils::getPropertyVariableName($paramTemplate->getName())
+                NameUtils::getPropertyVariableName($paramTemplate->getProperty()->getName())
             );
         }
         else
@@ -71,7 +71,7 @@ abstract class MethodGenerator
             $methodBody = sprintf(
                 '$this->%s = %s;',
                 $propertyTemplate->getName(),
-                NameUtils::getPropertyVariableName($paramTemplate->getName())
+                NameUtils::getPropertyVariableName($paramTemplate->getProperty()->getName())
             );
         }
 

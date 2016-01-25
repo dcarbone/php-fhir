@@ -92,12 +92,12 @@ class Generator
             // Add entry to autoload map
             $this->_autoloadMap[$classTemplate->compileFullyQualifiedClassName(false)] = $classTemplate->compileFullOutputPath($this->outputPath);
 
-            $mapTemplate->addClass($classTemplate);
+//            $mapTemplate->addClass($classTemplate);
         }
 
         $autoloaderTemplate = new AutoloaderTemplate($this->outputPath, $this->outputNamespace, $this->_autoloadMap);
         $autoloaderTemplate->writeToFile();
 
-        $mapTemplate->writeToFile();
+//        $mapTemplate->writeToFile();
     }
 }
