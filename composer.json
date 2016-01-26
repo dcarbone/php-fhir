@@ -22,8 +22,6 @@
     "require": {
         "php": ">=5.3.3",
         "myclabs/php-enum": "1.4.*",
-        "dcarbone/xml-primitive-types": "0.0.*",
-        "dcarbone/collection-plus": "3.1.*",
         "dcarbone/helpers": "7.0.*"
     },
 

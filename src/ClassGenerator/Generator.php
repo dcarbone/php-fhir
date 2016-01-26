@@ -17,12 +17,12 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
+use DCarbone\PHPFHIR\ClassGenerator\Generator\XSDMapGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AutoloaderTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 
 /**
  * Class Generator
@@ -68,7 +68,7 @@ class Generator
 
         $this->outputNamespace = trim($outputNamespace, "\\;");
         $this->outputPath = $outputPath;
-        $this->XSDMap = XMLUtils::buildXSDMap($this->xsdPath, $this->outputNamespace);
+        $this->XSDMap = XSDMapGenerator::buildXSDMap($this->xsdPath, $this->outputNamespace);
 
         CopyrightUtils::compileCopyrights($this->xsdPath);
     }
