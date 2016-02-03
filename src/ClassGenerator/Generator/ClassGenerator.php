@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\PrimitiveTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
@@ -28,21 +29,42 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
  */
 abstract class ClassGenerator
 {
+    private static $_outputNamespace;
+
+    /**
+     * @param string $outputNamespace
+     */
+    public static function init($outputNamespace)
+    {
+        self::$_outputNamespace = $outputNamespace;
+    }
+
+    /**
+     * @return string
+     */
+    public static function buildAbstractPrimitiveTypeClass()
+    {
+        return sprintf(
+            require PHPFHIR_TEMPLATE_DIR.'/primitive_type_template.php',
+            self::$_outputNamespace,
+            CopyrightUtils::getBasePHPFHIRCopyrightComment()
+        );
+    }
+
     /**
      * @param XSDMap $XSDMap
-     * @param array $data
+     * @param XSDMap\XSDMapEntry $mapEntry
      * @return ClassTemplate
      */
-    public static function buildClassTemplate(XSDMap $XSDMap, array $data)
+    public static function buildFHIRElementClassTemplate(XSDMap $XSDMap, XSDMap\XSDMapEntry $mapEntry)
     {
         $classTemplate = new ClassTemplate(
-            $data['elementName'],
-            $data['className'],
-            $data['rootNS'],
-            $data['pseudonym']
+            $mapEntry->fhirElementName,
+            $mapEntry->className,
+            $mapEntry->namespace
         );
 
-        foreach($data['sxe']->children('xs', true) as $_element)
+        foreach($mapEntry->sxe->children('xs', true) as $_element)
         {
             /** @var \SimpleXMLElement $_element */
             switch(strtolower($_element->getName()))
@@ -70,7 +92,6 @@ abstract class ClassGenerator
 
         foreach($classTemplate->getProperties() as $propertyTemplate)
         {
-            // TODO: Stop repeating yourself!
             $useStatement = $XSDMap->getClassUseStatementForFHIRElementName($propertyTemplate->getPhpType());
             if ($useStatement)
                 $classTemplate->addUse($useStatement);
@@ -193,6 +214,10 @@ abstract class ClassGenerator
      */
     public static function determineParentPrimitive($restrictionObjectName, ClassTemplate $classTemplate)
     {
+        // For now, just always default to the
+
+
+
         $xmlPrimitive = PrimitiveTypeUtils::getXMLPrimitiveTypeClass(substr($restrictionObjectName, 3));
 
         $useStatement = get_class($xmlPrimitive);

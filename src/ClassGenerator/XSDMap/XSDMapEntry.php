@@ -27,7 +27,7 @@ class XSDMapEntry
     /** @var string */
     public $fhirElementName;
     /** @var string */
-    public $outputNS;
+    public $namespace;
     /** @var string */
     public $className;
 
@@ -36,17 +36,17 @@ class XSDMapEntry
      *
      * @param \SimpleXMLElement $sxe
      * @param string $fhirElementName
-     * @param string $outputNS
+     * @param string $namespace
      * @param string $className
      */
     public function __construct(\SimpleXMLElement $sxe,
                                 $fhirElementName,
-                                $outputNS,
+                                $namespace,
                                 $className)
     {
         $this->sxe = $sxe;
         $this->fhirElementName = $fhirElementName;
-        $this->outputNS = $outputNS;
+        $this->namespace = $namespace;
         $this->className = $className;
     }
 
@@ -69,9 +69,9 @@ class XSDMapEntry
     /**
      * @return string
      */
-    public function getOutputNS()
+    public function getNamespace()
     {
-        return $this->outputNS;
+        return $this->namespace;
     }
 
     /**

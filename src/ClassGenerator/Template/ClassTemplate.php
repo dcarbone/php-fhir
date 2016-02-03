@@ -33,9 +33,6 @@ class ClassTemplate extends AbstractTemplate
     private $_className;
 
     /** @var string */
-    private $_pseudonym;
-
-    /** @var string */
     private $_namespace;
 
     /** @var array */
@@ -56,12 +53,11 @@ class ClassTemplate extends AbstractTemplate
     /**
      * Constructor
      *
-     * @param string $elementName
+     * @param string $fhirElementName
      * @param string $className
      * @param string $namespace
-     * @param string $pseudonym
      */
-    public function __construct($elementName, $className, $namespace, $pseudonym)
+    public function __construct($fhirElementName, $className, $namespace)
     {
         if (NameUtils::isValidClassName($className))
             $this->_className = $className;
@@ -73,12 +69,7 @@ class ClassTemplate extends AbstractTemplate
         else
             throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
 
-        if (NameUtils::isValidClassName($pseudonym))
-            $this->_pseudonym = $pseudonym;
-        else
-            throw new \InvalidArgumentException('Class Pseudonym "'.$pseudonym.'" is not valid.');
-
-        $this->_elementName = $elementName;
+        $this->_elementName = $fhirElementName;
     }
 
     /**
@@ -119,14 +110,6 @@ class ClassTemplate extends AbstractTemplate
     public function getClassName()
     {
         return $this->_className;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPseudonym()
-    {
-        return $this->_pseudonym;
     }
 
     /**

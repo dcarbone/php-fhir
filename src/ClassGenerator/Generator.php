@@ -1,5 +1,8 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator;
 
+// TODO: Find a better place for this...
+define('TEMPLATE_DIR', realpath(__DIR__.'/../../templates'));
+
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -39,6 +42,8 @@ class Generator
 
     /** @var array */
     private $_autoloadMap = array();
+    /** @var ParserMapTemplate */
+    private $_mapTemplate;
 
     /**
      * Constructor
@@ -47,30 +52,19 @@ class Generator
      * @param null|string $outputPath
      * @param string $outputNamespace
      */
-    public function __construct($xsdPath, $outputPath = null, $outputNamespace = 'PHPFHIRGenerated')
+    public function __construct($xsdPath, $outputPath = null, $outputNamespace = null)
     {
-        if (false === is_dir($xsdPath))
-            throw new \RuntimeException('Unable to locate XSD dir "'.$xsdPath.'"');
+        // Validate our input, will throw exception if bad.
+        list($xsdPath, $outputPath, $outputNamespace) = self::_validateInput($xsdPath, $outputPath, $outputNamespace);
 
-        if (false === is_readable($xsdPath))
-            throw new \RuntimeException('This process does not have read access to directory "'.$xsdPath.'"');
-
-        if (false === NameUtils::isValidNSName($outputNamespace))
-            throw new \InvalidArgumentException('Invalid namespace "'.$outputNamespace.'" specified.');
-
+        // Class props
         $this->xsdPath = rtrim($xsdPath, "/\\");
-
-        if (null === $outputPath)
-            $outputPath = realpath(sprintf('%s/../../output', __DIR__));
-
-        if (!is_dir($outputPath))
-            throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');
-
         $this->outputNamespace = trim($outputNamespace, "\\;");
         $this->outputPath = $outputPath;
         $this->XSDMap = XSDMapGenerator::buildXSDMap($this->xsdPath, $this->outputNamespace);
 
-        CopyrightUtils::compileCopyrights($this->xsdPath);
+        // Initialize some classes and things.
+        self::_initializeClasses($xsdPath, $outputPath, $outputNamespace);
     }
 
     /**
@@ -78,11 +72,11 @@ class Generator
      */
     public function generate()
     {
-        $mapTemplate = new ParserMapTemplate($this->outputPath, $this->outputNamespace);
+        $this->beforeGeneration();
 
-        foreach($this->XSDMap as $objectName=>$data)
+        foreach($this->XSDMap as $fhirElementName=>$mapEntry)
         {
-            $classTemplate = ClassGenerator::buildClassTemplate($this->XSDMap, $data);
+            $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->XSDMap, $mapEntry);
 
             FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
 
@@ -95,9 +89,86 @@ class Generator
 //            $mapTemplate->addClass($classTemplate);
         }
 
+        $this->afterGeneration();
+    }
+
+    /**
+     * Commands to run prior to class generation
+     */
+    protected function beforeGeneration()
+    {
+        // Create base primitive type class
+        // TODO: Don't like this, make better.
+        file_put_contents(
+            sprintf('%s/%s/%s.php', $this->outputPath, $this->outputNamespace, PHPFHIR_ABSTRACT_PRIMITIVE_TYPE_CLASSNAME),
+            ClassGenerator::buildAbstractPrimitiveTypeClass()
+        );
+
+        $this->_autoloadMap[sprintf('%s\\%s', $this->outputNamespace, PHPFHIR_ABSTRACT_PRIMITIVE_TYPE_CLASSNAME)]
+            = sprintf('%s/%s/%s.php', $this->outputPath, $this->outputNamespace, PHPFHIR_ABSTRACT_PRIMITIVE_TYPE_CLASSNAME);
+
+        $this->_mapTemplate = new ParserMapTemplate($this->outputPath, $this->outputNamespace);
+    }
+
+    /**
+     * Commands to run after class generation
+     */
+    protected function afterGeneration()
+    {
         $autoloaderTemplate = new AutoloaderTemplate($this->outputPath, $this->outputNamespace, $this->_autoloadMap);
         $autoloaderTemplate->writeToFile();
 
-//        $mapTemplate->writeToFile();
+//        $this->_mapTemplate->writeToFile();
+    }
+
+    /**
+     * @param string $xsdPath
+     * @param string $outputPath
+     * @param string $outputNamespace
+     * @return array
+     */
+    private static function _validateInput($xsdPath, $outputPath, $outputNamespace)
+    {
+        // Bunch'o validation
+        if (false === is_dir($xsdPath))
+            throw new \RuntimeException('Unable to locate XSD dir "'.$xsdPath.'"');
+
+        if (false === is_readable($xsdPath))
+            throw new \RuntimeException('This process does not have read access to directory "'.$xsdPath.'"');
+
+        if (null === $outputPath)
+            $outputPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
+
+        if (!is_dir($outputPath))
+            throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');
+
+        if (!is_writable($outputPath))
+            throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.', $outputPath));
+
+        if (!is_readable($outputPath))
+            throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.', $outputPath));
+
+        if (null === $outputNamespace)
+            $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
+
+        if (false === NameUtils::isValidNSName($outputNamespace))
+            throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.', $outputNamespace));
+
+        return array($xsdPath, $outputPath, $outputNamespace);
+    }
+
+    /**
+     * @param string $xsdPath
+     * @param string $outputPath
+     * @param string $outputNamespace
+     */
+    private static function _initializeClasses($xsdPath, $outputPath, $outputNamespace)
+    {
+        // Initialize some of our static classes
+        CopyrightUtils::compileCopyrights($xsdPath);
+        ClassGenerator::init($outputNamespace);
+
+        // Create root NS dir
+        FileUtils::createDirsFromNS($outputPath, $outputNamespace);
     }
 }

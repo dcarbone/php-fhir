@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+
 /**
  * Class AbstractResponseParser
  * @package DCarbone\PHPFHIR\Parser
@@ -36,10 +38,20 @@ abstract class AbstractResponseParser
      * @param string $outputPath
      * @param string $outputNamespace
      */
-    public function __construct($outputPath = null, $outputNamespace = 'PHPFHIRGenerated')
+    public function __construct($outputPath = null, $outputNamespace = null)
     {
         if (null === $outputPath)
-            $outputPath = realpath(sprintf('%s/../../output', __DIR__));
+            $outputPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
+
+        if (!is_dir($outputPath))
+            throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');
+
+        if (null === $outputNamespace)
+            $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
+
+        if (false === NameUtils::isValidNSName($outputNamespace))
+            throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.', $outputNamespace));
+
 
         $this->outputPath = $outputPath;
         $this->outputNamespace = $outputNamespace;
