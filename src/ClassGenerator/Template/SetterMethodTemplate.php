@@ -73,7 +73,7 @@ class SetterMethodTemplate extends AbstractMethodTemplate
             $output = sprintf(
                 "%s     * %s\n",
                 $output,
-                $param->getParamDocBlockFragment(true)
+                $param->getParamDocBlockFragment()
             );
         }
 

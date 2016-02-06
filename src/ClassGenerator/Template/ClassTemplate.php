@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
 
 /**
  * Class ClassTemplate
@@ -35,14 +36,8 @@ class ClassTemplate extends AbstractTemplate
     /** @var string */
     private $_namespace;
 
-    /** @var array */
-    private $_uses = array();
-
-    /** @var string */
-    private $_extendedElementName;
-
-    /** @var string */
-    private $_extendedClassName;
+    /** @var XSDMapEntry */
+    private $_extendedXSDMapEntry = null;
 
     /** @var PropertyTemplate[] */
     private $_properties = array();
@@ -89,22 +84,6 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @return array
-     */
-    public function getUses()
-    {
-        return $this->_uses;
-    }
-
-    /**
-     * @param string $use
-     */
-    public function addUse($use)
-    {
-        $this->_uses[] = $use;
-    }
-
-    /**
      * @return string
      */
     public function getClassName()
@@ -113,35 +92,19 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @param string $extendedClassName
+     * @param XSDMapEntry $mapEntry
      */
-    public function setExtendedClassName($extendedClassName)
+    public function setExtendedXSDMapEntry(XSDMapEntry $mapEntry)
     {
-        $this->_extendedClassName = $extendedClassName;
+        $this->_extendedXSDMapEntry = $mapEntry;
     }
 
     /**
-     * @return string
+     * @return XSDMapEntry
      */
-    public function getExtendedClassName()
+    public function getExtendedXSDMapEntry()
     {
-        return $this->_extendedClassName;
-    }
-
-    /**
-     * @param string $extendedElementName
-     */
-    public function setExtendedElementName($extendedElementName)
-    {
-        $this->_extendedElementName = $extendedElementName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getExtendedElementName()
-    {
-        return $this->_extendedElementName;
+        return $this->_extendedXSDMapEntry;
     }
 
     /**
@@ -245,13 +208,13 @@ class ClassTemplate extends AbstractTemplate
             );
         }
 
-        if ($this->_extendedClassName)
+        if ($this->_extendedXSDMapEntry)
         {
             $output = sprintf(
                 "%sclass %s extends %s\n",
                 $output,
                 $this->getClassName(),
-                $this->getExtendedClassName()
+                $this->_extendedXSDMapEntry->getClassName()
             );
         }
         else
@@ -285,19 +248,41 @@ class ClassTemplate extends AbstractTemplate
     {
         $useStatement = '';
 
-        $thisClassName = $this->getClassName();
+        $thisClassname = $this->compileFullyQualifiedClassName();
+        $thisNamespace = $this->getNamespace();
+
         $usedClasses = array();
-        foreach(array_unique($this->getUses()) as $use)
+        if ($this->_extendedXSDMapEntry)
         {
-            $usedClasses[] = $use;
+            $usedClasses[] = sprintf(
+                '%s\\%s',
+                $this->_extendedXSDMapEntry->namespace,
+                $this->_extendedXSDMapEntry->className
+            );
         }
+
+        // TODO: The below may eventually be used for type-hinting.
+//        foreach($this->_properties as $property)
+//        {
+//            $type = $property->getPhpType();
+//            if (null === $type)
+//                continue;
+//
+//            $usedClasses[] = $type;
+//        }
 
         $usedClasses = array_count_values($usedClasses);
         ksort($usedClasses);
 
         foreach($usedClasses as $usedClass=>$timesImported)
         {
-            if ($usedClass == $thisClassName || $timesImported < 1)
+            // Don't use yourself, dog...
+            if ($usedClass === $thisClassname)
+                continue;
+
+            // If this class is already in the same namespace as this one...
+            $remainder = str_replace(array($thisNamespace, '\\'), '', $usedClass);
+            if (basename($usedClass) === $remainder)
                 continue;
 
             $useStatement = sprintf("%suse %s;\n", $useStatement, ltrim($usedClass, "\\"));

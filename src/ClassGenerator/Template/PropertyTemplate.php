@@ -241,8 +241,9 @@ class PropertyTemplate extends AbstractTemplate
     public function compileTemplate()
     {
         return sprintf(
-            "    /**\n%s     * @var %s%s\n     */\n    %s %s = %s;\n\n",
+            "    /**\n%s     * @var %s%s%s\n     */\n    %s %s = %s;\n\n",
             $this->getDocBlockDocumentationFragment(),
+            $this->isPrimitive() || $this->isList() ? '' : '\\',
             $this->getPhpType(),
             ($this->isCollection() ? '[]' : ''),
             (string)$this->getScope(),

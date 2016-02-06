@@ -125,16 +125,13 @@ abstract class PropertyGenerator
         $propertyTemplate->setName($name);
         $propertyTemplate->setFhirElementType($type);
 
-        if (false !== strpos($name, '-primitive'))
+        // TODO: Implement proper primitive types
+        if (false !== strpos($type, '-primitive'))
         {
             $propertyTemplate->setPrimitive(true);
-            $propertyTemplate->setPhpType(
-                PrimitiveTypeUtils::getSimpleTypeVariableType(
-                    new PrimitivePropertyTypesEnum($type)
-                )
-            );
+            $propertyTemplate->setPhpType('string');
         }
-        else if (false !== strpos($name, '-list'))
+        else if (false !== strpos($type, '-list'))
         {
             $propertyTemplate->setList(true);
             $propertyTemplate->setPhpType('string');
@@ -142,7 +139,7 @@ abstract class PropertyGenerator
         else
         {
             $propertyTemplate->setPhpType(
-                $XSDMap->getClassNameForFHIRElementName($type)
+                $XSDMap->getClassUseStatementForFHIRElementName($type)
             );
         }
 
@@ -208,29 +205,6 @@ abstract class PropertyGenerator
             $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $_element, $documentation, $maxOccurs);
             if ($propertyTemplate)
                 $classTemplate->addProperty($propertyTemplate);
-
-//            $attributes = $_element->attributes();
-//            $name = (string)$attributes['name'];
-//            $ref = (string)$attributes['ref'];
-//            $type = (string)$attributes['type'];
-//
-//            if ('' === $name && '' === $ref)
-//                throw new \RuntimeException('Unable to determine name of choice property in class '.$classTemplate->getClassName().'.');
-//
-//            if ('' === $ref)
-//            {
-//                $propTemplate = self::buildProperty($XSDMap, $classTemplate, $name, $type, $maxOccurs, $documentation, null);
-//            }
-//            else if ('' === $name)
-//            {
-//                $type = NameUtils::getComplexTypeClassName($ref);
-//                $propTemplate = self::buildProperty($XSDMap, $classTemplate, $type, $type, $maxOccurs, $documentation, null);
-//            }
-//            else
-//            {
-//                trigger_error('Unable to parse choice property with definition '.(string)$_element);
-//                continue;
-//            }
         }
     }
 

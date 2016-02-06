@@ -84,35 +84,20 @@ abstract class XSDMapGenerator
             if ('' === $fhirElementName)
                 continue;
 
-            switch(strtolower($child->getName()))
+            if (ElementTypeEnum::COMPLEX_TYPE === strtolower($child->getName()))
             {
-                case ElementTypeEnum::COMPLEX_TYPE:
-                    $type = ClassTypeUtils::getComplexClassType($child);
-                    $rootNS = NSUtils::generateRootNamespace(
+                $type = ClassTypeUtils::getComplexClassType($child);
+
+                $xsdMap[$fhirElementName] = new XSDMap\XSDMapEntry(
+                    $child,
+                    $fhirElementName,
+                    NSUtils::generateRootNamespace(
                         $outputNS,
                         NSUtils::getComplexTypeNamespace($fhirElementName, $type)
-                    );
-                    $className = NameUtils::getComplexTypeClassName($fhirElementName);
-                    break;
-
-                case ElementTypeEnum::SIMPLE_TYPE:
-                    $type = ClassTypeUtils::getSimpleClassType($fhirElementName);
-                    $rootNS = NSUtils::generateRootNamespace(
-                        $outputNS,
-                        NSUtils::getSimpleTypeNamespace($type)
-                    );
-                    $className = NameUtils::getSimpleTypeClassName($fhirElementName);
-                    break;
-
-                default: continue 2;
+                    ),
+                    NameUtils::getComplexTypeClassName($fhirElementName)
+                );
             }
-
-            $xsdMap[$fhirElementName] = new XSDMap\XSDMapEntry(
-                $child,
-                $fhirElementName,
-                $rootNS,
-                $className
-            );
         }
     }
 
@@ -122,7 +107,7 @@ abstract class XSDMapGenerator
      */
     public static function constructSXEWithFilePath($filePath)
     {
-        $fileName = basename($filePath);
+        $filename = basename($filePath);
 
         libxml_clear_errors();
         libxml_use_internal_errors(true);
@@ -141,13 +126,13 @@ abstract class XSDMapGenerator
         {
             throw new \RuntimeException(sprintf(
                 'Error occurred while parsing file "%s": "%s"',
-                $fileName,
+                $filename,
                 $error->message
             ));
         }
 
         throw new \RuntimeException(sprintf(
             'Unknown XML parsing error occurred while parsing "%s".',
-            $fileName));
+            $filename));
     }
 }

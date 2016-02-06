@@ -22,7 +22,7 @@
  */
 class XSDMap implements \ArrayAccess, \Iterator
 {
-    /** @var array */
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry[] */
     private $_map = array();
 
     /**
@@ -32,7 +32,7 @@ class XSDMap implements \ArrayAccess, \Iterator
     public function getClassNameForFHIRElementName($fhirElementName)
     {
         if (isset($this[$fhirElementName]))
-            return $this[$fhirElementName]['className'];
+            return $this[$fhirElementName]->className;
 
         return null;
     }
@@ -44,7 +44,7 @@ class XSDMap implements \ArrayAccess, \Iterator
     public function getClassUseStatementForFHIRElementName($fhirElementName)
     {
         if (isset($this[$fhirElementName]))
-            return sprintf('%s\\%s', $this[$fhirElementName]['rootNS'], $this[$fhirElementName]['className']);
+            return sprintf('%s\\%s', $this[$fhirElementName]->namespace, $this[$fhirElementName]->className);
 
         return null;
     }

@@ -40,8 +40,8 @@ class Generator
     /** @var XSDMap */
     protected $XSDMap;
 
-    /** @var array */
-    private $_autoloadMap = array();
+    /** @var AutoloaderTemplate */
+    private $_autoloadMap;
     /** @var ParserMapTemplate */
     private $_mapTemplate;
 
@@ -83,10 +83,8 @@ class Generator
             // Generate class file
             $classTemplate->writeToFile($this->outputPath);
 
-            // Add entry to autoload map
-            $this->_autoloadMap[$classTemplate->compileFullyQualifiedClassName(false)] = $classTemplate->compileFullOutputPath($this->outputPath);
-
 //            $mapTemplate->addClass($classTemplate);
+            $this->_autoloadMap->addEntry($classTemplate);
         }
 
         $this->afterGeneration();
@@ -97,17 +95,8 @@ class Generator
      */
     protected function beforeGeneration()
     {
-        // Create base primitive type class
-        // TODO: Don't like this, make better.
-        file_put_contents(
-            sprintf('%s/%s/%s.php', $this->outputPath, $this->outputNamespace, PHPFHIR_ABSTRACT_PRIMITIVE_TYPE_CLASSNAME),
-            ClassGenerator::buildAbstractPrimitiveTypeClass()
-        );
-
-        $this->_autoloadMap[sprintf('%s\\%s', $this->outputNamespace, PHPFHIR_ABSTRACT_PRIMITIVE_TYPE_CLASSNAME)]
-            = sprintf('%s/%s/%s.php', $this->outputPath, $this->outputNamespace, PHPFHIR_ABSTRACT_PRIMITIVE_TYPE_CLASSNAME);
-
         $this->_mapTemplate = new ParserMapTemplate($this->outputPath, $this->outputNamespace);
+        $this->_autoloadMap = new AutoloaderTemplate($this->outputPath, $this->outputNamespace);
     }
 
     /**
@@ -115,8 +104,7 @@ class Generator
      */
     protected function afterGeneration()
     {
-        $autoloaderTemplate = new AutoloaderTemplate($this->outputPath, $this->outputNamespace, $this->_autoloadMap);
-        $autoloaderTemplate->writeToFile();
+        $this->_autoloadMap->writeToFile();
 
 //        $this->_mapTemplate->writeToFile();
     }

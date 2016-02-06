@@ -29,7 +29,7 @@ class AutoloaderTemplate extends AbstractTemplate
     private $_outputNamespace;
 
     /** @var array */
-    private $_classMap;
+    private $_classMap = array();
 
     /** @var string */
     private $_classPath;
@@ -42,17 +42,31 @@ class AutoloaderTemplate extends AbstractTemplate
      *
      * @param string $outputPath
      * @param string $outputNamespace
-     * @param array $classMap
      */
-    public function __construct($outputPath, $outputNamespace, array $classMap)
+    public function __construct($outputPath, $outputNamespace)
     {
         $this->_outputPath = rtrim($outputPath, "\\/");
         $this->_outputNamespace = $outputNamespace;
 
-        $this->_classMap = $classMap;
-
         $this->_classPath = sprintf('%s/%s/PHPFHIRAutoloader.php', $this->_outputPath, $this->_outputNamespace);
         $this->_className = sprintf('%s\\PHPFHIRAutoloader', $this->_outputNamespace);
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public function addEntry(ClassTemplate $classTemplate)
+    {
+        $key = $classTemplate->compileFullyQualifiedClassName(false);
+        $value = ltrim(str_replace(
+                array($this->_outputPath, $this->_outputNamespace, '\\'),
+                array('', '', '/'),
+                $classTemplate->compileFullOutputPath($this->_outputPath)
+            ),
+            "/\\"
+        );
+
+        $this->_classMap[$key] = $value;
     }
 
     /**

@@ -46,24 +46,18 @@ class ParameterTemplate extends AbstractTemplate
     }
 
     /**
-     * @param bool $forceSingle
      * @return string
      */
-    public function getParamDocBlockFragment($forceSingle = false)
+    public function getParamDocBlockFragment()
     {
-        if ($this->getProperty()->isCollection() && !$forceSingle)
-        {
-            return sprintf(
-                '@param %s[] %s',
-                $this->getProperty()->getPhpType(),
-                NameUtils::getPropertyVariableName($this->getProperty()->getName())
-            );
-        }
+        $property = $this->getProperty();
 
         return sprintf(
-            '@param %s %s',
-            $this->getProperty()->getPhpType(),
-            NameUtils::getPropertyVariableName($this->getProperty()->getName())
+            '@param %s%s%s %s',
+            $property->isPrimitive() || $property->isList() ? '' : '\\',
+            $property->getPhpType(),
+            $property->isCollection() ? '[]' : '',
+            NameUtils::getPropertyVariableName($property->getName())
         );
     }
 

@@ -59,26 +59,14 @@ class GetterMethodTemplate extends AbstractMethodTemplate
     {
         $output = sprintf("    /**\n%s", $this->getDocBlockDocumentationFragment());
 
-        if ($this->getProperty()->isCollection())
-        {
-            $output = sprintf(
-                "%s     * @return %s[]\n",
-                $output,
-                $this->getProperty()->getPhpType()
-            );
-        }
-        else
-        {
-            $output = sprintf(
-                "%s     * @return %s\n",
-                $output,
-                $this->getProperty()->getPhpType()
-            );
-        }
+        $property = $this->getProperty();
 
         $output = sprintf(
-            "%s     */\n    %s function %s()\n    {\n",
+            "%s     * @return %s%s%s\n     */\n    %s function %s()\n    {\n",
             $output,
+            ($property->isPrimitive() || $property->isList() ? '' : '\\'),
+            $property->getPhpType(),
+            ($property->isCollection() ? '[]' : ''),
             (string)$this->getScope(),
             $this->getName()
         );

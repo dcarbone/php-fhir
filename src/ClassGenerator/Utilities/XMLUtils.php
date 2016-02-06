@@ -26,7 +26,7 @@ abstract class XMLUtils
      * @param \SimpleXMLElement $extensionElement
      * @return null|string
      */
-    public static function getBaseObjectName(\SimpleXMLElement $extensionElement)
+    public static function getBaseFHIRElementNameFromExtension(\SimpleXMLElement $extensionElement)
     {
         if ('extension' !== $extensionElement->getName())
         {
@@ -48,7 +48,7 @@ abstract class XMLUtils
      * @param \SimpleXMLElement $restrictionElement
      * @return null|string
      */
-    public static function getObjectRestrictionBaseName(\SimpleXMLElement $restrictionElement)
+    public static function getBaseFHIRElementNameFromRestriction(\SimpleXMLElement $restrictionElement)
     {
         if ('restriction' !== $restrictionElement->getName())
         {
