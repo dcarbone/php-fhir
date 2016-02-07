@@ -21,8 +21,7 @@
 
     "require": {
         "php": ">=5.3.3",
-        "myclabs/php-enum": "1.4.*",
-        "dcarbone/helpers": "7.0.*"
+        "myclabs/php-enum": "1.4.*"
     },
 
     "replace": {
