@@ -181,6 +181,6 @@ abstract class ClassGenerator
     public static function findParentElementXSDMapEntry($fhirElementName, XSDMap $XSDMap, ClassTemplate $classTemplate)
     {
         if (isset($XSDMap[$fhirElementName]))
-            $classTemplate->setExtendedXSDMapEntry($XSDMap[$fhirElementName]);
+            $classTemplate->setExtendedElementMapEntry($XSDMap[$fhirElementName]);
     }
 }

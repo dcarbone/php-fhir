@@ -57,46 +57,29 @@ class ParserMapTemplate extends AbstractTemplate
      *
      * @param ClassTemplate $classTemplate
      */
-    public function addClass(ClassTemplate $classTemplate)
+    public function addEntry(ClassTemplate $classTemplate)
     {
         $fhirElementName = $classTemplate->getElementName();
-        $className = $classTemplate->getClassName();
 
-        $isPrimitive = false !== stripos($className, 'primitive');
-        $isList = false !== stripos($className, 'list');
-
+        $extendedMapEntry = $classTemplate->getExtendedElementMapEntry();
         $this->_bigDumbMap[$fhirElementName] = array(
-            'className' => $className,
-            'fullClassName' => $classTemplate->compileFullyQualifiedClassName(true),
-            'extendedClass' => $classTemplate->getExtendedClassName(),
-            'extendedElement' => $classTemplate->getExtendedElementName(),
-            'primitive' => $isPrimitive,
-            'list' => $isList,
+            'fullClassName' =>  $classTemplate->compileFullyQualifiedClassName(true),
+            'extendedElementName' => $extendedMapEntry ? $extendedMapEntry->getFHIRElementName() : null,
             'properties' => array()
         );
 
-        if ($isList || $isPrimitive)
+        foreach($classTemplate->getMethods() as $method)
         {
-            $this->_bigDumbMap[$fhirElementName]['properties']['value'] = array(
-                'setter' => 'setValue',
-                'type' => 'primitive'
-            );
-        }
-        else
-        {
-            foreach($classTemplate->getMethods() as $method)
+            if ($method instanceof SetterMethodTemplate)
             {
-                if ($method instanceof SetterMethodTemplate)
+                foreach($method->getParameters() as $parameter)
                 {
-                    foreach($method->getParameters() as $parameter)
-                    {
-                        $types = $parameter->getPropertyTypes();
-                        $types = reset($types);
-                        $this->_bigDumbMap[$fhirElementName]['properties'][$parameter->getName()] = array(
-                            'setter' => $method->getName(),
-                            'type' => $types['elementName']
-                        );
-                    }
+                    $property = $parameter->getProperty();
+                    $this->_bigDumbMap[$fhirElementName]['properties'][$property->getName()] = array(
+                        'setter' => $method->getName(),
+                        'element' => $property->getFHIRElementType(),
+                        'type' => $property->getPhpType()
+                    );
                 }
             }
         }
@@ -139,30 +122,26 @@ class ParserMapTemplate extends AbstractTemplate
 
     /**
      * @param string $elementName
-     * @param array $_properties
+     * @param array $_entry
      */
-    protected function getExtendedProperties($elementName, array &$_properties)
+    protected function getExtendedProperties($elementName, array &$_entry)
     {
-        // This indicates we are at a primitive element.
-        if (!isset($this->_bigDumbMap[$elementName]['extendedClass']))
-            return;
-
-        $extendedElement = $this->_bigDumbMap[$elementName]['extendedElement'];
-
-        if ('primitive' === $extendedElement)
-            return;
-
-        if (!isset($this->_bigDumbMap[$extendedElement]))
+        if (isset($this->_bigDumbMap[$elementName]['extendedElementName']))
         {
-            throw new \RuntimeException(sprintf(
-                'Unable to find element named %s.  This indicates corrupted internal element mapping and should be reported as a bug',
-                $extendedElement
-            ));
+            $extendedElement = $this->_bigDumbMap[$elementName]['extendedElementName'];
+
+            if (!isset($this->_bigDumbMap[$extendedElement]))
+            {
+                throw new \RuntimeException(sprintf(
+                    'Unable to find element named %s.  This indicates corrupted internal element mapping and should be reported as a bug',
+                    $extendedElement
+                ));
+            }
+
+            // Extended class properties go first, yo.
+            $_entry = $this->_bigDumbMap[$extendedElement]['properties'] + $_entry;
+
+            $this->getExtendedProperties($extendedElement, $_entry);
         }
-
-        // Extended class properties go first, yo.
-        $_properties = $this->_bigDumbMap[$extendedElement]['properties'] + $_properties;
-
-        $this->getExtendedProperties($extendedElement, $_properties);
     }
 }

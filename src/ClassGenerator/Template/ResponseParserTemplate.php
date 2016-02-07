@@ -19,18 +19,15 @@
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 
 /**
- * Class AutoloaderTemplate
+ * Class ResponseParserTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-class AutoloaderTemplate extends AbstractTemplate
+class ResponseParserTemplate extends AbstractTemplate
 {
     /** @var string */
     private $_outputPath;
     /** @var string */
     private $_outputNamespace;
-
-    /** @var array */
-    private $_classMap = array();
 
     /** @var string */
     private $_classPath;
@@ -49,35 +46,8 @@ class AutoloaderTemplate extends AbstractTemplate
         $this->_outputPath = rtrim($outputPath, "\\/");
         $this->_outputNamespace = $outputNamespace;
 
-        $this->_classPath = sprintf('%s/%s/PHPFHIRAutoloader.php', $this->_outputPath, $this->_outputNamespace);
-        $this->_className = sprintf('%s\\PHPFHIRAutoloader', $this->_outputNamespace);
-    }
-
-    /**
-     * @param string $fullClassName
-     * @param string $classFilePath
-     */
-    public function addEntry($fullClassName, $classFilePath)
-    {
-        $this->_classMap[$fullClassName] = ltrim(
-            str_replace(
-                array($this->_outputPath, $this->_outputNamespace, '\\'),
-                array('', '', '/'),
-                $classFilePath
-            ),
-            "/\\"
-        );
-    }
-
-    /**
-     * @param ClassTemplate $classTemplate
-     */
-    public function addPHPFHIRClassEntry(ClassTemplate $classTemplate)
-    {
-        $this->addEntry(
-            $classTemplate->compileFullyQualifiedClassName(false),
-            $classTemplate->compileFullOutputPath($this->_outputPath)
-        );
+        $this->_classPath = sprintf('%s/%s/PHPFHIRResponseParser.php', $this->_outputPath, $this->_outputNamespace);
+        $this->_className = sprintf('%s\\PHPFHIRResponseParser', $this->_outputNamespace);
     }
 
     /**
@@ -86,10 +56,9 @@ class AutoloaderTemplate extends AbstractTemplate
     public function compileTemplate()
     {
         return sprintf(
-            include TEMPLATE_DIR.'/autoload_template.php',
+            include TEMPLATE_DIR.'/response_parser_template.php',
             $this->_outputNamespace,
-            CopyrightUtils::getBasePHPFHIRCopyrightComment(),
-            var_export($this->_classMap, true)
+            CopyrightUtils::getBasePHPFHIRCopyrightComment()
         );
     }
 

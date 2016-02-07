@@ -23,6 +23,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\XSDMapGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AutoloaderTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ParserMapTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -83,8 +84,8 @@ class Generator
             // Generate class file
             $classTemplate->writeToFile($this->outputPath);
 
-//            $mapTemplate->addClass($classTemplate);
-            $this->_autoloadMap->addEntry($classTemplate);
+            $this->_mapTemplate->addEntry($classTemplate);
+            $this->_autoloadMap->addPHPFHIRClassEntry($classTemplate);
         }
 
         $this->afterGeneration();
@@ -97,6 +98,15 @@ class Generator
     {
         $this->_mapTemplate = new ParserMapTemplate($this->outputPath, $this->outputNamespace);
         $this->_autoloadMap = new AutoloaderTemplate($this->outputPath, $this->outputNamespace);
+
+        $this->_autoloadMap->addEntry(
+            sprintf('%s\\%s', $this->outputNamespace, 'PHPFHIRParserMap'),
+            sprintf('%s/%s', $this->outputPath, 'PHPFHIRParserMap.php')
+        );
+        $this->_autoloadMap->addEntry(
+            sprintf('%s\\%s', $this->outputNamespace, 'PHPFHIRResponseParser'),
+            sprintf('%s/%s', $this->outputPath, 'PHPFHIRResponseParser.php')
+        );
     }
 
     /**
@@ -104,9 +114,11 @@ class Generator
      */
     protected function afterGeneration()
     {
+        $this->_mapTemplate->writeToFile();
         $this->_autoloadMap->writeToFile();
 
-//        $this->_mapTemplate->writeToFile();
+        $responseParserTemplate = new ResponseParserTemplate($this->outputPath, $this->outputNamespace);
+        $responseParserTemplate->writeToFile();
     }
 
     /**

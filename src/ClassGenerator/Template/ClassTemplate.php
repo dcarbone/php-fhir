@@ -37,7 +37,7 @@ class ClassTemplate extends AbstractTemplate
     private $_namespace;
 
     /** @var XSDMapEntry */
-    private $_extendedXSDMapEntry = null;
+    private $_extendedElementMapEntry = null;
 
     /** @var PropertyTemplate[] */
     private $_properties = array();
@@ -94,17 +94,17 @@ class ClassTemplate extends AbstractTemplate
     /**
      * @param XSDMapEntry $mapEntry
      */
-    public function setExtendedXSDMapEntry(XSDMapEntry $mapEntry)
+    public function setExtendedElementMapEntry(XSDMapEntry $mapEntry)
     {
-        $this->_extendedXSDMapEntry = $mapEntry;
+        $this->_extendedElementMapEntry = $mapEntry;
     }
 
     /**
      * @return XSDMapEntry
      */
-    public function getExtendedXSDMapEntry()
+    public function getExtendedElementMapEntry()
     {
-        return $this->_extendedXSDMapEntry;
+        return $this->_extendedElementMapEntry;
     }
 
     /**
@@ -208,13 +208,13 @@ class ClassTemplate extends AbstractTemplate
             );
         }
 
-        if ($this->_extendedXSDMapEntry)
+        if ($this->_extendedElementMapEntry)
         {
             $output = sprintf(
                 "%sclass %s extends %s\n",
                 $output,
                 $this->getClassName(),
-                $this->_extendedXSDMapEntry->getClassName()
+                $this->_extendedElementMapEntry->getClassName()
             );
         }
         else
@@ -252,12 +252,12 @@ class ClassTemplate extends AbstractTemplate
         $thisNamespace = $this->getNamespace();
 
         $usedClasses = array();
-        if ($this->_extendedXSDMapEntry)
+        if ($this->_extendedElementMapEntry)
         {
             $usedClasses[] = sprintf(
                 '%s\\%s',
-                $this->_extendedXSDMapEntry->namespace,
-                $this->_extendedXSDMapEntry->className
+                $this->_extendedElementMapEntry->namespace,
+                $this->_extendedElementMapEntry->className
             );
         }
 

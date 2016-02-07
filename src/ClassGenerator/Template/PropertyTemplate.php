@@ -34,9 +34,6 @@ class PropertyTemplate extends AbstractTemplate
     /** @var bool */
     protected $collection = false;
 
-    /** @var string */
-    protected $fhirElementName;
-
     /**
      * Will either be PHP class or scalar type string equivalent to end result of "gettype()"
      * @var string
@@ -126,22 +123,6 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function getFhirElementName()
-    {
-        return $this->fhirElementName;
-    }
-
-    /**
-     * @param string $fhirElementName
-     */
-    public function setFhirElementName($fhirElementName)
-    {
-        $this->fhirElementName = $fhirElementName;
-    }
-
-    /**
-     * @return string
-     */
     public function getPhpType()
     {
         return $this->phpType;
@@ -158,7 +139,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function getFhirElementType()
+    public function getFHIRElementType()
     {
         return $this->fhirElementType;
     }
@@ -166,7 +147,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @param string $fhirElementType
      */
-    public function setFhirElementType($fhirElementType)
+    public function setFHIRElementType($fhirElementType)
     {
         $this->fhirElementType = $fhirElementType;
     }

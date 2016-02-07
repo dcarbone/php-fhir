@@ -60,3 +60,4 @@ crashlytics-build.properties
 
 composer.lock
 /tmp
+/class.Diff.php

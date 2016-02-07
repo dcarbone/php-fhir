@@ -106,7 +106,7 @@ abstract class PropertyGenerator
             if (0 === strpos($ref, 'xhtml'))
             {
                 $propertyTemplate->setName(substr($ref, 6));
-                $propertyTemplate->setFhirElementType('html');
+                $propertyTemplate->setFHIRElementType('html');
                 $propertyTemplate->setHtml(true);
                 $propertyTemplate->setPhpType('string');
 
@@ -123,7 +123,7 @@ abstract class PropertyGenerator
         }
 
         $propertyTemplate->setName($name);
-        $propertyTemplate->setFhirElementType($type);
+        $propertyTemplate->setFHIRElementType($type);
 
         // TODO: Implement proper primitive types
         if (false !== strpos($type, '-primitive'))

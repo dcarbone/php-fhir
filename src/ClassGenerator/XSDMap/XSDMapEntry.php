@@ -61,7 +61,7 @@ class XSDMapEntry
     /**
      * @return string
      */
-    public function getFhirElementName()
+    public function getFHIRElementName()
     {
         return $this->fhirElementName;
     }

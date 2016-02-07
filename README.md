@@ -7,7 +7,7 @@ This library requires the use of [Composer](https://getcomposer.org/)
 
 Require entry:
 ```json
-    "dcarbone/php-fhir": "0.2.*"
+    "dcarbone/php-fhir": "0.3.*"
 ```
 
 # Basic Workflow
@@ -57,23 +57,24 @@ There are a plethora of good HTTP clients you can use to get data out of a FHIR 
 
 ## Response Parsing
 
-This library provides 2 parser classes:
+As part of the class generation above, a response parsing class called `PHPFHIRResponseParser` will be created
+and added into the root namespace directory.  It currently supports JSON and XML response types.
 
-- [XML](./src/Parser/SimpleXMLResponseParser.php)
-- [Json](./src/Parser/JsonResponseParser.php)
-
-The one you use is determined by the response data type, but both are used in the same way.
+The parser class takes a single optional boolean argument that will determine if it should
+attempt to load up the generated Autoloader class.  By default it will do so, but you are free to configure your
+own autoloader and not use the generated one if you wish.
 
 ### Example:
 
 ```php
-$parser = new \DCarbone\PHPFHIR\Parser\YourTypeParser();
 
-$data = $parser->parse($yourResponseData);
+require 'path to PHPFHIRResponseParser.php';
+
+$parser = new \\YourConfiguredNamespace\\PHPFHIRResponseParser;
+
+$object = $parser->parse($yourResponseData);
+
 ```
-
-If you defined a custom output directory or custom base namespace you will need to pass those in as the 1st and 2nd
-constructor arguments respectively.
 
 ## Testing
 
@@ -83,6 +84,8 @@ http://fhir2.healthintersections.com.au/open/ .
 ## TODO
 
 - Implement event or pull-based XML parsing for large responses
+- Typecast scalar values in XML responses to proper PHP type
+- Attempt to implement Date values into PHP DateTime objects
 - Tests...
 
 ## Suggestions and help
