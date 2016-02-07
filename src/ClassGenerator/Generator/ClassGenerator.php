@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\PrimitiveTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
@@ -28,21 +27,30 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
  */
 abstract class ClassGenerator
 {
+    private static $_outputNamespace;
+
+    /**
+     * @param string $outputNamespace
+     */
+    public static function init($outputNamespace)
+    {
+        self::$_outputNamespace = $outputNamespace;
+    }
+
     /**
      * @param XSDMap $XSDMap
-     * @param array $data
+     * @param XSDMap\XSDMapEntry $mapEntry
      * @return ClassTemplate
      */
-    public static function buildClassTemplate(XSDMap $XSDMap, array $data)
+    public static function buildFHIRElementClassTemplate(XSDMap $XSDMap, XSDMap\XSDMapEntry $mapEntry)
     {
         $classTemplate = new ClassTemplate(
-            $data['elementName'],
-            $data['className'],
-            $data['rootNS'],
-            $data['pseudonym']
+            $mapEntry->fhirElementName,
+            $mapEntry->className,
+            $mapEntry->namespace
         );
 
-        foreach($data['sxe']->children('xs', true) as $_element)
+        foreach($mapEntry->sxe->children('xs', true) as $_element)
         {
             /** @var \SimpleXMLElement $_element */
             switch(strtolower($_element->getName()))
@@ -51,7 +59,7 @@ abstract class ClassGenerator
                 case ElementTypeEnum::CHOICE:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
-                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
                     break;
 
                 case ElementTypeEnum::ANNOTATION:
@@ -66,6 +74,11 @@ abstract class ClassGenerator
                     self::parseRestriction($XSDMap, $_element, $classTemplate);
                     break;
             }
+        }
+
+        foreach($classTemplate->getProperties() as $propertyTemplate)
+        {
+            MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
         }
 
         return $classTemplate;
@@ -112,7 +125,7 @@ abstract class ClassGenerator
                 case ElementTypeEnum::UNION:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::ENUMERATION:
-                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
                     break;
             }
         }
@@ -136,7 +149,7 @@ abstract class ClassGenerator
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
                 case ElementTypeEnum::ENUMERATION:
-                    PropertyGenerator::implementProperty($XSDMap, $_element, $classTemplate);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
                     break;
             }
         }
@@ -149,62 +162,25 @@ abstract class ClassGenerator
      */
     public static function determineParentClass(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
     {
-        // First, attempt to determine if this class extends a base class
-        if ($baseObjectName = XMLUtils::getBaseObjectName($sxe))
-        {
-            self::determineParentFHIRObject($baseObjectName, $XSDMap, $classTemplate);
-        }
-        // Otherwise, attempt to find a "restriction" class to extend
-        else if ($restrictionObjectName = XMLUtils::getObjectRestrictionBaseName($sxe))
-        {
-            if (0 === strpos($restrictionObjectName, 'xs'))
-            {
-                self::determineParentPrimitive($restrictionObjectName, $classTemplate);
-            }
-            else
-            {
-                self::determineParentFHIRObject($restrictionObjectName, $XSDMap, $classTemplate);
-            }
-        }
-        /*
-         * As of 2016-01-21, Date and DateTime primitives did NOT directly extend an XML primitive.
-         */
-        else
-        {
-            $classTemplate->addUse('\\DCarbone\\XMLPrimitiveTypes\\Types\\XMLString');
-            $classTemplate->setExtendedClassName('XMLString');
-            $classTemplate->setExtendedElementName('primitive');
-        }
+        $fhirElementName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
+        if (null === $fhirElementName)
+            $fhirElementName = XMLUtils::getBaseFHIRElementNameFromRestriction($sxe);
+
+        if (null === $fhirElementName)
+            return;
+
+        if (0 !== strpos($fhirElementName, 'xs'))
+            self::findParentElementXSDMapEntry($fhirElementName, $XSDMap, $classTemplate);
     }
 
     /**
-     * @param string $restrictionObjectName
-     * @param ClassTemplate $classTemplate
-     */
-    public static function determineParentPrimitive($restrictionObjectName, ClassTemplate $classTemplate)
-    {
-        $xmlPrimitive = PrimitiveTypeUtils::getXMLPrimitiveTypeClass(substr($restrictionObjectName, 3));
-
-        $useStatement = get_class($xmlPrimitive);
-        $classTemplate->addUse($useStatement);
-
-        $classTemplate->setExtendedClassName(basename($useStatement));
-        $classTemplate->setExtendedElementName('primitive');
-    }
-
-    /**
-     * @param string $baseObjectName
+     * @param string $fhirElementName
      * @param XSDMap $XSDMap
      * @param ClassTemplate $classTemplate
      */
-    public static function determineParentFHIRObject($baseObjectName, XSDMap $XSDMap, ClassTemplate $classTemplate)
+    public static function findParentElementXSDMapEntry($fhirElementName, XSDMap $XSDMap, ClassTemplate $classTemplate)
     {
-        $baseClassName = $XSDMap->getClassNameForObject($baseObjectName);
-        $classTemplate->setExtendedClassName($baseClassName);
-        $classTemplate->setExtendedElementName($baseObjectName);
-
-        $useStatement = $XSDMap->getClassUseStatementForObject($baseObjectName);
-        if ($useStatement)
-            $classTemplate->addUse($useStatement);
+        if (isset($XSDMap[$fhirElementName]))
+            $classTemplate->setExtendedElementMapEntry($XSDMap[$fhirElementName]);
     }
 }

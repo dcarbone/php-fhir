@@ -24,17 +24,8 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class ParameterTemplate extends AbstractTemplate
 {
-    /** @var string */
-    private $_name;
-
-    /** @var array[] */
-    private $_propertyTypes;
-
-    /** @var string[] */
-    private $_propertyPHPTypes;
-
-    /** @var bool */
-    private $_propertyIsCollection;
+    /** @var PropertyTemplate */
+    private $_property;
 
     /**
      * Constructor
@@ -43,63 +34,30 @@ class ParameterTemplate extends AbstractTemplate
      */
     public function __construct(PropertyTemplate $propertyTemplate)
     {
-        $this->_name = $propertyTemplate->getName();
-        $this->_propertyTypes = $propertyTemplate->getTypes();
-        $this->_propertyPHPTypes = $propertyTemplate->getPHPTypes();
-        $this->_propertyIsCollection = $propertyTemplate->isCollection();
+        $this->_property = $propertyTemplate;
+    }
+
+    /**
+     * @return PropertyTemplate
+     */
+    public function getProperty()
+    {
+        return $this->_property;
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getParamDocBlockFragment()
     {
-        return $this->_name;
-    }
-
-    /**
-     * @return array[]
-     */
-    public function getPropertyTypes()
-    {
-        return $this->_propertyTypes;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPropertyPHPTypes()
-    {
-        return $this->_propertyPHPTypes;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function propertyIsCollection()
-    {
-        return $this->_propertyIsCollection;
-    }
-
-    /**
-     * @param bool $forceSingle
-     * @return string
-     */
-    public function getParamDocBlockFragment($forceSingle = false)
-    {
-        if ($this->_propertyIsCollection && !$forceSingle)
-        {
-            return sprintf(
-                '@param %s[] %s',
-                implode('[]|', array_values($this->getPropertyPHPTypes())),
-                NameUtils::getPropertyVariableName($this->getName())
-            );
-        }
+        $property = $this->getProperty();
 
         return sprintf(
-            '@param %s %s',
-            implode('|', array_values($this->getPropertyPHPTypes())),
-            NameUtils::getPropertyVariableName($this->getName())
+            '@param %s%s%s %s',
+            $property->isPrimitive() || $property->isList() ? '' : '\\',
+            $property->getPhpType(),
+            $property->isCollection() ? '[]' : '',
+            NameUtils::getPropertyVariableName($property->getName())
         );
     }
 
@@ -108,6 +66,6 @@ class ParameterTemplate extends AbstractTemplate
      */
     public function compileTemplate()
     {
-        return NameUtils::getPropertyVariableName($this->getName());
+        return NameUtils::getPropertyVariableName($this->getProperty()->getName());
     }
 }

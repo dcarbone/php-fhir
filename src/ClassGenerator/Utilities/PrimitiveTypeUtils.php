@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\XMLPrimitiveTypes\XMLPrimitiveTypeFactory;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PrimitivePropertyTypesEnum;
 
 /**
@@ -25,9 +24,6 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\PrimitivePropertyTypesEnum;
  */
 abstract class PrimitiveTypeUtils
 {
-    /** @var XMLPrimitiveTypeFactory */
-    private static $XMLPrimitiveTypeFactory = null;
-
     /**
      * @param PrimitivePropertyTypesEnum $type
      * @return string
@@ -50,6 +46,11 @@ abstract class PrimitiveTypeUtils
             case PrimitivePropertyTypesEnum::DECIMAL:
                 return 'float';
 
+            case PrimitivePropertyTypesEnum::TIME:
+            case PrimitivePropertyTypesEnum::INSTANT:
+            case PrimitivePropertyTypesEnum::DATE:
+            case PrimitivePropertyTypesEnum::DATETIME:
+
             case PrimitivePropertyTypesEnum::MARKDOWN:
             case PrimitivePropertyTypesEnum::UUID:
             case PrimitivePropertyTypesEnum::OID:
@@ -60,44 +61,15 @@ abstract class PrimitiveTypeUtils
             case PrimitivePropertyTypesEnum::CODE:
                 return 'string';
 
-            case PrimitivePropertyTypesEnum::TIME:
-            case PrimitivePropertyTypesEnum::INSTANT:
-            case PrimitivePropertyTypesEnum::DATE:
-            case PrimitivePropertyTypesEnum::DATETIME:
-                return '\\DateTime';
+            // TODO: At somepoint, would looooove to turn this value into a real DateTime object...
+//            case PrimitivePropertyTypesEnum::TIME:
+//            case PrimitivePropertyTypesEnum::INSTANT:
+//            case PrimitivePropertyTypesEnum::DATE:
+//            case PrimitivePropertyTypesEnum::DATETIME:
+//                return '\\DateTime';
 
             default:
                 throw new \RuntimeException('No variable type mapping exists for simple property "'.$strType.'"');
         }
-    }
-
-    /**
-     * @param PrimitivePropertyTypesEnum $type
-     * @return null|string
-     */
-    public static function getSimpleTypeVariableTypeHintingValue(PrimitivePropertyTypesEnum $type)
-    {
-        switch((string)$type)
-        {
-            case PrimitivePropertyTypesEnum::INSTANT:
-            case PrimitivePropertyTypesEnum::DATE:
-            case PrimitivePropertyTypesEnum::DATETIME:
-                return '\\DateTime';
-
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * @param string $xmlDataType
-     * @return \DCarbone\XMLPrimitiveTypes\Types\AbstractXMLPrimitiveType
-     */
-    public static function getXMLPrimitiveTypeClass($xmlDataType)
-    {
-        if (!isset(self::$XMLPrimitiveTypeFactory))
-            self::$XMLPrimitiveTypeFactory = new XMLPrimitiveTypeFactory();
-
-        return self::$XMLPrimitiveTypeFactory->getPrimitiveType($xmlDataType);
     }
 }

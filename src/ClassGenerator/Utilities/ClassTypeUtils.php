@@ -53,7 +53,7 @@ abstract class ClassTypeUtils
         if (false !== strpos($name, '.'))
             return new ComplexClassTypesEnum(ComplexClassTypesEnum::COMPONENT);
 
-        $baseName = XMLUtils::getBaseObjectName($sxe);
+        $baseName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
         if (null === $baseName)
             return null;
 
