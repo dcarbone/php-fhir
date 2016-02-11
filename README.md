@@ -37,7 +37,7 @@ require __DIR__.'/vendor/autoload.php';
 
 $xsdPath = 'path to wherever you un-zipped the xsd files';
 
-$generator = new \DCarbone\PHPFHIR\Generator($xsdPath);
+$generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($xsdPath);
 
 $generator->generate();
 ```
