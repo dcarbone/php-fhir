@@ -1,8 +1,5 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator;
 
-// TODO: Find a better place for this...
-define('TEMPLATE_DIR', realpath(__DIR__.'/../../templates'));
-
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
