@@ -56,7 +56,7 @@ class ResponseParserTemplate extends AbstractTemplate
     public function compileTemplate()
     {
         return sprintf(
-            include TEMPLATE_DIR.'/response_parser_template.php',
+            include PHPFHIR_TEMPLATE_DIR.'/response_parser_template.php',
             $this->_outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment()
         );

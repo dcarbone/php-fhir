@@ -86,7 +86,7 @@ class AutoloaderTemplate extends AbstractTemplate
     public function compileTemplate()
     {
         return sprintf(
-            include TEMPLATE_DIR.'/autoload_template.php',
+            include PHPFHIR_TEMPLATE_DIR.'/autoload_template.php',
             $this->_outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment(),
             var_export($this->_classMap, true)

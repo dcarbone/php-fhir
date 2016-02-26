@@ -93,7 +93,7 @@ class ParserMapTemplate extends AbstractTemplate
         $this->addExtendedClassProperties();
 
         return sprintf(
-            include TEMPLATE_DIR.'/parser_map_template.php',
+            include PHPFHIR_TEMPLATE_DIR.'/parser_map_template.php',
             $this->_outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment(),
             var_export($this->_bigDumbMap, true)
