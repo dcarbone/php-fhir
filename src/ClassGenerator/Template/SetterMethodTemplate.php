@@ -77,7 +77,7 @@ class SetterMethodTemplate extends AbstractMethodTemplate
             );
         }
 
-        $output = sprintf("%s     */\n    %s function %s(", $output, (string)$this->getScope(), $this->getName());
+        $output = sprintf("%s     * @return \$this\n     */\n    %s function %s(", $output, (string)$this->getScope(), $this->getName());
 
         $params = array();
         foreach($this->getParameters() as $param)
@@ -91,6 +91,6 @@ class SetterMethodTemplate extends AbstractMethodTemplate
             $output = sprintf("%s        %s\n", $output, $line);
         }
 
-        return sprintf("%s    }\n\n", $output);
+        return sprintf("%s        return \$this;\n    }\n\n", $output);
     }
 }
