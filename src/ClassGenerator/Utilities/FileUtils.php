@@ -31,7 +31,7 @@ abstract class FileUtils
         if ('\\' === $namespace)
             return;
 
-        $path = rtrim($outputPath, " \t\n\r\0\x0B/\\");
+        $path = rtrim(trim($outputPath), "/\\");
         foreach(explode('\\', $namespace) as $dirName)
         {
             $path = sprintf('%s/%s', $path, $dirName);
