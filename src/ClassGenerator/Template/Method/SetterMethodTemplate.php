@@ -41,5 +41,7 @@ class SetterMethodTemplate extends BaseMethodTemplate
         parent::__construct($name, new PHPScopeEnum(PHPScopeEnum::_PUBLIC));
 
         $this->setDocumentation($propertyTemplate->getDocumentation());
+        $this->setReturnValueType('$this');
+        $this->setReturnStatement('$this');
     }
 }
