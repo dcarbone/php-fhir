@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -42,7 +43,7 @@ class ClassTemplate extends AbstractTemplate
     /** @var PropertyTemplate[] */
     private $_properties = array();
 
-    /** @var AbstractMethodTemplate[] */
+    /** @var BaseMethodTemplate[] */
     private $_methods = array();
 
     /**
@@ -116,7 +117,7 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\AbstractMethodTemplate[]
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate[]
      */
     public function getMethods()
     {
@@ -132,11 +133,47 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @param AbstractMethodTemplate $method
+     * @param string $name
+     * @return bool
      */
-    public function addMethod(AbstractMethodTemplate $method)
+    public function hasProperty($name)
+    {
+        return isset($this->_properties[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return PropertyTemplate
+     */
+    public function getProperty($name)
+    {
+        return $this->_properties[$name];
+    }
+
+    /**
+     * @param BaseMethodTemplate $method
+     */
+    public function addMethod(BaseMethodTemplate $method)
     {
         $this->_methods[$method->getName()] = $method;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasMethod($name)
+    {
+        return isset($this->_methods[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return BaseMethodTemplate
+     */
+    public function getMethod($name)
+    {
+        return $this->_methods[$name];
     }
 
     /**

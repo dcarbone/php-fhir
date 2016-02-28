@@ -18,6 +18,8 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
@@ -76,12 +78,50 @@ abstract class ClassGenerator
             }
         }
 
+        self::addBaseClassProperties($classTemplate, $mapEntry);
+
         foreach($classTemplate->getProperties() as $propertyTemplate)
         {
             MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
         }
 
+        self::addBaseClassMethods($classTemplate);
+
         return $classTemplate;
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     * @param XSDMap\XSDMapEntry $mapEntry
+     */
+    public static function addBaseClassProperties(ClassTemplate $classTemplate, XSDMap\XSDMapEntry $mapEntry)
+    {
+        // Add the source element name to each class...
+        $fhirElementName =  new PropertyTemplate(null, true, false);
+        $fhirElementName->setDefaultValue($mapEntry->fhirElementName);
+        $fhirElementName->setName('_fhirElementName');
+        $fhirElementName->setPhpType('string');
+        $fhirElementName->setPrimitive(true);
+        $classTemplate->addProperty($fhirElementName);
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function addBaseClassMethods(ClassTemplate $classTemplate)
+    {
+        // Add __toString() method...
+        $method = new BaseMethodTemplate('__toString');
+        $method->setReturnValueType('string');
+
+        if ($classTemplate->hasProperty('value'))
+            $method->setReturnStatement('$this->getValue()');
+        else if ($classTemplate->hasProperty('id'))
+            $method->setReturnStatement('$this->getId()');
+        else
+            $method->setReturnStatement('$this->get_fhirElementName()');
+
+        $classTemplate->addMethod($method);
     }
 
     /**

@@ -55,16 +55,26 @@ class PropertyTemplate extends AbstractTemplate
     /** @var mixed */
     protected $defaultValue;
 
+    /** @var bool */
+    protected $requiresGetter;
+    /** @var bool */
+    protected $requireSetter;
+
     /**
      * Constructor
      * @param PHPScopeEnum $scope
+     * @param bool $requiresGetter
+     * @param bool $requiresSetter
      */
-    public function __construct(PHPScopeEnum $scope = null)
+    public function __construct(PHPScopeEnum $scope = null, $requiresGetter = true, $requiresSetter = true)
     {
         if (null === $scope)
             $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
         else
             $this->scope = $scope;
+
+        $this->requiresGetter = $requiresGetter;
+        $this->requireSetter = $requiresSetter;
     }
 
     /**
@@ -217,6 +227,22 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
+     * @return boolean
+     */
+    public function requiresGetter()
+    {
+        return $this->requiresGetter;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function requireSetter()
+    {
+        return $this->requireSetter;
+    }
+
+    /**
      * @return string
      */
     public function compileTemplate()
@@ -242,6 +268,8 @@ class PropertyTemplate extends AbstractTemplate
         switch(gettype($default))
         {
             case 'string':
+                return sprintf('\'%s\'', $default);
+
             case 'integer':
             case 'double':
             case 'float':

@@ -17,10 +17,10 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\GetterMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
@@ -35,13 +35,16 @@ abstract class MethodGenerator
      */
     public static function implementMethodsForProperty(ClassTemplate $classTemplate, PropertyTemplate $propertyTemplate)
     {
-        $classTemplate->addMethod(self::createGetter($propertyTemplate));
-        $classTemplate->addMethod(self::createSetter($propertyTemplate));
+        if ($propertyTemplate->requiresGetter())
+            $classTemplate->addMethod(self::createGetter($propertyTemplate));
+
+        if ($propertyTemplate->requireSetter())
+            $classTemplate->addMethod(self::createSetter($propertyTemplate));
     }
 
     /**
      * @param PropertyTemplate $propertyTemplate
-     * @return GetterMethodTemplate
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate
      */
     public static function createGetter(PropertyTemplate $propertyTemplate)
     {
