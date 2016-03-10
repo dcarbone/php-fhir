@@ -48,7 +48,7 @@ class ParserMapTemplate extends AbstractTemplate
         $this->_outputPath = rtrim($outputPath, "\\/");
         $this->_outputNamespace = $outputNamespace;
 
-        $this->_classPath = sprintf('%s/%s/PHPFHIRParserMap.php', $this->_outputPath, $this->_outputNamespace);
+        $this->_classPath = sprintf('%s/%s/PHPFHIRParserMap.php', $this->_outputPath, str_replace('\\', '/',$this->_outputNamespace));
         $this->_className = sprintf('%s\\PHPFHIRParserMap', $this->_outputNamespace);
     }
 
