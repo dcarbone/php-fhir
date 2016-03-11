@@ -80,8 +80,13 @@ abstract class ClassGenerator
 
         self::addBaseClassProperties($classTemplate, $mapEntry);
 
+        $classIsChild = $classTemplate->getExtendedElementMapEntry() === null;
+
         foreach($classTemplate->getProperties() as $propertyTemplate)
         {
+            if ('_fhirElementName' === $propertyTemplate->getName() && $classIsChild)
+                continue;
+
             MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
         }
 
