@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ParameterTemplate;
@@ -83,5 +85,97 @@ abstract class MethodGenerator
         $setterTemplate->addLineToBody($methodBody);
 
         return $setterTemplate;
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function implementToString(ClassTemplate $classTemplate)
+    {
+        // Add __toString() method...
+        $method = new BaseMethodTemplate('__toString');
+        $classTemplate->addMethod($method);
+        $method->setReturnValueType('string');
+
+        if ($classTemplate->hasProperty('value'))
+            $method->setReturnStatement('$this->getValue()');
+        else if ($classTemplate->hasProperty('id'))
+            $method->setReturnStatement('$this->getId()');
+        else
+            $method->setReturnStatement('$this->get_fhirElementName()');
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function implementJsonSerialize(ClassTemplate $classTemplate)
+    {
+        $method = new BaseMethodTemplate('jsonSerialize');
+        $classTemplate->addMethod($method);
+
+        $method->setReturnValueType('array');
+        $method->addLineToBody('$json = array();');
+
+        switch((string)$classTemplate->getClassType())
+        {
+            case ComplexClassTypesEnum::RESOURCE:
+            case ComplexClassTypesEnum::DOMAIN_RESOURCE:
+                $method->addLineToBody('$json[\'resourceType\'] = $this->_fhirElementName;');
+                break;
+        }
+
+        foreach($classTemplate->getProperties() as $property)
+        {
+            $name = $property->getName();
+
+            if ('_fhirElementName' === $name)
+                continue;
+
+            $type = $property->getPHPType();
+
+            if ($property->isCollection())
+            {
+                $method->addLineToBody(sprintf(
+                    'if (0 < count($this->%s)) {',
+                    $name
+                ));
+                $method->addLineToBody(sprintf(
+                    '    $json[\'%s\'] = array();',
+                    $name
+                ));
+                $method->addLineToBody(sprintf(
+                    '    foreach($this->%s as $%s) {',
+                    $name,
+                    $name
+                ));
+                $method->addLineToBody(sprintf(
+                    '        $json[\'%s\'][] = $%s->jsonSerialize();',
+                    $name,
+                    $name
+                ));
+                $method->addLineToBody('    }');
+                $method->addLineToBody('}');
+            }
+            else if ($property->isPrimitive() || $property->isList() || $property->isHTML())
+            {
+                $method->addLineToBody(sprintf(
+                    'if (null !== $this->%s) $json[\'%s\'] = $this->%s;',
+                    $name,
+                    $name,
+                    $name
+                ));
+            }
+            else
+            {
+                $method->addLineToBody(sprintf(
+                    'if (null !== $this->%s) $json[\'%s\'] = $this->%s->jsonSerialize();',
+                    $name,
+                    $name,
+                    $name
+                ));
+            }
+        }
+
+        $method->setReturnStatement('$json');
     }
 }

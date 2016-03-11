@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
@@ -31,6 +32,9 @@ class ClassTemplate extends AbstractTemplate
     /** @var string */
     private $_elementName;
 
+    /** @var ComplexClassTypesEnum|null */
+    private $_classType;
+
     /** @var string */
     private $_className;
 
@@ -39,6 +43,9 @@ class ClassTemplate extends AbstractTemplate
 
     /** @var XSDMapEntry */
     private $_extendedElementMapEntry = null;
+
+    /** @var array */
+    private $_implementedInterfaces = array();
 
     /** @var PropertyTemplate[] */
     private $_properties = array();
@@ -52,8 +59,12 @@ class ClassTemplate extends AbstractTemplate
      * @param string $fhirElementName
      * @param string $className
      * @param string $namespace
+     * @param ComplexClassTypesEnum $classType
      */
-    public function __construct($fhirElementName, $className, $namespace)
+    public function __construct($fhirElementName,
+                                $className,
+                                $namespace,
+                                ComplexClassTypesEnum $classType = null)
     {
         if (NameUtils::isValidClassName($className))
             $this->_className = $className;
@@ -66,6 +77,7 @@ class ClassTemplate extends AbstractTemplate
             throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
 
         $this->_elementName = $fhirElementName;
+        $this->_classType = $classType;
     }
 
     /**
@@ -93,6 +105,14 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
+     * @return ComplexClassTypesEnum|null
+     */
+    public function getClassType()
+    {
+        return $this->_classType;
+    }
+
+    /**
      * @param XSDMapEntry $mapEntry
      */
     public function setExtendedElementMapEntry(XSDMapEntry $mapEntry)
@@ -106,6 +126,32 @@ class ClassTemplate extends AbstractTemplate
     public function getExtendedElementMapEntry()
     {
         return $this->_extendedElementMapEntry;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getImplementedInterfaces()
+    {
+        return $this->_implementedInterfaces;
+    }
+
+    /**
+     * @param string $interface
+     */
+    public function addImplementedInterface($interface)
+    {
+        if (!in_array($interface, $this->_implementedInterfaces, true))
+            $this->_implementedInterfaces[] = $interface;
+    }
+
+    /**
+     * @param string $interface
+     * @return bool
+     */
+    public function implementsInterface($interface)
+    {
+        return in_array($interface, $this->_implementedInterfaces, true);
     }
 
     /**
@@ -206,11 +252,9 @@ class ClassTemplate extends AbstractTemplate
      */
     public function compileFullOutputPath($outputPath)
     {
-        return sprintf('%s%s%s%s%s.php',
+        return sprintf('%s/%s/%s.php',
             $outputPath,
-            DIRECTORY_SEPARATOR,
             FileUtils::buildDirPathFromNS($this->getNamespace()),
-            DIRECTORY_SEPARATOR,
             $this->getClassName()
         );
     }
@@ -248,7 +292,7 @@ class ClassTemplate extends AbstractTemplate
         if ($this->_extendedElementMapEntry)
         {
             $output = sprintf(
-                "%sclass %s extends %s\n",
+                '%sclass %s extends %s',
                 $output,
                 $this->getClassName(),
                 $this->_extendedElementMapEntry->getClassName()
@@ -257,13 +301,27 @@ class ClassTemplate extends AbstractTemplate
         else
         {
             $output = sprintf(
-                "%sclass %s\n",
+                '%sclass %s',
                 $output,
                 $this->getClassName()
             );
         }
 
-        $output = sprintf("%s{\n", $output);
+        if (count($this->_implementedInterfaces) > 0)
+        {
+            $interfaces = array();
+            foreach($this->_implementedInterfaces as $interface)
+            {
+                if (0 === strpos($interface, '\\') && 1 === substr_count($interface, '\\'))
+                    $interfaces[] = $interface;
+                else
+                    $interfaces[] = ltrim(substr($interface, strrpos($interface, '\\')), '\\');
+            }
+
+            $output = sprintf('%s implements %s', $output, implode(', ', $interfaces));
+        }
+
+        $output = sprintf("%s\n{\n", $output);
 
         foreach($this->getProperties() as $property)
         {
@@ -296,6 +354,14 @@ class ClassTemplate extends AbstractTemplate
                 $this->_extendedElementMapEntry->namespace,
                 $this->_extendedElementMapEntry->className
             );
+        }
+
+        if (count($this->_implementedInterfaces) > 0)
+        {
+            foreach($this->_implementedInterfaces as $interface)
+            {
+                $usedClasses[] = $interface;
+            }
         }
 
         // TODO: The below may eventually be used for type-hinting.

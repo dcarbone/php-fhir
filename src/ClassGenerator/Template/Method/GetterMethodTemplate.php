@@ -59,7 +59,7 @@ class GetterMethodTemplate extends BaseMethodTemplate
         return sprintf(
             "     * @return %s%s%s\n",
             ($property->isPrimitive() || $property->isList() ? '' : '\\'),
-            $property->getPhpType(),
+            $property->getPHPType(),
             ($property->isCollection() ? '[]' : '')
         );
     }

@@ -133,7 +133,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function getPhpType()
+    public function getPHPType()
     {
         return $this->phpType;
     }
@@ -141,7 +141,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @param string $phpType
      */
-    public function setPhpType($phpType)
+    public function setPHPType($phpType)
     {
         $this->phpType = $phpType;
     }
@@ -197,7 +197,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @return boolean
      */
-    public function isHtml()
+    public function isHTML()
     {
         return $this->html;
     }
@@ -205,7 +205,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @param boolean $html
      */
-    public function setHtml($html)
+    public function setHTML($html)
     {
         $this->html = $html;
     }
@@ -251,7 +251,7 @@ class PropertyTemplate extends AbstractTemplate
             "    /**\n%s     * @var %s%s%s\n     */\n    %s %s = %s;\n\n",
             $this->getDocBlockDocumentationFragment(),
             $this->isPrimitive() || $this->isList() ? '' : '\\',
-            $this->getPhpType(),
+            $this->getPHPType(),
             ($this->isCollection() ? '[]' : ''),
             (string)$this->getScope(),
             NameUtils::getPropertyVariableName($this->getName()),

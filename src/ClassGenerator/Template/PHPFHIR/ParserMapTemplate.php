@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,27 +16,18 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 
 /**
  * Class ParserMapTemplate
- * @package DCarbone\PHPFHIR\ClassGenerator\Template
+ * @package DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR
  */
-class ParserMapTemplate extends AbstractTemplate
+class ParserMapTemplate extends AbstractPHPFHIRClassTemplate
 {
     /** @var array */
     private $_bigDumbMap = array();
-
-    /** @var string */
-    private $_outputPath;
-    /** @var string */
-    private $_outputNamespace;
-
-    /** @var string */
-    private $_classPath;
-    /** @var string */
-    private $_className;
 
     /**
      * Constructor
@@ -46,16 +37,10 @@ class ParserMapTemplate extends AbstractTemplate
      */
     public function __construct($outputPath, $outputNamespace)
     {
-        $this->_outputPath = rtrim($outputPath, "\\/");
-        $this->_outputNamespace = $outputNamespace;
-
-        $this->_classPath = sprintf('%s/%s/PHPFHIRParserMap.php', $this->_outputPath, str_replace('\\', '/',$this->_outputNamespace));
-        $this->_className = sprintf('%s\\PHPFHIRParserMap', $this->_outputNamespace);
+        parent::__construct($outputPath, $outputNamespace, 'PHPFHIRParserMap');
     }
 
     /**
-     * TODO: Make this not terrible.
-     *
      * @param ClassTemplate $classTemplate
      */
     public function addEntry(ClassTemplate $classTemplate)
@@ -79,7 +64,7 @@ class ParserMapTemplate extends AbstractTemplate
                     $this->_bigDumbMap[$fhirElementName]['properties'][$property->getName()] = array(
                         'setter' => $method->getName(),
                         'element' => $property->getFHIRElementType(),
-                        'type' => $property->getPhpType()
+                        'type' => $property->getPHPType()
                     );
                 }
             }
@@ -95,20 +80,9 @@ class ParserMapTemplate extends AbstractTemplate
 
         return sprintf(
             include PHPFHIR_TEMPLATE_DIR.'/parser_map_template.php',
-            $this->_outputNamespace,
+            $this->outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment(),
             var_export($this->_bigDumbMap, true)
-        );
-    }
-
-    /**
-     * @return bool
-     */
-    public function writeToFile()
-    {
-        return (bool)file_put_contents(
-            $this->_classPath,
-            $this->compileTemplate()
         );
     }
 

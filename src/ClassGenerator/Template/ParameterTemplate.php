@@ -55,7 +55,7 @@ class ParameterTemplate extends AbstractTemplate
         return sprintf(
             '@param %s%s%s %s',
             $property->isPrimitive() || $property->isList() ? '' : '\\',
-            $property->getPhpType(),
+            $property->getPHPType(),
             $property->isCollection() ? '[]' : '',
             NameUtils::getPropertyVariableName($property->getName())
         );

@@ -50,6 +50,6 @@ abstract class FileUtils
      */
     public static function buildDirPathFromNS($namespace)
     {
-        return preg_replace('{[/]{2,}}S', '', str_replace('\\', '/', $namespace));
+        return preg_replace(array('{[\\\]}S', '{[/]{2,}}S'), '/', trim($namespace, "\\"));
     }
 }

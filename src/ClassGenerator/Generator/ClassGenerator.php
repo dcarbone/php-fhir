@@ -18,8 +18,8 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
@@ -49,7 +49,8 @@ abstract class ClassGenerator
         $classTemplate = new ClassTemplate(
             $mapEntry->fhirElementName,
             $mapEntry->className,
-            $mapEntry->namespace
+            $mapEntry->namespace,
+            ClassTypeUtils::getComplexClassType($mapEntry->sxe)
         );
 
         foreach($mapEntry->sxe->children('xs', true) as $_element)
@@ -90,6 +91,7 @@ abstract class ClassGenerator
             MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
         }
 
+        self::addBaseClassInterfaces($classTemplate);
         self::addBaseClassMethods($classTemplate);
 
         return $classTemplate;
@@ -105,7 +107,7 @@ abstract class ClassGenerator
         $fhirElementName =  new PropertyTemplate(null, true, false);
         $fhirElementName->setDefaultValue($mapEntry->fhirElementName);
         $fhirElementName->setName('_fhirElementName');
-        $fhirElementName->setPhpType('string');
+        $fhirElementName->setPHPType('string');
         $fhirElementName->setPrimitive(true);
         $classTemplate->addProperty($fhirElementName);
     }
@@ -115,18 +117,16 @@ abstract class ClassGenerator
      */
     public static function addBaseClassMethods(ClassTemplate $classTemplate)
     {
-        // Add __toString() method...
-        $method = new BaseMethodTemplate('__toString');
-        $method->setReturnValueType('string');
+        MethodGenerator::implementToString($classTemplate);
+        MethodGenerator::implementJsonSerialize($classTemplate);
+    }
 
-        if ($classTemplate->hasProperty('value'))
-            $method->setReturnStatement('$this->getValue()');
-        else if ($classTemplate->hasProperty('id'))
-            $method->setReturnStatement('$this->getId()');
-        else
-            $method->setReturnStatement('$this->get_fhirElementName()');
-
-        $classTemplate->addMethod($method);
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function addBaseClassInterfaces(ClassTemplate $classTemplate)
+    {
+        $classTemplate->addImplementedInterface(sprintf('%s\\JsonSerializable', self::$_outputNamespace));
     }
 
     /**
