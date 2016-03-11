@@ -29,6 +29,7 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
  */
 abstract class ClassGenerator
 {
+    /** @var string */
     private static $_outputNamespace;
 
     /**
