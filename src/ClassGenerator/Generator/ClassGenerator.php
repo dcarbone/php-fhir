@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
@@ -82,13 +83,8 @@ abstract class ClassGenerator
 
         self::addBaseClassProperties($classTemplate, $mapEntry);
 
-        $classIsChild = $classTemplate->getExtendedElementMapEntry() === null;
-
         foreach($classTemplate->getProperties() as $propertyTemplate)
         {
-            if ('_fhirElementName' === $propertyTemplate->getName() && $classIsChild)
-                continue;
-
             MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
         }
 
@@ -105,12 +101,12 @@ abstract class ClassGenerator
     public static function addBaseClassProperties(ClassTemplate $classTemplate, XSDMap\XSDMapEntry $mapEntry)
     {
         // Add the source element name to each class...
-        $fhirElementName =  new PropertyTemplate(null, true, false);
-        $fhirElementName->setDefaultValue($mapEntry->fhirElementName);
-        $fhirElementName->setName('_fhirElementName');
-        $fhirElementName->setPHPType('string');
-        $fhirElementName->setPrimitive(true);
-        $classTemplate->addProperty($fhirElementName);
+        $property =  new PropertyTemplate(new PHPScopeEnum(PHPScopeEnum::_PRIVATE), true, false);
+        $property->setDefaultValue($mapEntry->fhirElementName);
+        $property->setName('_fhirElementName');
+        $property->setPHPType('string');
+        $property->setPrimitive(true);
+        $classTemplate->addProperty($property);
     }
 
     /**
