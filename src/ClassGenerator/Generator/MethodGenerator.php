@@ -92,7 +92,6 @@ abstract class MethodGenerator
      */
     public static function implementToString(ClassTemplate $classTemplate)
     {
-        // Add __toString() method...
         $method = new BaseMethodTemplate('__toString');
         $classTemplate->addMethod($method);
         $method->setReturnValueType('string');

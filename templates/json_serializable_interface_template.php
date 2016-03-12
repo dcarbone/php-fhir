@@ -28,7 +28,7 @@ if (interface_exists('\\\\JsonSerializable')) {
 } else {
     interface JsonSerializable {
         /**
-         * @return array
+         * @return array|string|int|float|bool|null
          */
         public function jsonSerialize();
     }
