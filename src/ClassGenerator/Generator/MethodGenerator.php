@@ -120,16 +120,12 @@ abstract class MethodGenerator
             foreach($properties as $property)
             {
                 $name = $property->getName();
-                switch($name)
-                {
-                    case '_fhirElementName':
-                    case 'value':
-                        continue 2;
 
-                    default:
-                        $simple = false;
-                        break 2;
-                }
+                if ('_fhirElementName' === $name || 'value' === $name)
+                    continue;
+
+                $simple = false;
+                break;
             }
         }
         else
@@ -142,11 +138,38 @@ abstract class MethodGenerator
             $method->setReturnValueType('string|int|float|bool|null');
             $method->setReturnStatement('$this->value');
         }
+        // In JSON, ResourceContainers need to just pass back the resource they contain.
+        else if ('ResourceContainer' === $classTemplate->getElementName())
+        {
+            $method->setReturnValueType('array');
+
+            foreach($properties as $property)
+            {
+                $name = $property->getName();
+                if ('_fhirElementName' === $name)
+                    continue;
+
+                $method->addLineToBody(sprintf(
+                    'if (null !== $this->%s) return $this->%s->jsonSerialize();',
+                    $name,
+                    $name
+                ));
+            }
+
+            // This is here just in case the ResourceContainer wasn't populated correctly for whatever reason.
+            $method->setReturnStatement('array()');
+        }
         else
         {
             $method->setReturnValueType('array');
-            $method->addLineToBody('$json = array();');
 
+            if (null !== $classTemplate->getExtendedElementMapEntry())
+                $method->addLineToBody('$json = parent::jsonSerialize();');
+            else
+                $method->addLineToBody('$json = array();');
+
+            // Unfortunately for the moment this value will potentially be overwritten several times during
+            // JSOn generation...
             switch((string)$classTemplate->getClassType())
             {
                 case ComplexClassTypesEnum::RESOURCE:
