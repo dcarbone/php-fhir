@@ -267,12 +267,13 @@ abstract class MethodGenerator
             $simple = false;
         }
 
+        $rootElementName = str_replace(NameUtils::$classNameSearch, NameUtils::$classNameReplace, $classTemplate->getElementName());
         // If this is the root object...
         $method->addLineToBody(sprintf(
             'if (null === $sxe) $sxe = new \\SimpleXMLElement(\'<%s xmlns="%s"></%s>\');',
-            $classTemplate->getElementName(),
+            $rootElementName,
             FHIR_XMLNS,
-            $classTemplate->getElementName()
+            $rootElementName
         ));
 
         // For simple properties we need to simply add an attribute.
@@ -333,15 +334,11 @@ abstract class MethodGenerator
                 else
                 {
                     $method->addLineToBody(sprintf(
-                        'if (null !== $this->%s) {',
-                        $name
-                    ));
-                    $method->addLineToBody(sprintf(
-                        '    $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                        'if (null !== $this->%s) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                        $name,
                         $name,
                         $name
                     ));
-                    $method->addLineToBody('}');
                 }
             }
         }
