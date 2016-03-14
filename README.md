@@ -7,7 +7,7 @@ This library requires the use of [Composer](https://getcomposer.org/)
 
 Require entry:
 ```json
-    "dcarbone/php-fhir": "0.3.*"
+    "dcarbone/php-fhir": "0.4.*"
 ```
 
 # Basic Workflow
