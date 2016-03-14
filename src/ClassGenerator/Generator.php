@@ -18,9 +18,10 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\XSDMapGenerator;
-use DCarbone\PHPFHIR\ClassGenerator\Template\AutoloaderTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\ParserMapTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\ResponseParserTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\JsonSerializableInterfaceTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -42,6 +43,9 @@ class Generator
     private $_autoloadMap;
     /** @var ParserMapTemplate */
     private $_mapTemplate;
+
+    /** @var JsonSerializableInterfaceTemplate */
+    private $_jsonSerializableInterface;
 
     /**
      * Constructor
@@ -97,12 +101,15 @@ class Generator
         $this->_autoloadMap = new AutoloaderTemplate($this->outputPath, $this->outputNamespace);
 
         $this->_autoloadMap->addEntry(
-            sprintf('%s\\%s', $this->outputNamespace, 'PHPFHIRParserMap'),
-            sprintf('%s/%s', $this->outputPath, 'PHPFHIRParserMap.php')
+            $this->_mapTemplate->getClassName(),
+            $this->_mapTemplate->getClassPath()
         );
+
+        $this->_jsonSerializableInterface = new JsonSerializableInterfaceTemplate($this->outputPath, $this->outputNamespace);
+        $this->_jsonSerializableInterface->writeToFile();
         $this->_autoloadMap->addEntry(
-            sprintf('%s\\%s', $this->outputNamespace, 'PHPFHIRResponseParser'),
-            sprintf('%s/%s', $this->outputPath, 'PHPFHIRResponseParser.php')
+            $this->_jsonSerializableInterface->getClassName(),
+            $this->_jsonSerializableInterface->getClassPath()
         );
     }
 
@@ -115,6 +122,10 @@ class Generator
         $this->_autoloadMap->writeToFile();
 
         $responseParserTemplate = new ResponseParserTemplate($this->outputPath, $this->outputNamespace);
+        $this->_autoloadMap->addEntry(
+            $responseParserTemplate->getClassName(),
+            $responseParserTemplate->getClassPath()
+        );
         $responseParserTemplate->writeToFile();
     }
 

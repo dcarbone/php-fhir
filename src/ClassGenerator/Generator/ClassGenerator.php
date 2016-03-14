@@ -17,7 +17,10 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
@@ -27,6 +30,7 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
  */
 abstract class ClassGenerator
 {
+    /** @var string */
     private static $_outputNamespace;
 
     /**
@@ -47,7 +51,8 @@ abstract class ClassGenerator
         $classTemplate = new ClassTemplate(
             $mapEntry->fhirElementName,
             $mapEntry->className,
-            $mapEntry->namespace
+            $mapEntry->namespace,
+            ClassTypeUtils::getComplexClassType($mapEntry->sxe)
         );
 
         foreach($mapEntry->sxe->children('xs', true) as $_element)
@@ -76,12 +81,50 @@ abstract class ClassGenerator
             }
         }
 
+        self::addBaseClassProperties($classTemplate, $mapEntry);
+
         foreach($classTemplate->getProperties() as $propertyTemplate)
         {
             MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
         }
 
+        self::addBaseClassInterfaces($classTemplate);
+        self::addBaseClassMethods($classTemplate);
+
         return $classTemplate;
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     * @param XSDMap\XSDMapEntry $mapEntry
+     */
+    public static function addBaseClassProperties(ClassTemplate $classTemplate, XSDMap\XSDMapEntry $mapEntry)
+    {
+        // Add the source element name to each class...
+        $property =  new PropertyTemplate(new PHPScopeEnum(PHPScopeEnum::_PRIVATE), true, false);
+        $property->setDefaultValue($mapEntry->fhirElementName);
+        $property->setName('_fhirElementName');
+        $property->setPHPType('string');
+        $property->setPrimitive(true);
+        $classTemplate->addProperty($property);
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function addBaseClassMethods(ClassTemplate $classTemplate)
+    {
+        MethodGenerator::implementToString($classTemplate);
+        MethodGenerator::implementJsonSerialize($classTemplate);
+        MethodGenerator::implementXMLSerialize($classTemplate);
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function addBaseClassInterfaces(ClassTemplate $classTemplate)
+    {
+        $classTemplate->addImplementedInterface(sprintf('%s\\JsonSerializable', self::$_outputNamespace));
     }
 
     /**

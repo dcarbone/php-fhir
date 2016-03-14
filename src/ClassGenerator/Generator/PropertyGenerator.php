@@ -17,10 +17,8 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Enum\PrimitivePropertyTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\PrimitiveTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
@@ -107,8 +105,8 @@ abstract class PropertyGenerator
             {
                 $propertyTemplate->setName(substr($ref, 6));
                 $propertyTemplate->setFHIRElementType('html');
-                $propertyTemplate->setHtml(true);
-                $propertyTemplate->setPhpType('string');
+                $propertyTemplate->setHTML(true);
+                $propertyTemplate->setPHPType('string');
 
                 return $propertyTemplate;
             }
@@ -130,16 +128,16 @@ abstract class PropertyGenerator
         if (false !== strpos($type, '-primitive'))
         {
             $propertyTemplate->setPrimitive(true);
-            $propertyTemplate->setPhpType('string');
+            $propertyTemplate->setPHPType('string');
         }
         else if (false !== strpos($type, '-list'))
         {
             $propertyTemplate->setList(true);
-            $propertyTemplate->setPhpType('string');
+            $propertyTemplate->setPHPType('string');
         }
         else
         {
-            $propertyTemplate->setPhpType(
+            $propertyTemplate->setPHPType(
                 $XSDMap->getClassUseStatementForFHIRElementName($type)
             );
         }

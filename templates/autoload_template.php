@@ -28,7 +28,6 @@ class PHPFHIRAutoloader
     /** @var array */
     private static \$_classMap = %s;
 
-
     /** @var bool */
     private static \$_registered = false;
 
@@ -42,6 +41,7 @@ class PHPFHIRAutoloader
             return self::\$_registered;
         return self::\$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
     }
+
     /**
      * @return bool
      */
@@ -50,6 +50,7 @@ class PHPFHIRAutoloader
         self::\$_registered = !spl_autoload_unregister(array(__CLASS__, 'loadClass'));
         return !self::\$_registered;
     }
+
     /**
      * Please see associated documentation for more information on what this method looks for.
      *
@@ -59,9 +60,7 @@ class PHPFHIRAutoloader
     public static function loadClass(\$class)
     {
         if (isset(self::\$_classMap[\$class]))
-        {
             return (bool)require sprintf('%%s/%%s', self::ROOT_DIR, self::\$_classMap[\$class]);
-        }
         return null;
     }
 }

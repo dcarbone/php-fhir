@@ -7,7 +7,7 @@ This library requires the use of [Composer](https://getcomposer.org/)
 
 Require entry:
 ```json
-    "dcarbone/php-fhir": "0.3.*"
+    "dcarbone/php-fhir": "0.4.*"
 ```
 
 # Basic Workflow
@@ -75,6 +75,32 @@ $parser = new \\YourConfiguredNamespace\\PHPFHIRResponseParser;
 $object = $parser->parse($yourResponseData);
 
 ```
+
+## JSON Serialization
+
+### PHP 5.3.x example:
+
+```php
+$json = json_encode($object->jsonSerialize());
+```
+
+### PHP \>= 5.4.0
+
+```php
+$json = json_encode($object);
+```
+
+## XML Serialization
+
+```php
+// To get an XML string back...
+$xml = $object->xmlSerialize();
+
+// To get back an instance of \SimpleXMLElement...
+$sxe = $object->xmlSerialize(true);
+```
+
+XML Serialization utilizes [SimpleXMLElement](http://php.net/manual/en/class.simplexmlelement.php).
 
 ## Testing
 

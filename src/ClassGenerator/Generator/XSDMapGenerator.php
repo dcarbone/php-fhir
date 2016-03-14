@@ -37,23 +37,23 @@ abstract class XSDMapGenerator
     {
         $xsdMap = new XSDMap();
 
-        $fhirBaseXML = sprintf('%s/fhir-base.xsd', $xsdPath);
+        $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $xsdPath);
 
-        if (!file_exists($fhirBaseXML))
+        if (!file_exists($fhirBaseXSD))
         {
             throw new \RuntimeException(sprintf(
                 'Unable to locate "fhir-base.xsd" at expected path "%s".',
-                $fhirBaseXML
+                $fhirBaseXSD
             ));
         }
 
         // First get class references in fhir-base.xsd
-        self::parseClassesFromXSD(new \SplFileInfo($fhirBaseXML), $xsdMap, $outputNS);
+        self::parseClassesFromXSD($fhirBaseXSD, $xsdMap, $outputNS);
 
         // Then scoop up the rest
-        foreach(glob(sprintf('%s/*.xsd', $xsdPath), GLOB_NOSORT) as $file)
+        foreach(glob(sprintf('%s/*.xsd', $xsdPath), GLOB_NOSORT) as $xsdFile)
         {
-            $basename = basename($file);
+            $basename = basename($xsdFile);
 
             if (0 === strpos($basename, 'fhir-'))
                 continue;
@@ -61,7 +61,7 @@ abstract class XSDMapGenerator
             if ('xml.xsd' === $basename)
                 continue;
 
-            self::parseClassesFromXSD($file, $xsdMap, $outputNS);
+            self::parseClassesFromXSD($xsdFile, $xsdMap, $outputNS);
         }
 
         return $xsdMap;

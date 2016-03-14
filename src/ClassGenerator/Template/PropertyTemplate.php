@@ -55,16 +55,26 @@ class PropertyTemplate extends AbstractTemplate
     /** @var mixed */
     protected $defaultValue;
 
+    /** @var bool */
+    protected $requiresGetter;
+    /** @var bool */
+    protected $requireSetter;
+
     /**
      * Constructor
      * @param PHPScopeEnum $scope
+     * @param bool $requiresGetter
+     * @param bool $requiresSetter
      */
-    public function __construct(PHPScopeEnum $scope = null)
+    public function __construct(PHPScopeEnum $scope = null, $requiresGetter = true, $requiresSetter = true)
     {
         if (null === $scope)
             $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
         else
             $this->scope = $scope;
+
+        $this->requiresGetter = $requiresGetter;
+        $this->requireSetter = $requiresSetter;
     }
 
     /**
@@ -80,12 +90,10 @@ class PropertyTemplate extends AbstractTemplate
      */
     public function setName($name)
     {
-        if (NameUtils::isValidPropertyName($name))
+        if (NameUtils::isValidVariableName($name))
             $this->name = $name;
         else
             throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
-
-        $this->name = $name;
     }
 
     /**
@@ -123,7 +131,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function getPhpType()
+    public function getPHPType()
     {
         return $this->phpType;
     }
@@ -131,7 +139,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @param string $phpType
      */
-    public function setPhpType($phpType)
+    public function setPHPType($phpType)
     {
         $this->phpType = $phpType;
     }
@@ -187,7 +195,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @return boolean
      */
-    public function isHtml()
+    public function isHTML()
     {
         return $this->html;
     }
@@ -195,7 +203,7 @@ class PropertyTemplate extends AbstractTemplate
     /**
      * @param boolean $html
      */
-    public function setHtml($html)
+    public function setHTML($html)
     {
         $this->html = $html;
     }
@@ -217,6 +225,22 @@ class PropertyTemplate extends AbstractTemplate
     }
 
     /**
+     * @return boolean
+     */
+    public function requiresGetter()
+    {
+        return $this->requiresGetter;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function requireSetter()
+    {
+        return $this->requireSetter;
+    }
+
+    /**
      * @return string
      */
     public function compileTemplate()
@@ -225,7 +249,7 @@ class PropertyTemplate extends AbstractTemplate
             "    /**\n%s     * @var %s%s%s\n     */\n    %s %s = %s;\n\n",
             $this->getDocBlockDocumentationFragment(),
             $this->isPrimitive() || $this->isList() ? '' : '\\',
-            $this->getPhpType(),
+            $this->getPHPType(),
             ($this->isCollection() ? '[]' : ''),
             (string)$this->getScope(),
             NameUtils::getPropertyVariableName($this->getName()),
@@ -242,6 +266,8 @@ class PropertyTemplate extends AbstractTemplate
         switch(gettype($default))
         {
             case 'string':
+                return sprintf('\'%s\'', $default);
+
             case 'integer':
             case 'double':
             case 'float':

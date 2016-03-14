@@ -16,11 +16,14 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\GetterMethodTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\ParameterTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\PropertyParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
@@ -35,13 +38,16 @@ abstract class MethodGenerator
      */
     public static function implementMethodsForProperty(ClassTemplate $classTemplate, PropertyTemplate $propertyTemplate)
     {
-        $classTemplate->addMethod(self::createGetter($propertyTemplate));
-        $classTemplate->addMethod(self::createSetter($propertyTemplate));
+        if ($propertyTemplate->requiresGetter())
+            $classTemplate->addMethod(self::createGetter($propertyTemplate));
+
+        if ($propertyTemplate->requireSetter())
+            $classTemplate->addMethod(self::createSetter($propertyTemplate));
     }
 
     /**
      * @param PropertyTemplate $propertyTemplate
-     * @return GetterMethodTemplate
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate
      */
     public static function createGetter(PropertyTemplate $propertyTemplate)
     {
@@ -56,7 +62,7 @@ abstract class MethodGenerator
      */
     public static function createSetter(PropertyTemplate $propertyTemplate)
     {
-        $paramTemplate = new ParameterTemplate($propertyTemplate);
+        $paramTemplate = new PropertyParameterTemplate($propertyTemplate);
 
         if ($propertyTemplate->isCollection())
         {
@@ -80,5 +86,266 @@ abstract class MethodGenerator
         $setterTemplate->addLineToBody($methodBody);
 
         return $setterTemplate;
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function implementToString(ClassTemplate $classTemplate)
+    {
+        $method = new BaseMethodTemplate('__toString');
+        $classTemplate->addMethod($method);
+        $method->setReturnValueType('string');
+
+        if ($classTemplate->hasProperty('value'))
+            $method->setReturnStatement('(string)$this->getValue()');
+        else if ($classTemplate->hasProperty('id'))
+            $method->setReturnStatement('(string)$this->getId()');
+        else
+            $method->setReturnStatement('$this->get_fhirElementName()');
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function implementJsonSerialize(ClassTemplate $classTemplate)
+    {
+        $method = new BaseMethodTemplate('jsonSerialize');
+        $classTemplate->addMethod($method);
+
+        $properties = $classTemplate->getProperties();
+
+        $simple = true;
+        if (2 === count($properties))
+        {
+            foreach($properties as $property)
+            {
+                $name = $property->getName();
+
+                if ('_fhirElementName' === $name || 'value' === $name)
+                    continue;
+
+                $simple = false;
+                break;
+            }
+        }
+        else
+        {
+            $simple = false;
+        }
+
+        if ($simple)
+        {
+            $method->setReturnValueType('string|int|float|bool|null');
+            $method->setReturnStatement('$this->value');
+        }
+        // ResourceContainers need to just pass back the resource they contain.
+        else if ('ResourceContainer' === $classTemplate->getElementName())
+        {
+            $method->setReturnValueType('array');
+
+            foreach($properties as $property)
+            {
+                $name = $property->getName();
+                if ('_fhirElementName' === $name)
+                    continue;
+
+                $method->addLineToBody(sprintf(
+                    'if (null !== $this->%s) return $this->%s->jsonSerialize();',
+                    $name,
+                    $name
+                ));
+            }
+
+            // This is here just in case the ResourceContainer wasn't populated correctly for whatever reason.
+            $method->setReturnStatement('array()');
+        }
+        else
+        {
+            $method->setReturnValueType('array');
+
+            // Determine if this class is a child...
+            if (null === $classTemplate->getExtendedElementMapEntry())
+                $method->addLineToBody('$json = array();');
+            else
+                $method->addLineToBody('$json = parent::jsonSerialize();');
+
+            // Unfortunately for the moment this value will potentially be overwritten several times during
+            // JSOn generation...
+            switch((string)$classTemplate->getClassType())
+            {
+                case ComplexClassTypesEnum::RESOURCE:
+                case ComplexClassTypesEnum::DOMAIN_RESOURCE:
+                    $method->addLineToBody('$json[\'resourceType\'] = $this->_fhirElementName;');
+                    break;
+            }
+
+            foreach($properties as $property)
+            {
+                $name = $property->getName();
+
+                if ('_fhirElementName' === $name)
+                    continue;
+
+                if ($property->isCollection())
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (0 < count($this->%s)) {',
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    $json[\'%s\'] = array();',
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    foreach($this->%s as $%s) {',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '        $json[\'%s\'][] = $%s->jsonSerialize();',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody('    }');
+                    $method->addLineToBody('}');
+                }
+                else if ($property->isPrimitive() || $property->isList() || $property->isHTML())
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (null !== $this->%s) $json[\'%s\'] = $this->%s;',
+                        $name,
+                        $name,
+                        $name
+                    ));
+                }
+                else
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (null !== $this->%s) $json[\'%s\'] = $this->%s->jsonSerialize();',
+                        $name,
+                        $name,
+                        $name
+                    ));
+                }
+            }
+
+            $method->setReturnStatement('$json');
+        }
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public static function implementXMLSerialize(ClassTemplate $classTemplate)
+    {
+        $method = new BaseMethodTemplate('xmlSerialize');
+        $method->addParameter(new BaseParameterTemplate('returnSXE', 'boolean', 'false'));
+        $method->addParameter(new BaseParameterTemplate('sxe', '\\SimpleXMLElement', 'null'));
+        $method->setReturnStatement('$sxe->saveXML()');
+        $method->setReturnValueType('string|\\SimpleXMLElement');
+        $classTemplate->addMethod($method);
+
+        $properties = $classTemplate->getProperties();
+
+        $simple = true;
+        if (2 === count($properties))
+        {
+            foreach($properties as $property)
+            {
+                $name = $property->getName();
+
+                if ('_fhirElementName' === $name || 'value' === $name)
+                    continue;
+
+                $simple = false;
+                break;
+            }
+        }
+        else
+        {
+            $simple = false;
+        }
+
+        // If this is the root object...
+        $method->addLineToBody(sprintf(
+            'if (null === $sxe) $sxe = new \\SimpleXMLElement(\'<%s xmlns="%s"></%s>\');',
+            $classTemplate->getElementName(),
+            FHIR_XMLNS,
+            $classTemplate->getElementName()
+        ));
+
+        // For simple properties we need to simply add an attribute.
+        if ($simple)
+        {
+            $method->addLineToBody('$sxe->addAttribute(\'value\', $this->value);');
+        }
+        else
+        {
+            // Determine if this class is a child...
+            if ($classTemplate->getExtendedElementMapEntry())
+                $method->addLineToBody('parent::xmlSerialize(true, $sxe);');
+
+            foreach($properties as $property)
+            {
+                $name = $property->getName();
+
+                if ('_fhirElementName' === $name)
+                    continue;
+
+                if ($property->isCollection())
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (0 < count($this->%s)) {',
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    foreach($this->%s as $%s) {',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '        $%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody('    }');
+                    $method->addLineToBody('}');
+                }
+                else if ($property->isPrimitive() || $property->isList() || $property->isHTML())
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (null !== $this->%s) {',
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    $%sElement = $sxe->addChild(\'%s\');',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    $%sElement->addAttribute(\'value\', (string)$this->%s);',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody('}');
+                }
+                else
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (null !== $this->%s) {',
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody('}');
+                }
+            }
+        }
+
+        $method->addLineToBody('if ($returnSXE) return $sxe;');
     }
 }

@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Method;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
  * Class GetterMethodTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-class GetterMethodTemplate extends AbstractMethodTemplate
+class GetterMethodTemplate extends BaseMethodTemplate
 {
     /** @var PropertyTemplate */
     private $_property;
@@ -37,7 +37,7 @@ class GetterMethodTemplate extends AbstractMethodTemplate
     {
         $name = sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
 
-        parent::__construct($name, new PHPScopeEnum(PHPScopeEnum::_PUBLIC));
+        parent::__construct($name);
 
         $this->setDocumentation($propertyTemplate->getDocumentation());
 
@@ -52,30 +52,15 @@ class GetterMethodTemplate extends AbstractMethodTemplate
         return $this->_property;
     }
 
-    /**
-     * @return string
-     */
-    public function compileTemplate()
+    protected function buildReturnDocBlockStatement()
     {
-        $output = sprintf("    /**\n%s", $this->getDocBlockDocumentationFragment());
-
         $property = $this->getProperty();
 
-        $output = sprintf(
-            "%s     * @return %s%s%s\n     */\n    %s function %s()\n    {\n",
-            $output,
+        return sprintf(
+            "     * @return %s%s%s\n",
             ($property->isPrimitive() || $property->isList() ? '' : '\\'),
-            $property->getPhpType(),
-            ($property->isCollection() ? '[]' : ''),
-            (string)$this->getScope(),
-            $this->getName()
+            $property->getPHPType(),
+            ($property->isCollection() ? '[]' : '')
         );
-
-        foreach($this->getBody() as $line)
-        {
-            $output = sprintf("%s        %s\n", $output, $line);
-        }
-
-        return sprintf("%s    }\n\n", $output);
     }
 }

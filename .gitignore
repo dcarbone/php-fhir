@@ -1,3 +1,6 @@
+/curl.xml
+/serialized.xml
+/out.json
 /parse.php
 /index.php
 composer.phar
@@ -8,3 +11,5 @@ composer.lock
 *.iml
 .idea/
 /.svn
+/serialized.json
+/curl.json
