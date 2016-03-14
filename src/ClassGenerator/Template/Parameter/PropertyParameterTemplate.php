@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Parameter;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,13 +16,14 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
- * Class ParameterTemplate
- * @package DCarbone\PHPFHIR\ClassGenerator\Template
+ * Class PropertyParameterTemplate
+ * @package DCarbone\PHPFHIR\ClassGenerator\Template\Parameter
  */
-class ParameterTemplate extends AbstractTemplate
+class PropertyParameterTemplate extends BaseParameterTemplate
 {
     /** @var PropertyTemplate */
     private $_property;
@@ -34,6 +35,7 @@ class ParameterTemplate extends AbstractTemplate
      */
     public function __construct(PropertyTemplate $propertyTemplate)
     {
+        parent::__construct($propertyTemplate->getName(), $propertyTemplate->getPHPType());
         $this->_property = $propertyTemplate;
     }
 
@@ -59,13 +61,5 @@ class ParameterTemplate extends AbstractTemplate
             $property->isCollection() ? '[]' : '',
             NameUtils::getPropertyVariableName($property->getName())
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function compileTemplate()
-    {
-        return NameUtils::getPropertyVariableName($this->getProperty()->getName());
     }
 }

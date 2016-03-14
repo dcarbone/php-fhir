@@ -22,7 +22,7 @@
  */
 abstract class NameUtils
 {
-    const PROPNAME_REGEX = '{^[a-zA-Z0-9_]+$}S';
+    const VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]+$}S';
     const FUNCNAME_REGEX = '{^[a-zA-Z0-9_]+$}S';
     const CLASSNAME_REGEX = '{^[a-zA-Z0-9_]+$}S';
     const NSNAME_REGEX = '{^[a-zA-Z\\\_]+$}S';
@@ -43,9 +43,9 @@ abstract class NameUtils
      * @param string $name
      * @return bool
      */
-    public static function isValidPropertyName($name)
+    public static function isValidVariableName($name)
     {
-        return (bool)preg_match(self::PROPNAME_REGEX, $name);
+        return (bool)preg_match(self::VARIABLE_NAME_REGEX, $name);
     }
 
     /**

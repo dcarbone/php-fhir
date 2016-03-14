@@ -76,33 +76,31 @@ $object = $parser->parse($yourResponseData);
 
 ```
 
-## Serialization
-
-This library supports JSON & XML Serialization, allowing you to create FHIR messages in both XML and JSON.
+## JSON Serialization
 
 ### PHP 5.3.x example:
-
-*JSON*
 
 ```php
 $json = json_encode($object->jsonSerialize());
 ```
 
-*XML*
-
-TBD
-
 ### PHP \>= 5.4.0
-
-*JSON*
 
 ```php
 $json = json_encode($object);
 ```
 
-*XML* 
+## XML Serialization
 
-TBD
+```php
+// To get an XML string back...
+$xml = $object->xmlSerialize();
+
+// To get back an instance of \SimpleXMLElement...
+$sxe = $object->xmlSerialize(true);
+```
+
+XML Serialization utilizes [SimpleXMLElement](http://php.net/manual/en/class.simplexmlelement.php).
 
 ## Testing
 
@@ -114,7 +112,6 @@ http://fhir2.healthintersections.com.au/open/ .
 - Implement event or pull-based XML parsing for large responses
 - Typecast scalar values in XML responses to proper PHP type
 - Attempt to implement Date values into PHP DateTime objects
-- XML Serialization
 - Tests...
 
 ## Suggestions and help

@@ -18,7 +18,7 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\ParameterTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
@@ -33,7 +33,7 @@ class BaseMethodTemplate extends AbstractTemplate
     /** @var PHPScopeEnum */
     protected $scope;
 
-    /** @var ParameterTemplate[] */
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate[] */
     protected $parameters = array();
 
     /** @var null|string */
@@ -136,7 +136,7 @@ class BaseMethodTemplate extends AbstractTemplate
     }
 
     /**
-     * @return ParameterTemplate[]
+     * @return BaseParameterTemplate[]
      */
     public function getParameters()
     {
@@ -144,11 +144,11 @@ class BaseMethodTemplate extends AbstractTemplate
     }
 
     /**
-     * @param ParameterTemplate $parameterTemplate
+     * @param BaseParameterTemplate $parameterTemplate
      */
-    public function addParameter(ParameterTemplate $parameterTemplate)
+    public function addParameter(BaseParameterTemplate $parameterTemplate)
     {
-        $this->parameters[$parameterTemplate->getProperty()->getName()] = $parameterTemplate;
+        $this->parameters[$parameterTemplate->getName()] = $parameterTemplate;
     }
 
     /**
@@ -162,7 +162,7 @@ class BaseMethodTemplate extends AbstractTemplate
 
     /**
      * @param string $name
-     * @return ParameterTemplate
+     * @return BaseParameterTemplate
      */
     public function getParameter($name)
     {
@@ -219,7 +219,7 @@ class BaseMethodTemplate extends AbstractTemplate
         $params = array();
         foreach($this->getParameters() as $param)
         {
-            $params[] = NameUtils::getPropertyVariableName($param->getProperty()->getName());
+            $params[] = $param->compileTemplate();
         }
 
         return sprintf('%s%s', $output, implode(', ', $params));

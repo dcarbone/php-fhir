@@ -116,6 +116,7 @@ abstract class ClassGenerator
     {
         MethodGenerator::implementToString($classTemplate);
         MethodGenerator::implementJsonSerialize($classTemplate);
+        MethodGenerator::implementXMLSerialize($classTemplate);
     }
 
     /**

@@ -90,12 +90,10 @@ class PropertyTemplate extends AbstractTemplate
      */
     public function setName($name)
     {
-        if (NameUtils::isValidPropertyName($name))
+        if (NameUtils::isValidVariableName($name))
             $this->name = $name;
         else
             throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
-
-        $this->name = $name;
     }
 
     /**
