@@ -48,7 +48,7 @@ abstract class PropertyGenerator
                 self::implementChoiceProperty($XSDMap, $classTemplate, $propertyElement);
                 break;
             case ElementTypeEnum::SEQUENCE:
-                self::implementSequenceProperty($XSDMap, $classTemplate, $propertyElement);
+                self::implementPropertySequence($XSDMap, $classTemplate, $propertyElement);
                 break;
             case ElementTypeEnum::UNION:
                 self::implementUnionProperty($XSDMap, $classTemplate, $propertyElement);
@@ -168,32 +168,36 @@ abstract class PropertyGenerator
      * @param ClassTemplate $classTemplate
      * @param \SimpleXMLElement $sequence
      */
-    public static function implementSequenceProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $sequence)
+    public static function implementPropertySequence(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $sequence)
     {
-        // Check if this is a simple or complex sequence
-        $elements = $sequence->xpath('xs:element');
-        if (0 === count($elements))
+        foreach($sequence->children('xs', true) as $_element)
         {
-            foreach($sequence->children('xs', true) as $_element)
+            /** @var \SimpleXMLElement $_element */
+            switch(strtolower($_element->getName()))
             {
-                /** @var \SimpleXMLElement $_element */
-                switch(strtolower($_element->getName()))
-                {
-                    case ElementTypeEnum::CHOICE:
-                        self::implementChoiceProperty($XSDMap, $classTemplate, $sequence, $_element);
-                        break;
-                }
+                case ElementTypeEnum::ELEMENT:
+                    self::implementElementProperty($XSDMap, $classTemplate, $_element);
+                    break;
+
+                case ElementTypeEnum::CHOICE:
+                    self::implementChoiceProperty($XSDMap, $classTemplate, $_element);
+                    break;
             }
         }
-        else
-        {
-            foreach($elements as $element)
-            {
-                $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $element);
-                if ($propertyTemplate)
-                    $classTemplate->addProperty($propertyTemplate);
-            }
-        }
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param ClassTemplate $classTemplate
+     * @param \SimpleXMLElement $element
+     */
+    public static function implementElementProperty(XSDMap $XSDMap,
+                                                    ClassTemplate $classTemplate,
+                                                    \SimpleXMLElement $element)
+    {
+        $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $element);
+        if ($propertyTemplate)
+            $classTemplate->addProperty($propertyTemplate);
     }
 
     /**
@@ -212,7 +216,6 @@ abstract class PropertyGenerator
 
         foreach($choice->xpath('xs:element') as $_element)
         {
-
             $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $_element, $documentation, $maxOccurs);
             if ($propertyTemplate)
                 $classTemplate->addProperty($propertyTemplate);
