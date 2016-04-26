@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -47,7 +48,7 @@ class ClassTemplate extends AbstractTemplate
     /** @var array */
     private $_implementedInterfaces = array();
 
-    /** @var PropertyTemplate[] */
+    /** @var BasePropertyTemplate[] */
     private $_properties = array();
 
     /** @var BaseMethodTemplate[] */
@@ -155,7 +156,7 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate[]
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate[]
      */
     public function getProperties()
     {
@@ -171,9 +172,9 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
-     * @param PropertyTemplate $property
+     * @param BasePropertyTemplate $property
      */
-    public function addProperty(PropertyTemplate $property)
+    public function addProperty(BasePropertyTemplate $property)
     {
         $this->_properties[$property->getName()] = $property;
     }
@@ -189,7 +190,7 @@ class ClassTemplate extends AbstractTemplate
 
     /**
      * @param string $name
-     * @return PropertyTemplate
+     * @return BasePropertyTemplate
      */
     public function getProperty($name)
     {

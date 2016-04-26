@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
@@ -25,22 +25,22 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class PropertyParameterTemplate extends BaseParameterTemplate
 {
-    /** @var PropertyTemplate */
+    /** @var BasePropertyTemplate */
     private $_property;
 
     /**
      * Constructor
      *
-     * @param PropertyTemplate $propertyTemplate
+     * @param BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(PropertyTemplate $propertyTemplate)
+    public function __construct(BasePropertyTemplate $propertyTemplate)
     {
         parent::__construct($propertyTemplate->getName(), $propertyTemplate->getPHPType());
         $this->_property = $propertyTemplate;
     }
 
     /**
-     * @return PropertyTemplate
+     * @return BasePropertyTemplate
      */
     public function getProperty()
     {

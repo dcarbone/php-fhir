@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\PropertyParameterTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
@@ -34,9 +34,9 @@ abstract class MethodGenerator
 {
     /**
      * @param ClassTemplate $classTemplate
-     * @param PropertyTemplate $propertyTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public static function implementMethodsForProperty(ClassTemplate $classTemplate, PropertyTemplate $propertyTemplate)
+    public static function implementMethodsForProperty(ClassTemplate $classTemplate, BasePropertyTemplate $propertyTemplate)
     {
         if ($propertyTemplate->requiresGetter())
             $classTemplate->addMethod(self::createGetter($propertyTemplate));
@@ -46,10 +46,10 @@ abstract class MethodGenerator
     }
 
     /**
-     * @param PropertyTemplate $propertyTemplate
+     * @param BasePropertyTemplate $propertyTemplate
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate
      */
-    public static function createGetter(PropertyTemplate $propertyTemplate)
+    public static function createGetter(BasePropertyTemplate $propertyTemplate)
     {
         $getterTemplate = new GetterMethodTemplate($propertyTemplate);
         $getterTemplate->addLineToBody(sprintf('return $this->%s;', $propertyTemplate->getName()));
@@ -57,10 +57,10 @@ abstract class MethodGenerator
     }
 
     /**
-     * @param PropertyTemplate $propertyTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      * @return SetterMethodTemplate
      */
-    public static function createSetter(PropertyTemplate $propertyTemplate)
+    public static function createSetter(BasePropertyTemplate $propertyTemplate)
     {
         $paramTemplate = new PropertyParameterTemplate($propertyTemplate);
 

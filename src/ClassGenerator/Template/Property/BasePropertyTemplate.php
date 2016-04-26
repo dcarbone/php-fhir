@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
+<?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Property;
 
 /*
  * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -17,13 +17,15 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
 /**
  * Class PropertyTemplate
- * @package DCarbone\PHPFHIR\ClassGenerator\Template
+ * @package DCarbone\PHPFHIR\ClassGenerator\Template\Property
  */
-class PropertyTemplate extends AbstractTemplate
+class BasePropertyTemplate extends AbstractTemplate
 {
     /** @var string */
     protected $name;
@@ -59,6 +61,8 @@ class PropertyTemplate extends AbstractTemplate
     protected $requiresGetter;
     /** @var bool */
     protected $requireSetter;
+
+    protected $choiceElementNames = array();
 
     /**
      * Constructor

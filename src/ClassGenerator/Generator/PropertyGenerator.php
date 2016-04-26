@@ -17,8 +17,10 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Property\ChoicePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
@@ -63,7 +65,7 @@ abstract class PropertyGenerator
      * @param \SimpleXMLElement $element
      * @param string $documentation
      * @param string $maxOccurs
-     * @return PropertyTemplate|null
+     * @return BasePropertyTemplate|null
      */
     public static function buildProperty(XSDMap $XSDMap,
                                          ClassTemplate $classTemplate,
@@ -71,7 +73,7 @@ abstract class PropertyGenerator
                                          $documentation = null,
                                          $maxOccurs = null)
     {
-        $propertyTemplate = new PropertyTemplate();
+        $propertyTemplate = new BasePropertyTemplate();
 
         $attributes = $element->attributes();
 
@@ -171,7 +173,7 @@ abstract class PropertyGenerator
                 switch(strtolower($_element->getName()))
                 {
                     case ElementTypeEnum::CHOICE:
-                        self::implementChoiceProperty($XSDMap, $classTemplate, $_element);
+                        self::implementChoiceProperty($XSDMap, $classTemplate, $sequence, $_element);
                         break;
                 }
             }
@@ -192,15 +194,21 @@ abstract class PropertyGenerator
      * @param ClassTemplate $classTemplate
      * @param \SimpleXMLElement $choice
      */
-    public static function implementChoiceProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $choice)
+    public static function implementChoiceProperty(XSDMap $XSDMap,
+                                                   ClassTemplate $classTemplate,
+                                                   \SimpleXMLElement $parentElement,
+                                                   \SimpleXMLElement $choice)
     {
         $attributes = $choice->attributes();
 //        $minOccurs = (int)$attributes['minOccurs'];
         $maxOccurs = $attributes['maxOccurs'];
         $documentation = XMLUtils::getDocumentation($choice);
 
+
+
         foreach($choice->xpath('xs:element') as $_element)
         {
+
             $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $_element, $documentation, $maxOccurs);
             if ($propertyTemplate)
                 $classTemplate->addProperty($propertyTemplate);

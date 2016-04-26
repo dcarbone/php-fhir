@@ -17,7 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
@@ -29,9 +29,9 @@ class SetterMethodTemplate extends BaseMethodTemplate
     /**
      * Constructor
      *
-     * @param PropertyTemplate $propertyTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(PropertyTemplate $propertyTemplate)
+    public function __construct(BasePropertyTemplate $propertyTemplate)
     {
         if ($propertyTemplate->isCollection())
             $name = sprintf('add%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
