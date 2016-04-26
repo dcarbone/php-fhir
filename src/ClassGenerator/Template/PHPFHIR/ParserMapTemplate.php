@@ -58,6 +58,7 @@ class ParserMapTemplate extends AbstractPHPFHIRClassTemplate
         {
             if ($method instanceof SetterMethodTemplate)
             {
+                /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\PropertyParameterTemplate $parameter */
                 foreach($method->getParameters() as $parameter)
                 {
                     $property = $parameter->getProperty();
