@@ -26,7 +26,9 @@ class ElementTypeEnum extends Enum
 {
     const COMPLEX_TYPE = 'complextype';
     const COMPLEX_CONTENT = 'complexcontent';
+
     const SIMPLE_TYPE = 'simpletype';
+    const SIMPLE_CONTENT = 'simplecontent';
 
     const ANNOTATION = 'annotation';
     const DOCUMENTATION = 'documentation';

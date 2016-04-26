@@ -71,12 +71,28 @@ abstract class ClassGenerator
                     $classTemplate->setDocumentation(XMLUtils::getDocumentation($_element));
                     break;
 
+                case ElementTypeEnum::COMPLEX_TYPE:
+                    self::parseComplexType($XSDMap, $_element, $classTemplate);
+                    break;
+
                 case ElementTypeEnum::COMPLEX_CONTENT:
                     self::parseComplexContent($XSDMap, $_element, $classTemplate);
                     break;
 
+                case ElementTypeEnum::SIMPLE_TYPE:
+                    self::parseSimpleType($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::SIMPLE_CONTENT:
+                    self::parseSimpleContent($XSDMap, $_element, $classTemplate);
+                    break;
+
                 case ElementTypeEnum::RESTRICTION:
                     self::parseRestriction($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::EXTENSION:
+                    self::parseExtension($XSDMap, $_element, $classTemplate);
                     break;
             }
         }
@@ -134,24 +150,37 @@ abstract class ClassGenerator
      */
     public static function parseComplexContent(XSDMap $XSDMap, \SimpleXMLElement $complexContent, ClassTemplate $classTemplate)
     {
-        foreach($complexContent->children('xs', true) as $_element)
-        {
-            /** @var \SimpleXMLElement $_element */
-            switch(strtolower($_element->getName()))
-            {
-                case ElementTypeEnum::EXTENSION:
-                    self::parseExtension($XSDMap, $_element, $classTemplate);
-                    break;
+        self::_parseContent($XSDMap, $complexContent, $classTemplate);
+    }
 
-                case ElementTypeEnum::RESTRICTION:
-                    self::parseRestriction($XSDMap, $_element, $classTemplate);
-                    break;
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $complexType
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseComplexType(XSDMap $XSDMap, \SimpleXMLElement $complexType, ClassTemplate $classTemplate)
+    {
+        self::_parseContent($XSDMap, $complexType, $classTemplate);
+    }
 
-                case ElementTypeEnum::CHOICE:
-                    self::parseChoice($XSDMap, $_element, $classTemplate);
-                    break;
-            }
-        }
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $simpleContent
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseSimpleContent(XSDMap $XSDMap, \SimpleXMLElement $simpleContent, ClassTemplate $classTemplate)
+    {
+        self::_parseContent($XSDMap, $simpleContent, $classTemplate);
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $simpleType
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseSimpleType(XSDMap $XSDMap, \SimpleXMLElement $simpleType, ClassTemplate $classTemplate)
+    {
+        self::_parseContent($XSDMap, $simpleType, $classTemplate);
     }
 
     /**
@@ -202,8 +231,10 @@ abstract class ClassGenerator
         if (null === $fhirElementName)
             return;
 
-        if (0 !== strpos($fhirElementName, 'xs'))
-            self::findParentElementXSDMapEntry($fhirElementName, $XSDMap, $classTemplate);
+        if (0 === strpos($fhirElementName, 'xs'))
+            $fhirElementName = substr($fhirElementName, 3);
+
+        self::findParentElementXSDMapEntry($fhirElementName, $XSDMap, $classTemplate);
     }
 
     /**
@@ -215,6 +246,50 @@ abstract class ClassGenerator
     {
         if (isset($XSDMap[$fhirElementName]))
             $classTemplate->setExtendedElementMapEntry($XSDMap[$fhirElementName]);
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $contentElement
+     * @param ClassTemplate $classTemplate
+     */
+    private static function _parseContent(XSDMap $XSDMap, \SimpleXMLElement $contentElement, ClassTemplate $classTemplate)
+    {
+        foreach($contentElement->children('xs', true) as $_element)
+        {
+            /** @var \SimpleXMLElement $_element */
+            switch(strtolower($_element->getName()))
+            {
+
+                case ElementTypeEnum::COMPLEX_CONTENT:
+                    self::parseComplexContent($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::COMPLEX_TYPE:
+                    self::parseComplexType($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::SIMPLE_CONTENT:
+                    self::parseSimpleContent($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::SIMPLE_TYPE:
+                    self::parseSimpleType($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::EXTENSION:
+                    self::parseExtension($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::RESTRICTION:
+                    self::parseRestriction($XSDMap, $_element, $classTemplate);
+                    break;
+
+                case ElementTypeEnum::CHOICE:
+                    self::parseChoice($XSDMap, $_element, $classTemplate);
+                    break;
+            }
+        }
     }
 
     /**

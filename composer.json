@@ -38,6 +38,8 @@
         "files": [
             "files/php_fhir_constants.php"
         ],
-        "psr-4": {"DCarbone\\PHPFHIR\\": "src/"}
+        "psr-4": {
+            "DCarbone\\PHPFHIR\\": "src/"
+        }
     }
 }

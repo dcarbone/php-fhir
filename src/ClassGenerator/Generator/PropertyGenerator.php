@@ -113,19 +113,6 @@ abstract class PropertyGenerator
 
             $name = $ref;
             $type = $ref;
-
-//            $propertyTemplate->setName($ref);
-//            $propertyTemplate->setFHIRElementType($ref);
-//
-//
-//            trigger_error(sprintf(
-//                'Unable to determine property name on object "%s" with ref value "%s".  Property definition: "%s"',
-//                $classTemplate->getElementName(),
-//                $attributes['ref'],
-//                $element->saveXML()
-//            ));
-//
-//            return null;
         }
 
         $propertyTemplate->setName($name);
