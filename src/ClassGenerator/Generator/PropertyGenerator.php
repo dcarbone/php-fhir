@@ -113,14 +113,21 @@ abstract class PropertyGenerator
                 return $propertyTemplate;
             }
 
-            trigger_error(sprintf(
-                'Unable to determine property name on object "%s" with ref value "%s".  Property definition: "%s"',
-                $classTemplate->getElementName(),
-                $attributes['ref'],
-                $element->saveXML()
-            ));
+            $name = $ref;
+            $type = $ref;
 
-            return null;
+//            $propertyTemplate->setName($ref);
+//            $propertyTemplate->setFHIRElementType($ref);
+//
+//
+//            trigger_error(sprintf(
+//                'Unable to determine property name on object "%s" with ref value "%s".  Property definition: "%s"',
+//                $classTemplate->getElementName(),
+//                $attributes['ref'],
+//                $element->saveXML()
+//            ));
+//
+//            return null;
         }
 
         $propertyTemplate->setName($name);
@@ -196,15 +203,12 @@ abstract class PropertyGenerator
      */
     public static function implementChoiceProperty(XSDMap $XSDMap,
                                                    ClassTemplate $classTemplate,
-                                                   \SimpleXMLElement $parentElement,
                                                    \SimpleXMLElement $choice)
     {
         $attributes = $choice->attributes();
 //        $minOccurs = (int)$attributes['minOccurs'];
         $maxOccurs = $attributes['maxOccurs'];
         $documentation = XMLUtils::getDocumentation($choice);
-
-
 
         foreach($choice->xpath('xs:element') as $_element)
         {
