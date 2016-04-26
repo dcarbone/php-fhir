@@ -134,13 +134,15 @@ abstract class MethodGenerator
             $simple = false;
         }
 
+        $elementName = $classTemplate->getElementName();
+
         if ($simple)
         {
             $method->setReturnValueType('string|int|float|bool|null');
             $method->setReturnStatement('$this->value');
         }
-        // ResourceContainers need to just pass back the resource they contain.
-        else if ('ResourceContainer' === $classTemplate->getElementName())
+        // ResourceContainer and Resource.Inline need to just pass back the resource they contain.
+        else if ('ResourceContainer' === $elementName || 'Resource.Inline' === $elementName)
         {
             $method->setReturnValueType('array');
 

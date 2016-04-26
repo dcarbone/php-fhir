@@ -217,6 +217,11 @@ abstract class ClassGenerator
             $classTemplate->setExtendedElementMapEntry($XSDMap[$fhirElementName]);
     }
 
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $sxe
+     * @param ClassTemplate $classTemplate
+     */
     private static function _implementProperties(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
     {
         foreach($sxe->children('xs', true) as $_element)
