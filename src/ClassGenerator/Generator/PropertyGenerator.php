@@ -129,6 +129,12 @@ abstract class PropertyGenerator
             $propertyTemplate->setList(true);
             $propertyTemplate->setPHPType('string');
         }
+        else if (0 === strpos($type, 'xs:'))
+        {
+            $propertyTemplate->setPHPType(
+                $XSDMap->getClassUseStatementForFHIRElementName(substr($type, 3))
+            );
+        }
         else
         {
             $propertyTemplate->setPHPType(
