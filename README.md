@@ -1,5 +1,5 @@
 # php-fhir
-Tools for consuming data from a FHIR server with PHP
+Tools for creating PHP classes from the HL7 FHIR Specification
 
 # Installation
 
