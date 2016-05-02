@@ -220,7 +220,7 @@ abstract class PropertyGenerator
      */
     public static function implementAttributeProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $attribute)
     {
-        $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $attribute, null, 1);
+        $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $attribute);
         if ($propertyTemplate)
             $classTemplate->addProperty($propertyTemplate);
     }
