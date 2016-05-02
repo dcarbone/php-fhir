@@ -1,7 +1,7 @@
 {
     "name": "dcarbone/php-fhir",
     "type": "library",
-    "description": "Tools for creating FHIR classes in PHP for use by a client.",
+    "description": "Tools for creating PHP classes from the HL7 FHIR Specification",
     "license": "Apache-2.0",
     "homepage": "https://github.com/dcarbone/php-fhir",
     "authors": [
