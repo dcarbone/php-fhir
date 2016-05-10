@@ -160,8 +160,12 @@ class PHPFHIRResponseParser
         {
             foreach(\$jsonEntry as \$k=>\$v)
             {
-                if (\$k === 'resourceType')
-                    continue;
+                switch($k)
+                {
+                    'resourceType':
+                    'fhir_comments':
+                        continue 2;
+                }
 
                 if (!isset(\$properties[\$k]))
                 {
