@@ -160,7 +160,7 @@ class PHPFHIRResponseParser
         {
             foreach(\$jsonEntry as \$k=>\$v)
             {
-                switch($k)
+                switch(\$k)
                 {
                     'resourceType':
                     'fhir_comments':
