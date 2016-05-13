@@ -162,8 +162,8 @@ class PHPFHIRResponseParser
             {
                 switch(\$k)
                 {
-                    'resourceType':
-                    'fhir_comments':
+                    case 'resourceType':
+                    case 'fhir_comments':
                         continue 2;
                 }
 
