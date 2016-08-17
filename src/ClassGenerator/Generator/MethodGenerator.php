@@ -32,7 +32,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 abstract class MethodGenerator
 {
-    private static $overrides = [];
+    private static $overrides = array();
 
     /**
      * @param array $overrides
@@ -307,7 +307,7 @@ abstract class MethodGenerator
                     continue;
 
                 // Check if there are overrides for this element
-                $propertyOverrides = [];
+                $propertyOverrides = array();
                 if (array_key_exists($name, self::$overrides)) {
                     $propertyOverrides = self::$overrides[$name];
                 }
