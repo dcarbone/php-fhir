@@ -32,16 +32,6 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 abstract class MethodGenerator
 {
-    private static $overrides = [];
-
-    /**
-     * @param array $overrides
-     */
-    public static function setOverrides(array $overrides)
-    {
-        self::$overrides = $overrides;
-    }
-
     /**
      * @param ClassTemplate $classTemplate
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
@@ -306,12 +296,6 @@ abstract class MethodGenerator
                 if ('_fhirElementName' === $name)
                     continue;
 
-                // Check if there are overrides for this element
-                $propertyOverrides = [];
-                if (array_key_exists($name, self::$overrides)) {
-                    $propertyOverrides = self::$overrides[$name];
-                }
-
                 if ($property->isCollection())
                 {
                     $method->addLineToBody(sprintf(
@@ -337,34 +321,16 @@ abstract class MethodGenerator
                         'if (null !== $this->%s) {',
                         $name
                     ));
-
-                    if (array_key_exists('attribute', $propertyOverrides) && $propertyOverrides['attribute'] === true) {
-                        $attributeName = 'value';
-                        if (array_key_exists('elementName', $propertyOverrides)) {
-                            $attributeName = $propertyOverrides['elementName'];
-                        }
-
-                        $method->addLineToBody(sprintf(
-                            '    $sxe->addAttribute(\'%s\', (string)$this->%s);',
-                            $attributeName,
-                            $name
-                        ));
-                    } else {
-                        $elementName = $name;
-                        if(array_key_exists('attribute', $propertyOverrides) && array_key_exists('elementName', $propertyOverrides) && $propertyOverrides['attribute'] === false){
-                            $elementName = $propertyOverrides['elementName'];
-                        }
-                        $method->addLineToBody(sprintf(
-                            '    $%sElement = $sxe->addChild(\'%s\');',
-                            $name,
-                            $elementName
-                        ));
-                        $method->addLineToBody(sprintf(
-                            '    $%sElement->addAttribute(\'value\', (string)$this->%s);',
-                            $name,
-                            $name
-                        ));
-                    }
+                    $method->addLineToBody(sprintf(
+                        '    $%sElement = $sxe->addChild(\'%s\');',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    $%sElement->addAttribute(\'value\', (string)$this->%s);',
+                        $name,
+                        $name
+                    ));
                     $method->addLineToBody('}');
                 }
                 else
