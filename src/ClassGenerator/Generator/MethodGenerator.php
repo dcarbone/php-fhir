@@ -32,6 +32,28 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 abstract class MethodGenerator
 {
+    /** 
+     * @var array 
+     */
+    private static $xmlSerializationAttributeOverrides = array();
+
+    /**
+     * @param $elementName
+     * @param $propertyName
+     */
+    public static function addXmlSerializationAttributeOverride($elementName, $propertyName)
+    {
+        self::$xmlSerializationAttributeOverrides[$elementName] = $propertyName;
+    }
+
+    /**
+     * @param array $xmlSerializationAttributeOverrides
+     */
+    public static function setXmlSerializationAttributeOverride(array $xmlSerializationAttributeOverrides)
+    {
+        self::$xmlSerializationAttributeOverrides = $xmlSerializationAttributeOverrides;
+    }
+
     /**
      * @param ClassTemplate $classTemplate
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
@@ -295,6 +317,23 @@ abstract class MethodGenerator
 
                 if ('_fhirElementName' === $name)
                     continue;
+
+                if (
+                    array_key_exists($rootElementName, self::$xmlSerializationAttributeOverrides) === true &&
+                    self::$xmlSerializationAttributeOverrides[$rootElementName] === $name
+                )
+                {
+                    $method->addLineToBody(
+                        sprintf(
+                            'if (null !== $this->%s) $sxe->addAttribute(\'%s\', (string)$this->%s);',
+                            $name,
+                            $name,
+                            $name
+                        )
+                    );
+
+                    continue;
+                }
 
                 if ($property->isCollection())
                 {
