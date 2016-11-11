@@ -32,14 +32,26 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 abstract class MethodGenerator
 {
-    private static $overrides = array();
+    /** 
+     * @var array 
+     */
+    private static $xmlSerializationAttributeOverrides = array();
 
     /**
-     * @param array $overrides
+     * @param $elementName
+     * @param $propertyName
      */
-    public static function setOverrides(array $overrides)
+    public static function addXmlSerializationAttributeOverride($elementName, $propertyName)
     {
-        self::$overrides = $overrides;
+        self::$xmlSerializationAttributeOverrides[$elementName] = $propertyName;
+    }
+
+    /**
+     * @param array $xmlSerializationAttributeOverrides
+     */
+    public static function setXmlSerializationAttributeOverride(array $xmlSerializationAttributeOverrides)
+    {
+        self::$xmlSerializationAttributeOverrides = $xmlSerializationAttributeOverrides;
     }
 
     /**
@@ -306,10 +318,21 @@ abstract class MethodGenerator
                 if ('_fhirElementName' === $name)
                     continue;
 
-                // Check if there are overrides for this element
-                $propertyOverrides = array();
-                if (array_key_exists($name, self::$overrides)) {
-                    $propertyOverrides = self::$overrides[$name];
+                if (
+                    array_key_exists($rootElementName, self::$xmlSerializationAttributeOverrides) === true &&
+                    self::$xmlSerializationAttributeOverrides[$rootElementName] === $name
+                )
+                {
+                    $method->addLineToBody(
+                        sprintf(
+                            'if (null !== $this->%s) $sxe->addAttribute(\'%s\', (string)$this->%s);',
+                            $name,
+                            $name,
+                            $name
+                        )
+                    );
+
+                    continue;
                 }
 
                 if ($property->isCollection())
@@ -337,34 +360,16 @@ abstract class MethodGenerator
                         'if (null !== $this->%s) {',
                         $name
                     ));
-
-                    if (array_key_exists('attribute', $propertyOverrides) && $propertyOverrides['attribute'] === true) {
-                        $attributeName = 'value';
-                        if (array_key_exists('elementName', $propertyOverrides)) {
-                            $attributeName = $propertyOverrides['elementName'];
-                        }
-
-                        $method->addLineToBody(sprintf(
-                            '    $sxe->addAttribute(\'%s\', (string)$this->%s);',
-                            $attributeName,
-                            $name
-                        ));
-                    } else {
-                        $elementName = $name;
-                        if(array_key_exists('attribute', $propertyOverrides) && array_key_exists('elementName', $propertyOverrides) && $propertyOverrides['attribute'] === false){
-                            $elementName = $propertyOverrides['elementName'];
-                        }
-                        $method->addLineToBody(sprintf(
-                            '    $%sElement = $sxe->addChild(\'%s\');',
-                            $name,
-                            $elementName
-                        ));
-                        $method->addLineToBody(sprintf(
-                            '    $%sElement->addAttribute(\'value\', (string)$this->%s);',
-                            $name,
-                            $name
-                        ));
-                    }
+                    $method->addLineToBody(sprintf(
+                        '    $%sElement = $sxe->addChild(\'%s\');',
+                        $name,
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    $%sElement->addAttribute(\'value\', (string)$this->%s);',
+                        $name,
+                        $name
+                    ));
                     $method->addLineToBody('}');
                 }
                 else
