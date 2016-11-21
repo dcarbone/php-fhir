@@ -28,4 +28,5 @@ class BaseObjectTypeEnum extends Enum
     const BACKBONE_ELEMENT = 'BackboneElement';
     const RESOURCE = 'Resource';
     const DOMAIN_RESOURCE = 'DomainResource';
+    const QUANTITY = 'Quantity';
 }
