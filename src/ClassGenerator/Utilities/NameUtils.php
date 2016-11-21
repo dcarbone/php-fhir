@@ -23,9 +23,9 @@
 abstract class NameUtils
 {
     const VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]+$}S';
-    const FUNCNAME_REGEX = '{^[a-zA-Z0-9_]+$}S';
-    const CLASSNAME_REGEX = '{^[a-zA-Z0-9_]+$}S';
-    const NSNAME_REGEX = '{^[a-z0-9A-Z\\\_]+$}S';
+    const FUNCNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]+$}S';
+    const CLASSNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]+$}S';
+    const NSNAME_REGEX = '{^([a-zA-Z][a-z0-9A-Z_]*\\\?)+$}S';
 
     /** @var array */
     public static $classNameSearch = array(
