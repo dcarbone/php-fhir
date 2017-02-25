@@ -351,7 +351,7 @@ abstract class MethodGenerator
                         ));
                     } else {
                         $elementName = $name;
-                        if(array_key_exists('attribute', $propertyOverrides) && array_key_exists('elementName', $propertyOverrides) && $propertyOverrides['attribute'] === false){
+                        if (array_key_exists('attribute', $propertyOverrides) && array_key_exists('elementName', $propertyOverrides) && $propertyOverrides['attribute'] === false) {
                             $elementName = $propertyOverrides['elementName'];
                         }
                         $method->addLineToBody(sprintf(

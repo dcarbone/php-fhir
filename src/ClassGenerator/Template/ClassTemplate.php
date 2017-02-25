@@ -344,7 +344,7 @@ class ClassTemplate extends AbstractTemplate
     {
         $useStatement = '';
 
-        $thisClassname = $this->compileFullyQualifiedClassName();
+        $thisClassName = $this->compileFullyQualifiedClassName();
         $thisNamespace = $this->getNamespace();
 
         $usedClasses = array();
@@ -385,7 +385,7 @@ class ClassTemplate extends AbstractTemplate
                 continue;
 
             // Don't use yourself, dog...
-            if ($usedClass === $thisClassname)
+            if ($usedClass === $thisClassName)
                 continue;
 
             // If this class is already in the same namespace as this one...
