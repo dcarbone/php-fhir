@@ -163,14 +163,14 @@ abstract class MethodGenerator
                     continue;
 
                 $method->addLineToBody(sprintf(
-                    'if (null !== $this->%s) return $this->%s->jsonSerialize();',
+                    'if (null !== $this->%s) return json_encode($this->%s);',
                     $name,
                     $name
                 ));
             }
 
             // This is here just in case the ResourceContainer wasn't populated correctly for whatever reason.
-            $method->setReturnStatement('array()');
+            $method->setReturnStatement('[]');
         }
         else
         {
@@ -178,7 +178,7 @@ abstract class MethodGenerator
 
             // Determine if this class is a child...
             if (null === $classTemplate->getExtendedElementMapEntry())
-                $method->addLineToBody('$json = array();');
+                $method->addLineToBody('$json = [];');
             else
                 $method->addLineToBody('$json = parent::jsonSerialize();');
 
@@ -206,7 +206,7 @@ abstract class MethodGenerator
                         $name
                     ));
                     $method->addLineToBody(sprintf(
-                        '    $json[\'%s\'] = array();',
+                        '    $json[\'%s\'] = [];',
                         $name
                     ));
                     $method->addLineToBody(sprintf(
@@ -215,7 +215,7 @@ abstract class MethodGenerator
                         $name
                     ));
                     $method->addLineToBody(sprintf(
-                        '        $json[\'%s\'][] = $%s->jsonSerialize();',
+                        '        $json[\'%s\'][] = json_encode($%s);',
                         $name,
                         $name
                     ));
@@ -234,7 +234,7 @@ abstract class MethodGenerator
                 else
                 {
                     $method->addLineToBody(sprintf(
-                        'if (null !== $this->%s) $json[\'%s\'] = $this->%s->jsonSerialize();',
+                        'if (null !== $this->%s) $json[\'%s\'] = json_encode($this->%s);',
                         $name,
                         $name,
                         $name

@@ -46,13 +46,13 @@ class ClassTemplate extends AbstractTemplate
     private $_extendedElementMapEntry = null;
 
     /** @var array */
-    private $_implementedInterfaces = array();
+    private $_implementedInterfaces = [];
 
     /** @var BasePropertyTemplate[] */
-    private $_properties = array();
+    private $_properties = [];
 
     /** @var BaseMethodTemplate[] */
-    private $_methods = array();
+    private $_methods = [];
 
     /**
      * Constructor
@@ -380,6 +380,10 @@ class ClassTemplate extends AbstractTemplate
 
         foreach($usedClasses as $usedClass=>$timesImported)
         {
+            // Don't import base namespace things.
+            if (0 === strpos($usedClass, '\\') && 1 === substr_count($usedClass, '\\'))
+                continue;
+
             // Don't use yourself, dog...
             if ($usedClass === $thisClassname)
                 continue;

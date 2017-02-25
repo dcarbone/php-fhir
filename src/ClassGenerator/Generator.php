@@ -19,7 +19,6 @@
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\XSDMapGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\JsonSerializableInterfaceTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
@@ -52,9 +51,6 @@ class Generator implements LoggerAwareInterface
     private $_autoloadMap;
     /** @var ParserMapTemplate */
     private $_mapTemplate;
-
-    /** @var JsonSerializableInterfaceTemplate */
-    private $_jsonSerializableInterface;
 
     /**
      * Constructor
@@ -130,13 +126,6 @@ class Generator implements LoggerAwareInterface
         $this->_autoloadMap->addEntry(
             $this->_mapTemplate->getClassName(),
             $this->_mapTemplate->getClassPath()
-        );
-
-        $this->_jsonSerializableInterface = new JsonSerializableInterfaceTemplate($this->outputPath, $this->outputNamespace);
-        $this->_jsonSerializableInterface->writeToFile();
-        $this->_autoloadMap->addEntry(
-            $this->_jsonSerializableInterface->getClassName(),
-            $this->_jsonSerializableInterface->getClassPath()
         );
     }
 

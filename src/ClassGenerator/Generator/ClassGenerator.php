@@ -146,7 +146,7 @@ abstract class ClassGenerator
      */
     public static function addBaseClassInterfaces(ClassTemplate $classTemplate)
     {
-        $classTemplate->addImplementedInterface(sprintf('%s\\JsonSerializable', self::$_outputNamespace));
+        $classTemplate->addImplementedInterface('\\JsonSerializable');
     }
 
     /**
