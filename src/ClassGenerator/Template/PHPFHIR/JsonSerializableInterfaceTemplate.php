@@ -15,24 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 
 /**
- * Class ResponseParserTemplate
+ * Class JsonSerializableInterfaceTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR
  */
-class ResponseParserTemplate extends AbstractPHPFHIRClassTemplate
+class JsonSerializableInterfaceTemplate extends AbstractPHPFHIRClassTemplate
 {
     /**
-     * Constructor
-     *
      * @param string $outputPath
      * @param string $outputNamespace
      */
     public function __construct($outputPath, $outputNamespace)
     {
-        parent::__construct($outputPath, $outputNamespace, 'PHPFHIRResponseParser');
+        parent::__construct($outputPath, $outputNamespace, 'JsonSerializable');
     }
 
     /**
@@ -41,7 +38,7 @@ class ResponseParserTemplate extends AbstractPHPFHIRClassTemplate
     public function compileTemplate()
     {
         return sprintf(
-            include PHPFHIR_TEMPLATE_DIR.'/response_parser_template.php',
+            include PHPFHIR_TEMPLATE_DIR.'/json_serializable_interface_template.php',
             $this->outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment()
         );
