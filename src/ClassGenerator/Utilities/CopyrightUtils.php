@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Logger;
+
 /**
  * Class CopyrightUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
@@ -39,8 +41,9 @@ abstract class CopyrightUtils
 
     /**
      * @param string $xsdPath
+     * @param Logger $logger
      */
-    public static function compileCopyrights($xsdPath)
+    public static function compileCopyrights($xsdPath, Logger $logger)
     {
         self::$_standardDate = date('F jS, Y');
 
@@ -69,6 +72,9 @@ abstract class CopyrightUtils
         );
 
         $fhirBase = sprintf('%s/fhir-base.xsd', $xsdPath);
+
+        $logger->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
+
         $fh = fopen($fhirBase, 'rb');
         if ($fh)
         {
@@ -91,11 +97,13 @@ abstract class CopyrightUtils
         }
         else
         {
-            throw new \RuntimeException(sprintf(
+            $msg = sprintf(
                 '%s::compileCopyrights - Unable to open %s to extract FHIR copyright.',
                 get_called_class(),
                 $fhirBase
-            ));
+            );
+            $logger->critical($msg);
+            throw new \RuntimeException($msg);
         }
 
         self::$_basePHPFHIRCopyrightComment = sprintf(

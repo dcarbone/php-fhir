@@ -21,7 +21,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
-use Psr\Log\LoggerInterface;
+use DCarbone\PHPFHIR\Logger;
 
 /**
  * Class XSDMapGenerator
@@ -32,10 +32,10 @@ abstract class XSDMapGenerator
     /**
      * @param string $xsdPath
      * @param string $outputNS
-     * @param \Psr\Log\LoggerInterface $logger
+     * @param Logger $logger
      * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap
      */
-    public static function buildXSDMap($xsdPath, $outputNS, LoggerInterface $logger)
+    public static function buildXSDMap($xsdPath, $outputNS, Logger $logger)
     {
         $logger->info('Creating in-memory representation of FHIR XSD\'s..');
 
@@ -83,9 +83,9 @@ abstract class XSDMapGenerator
      * @param string $file
      * @param XSDMap $xsdMap
      * @param string $outputNS
-     * @param \Psr\Log\LoggerInterface $logger
+     * @param Logger $logger
      */
-    public static function parseClassesFromXSD($file, XSDMap $xsdMap, $outputNS, LoggerInterface $logger)
+    public static function parseClassesFromXSD($file, XSDMap $xsdMap, $outputNS, Logger $logger)
     {
         $logger->debug(sprintf('Parsing classes from file "%s"...', $file));
 
@@ -121,18 +121,26 @@ abstract class XSDMapGenerator
                     ),
                     NameUtils::getComplexTypeClassName($fhirElementName)
                 );
+
+                $logger->info(sprintf(
+                    'Located "%s" class "%s\\%s" in file "%s"',
+                    $type,
+                    $xsdMap[$fhirElementName]->getNamespace(),
+                    $xsdMap[$fhirElementName]->getClassName(),
+                    basename($file)
+                ));
             }
         }
     }
 
     /**
      * @param string $filePath
-     * @param \Psr\Log\LoggerInterface $logger
+     * @param Logger $logger
      * @return \SimpleXMLElement
      */
-    public static function constructSXEWithFilePath($filePath, LoggerInterface $logger)
+    public static function constructSXEWithFilePath($filePath, Logger $logger)
     {
-        $logger->info(sprintf('Creating SimpleXMLElement object for file "%s"...', $filePath));
+        $logger->debug(sprintf('Parsing classes from file "%s"...', $filePath));
 
         $filename = basename($filePath);
 

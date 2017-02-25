@@ -23,6 +23,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
+use DCarbone\PHPFHIR\Logger;
 
 /**
  * Class ClassGenerator
@@ -33,11 +34,16 @@ abstract class ClassGenerator
     /** @var string */
     private static $_outputNamespace;
 
+    /** @var Logger */
+    protected static $logger;
+
     /**
      * @param string $outputNamespace
+     * @param Logger $logger
      */
-    public static function init($outputNamespace)
+    public static function init($outputNamespace, Logger $logger)
     {
+        self::$logger = $logger;
         self::$_outputNamespace = $outputNamespace;
     }
 

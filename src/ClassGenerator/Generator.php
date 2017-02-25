@@ -25,8 +25,8 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Logger;
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -36,8 +36,11 @@ use Psr\Log\NullLogger;
  */
 class Generator implements LoggerAwareInterface
 {
-    use LoggerAwareTrait;
+    /** @var Logger */
+    protected $logger;
 
+    /** @var string */
+    protected $xsdPath;
     /** @var string */
     protected $outputPath;
     /** @var string */
@@ -64,23 +67,25 @@ class Generator implements LoggerAwareInterface
     public function __construct($xsdPath, $outputPath = null, $outputNamespace = null, LoggerInterface $logger = null)
     {
         if (null === $logger)
-            $this->logger = new NullLogger();
+            $this->logger = new Logger(new NullLogger());
         else
-            $this->logger = $logger;
+            $this->logger = new Logger($logger);
 
-        $this->logger->info('Validating input...');
+        $this->logger->info('Validating Generator input...');
 
         // Validate our input, will throw exception if bad.
-        list($xsdPath, $outputPath, $outputNamespace) = self::_validateInput($xsdPath, $outputPath, $outputNamespace);
+        list(
+            $this->xsdPath,
+            $this->outputPath,
+            $this->outputNamespace) = self::_validateInput($xsdPath, $outputPath, $outputNamespace);
+    }
 
-        // Class props
-        $xsdPath = rtrim($xsdPath, "/\\");
-        $this->outputNamespace = trim($outputNamespace, "\\;");
-        $this->outputPath = $outputPath;
-        $this->XSDMap = XSDMapGenerator::buildXSDMap($xsdPath, $this->outputNamespace, $this->logger);
-
-        // Initialize some classes and things.
-        self::_initializeClasses($xsdPath, $outputPath, $outputNamespace, $this->logger);
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = new Logger($logger);
     }
 
     /**
@@ -94,7 +99,7 @@ class Generator implements LoggerAwareInterface
         {
             $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->XSDMap, $mapEntry);
 
-            FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
+            FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace(), $this->logger);
 
             // Generate class file
             $classTemplate->writeToFile($this->outputPath);
@@ -111,6 +116,14 @@ class Generator implements LoggerAwareInterface
      */
     protected function beforeGeneration()
     {
+        // Class props
+        $this->logger->startBreak('XSD Parsing');
+        $this->XSDMap = XSDMapGenerator::buildXSDMap($this->xsdPath, $this->outputNamespace, $this->logger);
+        $this->logger->endBreak('XSD Parsing');
+
+        // Initialize some classes and things.
+        self::_initializeClasses($this->xsdPath, $this->outputPath, $this->outputNamespace, $this->logger);
+
         $this->_mapTemplate = new ParserMapTemplate($this->outputPath, $this->outputNamespace);
         $this->_autoloadMap = new AutoloaderTemplate($this->outputPath, $this->outputNamespace);
 
@@ -176,24 +189,24 @@ class Generator implements LoggerAwareInterface
         if (false === NameUtils::isValidNSName($outputNamespace))
             throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.', $outputNamespace));
 
-        return array($xsdPath, $outputPath, $outputNamespace);
+        return [rtrim($xsdPath, "/\\"), $outputPath, trim($outputNamespace, "\\;")];
     }
 
     /**
      * @param string $xsdPath
      * @param string $outputPath
      * @param string $outputNamespace
-     * @param \Psr\Log\LoggerInterface $logger
+     * @param Logger $logger
      */
-    private static function _initializeClasses($xsdPath, $outputPath, $outputNamespace, LoggerInterface $logger)
+    private static function _initializeClasses($xsdPath, $outputPath, $outputNamespace, Logger $logger)
     {
         $logger->info('Compiling Copyrights...');
-        CopyrightUtils::compileCopyrights($xsdPath);
+        CopyrightUtils::compileCopyrights($xsdPath, $logger);
 
         $logger->info('Initializing ClassGenerator...');
-        ClassGenerator::init($outputNamespace);
+        ClassGenerator::init($outputNamespace, $logger);
 
         $logger->info('Creating root directory...');
-        FileUtils::createDirsFromNS($outputPath, $outputNamespace);
+        FileUtils::createDirsFromNS($outputPath, $outputNamespace, $logger);
     }
 }
