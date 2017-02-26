@@ -31,6 +31,12 @@ class XSDMapEntry
     /** @var string */
     public $className;
 
+    /** @var array */
+    protected $properties = [];
+
+    /** @var XSDMapEntry */
+    protected $extendedMapEntry = null;
+
     /**
      * Constructor
      *
@@ -80,5 +86,42 @@ class XSDMapEntry
     public function getClassName()
     {
         return $this->className;
+    }
+
+    /**
+     * @param string $name
+     * @param string $type
+     * @return XSDMapEntry
+     */
+    public function addProperty($name, $type)
+    {
+        $this->properties[$name] = $type;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
+    /**
+     * @param XSDMapEntry $XSDMapEntry
+     * @return XSDMapEntry
+     */
+    public function setExtendedMapEntry(XSDMapEntry $XSDMapEntry)
+    {
+        $this->extendedMapEntry = $XSDMapEntry;
+        return $this;
+    }
+
+    /**
+     * @return XSDMapEntry
+     */
+    public function getExtendedMapEntry()
+    {
+        return $this->extendedMapEntry;
     }
 }

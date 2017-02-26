@@ -58,47 +58,48 @@ abstract class ClassGenerator
             $mapEntry->fhirElementName,
             $mapEntry->className,
             $mapEntry->namespace,
+            $mapEntry,
             ClassTypeUtils::getComplexClassType($mapEntry->sxe)
         );
 
-        foreach($mapEntry->sxe->children('xs', true) as $_element)
+        foreach($mapEntry->sxe->children('xs', true) as $element)
         {
-            /** @var \SimpleXMLElement $_element */
-            switch(strtolower($_element->getName()))
+            /** @var \SimpleXMLElement $element */
+            switch(strtolower($element->getName()))
             {
                 case ElementTypeEnum::ATTRIBUTE:
                 case ElementTypeEnum::CHOICE:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
-                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $element);
                     break;
 
                 case ElementTypeEnum::ANNOTATION:
-                    $classTemplate->setDocumentation(XMLUtils::getDocumentation($_element));
+                    $classTemplate->setDocumentation(XMLUtils::getDocumentation($element));
                     break;
 
                 case ElementTypeEnum::COMPLEX_TYPE:
-                    self::parseComplexType($XSDMap, $_element, $classTemplate);
+                    self::parseComplexType($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::COMPLEX_CONTENT:
-                    self::parseComplexContent($XSDMap, $_element, $classTemplate);
+                    self::parseComplexContent($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::SIMPLE_TYPE:
-                    self::parseSimpleType($XSDMap, $_element, $classTemplate);
+                    self::parseSimpleType($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::SIMPLE_CONTENT:
-                    self::parseSimpleContent($XSDMap, $_element, $classTemplate);
+                    self::parseSimpleContent($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::RESTRICTION:
-                    self::parseRestriction($XSDMap, $_element, $classTemplate);
+                    self::parseRestriction($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::EXTENSION:
-                    self::parseExtension($XSDMap, $_element, $classTemplate);
+                    self::parseExtension($XSDMap, $element, $classTemplate);
                     break;
             }
         }
@@ -266,7 +267,6 @@ abstract class ClassGenerator
             /** @var \SimpleXMLElement $element */
             switch(strtolower($element->getName()))
             {
-
                 case ElementTypeEnum::COMPLEX_CONTENT:
                     self::parseComplexContent($XSDMap, $element, $classTemplate);
                     break;
