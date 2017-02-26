@@ -26,10 +26,7 @@
     },
 
     "require-dev": {
-        "myena/default-logger": "@stable"
-    },
-
-    "require-dev": {
+        "myena/default-logger": "@stable",
         "phpunit/phpunit": "^5.6"
     },
 
