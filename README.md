@@ -94,6 +94,25 @@ $sxe = $object->xmlSerialize(true);
 
 XML Serialization utilizes [SimpleXMLElement](http://php.net/manual/en/class.simplexmlelement.php).
 
+## Custom XML Serialization
+In some cases, vendors may deviate from the FHIR spec and require some properties of a class to be 
+serialized as xml attributes instead of a child. The generator supports this through the following configuration.
+
+```php
+require __DIR__.'/vendor/autoload.php';
+
+$xsdPath = 'path to wherever you un-zipped the xsd files';
+
+\DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator::addXmlSerializationAttributeOverride('SomeFHIRModel', 'somePropertyName');
+
+$generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($xsdPath);
+
+$generator->generate();
+
+```
+
+See the integration tests for a working example.
+
 ## Testing
 
 Currently this library is being tested against v0.0.82 and v1.0.2. using the open server available here:
