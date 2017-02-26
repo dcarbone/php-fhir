@@ -115,7 +115,7 @@ See the integration tests for a working example.
 
 ## Testing
 
-Currently this library is being tested against v0.0.82 and v1.0.2. using the open server available here:
+Currently this library is being tested against v0.0.82, v1.0.2, and v1.8.0 using the open server available here:
 http://fhir2.healthintersections.com.au/open/ .
 
 ## TODO
