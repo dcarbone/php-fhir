@@ -28,4 +28,5 @@ class ComplexClassTypesEnum extends Enum
     const RESOURCE = 'Resource';
     const ELEMENT = 'Element';
     const COMPONENT = 'Component';
+    const QUANTITY = 'Quantity';
 }

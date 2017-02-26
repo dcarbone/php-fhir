@@ -54,6 +54,10 @@ abstract class ClassTypeUtils
             return new ComplexClassTypesEnum(ComplexClassTypesEnum::COMPONENT);
 
         $baseName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
+
+        if (null === $baseName)
+            $baseName = XMLUtils::getBaseFHIRElementNameFromRestriction($sxe);
+
         if (null === $baseName)
             return null;
 

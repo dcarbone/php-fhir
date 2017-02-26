@@ -293,6 +293,36 @@ abstract class MethodGenerator
         {
             $method->addLineToBody('$sxe->addAttribute(\'value\', $this->value);');
         }
+        else if ('ResourceContainer' === $rootElementName || 'Resource.Inline' === $rootElementName)
+        {
+            $first = true;
+            foreach($properties as $property)
+            {
+                $name = $property->getName();
+                if ('_fhirElementName' === $name)
+                    continue;
+
+                if ($first)
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (null !== $this->%s) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                        $name,
+                        $name,
+                        $name
+                    ));
+                    $first = false;
+                }
+                else
+                {
+                    $method->addLineToBody(sprintf(
+                        'else if (null !== $this->%s) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                        $name,
+                        $name,
+                        $name
+                    ));
+                }
+            }
+        }
         else
         {
             // Determine if this class is a child...

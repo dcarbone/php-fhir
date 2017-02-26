@@ -83,6 +83,9 @@ abstract class NSUtils
             case ComplexClassTypesEnum::ELEMENT:
                 return 'FHIRElement';
 
+            case ComplexClassTypesEnum::QUANTITY:
+                return 'FHIRElement\\FHIRQuantity';
+
             case ComplexClassTypesEnum::COMPONENT:
                 return sprintf('FHIRResource\\FHIR%s', strstr($name, '.', true));
 
