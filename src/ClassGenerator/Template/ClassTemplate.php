@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,13 +46,16 @@ class ClassTemplate extends AbstractTemplate
     private $_extendedElementMapEntry = null;
 
     /** @var array */
-    private $_implementedInterfaces = array();
+    private $_implementedInterfaces = [];
 
     /** @var BasePropertyTemplate[] */
-    private $_properties = array();
+    private $_properties = [];
 
     /** @var BaseMethodTemplate[] */
-    private $_methods = array();
+    private $_methods = [];
+
+    /** @var XSDMapEntry */
+    private $_XSDMapEntry;
 
     /**
      * Constructor
@@ -60,11 +63,13 @@ class ClassTemplate extends AbstractTemplate
      * @param string $fhirElementName
      * @param string $className
      * @param string $namespace
+     * @param XSDMapEntry $XSDMapEntry
      * @param ComplexClassTypesEnum $classType
      */
     public function __construct($fhirElementName,
                                 $className,
                                 $namespace,
+                                XSDMapEntry $XSDMapEntry,
                                 ComplexClassTypesEnum $classType = null)
     {
         if (NameUtils::isValidClassName($className))
@@ -75,10 +80,12 @@ class ClassTemplate extends AbstractTemplate
         if (NameUtils::isValidNSName($namespace))
             $this->_namespace = $namespace;
         else
-            throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
+            throw new \InvalidArgumentException('Namespace "'.$namespace.'" is not valid.');
 
         $this->_elementName = $fhirElementName;
         $this->_classType = $classType;
+
+        $this->_XSDMapEntry = $XSDMapEntry;
     }
 
     /**
@@ -119,6 +126,7 @@ class ClassTemplate extends AbstractTemplate
     public function setExtendedElementMapEntry(XSDMapEntry $mapEntry)
     {
         $this->_extendedElementMapEntry = $mapEntry;
+        $this->_XSDMapEntry->setExtendedMapEntry($mapEntry);
     }
 
     /**
@@ -176,6 +184,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function addProperty(BasePropertyTemplate $property)
     {
+        $this->_XSDMapEntry->addProperty($property->getName(), $property->getFHIRElementType());
         $this->_properties[$property->getName()] = $property;
     }
 
@@ -221,6 +230,14 @@ class ClassTemplate extends AbstractTemplate
     public function getMethod($name)
     {
         return $this->_methods[$name];
+    }
+
+    /**
+     * @return XSDMapEntry
+     */
+    public function getXSDMapEntry()
+    {
+        return $this->_XSDMapEntry;
     }
 
     /**
@@ -344,7 +361,7 @@ class ClassTemplate extends AbstractTemplate
     {
         $useStatement = '';
 
-        $thisClassname = $this->compileFullyQualifiedClassName();
+        $thisClassName = $this->compileFullyQualifiedClassName();
         $thisNamespace = $this->getNamespace();
 
         $usedClasses = array();
@@ -378,10 +395,14 @@ class ClassTemplate extends AbstractTemplate
         $usedClasses = array_count_values($usedClasses);
         ksort($usedClasses);
 
-        foreach($usedClasses as $usedClass=>$timesImported)
+        foreach($usedClasses as $usedClass => $timesImported)
         {
+            // Don't import base namespace things.
+            if (0 === strpos($usedClass, '\\') && 1 === substr_count($usedClass, '\\'))
+                continue;
+
             // Don't use yourself, dog...
-            if ($usedClass === $thisClassname)
+            if ($usedClass === $thisClassName)
                 continue;
 
             // If this class is already in the same namespace as this one...

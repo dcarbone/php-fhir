@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,14 +175,14 @@ abstract class MethodGenerator
                     continue;
 
                 $method->addLineToBody(sprintf(
-                    'if (null !== $this->%s) return $this->%s->jsonSerialize();',
+                    'if (null !== $this->%s) return json_encode($this->%s);',
                     $name,
                     $name
                 ));
             }
 
             // This is here just in case the ResourceContainer wasn't populated correctly for whatever reason.
-            $method->setReturnStatement('array()');
+            $method->setReturnStatement('[]');
         }
         else
         {
@@ -190,7 +190,7 @@ abstract class MethodGenerator
 
             // Determine if this class is a child...
             if (null === $classTemplate->getExtendedElementMapEntry())
-                $method->addLineToBody('$json = array();');
+                $method->addLineToBody('$json = [];');
             else
                 $method->addLineToBody('$json = parent::jsonSerialize();');
 
@@ -218,7 +218,7 @@ abstract class MethodGenerator
                         $name
                     ));
                     $method->addLineToBody(sprintf(
-                        '    $json[\'%s\'] = array();',
+                        '    $json[\'%s\'] = [];',
                         $name
                     ));
                     $method->addLineToBody(sprintf(
@@ -227,7 +227,7 @@ abstract class MethodGenerator
                         $name
                     ));
                     $method->addLineToBody(sprintf(
-                        '        $json[\'%s\'][] = $%s->jsonSerialize();',
+                        '        $json[\'%s\'][] = json_encode($%s);',
                         $name,
                         $name
                     ));
@@ -246,7 +246,7 @@ abstract class MethodGenerator
                 else
                 {
                     $method->addLineToBody(sprintf(
-                        'if (null !== $this->%s) $json[\'%s\'] = $this->%s->jsonSerialize();',
+                        'if (null !== $this->%s) $json[\'%s\'] = json_encode($this->%s);',
                         $name,
                         $name,
                         $name
@@ -304,6 +304,36 @@ abstract class MethodGenerator
         if ($simple)
         {
             $method->addLineToBody('$sxe->addAttribute(\'value\', $this->value);');
+        }
+        else if ('ResourceContainer' === $rootElementName || 'Resource.Inline' === $rootElementName)
+        {
+            $first = true;
+            foreach($properties as $property)
+            {
+                $name = $property->getName();
+                if ('_fhirElementName' === $name)
+                    continue;
+
+                if ($first)
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (null !== $this->%s) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                        $name,
+                        $name,
+                        $name
+                    ));
+                    $first = false;
+                }
+                else
+                {
+                    $method->addLineToBody(sprintf(
+                        'else if (null !== $this->%s) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                        $name,
+                        $name,
+                        $name
+                    ));
+                }
+            }
         }
         else
         {

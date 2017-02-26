@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,12 @@ class XSDMapEntry
     public $namespace;
     /** @var string */
     public $className;
+
+    /** @var array */
+    protected $properties = [];
+
+    /** @var XSDMapEntry */
+    protected $extendedMapEntry = null;
 
     /**
      * Constructor
@@ -80,5 +86,42 @@ class XSDMapEntry
     public function getClassName()
     {
         return $this->className;
+    }
+
+    /**
+     * @param string $name
+     * @param string $type
+     * @return XSDMapEntry
+     */
+    public function addProperty($name, $type)
+    {
+        $this->properties[$name] = $type;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
+    /**
+     * @param XSDMapEntry $XSDMapEntry
+     * @return XSDMapEntry
+     */
+    public function setExtendedMapEntry(XSDMapEntry $XSDMapEntry)
+    {
+        $this->extendedMapEntry = $XSDMapEntry;
+        return $this;
+    }
+
+    /**
+     * @return XSDMapEntry
+     */
+    public function getExtendedMapEntry()
+    {
+        return $this->extendedMapEntry;
     }
 }

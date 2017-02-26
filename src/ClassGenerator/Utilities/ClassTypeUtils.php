@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,10 @@ abstract class ClassTypeUtils
             return new ComplexClassTypesEnum(ComplexClassTypesEnum::COMPONENT);
 
         $baseName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
+
+        if (null === $baseName)
+            $baseName = XMLUtils::getBaseFHIRElementNameFromRestriction($sxe);
+
         if (null === $baseName)
             return null;
 

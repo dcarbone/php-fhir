@@ -7,7 +7,7 @@ This library requires the use of [Composer](https://getcomposer.org/)
 
 Require entry:
 ```json
-    "dcarbone/php-fhir": "0.4.*"
+    "dcarbone/php-fhir": "0.5.*"
 ```
 
 # Basic Workflow
@@ -77,14 +77,6 @@ $object = $parser->parse($yourResponseData);
 ```
 
 ## JSON Serialization
-
-### PHP 5.3.x example:
-
-```php
-$json = json_encode($object->jsonSerialize());
-```
-
-### PHP \>= 5.4.0
 
 ```php
 $json = json_encode($object);

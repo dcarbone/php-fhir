@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Logger;
+
 /**
  * Class FileUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
@@ -25,21 +27,34 @@ abstract class FileUtils
     /**
      * @param string $outputPath
      * @param string $namespace
+     * @param Logger $logger
      */
-    public static function createDirsFromNS($outputPath, $namespace)
+    public static function createDirsFromNS($outputPath, $namespace, Logger $logger)
     {
         if ('\\' === $namespace)
+        {
+            $logger->debug('Skipping dir creation for root namespace.');
             return;
+        }
 
         $path = rtrim(trim($outputPath), "/\\");
         foreach(explode('\\', $namespace) as $dirName)
         {
             $path = sprintf('%s/%s', $path, $dirName);
-            if (!is_dir($path))
+            if (is_dir($path))
             {
+                $logger->debug(sprintf('Directory at path "%s" already exists.', $path));
+            }
+            else
+            {
+                $logger->info(sprintf('Attempting to create directory at path "%s"...', $path));
                 $made = (bool)mkdir($path);
                 if (false === $made)
-                    throw new \RuntimeException('Unable to create directory at path "'.$path.'"');
+                {
+                    $msg = 'Unable to create directory at path "'.$path.'"';
+                    $logger->critical($msg);
+                    throw new \RuntimeException($msg);
+                }
             }
         }
     }
@@ -50,6 +65,6 @@ abstract class FileUtils
      */
     public static function buildDirPathFromNS($namespace)
     {
-        return preg_replace(array('{[\\\]}S', '{[/]{2,}}S'), '/', trim($namespace, "\\"));
+        return preg_replace(['{[\\\]}S', '{[/]{2,}}S'], '/', trim($namespace, "\\"));
     }
 }

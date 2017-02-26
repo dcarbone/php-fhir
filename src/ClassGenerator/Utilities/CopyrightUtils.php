@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+use DCarbone\PHPFHIR\Logger;
 
 /**
  * Class CopyrightUtils
@@ -39,8 +41,9 @@ abstract class CopyrightUtils
 
     /**
      * @param string $xsdPath
+     * @param Logger $logger
      */
-    public static function compileCopyrights($xsdPath)
+    public static function compileCopyrights($xsdPath, Logger $logger)
     {
         self::$_standardDate = date('F jS, Y');
 
@@ -52,7 +55,7 @@ abstract class CopyrightUtils
             '',
             'PHPFHIR Copyright:',
             '',
-            'Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)',
+            'Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)',
             '',
             'Licensed under the Apache License, Version 2.0 (the "License");',
             'you may not use this file except in compliance with the License.',
@@ -69,6 +72,9 @@ abstract class CopyrightUtils
         );
 
         $fhirBase = sprintf('%s/fhir-base.xsd', $xsdPath);
+
+        $logger->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
+
         $fh = fopen($fhirBase, 'rb');
         if ($fh)
         {
@@ -91,11 +97,13 @@ abstract class CopyrightUtils
         }
         else
         {
-            throw new \RuntimeException(sprintf(
+            $msg = sprintf(
                 '%s::compileCopyrights - Unable to open %s to extract FHIR copyright.',
                 get_called_class(),
                 $fhirBase
-            ));
+            );
+            $logger->critical($msg);
+            throw new \RuntimeException($msg);
         }
 
         self::$_basePHPFHIRCopyrightComment = sprintf(

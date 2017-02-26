@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
+use DCarbone\PHPFHIR\Logger;
 
 /**
  * Class ClassGenerator
@@ -33,11 +34,16 @@ abstract class ClassGenerator
     /** @var string */
     private static $_outputNamespace;
 
+    /** @var Logger */
+    protected static $logger;
+
     /**
      * @param string $outputNamespace
+     * @param Logger $logger
      */
-    public static function init($outputNamespace)
+    public static function init($outputNamespace, Logger $logger)
     {
+        self::$logger = $logger;
         self::$_outputNamespace = $outputNamespace;
     }
 
@@ -52,47 +58,48 @@ abstract class ClassGenerator
             $mapEntry->fhirElementName,
             $mapEntry->className,
             $mapEntry->namespace,
+            $mapEntry,
             ClassTypeUtils::getComplexClassType($mapEntry->sxe)
         );
 
-        foreach($mapEntry->sxe->children('xs', true) as $_element)
+        foreach($mapEntry->sxe->children('xs', true) as $element)
         {
-            /** @var \SimpleXMLElement $_element */
-            switch(strtolower($_element->getName()))
+            /** @var \SimpleXMLElement $element */
+            switch(strtolower($element->getName()))
             {
                 case ElementTypeEnum::ATTRIBUTE:
                 case ElementTypeEnum::CHOICE:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::UNION:
-                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $element);
                     break;
 
                 case ElementTypeEnum::ANNOTATION:
-                    $classTemplate->setDocumentation(XMLUtils::getDocumentation($_element));
+                    $classTemplate->setDocumentation(XMLUtils::getDocumentation($element));
                     break;
 
                 case ElementTypeEnum::COMPLEX_TYPE:
-                    self::parseComplexType($XSDMap, $_element, $classTemplate);
+                    self::parseComplexType($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::COMPLEX_CONTENT:
-                    self::parseComplexContent($XSDMap, $_element, $classTemplate);
+                    self::parseComplexContent($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::SIMPLE_TYPE:
-                    self::parseSimpleType($XSDMap, $_element, $classTemplate);
+                    self::parseSimpleType($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::SIMPLE_CONTENT:
-                    self::parseSimpleContent($XSDMap, $_element, $classTemplate);
+                    self::parseSimpleContent($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::RESTRICTION:
-                    self::parseRestriction($XSDMap, $_element, $classTemplate);
+                    self::parseRestriction($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::EXTENSION:
-                    self::parseExtension($XSDMap, $_element, $classTemplate);
+                    self::parseExtension($XSDMap, $element, $classTemplate);
                     break;
             }
         }
@@ -140,7 +147,7 @@ abstract class ClassGenerator
      */
     public static function addBaseClassInterfaces(ClassTemplate $classTemplate)
     {
-        $classTemplate->addImplementedInterface(sprintf('%s\\JsonSerializable', self::$_outputNamespace));
+        $classTemplate->addImplementedInterface('\\JsonSerializable');
     }
 
     /**
@@ -255,38 +262,37 @@ abstract class ClassGenerator
      */
     private static function _parseContent(XSDMap $XSDMap, \SimpleXMLElement $contentElement, ClassTemplate $classTemplate)
     {
-        foreach($contentElement->children('xs', true) as $_element)
+        foreach($contentElement->children('xs', true) as $element)
         {
-            /** @var \SimpleXMLElement $_element */
-            switch(strtolower($_element->getName()))
+            /** @var \SimpleXMLElement $element */
+            switch(strtolower($element->getName()))
             {
-
                 case ElementTypeEnum::COMPLEX_CONTENT:
-                    self::parseComplexContent($XSDMap, $_element, $classTemplate);
+                    self::parseComplexContent($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::COMPLEX_TYPE:
-                    self::parseComplexType($XSDMap, $_element, $classTemplate);
+                    self::parseComplexType($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::SIMPLE_CONTENT:
-                    self::parseSimpleContent($XSDMap, $_element, $classTemplate);
+                    self::parseSimpleContent($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::SIMPLE_TYPE:
-                    self::parseSimpleType($XSDMap, $_element, $classTemplate);
+                    self::parseSimpleType($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::EXTENSION:
-                    self::parseExtension($XSDMap, $_element, $classTemplate);
+                    self::parseExtension($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::RESTRICTION:
-                    self::parseRestriction($XSDMap, $_element, $classTemplate);
+                    self::parseRestriction($XSDMap, $element, $classTemplate);
                     break;
 
                 case ElementTypeEnum::CHOICE:
-                    self::parseChoice($XSDMap, $_element, $classTemplate);
+                    self::parseChoice($XSDMap, $element, $classTemplate);
                     break;
             }
         }
@@ -299,17 +305,17 @@ abstract class ClassGenerator
      */
     private static function _implementProperties(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
     {
-        foreach($sxe->children('xs', true) as $_element)
+        foreach($sxe->children('xs', true) as $element)
         {
-            /** @var \SimpleXMLElement $_element */
-            switch(strtolower($_element->getName()))
+            /** @var \SimpleXMLElement $element */
+            switch(strtolower($element->getName()))
             {
                 case ElementTypeEnum::ATTRIBUTE:
                 case ElementTypeEnum::CHOICE:
                 case ElementTypeEnum::UNION:
                 case ElementTypeEnum::SEQUENCE:
                 case ElementTypeEnum::ENUMERATION:
-                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $_element);
+                    PropertyGenerator::implementProperty($XSDMap, $classTemplate, $element);
                     break;
             }
         }

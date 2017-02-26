@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,17 +161,17 @@ abstract class PropertyGenerator
      */
     public static function implementPropertySequence(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $sequence)
     {
-        foreach($sequence->children('xs', true) as $_element)
+        foreach($sequence->children('xs', true) as $element)
         {
-            /** @var \SimpleXMLElement $_element */
-            switch(strtolower($_element->getName()))
+            /** @var \SimpleXMLElement $element */
+            switch(strtolower($element->getName()))
             {
                 case ElementTypeEnum::ELEMENT:
-                    self::implementElementProperty($XSDMap, $classTemplate, $_element);
+                    self::implementElementProperty($XSDMap, $classTemplate, $element);
                     break;
 
                 case ElementTypeEnum::CHOICE:
-                    self::implementChoiceProperty($XSDMap, $classTemplate, $_element);
+                    self::implementChoiceProperty($XSDMap, $classTemplate, $element);
                     break;
             }
         }
@@ -187,7 +187,7 @@ abstract class PropertyGenerator
                                                     \SimpleXMLElement $element)
     {
         $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $element);
-        if ($propertyTemplate)
+        if ($propertyTemplate && false === static::isPropertyImplementedByParent($XSDMap, $classTemplate->getXSDMapEntry(), $propertyTemplate))
             $classTemplate->addProperty($propertyTemplate);
     }
 
@@ -205,10 +205,10 @@ abstract class PropertyGenerator
         $maxOccurs = $attributes['maxOccurs'];
         $documentation = XMLUtils::getDocumentation($choice);
 
-        foreach($choice->xpath('xs:element') as $_element)
+        foreach($choice->xpath('xs:element') as $element)
         {
-            $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $_element, $documentation, $maxOccurs);
-            if ($propertyTemplate)
+            $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $element, $documentation, $maxOccurs);
+            if ($propertyTemplate && false === static::isPropertyImplementedByParent($XSDMap, $classTemplate->getXSDMapEntry(), $propertyTemplate))
                 $classTemplate->addProperty($propertyTemplate);
         }
     }
@@ -221,7 +221,7 @@ abstract class PropertyGenerator
     public static function implementAttributeProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $attribute)
     {
         $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $attribute);
-        if ($propertyTemplate)
+        if ($propertyTemplate && false === static::isPropertyImplementedByParent($XSDMap, $classTemplate->getXSDMapEntry(), $propertyTemplate))
             $classTemplate->addProperty($propertyTemplate);
     }
 
@@ -243,5 +243,29 @@ abstract class PropertyGenerator
     public static function implementEnumerationProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $enumeration)
     {
         // TODO: Implement these!
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param XSDMap\XSDMapEntry $XSDMapEntry
+     * @param BasePropertyTemplate $propertyTemplate
+     * @return bool
+     */
+    public static function isPropertyImplementedByParent(XSDMap $XSDMap, XSDMap\XSDMapEntry $XSDMapEntry, BasePropertyTemplate $propertyTemplate)
+    {
+        $parentMapEntry = $XSDMapEntry->getExtendedMapEntry();
+        if (null === $parentMapEntry)
+            return false;
+
+        $propertyName = $propertyTemplate->getName();
+        $propertyType = $propertyTemplate->getFHIRElementType();
+
+        foreach($parentMapEntry->getProperties() as $name => $type)
+        {
+            if ($propertyName === $name && $propertyType === $type)
+                return true;
+        }
+
+        return static::isPropertyImplementedByParent($XSDMap, $parentMapEntry, $propertyTemplate);
     }
 }

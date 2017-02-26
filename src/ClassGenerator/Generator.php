@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,27 @@
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\XSDMapGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\JsonSerializableInterfaceTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Logger;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class Generator
  * @package PHPFHIR
  */
-class Generator
+class Generator implements LoggerAwareInterface
 {
+    /** @var Logger */
+    protected $logger;
+
+    /** @var string */
+    protected $xsdPath;
     /** @var string */
     protected $outputPath;
     /** @var string */
@@ -44,29 +52,36 @@ class Generator
     /** @var ParserMapTemplate */
     private $_mapTemplate;
 
-    /** @var JsonSerializableInterfaceTemplate */
-    private $_jsonSerializableInterface;
-
     /**
      * Constructor
      *
      * @param string $xsdPath
      * @param null|string $outputPath
      * @param string $outputNamespace
+     * @param \Psr\Log\LoggerInterface $logger
      */
-    public function __construct($xsdPath, $outputPath = null, $outputNamespace = null)
+    public function __construct($xsdPath, $outputPath = null, $outputNamespace = null, LoggerInterface $logger = null)
     {
+        if (null === $logger)
+            $this->logger = new Logger(new NullLogger());
+        else
+            $this->logger = new Logger($logger);
+
+        $this->logger->info('Validating Generator input...');
+
         // Validate our input, will throw exception if bad.
-        list($xsdPath, $outputPath, $outputNamespace) = self::_validateInput($xsdPath, $outputPath, $outputNamespace);
+        list(
+            $this->xsdPath,
+            $this->outputPath,
+            $this->outputNamespace) = self::_validateInput($xsdPath, $outputPath, $outputNamespace);
+    }
 
-        // Class props
-        $this->xsdPath = rtrim($xsdPath, "/\\");
-        $this->outputNamespace = trim($outputNamespace, "\\;");
-        $this->outputPath = $outputPath;
-        $this->XSDMap = XSDMapGenerator::buildXSDMap($this->xsdPath, $this->outputNamespace);
-
-        // Initialize some classes and things.
-        self::_initializeClasses($xsdPath, $outputPath, $outputNamespace);
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = new Logger($logger);
     }
 
     /**
@@ -80,7 +95,7 @@ class Generator
         {
             $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->XSDMap, $mapEntry);
 
-            FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
+            FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace(), $this->logger);
 
             // Generate class file
             $classTemplate->writeToFile($this->outputPath);
@@ -97,19 +112,20 @@ class Generator
      */
     protected function beforeGeneration()
     {
+        // Class props
+        $this->logger->startBreak('XSD Parsing');
+        $this->XSDMap = XSDMapGenerator::buildXSDMap($this->xsdPath, $this->outputNamespace, $this->logger);
+        $this->logger->endBreak('XSD Parsing');
+
+        // Initialize some classes and things.
+        self::_initializeClasses($this->xsdPath, $this->outputPath, $this->outputNamespace, $this->logger);
+
         $this->_mapTemplate = new ParserMapTemplate($this->outputPath, $this->outputNamespace);
         $this->_autoloadMap = new AutoloaderTemplate($this->outputPath, $this->outputNamespace);
 
         $this->_autoloadMap->addEntry(
             $this->_mapTemplate->getClassName(),
             $this->_mapTemplate->getClassPath()
-        );
-
-        $this->_jsonSerializableInterface = new JsonSerializableInterfaceTemplate($this->outputPath, $this->outputNamespace);
-        $this->_jsonSerializableInterface->writeToFile();
-        $this->_autoloadMap->addEntry(
-            $this->_jsonSerializableInterface->getClassName(),
-            $this->_jsonSerializableInterface->getClassPath()
         );
     }
 
@@ -162,21 +178,24 @@ class Generator
         if (false === NameUtils::isValidNSName($outputNamespace))
             throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.', $outputNamespace));
 
-        return array($xsdPath, $outputPath, $outputNamespace);
+        return [rtrim($xsdPath, "/\\"), $outputPath, trim($outputNamespace, "\\;")];
     }
 
     /**
      * @param string $xsdPath
      * @param string $outputPath
      * @param string $outputNamespace
+     * @param Logger $logger
      */
-    private static function _initializeClasses($xsdPath, $outputPath, $outputNamespace)
+    private static function _initializeClasses($xsdPath, $outputPath, $outputNamespace, Logger $logger)
     {
-        // Initialize some of our static classes
-        CopyrightUtils::compileCopyrights($xsdPath);
-        ClassGenerator::init($outputNamespace);
+        $logger->info('Compiling Copyrights...');
+        CopyrightUtils::compileCopyrights($xsdPath, $logger);
 
-        // Create root NS dir
-        FileUtils::createDirsFromNS($outputPath, $outputNamespace);
+        $logger->info('Initializing ClassGenerator...');
+        ClassGenerator::init($outputNamespace, $logger);
+
+        $logger->info('Creating root directory...');
+        FileUtils::createDirsFromNS($outputPath, $outputNamespace, $logger);
     }
 }
