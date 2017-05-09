@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,6 +93,10 @@ class PHPFHIRResponseParser
         ));
     }
 
+    /**
+     * @param string \$input
+     * @return object
+     */
     private function _parseXML(\$input)
     {
         libxml_use_internal_errors(true);
@@ -112,7 +116,7 @@ class PHPFHIRResponseParser
     /**
      * @param array \$jsonEntry
      * @param string \$fhirElementName
-     * @return object
+     * @return mixed
      */
     private function _parseJsonObject(\$jsonEntry, \$fhirElementName)
     {
