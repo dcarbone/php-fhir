@@ -33,7 +33,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 abstract class MethodGenerator
 {
     /** 
-     * @var array 
+     * @var array
      */
     private static $xmlSerializationAttributeOverrides = array();
 
@@ -348,10 +348,8 @@ abstract class MethodGenerator
                 if ('_fhirElementName' === $name)
                     continue;
 
-                if (
-                    array_key_exists($rootElementName, self::$xmlSerializationAttributeOverrides) === true &&
-                    self::$xmlSerializationAttributeOverrides[$rootElementName] === $name
-                )
+                if (isset(self::$xmlSerializationAttributeOverrides[$rootElementName]) &&
+                    self::$xmlSerializationAttributeOverrides[$rootElementName] === $name)
                 {
                     $method->addLineToBody(
                         sprintf(
@@ -384,7 +382,24 @@ abstract class MethodGenerator
                     $method->addLineToBody('    }');
                     $method->addLineToBody('}');
                 }
-                else if ($property->isPrimitive() || $property->isList() || $property->isHTML())
+                else if ($property->isHTML())
+                {
+                    $method->addLineToBody(sprintf(
+                        'if (null !== $this->%s) {',
+                        $name
+                    ));
+                    $method->addLineToBody(sprintf(
+                        '    $node = dom_import_simplexml($sxe);',
+                        $name
+                    ));
+                    $method->addLineToBody('    $doc = $node->ownerDocument;');
+                    $method->addLineToBody(sprintf(
+                        '    $node->appendChild($doc->createCDATASection((string)$this->%s));',
+                        $name
+                    ));
+                    $method->addLineToBody('}');
+                }
+                else if ($property->isPrimitive() || $property->isList())
                 {
                     $method->addLineToBody(sprintf(
                         'if (null !== $this->%s) {',
