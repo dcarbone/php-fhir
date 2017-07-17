@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
@@ -27,10 +28,13 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class BaseMethodTemplate extends AbstractTemplate
 {
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
+    protected $config;
+
     /** @var string */
     protected $name;
 
-    /** @var PHPScopeEnum */
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null */
     protected $scope;
 
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate[] */
@@ -45,22 +49,25 @@ class BaseMethodTemplate extends AbstractTemplate
     protected $body = array();
 
     /**
-     * Constructor
-     *
+     * BaseMethodTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param string $name
-     * @param PHPScopeEnum $scope
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null $scope
      */
-    public function __construct($name, PHPScopeEnum $scope = null)
-    {
-        if (NameUtils::isValidFunctionName($name))
-            $this->name = $name;
-        else
-            throw new \InvalidArgumentException('Function name "'.$name.'" is not valid.');
+    public function __construct(Config $config, $name, PHPScopeEnum $scope = null) {
+        $this->config = $config;
 
-        if (null === $scope)
+        if (NameUtils::isValidFunctionName($name)) {
+            $this->name = $name;
+        } else {
+            throw new \InvalidArgumentException('Function name "'.$name.'" is not valid.');
+        }
+
+        if (null === $scope) {
             $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
-        else
+        } else {
             $this->scope = $scope;
+        }
     }
 
     /**

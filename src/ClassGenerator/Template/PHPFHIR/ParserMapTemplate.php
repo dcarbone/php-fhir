@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
@@ -30,14 +31,11 @@ class ParserMapTemplate extends AbstractPHPFHIRClassTemplate
     private $_bigDumbMap = array();
 
     /**
-     * Constructor
-     *
-     * @param string $outputPath
-     * @param string $outputNamespace
+     * ParserMapTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public function __construct($outputPath, $outputNamespace)
-    {
-        parent::__construct($outputPath, $outputNamespace, 'PHPFHIRParserMap');
+    public function __construct(Config $config) {
+        parent::__construct($config, 'PHPFHIRParserMap');
     }
 
     /**

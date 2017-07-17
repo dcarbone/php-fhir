@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 
@@ -26,13 +27,12 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 abstract class NSUtils
 {
     /**
-     * @param string|null $outputNS
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param string|null $classNS
      * @return string
      */
-    public static function generateRootNamespace($outputNS, $classNS)
-    {
-        $outputNS = (string)$outputNS;
+    public static function generateRootNamespace(Config $config, $classNS) {
+        $outputNS = (string)$config->getOutputNamespace();
         $classNS = (string)$classNS;
 
         if ('' === $outputNS && '' === $classNS)

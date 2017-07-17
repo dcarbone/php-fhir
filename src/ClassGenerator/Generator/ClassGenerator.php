@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
@@ -23,7 +24,6 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
-use DCarbone\PHPFHIR\Logger;
 
 /**
  * Class ClassGenerator
@@ -31,28 +31,13 @@ use DCarbone\PHPFHIR\Logger;
  */
 abstract class ClassGenerator
 {
-    /** @var string */
-    private static $_outputNamespace;
-
-    /** @var Logger */
-    protected static $logger;
-
     /**
-     * @param string $outputNamespace
-     * @param Logger $logger
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate
      */
-    public static function init($outputNamespace, Logger $logger)
-    {
-        self::$logger = $logger;
-        self::$_outputNamespace = $outputNamespace;
-    }
-
-    /**
-     * @param XSDMap $XSDMap
-     * @param XSDMap\XSDMapEntry $mapEntry
-     * @return ClassTemplate
-     */
-    public static function buildFHIRElementClassTemplate(XSDMap $XSDMap, XSDMap\XSDMapEntry $mapEntry)
+    public static function buildFHIRElementClassTemplate(Config $config, XSDMap $XSDMap, XSDMap\XSDMapEntry $mapEntry)
     {
         $classTemplate = new ClassTemplate(
             $mapEntry->fhirElementName,
@@ -106,20 +91,19 @@ abstract class ClassGenerator
 
         self::addBaseClassProperties($classTemplate, $mapEntry);
 
-        foreach($classTemplate->getProperties() as $propertyTemplate)
-        {
-            MethodGenerator::implementMethodsForProperty($classTemplate, $propertyTemplate);
+        foreach($classTemplate->getProperties() as $propertyTemplate) {
+            MethodGenerator::implementMethodsForProperty($config, $classTemplate, $propertyTemplate);
         }
 
         self::addBaseClassInterfaces($classTemplate);
-        self::addBaseClassMethods($classTemplate);
+        self::addBaseClassMethods($config, $classTemplate);
 
         return $classTemplate;
     }
 
     /**
-     * @param ClassTemplate $classTemplate
-     * @param XSDMap\XSDMapEntry $mapEntry
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
      */
     public static function addBaseClassProperties(ClassTemplate $classTemplate, XSDMap\XSDMapEntry $mapEntry)
     {
@@ -133,27 +117,27 @@ abstract class ClassGenerator
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function addBaseClassMethods(ClassTemplate $classTemplate)
+    public static function addBaseClassMethods(Config $config, ClassTemplate $classTemplate)
     {
-        MethodGenerator::implementToString($classTemplate);
-        MethodGenerator::implementJsonSerialize($classTemplate);
-        MethodGenerator::implementXMLSerialize($classTemplate);
+        MethodGenerator::implementToString($config, $classTemplate);
+        MethodGenerator::implementJsonSerialize($config, $classTemplate);
+        MethodGenerator::implementXMLSerialize($config, $classTemplate);
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function addBaseClassInterfaces(ClassTemplate $classTemplate)
-    {
+    public static function addBaseClassInterfaces(ClassTemplate $classTemplate) {
         $classTemplate->addImplementedInterface('\\JsonSerializable');
     }
 
     /**
-     * @param XSDMap $XSDMap
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
      * @param \SimpleXMLElement $complexContent
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
     public static function parseComplexContent(XSDMap $XSDMap, \SimpleXMLElement $complexContent, ClassTemplate $classTemplate)
     {
@@ -161,9 +145,9 @@ abstract class ClassGenerator
     }
 
     /**
-     * @param XSDMap $XSDMap
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
      * @param \SimpleXMLElement $complexType
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
     public static function parseComplexType(XSDMap $XSDMap, \SimpleXMLElement $complexType, ClassTemplate $classTemplate)
     {
@@ -171,9 +155,9 @@ abstract class ClassGenerator
     }
 
     /**
-     * @param XSDMap $XSDMap
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
      * @param \SimpleXMLElement $simpleContent
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
     public static function parseSimpleContent(XSDMap $XSDMap, \SimpleXMLElement $simpleContent, ClassTemplate $classTemplate)
     {

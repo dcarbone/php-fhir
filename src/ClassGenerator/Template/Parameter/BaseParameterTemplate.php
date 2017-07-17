@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
@@ -25,6 +26,9 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class BaseParameterTemplate extends AbstractTemplate
 {
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
+    protected $config;
+
     /** @var string */
     protected $name;
     /** @var string */
@@ -33,14 +37,15 @@ class BaseParameterTemplate extends AbstractTemplate
     protected $defaultValue;
 
     /**
-     * Constructor
-     *
+     * BaseParameterTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param string $name
      * @param string $phpType
-     * @param null|string $defaultValue
+     * @param mixed $defaultValue
      */
-    public function __construct($name, $phpType = 'mixed', $defaultValue = null)
-    {
+    public function __construct(Config $config, $name, $phpType = 'mixed', $defaultValue = null) {
+        $this->config = $config;
+
         if (NameUtils::isValidVariableName($name))
             $this->name = $name;
         else

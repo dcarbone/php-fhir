@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -29,16 +30,17 @@ class SetterMethodTemplate extends BaseMethodTemplate
     /**
      * Constructor
      *
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(BasePropertyTemplate $propertyTemplate)
-    {
-        if ($propertyTemplate->isCollection())
+    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate) {
+        if ($propertyTemplate->isCollection()) {
             $name = sprintf('add%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
-        else
+        } else {
             $name = sprintf('set%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
+        }
 
-        parent::__construct($name, new PHPScopeEnum(PHPScopeEnum::_PUBLIC));
+        parent::__construct($config, $name, new PHPScopeEnum(PHPScopeEnum::_PUBLIC));
 
         $this->setDocumentation($propertyTemplate->getDocumentation());
         $this->setReturnValueType('$this');

@@ -37,8 +37,7 @@ class Logger extends AbstractLogger
      * @param LoggerInterface $actualLogger
      * @param string $breakLevel
      */
-    public function __construct(LoggerInterface $actualLogger, $breakLevel = LogLevel::WARNING)
-    {
+    public function __construct(LoggerInterface $actualLogger, $breakLevel = LogLevel::WARNING) {
         $this->actualLogger = $actualLogger;
         $this->breakLevel = $breakLevel;
     }
@@ -46,21 +45,23 @@ class Logger extends AbstractLogger
     /**
      * @param string $action
      */
-    public function startBreak($action)
-    {
+    public function startBreak($action) {
         $this->log($this->breakLevel, substr(sprintf('%\'-5s Start %s %1$-\'-75s', '-', $action), 0, 75));
     }
 
     /**
      * @param string $action
      */
-    public function endBreak($action)
-    {
+    public function endBreak($action) {
         $this->log($this->breakLevel, substr(sprintf('%\'-5s End %s %1$-\'-75s', '-', $action), 0, 75));
     }
 
-    public function log($level, $message, array $context = array())
-    {
+    /**
+     * @param string $level
+     * @param string $message
+     * @param array $context
+     */
+    public function log($level, $message, array $context = array()) {
         $this->actualLogger->log($level, $message, $context);
     }
 }

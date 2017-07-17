@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
@@ -29,18 +30,13 @@ class GetterMethodTemplate extends BaseMethodTemplate
     private $_property;
 
     /**
-     * Constructor
-     *
+     * GetterMethodTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(BasePropertyTemplate $propertyTemplate)
-    {
-        $name = sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
-
-        parent::__construct($name);
-
+    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate) {
+        parent::__construct($config, sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName())));
         $this->setDocumentation($propertyTemplate->getDocumentation());
-
         $this->_property = $propertyTemplate;
     }
 

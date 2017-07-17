@@ -31,31 +31,34 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
 class ClassTemplate extends AbstractTemplate
 {
     /** @var string */
-    private $_elementName;
+    private $elementName;
 
     /** @var ComplexClassTypesEnum|null */
-    private $_classType;
+    private $classType;
 
     /** @var string */
-    private $_className;
+    private $className;
 
     /** @var string */
-    private $_namespace;
+    private $namespace;
 
     /** @var XSDMapEntry */
-    private $_extendedElementMapEntry = null;
+    private $extendedElementMapEntry = null;
 
     /** @var array */
-    private $_implementedInterfaces = [];
+    private $implementedInterfaces = [];
 
     /** @var BasePropertyTemplate[] */
-    private $_properties = [];
+    private $properties = [];
 
     /** @var BaseMethodTemplate[] */
-    private $_methods = [];
+    private $methods = [];
 
     /** @var XSDMapEntry */
-    private $_XSDMapEntry;
+    private $XSDMapEntry;
+
+    /** @var array */
+    private $imports = [];
 
     /**
      * Constructor
@@ -73,19 +76,19 @@ class ClassTemplate extends AbstractTemplate
                                 ComplexClassTypesEnum $classType = null)
     {
         if (NameUtils::isValidClassName($className))
-            $this->_className = $className;
+            $this->className = $className;
         else
             throw new \InvalidArgumentException('Class Name "'.$className.'" is not valid.');
 
         if (NameUtils::isValidNSName($namespace))
-            $this->_namespace = $namespace;
+            $this->namespace = $namespace;
         else
             throw new \InvalidArgumentException('Namespace "'.$namespace.'" is not valid.');
 
-        $this->_elementName = $fhirElementName;
-        $this->_classType = $classType;
+        $this->elementName = $fhirElementName;
+        $this->classType = $classType;
 
-        $this->_XSDMapEntry = $XSDMapEntry;
+        $this->XSDMapEntry = $XSDMapEntry;
     }
 
     /**
@@ -93,7 +96,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getElementName()
     {
-        return $this->_elementName;
+        return $this->elementName;
     }
 
     /**
@@ -101,7 +104,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getNamespace()
     {
-        return $this->_namespace;
+        return $this->namespace;
     }
 
     /**
@@ -109,7 +112,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getClassName()
     {
-        return $this->_className;
+        return $this->className;
     }
 
     /**
@@ -117,7 +120,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getClassType()
     {
-        return $this->_classType;
+        return $this->classType;
     }
 
     /**
@@ -125,8 +128,8 @@ class ClassTemplate extends AbstractTemplate
      */
     public function setExtendedElementMapEntry(XSDMapEntry $mapEntry)
     {
-        $this->_extendedElementMapEntry = $mapEntry;
-        $this->_XSDMapEntry->setExtendedMapEntry($mapEntry);
+        $this->extendedElementMapEntry = $mapEntry;
+        $this->XSDMapEntry->setExtendedMapEntry($mapEntry);
     }
 
     /**
@@ -134,7 +137,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getExtendedElementMapEntry()
     {
-        return $this->_extendedElementMapEntry;
+        return $this->extendedElementMapEntry;
     }
 
     /**
@@ -142,7 +145,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getImplementedInterfaces()
     {
-        return $this->_implementedInterfaces;
+        return $this->implementedInterfaces;
     }
 
     /**
@@ -150,8 +153,8 @@ class ClassTemplate extends AbstractTemplate
      */
     public function addImplementedInterface($interface)
     {
-        if (!in_array($interface, $this->_implementedInterfaces, true))
-            $this->_implementedInterfaces[] = $interface;
+        if (!in_array($interface, $this->implementedInterfaces, true))
+            $this->implementedInterfaces[] = $interface;
     }
 
     /**
@@ -160,7 +163,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function implementsInterface($interface)
     {
-        return in_array($interface, $this->_implementedInterfaces, true);
+        return in_array($interface, $this->implementedInterfaces, true);
     }
 
     /**
@@ -168,7 +171,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getProperties()
     {
-        return $this->_properties;
+        return $this->properties;
     }
 
     /**
@@ -176,7 +179,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getMethods()
     {
-        return $this->_methods;
+        return $this->methods;
     }
 
     /**
@@ -184,8 +187,8 @@ class ClassTemplate extends AbstractTemplate
      */
     public function addProperty(BasePropertyTemplate $property)
     {
-        $this->_XSDMapEntry->addProperty($property->getName(), $property->getFHIRElementType());
-        $this->_properties[$property->getName()] = $property;
+        $this->XSDMapEntry->addProperty($property->getName(), $property->getFHIRElementType());
+        $this->properties[$property->getName()] = $property;
     }
 
     /**
@@ -194,7 +197,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function hasProperty($name)
     {
-        return isset($this->_properties[$name]);
+        return isset($this->properties[$name]);
     }
 
     /**
@@ -203,7 +206,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getProperty($name)
     {
-        return $this->_properties[$name];
+        return $this->properties[$name];
     }
 
     /**
@@ -211,7 +214,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function addMethod(BaseMethodTemplate $method)
     {
-        $this->_methods[$method->getName()] = $method;
+        $this->methods[$method->getName()] = $method;
     }
 
     /**
@@ -220,7 +223,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function hasMethod($name)
     {
-        return isset($this->_methods[$name]);
+        return isset($this->methods[$name]);
     }
 
     /**
@@ -229,7 +232,7 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getMethod($name)
     {
-        return $this->_methods[$name];
+        return $this->methods[$name];
     }
 
     /**
@@ -237,7 +240,23 @@ class ClassTemplate extends AbstractTemplate
      */
     public function getXSDMapEntry()
     {
-        return $this->_XSDMapEntry;
+        return $this->XSDMapEntry;
+    }
+
+    /**
+     * Add a specific name (class, interface, etc.) to the use statements
+     *
+     * @param string $name
+     */
+    public function addImport($name) {
+        $this->imports[] = $name;
+    }
+
+    /**
+     * @return array
+     */
+    public function getImports() {
+        return $this->imports;
     }
 
     /**
@@ -307,13 +326,13 @@ class ClassTemplate extends AbstractTemplate
             );
         }
 
-        if ($this->_extendedElementMapEntry)
+        if ($this->extendedElementMapEntry)
         {
             $output = sprintf(
                 '%sclass %s extends %s',
                 $output,
                 $this->getClassName(),
-                $this->_extendedElementMapEntry->getClassName()
+                $this->extendedElementMapEntry->getClassName()
             );
         }
         else
@@ -325,10 +344,10 @@ class ClassTemplate extends AbstractTemplate
             );
         }
 
-        if (count($this->_implementedInterfaces) > 0)
+        if (count($this->implementedInterfaces) > 0)
         {
             $interfaces = array();
-            foreach($this->_implementedInterfaces as $interface)
+            foreach($this->implementedInterfaces as $interface)
             {
                 if (0 === strpos($interface, '\\') && 1 === substr_count($interface, '\\'))
                     $interfaces[] = $interface;
@@ -364,21 +383,21 @@ class ClassTemplate extends AbstractTemplate
         $thisClassName = $this->compileFullyQualifiedClassName();
         $thisNamespace = $this->getNamespace();
 
-        $usedClasses = array();
-        if ($this->_extendedElementMapEntry)
+        $imports = array();
+        if ($this->extendedElementMapEntry)
         {
-            $usedClasses[] = sprintf(
+            $imports[] = sprintf(
                 '%s\\%s',
-                $this->_extendedElementMapEntry->namespace,
-                $this->_extendedElementMapEntry->className
+                $this->extendedElementMapEntry->namespace,
+                $this->extendedElementMapEntry->className
             );
         }
 
-        if (count($this->_implementedInterfaces) > 0)
+        if (count($this->implementedInterfaces) > 0)
         {
-            foreach($this->_implementedInterfaces as $interface)
+            foreach($this->implementedInterfaces as $interface)
             {
-                $usedClasses[] = $interface;
+                $imports[] = $interface;
             }
         }
 
@@ -392,25 +411,25 @@ class ClassTemplate extends AbstractTemplate
 //            $usedClasses[] = $type;
 //        }
 
-        $usedClasses = array_count_values($usedClasses);
-        ksort($usedClasses);
+        $imports = array_count_values(array_merge($this->getImports(), $imports));
+        ksort($imports);
 
-        foreach($usedClasses as $usedClass => $timesImported)
+        foreach($imports as $name => $timesImported)
         {
             // Don't import base namespace things.
-            if (0 === strpos($usedClass, '\\') && 1 === substr_count($usedClass, '\\'))
+            if (0 === strpos($name, '\\') && 1 === substr_count($name, '\\'))
                 continue;
 
             // Don't use yourself, dog...
-            if ($usedClass === $thisClassName)
+            if ($name === $thisClassName)
                 continue;
 
             // If this class is already in the same namespace as this one...
-            $remainder = str_replace(array($thisNamespace, '\\'), '', $usedClass);
-            if (basename($usedClass) === $remainder)
+            $remainder = str_replace(array($thisNamespace, '\\'), '', $name);
+            if (basename($name) === $remainder)
                 continue;
 
-            $useStatement = sprintf("%suse %s;\n", $useStatement, ltrim($usedClass, "\\"));
+            $useStatement = sprintf("%suse %s;\n", $useStatement, ltrim($name, "\\"));
         }
 
         return $useStatement;

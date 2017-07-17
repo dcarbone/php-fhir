@@ -18,19 +18,18 @@
 
 /**
  * Class XSDMap
- * @package PHPFHIR
+ * @package DCarbone\PHPFHIR\ClassGenerator
  */
 class XSDMap implements \ArrayAccess, \Iterator
 {
     /** @var \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry[] */
-    private $_map = array();
+    private $map = array();
 
     /**
      * @param string $fhirElementName
      * @return string|null
      */
-    public function getClassNameForFHIRElementName($fhirElementName)
-    {
+    public function getClassNameForFHIRElementName($fhirElementName) {
         if (isset($this[$fhirElementName]))
             return $this[$fhirElementName]->className;
 
@@ -41,8 +40,7 @@ class XSDMap implements \ArrayAccess, \Iterator
      * @param string $fhirElementName
      * @return null|string
      */
-    public function getClassUseStatementForFHIRElementName($fhirElementName)
-    {
+    public function getClassUseStatementForFHIRElementName($fhirElementName) {
         if (isset($this[$fhirElementName]))
             return sprintf('%s\\%s', $this[$fhirElementName]->namespace, $this[$fhirElementName]->className);
 
@@ -51,58 +49,36 @@ class XSDMap implements \ArrayAccess, \Iterator
 
 
     /**
-     * Return the current element
-     * @link http://php.net/manual/en/iterator.current.php
-     * @return mixed Can return any type.
-     * @since 5.0.0
+     * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry|mixed
      */
-    public function current()
-    {
-        return current($this->_map);
+    public function current() {
+        return current($this->map);
     }
 
-    /**
-     * Move forward to next element
-     * @link http://php.net/manual/en/iterator.next.php
-     * @return void Any returned value is ignored.
-     * @since 5.0.0
-     */
     public function next()
     {
-        next($this->_map);
+        next($this->map);
     }
 
     /**
-     * Return the key of the current element
-     * @link http://php.net/manual/en/iterator.key.php
-     * @return mixed scalar on success, or null on failure.
-     * @since 5.0.0
+     * @return string|null
      */
     public function key()
     {
-        return key($this->_map);
+        return key($this->map);
     }
 
     /**
-     * Checks if current position is valid
-     * @link http://php.net/manual/en/iterator.valid.php
-     * @return boolean The return value will be casted to boolean and then evaluated.
-     * @since 5.0.0
+     * @return bool
      */
     public function valid()
     {
-        return null !== key($this->_map);
+        return null !== key($this->map);
     }
 
-    /**
-     * Rewind the Iterator to the first element
-     * @link http://php.net/manual/en/iterator.rewind.php
-     * @return void Any returned value is ignored.
-     * @since 5.0.0
-     */
     public function rewind()
     {
-        reset($this->_map);
+        reset($this->map);
     }
 
     /**
@@ -110,32 +86,26 @@ class XSDMap implements \ArrayAccess, \Iterator
      */
     public function reset()
     {
-        return reset($this->_map);
+        return reset($this->map);
     }
 
     /**
-     * Whether a offset exists
-     * @link http://php.net/manual/en/arrayaccess.offsetexists.php
-     * @param mixed $offset An offset to check for.
-     * @return boolean true on success or false on failure.
-     * @since 5.0.0
+     * @param mixed $offset
+     * @return bool
      */
     public function offsetExists($offset)
     {
-        return isset($this->_map[$offset]) || array_key_exists($offset, $this->_map);
+        return isset($this->map[$offset]) || array_key_exists($offset, $this->map);
     }
 
     /**
-     * Offset to retrieve
-     * @link http://php.net/manual/en/arrayaccess.offsetget.php
-     * @param mixed $offset The offset to retrieve.
-     * @return mixed Can return all value types.
-     * @since 5.0.0
+     * @param mixed $offset
+     * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry
      */
     public function offsetGet($offset)
     {
-        if (isset($this->_map[$offset]) || array_key_exists($offset, $this->_map))
-            return $this->_map[$offset];
+        if (isset($this->map[$offset]) || array_key_exists($offset, $this->map))
+            return $this->map[$offset];
 
         throw new \OutOfBoundsException(sprintf(
             '%s - No such offset exists in this map.',
@@ -144,27 +114,20 @@ class XSDMap implements \ArrayAccess, \Iterator
     }
 
     /**
-     * Offset to set
-     * @link http://php.net/manual/en/arrayaccess.offsetset.php
-     * @param mixed $offset The offset to assign the value to.
-     * @param mixed $value The value to set.
-     * @return void
-     * @since 5.0.0
+     * @param mixed $offset
+     * @param mixed $value
      */
     public function offsetSet($offset, $value)
     {
-        if (null === $offset)
-            $this->_map[] = $value;
-        else
-            $this->_map[$offset] = $value;
+        if (null === $offset) {
+            $this->map[] = $value;
+        } else {
+            $this->map[$offset] = $value;
+        }
     }
 
     /**
-     * Offset to unset
-     * @link http://php.net/manual/en/arrayaccess.offsetunset.php
-     * @param mixed $offset The offset to unset.
-     * @return void
-     * @since 5.0.0
+     * @param mixed $offset
      */
     public function offsetUnset($offset)
     {

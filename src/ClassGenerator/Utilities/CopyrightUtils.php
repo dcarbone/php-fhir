@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Logger;
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 
 /**
  * Class CopyrightUtils
@@ -40,10 +40,9 @@ abstract class CopyrightUtils
     private static $_standardDate;
 
     /**
-     * @param string $xsdPath
-     * @param Logger $logger
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function compileCopyrights($xsdPath, Logger $logger)
+    public static function compileCopyrights(Config $config)
     {
         self::$_standardDate = date('F jS, Y');
 
@@ -71,9 +70,9 @@ abstract class CopyrightUtils
             ''
         );
 
-        $fhirBase = sprintf('%s/fhir-base.xsd', $xsdPath);
+        $fhirBase = sprintf('%s/fhir-base.xsd', $config->getXsdPath());
 
-        $logger->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
+        $config->getLogger()->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
 
         $fh = fopen($fhirBase, 'rb');
         if ($fh)
@@ -102,7 +101,7 @@ abstract class CopyrightUtils
                 get_called_class(),
                 $fhirBase
             );
-            $logger->critical($msg);
+            $config->getLogger()->critical($msg);
             throw new \RuntimeException($msg);
         }
 

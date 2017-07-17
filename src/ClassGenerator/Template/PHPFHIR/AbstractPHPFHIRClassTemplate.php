@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -41,14 +42,14 @@ abstract class AbstractPHPFHIRClassTemplate extends AbstractTemplate
     protected $className;
 
     /**
-     * @param string $outputPath
-     * @param string $outputNamespace
+     * AbstractPHPFHIRClassTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param string $class
      */
-    public function __construct($outputPath, $outputNamespace, $class)
+    public function __construct(Config $config, $class)
     {
-        $this->outputPath = rtrim($outputPath, "\\/");
-        $this->outputNamespace = $outputNamespace;
+        $this->outputPath = rtrim($config->getOutputPath(), "\\/");
+        $this->outputNamespace = $config->getOutputNamespace();
 
         if (NameUtils::isValidClassName($class))
         {

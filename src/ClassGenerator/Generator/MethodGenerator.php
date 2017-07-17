@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
@@ -25,6 +26,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\PropertyParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
 
 /**
  * Class MethodGenerator
@@ -55,36 +57,39 @@ abstract class MethodGenerator
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public static function implementMethodsForProperty(ClassTemplate $classTemplate, BasePropertyTemplate $propertyTemplate)
+    public static function implementMethodsForProperty(Config $config, ClassTemplate $classTemplate, BasePropertyTemplate $propertyTemplate)
     {
         if ($propertyTemplate->requiresGetter())
-            $classTemplate->addMethod(self::createGetter($propertyTemplate));
+            $classTemplate->addMethod(self::createGetter($config, $propertyTemplate));
 
         if ($propertyTemplate->requireSetter())
-            $classTemplate->addMethod(self::createSetter($propertyTemplate));
+            $classTemplate->addMethod(self::createSetter($config, $propertyTemplate));
     }
 
     /**
-     * @param BasePropertyTemplate $propertyTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate
      */
-    public static function createGetter(BasePropertyTemplate $propertyTemplate)
+    public static function createGetter(Config $config, BasePropertyTemplate $propertyTemplate)
     {
-        $getterTemplate = new GetterMethodTemplate($propertyTemplate);
+        $getterTemplate = new GetterMethodTemplate($config, $propertyTemplate);
         $getterTemplate->addLineToBody(sprintf('return $this->%s;', $propertyTemplate->getName()));
         return $getterTemplate;
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
-     * @return SetterMethodTemplate
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate
      */
-    public static function createSetter(BasePropertyTemplate $propertyTemplate)
+    public static function createSetter(Config $config, BasePropertyTemplate $propertyTemplate)
     {
-        $paramTemplate = new PropertyParameterTemplate($propertyTemplate);
+        $paramTemplate = new PropertyParameterTemplate($config, $propertyTemplate);
 
         if ($propertyTemplate->isCollection())
         {
@@ -103,7 +108,7 @@ abstract class MethodGenerator
             );
         }
 
-        $setterTemplate = new SetterMethodTemplate($propertyTemplate);
+        $setterTemplate = new SetterMethodTemplate($config, $propertyTemplate);
         $setterTemplate->addParameter($paramTemplate);
         $setterTemplate->addLineToBody($methodBody);
 
@@ -111,11 +116,12 @@ abstract class MethodGenerator
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function implementToString(ClassTemplate $classTemplate)
+    public static function implementToString(Config $config, ClassTemplate $classTemplate)
     {
-        $method = new BaseMethodTemplate('__toString');
+        $method = new BaseMethodTemplate($config, '__toString');
         $classTemplate->addMethod($method);
         $method->setReturnValueType('string');
 
@@ -128,11 +134,12 @@ abstract class MethodGenerator
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function implementJsonSerialize(ClassTemplate $classTemplate)
+    public static function implementJsonSerialize(Config $config, ClassTemplate $classTemplate)
     {
-        $method = new BaseMethodTemplate('jsonSerialize');
+        $method = new BaseMethodTemplate($config, 'jsonSerialize');
         $classTemplate->addMethod($method);
 
         $properties = $classTemplate->getProperties();
@@ -261,11 +268,11 @@ abstract class MethodGenerator
     /**
      * @param ClassTemplate $classTemplate
      */
-    public static function implementXMLSerialize(ClassTemplate $classTemplate)
+    public static function implementXMLSerialize(Config $config, ClassTemplate $classTemplate)
     {
-        $method = new BaseMethodTemplate('xmlSerialize');
-        $method->addParameter(new BaseParameterTemplate('returnSXE', 'boolean', 'false'));
-        $method->addParameter(new BaseParameterTemplate('sxe', '\\SimpleXMLElement', 'null'));
+        $method = new BaseMethodTemplate($config, 'xmlSerialize');
+        $method->addParameter(new BaseParameterTemplate($config, 'returnSXE', 'boolean', 'false'));
+        $method->addParameter(new BaseParameterTemplate($config, 'sxe', '\\SimpleXMLElement', 'null'));
         $method->setReturnStatement('$sxe->saveXML()');
         $method->setReturnValueType('string|\\SimpleXMLElement');
         $classTemplate->addMethod($method);
@@ -384,17 +391,14 @@ abstract class MethodGenerator
                 }
                 else if ($property->isHTML())
                 {
+                    $classTemplate->addImport(NSUtils::generateRootNamespace($config, 'PHPFHIRHelper'));
+
                     $method->addLineToBody(sprintf(
                         'if (null !== $this->%s) {',
                         $name
                     ));
                     $method->addLineToBody(sprintf(
-                        '    $node = dom_import_simplexml($sxe);',
-                        $name
-                    ));
-                    $method->addLineToBody('    $doc = $node->ownerDocument;');
-                    $method->addLineToBody(sprintf(
-                        '    $node->appendChild($doc->createCDATASection((string)$this->%s));',
+                        '   PHPFHIRHelper::recursiveXMLImport($sxe, $this->%1$s);',
                         $name
                     ));
                     $method->addLineToBody('}');

@@ -100,7 +100,7 @@ class PHPFHIRResponseParser
     private function _parseXML(\$input)
     {
         libxml_use_internal_errors(true);
-        \$sxe = new \SimpleXMLElement(\$input, self::\$sxeArgs);
+        \$sxe = new \\SimpleXMLElement(\$input, self::\$sxeArgs);
         \$error = libxml_get_last_error();
         libxml_use_internal_errors(false);
 
