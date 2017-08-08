@@ -25,8 +25,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class SetterMethodTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-class SetterMethodTemplate extends BaseMethodTemplate
-{
+class SetterMethodTemplate extends BaseMethodTemplate {
     /**
      * Constructor
      *

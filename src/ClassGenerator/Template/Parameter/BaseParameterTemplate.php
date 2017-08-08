@@ -24,8 +24,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class BaseParameterTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\Parameter
  */
-class BaseParameterTemplate extends AbstractTemplate
-{
+class BaseParameterTemplate extends AbstractTemplate {
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
     protected $config;
 
@@ -46,10 +45,11 @@ class BaseParameterTemplate extends AbstractTemplate
     public function __construct(Config $config, $name, $phpType = 'mixed', $defaultValue = null) {
         $this->config = $config;
 
-        if (NameUtils::isValidVariableName($name))
+        if (NameUtils::isValidVariableName($name)) {
             $this->name = $name;
-        else
+        } else {
             throw new \InvalidArgumentException(sprintf('Specified parameter name "%s" is not valid.', $name));
+        }
 
         $this->phpType = $phpType;
         $this->defaultValue = $defaultValue;
@@ -58,48 +58,42 @@ class BaseParameterTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function getName()
-    {
+    public function getName() {
         return $this->name;
     }
 
     /**
      * @return string
      */
-    public function getPhpType()
-    {
+    public function getPhpType() {
         return $this->phpType;
     }
 
     /**
      * @param string $phpType
      */
-    public function setPhpType($phpType)
-    {
+    public function setPhpType($phpType) {
         $this->phpType = $phpType;
     }
 
     /**
      * @return null|string
      */
-    public function getDefaultValue()
-    {
+    public function getDefaultValue() {
         return $this->defaultValue;
     }
 
     /**
      * @param null|string $defaultValue
      */
-    public function setDefaultValue($defaultValue)
-    {
+    public function setDefaultValue($defaultValue) {
         $this->defaultValue = $defaultValue;
     }
 
     /**
      * @return string
      */
-    public function getParamDocBlockFragment()
-    {
+    public function getParamDocBlockFragment() {
         return sprintf(
             '@param %s %s',
             $this->getPhpType(),
@@ -110,10 +104,8 @@ class BaseParameterTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function compileTemplate()
-    {
-        if (is_string($this->defaultValue))
-        {
+    public function compileTemplate() {
+        if (is_string($this->defaultValue)) {
             return sprintf(
                 '%s = %s',
                 NameUtils::getPropertyVariableName($this->getName()),

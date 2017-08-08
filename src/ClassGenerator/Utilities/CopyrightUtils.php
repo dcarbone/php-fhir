@@ -22,8 +22,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Config;
  * Class CopyrightUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class CopyrightUtils
-{
+abstract class CopyrightUtils {
     /** @var array */
     private static $_phpFHIRCopyright = array();
 
@@ -42,8 +41,7 @@ abstract class CopyrightUtils
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function compileCopyrights(Config $config)
-    {
+    public static function compileCopyrights(Config $config) {
         self::$_standardDate = date('F jS, Y');
 
         self::$_phpFHIRCopyright = array(
@@ -70,32 +68,31 @@ abstract class CopyrightUtils
             ''
         );
 
-        $fhirBase = sprintf('%s/fhir-base.xsd', $config->getXsdPath());
+        $fhirBase = sprintf('%s/fhir-base.xsd', $config->getXSDPath());
 
         $config->getLogger()->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
 
         $fh = fopen($fhirBase, 'rb');
-        if ($fh)
-        {
+        if ($fh) {
             $inComment = false;
-            while($line = fgets($fh))
-            {
+            while ($line = fgets($fh)) {
                 $line = rtrim($line);
 
-                if ('-->' === $line)
+                if ('-->' === $line) {
                     break;
+                }
 
-                if ($inComment)
+                if ($inComment) {
                     self::$_fhirCopyright[] = html_entity_decode($line);
+                }
 
-                if ('<!--' === $line)
+                if ('<!--' === $line) {
                     $inComment = true;
+                }
             }
 
             fclose($fh);
-        }
-        else
-        {
+        } else {
             $msg = sprintf(
                 '%s::compileCopyrights - Unable to open %s to extract FHIR copyright.',
                 get_called_class(),
@@ -120,40 +117,35 @@ abstract class CopyrightUtils
     /**
      * @return array
      */
-    public static function getPHPFHIRCopyright()
-    {
+    public static function getPHPFHIRCopyright() {
         return self::$_phpFHIRCopyright;
     }
 
     /**
      * @return array
      */
-    public static function getFHIRCopyright()
-    {
+    public static function getFHIRCopyright() {
         return self::$_fhirCopyright;
     }
 
     /**
      * @return string
      */
-    public static function getBasePHPFHIRCopyrightComment()
-    {
+    public static function getBasePHPFHIRCopyrightComment() {
         return self::$_basePHPFHIRCopyrightComment;
     }
 
     /**
      * @return string
      */
-    public static function getFullPHPFHIRCopyrightComment()
-    {
+    public static function getFullPHPFHIRCopyrightComment() {
         return self::$_fullPHPFHIRCopyrightComment;
     }
 
     /**
      * @return string
      */
-    public static function getStandardDate()
-    {
+    public static function getStandardDate() {
         return self::$_standardDate;
     }
 }

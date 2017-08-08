@@ -20,8 +20,7 @@
  * Class XSDMapEntry
  * @package DCarbone\PHPFHIR\ClassGenerator\XSDMap
  */
-class XSDMapEntry
-{
+class XSDMapEntry {
     /** @var \SimpleXMLElement */
     public $sxe;
     /** @var string */
@@ -34,7 +33,7 @@ class XSDMapEntry
     /** @var array */
     protected $properties = [];
 
-    /** @var XSDMapEntry */
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry */
     protected $extendedMapEntry = null;
 
     /**
@@ -48,8 +47,7 @@ class XSDMapEntry
     public function __construct(\SimpleXMLElement $sxe,
                                 $fhirElementName,
                                 $namespace,
-                                $className)
-    {
+                                $className) {
         $this->sxe = $sxe;
         $this->fhirElementName = $fhirElementName;
         $this->namespace = $namespace;
@@ -59,42 +57,37 @@ class XSDMapEntry
     /**
      * @return \SimpleXMLElement
      */
-    public function getSxe()
-    {
+    public function getSxe() {
         return $this->sxe;
     }
 
     /**
      * @return string
      */
-    public function getFHIRElementName()
-    {
+    public function getFHIRElementName() {
         return $this->fhirElementName;
     }
 
     /**
      * @return string
      */
-    public function getNamespace()
-    {
+    public function getNamespace() {
         return $this->namespace;
     }
 
     /**
      * @return string
      */
-    public function getClassName()
-    {
+    public function getClassName() {
         return $this->className;
     }
 
     /**
      * @param string $name
      * @param string $type
-     * @return XSDMapEntry
+     * @return $this
      */
-    public function addProperty($name, $type)
-    {
+    public function addProperty($name, $type) {
         $this->properties[$name] = $type;
         return $this;
     }
@@ -102,26 +95,23 @@ class XSDMapEntry
     /**
      * @return array
      */
-    public function getProperties()
-    {
+    public function getProperties() {
         return $this->properties;
     }
 
     /**
-     * @param XSDMapEntry $XSDMapEntry
-     * @return XSDMapEntry
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $XSDMapEntry
+     * @return $this
      */
-    public function setExtendedMapEntry(XSDMapEntry $XSDMapEntry)
-    {
+    public function setExtendedMapEntry(XSDMapEntry $XSDMapEntry) {
         $this->extendedMapEntry = $XSDMapEntry;
         return $this;
     }
 
     /**
-     * @return XSDMapEntry
+     * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry
      */
-    public function getExtendedMapEntry()
-    {
+    public function getExtendedMapEntry() {
         return $this->extendedMapEntry;
     }
 }

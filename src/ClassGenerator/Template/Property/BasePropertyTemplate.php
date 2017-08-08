@@ -19,14 +19,12 @@
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
 /**
  * Class PropertyTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\Property
  */
-class BasePropertyTemplate extends AbstractTemplate
-{
+class BasePropertyTemplate extends AbstractTemplate {
     /** @var string */
     protected $name;
 
@@ -70,12 +68,12 @@ class BasePropertyTemplate extends AbstractTemplate
      * @param bool $requiresGetter
      * @param bool $requiresSetter
      */
-    public function __construct(PHPScopeEnum $scope = null, $requiresGetter = true, $requiresSetter = true)
-    {
-        if (null === $scope)
+    public function __construct(PHPScopeEnum $scope = null, $requiresGetter = true, $requiresSetter = true) {
+        if (null === $scope) {
             $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
-        else
+        } else {
             $this->scope = $scope;
+        }
 
         $this->requiresGetter = $requiresGetter;
         $this->requireSetter = $requiresSetter;
@@ -84,171 +82,151 @@ class BasePropertyTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function getName()
-    {
+    public function getName() {
         return $this->name;
     }
 
     /**
      * @param string $name
      */
-    public function setName($name)
-    {
-        if (NameUtils::isValidVariableName($name))
+    public function setName($name) {
+        if (NameUtils::isValidVariableName($name)) {
             $this->name = $name;
-        else
+        } else {
             throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
+        }
     }
 
     /**
      * @return PHPScopeEnum
      */
-    public function getScope()
-    {
+    public function getScope() {
         return $this->scope;
     }
 
     /**
      * @param PHPScopeEnum $scope
      */
-    public function setScope(PHPScopeEnum $scope)
-    {
+    public function setScope(PHPScopeEnum $scope) {
         $this->scope = $scope;
     }
 
     /**
      * @return boolean
      */
-    public function isCollection()
-    {
+    public function isCollection() {
         return $this->collection;
     }
 
     /**
      * @param boolean $collection
      */
-    public function setCollection($collection)
-    {
+    public function setCollection($collection) {
         $this->collection = $collection;
     }
 
     /**
      * @return string
      */
-    public function getPHPType()
-    {
+    public function getPHPType() {
         return $this->phpType;
     }
 
     /**
      * @param string $phpType
      */
-    public function setPHPType($phpType)
-    {
+    public function setPHPType($phpType) {
         $this->phpType = $phpType;
     }
 
     /**
      * @return string
      */
-    public function getFHIRElementType()
-    {
+    public function getFHIRElementType() {
         return $this->fhirElementType;
     }
 
     /**
      * @param string $fhirElementType
      */
-    public function setFHIRElementType($fhirElementType)
-    {
+    public function setFHIRElementType($fhirElementType) {
         $this->fhirElementType = $fhirElementType;
     }
 
     /**
      * @return boolean
      */
-    public function isPrimitive()
-    {
+    public function isPrimitive() {
         return $this->primitive;
     }
 
     /**
      * @param boolean $primitive
      */
-    public function setPrimitive($primitive)
-    {
+    public function setPrimitive($primitive) {
         $this->primitive = $primitive;
     }
 
     /**
      * @return boolean
      */
-    public function isList()
-    {
+    public function isList() {
         return $this->list;
     }
 
     /**
      * @param boolean $list
      */
-    public function setList($list)
-    {
+    public function setList($list) {
         $this->list = $list;
     }
 
     /**
      * @return boolean
      */
-    public function isHTML()
-    {
+    public function isHTML() {
         return $this->html;
     }
 
     /**
      * @param boolean $html
      */
-    public function setHTML($html)
-    {
+    public function setHTML($html) {
         $this->html = $html;
     }
 
     /**
      * @return mixed
      */
-    public function getDefaultValue()
-    {
+    public function getDefaultValue() {
         return $this->defaultValue;
     }
 
     /**
      * @param mixed $defaultValue
      */
-    public function setDefaultValue($defaultValue)
-    {
+    public function setDefaultValue($defaultValue) {
         $this->defaultValue = $defaultValue;
     }
 
     /**
      * @return boolean
      */
-    public function requiresGetter()
-    {
+    public function requiresGetter() {
         return $this->requiresGetter;
     }
 
     /**
      * @return boolean
      */
-    public function requireSetter()
-    {
+    public function requireSetter() {
         return $this->requireSetter;
     }
 
     /**
      * @return string
      */
-    public function compileTemplate()
-    {
+    public function compileTemplate() {
         return sprintf(
             "    /**\n%s     * @var %s%s%s\n     */\n    %s %s = %s;\n\n",
             $this->getDocBlockDocumentationFragment(),
@@ -264,11 +242,9 @@ class BasePropertyTemplate extends AbstractTemplate
     /**
      * @return mixed|null|string
      */
-    protected function determineDefaultValueOutput()
-    {
+    protected function determineDefaultValueOutput() {
         $default = $this->getDefaultValue();
-        switch(gettype($default))
-        {
+        switch (gettype($default)) {
             case 'string':
                 return sprintf('\'%s\'', $default);
 

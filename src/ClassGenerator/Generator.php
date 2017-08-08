@@ -24,17 +24,12 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class Generator
  * @package PHPFHIR
  */
-class Generator implements LoggerAwareInterface
-{
-    use LoggerAwareTrait;
+class Generator {
 
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
     protected $config;
@@ -48,26 +43,20 @@ class Generator implements LoggerAwareInterface
     private $mapTemplate;
 
     /**
-     * Constructor
-     *
-     * @param string $xsdPath
-     * @param null|string $outputPath
-     * @param string $outputNamespace
-     * @param \Psr\Log\LoggerInterface $logger
+     * Generator constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public function __construct($xsdPath, $outputPath = null, $outputNamespace = null, LoggerInterface $logger = null) {
-        $this->config = new Config($xsdPath, $outputPath, $outputNamespace, $logger);
+    public function __construct(Config $config) {
+        $this->config = $config;
     }
 
     /**
      * Generate FHIR object classes based on XSD
      */
-    public function generate()
-    {
+    public function generate() {
         $this->beforeGeneration();
 
-        foreach($this->XSDMap as $fhirElementName=>$mapEntry)
-        {
+        foreach ($this->XSDMap as $fhirElementName => $mapEntry) {
             $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->config, $this->XSDMap, $mapEntry);
 
             FileUtils::createDirsFromNS($classTemplate->getNamespace(), $this->config);
@@ -85,8 +74,7 @@ class Generator implements LoggerAwareInterface
     /**
      * Commands to run prior to class generation
      */
-    protected function beforeGeneration()
-    {
+    protected function beforeGeneration() {
         // Class props
         $this->config->getLogger()->startBreak('XSD Parsing');
         $this->XSDMap = XSDMapGenerator::buildXSDMap($this->config);
@@ -114,8 +102,7 @@ class Generator implements LoggerAwareInterface
     /**
      * Commands to run after class generation
      */
-    protected function afterGeneration()
-    {
+    protected function afterGeneration() {
         $this->mapTemplate->writeToFile();
         $this->autoloadMap->writeToFile();
 
@@ -130,8 +117,7 @@ class Generator implements LoggerAwareInterface
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    private static function _initializeClasses(Config $config)
-    {
+    private static function _initializeClasses(Config $config) {
         $config->getLogger()->info('Compiling Copyrights...');
         CopyrightUtils::compileCopyrights($config);
 

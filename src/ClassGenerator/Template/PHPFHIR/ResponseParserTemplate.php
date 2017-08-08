@@ -23,24 +23,21 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
  * Class ResponseParserTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR
  */
-class ResponseParserTemplate extends AbstractPHPFHIRClassTemplate
-{
+class ResponseParserTemplate extends AbstractPHPFHIRClassTemplate {
     /**
      * ResponseParserTemplate constructor.
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public function __construct(Config $config)
-    {
+    public function __construct(Config $config) {
         parent::__construct($config, 'PHPFHIRResponseParser');
     }
 
     /**
      * @return string
      */
-    public function compileTemplate()
-    {
+    public function compileTemplate() {
         return sprintf(
-            include PHPFHIR_TEMPLATE_DIR.'/response_parser_template.php',
+            include PHPFHIR_TEMPLATE_DIR . '/response_parser_template.php',
             $this->outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment()
         );

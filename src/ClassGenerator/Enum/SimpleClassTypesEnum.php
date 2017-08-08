@@ -22,8 +22,7 @@ use MyCLabs\Enum\Enum;
  * Class SimpleClassTypesEnum
  * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
-class SimpleClassTypesEnum extends Enum
-{
+class SimpleClassTypesEnum extends Enum {
     const PRIMITIVE = 'primitive';
     const _LIST = 'list';
     const BASE = '';

@@ -22,7 +22,7 @@ class HelperTemplate extends AbstractPHPFHIRClassTemplate {
      */
     public function compileTemplate() {
         return sprintf(
-            include PHPFHIR_TEMPLATE_DIR.'/helper_template.php',
+            include PHPFHIR_TEMPLATE_DIR . '/helper_template.php',
             $this->outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment()
         );

@@ -27,22 +27,19 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
  * Class XSDMapGenerator
  * @package DCarbone\PHPFHIR\ClassGenerator\Generator
  */
-abstract class XSDMapGenerator
-{
+abstract class XSDMapGenerator {
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap
      */
-    public static function buildXSDMap(Config $config)
-    {
+    public static function buildXSDMap(Config $config) {
         $config->getLogger()->info('Creating in-memory representation of FHIR XSD\'s..');
 
         $xsdMap = new XSDMap();
 
-        $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $config->getXsdPath());
+        $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $config->getXSDPath());
 
-        if (!file_exists($fhirBaseXSD))
-        {
+        if (!file_exists($fhirBaseXSD)) {
             $msg = sprintf(
                 'Unable to locate "fhir-base.xsd" at expected path "%s".',
                 $fhirBaseXSD
@@ -55,18 +52,15 @@ abstract class XSDMapGenerator
         self::parseClassesFromXSD($fhirBaseXSD, $xsdMap, $config);
 
         // Then scoop up the rest
-        foreach(glob(sprintf('%s/*.xsd', $config->getXsdPath()), GLOB_NOSORT) as $xsdFile)
-        {
+        foreach (glob(sprintf('%s/*.xsd', $config->getXSDPath()), GLOB_NOSORT) as $xsdFile) {
             $basename = basename($xsdFile);
 
-            if (0 === strpos($basename, 'fhir-'))
-            {
+            if (0 === strpos($basename, 'fhir-')) {
                 $config->getLogger()->debug(sprintf('Skipping "aggregate" file "%s"', $xsdFile));
                 continue;
             }
 
-            if ('xml.xsd' === $basename)
-            {
+            if ('xml.xsd' === $basename) {
                 $config->getLogger()->debug(sprintf('Skipping file "%s"', $xsdFile));
                 continue;
             }
@@ -82,22 +76,18 @@ abstract class XSDMapGenerator
      * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $xsdMap
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function parseClassesFromXSD($file, XSDMap $xsdMap, Config $config)
-    {
+    public static function parseClassesFromXSD($file, XSDMap $xsdMap, Config $config) {
         $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $file));
 
         $sxe = self::constructSXEWithFilePath($file, $config);
-        foreach($sxe->children('xs', true) as $child)
-        {
+        foreach ($sxe->children('xs', true) as $child) {
             /** @var \SimpleXMLElement $child */
             $attributes = $child->attributes();
             $fhirElementName = (string)$attributes['name'];
 
-            if ('' === $fhirElementName)
-            {
+            if ('' === $fhirElementName) {
                 $attrArray = [];
-                foreach($attributes as $attribute)
-                {
+                foreach ($attributes as $attribute) {
                     /** @var \SimpleXMLElement $attribute */
                     $attrArray[] = sprintf('%s : %s', $attribute->getName(), (string)$attribute);
                 }
@@ -105,8 +95,7 @@ abstract class XSDMapGenerator
                 continue;
             }
 
-            if (ElementTypeEnum::COMPLEX_TYPE === strtolower($child->getName()))
-            {
+            if (ElementTypeEnum::COMPLEX_TYPE === strtolower($child->getName())) {
                 $type = ClassTypeUtils::getComplexClassType($child);
 
                 $xsdMap[$fhirElementName] = new XSDMap\XSDMapEntry(
@@ -135,8 +124,7 @@ abstract class XSDMapGenerator
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @return \SimpleXMLElement
      */
-    public static function constructSXEWithFilePath($filePath, Config $config)
-    {
+    public static function constructSXEWithFilePath($filePath, Config $config) {
         $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $filePath));
 
         $filename = basename($filePath);
@@ -146,16 +134,14 @@ abstract class XSDMapGenerator
         $sxe = new \SimpleXMLElement(file_get_contents($filePath), LIBXML_COMPACT | LIBXML_NSCLEAN);
         libxml_use_internal_errors(false);
 
-        if ($sxe instanceof \SimpleXMLElement)
-        {
+        if ($sxe instanceof \SimpleXMLElement) {
             $sxe->registerXPathNamespace('xs', 'http://www.w3.org/2001/XMLSchema');
             $sxe->registerXPathNamespace('', 'http://hl7.org/fhir');
             return $sxe;
         }
 
         $error = libxml_get_last_error();
-        if ($error)
-        {
+        if ($error) {
             $msg = sprintf(
                 'Error occurred while parsing file "%s": "%s"',
                 $filename,

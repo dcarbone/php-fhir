@@ -22,8 +22,7 @@ use MyCLabs\Enum\Enum;
  * Class ComplexClassTypesEnum
  * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
-class ComplexClassTypesEnum extends Enum
-{
+class ComplexClassTypesEnum extends Enum {
     const DOMAIN_RESOURCE = 'DomainResource';
     const RESOURCE = 'Resource';
     const ELEMENT = 'Element';

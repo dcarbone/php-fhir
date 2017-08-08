@@ -24,8 +24,7 @@ use Psr\Log\LogLevel;
  * Class Logger
  * @package DCarbone\PHPFHIR
  */
-class Logger extends AbstractLogger
-{
+class Logger extends AbstractLogger {
     /** @var LoggerInterface */
     protected $actualLogger;
 

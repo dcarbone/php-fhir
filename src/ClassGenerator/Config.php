@@ -34,51 +34,31 @@ class Config implements LoggerAwareInterface {
     /** @var string */
     private $xsdPath;
     /** @var string */
-    private $outputPath;
+    private $outputPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
     /** @var string */
-    private $outputNamespace;
+    private $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
+
+    /** @var array */
+    private $xmlSerializationAttributeOverrides = [];
+
     /**
      * Config constructor.
-     * @param string $xsdPath
-     * @param string|null $outputPath
-     * @param string|null $outputNamespace
+     * @param array $conf
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct($xsdPath, $outputPath = null, $outputNamespace = null, LoggerInterface $logger = null) {
+    public function __construct(array $conf = [], LoggerInterface $logger = null) {
         if ($logger) {
             $this->logger = new Logger($logger);
         } else {
             $this->logger = new Logger(new NullLogger());
         }
 
-        $this->logger->info('Validating Generator input...');
+        foreach ($conf as $k => $v) {
+            $this->{'set' . ucfirst($k)}($v);
+        }
 
-        // Validate our input, will throw exception if bad.
-        list(
-            $this->xsdPath,
-            $this->outputPath,
-            $this->outputNamespace) = self::_validateInput($xsdPath, $outputPath, $outputNamespace);
-    }
-
-    /**
-     * @return string
-     */
-    public function getXsdPath() {
-        return $this->xsdPath;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOutputPath() {
-        return $this->outputPath;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOutputNamespace() {
-        return $this->outputNamespace;
+        // be lazy...
+        $this->setXsdPath(isset($this->xsdPath) ? $this->xsdPath : null);
     }
 
     /**
@@ -89,38 +69,110 @@ class Config implements LoggerAwareInterface {
     }
 
     /**
+     * @return string
+     */
+    public function getXsdPath() {
+        return $this->xsdPath;
+    }
+
+    /**
      * @param string $xsdPath
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     */
+    public function setXsdPath($xsdPath) {
+        // Bunch'o validation
+        if (false === is_dir($xsdPath)) {
+            throw new \RuntimeException('Unable to locate XSD dir "' . $xsdPath . '"');
+        }
+        if (false === is_readable($xsdPath)) {
+            throw new \RuntimeException('This process does not have read access to directory "' . $xsdPath . '"');
+        }
+        $this->xsdPath = rtrim($xsdPath, "/\\");
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOutputPath() {
+        return $this->outputPath;
+    }
+
+    /**
      * @param string $outputPath
-     * @param string $outputNamespace
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     */
+    public function setOutputPath($outputPath) {
+        if (!is_dir($outputPath)) {
+            throw new \RuntimeException('Unable to locate output dir "' . $outputPath . '"');
+        }
+        if (!is_writable($outputPath)) {
+            throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.', $outputPath));
+        }
+        if (!is_readable($outputPath)) {
+            throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.', $outputPath));
+        }
+        $this->outputPath = $outputPath;
+        return $this;
+    }
+
+    /**
      * @return array
      */
-    private static function _validateInput($xsdPath, $outputPath, $outputNamespace)
-    {
-        // Bunch'o validation
-        if (false === is_dir($xsdPath))
-            throw new \RuntimeException('Unable to locate XSD dir "'.$xsdPath.'"');
+    public function getXmlSerializationAttributeOverrides() {
+        return $this->xmlSerializationAttributeOverrides;
+    }
 
-        if (false === is_readable($xsdPath))
-            throw new \RuntimeException('This process does not have read access to directory "'.$xsdPath.'"');
+    /**
+     * @param string $elementName
+     * @param string $attributeName
+     * @return bool
+     */
+    public function getXmlSerializationAttributeOverride($elementName, $attributeName) {
+        return isset($this->xmlSerializationAttributeOverrides[$elementName]) && $this->xmlSerializationAttributeOverrides[$elementName] === $attributeName;
+    }
 
-        if (null === $outputPath)
-            $outputPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
+    /**
+     * @param string $elementName
+     * @param string $propertyName
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     */
+    public function setXmlSerializationAttributeOverride($elementName, $propertyName) {
+        $this->xmlSerializationAttributeOverrides[$elementName] = $propertyName;
+        return $this;
+    }
 
-        if (!is_dir($outputPath))
-            throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');
+    /**
+     * @param array $xmlSerializationAttributeOverrides
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     */
+    public function setXmlSerializationAttributeOverrides(array $xmlSerializationAttributeOverrides) {
+        $this->xmlSerializationAttributeOverrides = [];
+        foreach($xmlSerializationAttributeOverrides as $k => $v) {
+            $this->setXmlSerializationAttributeOverride($k, $v);
+        }
+        return $this;
+    }
 
-        if (!is_writable($outputPath))
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.', $outputPath));
+    /**
+     * @return string
+     */
+    public function getOutputNamespace() {
+        return $this->outputNamespace;
+    }
 
-        if (!is_readable($outputPath))
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.', $outputPath));
-
-        if (null === $outputNamespace)
+    /**
+     * @param string $outputNamespace
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     */
+    public function setOutputNamespace($outputNamespace) {
+        if (null === $outputNamespace) {
             $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
-
-        if (false === NameUtils::isValidNSName($outputNamespace))
+        }
+        if (false === NameUtils::isValidNSName($outputNamespace)) {
             throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.', $outputNamespace));
-
-        return [rtrim($xsdPath, "/\\"), $outputPath, trim($outputNamespace, "\\;")];
+        }
+        $this->outputNamespace = trim($outputNamespace, "\\;");
+        return $this;
     }
 }

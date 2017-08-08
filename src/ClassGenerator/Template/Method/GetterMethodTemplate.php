@@ -24,8 +24,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class GetterMethodTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-class GetterMethodTemplate extends BaseMethodTemplate
-{
+class GetterMethodTemplate extends BaseMethodTemplate {
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate */
     private $_property;
 
@@ -43,13 +42,11 @@ class GetterMethodTemplate extends BaseMethodTemplate
     /**
      * @return BasePropertyTemplate
      */
-    public function getProperty()
-    {
+    public function getProperty() {
         return $this->_property;
     }
 
-    protected function buildReturnDocBlockStatement()
-    {
+    protected function buildReturnDocBlockStatement() {
         $property = $this->getProperty();
 
         return sprintf(

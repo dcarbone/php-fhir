@@ -24,8 +24,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class PropertyParameterTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\Parameter
  */
-class PropertyParameterTemplate extends BaseParameterTemplate
-{
+class PropertyParameterTemplate extends BaseParameterTemplate {
     /** @var BasePropertyTemplate */
     private $_property;
 
@@ -42,16 +41,14 @@ class PropertyParameterTemplate extends BaseParameterTemplate
     /**
      * @return BasePropertyTemplate
      */
-    public function getProperty()
-    {
+    public function getProperty() {
         return $this->_property;
     }
 
     /**
      * @return string
      */
-    public function getParamDocBlockFragment()
-    {
+    public function getParamDocBlockFragment() {
         $property = $this->getProperty();
 
         return sprintf(
