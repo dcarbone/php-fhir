@@ -64,7 +64,30 @@ abstract class MethodGenerator {
      */
     public static function implementMethodsForProperty(Config $config, ClassTemplate $classTemplate, BasePropertyTemplate $propertyTemplate) {
         if ($propertyTemplate->requiresGetter()) {
-            $classTemplate->addMethod(self::createGetter($config, $propertyTemplate));
+            if ($propertyTemplate->getFHIRElementType() === 'ResourceContainer') {
+                $method = new BaseMethodTemplate($config, sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName())));
+                $method->setDocumentation($propertyTemplate->getDocumentation());
+                if ($propertyTemplate->isCollection()) {
+                    $classTemplate->addImport(NSUtils::generateRootNamespace($config, 'FHIRResourceContainer'));
+                    $method->addLineToBody("if (count(\$this->{$propertyTemplate->getName()}) > 0) { ");
+                    $method->addLineToBody('    $resources = [];');
+                    $method->addLineToBody("    foreach(\$this->{$propertyTemplate->getName()} as \$container) {");
+                    $method->addLineToBody('        if ($container instanceof FHIRResourceContainer) {');
+                    $method->addLineToBody('            $resources[] = $container->jsonSerialize();');
+                    $method->addLineToBody('        }');
+                    $method->addLineToBody('    }');
+                    $method->addLineToBody('    return $resources;');
+                    $method->addLineToBody('}');
+                    $method->addLineToBody('return [];');
+                    $method->setReturnValueType('array');
+                } else {
+                    $method->addLineToBody("return isset(\$this->{$propertyTemplate->getName()}) ? \$this->{$propertyTemplate->getName()}->jsonSerialize() : null;");
+                    $method->setReturnValueType('mixed');
+                }
+                $classTemplate->addMethod($method);
+            } else {
+                $classTemplate->addMethod(self::createGetter($config, $propertyTemplate));
+            }
         }
 
         if ($propertyTemplate->requireSetter()) {
