@@ -56,7 +56,9 @@ class Generator {
     public function generate() {
         $this->beforeGeneration();
 
+        $this->config->getLogger()->startBreak('Class Generation');
         foreach ($this->XSDMap as $fhirElementName => $mapEntry) {
+            $this->config->getLogger()->info("Generating class for element {$fhirElementName}...");
             $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->config, $this->XSDMap, $mapEntry);
 
             FileUtils::createDirsFromNS($classTemplate->getNamespace(), $this->config);
@@ -66,7 +68,9 @@ class Generator {
 
             $this->mapTemplate->addEntry($classTemplate);
             $this->autoloadMap->addPHPFHIRClassEntry($classTemplate);
+            $this->config->getLogger()->info("{$fhirElementName} completed.");
         }
+        $this->config->getLogger()->endBreak('Class Generation');
 
         $this->afterGeneration();
     }
@@ -81,6 +85,7 @@ class Generator {
         $this->config->getLogger()->endBreak('XSD Parsing');
 
         // Initialize some classes and things.
+        $this->config->getLogger()->startBreak('Generator Class Initialization');
         self::_initializeClasses($this->config);
 
         $this->autoloadMap = new AutoloaderTemplate($this->config);
@@ -97,6 +102,8 @@ class Generator {
             $helperTemplate->getClassName(),
             $helperTemplate->getClassPath()
         );
+
+        $this->config->getLogger()->endBreak('Generator Class Initialization');
     }
 
     /**
