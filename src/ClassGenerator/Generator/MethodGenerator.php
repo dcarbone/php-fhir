@@ -39,19 +39,80 @@ abstract class MethodGenerator {
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
     public static function implementConstructor(Config $config, ClassTemplate $classTemplate) {
-        // TODO: I don't like any of what I have here.  Do better.
+        $method = new BaseMethodTemplate($config, '__construct');
+        $param = new BaseParameterTemplate($config, 'data', 'mixed', '[]');
+        $method->addParameter($param);
+        $classTemplate->addMethod($method);
+
+        if ($classTemplate->isPrimitive()) {
+            // TODO: type-specific checking?
+            $method->addLineToBody('if (is_scalar($data)) {');
+            $method->addLineToBody('    $this->setValue($data);');
+            $method->addLineToBody('} else {');
+            $method->addLineToBody('    parent::__construct($data);');
+            $method->addLineToBody('}');
+        } else if ('ResourceContainer' === $classTemplate->getElementName()) {
+            $method->addLineToBody('if (is_object($data)) {');
+            $method->addLineToBody('    $n = ltrim(strrchr(get_class($data)), "\\FHIR");');
+            $method->addLineToBody('    $this->{"set{$n}"}($data);');
+            $method->addLineToBody('} else if (is_array($data)) {');
+            $method->addLineToBody('    if (($cnt = count($data)) > 1) {');
+            $method->addLineToBody('        throw new \\InvalidArgumentException("ResourceContainers may only contain 1 object, \"{$cnt}\" values provided");');
+            $method->addLineToBody('    } else {');
+            $method->addLineToBody('        $k = key($data);');
+            $method->addLineToBody('        $this->{"set{$k}"}($data);');
+            $method->addLineToBody('    }');
+            $method->addLineToBody('} else if (null !== $data) {');
+            $method->addLineToBody('    throw new \\InvalidArgumentException(\'$data expected to be object or array, saw \'.gettype($data));');
+            $method->addLineToBody('}');
+        } else {
+            $collections = [];
+            foreach ($classTemplate->getProperties() as $property) {
+                if ($property->isCollection()) {
+                    $collections[] = $property->getName();
+                }
+            }
+            $method->addLineToBody('if (is_array($data)) {');
+            foreach ($classTemplate->getProperties() as $name => $property) {
+                if (0 === strpos($name, '_')) {
+                    continue;
+                }
+                $method->addLineToBody('    if (isset($data[\'' . $name . '\'])) {');
+                if (in_array($name, $collections, true)) {
+                    $method->addLineToBody('        if (is_array($data[\''.$name.'\'])) {');
+                    $method->addLineToBody('            foreach($data[\''.$name.'\'] as $d) {');
+                    $method->addLineToBody('                $this->add' . ucfirst($name) . '($d);');
+                    $method->addLineToBody('            }');
+                    $method->addLineToBody('        } else {');
+                    $method->addLineToBody('            throw new \\InvalidArgumentException(\'"'.$name.'" must be array of objects or null, \'.gettype($data[\''.$name.'\']).\' seen.\');');
+                    $method->addLineToBody('        }');
+                } else {
+                    $method->addLineToBody('        $this->set' . ucfirst($name) . '($data[\'' . $name . '\']);');
+                }
+                $method->addLineToBody('    }');
+            }
+            $method->addLineToBody('} else if (null !== $data) {');
+            $method->addLineToBody('    throw new \\InvalidArgumentException(\'$data expected to be array of values, saw "\'.gettype($data).\'"\');');
+            $method->addLineToBody('}');
+            if ($classTemplate->getExtendedElementMapEntry()) {
+                $method->addLineToBody('parent::__construct($data);');
+            }
+        }
+
 //        if ($classTemplate->hasProperty('value')) {
-//            $method = new BaseMethodTemplate($config, '__construct');
-//            $param = new BaseParameterTemplate($config, 'data', 'mixed', '[]');
-//
+//            $method->addLineToBody('')
 //        }
 //        $method->addParameter($param);
 //        if ($classTemplate->getXSDMapEntry()->getExtendedMapEntry()) {
 //            $method->addLineToBody('parent::__construct($data);');
 //        }
-//        foreach($classTemplate->getProperties() as $property) {
-//            $method->addLineToBody('if (isset($data[\''.$property->getName().'\'])) {');
-//            $method->addLineToBody('    $this->'.$property->getName().' = $data[\''.$property->getName().'\'];');
+//        foreach ($classTemplate->getProperties() as $property) {
+//            $method->addLineToBody('if (isset($data[\'' . $property->getName() . '\'])) {');
+//            $method->addLineToBody('    $this->' .
+//                $property->getName() .
+//                ' = $data[\'' .
+//                $property->getName() .
+//                '\'];');
 //            $method->addLineToBody('}');
 //        }
 //        $classTemplate->addMethod($method);
@@ -62,10 +123,13 @@ abstract class MethodGenerator {
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public static function implementMethodsForProperty(Config $config, ClassTemplate $classTemplate, BasePropertyTemplate $propertyTemplate) {
+    public static function implementMethodsForProperty(Config $config,
+                                                       ClassTemplate $classTemplate,
+                                                       BasePropertyTemplate $propertyTemplate) {
         if ($propertyTemplate->requiresGetter()) {
             if ($propertyTemplate->getFHIRElementType() === 'ResourceContainer') {
-                $method = new BaseMethodTemplate($config, sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName())));
+                $method = new BaseMethodTemplate($config,
+                    sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName())));
                 $method->setDocumentation($propertyTemplate->getDocumentation());
                 if ($propertyTemplate->isCollection()) {
                     $classTemplate->addImport(NSUtils::generateRootNamespace($config, 'FHIRResourceContainer'));

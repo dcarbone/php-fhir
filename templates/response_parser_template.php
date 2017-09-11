@@ -118,13 +118,14 @@ class PHPFHIRResponseParser
      * @param string \$fhirElementName
      * @return mixed
      */
-    private function _parseJsonObject(\$jsonEntry, \$fhirElementName)
-    {
-        if ('html' === \$fhirElementName)
+    private function _parseJsonObject(\$jsonEntry, \$fhirElementName) {
+        if ('html' === \$fhirElementName) {
             return \$jsonEntry;
+        }
 
-        if (false !== strpos(\$fhirElementName, '-primitive') || false !== strpos(\$fhirElementName, '-list'))
+        if (false !== strpos(\$fhirElementName, '-primitive') || false !== strpos(\$fhirElementName, '-list')) {
             return \$jsonEntry;
+        }
 
         \$map = \$this->_tryGetMapEntry(\$fhirElementName);
 
@@ -134,21 +135,18 @@ class PHPFHIRResponseParser
         \$object = new \$fullClassName;
 
         // This indicates we are at a primitive value...
-        if (is_scalar(\$jsonEntry))
-        {
-            if (isset(\$properties['value']))
-            {
+        if (is_scalar(\$jsonEntry)) {
+            if (isset(\$properties['value'])) {
                 \$propertyMap = \$properties['value'];
                 \$setter = \$propertyMap['setter'];
                 \$element = \$propertyMap['element'];
 
-                if (sprintf('%%s-primitive', \$fhirElementName) === \$element || sprintf('%%s-list', \$fhirElementName) === \$element)
+                if (sprintf('%%s-primitive', \$fhirElementName) === \$element || sprintf('%%s-list', \$fhirElementName) === \$element) {
                     \$object->\$setter(\$jsonEntry);
-                else
+                } else {
                     \$this->_triggerPropertyNotFoundError(\$fhirElementName, 'value');
-            }
-            else
-            {
+                }
+            } else {
                 \$this->_triggerPropertyNotFoundError(\$fhirElementName, 'value');
             }
         }

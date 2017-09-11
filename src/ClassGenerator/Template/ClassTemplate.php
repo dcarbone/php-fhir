@@ -277,6 +277,13 @@ class ClassTemplate extends AbstractTemplate {
     }
 
     /**
+     * @return bool
+     */
+    public function isPrimitive() {
+        return $this->hasProperty('value') && $this->getProperty('value')->isPrimitive();
+    }
+
+    /**
      * @return string
      */
     public function compileTemplate() {

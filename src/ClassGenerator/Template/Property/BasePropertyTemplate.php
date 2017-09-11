@@ -235,7 +235,7 @@ class BasePropertyTemplate extends AbstractTemplate {
             ($this->isCollection() ? '[]' : ''),
             (string)$this->getScope(),
             NameUtils::getPropertyVariableName($this->getName()),
-            ($this->isCollection() ? 'array()' : $this->determineDefaultValueOutput())
+            ($this->isCollection() ? '[]' : $this->determineDefaultValueOutput())
         );
     }
 

@@ -44,11 +44,11 @@ class ParserMapTemplate extends AbstractPHPFHIRClassTemplate {
         $fhirElementName = $classTemplate->getElementName();
 
         $extendedMapEntry = $classTemplate->getExtendedElementMapEntry();
-        $this->_bigDumbMap[$fhirElementName] = array(
+        $this->_bigDumbMap[$fhirElementName] = [
             'fullClassName' => $classTemplate->compileFullyQualifiedClassName(true),
             'extendedElementName' => $extendedMapEntry ? $extendedMapEntry->getFHIRElementName() : null,
-            'properties' => array()
-        );
+            'properties' => []
+        ];
 
         foreach ($classTemplate->getMethods() as $method) {
             if ($method instanceof SetterMethodTemplate) {

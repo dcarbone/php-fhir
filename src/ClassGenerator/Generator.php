@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
+use DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\XSDMapGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\HelperTemplate;
@@ -58,17 +59,18 @@ class Generator {
 
         $this->config->getLogger()->startBreak('Class Generation');
         foreach ($this->XSDMap as $fhirElementName => $mapEntry) {
-            $this->config->getLogger()->info("Generating class for element {$fhirElementName}...");
+            $this->config->getLogger()->debug("Generating class for element {$fhirElementName}...");
             $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->config, $this->XSDMap, $mapEntry);
 
             FileUtils::createDirsFromNS($classTemplate->getNamespace(), $this->config);
 
             // Generate class file
+            MethodGenerator::implementConstructor($this->config, $classTemplate);
             $classTemplate->writeToFile($this->config->getOutputPath());
 
             $this->mapTemplate->addEntry($classTemplate);
             $this->autoloadMap->addPHPFHIRClassEntry($classTemplate);
-            $this->config->getLogger()->info("{$fhirElementName} completed.");
+            $this->config->getLogger()->debug("{$fhirElementName} completed.");
         }
         $this->config->getLogger()->endBreak('Class Generation');
 
