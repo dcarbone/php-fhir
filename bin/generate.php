@@ -20,21 +20,29 @@ use DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 date_default_timezone_set('UTC');
 require __DIR__ . '/../vendor/autoload.php';
+
 $config = require __DIR__.'/config.php';
+$schemaPath = realpath(trim($config['schemaPath']));
+$classesPath = realpath(trim($config['classesPath']));
+$versions = $config['versions'];
 
-// Empty output directory
-exec('rm -rf ' . $config['classesPath'] . '/HL7');
+// Empty output root directory
+exec('rm -rf ' . $classesPath . DIRECTORY_SEPARATOR. 'HL7');
 
-foreach ($config['versions'] as $name => $version) {
+foreach ($versions as $name => $version) {
+
+    $url = $version['url'];
+    $namespace = $version['namespace'];
+    $name = trim($name);
 
     // Download zip files
-    echo 'Downloading ' . $name . ' from ' . $version['url'] . PHP_EOL;
-    copy($version['url'], $config['schemaPath'] . '/' . $name . '.zip');
+    echo 'Downloading ' . $name . ' from ' . $url . PHP_EOL;
+    copy($url, $schemaPath . DIRECTORY_SEPARATOR . $name . '.zip');
 
     // Download/extract ZIP file
     $zip = new ZipArchive;
 
-    $schemaDir = $config['schemaPath'] . '/' . $name;
+    $schemaDir = $schemaPath . DIRECTORY_SEPARATOR . $name;
     $res = $zip->open($schemaDir . '.zip');
 
     if (is_dir($schemaDir)) {
@@ -47,8 +55,8 @@ foreach ($config['versions'] as $name => $version) {
     $zip->extractTo($schemaDir);
     $zip->close();
 
-    echo 'Generating ' . $name . PHP_EOL;
-    $generator = new Generator($schemaDir, $config['classesPath'], $version['namespace']);
+    echo 'Generating ' . $name .' into '.$schemaDir.PHP_EOL;
+    $generator = new Generator($schemaDir, $classesPath, $namespace);
     $generator->generate();
 }
 
