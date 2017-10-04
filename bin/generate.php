@@ -16,18 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 use DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 date_default_timezone_set('UTC');
 require __DIR__ . '/../vendor/autoload.php';
 
-$config = require __DIR__.'/config.php';
+$config = require __DIR__ . '/config.php';
 $schemaPath = realpath(trim($config['schemaPath']));
 $classesPath = realpath(trim($config['classesPath']));
 $versions = $config['versions'];
 
-// Empty output root directory
-exec('rm -rf ' . $classesPath . DIRECTORY_SEPARATOR. 'HL7');
+$existsMsg = ' already exists, please remove it before running generator';
+
+if (is_dir($classesPath . DIRECTORY_SEPARATOR . 'HL7')) {
+    die('Target subdirectory output/HL7'.$existsMsg);
+}
 
 foreach ($versions as $name => $version) {
 
@@ -37,7 +41,13 @@ foreach ($versions as $name => $version) {
 
     // Download zip files
     echo 'Downloading ' . $name . ' from ' . $url . PHP_EOL;
-    copy($url, $schemaPath . DIRECTORY_SEPARATOR . $name . '.zip');
+    $zipFileName = $schemaPath . DIRECTORY_SEPARATOR . $name . '.zip';
+
+    if (file_exists($zipFileName)) {
+        die('Zipfile ' . $zipFileName . $existsMsg);
+    }
+
+    copy($url, $zipFileName);
 
     // Download/extract ZIP file
     $zip = new ZipArchive;
@@ -46,7 +56,7 @@ foreach ($versions as $name => $version) {
     $res = $zip->open($schemaDir . '.zip');
 
     if (is_dir($schemaDir)) {
-        exec('rm -rf ' . $schemaDir);
+        die('Source subdirectory ' . $schemaDir . $existsMsg);
     }
 
     mkdir($schemaDir, 0777, true);
@@ -55,7 +65,7 @@ foreach ($versions as $name => $version) {
     $zip->extractTo($schemaDir);
     $zip->close();
 
-    echo 'Generating ' . $name .' into '.$schemaDir.PHP_EOL;
+    echo 'Generating ' . $name . ' into ' . $schemaDir . PHP_EOL;
     $generator = new Generator($schemaDir, $classesPath, $namespace);
     $generator->generate();
 }

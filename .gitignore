@@ -13,5 +13,3 @@ composer.lock
 /.svn
 /serialized.json
 /curl.json
-/input/**
-/output/**
