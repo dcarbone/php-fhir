@@ -1,11 +1,5 @@
-/curl.xml
-/serialized.xml
-/out.json
-/parse.php
-/index.php
-composer.phar
-vendor/
-composer.lock
+/vendor
+/composer.lock
 /tmp
 /class.Diff.php
 *.iml
@@ -13,3 +7,5 @@ composer.lock
 /.svn
 /serialized.json
 /curl.json
+/*.iml
+/.idea

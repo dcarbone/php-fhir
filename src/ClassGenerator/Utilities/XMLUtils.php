@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,21 @@
  * Class XMLUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class XMLUtils
-{
+abstract class XMLUtils {
     /**
      * @param \SimpleXMLElement $extensionElement
      * @return null|string
      */
-    public static function getBaseFHIRElementNameFromExtension(\SimpleXMLElement $extensionElement)
-    {
-        if ('extension' !== $extensionElement->getName())
-        {
+    public static function getBaseFHIRElementNameFromExtension(\SimpleXMLElement $extensionElement) {
+        if ('extension' !== $extensionElement->getName()) {
             $xpath = $extensionElement->xpath('xs:complexContent/xs:extension');
-            if (0 === count($xpath))
+            if (0 === count($xpath)) {
                 $xpath = $extensionElement->xpath('xs:extension');
+            }
 
-            if (0 === count($xpath))
+            if (0 === count($xpath)) {
                 return null;
+            }
 
             $extensionElement = $xpath[0];
         }
@@ -48,24 +47,25 @@ abstract class XMLUtils
      * @param \SimpleXMLElement $restrictionElement
      * @return null|string
      */
-    public static function getBaseFHIRElementNameFromRestriction(\SimpleXMLElement $restrictionElement)
-    {
-        if ('restriction' !== $restrictionElement->getName())
-        {
+    public static function getBaseFHIRElementNameFromRestriction(\SimpleXMLElement $restrictionElement) {
+        if ('restriction' !== $restrictionElement->getName()) {
             $xpath = $restrictionElement->xpath('xs:complexContent/xs:restriction');
-            if (0 === count($xpath))
+            if (0 === count($xpath)) {
                 $xpath = $restrictionElement->xpath('xs:restriction');
+            }
 
-            if (0 === count($xpath))
+            if (0 === count($xpath)) {
                 return null;
+            }
 
             $restrictionElement = $xpath[0];
         }
 
         $attributes = $restrictionElement->attributes();
 
-        if (isset($attributes['base']))
+        if (isset($attributes['base'])) {
             return (string)$attributes['base'];
+        }
 
         return null;
     }
@@ -74,12 +74,12 @@ abstract class XMLUtils
      * @param \SimpleXMLElement $sxe
      * @return null|string
      */
-    public static function getObjectNameFromElement(\SimpleXMLElement $sxe)
-    {
+    public static function getObjectNameFromElement(\SimpleXMLElement $sxe) {
         $attributes = $sxe->attributes();
 
-        if ($name = $attributes['name'])
+        if ($name = $attributes['name']) {
             return (string)$name;
+        }
 
         return null;
     }
@@ -88,11 +88,11 @@ abstract class XMLUtils
      * @param \SimpleXMLElement $parent
      * @return null|\SimpleXMLElement
      */
-    public static function getAnnotationElement(\SimpleXMLElement $parent)
-    {
+    public static function getAnnotationElement(\SimpleXMLElement $parent) {
         $annotation = $parent->xpath('xs:annotation');
-        if (1 === count($annotation))
+        if (1 === count($annotation)) {
             return $annotation[0];
+        }
 
         return null;
     }
@@ -101,22 +101,23 @@ abstract class XMLUtils
      * @param \SimpleXMLElement $annotation
      * @return null|string|array
      */
-    public static function getDocumentation(\SimpleXMLElement $annotation)
-    {
-        if ('annotation' !== $annotation->getName())
+    public static function getDocumentation(\SimpleXMLElement $annotation) {
+        if ('annotation' !== $annotation->getName()) {
             $annotation = self::getAnnotationElement($annotation);
+        }
 
-        if (null === $annotation)
+        if (null === $annotation) {
             return null;
+        }
 
         $documentation = $annotation->xpath('xs:documentation');
 
-        if (0 === count($documentation))
+        if (0 === count($documentation)) {
             return null;
+        }
 
         $return = array();
-        foreach($documentation as $element)
-        {
+        foreach ($documentation as $element) {
             $return[] = (string)$element;
         }
         return $return;

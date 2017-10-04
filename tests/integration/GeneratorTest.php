@@ -19,7 +19,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
 
         $generator->generate();
 
-        $generatedFHIRMoneyClassPath = sprintf('%s/output/PHPFHIRGenerated/FHIRMoney.php', $rootDirectory);
+        $generatedFHIRMoneyClassPath = sprintf('%s/output/PHPFHIRGenerated/FHIRElement/FHIRQuantity/FHIRMoney.php', $rootDirectory);
         $expectedFHIRMoneyClassPath = sprintf('%s/tests/integration/expected/FHIRMoney.php', $rootDirectory);
 
         $this->assertFileExists($generatedFHIRMoneyClassPath);
@@ -44,7 +44,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
 
         $generator->generate();
 
-        $generatedFHIRMoneyClassPath = sprintf('%s/output/PHPFHIRGenerated/FHIRMoney.php', $rootDirectory);
+        $generatedFHIRMoneyClassPath = sprintf('%s/output/PHPFHIRGenerated/FHIRElement/FHIRQuantity/FHIRMoney.php', $rootDirectory);
         $expectedFHIRMoneyClassPath = sprintf('%s/tests/integration/expected/FHIRMoneyIdAsAttribute.php', $rootDirectory);
 
         $this->assertFileExists($generatedFHIRMoneyClassPath);

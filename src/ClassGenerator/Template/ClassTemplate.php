@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,209 +28,227 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
  * Class ClassTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-class ClassTemplate extends AbstractTemplate
-{
+class ClassTemplate extends AbstractTemplate {
     /** @var string */
-    private $_elementName;
+    private $elementName;
 
-    /** @var ComplexClassTypesEnum|null */
-    private $_classType;
-
-    /** @var string */
-    private $_className;
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum|null */
+    private $classType;
 
     /** @var string */
-    private $_namespace;
+    private $className;
 
-    /** @var XSDMapEntry */
-    private $_extendedElementMapEntry = null;
+    /** @var string */
+    private $namespace;
+
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry */
+    private $extendedElementMapEntry = null;
 
     /** @var array */
-    private $_implementedInterfaces = array();
+    private $implementedInterfaces = [];
 
-    /** @var BasePropertyTemplate[] */
-    private $_properties = array();
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate[] */
+    private $properties = [];
 
-    /** @var BaseMethodTemplate[] */
-    private $_methods = array();
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate[] */
+    private $methods = [];
+
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry */
+    private $XSDMapEntry;
+
+    /** @var array */
+    private $imports = [];
 
     /**
-     * Constructor
-     *
+     * ClassTemplate constructor.
      * @param string $fhirElementName
      * @param string $className
      * @param string $namespace
-     * @param ComplexClassTypesEnum $classType
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $XSDMapEntry
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum|null $classType
      */
     public function __construct($fhirElementName,
                                 $className,
                                 $namespace,
-                                ComplexClassTypesEnum $classType = null)
-    {
-        if (NameUtils::isValidClassName($className))
-            $this->_className = $className;
-        else
-            throw new \InvalidArgumentException('Class Name "'.$className.'" is not valid.');
+                                XSDMapEntry $XSDMapEntry,
+                                ComplexClassTypesEnum $classType = null) {
+        if (NameUtils::isValidClassName($className)) {
+            $this->className = $className;
+        } else {
+            throw new \InvalidArgumentException('Class Name "' . $className . '" is not valid.');
+        }
 
-        if (NameUtils::isValidNSName($namespace))
-            $this->_namespace = $namespace;
-        else
+        if (NameUtils::isValidNSName($namespace)) {
+            $this->namespace = $namespace;
+        } else {
             throw new \InvalidArgumentException('Namespace "' . $namespace . '" is not valid.');
+        }
 
-        $this->_elementName = $fhirElementName;
-        $this->_classType = $classType;
+        $this->elementName = $fhirElementName;
+        $this->classType = $classType;
+
+        $this->XSDMapEntry = $XSDMapEntry;
     }
 
     /**
      * @return string
      */
-    public function getElementName()
-    {
-        return $this->_elementName;
+    public function getElementName() {
+        return $this->elementName;
     }
 
     /**
      * @return string
      */
-    public function getNamespace()
-    {
-        return $this->_namespace;
+    public function getNamespace() {
+        return $this->namespace;
     }
 
     /**
      * @return string
      */
-    public function getClassName()
-    {
-        return $this->_className;
+    public function getClassName() {
+        return $this->className;
     }
 
     /**
-     * @return ComplexClassTypesEnum|null
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum|null
      */
-    public function getClassType()
-    {
-        return $this->_classType;
+    public function getClassType() {
+        return $this->classType;
     }
 
     /**
-     * @param XSDMapEntry $mapEntry
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
      */
-    public function setExtendedElementMapEntry(XSDMapEntry $mapEntry)
-    {
-        $this->_extendedElementMapEntry = $mapEntry;
+    public function setExtendedElementMapEntry(XSDMapEntry $mapEntry) {
+        $this->extendedElementMapEntry = $mapEntry;
+        $this->XSDMapEntry->setExtendedMapEntry($mapEntry);
     }
 
     /**
-     * @return XSDMapEntry
+     * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry
      */
-    public function getExtendedElementMapEntry()
-    {
-        return $this->_extendedElementMapEntry;
+    public function getExtendedElementMapEntry() {
+        return $this->extendedElementMapEntry;
     }
 
     /**
      * @return string[]
      */
-    public function getImplementedInterfaces()
-    {
-        return $this->_implementedInterfaces;
+    public function getImplementedInterfaces() {
+        return $this->implementedInterfaces;
     }
 
     /**
      * @param string $interface
      */
-    public function addImplementedInterface($interface)
-    {
-        if (!in_array($interface, $this->_implementedInterfaces, true))
-            $this->_implementedInterfaces[] = $interface;
+    public function addImplementedInterface($interface) {
+        if (!in_array($interface, $this->implementedInterfaces, true)) {
+            $this->implementedInterfaces[] = $interface;
+        }
     }
 
     /**
      * @param string $interface
      * @return bool
      */
-    public function implementsInterface($interface)
-    {
-        return in_array($interface, $this->_implementedInterfaces, true);
+    public function implementsInterface($interface) {
+        return in_array($interface, $this->implementedInterfaces, true);
     }
 
     /**
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate[]
      */
-    public function getProperties()
-    {
-        return $this->_properties;
+    public function getProperties() {
+        return $this->properties;
     }
 
     /**
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate[]
      */
-    public function getMethods()
-    {
-        return $this->_methods;
+    public function getMethods() {
+        return $this->methods;
     }
 
     /**
      * @param BasePropertyTemplate $property
      */
-    public function addProperty(BasePropertyTemplate $property)
-    {
-        $this->_properties[$property->getName()] = $property;
+    public function addProperty(BasePropertyTemplate $property) {
+        $this->XSDMapEntry->addProperty($property->getName(), $property->getFHIRElementType());
+        $this->properties[$property->getName()] = $property;
     }
 
     /**
      * @param string $name
      * @return bool
      */
-    public function hasProperty($name)
-    {
-        return isset($this->_properties[$name]);
+    public function hasProperty($name) {
+        return isset($this->properties[$name]);
     }
 
     /**
      * @param string $name
-     * @return BasePropertyTemplate
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate
      */
-    public function getProperty($name)
-    {
-        return $this->_properties[$name];
+    public function getProperty($name) {
+        return isset($this->properties[$name]) ? $this->properties[$name] : null;
     }
 
     /**
-     * @param BaseMethodTemplate $method
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate $method
      */
-    public function addMethod(BaseMethodTemplate $method)
-    {
-        $this->_methods[$method->getName()] = $method;
+    public function addMethod(BaseMethodTemplate $method) {
+        $this->methods[$method->getName()] = $method;
     }
 
     /**
      * @param string $name
      * @return bool
      */
-    public function hasMethod($name)
-    {
-        return isset($this->_methods[$name]);
+    public function hasMethod($name) {
+        return isset($this->methods[$name]);
     }
 
     /**
      * @param string $name
-     * @return BaseMethodTemplate
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate
      */
-    public function getMethod($name)
-    {
-        return $this->_methods[$name];
+    public function getMethod($name) {
+        return isset($this->methods[$name]) ? $this->methods[$name] : null;
+    }
+
+    /**
+     * @return XSDMapEntry
+     */
+    public function getXSDMapEntry() {
+        return $this->XSDMapEntry;
+    }
+
+    /**
+     * Add a specific name (class, interface, etc.) to the use statements
+     *
+     * @param string $name
+     */
+    public function addImport($name) {
+        $this->imports[] = $name;
+    }
+
+    /**
+     * @return array
+     */
+    public function getImports() {
+        return $this->imports;
     }
 
     /**
      * @param bool|true $leadingSlashes
      * @return string
      */
-    public function compileFullyQualifiedClassName($leadingSlashes = true)
-    {
-        if ($leadingSlashes)
+    public function compileFullyQualifiedClassName($leadingSlashes = true) {
+        if ($leadingSlashes) {
             return sprintf('\\%s\\%s', $this->getNamespace(), $this->getClassName());
+        }
 
         return sprintf('%s\\%s', $this->getNamespace(), $this->getClassName());
     }
@@ -239,8 +257,7 @@ class ClassTemplate extends AbstractTemplate
      * @param string $outputPath
      * @return bool
      */
-    public function writeToFile($outputPath)
-    {
+    public function writeToFile($outputPath) {
         return (bool)file_put_contents(
             $this->compileFullOutputPath($outputPath),
             $this->compileTemplate()
@@ -251,8 +268,7 @@ class ClassTemplate extends AbstractTemplate
      * @param string $outputPath
      * @return string
      */
-    public function compileFullOutputPath($outputPath)
-    {
+    public function compileFullOutputPath($outputPath) {
         return sprintf('%s/%s/%s.php',
             $outputPath,
             FileUtils::buildDirPathFromNS($this->getNamespace()),
@@ -261,15 +277,22 @@ class ClassTemplate extends AbstractTemplate
     }
 
     /**
+     * @return bool
+     */
+    public function isPrimitive() {
+        return $this->hasProperty('value') && $this->getProperty('value')->isPrimitive();
+    }
+
+    /**
      * @return string
      */
-    public function compileTemplate()
-    {
+    public function compileTemplate() {
         $ns = $this->getNamespace();
-        if ('' === $ns)
+        if ('' === $ns) {
             $output = "<?php\n\n";
-        else
+        } else {
             $output = sprintf("<?php namespace %s;\n\n", $ns);
+        }
 
         $output = sprintf(
             "%s%s\n\n%s",
@@ -278,11 +301,11 @@ class ClassTemplate extends AbstractTemplate
             $this->_compileUseStatements()
         );
 
-        if ("\n\n" !== substr($output, -2))
+        if ("\n\n" !== substr($output, -2)) {
             $output = sprintf("%s\n", $output);
+        }
 
-        if (isset($this->documentation) && count($this->documentation) > 0)
-        {
+        if (isset($this->documentation) && count($this->documentation) > 0) {
             $output = sprintf(
                 "%s/**\n%s */\n",
                 $output,
@@ -290,17 +313,14 @@ class ClassTemplate extends AbstractTemplate
             );
         }
 
-        if ($this->_extendedElementMapEntry)
-        {
+        if ($this->extendedElementMapEntry) {
             $output = sprintf(
                 '%sclass %s extends %s',
                 $output,
                 $this->getClassName(),
-                $this->_extendedElementMapEntry->getClassName()
+                $this->extendedElementMapEntry->getClassName()
             );
-        }
-        else
-        {
+        } else {
             $output = sprintf(
                 '%sclass %s',
                 $output,
@@ -308,29 +328,25 @@ class ClassTemplate extends AbstractTemplate
             );
         }
 
-        if (count($this->_implementedInterfaces) > 0)
-        {
+        if (count($this->implementedInterfaces) > 0) {
             $interfaces = array();
-            foreach($this->_implementedInterfaces as $interface)
-            {
-                if (0 === strpos($interface, '\\') && 1 === substr_count($interface, '\\'))
+            foreach ($this->implementedInterfaces as $interface) {
+                if (0 === strpos($interface, '\\') && 1 === substr_count($interface, '\\')) {
                     $interfaces[] = $interface;
-                else
+                } else {
                     $interfaces[] = ltrim(substr($interface, strrpos($interface, '\\')), '\\');
+                }
             }
-
             $output = sprintf('%s implements %s', $output, implode(', ', $interfaces));
         }
 
         $output = sprintf("%s\n{\n", $output);
 
-        foreach($this->getProperties() as $property)
-        {
+        foreach ($this->getProperties() as $property) {
             $output = sprintf('%s%s', $output, (string)$property);
         }
 
-        foreach($this->getMethods() as $method)
-        {
+        foreach ($this->getMethods() as $method) {
             $output = sprintf('%s%s', $output, (string)$method);
         }
 
@@ -340,28 +356,24 @@ class ClassTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    private function _compileUseStatements()
-    {
+    private function _compileUseStatements() {
         $useStatement = '';
 
-        $thisClassname = $this->compileFullyQualifiedClassName();
+        $thisClassName = $this->compileFullyQualifiedClassName();
         $thisNamespace = $this->getNamespace();
 
-        $usedClasses = array();
-        if ($this->_extendedElementMapEntry)
-        {
-            $usedClasses[] = sprintf(
+        $imports = array();
+        if ($this->extendedElementMapEntry) {
+            $imports[] = sprintf(
                 '%s\\%s',
-                $this->_extendedElementMapEntry->namespace,
-                $this->_extendedElementMapEntry->className
+                $this->extendedElementMapEntry->namespace,
+                $this->extendedElementMapEntry->className
             );
         }
 
-        if (count($this->_implementedInterfaces) > 0)
-        {
-            foreach($this->_implementedInterfaces as $interface)
-            {
-                $usedClasses[] = $interface;
+        if (count($this->implementedInterfaces) > 0) {
+            foreach ($this->implementedInterfaces as $interface) {
+                $imports[] = $interface;
             }
         }
 
@@ -375,21 +387,27 @@ class ClassTemplate extends AbstractTemplate
 //            $usedClasses[] = $type;
 //        }
 
-        $usedClasses = array_count_values($usedClasses);
-        ksort($usedClasses);
+        $imports = array_count_values(array_merge($this->getImports(), $imports));
+        ksort($imports);
 
-        foreach($usedClasses as $usedClass=>$timesImported)
-        {
-            // Don't use yourself, dog...
-            if ($usedClass === $thisClassname)
+        foreach ($imports as $name => $timesImported) {
+            // Don't import base namespace things.
+            if (0 === strpos($name, '\\') && 1 === substr_count($name, '\\')) {
                 continue;
+            }
+
+            // Don't use yourself, dog...
+            if ($name === $thisClassName) {
+                continue;
+            }
 
             // If this class is already in the same namespace as this one...
-            $remainder = str_replace(array($thisNamespace, '\\'), '', $usedClass);
-            if (basename($usedClass) === $remainder)
+            $remainder = str_replace(array($thisNamespace, '\\'), '', $name);
+            if (basename($name) === $remainder) {
                 continue;
+            }
 
-            $useStatement = sprintf("%suse %s;\n", $useStatement, ltrim($usedClass, "\\"));
+            $useStatement = sprintf("%suse %s;\n", $useStatement, ltrim($name, "\\"));
         }
 
         return $useStatement;

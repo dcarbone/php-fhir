@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -24,8 +25,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class AbstractPHPFHIRClassTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR
  */
-abstract class AbstractPHPFHIRClassTemplate extends AbstractTemplate
-{
+abstract class AbstractPHPFHIRClassTemplate extends AbstractTemplate {
     /** @var string */
     protected $class;
 
@@ -41,21 +41,17 @@ abstract class AbstractPHPFHIRClassTemplate extends AbstractTemplate
     protected $className;
 
     /**
-     * @param string $outputPath
-     * @param string $outputNamespace
+     * AbstractPHPFHIRClassTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param string $class
      */
-    public function __construct($outputPath, $outputNamespace, $class)
-    {
-        $this->outputPath = rtrim($outputPath, "\\/");
-        $this->outputNamespace = $outputNamespace;
+    public function __construct(Config $config, $class) {
+        $this->outputPath = rtrim($config->getOutputPath(), "\\/");
+        $this->outputNamespace = $config->getOutputNamespace();
 
-        if (NameUtils::isValidClassName($class))
-        {
+        if (NameUtils::isValidClassName($class)) {
             $this->class = $class;
-        }
-        else
-        {
+        } else {
             throw new \RuntimeException(
                 sprintf(
                     '%s::__construct - Specified invalid class name %s.',
@@ -78,24 +74,21 @@ abstract class AbstractPHPFHIRClassTemplate extends AbstractTemplate
     /**
      * @return string
      */
-    public function getClassPath()
-    {
+    public function getClassPath() {
         return $this->classPath;
     }
 
     /**
      * @return string
      */
-    public function getClassName()
-    {
+    public function getClassName() {
         return $this->className;
     }
 
     /**
      * @return bool
      */
-    public function writeToFile()
-    {
+    public function writeToFile() {
         return (bool)file_put_contents(
             $this->classPath,
             $this->compileTemplate()

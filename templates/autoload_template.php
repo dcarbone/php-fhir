@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,9 @@ class PHPFHIRAutoloader
      */
     public static function register()
     {
-        if (self::\$_registered)
+        if (self::\$_registered) {
             return self::\$_registered;
+        }
         return self::\$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
     }
 
@@ -47,8 +48,13 @@ class PHPFHIRAutoloader
      */
     public static function unregister()
     {
-        self::\$_registered = !spl_autoload_unregister(array(__CLASS__, 'loadClass'));
-        return !self::\$_registered;
+        if (self::\$_registered) {
+            if (spl_autoload_unregister(array(__CLASS__, 'loadClass'))) {
+                self::\$_registered = false;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

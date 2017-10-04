@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
+
 /**
  * Class CopyrightUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class CopyrightUtils
-{
+abstract class CopyrightUtils {
     /** @var array */
     private static $_phpFHIRCopyright = array();
 
@@ -38,10 +39,9 @@ abstract class CopyrightUtils
     private static $_standardDate;
 
     /**
-     * @param string $xsdPath
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function compileCopyrights($xsdPath)
-    {
+    public static function compileCopyrights(Config $config) {
         self::$_standardDate = date('F jS, Y');
 
         self::$_phpFHIRCopyright = array(
@@ -52,7 +52,7 @@ abstract class CopyrightUtils
             '',
             'PHPFHIR Copyright:',
             '',
-            'Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)',
+            'Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)',
             '',
             'Licensed under the Apache License, Version 2.0 (the "License");',
             'you may not use this file except in compliance with the License.',
@@ -68,34 +68,38 @@ abstract class CopyrightUtils
             ''
         );
 
-        $fhirBase = sprintf('%s/fhir-base.xsd', $xsdPath);
+        $fhirBase = sprintf('%s/fhir-base.xsd', $config->getXSDPath());
+
+        $config->getLogger()->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
+
         $fh = fopen($fhirBase, 'rb');
-        if ($fh)
-        {
+        if ($fh) {
             $inComment = false;
-            while($line = fgets($fh))
-            {
+            while ($line = fgets($fh)) {
                 $line = rtrim($line);
 
-                if ('-->' === $line)
+                if ('-->' === $line) {
                     break;
+                }
 
-                if ($inComment)
+                if ($inComment) {
                     self::$_fhirCopyright[] = html_entity_decode($line);
+                }
 
-                if ('<!--' === $line)
+                if ('<!--' === $line) {
                     $inComment = true;
+                }
             }
 
             fclose($fh);
-        }
-        else
-        {
-            throw new \RuntimeException(sprintf(
+        } else {
+            $msg = sprintf(
                 '%s::compileCopyrights - Unable to open %s to extract FHIR copyright.',
                 get_called_class(),
                 $fhirBase
-            ));
+            );
+            $config->getLogger()->critical($msg);
+            throw new \RuntimeException($msg);
         }
 
         self::$_basePHPFHIRCopyrightComment = sprintf(
@@ -113,40 +117,35 @@ abstract class CopyrightUtils
     /**
      * @return array
      */
-    public static function getPHPFHIRCopyright()
-    {
+    public static function getPHPFHIRCopyright() {
         return self::$_phpFHIRCopyright;
     }
 
     /**
      * @return array
      */
-    public static function getFHIRCopyright()
-    {
+    public static function getFHIRCopyright() {
         return self::$_fhirCopyright;
     }
 
     /**
      * @return string
      */
-    public static function getBasePHPFHIRCopyrightComment()
-    {
+    public static function getBasePHPFHIRCopyrightComment() {
         return self::$_basePHPFHIRCopyrightComment;
     }
 
     /**
      * @return string
      */
-    public static function getFullPHPFHIRCopyrightComment()
-    {
+    public static function getFullPHPFHIRCopyrightComment() {
         return self::$_fullPHPFHIRCopyrightComment;
     }
 
     /**
      * @return string
      */
-    public static function getStandardDate()
-    {
+    public static function getStandardDate() {
         return self::$_standardDate;
     }
 }

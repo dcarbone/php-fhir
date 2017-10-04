@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Enum;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@ use MyCLabs\Enum\Enum;
  * Class ElementTypeEnum
  * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
-class ElementTypeEnum extends Enum
-{
+class ElementTypeEnum extends Enum {
     const COMPLEX_TYPE = 'complextype';
     const COMPLEX_CONTENT = 'complexcontent';
 

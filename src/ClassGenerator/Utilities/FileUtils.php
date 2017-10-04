@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,35 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
+
 /**
  * Class FileUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class FileUtils
-{
+abstract class FileUtils {
     /**
-     * @param string $outputPath
      * @param string $namespace
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function createDirsFromNS($outputPath, $namespace)
-    {
-        if ('\\' === $namespace)
+    public static function createDirsFromNS($namespace, Config $config) {
+        if ('\\' === $namespace) {
+            $config->getLogger()->debug('Skipping dir creation for root namespace.');
             return;
+        }
 
-        $path = rtrim(trim($outputPath), "/\\");
-        foreach(explode('\\', $namespace) as $dirName)
-        {
+        $path = rtrim(trim($config->getOutputPath()), "/\\");
+        foreach (explode('\\', $namespace) as $dirName) {
             $path = sprintf('%s/%s', $path, $dirName);
-            if (!is_dir($path))
-            {
-                $made = (bool)mkdir($path);
-                if (false === $made)
-                    throw new \RuntimeException('Unable to create directory at path "'.$path.'"');
+            if (is_dir($path)) {
+                $config->getLogger()->debug(sprintf('Directory at path "%s" already exists.', $path));
+            } else {
+                $config->getLogger()->info(sprintf('Attempting to create directory at path "%s"...', $path));
+                if (!(bool)mkdir($path)) {
+                    $msg = 'Unable to create directory at path "' . $path . '"';
+                    $config->getLogger()->critical($msg);
+                    throw new \RuntimeException($msg);
+                }
             }
         }
     }
@@ -48,8 +53,7 @@ abstract class FileUtils
      * @param string $namespace
      * @return string
      */
-    public static function buildDirPathFromNS($namespace)
-    {
-        return preg_replace(array('{[\\\]}S', '{[/]{2,}}S'), '/', trim($namespace, "\\"));
+    public static function buildDirPathFromNS($namespace) {
+        return preg_replace(['{[\\\]}S', '{[/]{2,}}S'], '/', trim($namespace, "\\"));
     }
 }

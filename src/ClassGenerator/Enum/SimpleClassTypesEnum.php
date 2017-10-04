@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Enum;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@ use MyCLabs\Enum\Enum;
  * Class SimpleClassTypesEnum
  * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
-class SimpleClassTypesEnum extends Enum
-{
+class SimpleClassTypesEnum extends Enum {
     const PRIMITIVE = 'primitive';
     const _LIST = 'list';
     const BASE = '';

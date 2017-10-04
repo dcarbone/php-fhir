@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,77 +17,62 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
+use DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\XSDMapGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\JsonSerializableInterfaceTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\HelperTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
 /**
  * Class Generator
  * @package PHPFHIR
  */
-class Generator
-{
-    /** @var string */
-    protected $outputPath;
-    /** @var string */
-    protected $outputNamespace;
+class Generator {
+
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
+    protected $config;
+
     /** @var XSDMap */
     protected $XSDMap;
 
     /** @var AutoloaderTemplate */
-    private $_autoloadMap;
+    private $autoloadMap;
     /** @var ParserMapTemplate */
-    private $_mapTemplate;
-
-    /** @var JsonSerializableInterfaceTemplate */
-    private $_jsonSerializableInterface;
+    private $mapTemplate;
 
     /**
-     * Constructor
-     *
-     * @param string $xsdPath
-     * @param null|string $outputPath
-     * @param string $outputNamespace
+     * Generator constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public function __construct($xsdPath, $outputPath = null, $outputNamespace = null)
-    {
-        // Validate our input, will throw exception if bad.
-        list($xsdPath, $outputPath, $outputNamespace) = self::_validateInput($xsdPath, $outputPath, $outputNamespace);
-
-        // Class props
-        $this->xsdPath = rtrim($xsdPath, "/\\");
-        $this->outputNamespace = trim($outputNamespace, "\\;");
-        $this->outputPath = $outputPath;
-        $this->XSDMap = XSDMapGenerator::buildXSDMap($this->xsdPath, $this->outputNamespace);
-
-        // Initialize some classes and things.
-        self::_initializeClasses($xsdPath, $outputPath, $outputNamespace);
+    public function __construct(Config $config) {
+        $this->config = $config;
     }
 
     /**
      * Generate FHIR object classes based on XSD
      */
-    public function generate()
-    {
+    public function generate() {
         $this->beforeGeneration();
 
-        foreach($this->XSDMap as $fhirElementName=>$mapEntry)
-        {
-            $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->XSDMap, $mapEntry);
+        $this->config->getLogger()->startBreak('Class Generation');
+        foreach ($this->XSDMap as $fhirElementName => $mapEntry) {
+            $this->config->getLogger()->debug("Generating class for element {$fhirElementName}...");
+            $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->config, $this->XSDMap, $mapEntry);
 
-            FileUtils::createDirsFromNS($this->outputPath, $classTemplate->getNamespace());
+            FileUtils::createDirsFromNS($classTemplate->getNamespace(), $this->config);
 
             // Generate class file
-            $classTemplate->writeToFile($this->outputPath);
+            MethodGenerator::implementConstructor($this->config, $classTemplate);
+            $classTemplate->writeToFile($this->config->getOutputPath());
 
-            $this->_mapTemplate->addEntry($classTemplate);
-            $this->_autoloadMap->addPHPFHIRClassEntry($classTemplate);
+            $this->mapTemplate->addEntry($classTemplate);
+            $this->autoloadMap->addPHPFHIRClassEntry($classTemplate);
+            $this->config->getLogger()->debug("{$fhirElementName} completed.");
         }
+        $this->config->getLogger()->endBreak('Class Generation');
 
         $this->afterGeneration();
     }
@@ -95,34 +80,43 @@ class Generator
     /**
      * Commands to run prior to class generation
      */
-    protected function beforeGeneration()
-    {
-        $this->_mapTemplate = new ParserMapTemplate($this->outputPath, $this->outputNamespace);
-        $this->_autoloadMap = new AutoloaderTemplate($this->outputPath, $this->outputNamespace);
+    protected function beforeGeneration() {
+        // Class props
+        $this->config->getLogger()->startBreak('XSD Parsing');
+        $this->XSDMap = XSDMapGenerator::buildXSDMap($this->config);
+        $this->config->getLogger()->endBreak('XSD Parsing');
 
-        $this->_autoloadMap->addEntry(
-            $this->_mapTemplate->getClassName(),
-            $this->_mapTemplate->getClassPath()
+        // Initialize some classes and things.
+        $this->config->getLogger()->startBreak('Generator Class Initialization');
+        self::_initializeClasses($this->config);
+
+        $this->autoloadMap = new AutoloaderTemplate($this->config);
+
+        $this->mapTemplate = new ParserMapTemplate($this->config);
+        $this->autoloadMap->addEntry(
+            $this->mapTemplate->getClassName(),
+            $this->mapTemplate->getClassPath()
         );
 
-        $this->_jsonSerializableInterface = new JsonSerializableInterfaceTemplate($this->outputPath, $this->outputNamespace);
-        $this->_jsonSerializableInterface->writeToFile();
-        $this->_autoloadMap->addEntry(
-            $this->_jsonSerializableInterface->getClassName(),
-            $this->_jsonSerializableInterface->getClassPath()
+        $helperTemplate = new HelperTemplate($this->config);
+        $helperTemplate->writeToFile();
+        $this->autoloadMap->addEntry(
+            $helperTemplate->getClassName(),
+            $helperTemplate->getClassPath()
         );
+
+        $this->config->getLogger()->endBreak('Generator Class Initialization');
     }
 
     /**
      * Commands to run after class generation
      */
-    protected function afterGeneration()
-    {
-        $this->_mapTemplate->writeToFile();
-        $this->_autoloadMap->writeToFile();
+    protected function afterGeneration() {
+        $this->mapTemplate->writeToFile();
+        $this->autoloadMap->writeToFile();
 
-        $responseParserTemplate = new ResponseParserTemplate($this->outputPath, $this->outputNamespace);
-        $this->_autoloadMap->addEntry(
+        $responseParserTemplate = new ResponseParserTemplate($this->config);
+        $this->autoloadMap->addEntry(
             $responseParserTemplate->getClassName(),
             $responseParserTemplate->getClassPath()
         );
@@ -130,53 +124,13 @@ class Generator
     }
 
     /**
-     * @param string $xsdPath
-     * @param string $outputPath
-     * @param string $outputNamespace
-     * @return array
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    private static function _validateInput($xsdPath, $outputPath, $outputNamespace)
-    {
-        // Bunch'o validation
-        if (false === is_dir($xsdPath))
-            throw new \RuntimeException('Unable to locate XSD dir "'.$xsdPath.'"');
+    private static function _initializeClasses(Config $config) {
+        $config->getLogger()->info('Compiling Copyrights...');
+        CopyrightUtils::compileCopyrights($config);
 
-        if (false === is_readable($xsdPath))
-            throw new \RuntimeException('This process does not have read access to directory "'.$xsdPath.'"');
-
-        if (null === $outputPath)
-            $outputPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
-
-        if (!is_dir($outputPath))
-            throw new \RuntimeException('Unable to locate output dir "'.$outputPath.'"');
-
-        if (!is_writable($outputPath))
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.', $outputPath));
-
-        if (!is_readable($outputPath))
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.', $outputPath));
-
-        if (null === $outputNamespace)
-            $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
-
-        if (false === NameUtils::isValidNSName($outputNamespace))
-            throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.', $outputNamespace));
-
-        return array($xsdPath, $outputPath, $outputNamespace);
-    }
-
-    /**
-     * @param string $xsdPath
-     * @param string $outputPath
-     * @param string $outputNamespace
-     */
-    private static function _initializeClasses($xsdPath, $outputPath, $outputNamespace)
-    {
-        // Initialize some of our static classes
-        CopyrightUtils::compileCopyrights($xsdPath);
-        ClassGenerator::init($outputNamespace);
-
-        // Create root NS dir
-        FileUtils::createDirsFromNS($outputPath, $outputNamespace);
+        $config->getLogger()->info('Creating root directory...');
+        FileUtils::createDirsFromNS($config->getOutputNamespace(), $config);
     }
 }

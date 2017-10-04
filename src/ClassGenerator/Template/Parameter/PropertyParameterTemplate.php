@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Parameter;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
@@ -23,42 +24,37 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class PropertyParameterTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\Parameter
  */
-class PropertyParameterTemplate extends BaseParameterTemplate
-{
+class PropertyParameterTemplate extends BaseParameterTemplate {
     /** @var BasePropertyTemplate */
     private $_property;
 
     /**
-     * Constructor
-     *
-     * @param BasePropertyTemplate $propertyTemplate
+     * PropertyParameterTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(BasePropertyTemplate $propertyTemplate)
-    {
-        parent::__construct($propertyTemplate->getName(), $propertyTemplate->getPHPType());
+    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate) {
+        parent::__construct($config, $propertyTemplate->getName(), $propertyTemplate->getPHPType());
         $this->_property = $propertyTemplate;
     }
 
     /**
      * @return BasePropertyTemplate
      */
-    public function getProperty()
-    {
+    public function getProperty() {
         return $this->_property;
     }
 
     /**
      * @return string
      */
-    public function getParamDocBlockFragment()
-    {
+    public function getParamDocBlockFragment() {
         $property = $this->getProperty();
 
         return sprintf(
-            '@param %s%s%s %s',
+            '@param %s%s %s',
             $property->isPrimitive() || $property->isList() ? '' : '\\',
             $property->getPHPType(),
-            $property->isCollection() ? '[]' : '',
             NameUtils::getPropertyVariableName($property->getName())
         );
     }

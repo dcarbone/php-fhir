@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
- * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
@@ -25,77 +26,165 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\PropertyParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
 
 /**
  * Class MethodGenerator
  * @package DCarbone\PHPFHIR\ClassGenerator\Generator
  */
-abstract class MethodGenerator
-{
-    /** 
-     * @var array 
-     */
-    private static $xmlSerializationAttributeOverrides = array();
+abstract class MethodGenerator {
 
     /**
-     * @param $elementName
-     * @param $propertyName
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function addXmlSerializationAttributeOverride($elementName, $propertyName)
-    {
-        self::$xmlSerializationAttributeOverrides[$elementName] = $propertyName;
+    public static function implementConstructor(Config $config, ClassTemplate $classTemplate) {
+        $method = new BaseMethodTemplate($config, '__construct');
+        $param = new BaseParameterTemplate($config, 'data', 'mixed', '[]');
+        $method->addParameter($param);
+        $classTemplate->addMethod($method);
+
+        if ($classTemplate->isPrimitive()) {
+            // TODO: type-specific checking?
+            $method->addLineToBody('if (is_scalar($data)) {');
+            $method->addLineToBody('    $this->setValue($data);');
+            $method->addLineToBody('} else {');
+            $method->addLineToBody('    parent::__construct($data);');
+            $method->addLineToBody('}');
+        } else if ('ResourceContainer' === $classTemplate->getElementName()) {
+            $method->addLineToBody('if (is_object($data)) {');
+            $method->addLineToBody('    $n = ltrim(strrchr(get_class($data)), "\\FHIR");');
+            $method->addLineToBody('    $this->{"set{$n}"}($data);');
+            $method->addLineToBody('} else if (is_array($data)) {');
+            $method->addLineToBody('    if (($cnt = count($data)) > 1) {');
+            $method->addLineToBody('        throw new \\InvalidArgumentException("ResourceContainers may only contain 1 object, \"{$cnt}\" values provided");');
+            $method->addLineToBody('    } else {');
+            $method->addLineToBody('        $k = key($data);');
+            $method->addLineToBody('        $this->{"set{$k}"}($data);');
+            $method->addLineToBody('    }');
+            $method->addLineToBody('} else if (null !== $data) {');
+            $method->addLineToBody('    throw new \\InvalidArgumentException(\'$data expected to be object or array, saw \'.gettype($data));');
+            $method->addLineToBody('}');
+        } else {
+            $collections = [];
+            foreach ($classTemplate->getProperties() as $property) {
+                if ($property->isCollection()) {
+                    $collections[] = $property->getName();
+                }
+            }
+            $method->addLineToBody('if (is_array($data)) {');
+            foreach ($classTemplate->getProperties() as $name => $property) {
+                if (0 === strpos($name, '_')) {
+                    continue;
+                }
+                $method->addLineToBody('    if (isset($data[\'' . $name . '\'])) {');
+                if (in_array($name, $collections, true)) {
+                    $method->addLineToBody('        if (is_array($data[\''.$name.'\'])) {');
+                    $method->addLineToBody('            foreach($data[\''.$name.'\'] as $d) {');
+                    $method->addLineToBody('                $this->add' . ucfirst($name) . '($d);');
+                    $method->addLineToBody('            }');
+                    $method->addLineToBody('        } else {');
+                    $method->addLineToBody('            throw new \\InvalidArgumentException(\'"'.$name.'" must be array of objects or null, \'.gettype($data[\''.$name.'\']).\' seen.\');');
+                    $method->addLineToBody('        }');
+                } else {
+                    $method->addLineToBody('        $this->set' . ucfirst($name) . '($data[\'' . $name . '\']);');
+                }
+                $method->addLineToBody('    }');
+            }
+            $method->addLineToBody('} else if (null !== $data) {');
+            $method->addLineToBody('    throw new \\InvalidArgumentException(\'$data expected to be array of values, saw "\'.gettype($data).\'"\');');
+            $method->addLineToBody('}');
+            if ($classTemplate->getExtendedElementMapEntry()) {
+                $method->addLineToBody('parent::__construct($data);');
+            }
+        }
+
+//        if ($classTemplate->hasProperty('value')) {
+//            $method->addLineToBody('')
+//        }
+//        $method->addParameter($param);
+//        if ($classTemplate->getXSDMapEntry()->getExtendedMapEntry()) {
+//            $method->addLineToBody('parent::__construct($data);');
+//        }
+//        foreach ($classTemplate->getProperties() as $property) {
+//            $method->addLineToBody('if (isset($data[\'' . $property->getName() . '\'])) {');
+//            $method->addLineToBody('    $this->' .
+//                $property->getName() .
+//                ' = $data[\'' .
+//                $property->getName() .
+//                '\'];');
+//            $method->addLineToBody('}');
+//        }
+//        $classTemplate->addMethod($method);
     }
 
     /**
-     * @param array $xmlSerializationAttributeOverrides
-     */
-    public static function setXmlSerializationAttributeOverride(array $xmlSerializationAttributeOverrides)
-    {
-        self::$xmlSerializationAttributeOverrides = $xmlSerializationAttributeOverrides;
-    }
-
-    /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public static function implementMethodsForProperty(ClassTemplate $classTemplate, BasePropertyTemplate $propertyTemplate)
-    {
-        if ($propertyTemplate->requiresGetter())
-            $classTemplate->addMethod(self::createGetter($propertyTemplate));
+    public static function implementMethodsForProperty(Config $config,
+                                                       ClassTemplate $classTemplate,
+                                                       BasePropertyTemplate $propertyTemplate) {
+        if ($propertyTemplate->requiresGetter()) {
+            if ($propertyTemplate->getFHIRElementType() === 'ResourceContainer') {
+                $method = new BaseMethodTemplate($config,
+                    sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName())));
+                $method->setDocumentation($propertyTemplate->getDocumentation());
+                if ($propertyTemplate->isCollection()) {
+                    $classTemplate->addImport(NSUtils::generateRootNamespace($config, 'FHIRResourceContainer'));
+                    $method->addLineToBody("if (count(\$this->{$propertyTemplate->getName()}) > 0) { ");
+                    $method->addLineToBody('    $resources = [];');
+                    $method->addLineToBody("    foreach(\$this->{$propertyTemplate->getName()} as \$container) {");
+                    $method->addLineToBody('        if ($container instanceof FHIRResourceContainer) {');
+                    $method->addLineToBody('            $resources[] = $container->jsonSerialize();');
+                    $method->addLineToBody('        }');
+                    $method->addLineToBody('    }');
+                    $method->addLineToBody('    return $resources;');
+                    $method->addLineToBody('}');
+                    $method->addLineToBody('return [];');
+                    $method->setReturnValueType('array');
+                } else {
+                    $method->addLineToBody("return isset(\$this->{$propertyTemplate->getName()}) ? \$this->{$propertyTemplate->getName()}->jsonSerialize() : null;");
+                    $method->setReturnValueType('mixed');
+                }
+                $classTemplate->addMethod($method);
+            } else {
+                $classTemplate->addMethod(self::createGetter($config, $propertyTemplate));
+            }
+        }
 
-        if ($propertyTemplate->requireSetter())
-            $classTemplate->addMethod(self::createSetter($propertyTemplate));
+        if ($propertyTemplate->requireSetter()) {
+            $classTemplate->addMethod(self::createSetter($config, $propertyTemplate));
+        }
     }
 
     /**
-     * @param BasePropertyTemplate $propertyTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate
      */
-    public static function createGetter(BasePropertyTemplate $propertyTemplate)
-    {
-        $getterTemplate = new GetterMethodTemplate($propertyTemplate);
+    public static function createGetter(Config $config, BasePropertyTemplate $propertyTemplate) {
+        $getterTemplate = new GetterMethodTemplate($config, $propertyTemplate);
         $getterTemplate->addLineToBody(sprintf('return $this->%s;', $propertyTemplate->getName()));
         return $getterTemplate;
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
-     * @return SetterMethodTemplate
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate
      */
-    public static function createSetter(BasePropertyTemplate $propertyTemplate)
-    {
-        $paramTemplate = new PropertyParameterTemplate($propertyTemplate);
+    public static function createSetter(Config $config, BasePropertyTemplate $propertyTemplate) {
+        $paramTemplate = new PropertyParameterTemplate($config, $propertyTemplate);
 
-        if ($propertyTemplate->isCollection())
-        {
+        if ($propertyTemplate->isCollection()) {
             $methodBody = sprintf(
                 '$this->%s[] = %s;',
                 $propertyTemplate->getName(),
                 NameUtils::getPropertyVariableName($paramTemplate->getProperty()->getName())
             );
-        }
-        else
-        {
+        } else {
             $methodBody = sprintf(
                 '$this->%s = %s;',
                 $propertyTemplate->getName(),
@@ -103,7 +192,7 @@ abstract class MethodGenerator
             );
         }
 
-        $setterTemplate = new SetterMethodTemplate($propertyTemplate);
+        $setterTemplate = new SetterMethodTemplate($config, $propertyTemplate);
         $setterTemplate->addParameter($paramTemplate);
         $setterTemplate->addLineToBody($methodBody);
 
@@ -111,161 +200,154 @@ abstract class MethodGenerator
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function implementToString(ClassTemplate $classTemplate)
-    {
-        $method = new BaseMethodTemplate('__toString');
+    public static function implementToString(Config $config, ClassTemplate $classTemplate) {
+        $method = new BaseMethodTemplate($config, '__toString');
         $classTemplate->addMethod($method);
         $method->setReturnValueType('string');
 
-        if ($classTemplate->hasProperty('value'))
+        if ($classTemplate->hasProperty('value')) {
             $method->setReturnStatement('(string)$this->getValue()');
-        else if ($classTemplate->hasProperty('id'))
-            $method->setReturnStatement('(string)$this->getId()');
-        else
-            $method->setReturnStatement('$this->get_fhirElementName()');
+        } else {
+            if ($classTemplate->hasProperty('id')) {
+                $method->setReturnStatement('(string)$this->getId()');
+            } else {
+                $method->setReturnStatement('$this->get_fhirElementName()');
+            }
+        }
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function implementJsonSerialize(ClassTemplate $classTemplate)
-    {
-        $method = new BaseMethodTemplate('jsonSerialize');
+    public static function implementJsonSerialize(Config $config, ClassTemplate $classTemplate) {
+        $method = new BaseMethodTemplate($config, 'jsonSerialize');
         $classTemplate->addMethod($method);
 
         $properties = $classTemplate->getProperties();
 
         $simple = true;
-        if (2 === count($properties))
-        {
-            foreach($properties as $property)
-            {
+        if (2 === count($properties)) {
+            foreach ($properties as $property) {
                 $name = $property->getName();
 
-                if ('_fhirElementName' === $name || 'value' === $name)
+                if ('_fhirElementName' === $name || 'value' === $name) {
                     continue;
+                }
 
                 $simple = false;
                 break;
             }
-        }
-        else
-        {
+        } else {
             $simple = false;
         }
 
         $elementName = $classTemplate->getElementName();
 
-        if ($simple)
-        {
-            $method->setReturnValueType('string|int|float|bool|null');
+        $method->setReturnValueType('mixed');
+        if ($simple) {
             $method->setReturnStatement('$this->value');
-        }
-        // ResourceContainer and Resource.Inline need to just pass back the resource they contain.
-        else if ('ResourceContainer' === $elementName || 'Resource.Inline' === $elementName)
-        {
-            $method->setReturnValueType('array');
+        } // ResourceContainer and Resource.Inline need to just pass back the resource they contain.
+        else {
+            if ('ResourceContainer' === $elementName || 'Resource.Inline' === $elementName) {
 
-            foreach($properties as $property)
-            {
-                $name = $property->getName();
-                if ('_fhirElementName' === $name)
-                    continue;
+                foreach ($properties as $property) {
+                    $name = $property->getName();
+                    if ('_fhirElementName' === $name) {
+                        continue;
+                    }
 
-                $method->addLineToBody(sprintf(
-                    'if (null !== $this->%s) return $this->%s->jsonSerialize();',
-                    $name,
-                    $name
-                ));
-            }
-
-            // This is here just in case the ResourceContainer wasn't populated correctly for whatever reason.
-            $method->setReturnStatement('array()');
-        }
-        else
-        {
-            $method->setReturnValueType('array');
-
-            // Determine if this class is a child...
-            if (null === $classTemplate->getExtendedElementMapEntry())
-                $method->addLineToBody('$json = array();');
-            else
-                $method->addLineToBody('$json = parent::jsonSerialize();');
-
-            // Unfortunately for the moment this value will potentially be overwritten several times during
-            // JSOn generation...
-            switch((string)$classTemplate->getClassType())
-            {
-                case ComplexClassTypesEnum::RESOURCE:
-                case ComplexClassTypesEnum::DOMAIN_RESOURCE:
-                    $method->addLineToBody('$json[\'resourceType\'] = $this->_fhirElementName;');
-                    break;
-            }
-
-            foreach($properties as $property)
-            {
-                $name = $property->getName();
-
-                if ('_fhirElementName' === $name)
-                    continue;
-
-                if ($property->isCollection())
-                {
                     $method->addLineToBody(sprintf(
-                        'if (0 < count($this->%s)) {',
-                        $name
-                    ));
-                    $method->addLineToBody(sprintf(
-                        '    $json[\'%s\'] = array();',
-                        $name
-                    ));
-                    $method->addLineToBody(sprintf(
-                        '    foreach($this->%s as $%s) {',
-                        $name,
-                        $name
-                    ));
-                    $method->addLineToBody(sprintf(
-                        '        $json[\'%s\'][] = $%s->jsonSerialize();',
-                        $name,
-                        $name
-                    ));
-                    $method->addLineToBody('    }');
-                    $method->addLineToBody('}');
-                }
-                else if ($property->isPrimitive() || $property->isList() || $property->isHTML())
-                {
-                    $method->addLineToBody(sprintf(
-                        'if (null !== $this->%s) $json[\'%s\'] = $this->%s;',
-                        $name,
+                        'if (isset($this->%s)) return $this->%s;',
                         $name,
                         $name
                     ));
                 }
-                else
-                {
-                    $method->addLineToBody(sprintf(
-                        'if (null !== $this->%s) $json[\'%s\'] = $this->%s->jsonSerialize();',
-                        $name,
-                        $name,
-                        $name
-                    ));
-                }
-            }
 
-            $method->setReturnStatement('$json');
+                // This is here just in case the ResourceContainer wasn't populated correctly for whatever reason.
+                $method->setReturnStatement('null');
+            } else {
+                $method->setReturnValueType('array');
+
+                // Determine if this class is a child...
+                if (null === $classTemplate->getExtendedElementMapEntry()) {
+                    $method->addLineToBody('$json = [];');
+                } else {
+                    $method->addLineToBody('$json = parent::jsonSerialize();');
+                }
+
+                // Unfortunately for the moment this value will potentially be overwritten several times during
+                // JSOn generation...
+                switch ((string)$classTemplate->getClassType()) {
+                    case ComplexClassTypesEnum::RESOURCE:
+                    case ComplexClassTypesEnum::DOMAIN_RESOURCE:
+                        $method->addLineToBody('$json[\'resourceType\'] = $this->_fhirElementName;');
+                        break;
+                }
+
+                foreach ($properties as $property) {
+                    $name = $property->getName();
+
+                    if ('_fhirElementName' === $name) {
+                        continue;
+                    }
+
+                    if ($property->isCollection()) {
+                        $method->addLineToBody(sprintf(
+                            'if (0 < count($this->%s)) {',
+                            $name
+                        ));
+                        $method->addLineToBody(sprintf(
+                            '    $json[\'%s\'] = [];',
+                            $name
+                        ));
+                        $method->addLineToBody(sprintf(
+                            '    foreach($this->%s as $%s) {',
+                            $name,
+                            $name
+                        ));
+                        $method->addLineToBody(sprintf(
+                            '        $json[\'%s\'][] = $%s;',
+                            $name,
+                            $name
+                        ));
+                        $method->addLineToBody('    }');
+                        $method->addLineToBody('}');
+                    } else {
+                        if ($property->isPrimitive() || $property->isList() || $property->isHTML()) {
+                            $method->addLineToBody(sprintf(
+                                'if (isset($this->%s)) $json[\'%s\'] = $this->%s;',
+                                $name,
+                                $name,
+                                $name
+                            ));
+                        } else {
+                            $method->addLineToBody(sprintf(
+                                'if (isset($this->%s)) $json[\'%s\'] = $this->%s;',
+                                $name,
+                                $name,
+                                $name
+                            ));
+                        }
+                    }
+                }
+
+                $method->setReturnStatement('$json');
+            }
         }
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function implementXMLSerialize(ClassTemplate $classTemplate)
-    {
-        $method = new BaseMethodTemplate('xmlSerialize');
-        $method->addParameter(new BaseParameterTemplate('returnSXE', 'boolean', 'false'));
-        $method->addParameter(new BaseParameterTemplate('sxe', '\\SimpleXMLElement', 'null'));
+    public static function implementXMLSerialize(Config $config, ClassTemplate $classTemplate) {
+        $method = new BaseMethodTemplate($config, 'xmlSerialize');
+        $method->addParameter(new BaseParameterTemplate($config, 'returnSXE', 'boolean', 'false'));
+        $method->addParameter(new BaseParameterTemplate($config, 'sxe', '\\SimpleXMLElement', 'null'));
         $method->setReturnStatement('$sxe->saveXML()');
         $method->setReturnValueType('string|\\SimpleXMLElement');
         $classTemplate->addMethod($method);
@@ -273,25 +355,23 @@ abstract class MethodGenerator
         $properties = $classTemplate->getProperties();
 
         $simple = true;
-        if (2 === count($properties))
-        {
-            foreach($properties as $property)
-            {
+        if (2 === count($properties)) {
+            foreach ($properties as $property) {
                 $name = $property->getName();
 
-                if ('_fhirElementName' === $name || 'value' === $name)
+                if ('_fhirElementName' === $name || 'value' === $name) {
                     continue;
+                }
 
                 $simple = false;
                 break;
             }
-        }
-        else
-        {
+        } else {
             $simple = false;
         }
 
-        $rootElementName = str_replace(NameUtils::$classNameSearch, NameUtils::$classNameReplace, $classTemplate->getElementName());
+        $rootElementName =
+            str_replace(NameUtils::$classNameSearch, NameUtils::$classNameReplace, $classTemplate->getElementName());
         // If this is the root object...
         $method->addLineToBody(sprintf(
             'if (null === $sxe) $sxe = new \\SimpleXMLElement(\'<%s xmlns="%s"></%s>\');',
@@ -301,85 +381,117 @@ abstract class MethodGenerator
         ));
 
         // For simple properties we need to simply add an attribute.
-        if ($simple)
-        {
+        if ($simple) {
             $method->addLineToBody('$sxe->addAttribute(\'value\', $this->value);');
-        }
-        else
-        {
-            // Determine if this class is a child...
-            if ($classTemplate->getExtendedElementMapEntry())
-                $method->addLineToBody('parent::xmlSerialize(true, $sxe);');
+        } else {
+            if ('ResourceContainer' === $rootElementName || 'Resource.Inline' === $rootElementName) {
+                $first = true;
+                foreach ($properties as $property) {
+                    $name = $property->getName();
+                    if ('_fhirElementName' === $name) {
+                        continue;
+                    }
 
-            foreach($properties as $property)
-            {
-                $name = $property->getName();
-
-                if ('_fhirElementName' === $name)
-                    continue;
-
-                if (
-                    array_key_exists($rootElementName, self::$xmlSerializationAttributeOverrides) === true &&
-                    self::$xmlSerializationAttributeOverrides[$rootElementName] === $name
-                )
-                {
-                    $method->addLineToBody(
-                        sprintf(
-                            'if (null !== $this->%s) $sxe->addAttribute(\'%s\', (string)$this->%s);',
+                    if ($first) {
+                        $method->addLineToBody(sprintf(
+                            'if (isset($this->%s)) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
                             $name,
                             $name,
                             $name
-                        )
-                    );
-
-                    continue;
+                        ));
+                        $first = false;
+                    } else {
+                        $method->addLineToBody(sprintf(
+                            'else if (isset($this->%s)) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                            $name,
+                            $name,
+                            $name
+                        ));
+                    }
+                }
+            } else {
+                // Determine if this class is a child...
+                if ($classTemplate->getExtendedElementMapEntry()) {
+                    $method->addLineToBody('parent::xmlSerialize(true, $sxe);');
                 }
 
-                if ($property->isCollection())
-                {
-                    $method->addLineToBody(sprintf(
-                        'if (0 < count($this->%s)) {',
-                        $name
-                    ));
-                    $method->addLineToBody(sprintf(
-                        '    foreach($this->%s as $%s) {',
-                        $name,
-                        $name
-                    ));
-                    $method->addLineToBody(sprintf(
-                        '        $%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
-                        $name,
-                        $name
-                    ));
-                    $method->addLineToBody('    }');
-                    $method->addLineToBody('}');
-                }
-                else if ($property->isPrimitive() || $property->isList() || $property->isHTML())
-                {
-                    $method->addLineToBody(sprintf(
-                        'if (null !== $this->%s) {',
-                        $name
-                    ));
-                    $method->addLineToBody(sprintf(
-                        '    $%sElement = $sxe->addChild(\'%s\');',
-                        $name,
-                        $name
-                    ));
-                    $method->addLineToBody(sprintf(
-                        '    $%sElement->addAttribute(\'value\', (string)$this->%s);',
-                        $name,
-                        $name
-                    ));
-                    $method->addLineToBody('}');
-                }
-                else
-                {
-                    $method->addLineToBody(sprintf(
-                        'if (null !== $this->%s) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
-                        $name,
-                        $name,
-                        $name
-                    ));
+                foreach ($properties as $property) {
+                    $name = $property->getName();
+
+                    if ('_fhirElementName' === $name) {
+                        continue;
+                    }
+
+                    if ($config->getXmlSerializationAttributeOverride($rootElementName, $name)) {
+                        $method->addLineToBody(
+                            sprintf(
+                                'if (isset($this->%s)) $sxe->addAttribute(\'%s\', (string)$this->%s);',
+                                $name,
+                                $name,
+                                $name
+                            )
+                        );
+
+                        continue;
+                    }
+
+                    if ($property->isCollection()) {
+                        $method->addLineToBody(sprintf(
+                            'if (0 < count($this->%s)) {',
+                            $name
+                        ));
+                        $method->addLineToBody(sprintf(
+                            '    foreach($this->%s as $%s) {',
+                            $name,
+                            $name
+                        ));
+                        $method->addLineToBody(sprintf(
+                            '        $%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                            $name,
+                            $name
+                        ));
+                        $method->addLineToBody('    }');
+                        $method->addLineToBody('}');
+                    } else {
+                        if ($property->isHTML()) {
+                            $classTemplate->addImport(NSUtils::generateRootNamespace($config, 'PHPFHIRHelper'));
+
+                            $method->addLineToBody(sprintf(
+                                'if (isset($this->%s)) {',
+                                $name
+                            ));
+                            $method->addLineToBody(sprintf(
+                                '   PHPFHIRHelper::recursiveXMLImport($sxe, $this->%1$s);',
+                                $name
+                            ));
+                            $method->addLineToBody('}');
+                        } else {
+                            if ($property->isPrimitive() || $property->isList()) {
+                                $method->addLineToBody(sprintf(
+                                    'if (isset($this->%s)) {',
+                                    $name
+                                ));
+                                $method->addLineToBody(sprintf(
+                                    '    $%sElement = $sxe->addChild(\'%s\');',
+                                    $name,
+                                    $name
+                                ));
+                                $method->addLineToBody(sprintf(
+                                    '    $%sElement->addAttribute(\'value\', (string)$this->%s);',
+                                    $name,
+                                    $name
+                                ));
+                                $method->addLineToBody('}');
+                            } else {
+                                $method->addLineToBody(sprintf(
+                                    'if (isset($this->%s)) $this->%s->xmlSerialize(true, $sxe->addChild(\'%s\'));',
+                                    $name,
+                                    $name,
+                                    $name
+                                ));
+                            }
+                        }
+                    }
                 }
             }
         }
