@@ -3,6 +3,7 @@
  * Download and generation script for all major FHIR versions
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
+ * Copyright 2017 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +18,120 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 date_default_timezone_set('UTC');
 require __DIR__ . '/../vendor/autoload.php';
 
+/**
+ *
+ */
+function exitWithHelp()
+{
+    $dir = __DIR__;
+    echo <<<STRING
+Please create and populate  a "config.php" file in {$dir}. Here is a template:
+
+<?php
+return [
+    'schemaPath'  => __DIR__ . '/../input',
+    'classesPath' => __DIR__ . '/../output',
+    'versions' => [
+        'DSTU1'  => ['url' => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU1'],
+        'DSTU2'  => ['url' => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU2'],
+        'STU3'   => ['url' => 'http://hl7.org/fhir/STU3/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\STU3'],
+        'Build'  => ['url' => 'http://build.fhir.org/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\Build']
+    ]
+];
+
+STRING;
+    exit(1);
+}
+
+/**
+ * @param $q
+ *
+ * @return bool
+ */
+function yesno($q)
+{
+    global $ins, $null;
+    echo "{$q} [enter \"yes\" or \"no\"]: ";
+    while (0 !== stream_select($ins, $null, $null, null)) {
+        foreach ($ins as $in) {
+            $resp = stream_get_line($in, 1, "\n");
+            if (is_string($resp)) {
+                $l = strtolower($resp);
+
+                return $l === 'y';
+            }
+
+            $ins = [];
+
+            return false;
+        }
+    }
+
+    // some kind of error checking?
+    return false;
+}
+
+/**
+ * @param $dir
+ */
+function removeDir($dir)
+{
+    echo "Executing \"rm -rf {$dir}\" ...\n";
+    shell_exec('rm -rf ' . $dir);
+    sleep(1);
+    if (file_exists($dir)) {
+        echo "Unable to delete dir {$dir}\n";
+        exit(1);
+    }
+    echo "Done.\n";
+}
+
+if (!file_exists(__DIR__ . '/config.php')) {
+    exitWithHelp();
+}
+
 $config = require __DIR__ . '/config.php';
+
+if (!isset($config['schemaPath']) || !isset($config['classesPath']) || !isset($config['versions'])) {
+    exitWithHelp();
+}
+
+$forceDelete = false;
+if ($argc > 1) {
+    foreach ($argv as $offset => $arg) {
+        if ($offset > 0) {
+            switch ($arg) {
+                case '--force':
+                    $forceDelete = true;
+                    break;
+            }
+        }
+    }
+}
+
 $schemaPath = realpath(trim($config['schemaPath']));
 $classesPath = realpath(trim($config['classesPath']));
 $versions = $config['versions'];
 
+$ins = [STDIN];
+$null = null;
+
 $existsMsg = ' already exists, please remove it before running generator';
 
-if (is_dir($classesPath . DIRECTORY_SEPARATOR . 'HL7')) {
-    die('Target subdirectory output/HL7'.$existsMsg);
+$dir = $classesPath . DIRECTORY_SEPARATOR . 'HL7';
+if (is_dir($dir)) {
+    if ($forceDelete || yesno("Directory \"{$dir}\" already exists, ok to delete?")) {
+        removeDir($dir);
+    } else {
+        echo "Exiting\n";
+        exit(0);
+    }
 }
 
 foreach ($versions as $name => $version) {
@@ -44,7 +145,18 @@ foreach ($versions as $name => $version) {
     $zipFileName = $schemaPath . DIRECTORY_SEPARATOR . $name . '.zip';
 
     if (file_exists($zipFileName)) {
-        die('Zipfile ' . $zipFileName . $existsMsg);
+        if ($forceDelete || yesno("ZIP \"{$zipFileName}\" already exists, ok to delete?")) {
+            echo "Deleting {$zipFileName} ...\n";
+            unlink($zipFileName);
+            if (file_exists($zipFileName)) {
+                echo "Unable to delete file {$zipFileName}\n";
+                exit(1);
+            }
+            echo "Deleted.\n";
+        } else {
+            echo "Exiting\n";
+            exit(0);
+        }
     }
 
     copy($url, $zipFileName);
@@ -56,17 +168,31 @@ foreach ($versions as $name => $version) {
     $res = $zip->open($schemaDir . '.zip');
 
     if (is_dir($schemaDir)) {
-        die('Source subdirectory ' . $schemaDir . $existsMsg);
+        if ($forceDelete || yesno("Schema dir \"{$schemaDir}\" already exists, ok to delete?")) {
+            removeDir($schemaDir);
+        } else {
+            echo "Exiting\n";
+            exit(0);
+        }
     }
 
-    mkdir($schemaDir, 0777, true);
+    if (!mkdir($schemaDir, 0777, true)) {
+        echo "Unable to create directory \"{$schemaDir}\. Exiting\n";
+        exit(1);
+    }
 
     // Extract Zip
     $zip->extractTo($schemaDir);
     $zip->close();
 
-    echo 'Generating ' . $name . ' into ' . $schemaDir . PHP_EOL;
-    $generator = new Generator($schemaDir, $classesPath, $namespace);
+    echo 'Generating ' . $name . ' into ' . $classesPath . PHP_EOL;
+    $config = new Config([
+      'xsdPath'         => $schemaDir,
+      'outputPath'      => $classesPath,
+      'outputNamespace' => $namespace,
+    ]);
+
+    $generator = new Generator($config);
     $generator->generate();
 }
 
