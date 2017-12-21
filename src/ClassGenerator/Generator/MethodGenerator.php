@@ -53,7 +53,7 @@ abstract class MethodGenerator {
             $method->addLineToBody('}');
         } else if ('ResourceContainer' === $classTemplate->getElementName()) {
             $method->addLineToBody('if (is_object($data)) {');
-            $method->addLineToBody('    $n = ltrim(strrchr(get_class($data)), "\\FHIR");');
+            $method->addLineToBody('    $n = substr(strrchr(get_class($data), \'FHIR\'), 4);');
             $method->addLineToBody('    $this->{"set{$n}"}($data);');
             $method->addLineToBody('} else if (is_array($data)) {');
             $method->addLineToBody('    if (($cnt = count($data)) > 1) {');
