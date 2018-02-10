@@ -175,7 +175,7 @@ abstract class MethodGenerator
                     continue;
 
                 $method->addLineToBody(sprintf(
-                    'if (null !== $this->%s) return json_encode($this->%s);',
+                    'if (null !== $this->%s) return $this->%s;',
                     $name,
                     $name
                 ));
@@ -227,7 +227,7 @@ abstract class MethodGenerator
                         $name
                     ));
                     $method->addLineToBody(sprintf(
-                        '        $json[\'%s\'][] = json_encode($%s);',
+                        '        $json[\'%s\'][] = $%s;',
                         $name,
                         $name
                     ));
@@ -246,7 +246,7 @@ abstract class MethodGenerator
                 else
                 {
                     $method->addLineToBody(sprintf(
-                        'if (null !== $this->%s) $json[\'%s\'] = json_encode($this->%s);',
+                        'if (null !== $this->%s) $json[\'%s\'] = $this->%s;',
                         $name,
                         $name,
                         $name
