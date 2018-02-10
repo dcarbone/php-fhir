@@ -169,6 +169,7 @@ class Config implements LoggerAwareInterface {
         if (null === $outputNamespace) {
             $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
         }
+        $outputNamespace = ltrim($outputNamespace, "\\");
         if (false === NameUtils::isValidNSName($outputNamespace)) {
             throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.', $outputNamespace));
         }
