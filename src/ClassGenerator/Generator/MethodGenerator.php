@@ -77,17 +77,21 @@ abstract class MethodGenerator {
                 if (0 === strpos($name, '_')) {
                     continue;
                 }
-                $method->addLineToBody('    if (isset($data[\'' . $name . '\'])) {');
+                $method->addLineToBody('    if (isset($data[\''.$name.'\'])) {');
                 if (in_array($name, $collections, true)) {
                     $method->addLineToBody('        if (is_array($data[\''.$name.'\'])) {');
                     $method->addLineToBody('            foreach($data[\''.$name.'\'] as $d) {');
-                    $method->addLineToBody('                $this->add' . ucfirst($name) . '($d);');
+                    $method->addLineToBody('                $this->add'.ucfirst($name).'($d);');
                     $method->addLineToBody('            }');
                     $method->addLineToBody('        } else {');
-                    $method->addLineToBody('            throw new \\InvalidArgumentException(\'"'.$name.'" must be array of objects or null, \'.gettype($data[\''.$name.'\']).\' seen.\');');
+                    $method->addLineToBody('            throw new \\InvalidArgumentException(\'"'.
+                        $name.
+                        '" must be array of objects or null, \'.gettype($data[\''.
+                        $name.
+                        '\']).\' seen.\');');
                     $method->addLineToBody('        }');
                 } else {
-                    $method->addLineToBody('        $this->set' . ucfirst($name) . '($data[\'' . $name . '\']);');
+                    $method->addLineToBody('        $this->set'.ucfirst($name).'($data[\''.$name.'\']);');
                 }
                 $method->addLineToBody('    }');
             }
@@ -304,16 +308,8 @@ abstract class MethodGenerator {
                             '    $json[\'%s\'] = [];',
                             $name
                         ));
-                        $method->addLineToBody(sprintf(
-                            '    foreach($this->%s as $%s) {',
-                            $name,
-                            $name
-                        ));
-                        $method->addLineToBody(sprintf(
-                            '        $json[\'%s\'][] = $%s;',
-                            $name,
-                            $name
-                        ));
+                        $method->addLineToBody(sprintf('    foreach($this->%1$s as $%1$s) {', $name));
+                        $method->addLineToBody(sprintf('        if (null !== $%1$s) $json[\'%1$s\'][] = $%1$s;', $name));
                         $method->addLineToBody('    }');
                         $method->addLineToBody('}');
                     } else {
