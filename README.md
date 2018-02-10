@@ -32,7 +32,11 @@ Done
 
 Require entry:
 ```json
-    "dcarbone/php-fhir": "0.5.*"
+{
+  "require": {
+    "dcarbone/php-fhir": "dev-master"  
+  }
+}
 ```
 
 ## Basic Workflow
@@ -139,8 +143,6 @@ $generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($config);
 $generator->generate();
 
 ```
-
-See the integration tests for a working example.
 
 ## Testing
 

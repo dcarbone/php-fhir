@@ -1,59 +1,52 @@
 {
-    "name": "dcarbone/php-fhir",
-    "type": "library",
-    "description": "Tools for creating PHP classes from the HL7 FHIR Specification",
-    "license": "Apache-2.0",
-    "homepage": "https://github.com/dcarbone/php-fhir",
-    "authors": [
-        {
-            "name": "Daniel Paul Carbone",
-            "email": "daniel.p.carbone@gmail.com"
-        }
-    ],
-
-    "keywords": [
-        "php",
-        "fhir",
-        "ehr",
-        "hl7",
-        "php-fhir"
-    ],
-
-    "require": {
-        "php": ">=5.4.0",
-        "myclabs/php-enum": "1.4.*",
-        "psr/log": "1.0.*"
-    },
-
-    "require-dev": {
-        "myena/default-logger": "@stable",
-        "phpunit/phpunit": "^5.6"
-    },
-
-    "replace": {
-        "php-fhir/parser": "*",
-        "php-fhir/resources": "*",
-        "php-fhir/elements": "*",
-        "php-fhir/common": "*",
-        "php-fhir/component-tests": "*",
-        "php-fhir/object-mapper": "*",
-        "php-fhir/utilities": "*"
-    },
-
-    "autoload": {
-        "files": [
-            "files/php_fhir_constants.php"
-        ],
-        "psr-4": {
-            "DCarbone\\PHPFHIR\\": "src/"
-        }
-    },
-
-    "autoload-dev": {
-        "psr-4": {
-            "DCarbone\\PHPFHIR\\Tests\\": "tests",
-            "PHPFHIRGenerated\\": "output/PHPFHIRGenerated"
-        }
+  "name": "dcarbone/php-fhir",
+  "type": "library",
+  "description": "Tools for creating PHP classes from the HL7 FHIR Specification",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/dcarbone/php-fhir",
+  "authors": [
+    {
+      "name": "Daniel Paul Carbone",
+      "email": "daniel.p.carbone@gmail.com"
     }
-
+  ],
+  "keywords": [
+    "php",
+    "fhir",
+    "ehr",
+    "hl7",
+    "php-fhir"
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "myclabs/php-enum": "@stable",
+    "psr/log": "@stable"
+  },
+  "require-dev": {
+    "myena/default-logger": "@stable",
+    "phpunit/phpunit": "<7.0"
+  },
+  "replace": {
+    "php-fhir/parser": "*",
+    "php-fhir/resources": "*",
+    "php-fhir/elements": "*",
+    "php-fhir/common": "*",
+    "php-fhir/component-tests": "*",
+    "php-fhir/object-mapper": "*",
+    "php-fhir/utilities": "*"
+  },
+  "autoload": {
+    "files": [
+      "files/php_fhir_constants.php"
+    ],
+    "psr-4": {
+      "DCarbone\\PHPFHIR\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PHPFHIRGenerated\\": "output/PHPFHIRGenerated",
+      "HL7\\": "output/HL7"
+    }
+  }
 }
