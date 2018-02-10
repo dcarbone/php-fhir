@@ -58,21 +58,15 @@ function yesno($q)
 {
     global $ins, $null;
     echo "{$q} [enter \"yes\" or \"no\"]: ";
-    while (0 !== stream_select($ins, $null, $null, null)) {
-        foreach ($ins as $in) {
-            $resp = stream_get_line($in, 1, "\n");
+    while(0 !== stream_select($ins, $null, $null, null)) {
+        foreach($ins as $in) {
+            $resp = stream_get_line($in, 25, "\n");
             if (is_string($resp)) {
-                $l = strtolower($resp);
-
-                return $l === 'y';
+                return substr(strtolower($resp), 0, 1) === 'y';
             }
-
-            $ins = [];
-
             return false;
         }
     }
-
     // some kind of error checking?
     return false;
 }
