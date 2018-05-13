@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Property;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,13 +60,13 @@ class BasePropertyTemplate extends AbstractTemplate {
     /** @var bool */
     protected $requireSetter;
 
-    protected $choiceElementNames = array();
+    protected $choiceElementNames = [];
 
     /**
      * Constructor
      * @param PHPScopeEnum $scope
-     * @param bool $requiresGetter
-     * @param bool $requiresSetter
+     * @param bool         $requiresGetter
+     * @param bool         $requiresSetter
      */
     public function __construct(PHPScopeEnum $scope = null, $requiresGetter = true, $requiresSetter = true) {
         if (null === $scope) {

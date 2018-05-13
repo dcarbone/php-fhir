@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 abstract class NSUtils {
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
-     * @param string|null $classNS
+     * @param string|null                             $classNS
      * @return string
      */
     public static function generateRootNamespace(Config $config, $classNS) {
@@ -66,7 +66,7 @@ abstract class NSUtils {
     }
 
     /**
-     * @param string $name
+     * @param string                     $name
      * @param ComplexClassTypesEnum|null $type
      * @return string
      */

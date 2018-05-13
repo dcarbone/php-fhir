@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class ResponseParserTemplate extends AbstractPHPFHIRClassTemplate {
      */
     public function compileTemplate() {
         return sprintf(
-            include PHPFHIR_TEMPLATE_DIR . '/response_parser_template.php',
+            include PHPFHIR_TEMPLATE_DIR.'/response_parser_template.php',
             $this->outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment()
         );

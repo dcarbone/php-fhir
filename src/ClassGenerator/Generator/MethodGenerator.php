@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
 abstract class MethodGenerator {
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
     public static function implementConstructor(Config $config, ClassTemplate $classTemplate) {
@@ -123,8 +123,8 @@ abstract class MethodGenerator {
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate                 $classTemplate
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
     public static function implementMethodsForProperty(Config $config,
@@ -164,7 +164,7 @@ abstract class MethodGenerator {
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate
      */
@@ -175,7 +175,7 @@ abstract class MethodGenerator {
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate
      */
@@ -204,7 +204,7 @@ abstract class MethodGenerator {
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
     public static function implementToString(Config $config, ClassTemplate $classTemplate) {
@@ -224,7 +224,7 @@ abstract class MethodGenerator {
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
     public static function implementJsonSerialize(Config $config, ClassTemplate $classTemplate) {
@@ -264,8 +264,10 @@ abstract class MethodGenerator {
                         continue;
                     }
 
+                    $i = 0;
                     $method->addLineToBody(sprintf(
-                        'if (isset($this->%s)) return $this->%s;',
+                        '%sif (isset($this->%s)) return $this->%s;',
+                        ($i++ > 0 ? 'else ' : ''),
                         $name,
                         $name
                     ));
@@ -309,7 +311,10 @@ abstract class MethodGenerator {
                             $name
                         ));
                         $method->addLineToBody(sprintf('    foreach($this->%1$s as $%1$s) {', $name));
-                        $method->addLineToBody(sprintf('        if (null !== $%1$s) $json[\'%1$s\'][] = $%1$s;', $name));
+                        $method->addLineToBody(sprintf(
+                            '        if (null !== $%1$s) $json[\'%1$s\'][] = $%1$s;',
+                            $name
+                        ));
                         $method->addLineToBody('    }');
                         $method->addLineToBody('}');
                     } else {
@@ -337,7 +342,7 @@ abstract class MethodGenerator {
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
     public static function implementXMLSerialize(Config $config, ClassTemplate $classTemplate) {

@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,13 @@ abstract class PropertyGenerator {
     /**
      * TODO: I don't like how this is utilized, really.  Should think of a better way to do it.
      *
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
+     * @param XSDMap            $XSDMap
+     * @param ClassTemplate     $classTemplate
      * @param \SimpleXMLElement $propertyElement
      */
-    public static function implementProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $propertyElement) {
+    public static function implementProperty(XSDMap $XSDMap,
+                                             ClassTemplate $classTemplate,
+                                             \SimpleXMLElement $propertyElement) {
         switch (strtolower($propertyElement->getName())) {
             case ElementTypeEnum::ATTRIBUTE:
                 self::implementAttributeProperty($XSDMap, $classTemplate, $propertyElement);
@@ -55,11 +57,11 @@ abstract class PropertyGenerator {
     }
 
     /**
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
+     * @param XSDMap            $XSDMap
+     * @param ClassTemplate     $classTemplate
      * @param \SimpleXMLElement $element
-     * @param string $documentation
-     * @param string $maxOccurs
+     * @param string            $documentation
+     * @param string            $maxOccurs
      * @return BasePropertyTemplate|null
      */
     public static function buildProperty(XSDMap $XSDMap,
@@ -147,11 +149,13 @@ abstract class PropertyGenerator {
     }
 
     /**
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
+     * @param XSDMap            $XSDMap
+     * @param ClassTemplate     $classTemplate
      * @param \SimpleXMLElement $sequence
      */
-    public static function implementPropertySequence(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $sequence) {
+    public static function implementPropertySequence(XSDMap $XSDMap,
+                                                     ClassTemplate $classTemplate,
+                                                     \SimpleXMLElement $sequence) {
         foreach ($sequence->children('xs', true) as $element) {
             /** @var \SimpleXMLElement $element */
             switch (strtolower($element->getName())) {
@@ -167,8 +171,8 @@ abstract class PropertyGenerator {
     }
 
     /**
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
+     * @param XSDMap            $XSDMap
+     * @param ClassTemplate     $classTemplate
      * @param \SimpleXMLElement $element
      */
     public static function implementElementProperty(XSDMap $XSDMap,
@@ -183,8 +187,8 @@ abstract class PropertyGenerator {
     }
 
     /**
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
+     * @param XSDMap            $XSDMap
+     * @param ClassTemplate     $classTemplate
      * @param \SimpleXMLElement $choice
      */
     public static function implementChoiceProperty(XSDMap $XSDMap,
@@ -206,11 +210,13 @@ abstract class PropertyGenerator {
     }
 
     /**
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
+     * @param XSDMap            $XSDMap
+     * @param ClassTemplate     $classTemplate
      * @param \SimpleXMLElement $attribute
      */
-    public static function implementAttributeProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $attribute) {
+    public static function implementAttributeProperty(XSDMap $XSDMap,
+                                                      ClassTemplate $classTemplate,
+                                                      \SimpleXMLElement $attribute) {
         $propertyTemplate = self::buildProperty($XSDMap, $classTemplate, $attribute);
         if ($propertyTemplate &&
             false ===
@@ -220,30 +226,36 @@ abstract class PropertyGenerator {
     }
 
     /**
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
+     * @param XSDMap            $XSDMap
+     * @param ClassTemplate     $classTemplate
      * @param \SimpleXMLElement $union
      */
-    public static function implementUnionProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $union) {
+    public static function implementUnionProperty(XSDMap $XSDMap,
+                                                  ClassTemplate $classTemplate,
+                                                  \SimpleXMLElement $union) {
         // TODO: Implement these!
     }
 
     /**
-     * @param XSDMap $XSDMap
-     * @param ClassTemplate $classTemplate
+     * @param XSDMap            $XSDMap
+     * @param ClassTemplate     $classTemplate
      * @param \SimpleXMLElement $enumeration
      */
-    public static function implementEnumerationProperty(XSDMap $XSDMap, ClassTemplate $classTemplate, \SimpleXMLElement $enumeration) {
+    public static function implementEnumerationProperty(XSDMap $XSDMap,
+                                                        ClassTemplate $classTemplate,
+                                                        \SimpleXMLElement $enumeration) {
         // TODO: Implement these!
     }
 
     /**
-     * @param XSDMap $XSDMap
-     * @param XSDMap\XSDMapEntry $XSDMapEntry
+     * @param XSDMap               $XSDMap
+     * @param XSDMap\XSDMapEntry   $XSDMapEntry
      * @param BasePropertyTemplate $propertyTemplate
      * @return bool
      */
-    public static function isPropertyImplementedByParent(XSDMap $XSDMap, XSDMap\XSDMapEntry $XSDMapEntry, BasePropertyTemplate $propertyTemplate) {
+    public static function isPropertyImplementedByParent(XSDMap $XSDMap,
+                                                         XSDMap\XSDMapEntry $XSDMapEntry,
+                                                         BasePropertyTemplate $propertyTemplate) {
         $parentMapEntry = $XSDMapEntry->getExtendedMapEntry();
         if (null === $parentMapEntry) {
             return false;

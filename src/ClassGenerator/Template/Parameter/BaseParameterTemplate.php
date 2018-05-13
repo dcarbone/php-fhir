@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Parameter;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ class BaseParameterTemplate extends AbstractTemplate {
     /**
      * BaseParameterTemplate constructor.
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
-     * @param string $name
-     * @param string $phpType
-     * @param mixed $defaultValue
+     * @param string                                  $name
+     * @param string                                  $phpType
+     * @param mixed                                   $defaultValue
      */
     public function __construct(Config $config, $name, $phpType = 'mixed', $defaultValue = null) {
         $this->config = $config;

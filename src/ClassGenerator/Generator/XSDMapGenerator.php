@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ abstract class XSDMapGenerator {
     }
 
     /**
-     * @param string $file
+     * @param string                                  $file
      * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $xsdMap
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
@@ -91,7 +91,10 @@ abstract class XSDMapGenerator {
                     /** @var \SimpleXMLElement $attribute */
                     $attrArray[] = sprintf('%s : %s', $attribute->getName(), (string)$attribute);
                 }
-                $config->getLogger()->debug(sprintf('Unable to locate "name" attribute on element in file "%s" with attributes ["%s"]', $file, implode('", "', $attrArray)));
+                $config->getLogger()
+                    ->debug(sprintf('Unable to locate "name" attribute on element in file "%s" with attributes ["%s"]',
+                        $file,
+                        implode('", "', $attrArray)));
                 continue;
             }
 
@@ -120,7 +123,7 @@ abstract class XSDMapGenerator {
     }
 
     /**
-     * @param string $filePath
+     * @param string                                  $filePath
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @return \SimpleXMLElement
      */

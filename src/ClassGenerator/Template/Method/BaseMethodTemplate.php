@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Method;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class BaseMethodTemplate extends AbstractTemplate {
     protected $scope;
 
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate[] */
-    protected $parameters = array();
+    protected $parameters = [];
 
     /** @var null|string */
     protected $returnValueType = null;
@@ -45,12 +45,12 @@ class BaseMethodTemplate extends AbstractTemplate {
     protected $returnStatement = null;
 
     /** @var array */
-    protected $body = array();
+    protected $body = [];
 
     /**
      * BaseMethodTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
-     * @param string $name
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
+     * @param string                                                  $name
      * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null $scope
      */
     public function __construct(Config $config, $name, PHPScopeEnum $scope = null) {
@@ -59,7 +59,7 @@ class BaseMethodTemplate extends AbstractTemplate {
         if (NameUtils::isValidFunctionName($name)) {
             $this->name = $name;
         } else {
-            throw new \InvalidArgumentException('Function name "' . $name . '" is not valid.');
+            throw new \InvalidArgumentException('Function name "'.$name.'" is not valid.');
         }
 
         if (null === $scope) {
@@ -204,7 +204,7 @@ class BaseMethodTemplate extends AbstractTemplate {
      */
     protected function buildMethodParameterDefinition() {
         $output = '';
-        $params = array();
+        $params = [];
         foreach ($this->getParameters() as $param) {
             $params[] = $param->compileTemplate();
         }

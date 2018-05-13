@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Config;
  */
 abstract class FileUtils {
     /**
-     * @param string $namespace
+     * @param string                                  $namespace
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
     public static function createDirsFromNS($namespace, Config $config) {
@@ -41,7 +41,7 @@ abstract class FileUtils {
             } else {
                 $config->getLogger()->info(sprintf('Attempting to create directory at path "%s"...', $path));
                 if (!(bool)mkdir($path)) {
-                    $msg = 'Unable to create directory at path "' . $path . '"';
+                    $msg = 'Unable to create directory at path "'.$path.'"';
                     $config->getLogger()->critical($msg);
                     throw new \RuntimeException($msg);
                 }
