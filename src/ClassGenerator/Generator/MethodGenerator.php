@@ -36,22 +36,22 @@ abstract class MethodGenerator {
 
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      */
-    public static function implementConstructor(Config $config, ClassTemplate $classTemplate) {
+    public static function implementConstructor(Config $config, ClassTemplate $class) {
         $method = new BaseMethodTemplate($config, '__construct');
         $param = new BaseParameterTemplate($config, 'data', 'mixed', '[]');
         $method->addParameter($param);
-        $classTemplate->addMethod($method);
+        $class->addMethod($method);
 
-        if ($classTemplate->isPrimitive()) {
+        if ($class->isPrimitive()) {
             // TODO: type-specific checking?
             $method->addLineToBody('if (is_scalar($data)) {');
             $method->addLineToBody('    $this->setValue($data);');
             $method->addLineToBody('} else {');
             $method->addLineToBody('    parent::__construct($data);');
             $method->addLineToBody('}');
-        } else if ('ResourceContainer' === $classTemplate->getElementName()) {
+        } else if ('ResourceContainer' === $class->getElementName()) {
             $method->addLineToBody('if (is_object($data)) {');
             $method->addLineToBody('    $n = substr(strrchr(get_class($data), \'FHIR\'), 4);');
             $method->addLineToBody('    $this->{"set{$n}"}($data);');
@@ -67,13 +67,13 @@ abstract class MethodGenerator {
             $method->addLineToBody('}');
         } else {
             $collections = [];
-            foreach ($classTemplate->getProperties() as $property) {
+            foreach ($class->getProperties() as $property) {
                 if ($property->isCollection()) {
                     $collections[] = $property->getName();
                 }
             }
             $method->addLineToBody('if (is_array($data)) {');
-            foreach ($classTemplate->getProperties() as $name => $property) {
+            foreach ($class->getProperties() as $name => $property) {
                 if (0 === strpos($name, '_')) {
                     continue;
                 }
@@ -98,7 +98,7 @@ abstract class MethodGenerator {
             $method->addLineToBody('} else if (null !== $data) {');
             $method->addLineToBody('    throw new \\InvalidArgumentException(\'$data expected to be array of values, saw "\'.gettype($data).\'"\');');
             $method->addLineToBody('}');
-            if ($classTemplate->getExtendedElementMapEntry()) {
+            if ($class->getExtendedElementMapEntry()) {
                 $method->addLineToBody('parent::__construct($data);');
             }
         }
@@ -124,22 +124,22 @@ abstract class MethodGenerator {
 
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate                 $classTemplate
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate                 $class
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $property
      */
     public static function implementMethodsForProperty(Config $config,
-                                                       ClassTemplate $classTemplate,
-                                                       BasePropertyTemplate $propertyTemplate) {
-        if ($propertyTemplate->requiresGetter()) {
-            if ($propertyTemplate->getFHIRElementType() === 'ResourceContainer') {
+                                                       ClassTemplate $class,
+                                                       BasePropertyTemplate $property) {
+        if ($property->requiresGetter()) {
+            if ($property->getFHIRElementType() === 'ResourceContainer') {
                 $method = new BaseMethodTemplate($config,
-                    sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName())));
-                $method->setDocumentation($propertyTemplate->getDocumentation());
-                if ($propertyTemplate->isCollection()) {
-                    $classTemplate->addImport(NSUtils::generateRootNamespace($config, 'FHIRResourceContainer'));
-                    $method->addLineToBody("if (count(\$this->{$propertyTemplate->getName()}) > 0) { ");
+                    sprintf('get%s', NameUtils::getPropertyMethodName($property->getName())));
+                $method->setDocumentation($property->getDocumentation());
+                if ($property->isCollection()) {
+                    $class->addImport(NSUtils::generateRootNamespace($config, 'FHIRResourceContainer'));
+                    $method->addLineToBody("if (count(\$this->{$property->getName()}) > 0) { ");
                     $method->addLineToBody('    $resources = [];');
-                    $method->addLineToBody("    foreach(\$this->{$propertyTemplate->getName()} as \$container) {");
+                    $method->addLineToBody("    foreach(\$this->{$property->getName()} as \$container) {");
                     $method->addLineToBody('        if ($container instanceof FHIRResourceContainer) {');
                     $method->addLineToBody('            $resources[] = $container->jsonSerialize();');
                     $method->addLineToBody('        }');
@@ -149,54 +149,54 @@ abstract class MethodGenerator {
                     $method->addLineToBody('return [];');
                     $method->setReturnValueType('array');
                 } else {
-                    $method->addLineToBody("return isset(\$this->{$propertyTemplate->getName()}) ? \$this->{$propertyTemplate->getName()}->jsonSerialize() : null;");
+                    $method->addLineToBody("return isset(\$this->{$property->getName()}) ? \$this->{$property->getName()}->jsonSerialize() : null;");
                     $method->setReturnValueType('mixed');
                 }
-                $classTemplate->addMethod($method);
+                $class->addMethod($method);
             } else {
-                $classTemplate->addMethod(self::createGetter($config, $propertyTemplate));
+                $class->addMethod(self::createGetter($config, $property));
             }
         }
 
-        if ($propertyTemplate->requireSetter()) {
-            $classTemplate->addMethod(self::createSetter($config, $propertyTemplate));
+        if ($property->requireSetter()) {
+            $class->addMethod(self::createSetter($config, $property));
         }
     }
 
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $property
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate
      */
-    public static function createGetter(Config $config, BasePropertyTemplate $propertyTemplate) {
-        $getterTemplate = new GetterMethodTemplate($config, $propertyTemplate);
-        $getterTemplate->addLineToBody(sprintf('return $this->%s;', $propertyTemplate->getName()));
+    public static function createGetter(Config $config, BasePropertyTemplate $property) {
+        $getterTemplate = new GetterMethodTemplate($config, $property);
+        $getterTemplate->addLineToBody(sprintf('return $this->%s;', $property->getName()));
         return $getterTemplate;
     }
 
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $property
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate
      */
-    public static function createSetter(Config $config, BasePropertyTemplate $propertyTemplate) {
-        $paramTemplate = new PropertyParameterTemplate($config, $propertyTemplate);
+    public static function createSetter(Config $config, BasePropertyTemplate $property) {
+        $paramTemplate = new PropertyParameterTemplate($config, $property);
 
-        if ($propertyTemplate->isCollection()) {
+        if ($property->isCollection()) {
             $methodBody = sprintf(
                 '$this->%s[] = %s;',
-                $propertyTemplate->getName(),
+                $property->getName(),
                 NameUtils::getPropertyVariableName($paramTemplate->getProperty()->getName())
             );
         } else {
             $methodBody = sprintf(
                 '$this->%s = %s;',
-                $propertyTemplate->getName(),
+                $property->getName(),
                 NameUtils::getPropertyVariableName($paramTemplate->getProperty()->getName())
             );
         }
 
-        $setterTemplate = new SetterMethodTemplate($config, $propertyTemplate);
+        $setterTemplate = new SetterMethodTemplate($config, $property);
         $setterTemplate->addParameter($paramTemplate);
         $setterTemplate->addLineToBody($methodBody);
 
@@ -205,17 +205,17 @@ abstract class MethodGenerator {
 
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      */
-    public static function implementToString(Config $config, ClassTemplate $classTemplate) {
+    public static function implementToString(Config $config, ClassTemplate $class) {
         $method = new BaseMethodTemplate($config, '__toString');
-        $classTemplate->addMethod($method);
+        $class->addMethod($method);
         $method->setReturnValueType('string');
 
-        if ($classTemplate->hasProperty('value')) {
+        if ($class->hasProperty('value')) {
             $method->setReturnStatement('(string)$this->getValue()');
         } else {
-            if ($classTemplate->hasProperty('id')) {
+            if ($class->hasProperty('id')) {
                 $method->setReturnStatement('(string)$this->getId()');
             } else {
                 $method->setReturnStatement('$this->get_fhirElementName()');
@@ -225,13 +225,13 @@ abstract class MethodGenerator {
 
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      */
-    public static function implementJsonSerialize(Config $config, ClassTemplate $classTemplate) {
+    public static function implementJsonSerialize(Config $config, ClassTemplate $class) {
         $method = new BaseMethodTemplate($config, 'jsonSerialize');
-        $classTemplate->addMethod($method);
+        $class->addMethod($method);
 
-        $properties = $classTemplate->getProperties();
+        $properties = $class->getProperties();
 
         $simple = true;
         if (2 === count($properties)) {
@@ -249,7 +249,7 @@ abstract class MethodGenerator {
             $simple = false;
         }
 
-        $elementName = $classTemplate->getElementName();
+        $elementName = $class->getElementName();
 
         $method->setReturnValueType('mixed');
         if ($simple) {
@@ -279,7 +279,7 @@ abstract class MethodGenerator {
                 $method->setReturnValueType('array');
 
                 // Determine if this class is a child...
-                if (null === $classTemplate->getExtendedElementMapEntry()) {
+                if (null === $class->getExtendedElementMapEntry()) {
                     $method->addLineToBody('$json = [];');
                 } else {
                     $method->addLineToBody('$json = parent::jsonSerialize();');
@@ -287,7 +287,7 @@ abstract class MethodGenerator {
 
                 // Unfortunately for the moment this value will potentially be overwritten several times during
                 // JSOn generation...
-                switch ((string)$classTemplate->getClassType()) {
+                switch ((string)$class->getClassType()) {
                     case ComplexClassTypesEnum::RESOURCE:
                     case ComplexClassTypesEnum::DOMAIN_RESOURCE:
                         $method->addLineToBody('$json[\'resourceType\'] = $this->_fhirElementName;');
@@ -343,17 +343,17 @@ abstract class MethodGenerator {
 
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      */
-    public static function implementXMLSerialize(Config $config, ClassTemplate $classTemplate) {
+    public static function implementXMLSerialize(Config $config, ClassTemplate $class) {
         $method = new BaseMethodTemplate($config, 'xmlSerialize');
         $method->addParameter(new BaseParameterTemplate($config, 'returnSXE', 'boolean', 'false'));
         $method->addParameter(new BaseParameterTemplate($config, 'sxe', '\\SimpleXMLElement', 'null'));
         $method->setReturnStatement('$sxe->saveXML()');
         $method->setReturnValueType('string|\\SimpleXMLElement');
-        $classTemplate->addMethod($method);
+        $class->addMethod($method);
 
-        $properties = $classTemplate->getProperties();
+        $properties = $class->getProperties();
 
         $simple = true;
         if (2 === count($properties)) {
@@ -371,8 +371,11 @@ abstract class MethodGenerator {
             $simple = false;
         }
 
-        $rootElementName =
-            str_replace(NameUtils::$classNameSearch, NameUtils::$classNameReplace, $classTemplate->getElementName());
+        $rootElementName = str_replace(
+            NameUtils::$classNameSearch,
+            NameUtils::$classNameReplace,
+            $class->getElementName()
+        );
         // If this is the root object...
         $method->addLineToBody(sprintf(
             'if (null === $sxe) $sxe = new \\SimpleXMLElement(\'<%s xmlns="%s"></%s>\');',
@@ -412,7 +415,7 @@ abstract class MethodGenerator {
                 }
             } else {
                 // Determine if this class is a child...
-                if ($classTemplate->getExtendedElementMapEntry()) {
+                if ($class->getExtendedElementMapEntry()) {
                     $method->addLineToBody('parent::xmlSerialize(true, $sxe);');
                 }
 
@@ -455,14 +458,14 @@ abstract class MethodGenerator {
                         $method->addLineToBody('}');
                     } else {
                         if ($property->isHTML()) {
-                            $classTemplate->addImport(NSUtils::generateRootNamespace($config, 'PHPFHIRHelper'));
+                            $class->addImport(NSUtils::generateRootNamespace($config, 'PHPFHIRHelper'));
 
                             $method->addLineToBody(sprintf(
                                 'if (isset($this->%s)) {',
                                 $name
                             ));
                             $method->addLineToBody(sprintf(
-                                '   PHPFHIRHelper::recursiveXMLImport($sxe, $this->%1$s);',
+                                '   PHPFHIRHelper::recursiveXMLImport($sxe, $this->%s);',
                                 $name
                             ));
                             $method->addLineToBody('}');
