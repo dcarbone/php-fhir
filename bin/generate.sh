@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-/usr/bin/env php generate.php "$@"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+/usr/bin/env php ${DIR}/generate.php "$@"

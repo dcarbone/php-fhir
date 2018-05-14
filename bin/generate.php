@@ -3,7 +3,7 @@
  * Download and generation script for all major FHIR versions
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,54 @@
  * limitations under the License.
  */
 
+// --- autoload setup
+
+date_default_timezone_set('UTC');
+require __DIR__.'/../vendor/autoload.php';
+
+// --- use statements
+
 use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Generator;
 
-date_default_timezone_set('UTC');
-require __DIR__ . '/../vendor/autoload.php';
+// ----- constants
 
-/**
- *
- */
-function exitWithHelp()
-{
-    $dir = __DIR__;
-    echo <<<STRING
-Please create and populate  a "config.php" file in {$dir}. Here is a template:
+define('PHPFHIR_GENERATE_CONFIG_FILE', 'PHPFHIR_GENERATE_CONFIG_FILE');
+
+// ----- cli and config opts
+
+$printHelp = false;
+$forceDelete = false;
+$configEnv = getenv(PHPFHIR_GENERATE_CONFIG_FILE);
+$configArg = '';
+$configDef = __DIR__.DIRECTORY_SEPARATOR.'config.php';
+$configFile = null;
+$schemaPath = '';
+$classesPath = '';
+$versionsToGenerate = null;
+
+// ----- functions
+
+function missingConfigText($return) {
+    global $configEnv, $configArg, $configDef;
+    $out = 'Unable to locate generate script configuration file.  I looked in the following locations:'.PHP_EOL;
+    $out .= sprintf(
+        '   - env var "%s": %s%s',
+        PHPFHIR_GENERATE_CONFIG_FILE,
+        (false === $configEnv ? 'Not Defined' : $configEnv),
+        PHP_EOL
+    );
+    $out .= sprintf('   - "--config" flag: %s%s', ('' === $configArg ? 'Not Defined' : $configArg), PHP_EOL);
+    $out .= sprintf('   - Default: %s%s', $configDef, PHP_EOL);
+    $out .= PHP_EOL;
+    $out .= 'Please do one of the following:'.PHP_EOL;
+    $out .= sprintf('   - Define "%s" environment variable%s', PHPFHIR_GENERATE_CONFIG_FILE, PHP_EOL);
+    $out .= '   - Pass "--config" flag with valid path to config file'.PHP_EOL;
+    $out .= sprintf('   - Place "config.php" file in "%s"%s', $configDef, PHP_EOL);
+
+    $out .= <<<STRING
+
+Below is an example config file:
 
 <?php
 return [
@@ -46,20 +80,63 @@ return [
 ];
 
 STRING;
+
+    if ($return) {
+        return $out;
+    }
+
+    echo $out;
     exit(1);
 }
 
+
+function exitWithHelp() {
+    global $configDef;
+    $envvar = PHPFHIR_GENERATE_CONFIG_FILE;
+    $out = <<<STRING
+
+PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
+
+- Links: 
+    Source:         https://github.com/dcarbone/php-fhir
+    Generated:      https://github.com/dcarbone/php-fhir-generated
+    FHIR:           http://hl7.org/fhir
+
+- Flags:
+    --help:         Print this help text 
+                        ex: ./bin/generate.sh --help
+    --force:        Forcibly delete all pre-existing FHIR schema files and output files without being prompted [default: false]
+                        ex: ./bin/generate.sh --force
+    --config:       Specify location of config [default: {$configDef}]
+                        ex: ./bin/generate.sh --config path/to/file
+    --versions:     Comma-separated list of specific versions to parse from config
+                        ex: ./bin/generate.sh --versions DSTU1,DSTU2
+
+- Configuration:
+    There are 3 possible ways to define a configuration file for this script to use:
+        1. Define env var {$envvar}
+        2. Pass "--config" flag at run time
+        3. Place "config.php" in dir {$configDef}
+
+
+STRING;
+
+    echo $out;
+    exit(0);
+}
+
 /**
- * @param $q
+ * TODO: Figure out what to do with Windows...
+ *
+ * @param string $q
  *
  * @return bool
  */
-function yesno($q)
-{
+function yesno($q) {
     global $ins, $null;
     echo "{$q} [enter \"yes\" or \"no\"]: ";
-    while(0 !== stream_select($ins, $null, $null, null)) {
-        foreach($ins as $in) {
+    while (0 !== stream_select($ins, $null, $null, null)) {
+        foreach ($ins as $in) {
             $resp = stream_get_line($in, 25, "\n");
             if (is_string($resp)) {
                 return substr(strtolower($resp), 0, 1) === 'y';
@@ -72,12 +149,11 @@ function yesno($q)
 }
 
 /**
- * @param $dir
+ * @param string $dir
  */
-function removeDir($dir)
-{
+function removeDir($dir) {
     echo "Executing \"rm -rf {$dir}\" ...\n";
-    shell_exec('rm -rf ' . $dir);
+    shell_exec('rm -rf '.$dir);
     sleep(1);
     if (file_exists($dir)) {
         echo "Unable to delete dir {$dir}\n";
@@ -86,39 +162,91 @@ function removeDir($dir)
     echo "Done.\n";
 }
 
-if (!file_exists(__DIR__ . '/config.php')) {
-    exitWithHelp();
-}
 
-$config = require __DIR__ . '/config.php';
+// ----- parameter parsing
 
-if (!isset($config['schemaPath']) || !isset($config['classesPath']) || !isset($config['versions'])) {
-    exitWithHelp();
-}
-
-$forceDelete = false;
 if ($argc > 1) {
-    foreach ($argv as $offset => $arg) {
-        if ($offset > 0) {
-            switch ($arg) {
-                case '--force':
-                    $forceDelete = true;
-                    break;
-            }
+    for ($i = 1; $i < $argc; $i++) {
+        $arg = $argv[$i];
+        switch ($arg) {
+            case '--help':
+                $printHelp = true;
+                break;
+
+            case '--force':
+                $forceDelete = true;
+                break;
+
+            case '--config':
+                $configArg = trim($argv[++$i]);
+                break;
+
+            case '--versions':
+                $versionsToGenerate = array_map('trim', explode(',', $argv[++$i]));
+                break;
         }
     }
 }
 
-$schemaPath = realpath(trim($config['schemaPath']));
-$classesPath = realpath(trim($config['classesPath']));
-$versions = $config['versions'];
+// try to determine which config file to use...
+if ('' !== $configArg) {
+    $configFile = $configArg;
+} else if (false !== $configEnv) {
+    $configFile = $configEnv;
+} else {
+    $configFile = $configDef;
+}
+
+if ($printHelp) {
+    exitWithHelp(); // calls exit(0); at end
+}
+
+if (!file_exists($configFile)) {
+    missingConfigText(false);
+}
+
+if (!is_readable($configFile)) {
+    echo "Specified config file \"{$configFile}\" is not readable by this process, please check permissions and try again\n";
+    exit(1);
+}
+
+$config = require $configFile;
+
+$schemaPath = (isset($config['schemaPath']) ? $config['schemaPath'] : null);
+$classesPath = (isset($config['classesPath']) ? $config['classesPath'] : null);
+$versions = (isset($config['versions']) ? $config['versions'] : null);
+
+if (null === $schemaPath) {
+    echo "Config file \"{$configFile}\" is missing \"schemaPath\" directive\n";
+    exit(1);
+}
+if (!is_dir($schemaPath) || !is_readable($schemaPath) || !is_writable($schemaPath)) {
+    echo "Specified schema path \"{$schemaPath}\" either does not exist, is not readable, or is not writable.\n";
+    exit(1);
+}
+if (null === $classesPath) {
+    echo "Config file \"{$configFile}\" is missing \"classesPath\" directive\n";
+    exit(1);
+}
+if (!is_dir($classesPath) || !is_readable($classesPath) || !is_writable($classesPath)) {
+    echo "Specified classes path \"{$classesPath}\" either does not exist, is not readable, or is not writable.\n";
+    exit(1);
+}
+
+if (!is_array($versions)) {
+    echo "Config file \{$configFile}\" is either missing \"versions\" directive or has it set to something other than an associative array\n";
+    exit(1);
+}
+
+$schemaPath = realpath($schemaPath);
+$classesPath = realpath($classesPath);
 
 $ins = [STDIN];
 $null = null;
 
 $existsMsg = ' already exists, please remove it before running generator';
 
-$dir = $classesPath . DIRECTORY_SEPARATOR . 'HL7';
+$dir = $classesPath.DIRECTORY_SEPARATOR.'HL7';
 if (is_dir($dir)) {
     if ($forceDelete || yesno("Directory \"{$dir}\" already exists, ok to delete?")) {
         removeDir($dir);
@@ -128,15 +256,34 @@ if (is_dir($dir)) {
     }
 }
 
-foreach ($versions as $name => $version) {
+if (null === $versionsToGenerate) {
+    $versionsToGenerate = array_keys($versions);
+}
 
-    $url = $version['url'];
-    $namespace = $version['namespace'];
-    $name = trim($name);
+echo sprintf(
+    "\nGenerating classes for versions: %s\n\n",
+    implode(', ', $versionsToGenerate)
+);
+
+foreach ($versionsToGenerate as $version) {
+    if (!isset($versions[$version])) {
+        echo sprintf(
+            "Version \"%s\" not found in config.  Available: %s\n\n",
+            $version,
+            implode(', ', array_keys($versions))
+        );
+        exit(1);
+    }
+
+    $versionConf = $versions[$version];
+
+    $url = $versionConf['url'];
+    $namespace = $versionConf['namespace'];
+    $version = trim($version);
 
     // Download zip files
-    echo 'Downloading ' . $name . ' from ' . $url . PHP_EOL;
-    $zipFileName = $schemaPath . DIRECTORY_SEPARATOR . $name . '.zip';
+    echo 'Downloading '.$version.' from '.$url.PHP_EOL;
+    $zipFileName = $schemaPath.DIRECTORY_SEPARATOR.$version.'.zip';
 
     if (file_exists($zipFileName)) {
         if ($forceDelete || yesno("ZIP \"{$zipFileName}\" already exists, ok to delete?")) {
@@ -153,13 +300,12 @@ foreach ($versions as $name => $version) {
         }
     }
 
-    copy($url, $zipFileName);
-
     // Download/extract ZIP file
+    copy($url, $zipFileName);
     $zip = new ZipArchive;
 
-    $schemaDir = $schemaPath . DIRECTORY_SEPARATOR . $name;
-    $res = $zip->open($schemaDir . '.zip');
+    $schemaDir = $schemaPath.DIRECTORY_SEPARATOR.$version;
+    $res = $zip->open($schemaDir.'.zip');
 
     if (is_dir($schemaDir)) {
         if ($forceDelete || yesno("Schema dir \"{$schemaDir}\" already exists, ok to delete?")) {
@@ -179,15 +325,21 @@ foreach ($versions as $name => $version) {
     $zip->extractTo($schemaDir);
     $zip->close();
 
-    echo 'Generating ' . $name . ' into ' . $classesPath . PHP_EOL;
+    echo sprintf(
+        'Generating "%s" into %s%s%s',
+        $version,
+        $classesPath,
+        str_replace('\\', DIRECTORY_SEPARATOR, $namespace),
+        PHP_EOL
+    );
     $config = new Config([
-      'xsdPath'         => $schemaDir,
-      'outputPath'      => $classesPath,
-      'outputNamespace' => $namespace,
+        'xsdPath'         => $schemaDir,
+        'outputPath'      => $classesPath,
+        'outputNamespace' => $namespace,
     ]);
 
     $generator = new Generator($config);
     $generator->generate();
 }
 
-echo 'Done' . PHP_EOL . PHP_EOL;
+echo PHP_EOL.'Generation completed'.PHP_EOL;

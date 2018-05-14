@@ -52,19 +52,20 @@ abstract class MethodGenerator {
             $method->addLineToBody('    parent::__construct($data);');
             $method->addLineToBody('}');
         } else if ('ResourceContainer' === $class->getElementName()) {
-            $method->addLineToBody('if (is_object($data)) {');
-            $method->addLineToBody('    $n = substr(strrchr(get_class($data), \'FHIR\'), 4);');
-            $method->addLineToBody('    $this->{"set{$n}"}($data);');
-            $method->addLineToBody('} else if (is_array($data)) {');
-            $method->addLineToBody('    if (($cnt = count($data)) > 1) {');
-            $method->addLineToBody('        throw new \\InvalidArgumentException("ResourceContainers may only contain 1 object, \"{$cnt}\" values provided");');
-            $method->addLineToBody('    } else {');
-            $method->addLineToBody('        $k = key($data);');
-            $method->addLineToBody('        $this->{"set{$k}"}($data);');
-            $method->addLineToBody('    }');
-            $method->addLineToBody('} else if (null !== $data) {');
-            $method->addLineToBody('    throw new \\InvalidArgumentException(\'$data expected to be object or array, saw \'.gettype($data));');
-            $method->addLineToBody('}');
+            $method->addBlockToBody(<<<PHP
+if (is_object(\$data)) {
+    \$this->{sprintf('set%s', substr(strrchr(get_class(\$data), 'FHIR'), 4))}(\$data);
+} else if (is_array(\$data)) {
+    if (1 === (\$cnt = count(\$data))) {
+        \$this->{sprintf('set%s', key(\$data))}(\$data);
+    } else {
+        throw new \InvalidArgumentException(sprintf('ResourceContainers may only contain 1 object, "%d" values provided', \$cnt));
+    }
+} else if (null !== \$data) {
+    throw new \\InvalidArgumentException('\$data expected to be object or array, saw '.gettype(\$data));
+}
+PHP
+            );
         } else {
             $collections = [];
             foreach ($class->getProperties() as $property) {
@@ -132,8 +133,13 @@ abstract class MethodGenerator {
                                                        BasePropertyTemplate $property) {
         if ($property->requiresGetter()) {
             if ($property->getFHIRElementType() === 'ResourceContainer') {
-                $method = new BaseMethodTemplate($config,
-                    sprintf('get%s', NameUtils::getPropertyMethodName($property->getName())));
+                $method = new BaseMethodTemplate(
+                    $config,
+                    sprintf(
+                        'get%s',
+                        NameUtils::getPropertyMethodName($property->getName())
+                    )
+                );
                 $method->setDocumentation($property->getDocumentation());
                 if ($property->isCollection()) {
                     $class->addImport(NSUtils::generateRootNamespace($config, 'FHIRResourceContainer'));

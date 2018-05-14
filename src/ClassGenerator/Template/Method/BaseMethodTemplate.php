@@ -98,6 +98,15 @@ class BaseMethodTemplate extends AbstractTemplate {
     }
 
     /**
+     * Add an entire block of code to the body of this method
+     *
+     * @param string $block
+     */
+    public function addBlockToBody($block) {
+        $this->body = array_merge($this->body, explode(PHP_EOL, $block));
+    }
+
+    /**
      * @return PHPScopeEnum
      */
     public function getScope() {
