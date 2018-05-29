@@ -58,7 +58,7 @@ if (is_object(\$data)) {
 } else if (is_array(\$data)) {
     if (1 === (\$cnt = count(\$data))) {
         \$this->{sprintf('set%s', key(\$data))}(\$data);
-    } else {
+    } else if (1 < \$cnt) {
         throw new \InvalidArgumentException(sprintf('ResourceContainers may only contain 1 object, "%d" values provided', \$cnt));
     }
 } else if (null !== \$data) {
