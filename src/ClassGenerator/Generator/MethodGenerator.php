@@ -57,7 +57,7 @@ if (is_object(\$data)) {
     \$this->{sprintf('set%s', substr(strrchr(get_class(\$data), 'FHIR'), 4))}(\$data);
 } else if (is_array(\$data)) {
     if (1 === (\$cnt = count(\$data))) {
-        \$this->{sprintf('set%s', key(\$data))}(\$data);
+        \$this->{sprintf('set%s', key(\$data))}(reset(\$data));
     } else if (1 < \$cnt) {
         throw new \InvalidArgumentException(sprintf('ResourceContainers may only contain 1 object, "%d" values provided', \$cnt));
     }
