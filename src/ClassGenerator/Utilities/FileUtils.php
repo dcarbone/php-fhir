@@ -22,12 +22,14 @@ use DCarbone\PHPFHIR\ClassGenerator\Config;
  * Class FileUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class FileUtils {
+abstract class FileUtils
+{
     /**
-     * @param string                                  $namespace
+     * @param string $namespace
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function createDirsFromNS($namespace, Config $config) {
+    public static function createDirsFromNS($namespace, Config $config)
+    {
         if ('\\' === $namespace) {
             $config->getLogger()->debug('Skipping dir creation for root namespace.');
             return;
@@ -41,7 +43,7 @@ abstract class FileUtils {
             } else {
                 $config->getLogger()->info(sprintf('Attempting to create directory at path "%s"...', $path));
                 if (!(bool)mkdir($path)) {
-                    $msg = 'Unable to create directory at path "'.$path.'"';
+                    $msg = 'Unable to create directory at path "' . $path . '"';
                     $config->getLogger()->critical($msg);
                     throw new \RuntimeException($msg);
                 }
@@ -53,7 +55,8 @@ abstract class FileUtils {
      * @param string $namespace
      * @return string
      */
-    public static function buildDirPathFromNS($namespace) {
+    public static function buildDirPathFromNS($namespace)
+    {
         return preg_replace(['{[\\\]}S', '{[/]{2,}}S'], '/', trim($namespace, "\\"));
     }
 }

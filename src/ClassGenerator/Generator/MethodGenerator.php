@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\PropertyParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\ConstructorUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
 
@@ -32,76 +33,26 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
  * Class MethodGenerator
  * @package DCarbone\PHPFHIR\ClassGenerator\Generator
  */
-abstract class MethodGenerator {
+abstract class MethodGenerator
+{
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      */
-    public static function implementConstructor(Config $config, ClassTemplate $class) {
+    public static function implementConstructor(Config $config, ClassTemplate $class)
+    {
         $method = new BaseMethodTemplate($config, '__construct');
         $param = new BaseParameterTemplate($config, 'data', 'mixed', '[]');
         $method->addParameter($param);
         $class->addMethod($method);
 
         if ($class->isPrimitive()) {
-            // TODO: type-specific checking?
-            $method->addLineToBody('if (is_scalar($data)) {');
-            $method->addLineToBody('    $this->setValue($data);');
-            $method->addLineToBody('} else {');
-            $method->addLineToBody('    parent::__construct($data);');
-            $method->addLineToBody('}');
-        } else if ('ResourceContainer' === $class->getElementName()) {
-            $method->addBlockToBody(<<<PHP
-if (is_object(\$data)) {
-    \$this->{sprintf('set%s', substr(strrchr(get_class(\$data), 'FHIR'), 4))}(\$data);
-} else if (is_array(\$data)) {
-    if (1 === (\$cnt = count(\$data))) {
-        \$this->{sprintf('set%s', key(\$data))}(reset(\$data));
-    } else if (1 < \$cnt) {
-        throw new \InvalidArgumentException(sprintf('ResourceContainers may only contain 1 object, "%d" values provided', \$cnt));
-    }
-} else if (null !== \$data) {
-    throw new \\InvalidArgumentException('\$data expected to be object or array, saw '.gettype(\$data));
-}
-PHP
-            );
+            ConstructorUtils::implementPrimitive($config, $class, $method);
+        } elseif ('ResourceContainer' === $class->getElementName()) {
+            ConstructorUtils::implementResourceContainer($config, $class, $method);
         } else {
-            $collections = [];
-            foreach ($class->getProperties() as $property) {
-                if ($property->isCollection()) {
-                    $collections[] = $property->getName();
-                }
-            }
-            $method->addLineToBody('if (is_array($data)) {');
-            foreach ($class->getProperties() as $name => $property) {
-                if (0 === strpos($name, '_')) {
-                    continue;
-                }
-                $method->addLineToBody('    if (isset($data[\''.$name.'\'])) {');
-                if (in_array($name, $collections, true)) {
-                    $method->addLineToBody('        if (is_array($data[\''.$name.'\'])) {');
-                    $method->addLineToBody('            foreach($data[\''.$name.'\'] as $d) {');
-                    $method->addLineToBody('                $this->add'.ucfirst($name).'($d);');
-                    $method->addLineToBody('            }');
-                    $method->addLineToBody('        } else {');
-                    $method->addLineToBody('            throw new \\InvalidArgumentException(\'"'.
-                        $name.
-                        '" must be array of objects or null, \'.gettype($data[\''.
-                        $name.
-                        '\']).\' seen.\');');
-                    $method->addLineToBody('        }');
-                } else {
-                    $method->addLineToBody('        $this->set'.ucfirst($name).'($data[\''.$name.'\']);');
-                }
-                $method->addLineToBody('    }');
-            }
-            $method->addLineToBody('} else if (null !== $data) {');
-            $method->addLineToBody('    throw new \\InvalidArgumentException(\'$data expected to be array of values, saw "\'.gettype($data).\'"\');');
-            $method->addLineToBody('}');
-            if ($class->getExtendedElementMapEntry()) {
-                $method->addLineToBody('parent::__construct($data);');
-            }
+            ConstructorUtils::implementDefault($config, $class, $method);
         }
 
 //        if ($classTemplate->hasProperty('value')) {
@@ -124,13 +75,14 @@ PHP
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate                 $class
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $property
      */
     public static function implementMethodsForProperty(Config $config,
                                                        ClassTemplate $class,
-                                                       BasePropertyTemplate $property) {
+                                                       BasePropertyTemplate $property
+    ) {
         if ($property->requiresGetter()) {
             if ($property->getFHIRElementType() === 'ResourceContainer') {
                 $method = new BaseMethodTemplate(
@@ -170,22 +122,24 @@ PHP
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $property
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate
      */
-    public static function createGetter(Config $config, BasePropertyTemplate $property) {
+    public static function createGetter(Config $config, BasePropertyTemplate $property)
+    {
         $getterTemplate = new GetterMethodTemplate($config, $property);
         $getterTemplate->addLineToBody(sprintf('return $this->%s;', $property->getName()));
         return $getterTemplate;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $property
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate
      */
-    public static function createSetter(Config $config, BasePropertyTemplate $property) {
+    public static function createSetter(Config $config, BasePropertyTemplate $property)
+    {
         $paramTemplate = new PropertyParameterTemplate($config, $property);
 
         if ($property->isCollection()) {
@@ -210,10 +164,11 @@ PHP
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      */
-    public static function implementToString(Config $config, ClassTemplate $class) {
+    public static function implementToString(Config $config, ClassTemplate $class)
+    {
         $method = new BaseMethodTemplate($config, '__toString');
         $class->addMethod($method);
         $method->setReturnValueType('string');
@@ -230,10 +185,11 @@ PHP
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      */
-    public static function implementJsonSerialize(Config $config, ClassTemplate $class) {
+    public static function implementJsonSerialize(Config $config, ClassTemplate $class)
+    {
         $method = new BaseMethodTemplate($config, 'jsonSerialize');
         $class->addMethod($method);
 
@@ -348,10 +304,11 @@ PHP
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      */
-    public static function implementXMLSerialize(Config $config, ClassTemplate $class) {
+    public static function implementXMLSerialize(Config $config, ClassTemplate $class)
+    {
         $method = new BaseMethodTemplate($config, 'xmlSerialize');
         $method->addParameter(new BaseParameterTemplate($config, 'returnSXE', 'boolean', 'false'));
         $method->addParameter(new BaseParameterTemplate($config, 'sxe', '\\SimpleXMLElement', 'null'));

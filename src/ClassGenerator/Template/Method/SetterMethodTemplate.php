@@ -25,14 +25,16 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class SetterMethodTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-class SetterMethodTemplate extends BaseMethodTemplate {
+class SetterMethodTemplate extends BaseMethodTemplate
+{
     /**
      * Constructor
      *
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate) {
+    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate)
+    {
         if ($propertyTemplate->isCollection()) {
             $name = sprintf('add%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
         } else {

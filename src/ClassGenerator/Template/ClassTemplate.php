@@ -28,7 +28,8 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
  * Class ClassTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-class ClassTemplate extends AbstractTemplate {
+class ClassTemplate extends AbstractTemplate
+{
     /** @var string */
     private $elementName;
 
@@ -67,11 +68,13 @@ class ClassTemplate extends AbstractTemplate {
      * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $XSDMapEntry
      * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum|null $classType
      */
-    public function __construct($fhirElementName,
-                                $className,
-                                $namespace,
-                                XSDMapEntry $XSDMapEntry,
-                                ComplexClassTypesEnum $classType = null) {
+    public function __construct(
+        $fhirElementName,
+        $className,
+        $namespace,
+        XSDMapEntry $XSDMapEntry,
+        ComplexClassTypesEnum $classType = null
+    ) {
         if (NameUtils::isValidClassName($className)) {
             $this->className = $className;
         } else {
@@ -93,57 +96,49 @@ class ClassTemplate extends AbstractTemplate {
     /**
      * @return string
      */
-    public function getElementName() {
+    public function getElementName()
+    {
         return $this->elementName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getNamespace() {
-        return $this->namespace;
-    }
-
-    /**
-     * @return string
-     */
-    public function getClassName() {
-        return $this->className;
     }
 
     /**
      * @return \DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum|null
      */
-    public function getClassType() {
+    public function getClassType()
+    {
         return $this->classType;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
-     */
-    public function setExtendedElementMapEntry(XSDMapEntry $mapEntry) {
-        $this->extendedElementMapEntry = $mapEntry;
-        $this->XSDMapEntry->setExtendedMapEntry($mapEntry);
     }
 
     /**
      * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry
      */
-    public function getExtendedElementMapEntry() {
+    public function getExtendedElementMapEntry()
+    {
         return $this->extendedElementMapEntry;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
+     */
+    public function setExtendedElementMapEntry(XSDMapEntry $mapEntry)
+    {
+        $this->extendedElementMapEntry = $mapEntry;
+        $this->XSDMapEntry->setExtendedMapEntry($mapEntry);
     }
 
     /**
      * @return string[]
      */
-    public function getImplementedInterfaces() {
+    public function getImplementedInterfaces()
+    {
         return $this->implementedInterfaces;
     }
 
     /**
      * @param string $interface
      */
-    public function addImplementedInterface($interface) {
+    public function addImplementedInterface($interface)
+    {
         if (!in_array($interface, $this->implementedInterfaces, true)) {
             $this->implementedInterfaces[] = $interface;
         }
@@ -153,52 +148,25 @@ class ClassTemplate extends AbstractTemplate {
      * @param string $interface
      * @return bool
      */
-    public function implementsInterface($interface) {
+    public function implementsInterface($interface)
+    {
         return in_array($interface, $this->implementedInterfaces, true);
-    }
-
-    /**
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate[]
-     */
-    public function getProperties() {
-        return $this->properties;
-    }
-
-    /**
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate[]
-     */
-    public function getMethods() {
-        return $this->methods;
     }
 
     /**
      * @param BasePropertyTemplate $property
      */
-    public function addProperty(BasePropertyTemplate $property) {
+    public function addProperty(BasePropertyTemplate $property)
+    {
         $this->XSDMapEntry->addProperty($property->getName(), $property->getFHIRElementType());
         $this->properties[$property->getName()] = $property;
     }
 
     /**
-     * @param string $name
-     * @return bool
-     */
-    public function hasProperty($name) {
-        return isset($this->properties[$name]);
-    }
-
-    /**
-     * @param string $name
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate
-     */
-    public function getProperty($name) {
-        return isset($this->properties[$name]) ? $this->properties[$name] : null;
-    }
-
-    /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate $method
      */
-    public function addMethod(BaseMethodTemplate $method) {
+    public function addMethod(BaseMethodTemplate $method)
+    {
         $this->methods[$method->getName()] = $method;
     }
 
@@ -206,7 +174,8 @@ class ClassTemplate extends AbstractTemplate {
      * @param string $name
      * @return bool
      */
-    public function hasMethod($name) {
+    public function hasMethod($name)
+    {
         return isset($this->methods[$name]);
     }
 
@@ -214,14 +183,16 @@ class ClassTemplate extends AbstractTemplate {
      * @param string $name
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate
      */
-    public function getMethod($name) {
+    public function getMethod($name)
+    {
         return isset($this->methods[$name]) ? $this->methods[$name] : null;
     }
 
     /**
      * @return XSDMapEntry
      */
-    public function getXSDMapEntry() {
+    public function getXSDMapEntry()
+    {
         return $this->XSDMapEntry;
     }
 
@@ -230,34 +201,17 @@ class ClassTemplate extends AbstractTemplate {
      *
      * @param string $name
      */
-    public function addImport($name) {
+    public function addImport($name)
+    {
         $this->imports[] = $name;
-    }
-
-    /**
-     * @return array
-     */
-    public function getImports() {
-        return $this->imports;
-    }
-
-    /**
-     * @param bool|true $leadingSlashes
-     * @return string
-     */
-    public function compileFullyQualifiedClassName($leadingSlashes = true) {
-        if ($leadingSlashes) {
-            return sprintf('\\%s\\%s', $this->getNamespace(), $this->getClassName());
-        }
-
-        return sprintf('%s\\%s', $this->getNamespace(), $this->getClassName());
     }
 
     /**
      * @param string $outputPath
      * @return bool
      */
-    public function writeToFile($outputPath) {
+    public function writeToFile($outputPath)
+    {
         return (bool)file_put_contents(
             $this->compileFullOutputPath($outputPath),
             $this->compileTemplate()
@@ -268,7 +222,8 @@ class ClassTemplate extends AbstractTemplate {
      * @param string $outputPath
      * @return string
      */
-    public function compileFullOutputPath($outputPath) {
+    public function compileFullOutputPath($outputPath)
+    {
         return sprintf('%s/%s/%s.php',
             $outputPath,
             FileUtils::buildDirPathFromNS($this->getNamespace()),
@@ -277,16 +232,26 @@ class ClassTemplate extends AbstractTemplate {
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function isPrimitive() {
-        return $this->hasProperty('value') && $this->getProperty('value')->isPrimitive();
+    public function getNamespace()
+    {
+        return $this->namespace;
     }
 
     /**
      * @return string
      */
-    public function compileTemplate() {
+    public function getClassName()
+    {
+        return $this->className;
+    }
+
+    /**
+     * @return string
+     */
+    public function compileTemplate()
+    {
         $ns = $this->getNamespace();
         if ('' === $ns) {
             $output = "<?php\n\n";
@@ -356,7 +321,8 @@ class ClassTemplate extends AbstractTemplate {
     /**
      * @return string
      */
-    private function _compileUseStatements() {
+    private function _compileUseStatements()
+    {
         $useStatement = '';
 
         $thisClassName = $this->compileFullyQualifiedClassName();
@@ -411,5 +377,68 @@ class ClassTemplate extends AbstractTemplate {
         }
 
         return $useStatement;
+    }
+
+    /**
+     * @param bool|true $leadingSlashes
+     * @return string
+     */
+    public function compileFullyQualifiedClassName($leadingSlashes = true)
+    {
+        if ($leadingSlashes) {
+            return sprintf('\\%s\\%s', $this->getNamespace(), $this->getClassName());
+        }
+
+        return sprintf('%s\\%s', $this->getNamespace(), $this->getClassName());
+    }
+
+    /**
+     * @return array
+     */
+    public function getImports()
+    {
+        return $this->imports;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate[]
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate[]
+     */
+    public function getMethods()
+    {
+        return $this->methods;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPrimitive()
+    {
+        return $this->hasProperty('value') && $this->getProperty('value')->isPrimitive();
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasProperty($name)
+    {
+        return isset($this->properties[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate
+     */
+    public function getProperty($name)
+    {
+        return isset($this->properties[$name]) ? $this->properties[$name] : null;
     }
 }

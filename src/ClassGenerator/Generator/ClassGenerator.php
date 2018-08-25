@@ -30,14 +30,16 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
  * Class ClassGenerator
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class ClassGenerator {
+abstract class ClassGenerator
+{
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config             $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap             $XSDMap
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
      * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
      * @return \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate
      */
-    public static function buildFHIRElementClassTemplate(Config $config, XSDMap $XSDMap, XSDMap\XSDMapEntry $mapEntry) {
+    public static function buildFHIRElementClassTemplate(Config $config, XSDMap $XSDMap, XSDMap\XSDMapEntry $mapEntry)
+    {
         $classTemplate = new ClassTemplate(
             $mapEntry->fhirElementName,
             $mapEntry->className,
@@ -107,157 +109,28 @@ abstract class ClassGenerator {
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry     $mapEntry
-     */
-    public static function addBaseClassProperties(ClassTemplate $classTemplate, XSDMap\XSDMapEntry $mapEntry) {
-        // Add the source element name to each class...
-        $property = new BasePropertyTemplate(new PHPScopeEnum(PHPScopeEnum::_PRIVATE), true, false);
-        $property->setDefaultValue($mapEntry->fhirElementName);
-        $property->setName('_fhirElementName');
-        $property->setPHPType('string');
-        $property->setPrimitive(true);
-        $classTemplate->addProperty($property);
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
+     * @param \SimpleXMLElement $complexType
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    public static function addBaseClassMethods(Config $config, ClassTemplate $classTemplate) {
-        MethodGenerator::implementConstructor($config, $classTemplate);
-        MethodGenerator::implementToString($config, $classTemplate);
-        MethodGenerator::implementJsonSerialize($config, $classTemplate);
-        MethodGenerator::implementXMLSerialize($config, $classTemplate);
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
-     */
-    public static function addBaseClassInterfaces(ClassTemplate $classTemplate) {
-        $classTemplate->addImplementedInterface('\\JsonSerializable');
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap                 $XSDMap
-     * @param \SimpleXMLElement                                       $complexContent
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
-     */
-    public static function parseComplexContent(XSDMap $XSDMap,
-                                               \SimpleXMLElement $complexContent,
-                                               ClassTemplate $classTemplate) {
-        self::_parseContent($XSDMap, $complexContent, $classTemplate);
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap                 $XSDMap
-     * @param \SimpleXMLElement                                       $complexType
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
-     */
-    public static function parseComplexType(XSDMap $XSDMap,
-                                            \SimpleXMLElement $complexType,
-                                            ClassTemplate $classTemplate) {
+    public static function parseComplexType(
+        XSDMap $XSDMap,
+        \SimpleXMLElement $complexType,
+        ClassTemplate $classTemplate
+    ) {
         self::_parseContent($XSDMap, $complexType, $classTemplate);
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap                 $XSDMap
-     * @param \SimpleXMLElement                                       $simpleContent
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
-     */
-    public static function parseSimpleContent(XSDMap $XSDMap,
-                                              \SimpleXMLElement $simpleContent,
-                                              ClassTemplate $classTemplate) {
-        self::_parseContent($XSDMap, $simpleContent, $classTemplate);
-    }
-
-    /**
-     * @param XSDMap            $XSDMap
-     * @param \SimpleXMLElement $simpleType
-     * @param ClassTemplate     $classTemplate
-     */
-    public static function parseSimpleType(XSDMap $XSDMap,
-                                           \SimpleXMLElement $simpleType,
-                                           ClassTemplate $classTemplate) {
-        self::_parseContent($XSDMap, $simpleType, $classTemplate);
-    }
-
-    /**
-     * @param XSDMap            $XSDMap
-     * @param \SimpleXMLElement $restriction
-     * @param ClassTemplate     $classTemplate
-     */
-    public static function parseRestriction(XSDMap $XSDMap,
-                                            \SimpleXMLElement $restriction,
-                                            ClassTemplate $classTemplate) {
-        self::determineParentClass($XSDMap, $restriction, $classTemplate);
-        self::_implementProperties($XSDMap, $restriction, $classTemplate);
-    }
-
-    /**
-     * @param XSDMap            $XSDMap
-     * @param \SimpleXMLElement $extension
-     * @param ClassTemplate     $classTemplate
-     */
-    public static function parseExtension(XSDMap $XSDMap, \SimpleXMLElement $extension, ClassTemplate $classTemplate) {
-        self::determineParentClass($XSDMap, $extension, $classTemplate);
-        self::_implementProperties($XSDMap, $extension, $classTemplate);
-    }
-
-    /**
-     * @param XSDMap            $XSDMap
-     * @param \SimpleXMLElement $choice
-     * @param ClassTemplate     $classTemplate
-     */
-    public static function parseChoice(XSDMap $XSDMap,
-                                       \SimpleXMLElement $choice,
-                                       ClassTemplate $classTemplate) {
-        PropertyGenerator::implementProperty($XSDMap, $classTemplate, $choice);
-    }
-
-    /**
-     * @param XSDMap            $XSDMap
-     * @param \SimpleXMLElement $sxe
-     * @param ClassTemplate     $classTemplate
-     */
-    public static function determineParentClass(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate) {
-        $fhirElementName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
-        if (null === $fhirElementName) {
-            $fhirElementName = XMLUtils::getBaseFHIRElementNameFromRestriction($sxe);
-        }
-
-        if (null === $fhirElementName) {
-            return;
-        }
-
-        if (0 === strpos($fhirElementName, 'xs')) {
-            $fhirElementName = substr($fhirElementName, 3);
-        }
-
-        self::findParentElementXSDMapEntry($fhirElementName, $XSDMap, $classTemplate);
-    }
-
-    /**
-     * @param string        $fhirElementName
-     * @param XSDMap        $XSDMap
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $contentElement
      * @param ClassTemplate $classTemplate
      */
-    public static function findParentElementXSDMapEntry($fhirElementName,
-                                                        XSDMap $XSDMap,
-                                                        ClassTemplate $classTemplate) {
-        if (isset($XSDMap[$fhirElementName])) {
-            $classTemplate->setExtendedElementMapEntry($XSDMap[$fhirElementName]);
-        }
-    }
-
-    /**
-     * @param XSDMap            $XSDMap
-     * @param \SimpleXMLElement $contentElement
-     * @param ClassTemplate     $classTemplate
-     */
-    private static function _parseContent(XSDMap $XSDMap,
-                                          \SimpleXMLElement $contentElement,
-                                          ClassTemplate $classTemplate) {
+    private static function _parseContent(
+        XSDMap $XSDMap,
+        \SimpleXMLElement $contentElement,
+        ClassTemplate $classTemplate
+    ) {
         foreach ($contentElement->children('xs', true) as $element) {
             /** @var \SimpleXMLElement $element */
             switch (strtolower($element->getName())) {
@@ -293,11 +166,100 @@ abstract class ClassGenerator {
     }
 
     /**
-     * @param XSDMap            $XSDMap
-     * @param \SimpleXMLElement $sxe
-     * @param ClassTemplate     $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
+     * @param \SimpleXMLElement $complexContent
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
      */
-    private static function _implementProperties(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate) {
+    public static function parseComplexContent(
+        XSDMap $XSDMap,
+        \SimpleXMLElement $complexContent,
+        ClassTemplate $classTemplate
+    ) {
+        self::_parseContent($XSDMap, $complexContent, $classTemplate);
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
+     * @param \SimpleXMLElement $simpleContent
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     */
+    public static function parseSimpleContent(
+        XSDMap $XSDMap,
+        \SimpleXMLElement $simpleContent,
+        ClassTemplate $classTemplate
+    ) {
+        self::_parseContent($XSDMap, $simpleContent, $classTemplate);
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $simpleType
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseSimpleType(
+        XSDMap $XSDMap,
+        \SimpleXMLElement $simpleType,
+        ClassTemplate $classTemplate
+    ) {
+        self::_parseContent($XSDMap, $simpleType, $classTemplate);
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $extension
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseExtension(XSDMap $XSDMap, \SimpleXMLElement $extension, ClassTemplate $classTemplate)
+    {
+        self::determineParentClass($XSDMap, $extension, $classTemplate);
+        self::_implementProperties($XSDMap, $extension, $classTemplate);
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $sxe
+     * @param ClassTemplate $classTemplate
+     */
+    public static function determineParentClass(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
+    {
+        $fhirElementName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
+        if (null === $fhirElementName) {
+            $fhirElementName = XMLUtils::getBaseFHIRElementNameFromRestriction($sxe);
+        }
+
+        if (null === $fhirElementName) {
+            return;
+        }
+
+        if (0 === strpos($fhirElementName, 'xs')) {
+            $fhirElementName = substr($fhirElementName, 3);
+        }
+
+        self::findParentElementXSDMapEntry($fhirElementName, $XSDMap, $classTemplate);
+    }
+
+    /**
+     * @param string $fhirElementName
+     * @param XSDMap $XSDMap
+     * @param ClassTemplate $classTemplate
+     */
+    public static function findParentElementXSDMapEntry(
+        $fhirElementName,
+        XSDMap $XSDMap,
+        ClassTemplate $classTemplate
+    ) {
+        if (isset($XSDMap[$fhirElementName])) {
+            $classTemplate->setExtendedElementMapEntry($XSDMap[$fhirElementName]);
+        }
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $sxe
+     * @param ClassTemplate $classTemplate
+     */
+    private static function _implementProperties(XSDMap $XSDMap, \SimpleXMLElement $sxe, ClassTemplate $classTemplate)
+    {
         foreach ($sxe->children('xs', true) as $element) {
             /** @var \SimpleXMLElement $element */
             switch (strtolower($element->getName())) {
@@ -310,5 +272,67 @@ abstract class ClassGenerator {
                     break;
             }
         }
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $restriction
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseRestriction(
+        XSDMap $XSDMap,
+        \SimpleXMLElement $restriction,
+        ClassTemplate $classTemplate
+    ) {
+        self::determineParentClass($XSDMap, $restriction, $classTemplate);
+        self::_implementProperties($XSDMap, $restriction, $classTemplate);
+    }
+
+    /**
+     * @param XSDMap $XSDMap
+     * @param \SimpleXMLElement $choice
+     * @param ClassTemplate $classTemplate
+     */
+    public static function parseChoice(
+        XSDMap $XSDMap,
+        \SimpleXMLElement $choice,
+        ClassTemplate $classTemplate
+    ) {
+        PropertyGenerator::implementProperty($XSDMap, $classTemplate, $choice);
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
+     */
+    public static function addBaseClassProperties(ClassTemplate $classTemplate, XSDMap\XSDMapEntry $mapEntry)
+    {
+        // Add the source element name to each class...
+        $property = new BasePropertyTemplate(new PHPScopeEnum(PHPScopeEnum::_PRIVATE), true, false);
+        $property->setDefaultValue($mapEntry->fhirElementName);
+        $property->setName('_fhirElementName');
+        $property->setPHPType('string');
+        $property->setPrimitive(true);
+        $classTemplate->addProperty($property);
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     */
+    public static function addBaseClassInterfaces(ClassTemplate $classTemplate)
+    {
+        $classTemplate->addImplementedInterface('\\JsonSerializable');
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
+     */
+    public static function addBaseClassMethods(Config $config, ClassTemplate $classTemplate)
+    {
+        MethodGenerator::implementConstructor($config, $classTemplate);
+        MethodGenerator::implementToString($config, $classTemplate);
+        MethodGenerator::implementJsonSerialize($config, $classTemplate);
+        MethodGenerator::implementXMLSerialize($config, $classTemplate);
     }
 }

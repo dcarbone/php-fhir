@@ -22,21 +22,24 @@
  * Class AbstractTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-abstract class AbstractTemplate {
+abstract class AbstractTemplate
+{
     /** @var array */
     protected $documentation;
 
     /**
      * @return array
      */
-    public function getDocumentation() {
+    public function getDocumentation()
+    {
         return $this->documentation;
     }
 
     /**
      * @param string|array|null $documentation
      */
-    public function setDocumentation($documentation) {
+    public function setDocumentation($documentation)
+    {
         if (null !== $documentation) {
             if (is_string($documentation)) {
                 $documentation = array($documentation);
@@ -51,23 +54,25 @@ abstract class AbstractTemplate {
     }
 
     /**
+     * @see compileTemplate
+     * @return string By default, returns output of compileTemplate
+     */
+    public function __toString()
+    {
+        return $this->compileTemplate();
+    }
+
+    /**
      * @return string
      */
     abstract public function compileTemplate();
 
     /**
-     * @see compileTemplate
-     * @return string By default, returns output of compileTemplate
-     */
-    public function __toString() {
-        return $this->compileTemplate();
-    }
-
-    /**
      * @param int $spaces
      * @return string
      */
-    protected function getDocBlockDocumentationFragment($spaces = 5) {
+    protected function getDocBlockDocumentationFragment($spaces = 5)
+    {
         $output = '';
         $spaces = str_repeat(' ', $spaces);
         if (isset($this->documentation)) {

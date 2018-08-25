@@ -24,29 +24,25 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class GetterMethodTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template
  */
-class GetterMethodTemplate extends BaseMethodTemplate {
+class GetterMethodTemplate extends BaseMethodTemplate
+{
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate */
     private $_property;
 
     /**
      * GetterMethodTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate) {
+    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate)
+    {
         parent::__construct($config, sprintf('get%s', NameUtils::getPropertyMethodName($propertyTemplate->getName())));
         $this->setDocumentation($propertyTemplate->getDocumentation());
         $this->_property = $propertyTemplate;
     }
 
-    /**
-     * @return BasePropertyTemplate
-     */
-    public function getProperty() {
-        return $this->_property;
-    }
-
-    protected function buildReturnDocBlockStatement() {
+    protected function buildReturnDocBlockStatement()
+    {
         $property = $this->getProperty();
 
         return sprintf(
@@ -55,5 +51,13 @@ class GetterMethodTemplate extends BaseMethodTemplate {
             $property->getPHPType(),
             ($property->isCollection() ? '[]' : '')
         );
+    }
+
+    /**
+     * @return BasePropertyTemplate
+     */
+    public function getProperty()
+    {
+        return $this->_property;
     }
 }

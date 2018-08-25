@@ -20,12 +20,14 @@
  * Class XMLUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class XMLUtils {
+abstract class XMLUtils
+{
     /**
      * @param \SimpleXMLElement $extensionElement
      * @return null|string
      */
-    public static function getBaseFHIRElementNameFromExtension(\SimpleXMLElement $extensionElement) {
+    public static function getBaseFHIRElementNameFromExtension(\SimpleXMLElement $extensionElement)
+    {
         if ('extension' !== $extensionElement->getName()) {
             $xpath = $extensionElement->xpath('xs:complexContent/xs:extension');
             if (0 === count($xpath)) {
@@ -47,7 +49,8 @@ abstract class XMLUtils {
      * @param \SimpleXMLElement $restrictionElement
      * @return null|string
      */
-    public static function getBaseFHIRElementNameFromRestriction(\SimpleXMLElement $restrictionElement) {
+    public static function getBaseFHIRElementNameFromRestriction(\SimpleXMLElement $restrictionElement)
+    {
         if ('restriction' !== $restrictionElement->getName()) {
             $xpath = $restrictionElement->xpath('xs:complexContent/xs:restriction');
             if (0 === count($xpath)) {
@@ -74,7 +77,8 @@ abstract class XMLUtils {
      * @param \SimpleXMLElement $sxe
      * @return null|string
      */
-    public static function getObjectNameFromElement(\SimpleXMLElement $sxe) {
+    public static function getObjectNameFromElement(\SimpleXMLElement $sxe)
+    {
         $attributes = $sxe->attributes();
 
         if ($name = $attributes['name']) {
@@ -85,23 +89,11 @@ abstract class XMLUtils {
     }
 
     /**
-     * @param \SimpleXMLElement $parent
-     * @return null|\SimpleXMLElement
-     */
-    public static function getAnnotationElement(\SimpleXMLElement $parent) {
-        $annotation = $parent->xpath('xs:annotation');
-        if (1 === count($annotation)) {
-            return $annotation[0];
-        }
-
-        return null;
-    }
-
-    /**
      * @param \SimpleXMLElement $annotation
      * @return null|string|array
      */
-    public static function getDocumentation(\SimpleXMLElement $annotation) {
+    public static function getDocumentation(\SimpleXMLElement $annotation)
+    {
         if ('annotation' !== $annotation->getName()) {
             $annotation = self::getAnnotationElement($annotation);
         }
@@ -121,5 +113,19 @@ abstract class XMLUtils {
             $return[] = (string)$element;
         }
         return $return;
+    }
+
+    /**
+     * @param \SimpleXMLElement $parent
+     * @return null|\SimpleXMLElement
+     */
+    public static function getAnnotationElement(\SimpleXMLElement $parent)
+    {
+        $annotation = $parent->xpath('xs:annotation');
+        if (1 === count($annotation)) {
+            return $annotation[0];
+        }
+
+        return null;
     }
 }

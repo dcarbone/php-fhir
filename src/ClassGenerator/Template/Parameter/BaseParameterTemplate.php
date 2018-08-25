@@ -24,7 +24,8 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class BaseParameterTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\Parameter
  */
-class BaseParameterTemplate extends AbstractTemplate {
+class BaseParameterTemplate extends AbstractTemplate
+{
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
     protected $config;
 
@@ -38,11 +39,12 @@ class BaseParameterTemplate extends AbstractTemplate {
     /**
      * BaseParameterTemplate constructor.
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
-     * @param string                                  $name
-     * @param string                                  $phpType
-     * @param mixed                                   $defaultValue
+     * @param string $name
+     * @param string $phpType
+     * @param mixed $defaultValue
      */
-    public function __construct(Config $config, $name, $phpType = 'mixed', $defaultValue = null) {
+    public function __construct(Config $config, $name, $phpType = 'mixed', $defaultValue = null)
+    {
         $this->config = $config;
 
         if (NameUtils::isValidVariableName($name)) {
@@ -58,42 +60,8 @@ class BaseParameterTemplate extends AbstractTemplate {
     /**
      * @return string
      */
-    public function getName() {
-        return $this->name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPhpType() {
-        return $this->phpType;
-    }
-
-    /**
-     * @param string $phpType
-     */
-    public function setPhpType($phpType) {
-        $this->phpType = $phpType;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getDefaultValue() {
-        return $this->defaultValue;
-    }
-
-    /**
-     * @param null|string $defaultValue
-     */
-    public function setDefaultValue($defaultValue) {
-        $this->defaultValue = $defaultValue;
-    }
-
-    /**
-     * @return string
-     */
-    public function getParamDocBlockFragment() {
+    public function getParamDocBlockFragment()
+    {
         return sprintf(
             '@param %s %s',
             $this->getPhpType(),
@@ -104,7 +72,32 @@ class BaseParameterTemplate extends AbstractTemplate {
     /**
      * @return string
      */
-    public function compileTemplate() {
+    public function getPhpType()
+    {
+        return $this->phpType;
+    }
+
+    /**
+     * @param string $phpType
+     */
+    public function setPhpType($phpType)
+    {
+        $this->phpType = $phpType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function compileTemplate()
+    {
         if (is_string($this->defaultValue)) {
             return sprintf(
                 '%s = %s',
@@ -114,5 +107,21 @@ class BaseParameterTemplate extends AbstractTemplate {
         }
 
         return NameUtils::getPropertyVariableName($this->getName());
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getDefaultValue()
+    {
+        return $this->defaultValue;
+    }
+
+    /**
+     * @param null|string $defaultValue
+     */
+    public function setDefaultValue($defaultValue)
+    {
+        $this->defaultValue = $defaultValue;
     }
 }

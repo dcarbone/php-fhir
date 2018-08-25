@@ -24,13 +24,15 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
  * Class NSUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class NSUtils {
+abstract class NSUtils
+{
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
-     * @param string|null                             $classNS
+     * @param string|null $classNS
      * @return string
      */
-    public static function generateRootNamespace(Config $config, $classNS) {
+    public static function generateRootNamespace(Config $config, $classNS)
+    {
         $outputNS = (string)$config->getOutputNamespace();
         $classNS = (string)$classNS;
 
@@ -53,7 +55,8 @@ abstract class NSUtils {
      * @param SimpleClassTypesEnum $type
      * @return string
      */
-    public static function getSimpleTypeNamespace(SimpleClassTypesEnum $type) {
+    public static function getSimpleTypeNamespace(SimpleClassTypesEnum $type)
+    {
         switch ((string)$type) {
             case SimpleClassTypesEnum::_LIST:
                 return 'FHIRList';
@@ -66,11 +69,12 @@ abstract class NSUtils {
     }
 
     /**
-     * @param string                     $name
+     * @param string $name
      * @param ComplexClassTypesEnum|null $type
      * @return string
      */
-    public static function getComplexTypeNamespace($name, ComplexClassTypesEnum $type = null) {
+    public static function getComplexTypeNamespace($name, ComplexClassTypesEnum $type = null)
+    {
         switch ((string)$type) {
             case ComplexClassTypesEnum::DOMAIN_RESOURCE:
                 return 'FHIRDomainResource';

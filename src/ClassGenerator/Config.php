@@ -27,7 +27,8 @@ use Psr\Log\NullLogger;
  * Class Config
  * @package DCarbone\PHPFHIR\ClassGenerator
  */
-class Config implements LoggerAwareInterface {
+class Config implements LoggerAwareInterface
+{
 
     use LoggerAwareTrait;
 
@@ -46,7 +47,8 @@ class Config implements LoggerAwareInterface {
      * @param array $conf
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(array $conf = [], LoggerInterface $logger = null) {
+    public function __construct(array $conf = [], LoggerInterface $logger = null)
+    {
         if ($logger) {
             $this->logger = new Logger($logger);
         } else {
@@ -64,14 +66,16 @@ class Config implements LoggerAwareInterface {
     /**
      * @return \DCarbone\PHPFHIR\Logger
      */
-    public function getLogger() {
+    public function getLogger()
+    {
         return $this->logger;
     }
 
     /**
      * @return string
      */
-    public function getXsdPath() {
+    public function getXsdPath()
+    {
         return $this->xsdPath;
     }
 
@@ -79,7 +83,8 @@ class Config implements LoggerAwareInterface {
      * @param string $xsdPath
      * @return \DCarbone\PHPFHIR\ClassGenerator\Config
      */
-    public function setXsdPath($xsdPath) {
+    public function setXsdPath($xsdPath)
+    {
         // Bunch'o validation
         if (false === is_dir($xsdPath)) {
             throw new \RuntimeException('Unable to locate XSD dir "' . $xsdPath . '"');
@@ -94,7 +99,8 @@ class Config implements LoggerAwareInterface {
     /**
      * @return string
      */
-    public function getOutputPath() {
+    public function getOutputPath()
+    {
         return $this->outputPath;
     }
 
@@ -102,15 +108,18 @@ class Config implements LoggerAwareInterface {
      * @param string $outputPath
      * @return \DCarbone\PHPFHIR\ClassGenerator\Config
      */
-    public function setOutputPath($outputPath) {
+    public function setOutputPath($outputPath)
+    {
         if (!is_dir($outputPath)) {
             throw new \RuntimeException('Unable to locate output dir "' . $outputPath . '"');
         }
         if (!is_writable($outputPath)) {
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.', $outputPath));
+            throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.',
+                $outputPath));
         }
         if (!is_readable($outputPath)) {
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.', $outputPath));
+            throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.',
+                $outputPath));
         }
         $this->outputPath = $outputPath;
         return $this;
@@ -119,17 +128,22 @@ class Config implements LoggerAwareInterface {
     /**
      * @return array
      */
-    public function getXmlSerializationAttributeOverrides() {
+    public function getXmlSerializationAttributeOverrides()
+    {
         return $this->xmlSerializationAttributeOverrides;
     }
 
     /**
-     * @param string $elementName
-     * @param string $attributeName
-     * @return bool
+     * @param array $xmlSerializationAttributeOverrides
+     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
      */
-    public function getXmlSerializationAttributeOverride($elementName, $attributeName) {
-        return isset($this->xmlSerializationAttributeOverrides[$elementName]) && $this->xmlSerializationAttributeOverrides[$elementName] === $attributeName;
+    public function setXmlSerializationAttributeOverrides(array $xmlSerializationAttributeOverrides)
+    {
+        $this->xmlSerializationAttributeOverrides = [];
+        foreach ($xmlSerializationAttributeOverrides as $k => $v) {
+            $this->setXmlSerializationAttributeOverride($k, $v);
+        }
+        return $this;
     }
 
     /**
@@ -137,27 +151,27 @@ class Config implements LoggerAwareInterface {
      * @param string $propertyName
      * @return \DCarbone\PHPFHIR\ClassGenerator\Config
      */
-    public function setXmlSerializationAttributeOverride($elementName, $propertyName) {
+    public function setXmlSerializationAttributeOverride($elementName, $propertyName)
+    {
         $this->xmlSerializationAttributeOverrides[$elementName] = $propertyName;
         return $this;
     }
 
     /**
-     * @param array $xmlSerializationAttributeOverrides
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     * @param string $elementName
+     * @param string $attributeName
+     * @return bool
      */
-    public function setXmlSerializationAttributeOverrides(array $xmlSerializationAttributeOverrides) {
-        $this->xmlSerializationAttributeOverrides = [];
-        foreach($xmlSerializationAttributeOverrides as $k => $v) {
-            $this->setXmlSerializationAttributeOverride($k, $v);
-        }
-        return $this;
+    public function getXmlSerializationAttributeOverride($elementName, $attributeName)
+    {
+        return isset($this->xmlSerializationAttributeOverrides[$elementName]) && $this->xmlSerializationAttributeOverrides[$elementName] === $attributeName;
     }
 
     /**
      * @return string
      */
-    public function getOutputNamespace() {
+    public function getOutputNamespace()
+    {
         return $this->outputNamespace;
     }
 
@@ -165,13 +179,15 @@ class Config implements LoggerAwareInterface {
      * @param string $outputNamespace
      * @return \DCarbone\PHPFHIR\ClassGenerator\Config
      */
-    public function setOutputNamespace($outputNamespace) {
+    public function setOutputNamespace($outputNamespace)
+    {
         if (null === $outputNamespace) {
             $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
         }
         $outputNamespace = ltrim($outputNamespace, "\\");
         if (false === NameUtils::isValidNSName($outputNamespace)) {
-            throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.', $outputNamespace));
+            throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.',
+                $outputNamespace));
         }
         $this->outputNamespace = trim($outputNamespace, "\\;");
         return $this;

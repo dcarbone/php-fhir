@@ -22,7 +22,8 @@ use MyCLabs\Enum\Enum;
  * Class PrimitivePropertyTypesEnum
  * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
-class PrimitivePropertyTypesEnum extends Enum {
+class PrimitivePropertyTypesEnum extends Enum
+{
     const POSITIVE_INTEGER = 'positiveint';
     const NEGATIVE_INTEGER = 'negativeint';
     const UNSIGNED_INTEGER = 'unsignedint';

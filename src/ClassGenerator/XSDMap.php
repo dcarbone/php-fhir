@@ -20,7 +20,8 @@
  * Class XSDMap
  * @package DCarbone\PHPFHIR\ClassGenerator
  */
-class XSDMap implements \ArrayAccess, \Iterator {
+class XSDMap implements \ArrayAccess, \Iterator
+{
     /** @var \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry[] */
     private $map = [];
 
@@ -28,7 +29,8 @@ class XSDMap implements \ArrayAccess, \Iterator {
      * @param string $fhirElementName
      * @return string|null
      */
-    public function getClassNameForFHIRElementName($fhirElementName) {
+    public function getClassNameForFHIRElementName($fhirElementName)
+    {
         if (isset($this[$fhirElementName])) {
             return $this[$fhirElementName]->className;
         }
@@ -40,7 +42,8 @@ class XSDMap implements \ArrayAccess, \Iterator {
      * @param string $fhirElementName
      * @return null|string
      */
-    public function getClassUseStatementForFHIRElementName($fhirElementName) {
+    public function getClassUseStatementForFHIRElementName($fhirElementName)
+    {
         if (isset($this[$fhirElementName])) {
             return sprintf('%s\\%s', $this[$fhirElementName]->namespace, $this[$fhirElementName]->className);
         }
@@ -52,36 +55,42 @@ class XSDMap implements \ArrayAccess, \Iterator {
     /**
      * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry|mixed
      */
-    public function current() {
+    public function current()
+    {
         return current($this->map);
     }
 
-    public function next() {
+    public function next()
+    {
         next($this->map);
     }
 
     /**
      * @return string|null
      */
-    public function key() {
+    public function key()
+    {
         return key($this->map);
     }
 
     /**
      * @return bool
      */
-    public function valid() {
+    public function valid()
+    {
         return null !== key($this->map);
     }
 
-    public function rewind() {
+    public function rewind()
+    {
         reset($this->map);
     }
 
     /**
      * @return mixed
      */
-    public function reset() {
+    public function reset()
+    {
         return reset($this->map);
     }
 
@@ -89,7 +98,8 @@ class XSDMap implements \ArrayAccess, \Iterator {
      * @param mixed $offset
      * @return bool
      */
-    public function offsetExists($offset) {
+    public function offsetExists($offset)
+    {
         return isset($this->map[$offset]) || array_key_exists($offset, $this->map);
     }
 
@@ -97,7 +107,8 @@ class XSDMap implements \ArrayAccess, \Iterator {
      * @param mixed $offset
      * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry
      */
-    public function offsetGet($offset) {
+    public function offsetGet($offset)
+    {
         if (isset($this->map[$offset]) || array_key_exists($offset, $this->map)) {
             return $this->map[$offset];
         }
@@ -112,7 +123,8 @@ class XSDMap implements \ArrayAccess, \Iterator {
      * @param mixed $offset
      * @param mixed $value
      */
-    public function offsetSet($offset, $value) {
+    public function offsetSet($offset, $value)
+    {
         if (null === $offset) {
             $this->map[] = $value;
         } else {
@@ -123,7 +135,8 @@ class XSDMap implements \ArrayAccess, \Iterator {
     /**
      * @param mixed $offset
      */
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset)
+    {
         throw new \BadMethodCallException(sprintf(
             '%s - Cannot unset entry in map.',
             get_class($this)

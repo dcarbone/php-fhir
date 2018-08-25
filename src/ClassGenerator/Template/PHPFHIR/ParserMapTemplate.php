@@ -25,7 +25,8 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
  * Class ParserMapTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR
  */
-class ParserMapTemplate extends AbstractPHPFHIRClassTemplate {
+class ParserMapTemplate extends AbstractPHPFHIRClassTemplate
+{
     /** @var array */
     private $_bigDumbMap = [];
 
@@ -33,14 +34,16 @@ class ParserMapTemplate extends AbstractPHPFHIRClassTemplate {
      * ParserMapTemplate constructor.
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public function __construct(Config $config) {
+    public function __construct(Config $config)
+    {
         parent::__construct($config, 'PHPFHIRParserMap');
     }
 
     /**
      * @param ClassTemplate $classTemplate
      */
-    public function addEntry(ClassTemplate $classTemplate) {
+    public function addEntry(ClassTemplate $classTemplate)
+    {
         $fhirElementName = $classTemplate->getElementName();
 
         $extendedMapEntry = $classTemplate->getExtendedElementMapEntry();
@@ -68,18 +71,20 @@ class ParserMapTemplate extends AbstractPHPFHIRClassTemplate {
     /**
      * @inheritDoc
      */
-    public function compileTemplate() {
+    public function compileTemplate()
+    {
         $this->addExtendedClassProperties();
 
         return sprintf(
-            include PHPFHIR_TEMPLATE_DIR.'/parser_map_template.php',
+            include PHPFHIR_TEMPLATE_DIR . '/parser_map_template.php',
             $this->outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment(),
             var_export($this->_bigDumbMap, true)
         );
     }
 
-    protected function addExtendedClassProperties() {
+    protected function addExtendedClassProperties()
+    {
         $elementNames = array_keys($this->_bigDumbMap);
         foreach ($elementNames as $elementName) {
             $this->getExtendedProperties($elementName, $this->_bigDumbMap[$elementName]['properties']);
@@ -88,9 +93,10 @@ class ParserMapTemplate extends AbstractPHPFHIRClassTemplate {
 
     /**
      * @param string $elementName
-     * @param array  $_entry
+     * @param array $_entry
      */
-    protected function getExtendedProperties($elementName, array &$_entry) {
+    protected function getExtendedProperties($elementName, array &$_entry)
+    {
         if (isset($this->_bigDumbMap[$elementName]['extendedElementName'])) {
             $extendedElement = $this->_bigDumbMap[$elementName]['extendedElementName'];
 

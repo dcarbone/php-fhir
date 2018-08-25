@@ -20,7 +20,8 @@
  * Class NameUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class NameUtils {
+abstract class NameUtils
+{
     const VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
     const FUNCNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
     const CLASSNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
@@ -42,7 +43,8 @@ abstract class NameUtils {
      * @param string $name
      * @return bool
      */
-    public static function isValidVariableName($name) {
+    public static function isValidVariableName($name)
+    {
         return (bool)preg_match(self::VARIABLE_NAME_REGEX, $name);
     }
 
@@ -50,7 +52,8 @@ abstract class NameUtils {
      * @param string $name
      * @return bool
      */
-    public static function isValidFunctionName($name) {
+    public static function isValidFunctionName($name)
+    {
         return (bool)preg_match(self::FUNCNAME_REGEX, $name);
     }
 
@@ -58,7 +61,8 @@ abstract class NameUtils {
      * @param string $name
      * @return bool
      */
-    public static function isValidClassName($name) {
+    public static function isValidClassName($name)
+    {
         return (bool)preg_match(self::CLASSNAME_REGEX, $name);
     }
 
@@ -66,7 +70,8 @@ abstract class NameUtils {
      * @param string $name
      * @return bool
      */
-    public static function isValidNSName($name) {
+    public static function isValidNSName($name)
+    {
         return null === $name || '' === $name || (bool)preg_match(self::NSNAME_REGEX, $name);
     }
 
@@ -74,7 +79,8 @@ abstract class NameUtils {
      * @param string $name
      * @return string
      */
-    public static function getSimpleTypeClassName($name) {
+    public static function getSimpleTypeClassName($name)
+    {
         if (false !== ($pos = strpos($name, '-primitive'))) {
             $name = sprintf('%sPrimitive', substr($name, 0, $pos));
         } else {
@@ -94,7 +100,8 @@ abstract class NameUtils {
      * @param string $name
      * @return string
      */
-    public static function getComplexTypeClassName($name) {
+    public static function getComplexTypeClassName($name)
+    {
         return sprintf('FHIR%s', ucfirst(str_replace(self::$classNameSearch, self::$classNameReplace, $name)));
     }
 
@@ -102,7 +109,8 @@ abstract class NameUtils {
      * @param string $propName
      * @return string
      */
-    public static function getPropertyMethodName($propName) {
+    public static function getPropertyMethodName($propName)
+    {
         return ucfirst($propName);
     }
 
@@ -110,7 +118,8 @@ abstract class NameUtils {
      * @param string $propName
      * @return string
      */
-    public static function getPropertyVariableName($propName) {
+    public static function getPropertyVariableName($propName)
+    {
         return sprintf('$%s', $propName);
     }
 }

@@ -19,6 +19,9 @@
   ],
   "require": {
     "php": ">=5.4.0",
+    "ext-simplexml": "*",
+    "ext-json": "*",
+    "ext-libxml": "*",
     "myclabs/php-enum": "@stable",
     "psr/log": "@stable"
   },

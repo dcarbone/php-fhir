@@ -24,12 +24,14 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
  * Class ClassTypeUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class ClassTypeUtils {
+abstract class ClassTypeUtils
+{
     /**
      * @param string|\SimpleXMLElement $input
      * @return SimpleClassTypesEnum
      */
-    public static function getSimpleClassType($input) {
+    public static function getSimpleClassType($input)
+    {
         if ($input instanceof \SimpleXMLElement) {
             $name = XMLUtils::getObjectNameFromElement($input);
         } else {
@@ -40,14 +42,15 @@ abstract class ClassTypeUtils {
             return new SimpleClassTypesEnum(ltrim(strrchr($name, '-'), "-"));
         }
 
-        throw new \InvalidArgumentException('Unable to determine Simple Class Type for "'.(string)$input.'"');
+        throw new \InvalidArgumentException('Unable to determine Simple Class Type for "' . (string)$input . '"');
     }
 
     /**
      * @param \SimpleXMLElement $sxe
      * @return null|ComplexClassTypesEnum
      */
-    public static function getComplexClassType(\SimpleXMLElement $sxe) {
+    public static function getComplexClassType(\SimpleXMLElement $sxe)
+    {
         $name = XMLUtils::getObjectNameFromElement($sxe);
         if (false !== strpos($name, '.')) {
             return new ComplexClassTypesEnum(ComplexClassTypesEnum::COMPONENT);

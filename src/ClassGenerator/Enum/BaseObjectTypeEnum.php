@@ -22,7 +22,8 @@ use MyCLabs\Enum\Enum;
  * Class BaseObjectTypeEnum
  * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
-class BaseObjectTypeEnum extends Enum {
+class BaseObjectTypeEnum extends Enum
+{
     const ELEMENT = 'Element';
     const BACKBONE_ELEMENT = 'BackboneElement';
     const RESOURCE = 'Resource';

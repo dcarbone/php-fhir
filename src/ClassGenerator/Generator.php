@@ -30,7 +30,8 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
  * Class Generator
  * @package PHPFHIR
  */
-class Generator {
+class Generator
+{
 
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
     protected $config;
@@ -47,14 +48,16 @@ class Generator {
      * Generator constructor.
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public function __construct(Config $config) {
+    public function __construct(Config $config)
+    {
         $this->config = $config;
     }
 
     /**
      * Generate FHIR object classes based on XSD
      */
-    public function generate() {
+    public function generate()
+    {
         $this->beforeGeneration();
 
         $this->config->getLogger()->startBreak('Class Generation');
@@ -80,7 +83,8 @@ class Generator {
     /**
      * Commands to run prior to class generation
      */
-    protected function beforeGeneration() {
+    protected function beforeGeneration()
+    {
         // Class props
         $this->config->getLogger()->startBreak('XSD Parsing');
         $this->XSDMap = XSDMapGenerator::buildXSDMap($this->config);
@@ -109,9 +113,22 @@ class Generator {
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     */
+    private static function _initializeClasses(Config $config)
+    {
+        $config->getLogger()->info('Compiling Copyrights...');
+        CopyrightUtils::compileCopyrights($config);
+
+        $config->getLogger()->info('Creating root directory...');
+        FileUtils::createDirsFromNS($config->getOutputNamespace(), $config);
+    }
+
+    /**
      * Commands to run after class generation
      */
-    protected function afterGeneration() {
+    protected function afterGeneration()
+    {
         $this->mapTemplate->writeToFile();
         $this->autoloadMap->writeToFile();
 
@@ -121,16 +138,5 @@ class Generator {
             $responseParserTemplate->getClassPath()
         );
         $responseParserTemplate->writeToFile();
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
-     */
-    private static function _initializeClasses(Config $config) {
-        $config->getLogger()->info('Compiling Copyrights...');
-        CopyrightUtils::compileCopyrights($config);
-
-        $config->getLogger()->info('Creating root directory...');
-        FileUtils::createDirsFromNS($config->getOutputNamespace(), $config);
     }
 }

@@ -27,12 +27,14 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
  * Class XSDMapGenerator
  * @package DCarbone\PHPFHIR\ClassGenerator\Generator
  */
-abstract class XSDMapGenerator {
+abstract class XSDMapGenerator
+{
     /**
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap
      */
-    public static function buildXSDMap(Config $config) {
+    public static function buildXSDMap(Config $config)
+    {
         $config->getLogger()->info('Creating in-memory representation of FHIR XSD\'s..');
 
         $xsdMap = new XSDMap();
@@ -72,11 +74,12 @@ abstract class XSDMapGenerator {
     }
 
     /**
-     * @param string                                  $file
+     * @param string $file
      * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $xsdMap
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function parseClassesFromXSD($file, XSDMap $xsdMap, Config $config) {
+    public static function parseClassesFromXSD($file, XSDMap $xsdMap, Config $config)
+    {
         $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $file));
 
         $sxe = self::constructSXEWithFilePath($file, $config);
@@ -92,9 +95,11 @@ abstract class XSDMapGenerator {
                     $attrArray[] = sprintf('%s : %s', $attribute->getName(), (string)$attribute);
                 }
                 $config->getLogger()
-                    ->debug(sprintf('Unable to locate "name" attribute on element in file "%s" with attributes ["%s"]',
-                        $file,
-                        implode('", "', $attrArray)));
+                       ->warning(sprintf(
+                           'Unable to locate "name" attribute on element in file "%s" with attributes ["%s"]',
+                           $file,
+                           implode('", "', $attrArray)
+                       ));
                 continue;
             }
 
@@ -123,11 +128,12 @@ abstract class XSDMapGenerator {
     }
 
     /**
-     * @param string                                  $filePath
+     * @param string $filePath
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @return \SimpleXMLElement
      */
-    public static function constructSXEWithFilePath($filePath, Config $config) {
+    public static function constructSXEWithFilePath($filePath, Config $config)
+    {
         $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $filePath));
 
         $filename = basename($filePath);

@@ -24,31 +24,27 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  * Class PropertyParameterTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\Parameter
  */
-class PropertyParameterTemplate extends BaseParameterTemplate {
+class PropertyParameterTemplate extends BaseParameterTemplate
+{
     /** @var BasePropertyTemplate */
     private $_property;
 
     /**
      * PropertyParameterTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config                                 $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate) {
+    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate)
+    {
         parent::__construct($config, $propertyTemplate->getName(), $propertyTemplate->getPHPType());
         $this->_property = $propertyTemplate;
     }
 
     /**
-     * @return BasePropertyTemplate
-     */
-    public function getProperty() {
-        return $this->_property;
-    }
-
-    /**
      * @return string
      */
-    public function getParamDocBlockFragment() {
+    public function getParamDocBlockFragment()
+    {
         $property = $this->getProperty();
 
         return sprintf(
@@ -57,5 +53,13 @@ class PropertyParameterTemplate extends BaseParameterTemplate {
             $property->getPHPType(),
             NameUtils::getPropertyVariableName($property->getName())
         );
+    }
+
+    /**
+     * @return BasePropertyTemplate
+     */
+    public function getProperty()
+    {
+        return $this->_property;
     }
 }
