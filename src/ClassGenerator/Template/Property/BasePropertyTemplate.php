@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
 
 /**
  * Class PropertyTemplate
@@ -26,6 +27,9 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class BasePropertyTemplate extends AbstractTemplate
 {
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry|null */
+    protected $mapEntry;
+
     /** @var string */
     protected $name;
 
@@ -51,7 +55,7 @@ class BasePropertyTemplate extends AbstractTemplate
     protected $list = false;
 
     /** @var bool */
-    protected $html = false;
+    protected $htmlValue = false;
 
     /** @var mixed */
     protected $defaultValue;
@@ -64,21 +68,43 @@ class BasePropertyTemplate extends AbstractTemplate
     protected $choiceElementNames = [];
 
     /**
-     * Constructor
-     * @param PHPScopeEnum $scope
+     * BasePropertyTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null $scope
      * @param bool $requiresGetter
      * @param bool $requiresSetter
      */
-    public function __construct(PHPScopeEnum $scope = null, $requiresGetter = true, $requiresSetter = true)
+    public function __construct(XSDMapEntry $mapEntry = null,
+                                PHPScopeEnum $scope = null,
+                                $requiresGetter = true,
+                                $requiresSetter = true)
     {
+        $this->mapEntry = $mapEntry;
         if (null === $scope) {
             $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
         } else {
             $this->scope = $scope;
         }
-
         $this->requiresGetter = $requiresGetter;
         $this->requireSetter = $requiresSetter;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry|null
+     */
+    public function getXSDMapEntry()
+    {
+        return $this->mapEntry;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
+     * @return $this
+     */
+    public function setXSDMapEntry(XSDMapEntry $mapEntry)
+    {
+        $this->mapEntry = $mapEntry;
+        return $this;
     }
 
     /**
@@ -90,27 +116,33 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param string $fhirElementType
+     * @param $fhirElementType
+     * @return $this
      */
     public function setFHIRElementType($fhirElementType)
     {
         $this->fhirElementType = $fhirElementType;
+        return $this;
     }
 
     /**
      * @return boolean
      */
-    public function isHTML()
+    public function hasHTMLValue()
     {
-        return $this->html;
+        return $this->htmlValue;
     }
 
     /**
-     * @param boolean $html
+     * Whether the value of this property is an HTML string or not
+     *
+     * @param bool $html
+     * @return $this
      */
-    public function setHTML($html)
+    public function setHTMLValue($html)
     {
-        $this->html = $html;
+        $this->htmlValue = $html;
+        return $this;
     }
 
     /**
@@ -155,11 +187,13 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param boolean $primitive
+     * @param $primitive
+     * @return $this
      */
     public function setPrimitive($primitive)
     {
         $this->primitive = $primitive;
+        return $this;
     }
 
     /**
@@ -171,11 +205,13 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param boolean $list
+     * @param $list
+     * @return $this
      */
     public function setList($list)
     {
         $this->list = $list;
+        return $this;
     }
 
     /**
@@ -187,11 +223,13 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param string $phpType
+     * @param $phpType
+     * @return $this
      */
     public function setPHPType($phpType)
     {
         $this->phpType = $phpType;
+        return $this;
     }
 
     /**
@@ -203,11 +241,13 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param boolean $collection
+     * @param $collection
+     * @return $this
      */
     public function setCollection($collection)
     {
         $this->collection = $collection;
+        return $this;
     }
 
     /**
@@ -219,11 +259,13 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param PHPScopeEnum $scope
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum $scope
+     * @return $this
      */
     public function setScope(PHPScopeEnum $scope)
     {
         $this->scope = $scope;
+        return $this;
     }
 
     /**
@@ -235,7 +277,8 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param string $name
+     * @param $name
+     * @return $this
      */
     public function setName($name)
     {
@@ -244,6 +287,7 @@ class BasePropertyTemplate extends AbstractTemplate
         } else {
             throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
         }
+        return $this;
     }
 
     /**
@@ -281,10 +325,12 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param mixed $defaultValue
+     * @param $defaultValue
+     * @return $this
      */
     public function setDefaultValue($defaultValue)
     {
         $this->defaultValue = $defaultValue;
+        return $this;
     }
 }

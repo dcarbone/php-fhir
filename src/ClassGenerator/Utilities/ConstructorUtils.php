@@ -2,9 +2,9 @@
 
 namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class ConstructorUtils
@@ -13,7 +13,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 abstract class ConstructorUtils
 {
     /**
-     * @param Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param ClassTemplate $class
      * @param BaseMethodTemplate $method
      */
@@ -54,7 +54,7 @@ PHP
     }
 
     /**
-     * @param Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param ClassTemplate $class
      * @param BaseMethodTemplate $method
      */
@@ -71,7 +71,7 @@ PHP
     }
 
     /**
-     * @param Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param ClassTemplate $class
      * @param BaseMethodTemplate $method
      */

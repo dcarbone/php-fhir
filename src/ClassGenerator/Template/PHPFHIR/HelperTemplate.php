@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class HelperTemplate
@@ -28,7 +28,7 @@ class HelperTemplate extends AbstractPHPFHIRClassTemplate
 
     /**
      * HelperTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
     public function __construct(Config $config)
     {

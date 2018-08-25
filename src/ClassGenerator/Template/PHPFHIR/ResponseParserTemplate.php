@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class ResponseParserTemplate
@@ -27,7 +27,7 @@ class ResponseParserTemplate extends AbstractPHPFHIRClassTemplate
 {
     /**
      * ResponseParserTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
     public function __construct(Config $config)
     {

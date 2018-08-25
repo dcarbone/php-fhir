@@ -17,14 +17,15 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
+use DCarbone\PHPFHIR\ClassGenerator\Generator\FHIRTypeExtractor;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator;
-use DCarbone\PHPFHIR\ClassGenerator\Generator\XSDMapGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\HelperTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class Generator
@@ -33,7 +34,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 class Generator
 {
 
-    /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
+    /** @var \DCarbone\PHPFHIR\Config */
     protected $config;
 
     /** @var XSDMap */
@@ -46,7 +47,7 @@ class Generator
 
     /**
      * Generator constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
     public function __construct(Config $config)
     {
@@ -87,7 +88,7 @@ class Generator
     {
         // Class props
         $this->config->getLogger()->startBreak('XSD Parsing');
-        $this->XSDMap = XSDMapGenerator::buildXSDMap($this->config);
+        $this->XSDMap = FHIRTypeExtractor::parseTypes($this->config);
         $this->config->getLogger()->endBreak('XSD Parsing');
 
         // Initialize some classes and things.
@@ -113,7 +114,7 @@ class Generator
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
     private static function _initializeClasses(Config $config)
     {

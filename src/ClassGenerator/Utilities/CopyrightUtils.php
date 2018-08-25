@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class CopyrightUtils
@@ -40,7 +40,7 @@ abstract class CopyrightUtils
     private static $_standardDate;
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
     public static function compileCopyrights(Config $config)
     {

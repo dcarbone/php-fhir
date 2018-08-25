@@ -16,28 +16,29 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
-use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Type;
+use DCarbone\PHPFHIR\Types;
 
 /**
- * Class XSDMapGenerator
+ * Class FHIRTypeExtractor
  * @package DCarbone\PHPFHIR\ClassGenerator\Generator
  */
-abstract class XSDMapGenerator
+abstract class FHIRTypeExtractor
 {
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
-     * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @return \DCarbone\PHPFHIR\Types
      */
-    public static function buildXSDMap(Config $config)
+    public static function parseTypes(Config $config)
     {
         $config->getLogger()->info('Creating in-memory representation of FHIR XSD\'s..');
 
-        $xsdMap = new XSDMap();
+        $fhirTypes = new Types($config);
 
         $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $config->getXSDPath());
 
@@ -51,7 +52,7 @@ abstract class XSDMapGenerator
         }
 
         // First get class references in fhir-base.xsd
-        self::parseClassesFromXSD($fhirBaseXSD, $xsdMap, $config);
+        self::extractTypesFromXSD($fhirTypes, $fhirBaseXSD, $config);
 
         // Then scoop up the rest
         foreach (glob(sprintf('%s/*.xsd', $config->getXSDPath()), GLOB_NOSORT) as $xsdFile) {
@@ -67,18 +68,18 @@ abstract class XSDMapGenerator
                 continue;
             }
 
-            self::parseClassesFromXSD($xsdFile, $xsdMap, $config);
+            self::extractTypesFromXSD($fhirTypes, $xsdFile, $config);
         }
 
-        return $xsdMap;
+        return $fhirTypes;
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\Types $types
      * @param string $file
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $xsdMap
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
-    public static function parseClassesFromXSD($file, XSDMap $xsdMap, Config $config)
+    public static function extractTypesFromXSD(Types $types, $file, Config $config)
     {
         $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $file));
 
@@ -105,6 +106,7 @@ abstract class XSDMapGenerator
 
             if (ElementTypeEnum::COMPLEX_TYPE === strtolower($child->getName())) {
                 $type = ClassTypeUtils::getComplexClassType($child);
+                $type = new Type($config, $sxe)
 
                 $xsdMap[$fhirElementName] = new XSDMap\XSDMapEntry(
                     $child,
@@ -129,7 +131,7 @@ abstract class XSDMapGenerator
 
     /**
      * @param string $filePath
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @return \SimpleXMLElement
      */
     public static function constructSXEWithFilePath($filePath, Config $config)

@@ -25,8 +25,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // --- use statements
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Generator;
+use DCarbone\PHPFHIR\Config;
 
 // ----- constants
 
@@ -290,10 +290,11 @@ foreach ($versionsToGenerate as $version) {
 
     // Download zip files
     $zipFileName = $schemaPath . DIRECTORY_SEPARATOR . $version . '.zip';
+    $zipExists = file_exists($zipFileName);
 
-    $download = true;
+    $download = $unzip = true;
 
-    if (file_exists($zipFileName)) {
+    if ($zipExists) {
         if ($forceDelete || yesno("ZIP \"{$zipFileName}\" already exists.\nWould you like to re-download from \"{$url}\"?")) {
             echo "Deleting {$zipFileName} ...\n";
             unlink($zipFileName);
@@ -311,33 +312,40 @@ foreach ($versionsToGenerate as $version) {
     if ($download) {
         echo 'Downloading ' . $version . ' from ' . $url . PHP_EOL;
         // Download/extract ZIP file
-        copy($url, $zipFileName);
-    }
-
-    $zip = new ZipArchive;
-
-    if(true !== ($res = $zip->open($schemaDir . '.zip'))) {
-        echo "Unable to open file {$schemaDir}.zip.  ZipArchive err: {$res}\n";
-        exit(1);
+        if (!copy($url, $zipFileName)) {
+            echo "Unable to download.\n";
+            exit(1);
+        }
     }
 
     if (is_dir($schemaDir)) {
-        if ($forceDelete || yesno("Schema dir \"{$schemaDir}\" already exists, ok to delete?")) {
+        if (!$download) {
+            echo "Did not download new zip and schema dir \"{$schemaDir}\" already exists, using...\n";
+            $unzip = false;
+        } elseif ($forceDelete || yesno("Schema dir \"{$schemaDir}\" already exists, ok to delete?")) {
             removeDir($schemaDir);
+            if (!mkdir($schemaDir, 0777, true)) {
+                echo "Unable to create directory \"{$schemaDir}\. Exiting\n";
+                exit(1);
+            }
         } else {
             echo "Exiting\n";
             exit(0);
         }
     }
 
-    if (!mkdir($schemaDir, 0777, true)) {
-        echo "Unable to create directory \"{$schemaDir}\. Exiting\n";
-        exit(1);
-    }
+    if ($unzip) {
+        $zip = new ZipArchive;
 
-    // Extract Zip
-    $zip->extractTo($schemaDir);
-    $zip->close();
+        if (true !== ($res = $zip->open($schemaDir . '.zip'))) {
+            echo "Unable to open file {$schemaDir}.zip.  ZipArchive err: {$res}\n";
+            exit(1);
+        }
+
+        // Extract Zip
+        $zip->extractTo($schemaDir);
+        $zip->close();
+    }
 
     echo sprintf(
         'Generating "%s" into %s%s%s',

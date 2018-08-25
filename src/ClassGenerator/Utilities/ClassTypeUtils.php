@@ -19,6 +19,8 @@
 use DCarbone\PHPFHIR\ClassGenerator\Enum\BaseObjectTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Type;
 
 /**
  * Class ClassTypeUtils
@@ -45,15 +47,17 @@ abstract class ClassTypeUtils
         throw new \InvalidArgumentException('Unable to determine Simple Class Type for "' . (string)$input . '"');
     }
 
+
+
     /**
      * @param \SimpleXMLElement $sxe
-     * @return null|ComplexClassTypesEnum
+     * @return null|string
      */
-    public static function getComplexClassType(\SimpleXMLElement $sxe)
+    public static function getComplexClassType(Config $config, \SimpleXMLElement $sxe)
     {
         $name = XMLUtils::getObjectNameFromElement($sxe);
         if (false !== strpos($name, '.')) {
-            return new ComplexClassTypesEnum(ComplexClassTypesEnum::COMPONENT);
+            return Type::GROUP_COMPONENT;
         }
 
         $baseName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
@@ -65,6 +69,8 @@ abstract class ClassTypeUtils
         if (null === $baseName) {
             return null;
         }
+
+        if ()
 
         $baseType = new BaseObjectTypeEnum($baseName);
         switch ((string)$baseType) {

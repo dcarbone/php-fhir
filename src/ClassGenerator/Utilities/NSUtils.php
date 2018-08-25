@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class NSUtils
@@ -27,7 +27,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 abstract class NSUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string|null $classNS
      * @return string
      */

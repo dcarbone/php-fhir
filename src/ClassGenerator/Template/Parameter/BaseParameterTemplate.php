@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class BaseParameterTemplate
@@ -26,7 +26,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class BaseParameterTemplate extends AbstractTemplate
 {
-    /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
+    /** @var \DCarbone\PHPFHIR\Config */
     protected $config;
 
     /** @var string */
@@ -38,7 +38,7 @@ class BaseParameterTemplate extends AbstractTemplate
 
     /**
      * BaseParameterTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string $name
      * @param string $phpType
      * @param mixed $defaultValue

@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class AutoloaderTemplate
@@ -31,7 +31,7 @@ class AutoloaderTemplate extends AbstractPHPFHIRClassTemplate
 
     /**
      * AutoloaderTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
     public function __construct(Config $config)
     {

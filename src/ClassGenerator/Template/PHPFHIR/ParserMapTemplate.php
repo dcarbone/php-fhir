@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class ParserMapTemplate
@@ -32,7 +32,7 @@ class ParserMapTemplate extends AbstractPHPFHIRClassTemplate
 
     /**
      * ParserMapTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
     public function __construct(Config $config)
     {

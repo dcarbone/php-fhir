@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class FileUtils
@@ -26,7 +26,7 @@ abstract class FileUtils
 {
     /**
      * @param string $namespace
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      */
     public static function createDirsFromNS($namespace, Config $config)
     {

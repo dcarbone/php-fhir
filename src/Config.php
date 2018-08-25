@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator;
+<?php namespace DCarbone\PHPFHIR;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -17,7 +17,6 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use DCarbone\PHPFHIR\Logger;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -25,11 +24,10 @@ use Psr\Log\NullLogger;
 
 /**
  * Class Config
- * @package DCarbone\PHPFHIR\ClassGenerator
+ * @package DCarbone\PHPFHIR
  */
 class Config implements LoggerAwareInterface
 {
-
     use LoggerAwareTrait;
 
     /** @var string */

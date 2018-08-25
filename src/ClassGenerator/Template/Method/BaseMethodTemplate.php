@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class BaseMethodTemplate
@@ -28,7 +28,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class BaseMethodTemplate extends AbstractTemplate
 {
-    /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
+    /** @var \DCarbone\PHPFHIR\Config */
     protected $config;
 
     /** @var string */
@@ -50,7 +50,7 @@ class BaseMethodTemplate extends AbstractTemplate
 
     /**
      * BaseMethodTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string $name
      * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null $scope
      */

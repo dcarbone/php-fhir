@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * Class AbstractPHPFHIRClassTemplate
@@ -43,7 +43,7 @@ abstract class AbstractPHPFHIRClassTemplate extends AbstractTemplate
 
     /**
      * AbstractPHPFHIRClassTemplate constructor.
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string $class
      */
     public function __construct(Config $config, $class)
