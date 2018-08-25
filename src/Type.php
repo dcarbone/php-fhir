@@ -2,12 +2,33 @@
 
 namespace DCarbone\PHPFHIR;
 
+/*
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use DCarbone\PHPFHIR\Type\Properties;
+use DCarbone\PHPFHIR\Type\Property;
+
 /**
  * Class Type
  * @package DCarbone\PHPFHIR
  */
 class Type
 {
+    use DocumentationTrait;
+
     const BASE_TYPE_ELEMENT          = 'Element';
     const BASE_TYPE_BACKBONE_ELEMENT = 'BackboneElement';
     const BASE_TYPE_RESOURCE         = 'Resource';
@@ -20,10 +41,9 @@ class Type
     private $sourceSXE;
 
     /** @var string */
-    private $name;
+    private $fhirName;
     /** @var null|string */
     private $baseType = null;
-
     /** @var bool */
     private $component = false;
 
@@ -33,24 +53,23 @@ class Type
     private $className;
 
     /** @var null|\DCarbone\PHPFHIR\Type */
-    private $extendedType = null;
+    private $parentType = null;
 
-    /** @var */
-    private $properties = [];
+    /** @var \DCarbone\PHPFHIR\Type\Properties */
+    private $properties;
 
     /**
      * FHIRType constructor.
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \SimpleXMLElement $sourceSXE
-     * @param string $group
-     * @param string $name
+     * @param string $fhirName
      */
-    public function __construct(Config $config, \SimpleXMLElement $sourceSXE, $group, $name)
+    public function __construct(Config $config, \SimpleXMLElement $sourceSXE, $fhirName)
     {
         $this->config = $config;
-        $this->sourceSXE = clone $sourceSXE;
-        $this->baseType = $group;
-        $this->name = $name;
+        $this->sourceSXE = $sourceSXE;
+        $this->fhirName = $fhirName;
+        $this->properties = new Properties($config, $this);
     }
 
     /**
@@ -66,23 +85,59 @@ class Type
      */
     public function getSourceSXE()
     {
-        return clone $this->sourceSXE;
+        return $this->sourceSXE;
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getFHIRName()
     {
-        return $this->name;
+        return $this->fhirName;
     }
 
     /**
-     * @return string
+     * @return bool
+     */
+    public function isBaseType()
+    {
+        return null !== $this->baseType;
+    }
+
+    /**
+     * @param string $baseType
+     * @return $this
+     */
+    public function setBaseType($baseType)
+    {
+        $this->baseType = $baseType;
+        return $this;
+    }
+
+    /**
+     * @return string|null
      */
     public function getBaseType()
     {
         return $this->baseType;
+    }
+
+    /**
+     * @param bool $component
+     * @return $this
+     */
+    public function setComponent($component)
+    {
+        $this->component = $component;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isComponent()
+    {
+        return $this->component;
     }
 
     /**
@@ -132,21 +187,39 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Type|null
      */
-    public function getExtendedType()
+    public function getParentType()
     {
-        return $this->extendedType;
+        return $this->parentType;
     }
 
     /**
      * Set the Type this Type inherits from
      *
-     * @param \DCarbone\PHPFHIR\Type|null $extendedType
+     * @param \DCarbone\PHPFHIR\Type $parentType
      * @return $this
      */
-    public function setExtendedType(Type $extendedType)
+    public function setParentType(Type $parentType)
     {
-        $this->extendedType = $extendedType;
+        $this->parentType = $parentType;
         return $this;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Type\Property $property
+     * @return $this
+     */
+    public function addProperty(Property $property)
+    {
+        $this->properties->addProperty($property);
+        return $this;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Type\Properties
+     */
+    public function getProperties()
+    {
+        return $this->properties;
     }
 
     /**
@@ -154,6 +227,6 @@ class Type
      */
     public function __toString()
     {
-        return $this->getName();
+        return $this->getFHIRName();
     }
 }

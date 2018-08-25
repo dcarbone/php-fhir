@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Type\Property\Enumeration;
+use DCarbone\PHPFHIR\Type\Property\EnumerationValue;
+
 /**
  * Class XMLUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
@@ -89,17 +92,29 @@ abstract class XMLUtils
     }
 
     /**
+     * @param \SimpleXMLElement $parent
+     * @return null|\SimpleXMLElement
+     */
+    public static function findAnnotationElement(\SimpleXMLElement $parent)
+    {
+        $annotation = $parent->xpath('xs:annotation');
+        if (1 === count($annotation)) {
+            return $annotation[0];
+        }
+        return null;
+    }
+
+    /**
      * @param \SimpleXMLElement $annotation
      * @return null|string|array
      */
     public static function getDocumentation(\SimpleXMLElement $annotation)
     {
         if ('annotation' !== $annotation->getName()) {
-            $annotation = self::getAnnotationElement($annotation);
-        }
-
-        if (null === $annotation) {
-            return null;
+            $annotation = self::findAnnotationElement($annotation);
+            if (null === $annotation) {
+                return null;
+            }
         }
 
         $documentation = $annotation->xpath('xs:documentation');
@@ -119,13 +134,54 @@ abstract class XMLUtils
      * @param \SimpleXMLElement $parent
      * @return null|\SimpleXMLElement
      */
-    public static function getAnnotationElement(\SimpleXMLElement $parent)
+    public static function findPatternElement(\SimpleXMLElement $parent)
     {
-        $annotation = $parent->xpath('xs:annotation');
-        if (1 === count($annotation)) {
-            return $annotation[0];
+        $pattern = $parent->xpath('xs:pattern');
+        if (1 === count($pattern)) {
+            return $pattern[0];
         }
+        return null;
+    }
 
+    /**
+     * @param \SimpleXMLElement $pattern
+     * @return null|string
+     */
+    public static function getPattern(\SimpleXMLElement $pattern)
+    {
+        if ('pattern' !== $pattern->getName()) {
+            $pattern = self::findPatternElement($pattern);
+            if (null === $pattern) {
+                return null;
+            }
+        }
+        $attributes = $pattern->attributes();
+        if (isset($attributes['value'])) {
+            return (string)$attributes['value'];
+        }
+        return null;
+    }
+
+    /**
+     * @param \SimpleXMLElement $parent
+     * @return \DCarbone\PHPFHIR\Type\Property\Enumeration|null
+     */
+    public static function extractEnumeratedValues(\SimpleXMLElement $parent)
+    {
+        $enum = new Enumeration();
+        foreach ($parent->children('xs', true) as $child) {
+            if ('enumeration' === $child->getName()) {
+                $attrs = $child->attributes();
+                if (isset($attrs['value'])) {
+                    $val = new EnumerationValue((string)$attrs['value']);
+                    $val->setDocumentation(self::getDocumentation($child));
+                    $enum->addValue($val);
+                }
+            }
+        }
+        if (0 < count($enum)) {
+            return $enum;
+        }
         return null;
     }
 }

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\BaseObjectTypeEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Type;
@@ -47,38 +45,43 @@ abstract class ClassTypeUtils
         throw new \InvalidArgumentException('Unable to determine Simple Class Type for "' . (string)$input . '"');
     }
 
-
-
     /**
-     * @param \SimpleXMLElement $sxe
-     * @return null|string
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Type $type
      */
-    public static function getComplexClassType(Config $config, \SimpleXMLElement $sxe)
+    public static function parseComplexClassType(Config $config, Type $type)
     {
+        $sxe = $type->getSourceSXE();
         $name = XMLUtils::getObjectNameFromElement($sxe);
         if (false !== strpos($name, '.')) {
-            return Type::GROUP_COMPONENT;
+            $type->setComponent(true);
+            return;
         }
 
         $baseName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
 
         if (null === $baseName) {
             $baseName = XMLUtils::getBaseFHIRElementNameFromRestriction($sxe);
+            if (null === $baseName) {
+                return;
+            }
         }
 
-        if (null === $baseName) {
-            return null;
-        }
-
-        if ()
-
-        $baseType = new BaseObjectTypeEnum($baseName);
-        switch ((string)$baseType) {
-            case BaseObjectTypeEnum::BACKBONE_ELEMENT:
-                return new ComplexClassTypesEnum(ComplexClassTypesEnum::RESOURCE);
+        switch ($baseName) {
+            case Type::BASE_TYPE_ELEMENT:
+            case Type::BASE_TYPE_BACKBONE_ELEMENT:
+            case Type::BASE_TYPE_RESOURCE:
+            case Type::BASE_TYPE_DOMAIN_RESOURCE:
+            case Type::BASE_TYPE_QUANTITY:
+                $type->setBaseType($baseName);
+                break;
 
             default:
-                return new ComplexClassTypesEnum((string)$baseType);
+                $config->getLogger()->warning(sprintf(
+                    'Unknown base type "%s" seen for Type %s',
+                    $baseName,
+                    $type
+                ));
         }
     }
 }

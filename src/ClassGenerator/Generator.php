@@ -17,15 +17,16 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
-use DCarbone\PHPFHIR\ClassGenerator\Generator\FHIRTypeExtractor;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\HelperTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\PropertyExtractor;
+use DCarbone\PHPFHIR\TypeExtractor;
+use DCarbone\PHPFHIR\TypeRelationshipBuilder;
 
 /**
  * Class Generator
@@ -38,7 +39,7 @@ class Generator
     protected $config;
 
     /** @var XSDMap */
-    protected $XSDMap;
+    protected $types;
 
     /** @var AutoloaderTemplate */
     private $autoloadMap;
@@ -59,12 +60,13 @@ class Generator
      */
     public function generate()
     {
+        $this->extractTypes();
         $this->beforeGeneration();
 
         $this->config->getLogger()->startBreak('Class Generation');
-        foreach ($this->XSDMap as $fhirElementName => $mapEntry) {
+        foreach ($this->types as $fhirElementName => $mapEntry) {
             $this->config->getLogger()->debug("Generating class for element {$fhirElementName}...");
-            $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->config, $this->XSDMap, $mapEntry);
+            $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->config, $this->types, $mapEntry);
 
             FileUtils::createDirsFromNS($classTemplate->getNamespace(), $this->config);
 
@@ -81,34 +83,37 @@ class Generator
         $this->afterGeneration();
     }
 
+    protected function extractTypes()
+    {
+        // Class props
+        $this->config->getLogger()->startBreak('Extracting defined types...');
+        $this->types = TypeExtractor::parseTypes($this->config);
+        $this->config->getLogger()->endBreak(count($this->types) . ' types extracted.');
+    }
+
     /**
      * Commands to run prior to class generation
      */
     protected function beforeGeneration()
     {
-        // Class props
-        $this->config->getLogger()->startBreak('XSD Parsing');
-        $this->XSDMap = FHIRTypeExtractor::parseTypes($this->config);
-        $this->config->getLogger()->endBreak('XSD Parsing');
-
         // Initialize some classes and things.
         $this->config->getLogger()->startBreak('Generator Class Initialization');
         self::_initializeClasses($this->config);
 
-        $this->autoloadMap = new AutoloaderTemplate($this->config);
-
-        $this->mapTemplate = new ParserMapTemplate($this->config);
-        $this->autoloadMap->addEntry(
-            $this->mapTemplate->getClassName(),
-            $this->mapTemplate->getClassPath()
-        );
-
-        $helperTemplate = new HelperTemplate($this->config);
-        $helperTemplate->writeToFile();
-        $this->autoloadMap->addEntry(
-            $helperTemplate->getClassName(),
-            $helperTemplate->getClassPath()
-        );
+//        $this->autoloadMap = new AutoloaderTemplate($this->config);
+//
+//        $this->mapTemplate = new ParserMapTemplate($this->config);
+//        $this->autoloadMap->addEntry(
+//            $this->mapTemplate->getClassName(),
+//            $this->mapTemplate->getClassPath()
+//        );
+//
+//        $helperTemplate = new HelperTemplate($this->config);
+//        $helperTemplate->writeToFile();
+//        $this->autoloadMap->addEntry(
+//            $helperTemplate->getClassName(),
+//            $helperTemplate->getClassPath()
+//        );
 
         $this->config->getLogger()->endBreak('Generator Class Initialization');
     }

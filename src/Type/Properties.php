@@ -1,14 +1,33 @@
 <?php
 
-namespace DCarbone\PHPFHIR;
+namespace DCarbone\PHPFHIR\Type;
+
+/*
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Type;
 
 /**
- * Class TypeProperties
- * @package DCarbone\PHPFHIR
+ * Class Properties
+ * @package DCarbone\PHPFHIR\Type
  */
-class TypeProperties implements \Iterator, \Countable
+class Properties implements \Iterator, \Countable
 {
-    /** @var \DCarbone\PHPFHIR\TypeProperty[] */
+    /** @var \DCarbone\PHPFHIR\Type\Property[] */
     private $properties = [];
 
     /** @var */
@@ -45,17 +64,20 @@ class TypeProperties implements \Iterator, \Countable
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\TypeProperty $property
+     * @param \DCarbone\PHPFHIR\Type\Property $property
      * @return $this
      */
-    public function addProperty(TypeProperty $property)
+    public function addProperty(Property $property)
     {
         $pname = $property->getName();
         foreach ($this->properties as $current) {
+            if ($property === $current) {
+                return $this;
+            }
             if ($pname === $current->getName()) {
                 throw new \LogicException(sprintf(
                     'Duplicate Type %s property %s seen',
-                    $this->getType()->getName(),
+                    $this->getType()->getFHIRName(),
                     $property->getName()
                 ));
             }
@@ -66,7 +88,7 @@ class TypeProperties implements \Iterator, \Countable
 
     /**
      * @param string $name
-     * @return \DCarbone\PHPFHIR\TypeProperty|null
+     * @return \DCarbone\PHPFHIR\Type\Property|null
      */
     public function getProperty($name)
     {
@@ -88,7 +110,7 @@ class TypeProperties implements \Iterator, \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\TypeProperty|null
+     * @return \DCarbone\PHPFHIR\Type\Property|null
      */
     public function current()
     {

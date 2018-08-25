@@ -1,0 +1,257 @@
+<?php namespace DCarbone\PHPFHIR;
+
+/*
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
+use DCarbone\PHPFHIR\Type\Property;
+
+/**
+ * Class PropertyExtractor
+ * @package DCarbone\PHPFHIR
+ */
+abstract class PropertyExtractor
+{
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Types $types
+     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Type\Property $property
+     * @return bool
+     */
+    public static function isPropertyImplementedByParent(Config $config,
+                                                         Types $types,
+                                                         Type $type,
+                                                         Property $property)
+    {
+        if ($parent = $type->getParentType()) {
+            $pName = $property->getName();
+            $pType = $property->getFHIRType();
+            foreach ($parent->getProperties() as $property) {
+                if ($property->getName() === $pName && $property->getFHIRType() === $pType) {
+                    return true;
+                }
+            }
+            return static::isPropertyImplementedByParent($config, $types, $type, $property);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \SimpleXMLElement $element
+     * @param string|null $documentation
+     * @param null $pattern
+     * @param int|null $maxOccurs
+     * @param int|null $minOccurs
+     * @return \DCarbone\PHPFHIR\Type\Property
+     */
+    protected static function buildTypeProperty(Config $config,
+                                                \SimpleXMLElement $element,
+                                                $documentation = null,
+                                                $pattern = null,
+                                                $maxOccurs = null,
+                                                $minOccurs = null)
+    {
+        $attributes = $element->attributes();
+        $name = (string)$attributes['name'];
+        $type = (string)$attributes['type'];
+        if (0 === strpos($type, 'xs:')) {
+            $type = substr($type, 3);
+        }
+        $ref = (string)$attributes['ref'];
+
+        if ('' === $name) {
+            if ('' === $ref) {
+                trigger_error(sprintf(
+                    'Encountered property on Type "%s" with no "name" or "ref" attribute, cannot create property for it.  Property definition: "%s"',
+                    $type,
+                    $element->saveXML()
+                ));
+
+                return null;
+            }
+
+            if (0 === strpos($ref, 'xhtml')) {
+                $property = new Property($config, $element, substr($ref, 6), Property::TYPE_HTML);
+                $property->setPHPTypeName('string');
+                return $property;
+            }
+
+            $name = $ref;
+            $type = $ref;
+        }
+
+        $property = new Property($config, $element, $name, $type);
+
+        if (null !== $documentation) {
+            $property->setDocumentation($documentation);
+        } else {
+            $property->setDocumentation(XMLUtils::getDocumentation($element));
+        }
+        if (null !== $pattern) {
+            $property->setPattern($pattern);
+        } else {
+            $property->setPattern(XMLUtils::getPattern($element));
+        }
+        if (null !== $maxOccurs) {
+            $property->setMaxOccurs($maxOccurs);
+        } elseif (isset($attributes['maxOccurs'])) {
+            $property->setMaxOccurs((string)$attributes['maxOccurs']);
+        }
+        if (null !== $minOccurs) {
+            $property->setMinOccurs($minOccurs);
+        } elseif (isset($attributes['minOccurs'])) {
+            $property->setMinOccurs((string)$attributes['minOccurs']);
+        }
+
+        // TODO: this probably isn't gonna work, revisit...
+        if ($enum = XMLUtils::extractEnumeratedValues($element)) {
+            $property->setEnumeration($enum);
+        }
+
+        return $property;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Types $types
+     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \SimpleXMLElement $element
+     */
+    protected static function parseAttributeElementProperty(Config $config,
+                                                            Types $types,
+                                                            Type $type,
+                                                            \SimpleXMLElement $element)
+    {
+        $property = self::buildTypeProperty($config, $element);
+        if ($property && !static::isPropertyImplementedByParent($config, $types, $type, $property)) {
+            $type->addProperty($property);
+        }
+    }
+
+    /**
+     * TODO: Do better, this is all over the place in XHTML responses...
+     *
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Types $types
+     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \SimpleXMLElement $choice
+     */
+    public static function implementChoiceProperty(Config $config, Types $types, Type $type, \SimpleXMLElement $choice)
+    {
+        $attributes = $choice->attributes();
+        $minOccurs = isset($attributes['minOccurs']) ? (int)$attributes['minOccurs'] : null;
+        $maxOccurs = isset($attributes['maxOccurs']) ? (int)$attributes['maxOccurs'] : null;
+        $documentation = XMLUtils::getDocumentation($choice);
+        $pattern = XMLUtils::getPattern($choice);
+
+        foreach ($choice->xpath('xs:element') as $element) {
+            $property = static::buildTypeProperty($config, $element, $documentation, $pattern, $maxOccurs, $minOccurs);
+            if ($property && !self::isPropertyImplementedByParent($config, $types, $type, $property)) {
+                $type->addProperty($property);
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Types $types
+     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \SimpleXMLElement $sequence
+     */
+    public static function implementPropertySequence(Config $config,
+                                                     Types $types,
+                                                     Type $type,
+                                                     \SimpleXMLElement $sequence)
+    {
+        foreach ($sequence->children('xs', true) as $element) {
+            /** @var \SimpleXMLElement $element */
+            static::implementTypeProperty($config, $types, $type, $element);
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Types $types
+     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \SimpleXMLElement $element
+     */
+    public static function implementElementProperty(Config $config,
+                                                    Types $types,
+                                                    Type $type,
+                                                    \SimpleXMLElement $element)
+    {
+        $property = static::buildTypeProperty($config, $element);
+        if ($property && !static::isPropertyImplementedByParent($config, $types, $type, $property)) {
+            $type->addProperty($property);
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Types $types
+     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \SimpleXMLElement $element
+     */
+    public static function implementTypeProperty(Config $config, Types $types, Type $type, \SimpleXMLElement $element)
+    {
+        /** @var \SimpleXMLElement $child */
+        switch (strtolower($element->getName())) {
+            case ElementTypeEnum::ATTRIBUTE:
+                self::parseAttributeElementProperty($config, $types, $type, $element);
+                break;
+            case ElementTypeEnum::CHOICE:
+                self::implementChoiceProperty($config, $types, $type, $element);
+                break;
+            case ElementTypeEnum::SEQUENCE:
+                self::implementPropertySequence($config, $types, $type, $element);
+                break;
+            case ElementTypeEnum::UNION:
+            case ElementTypeEnum::ENUMERATION:
+                $config->getLogger()->warning(sprintf(
+                    'Ignoring %s element under %s...',
+                    $element->getName(),
+                    $type
+                ));
+                break;
+
+            default:
+                $config->getLogger()->warning(sprintf(
+                    'Unexpected Type %s Property element "%s" found: %s',
+                    $type,
+                    $element->getName(),
+                    $element
+                ));
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Types $types
+     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \SimpleXMLElement $parent
+     */
+    public static function extractTypeProperties(Config $config, Types $types, Type $type, \SimpleXMLElement $parent)
+    {
+        foreach ($parent->children('xs', true) as $element) {
+            /** @var \SimpleXMLElement $element */
+            static::implementTypeProperty($config, $types, $type, $element);
+        }
+    }
+}
