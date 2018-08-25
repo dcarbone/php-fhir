@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR;
+namespace DCarbone\PHPFHIR\Definition;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,8 +18,9 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Type\Properties;
-use DCarbone\PHPFHIR\Type\Property;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition\Type\Properties;
+use DCarbone\PHPFHIR\Definition\Type\Property;
 
 /**
  * Class Type
@@ -52,10 +53,10 @@ class Type
     /** @var string */
     private $className;
 
-    /** @var null|\DCarbone\PHPFHIR\Type */
+    /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $parentType = null;
 
-    /** @var \DCarbone\PHPFHIR\Type\Properties */
+    /** @var \DCarbone\PHPFHIR\Definition\Type\Properties */
     private $properties;
 
     /**
@@ -185,7 +186,7 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Type|null
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getParentType()
     {
@@ -195,7 +196,7 @@ class Type
     /**
      * Set the Type this Type inherits from
      *
-     * @param \DCarbone\PHPFHIR\Type $parentType
+     * @param \DCarbone\PHPFHIR\Definition\Type $parentType
      * @return $this
      */
     public function setParentType(Type $parentType)
@@ -205,7 +206,7 @@ class Type
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return $this
      */
     public function addProperty(Property $property)
@@ -215,7 +216,7 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Type\Properties
+     * @return \DCarbone\PHPFHIR\Definition\Type\Properties
      */
     public function getProperties()
     {

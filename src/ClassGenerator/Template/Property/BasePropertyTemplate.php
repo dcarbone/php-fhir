@@ -18,8 +18,8 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Class PropertyTemplate

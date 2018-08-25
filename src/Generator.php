@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator;
+<?php namespace DCarbone\PHPFHIR;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -21,12 +21,9 @@ use DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
-use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\PropertyExtractor;
-use DCarbone\PHPFHIR\TypeExtractor;
-use DCarbone\PHPFHIR\TypeRelationshipBuilder;
+use DCarbone\PHPFHIR\Definition\TypeExtractor;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /**
  * Class Generator
@@ -34,12 +31,11 @@ use DCarbone\PHPFHIR\TypeRelationshipBuilder;
  */
 class Generator
 {
-
     /** @var \DCarbone\PHPFHIR\Config */
     protected $config;
 
-    /** @var XSDMap */
-    protected $types;
+    /** @var \DCarbone\PHPFHIR\Definition */
+    protected $definition;
 
     /** @var AutoloaderTemplate */
     private $autoloadMap;
@@ -50,9 +46,10 @@ class Generator
      * Generator constructor.
      * @param \DCarbone\PHPFHIR\Config $config
      */
-    public function __construct(Config $config)
+    public function __construct(Config $config, Definition $definition)
     {
         $this->config = $config;
+        $this->definition = $definition;
     }
 
     /**
@@ -60,7 +57,6 @@ class Generator
      */
     public function generate()
     {
-        $this->extractTypes();
         $this->beforeGeneration();
 
         $this->config->getLogger()->startBreak('Class Generation');
@@ -81,14 +77,6 @@ class Generator
         $this->config->getLogger()->endBreak('Class Generation');
 
         $this->afterGeneration();
-    }
-
-    protected function extractTypes()
-    {
-        // Class props
-        $this->config->getLogger()->startBreak('Extracting defined types...');
-        $this->types = TypeExtractor::parseTypes($this->config);
-        $this->config->getLogger()->endBreak(count($this->types) . ' types extracted.');
     }
 
     /**

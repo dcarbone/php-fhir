@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
+<?php namespace DCarbone\PHPFHIR\Utilities;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Type\Property\Enumeration;
-use DCarbone\PHPFHIR\Type\Property\EnumerationValue;
+use DCarbone\PHPFHIR\Definition\Type\Property\Enumeration;
+use DCarbone\PHPFHIR\Definition\Type\Property\EnumerationValue;
 
 /**
  * Class XMLUtils
@@ -164,7 +164,7 @@ abstract class XMLUtils
 
     /**
      * @param \SimpleXMLElement $parent
-     * @return \DCarbone\PHPFHIR\Type\Property\Enumeration|null
+     * @return \DCarbone\PHPFHIR\Definition\Type\Property\Enumeration|null
      */
     public static function extractEnumeratedValues(\SimpleXMLElement $parent)
     {

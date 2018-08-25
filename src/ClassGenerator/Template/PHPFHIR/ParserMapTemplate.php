@@ -18,8 +18,8 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /**
  * Class ParserMapTemplate

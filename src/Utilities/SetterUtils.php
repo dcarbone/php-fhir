@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
+namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;

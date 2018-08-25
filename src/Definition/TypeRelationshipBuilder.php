@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR;
+namespace DCarbone\PHPFHIR\Definition;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,8 +18,8 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
  * Class TypeRelator
@@ -29,8 +29,8 @@ abstract class TypeRelationshipBuilder
 {
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
     public static function determineParent(Config $config, Types $types, Type $type, \SimpleXMLElement $element) {

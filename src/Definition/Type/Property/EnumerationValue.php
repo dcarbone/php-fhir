@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR;
+namespace DCarbone\PHPFHIR\Definition\Type\Property;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,30 +18,41 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Definition\DocumentationTrait;
+
 /**
- * Trait DocumentationTrait
- * @package DCarbone\PHPFHIR
+ * Class EnumerationValue
+ * @package DCarbone\PHPFHIR\Definition\Type\Property
  */
-trait DocumentationTrait
+class EnumerationValue
 {
-    /** @var string */
-    private $documentation;
+    use DocumentationTrait;
+
+    /** @var mixed */
+    private $value;
+
+    /**
+     * Enumeration constructor.
+     * @param $value
+     */
+    public function __construct($value)
+    {
+        $this->value = $value;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 
     /**
      * @return string
      */
-    public function getDocumentation()
+    public function __toString()
     {
-        return $this->documentation;
-    }
-
-    /**
-     * @param $documentation
-     * @return static
-     */
-    public function setDocumentation($documentation)
-    {
-        $this->documentation = $documentation;
-        return $this;
+        return (string)$this->getValue();
     }
 }

@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR;
+<?php namespace DCarbone\PHPFHIR\Definition;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -17,8 +17,9 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
-use DCarbone\PHPFHIR\Type\Property;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
  * Class PropertyExtractor
@@ -28,9 +29,9 @@ abstract class PropertyExtractor
 {
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
-     * @param \DCarbone\PHPFHIR\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return bool
      */
     public static function isPropertyImplementedByParent(Config $config,
@@ -59,7 +60,7 @@ abstract class PropertyExtractor
      * @param null $pattern
      * @param int|null $maxOccurs
      * @param int|null $minOccurs
-     * @return \DCarbone\PHPFHIR\Type\Property
+     * @return \DCarbone\PHPFHIR\Definition\Type\Property
      */
     protected static function buildTypeProperty(Config $config,
                                                 \SimpleXMLElement $element,
@@ -130,8 +131,8 @@ abstract class PropertyExtractor
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
     protected static function parseAttributeElementProperty(Config $config,
@@ -149,8 +150,8 @@ abstract class PropertyExtractor
      * TODO: Do better, this is all over the place in XHTML responses...
      *
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $choice
      */
     public static function implementChoiceProperty(Config $config, Types $types, Type $type, \SimpleXMLElement $choice)
@@ -171,8 +172,8 @@ abstract class PropertyExtractor
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $sequence
      */
     public static function implementPropertySequence(Config $config,
@@ -188,8 +189,8 @@ abstract class PropertyExtractor
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
     public static function implementElementProperty(Config $config,
@@ -205,8 +206,8 @@ abstract class PropertyExtractor
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
     public static function implementTypeProperty(Config $config, Types $types, Type $type, \SimpleXMLElement $element)
@@ -243,8 +244,8 @@ abstract class PropertyExtractor
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $parent
      */
     public static function extractTypeProperties(Config $config, Types $types, Type $type, \SimpleXMLElement $parent)

@@ -67,7 +67,7 @@ require __DIR__.'/vendor/autoload.php';
 $xsdPath = 'path to wherever you un-zipped the xsd files';
 
 $config = new \DCarbone\PHPFHIR\Config(['xsdPath' => $xsdPath]);
-$generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($config);
+$generator = new \DCarbone\PHPFHIR\Generator($config);
 
 $generator->generate();
 ```
@@ -138,7 +138,7 @@ $config = new \DCarbone\PHPFHIR\Config([
     'xmlSerializationAttributeOverrides' => ['SomeFHIRModel' => 'somePropertyName']
 );
 
-$generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($config);
+$generator = new \DCarbone\PHPFHIR\Generator($config);
 
 $generator->generate();
 

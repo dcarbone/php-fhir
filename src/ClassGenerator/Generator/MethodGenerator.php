@@ -24,15 +24,15 @@ use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\PropertyParameterTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\ConstructorUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\SetterUtils;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Utilities\NSUtils;
+use DCarbone\PHPFHIR\Utilities\SetterUtils;
 
 /**
  * Class MethodGenerator
- * @package DCarbone\PHPFHIR\ClassGenerator\Generator
+ * @package DCarbone\PHPFHIR\Generator
  */
 abstract class MethodGenerator
 {

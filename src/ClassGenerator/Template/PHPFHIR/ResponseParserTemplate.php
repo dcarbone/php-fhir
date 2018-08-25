@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /**
  * Class ResponseParserTemplate

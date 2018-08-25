@@ -1,7 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR;
-
+namespace DCarbone\PHPFHIR\Definition;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,13 +18,15 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Config;
+
 /**
  * Class Types
  * @package DCarbone\PHPFHIR
  */
 class Types implements \Iterator, \Countable
 {
-    /** @var \DCarbone\PHPFHIR\Type[] */
+    /** @var \DCarbone\PHPFHIR\Definition\Type[] */
     private $types = [];
 
     /** @var \DCarbone\PHPFHIR\Config */
@@ -42,7 +43,7 @@ class Types implements \Iterator, \Countable
 
     /**
      * @param string $name
-     * @return \DCarbone\PHPFHIR\Type|null
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getTypeByFHIRName($name)
     {
@@ -56,7 +57,7 @@ class Types implements \Iterator, \Countable
 
     /**
      * @param string $name
-     * @return \DCarbone\PHPFHIR\Type|null
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getTypeByClassName($name)
     {
@@ -70,7 +71,7 @@ class Types implements \Iterator, \Countable
 
     /**
      * @param string $fqn
-     * @return \DCarbone\PHPFHIR\Type|null
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getTypeByFQN($fqn)
     {
@@ -84,7 +85,7 @@ class Types implements \Iterator, \Countable
 
     /**
      * @param string $group
-     * @return \DCarbone\PHPFHIR\Type[]
+     * @return \DCarbone\PHPFHIR\Definition\Type[]
      */
     public function getTypesByGroup($group)
     {
@@ -99,7 +100,7 @@ class Types implements \Iterator, \Countable
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return $this
      */
     public function addType(Type $type)
@@ -121,7 +122,7 @@ class Types implements \Iterator, \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Type|false
+     * @return \DCarbone\PHPFHIR\Definition\Type|false
      */
     public function current()
     {

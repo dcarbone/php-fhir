@@ -17,8 +17,8 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Class BaseParameterTemplate

@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
+<?php namespace DCarbone\PHPFHIR\Utilities;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,7 +18,7 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Type;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class ClassTypeUtils
@@ -47,7 +47,7 @@ abstract class ClassTypeUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      */
     public static function parseComplexClassType(Config $config, Type $type)
     {

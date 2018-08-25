@@ -25,8 +25,9 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // --- use statements
 
-use DCarbone\PHPFHIR\ClassGenerator\Generator;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition;
+use DCarbone\PHPFHIR\Generator;
 
 // ----- constants
 
@@ -360,7 +361,9 @@ foreach ($versionsToGenerate as $version) {
         'outputNamespace' => $namespace,
     ]);
 
-    $generator = new Generator($config);
+    $definition = new Definition($config, $version);
+
+    $generator = new Generator($config, $definition);
     $generator->generate();
 }
 

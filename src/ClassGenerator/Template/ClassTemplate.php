@@ -19,10 +19,10 @@
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\FileUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Class ClassTemplate

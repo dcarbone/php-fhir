@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Type;
+namespace DCarbone\PHPFHIR\Definition\Type;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,12 +19,12 @@ namespace DCarbone\PHPFHIR\Type;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\DocumentationTrait;
-use DCarbone\PHPFHIR\Type\Property\Enumeration;
+use DCarbone\PHPFHIR\Definition\DocumentationTrait;
+use DCarbone\PHPFHIR\Definition\Type\Property\Enumeration;
 
 /**
  * Class Property
- * @package DCarbone\PHPFHIR\Type
+ * @package DCarbone\PHPFHIR\Definition\Type
  */
 class Property
 {
@@ -55,7 +55,7 @@ class Property
     /** @var string|null */
     private $pattern = null;
 
-    /** @var null|\DCarbone\PHPFHIR\Type\Property\Enumeration */
+    /** @var null|\DCarbone\PHPFHIR\Definition\Type\Property\Enumeration */
     private $enumeration = null;
 
     /**
@@ -192,7 +192,7 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Type\Property\Enumeration|null
+     * @return \DCarbone\PHPFHIR\Definition\Type\Property\Enumeration|null
      */
     public function getEnumeration()
     {
@@ -200,7 +200,7 @@ class Property
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Type\Property\Enumeration|null $enumeration
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property\Enumeration|null $enumeration
      * @return Property
      */
     public function setEnumeration(Enumeration $enumeration)

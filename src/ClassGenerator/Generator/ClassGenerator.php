@@ -16,16 +16,13 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\PropertyExtractor;
+use DCarbone\PHPFHIR\Utilities\ClassTypeUtils;
 
 /**
  * Class ClassGenerator

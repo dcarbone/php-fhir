@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Type;
+namespace DCarbone\PHPFHIR\Definition\Type;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,27 +19,27 @@ namespace DCarbone\PHPFHIR\Type;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Type;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class Properties
- * @package DCarbone\PHPFHIR\Type
+ * @package DCarbone\PHPFHIR\Definition\Type
  */
 class Properties implements \Iterator, \Countable
 {
-    /** @var \DCarbone\PHPFHIR\Type\Property[] */
+    /** @var \DCarbone\PHPFHIR\Definition\Type\Property[] */
     private $properties = [];
 
     /** @var */
     private $config;
 
-    /** @var \DCarbone\PHPFHIR\Type; */
+    /** @var \DCarbone\PHPFHIR\Definition\Type; */
     private $type;
 
     /**
      * TypeProperties constructor.
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      */
     public function __construct(Config $config, Type $type)
     {
@@ -56,7 +56,7 @@ class Properties implements \Iterator, \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Type
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function getType()
     {
@@ -64,7 +64,7 @@ class Properties implements \Iterator, \Countable
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return $this
      */
     public function addProperty(Property $property)
@@ -88,7 +88,7 @@ class Properties implements \Iterator, \Countable
 
     /**
      * @param string $name
-     * @return \DCarbone\PHPFHIR\Type\Property|null
+     * @return \DCarbone\PHPFHIR\Definition\Type\Property|null
      */
     public function getProperty($name)
     {
@@ -110,7 +110,7 @@ class Properties implements \Iterator, \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Type\Property|null
+     * @return \DCarbone\PHPFHIR\Definition\Type\Property|null
      */
     public function current()
     {

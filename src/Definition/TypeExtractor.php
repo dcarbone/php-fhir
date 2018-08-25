@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR;
+namespace DCarbone\PHPFHIR\Definition;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,10 +19,11 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
-use DCarbone\PHPFHIR\ClassGenerator\Utilities\XMLUtils;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Utilities\ClassTypeUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Utilities\NSUtils;
+use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
  * Class TypeExtractor
@@ -72,8 +73,8 @@ abstract class TypeExtractor
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
     protected static function parseExtensionOrRestriction(Config $config,
@@ -93,8 +94,8 @@ abstract class TypeExtractor
      * - Parent Base Type (if applicable)
      *
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Types $types
-     * @param \DCarbone\PHPFHIR\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $outer
      */
     protected static function extractInnards(Config $config, Types $types, Type $type, \SimpleXMLElement $outer)
@@ -143,7 +144,7 @@ abstract class TypeExtractor
     /**
      * Extract Type definitions present in XSD file
      *
-     * @param \DCarbone\PHPFHIR\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param string $file
      * @param \DCarbone\PHPFHIR\Config $config
      */
@@ -204,7 +205,7 @@ abstract class TypeExtractor
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @return \DCarbone\PHPFHIR\Types
+     * @return \DCarbone\PHPFHIR\Definition\Types
      */
     public static function parseTypes(Config $config)
     {
