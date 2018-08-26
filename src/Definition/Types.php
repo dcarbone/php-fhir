@@ -42,6 +42,14 @@ class Types implements \Countable
     }
 
     /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return ['types' => $this->types];
+    }
+
+    /**
      * @param string $name
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
@@ -127,7 +135,7 @@ class Types implements \Countable
     }
 
     /**
-     * @return \ArrayIterator
+     * @return \DCarbone\PHPFHIR\Definition\Type[]
      */
     public function getIterator()
     {

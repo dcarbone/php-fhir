@@ -75,6 +75,16 @@ class Type
     }
 
     /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        $vars = get_object_vars($this);
+        unset($vars['config']);
+        return $vars;
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Config
      */
     public function getConfig()

@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Definition\TypeExtractor;
+use DCarbone\PHPFHIR\Definition\TypeRelationshipBuilder;
 
 /**
  * Class Definition
@@ -46,10 +47,22 @@ class Definition
         $this->fhirVersion = $fhirVersion;
     }
 
+    /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return [
+            'fhirVersion' => $this->fhirVersion,
+            'types'       => $this->types,
+        ];
+    }
+
     public function buildDefinition()
     {
         $this->config->getLogger()->startBreak('Extracting defined types...');
         $this->types = TypeExtractor::parseTypes($this->config);
+        TypeRelationshipBuilder::findPropertyTypes($this->config, $this->types);
         $this->config->getLogger()->endBreak(count($this->types) . ' types extracted.');
     }
 

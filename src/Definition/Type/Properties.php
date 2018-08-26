@@ -48,6 +48,14 @@ class Properties implements \Countable
     }
 
     /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return ['properties' => $this->properties];
+    }
+
+    /**
      * @return mixed
      */
     public function getConfig()
@@ -110,9 +118,10 @@ class Properties implements \Countable
     }
 
     /**
-     * @return \ArrayIterator
+     * @return \DCarbone\PHPFHIR\Definition\Type\Property[]
      */
-    public function getIterator() {
+    public function getIterator()
+    {
         return new \ArrayIterator($this->properties);
     }
 

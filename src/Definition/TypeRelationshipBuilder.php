@@ -33,7 +33,8 @@ abstract class TypeRelationshipBuilder
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function determineParent(Config $config, Types $types, Type $type, \SimpleXMLElement $element) {
+    public static function determineTypeParent(Config $config, Types $types, Type $type, \SimpleXMLElement $element)
+    {
         $fhirName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
         if (null === $fhirName) {
             $fhirName = XMLUtils::getBaseFHIRElementNameFromRestriction($element);
@@ -58,7 +59,24 @@ abstract class TypeRelationshipBuilder
         ));
     }
 
-    public static function findPropertyType(Config $config, Types $types, Type $type) {
-
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function findPropertyTypes(Config $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            foreach ($type->getProperties()->getIterator() as $property) {
+                if ($pt = $types->getTypeByFHIRName($property->getFHIRType())) {
+                    $property->setValueType($pt);
+                    $config->getLogger()->info(sprintf(
+                        'Setting Type %s Property %s to Type %s',
+                        $type,
+                        $property,
+                        $pt
+                    ));
+                }
+            }
+        }
     }
 }

@@ -81,7 +81,7 @@ abstract class TypeExtractor
                                                           Type $type,
                                                           \SimpleXMLElement $element)
     {
-        TypeRelationshipBuilder::determineParent($config, $types, $type, $element);
+        TypeRelationshipBuilder::determineTypeParent($config, $types, $type, $element);
         PropertyExtractor::extractTypeProperties($config, $types, $type, $element);
     }
 
