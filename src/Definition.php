@@ -60,10 +60,11 @@ class Definition
 
     public function buildDefinition()
     {
-        $this->config->getLogger()->startBreak('Extracting defined types...');
+        $this->config->getLogger()->startBreak('Extracting defined types');
         $this->types = TypeExtractor::parseTypes($this->config);
         TypeRelationshipBuilder::findPropertyTypes($this->config, $this->types);
-        $this->config->getLogger()->endBreak(count($this->types) . ' types extracted.');
+        $this->config->getLogger()->info(count($this->types) . ' types extracted.');
+        $this->config->getLogger()->endBreak('Extracting defined types');
     }
 
     /**

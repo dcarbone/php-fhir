@@ -18,10 +18,7 @@
 
 use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
 use DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\AutoloaderTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ParserMapTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
-use DCarbone\PHPFHIR\Definition\TypeExtractor;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
@@ -37,14 +34,10 @@ class Generator
     /** @var \DCarbone\PHPFHIR\Definition */
     protected $definition;
 
-    /** @var AutoloaderTemplate */
-    private $autoloadMap;
-    /** @var ParserMapTemplate */
-    private $mapTemplate;
-
     /**
      * Generator constructor.
      * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition $definition
      */
     public function __construct(Config $config, Definition $definition)
     {
@@ -60,6 +53,9 @@ class Generator
         $this->beforeGeneration();
 
         $this->config->getLogger()->startBreak('Class Generation');
+        if (!$this->definition->isDefined()) {
+            $this->definition->buildDefinition();
+        }
         foreach ($this->types as $fhirElementName => $mapEntry) {
             $this->config->getLogger()->debug("Generating class for element {$fhirElementName}...");
             $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->config, $this->types, $mapEntry);

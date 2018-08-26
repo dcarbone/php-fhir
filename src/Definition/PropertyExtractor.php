@@ -105,6 +105,7 @@ abstract class PropertyExtractor
         } else {
             $property->setDocumentation(XMLUtils::getDocumentation($element));
         }
+
         if (null !== $pattern) {
             $property->setPattern($pattern);
         } else {
@@ -235,8 +236,8 @@ abstract class PropertyExtractor
 
             case XSDElementType::UNION:
             case XSDElementType::ENUMERATION:
-                $config->getLogger()->warning(sprintf(
-                    'Ignoring %s element under %s...',
+                $config->getLogger()->debug(sprintf(
+                    'Ignoring %s element under Type %s...',
                     $element->getName(),
                     $type
                 ));

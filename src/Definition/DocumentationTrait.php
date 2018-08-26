@@ -24,11 +24,11 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 trait DocumentationTrait
 {
-    /** @var string|null */
+    /** @var null|string|array */
     private $documentation = null;
 
     /**
-     * @return string|null
+     * @return array
      */
     public function getDocumentation()
     {
@@ -36,12 +36,30 @@ trait DocumentationTrait
     }
 
     /**
-     * @param $documentation
+     * @return string
+     */
+    public function getDocumentationString()
+    {
+        return implode("\n", $this->getDocumentation());
+    }
+
+    /**
+     * @param string $documentation
      * @return static
      */
     public function setDocumentation($documentation)
     {
-        $this->documentation = $documentation;
+        if (null !== $documentation) {
+            if (is_string($documentation)) {
+                $documentation = array($documentation);
+            }
+
+            if (is_array($documentation)) {
+                $this->documentation = $documentation;
+            } else {
+                throw new \InvalidArgumentException('Documentation expected to be array, string, or null.');
+            }
+        }
         return $this;
     }
 }

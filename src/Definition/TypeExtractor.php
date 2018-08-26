@@ -86,18 +86,12 @@ abstract class TypeExtractor
     }
 
     /**
-     * Loop through first-level type definition children to try to extract:
-     *
-     * - Documentation
-     * - Properties
-     * - Parent Base Type (if applicable)
-     *
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $outer
      */
-    protected static function extractInnards(Config $config, Types $types, Type $type, \SimpleXMLElement $outer)
+    protected static function extractComplexInnards(Config $config, Types $types, Type $type, \SimpleXMLElement $outer)
     {
         foreach ($outer->children('xs', true) as $element) {
             switch (strtolower($element->getName())) {
@@ -105,7 +99,6 @@ abstract class TypeExtractor
                 case XSDElementType::CHOICE:
                 case XSDElementType::SEQUENCE:
                 case XSDElementType::UNION:
-                case XSDElementType::ENUMERATION:
                     // immediate properties
                     PropertyExtractor::implementTypeProperty($config, $types, $type, $element);
                     break;
@@ -117,10 +110,62 @@ abstract class TypeExtractor
 
                 case XSDElementType::COMPLEX_TYPE:
                 case XSDElementType::COMPLEX_CONTENT:
+                    self::extractComplexInnards($config, $types, $type, $element);
+                    break;
+
                 case XSDElementType::SIMPLE_TYPE:
                 case XSDElementType::SIMPLE_CONTENT:
-                    // sub-types
-                    static::extractInnards($config, $types, $type, $element);
+                    static::extractSimpleInnards($config, $types, $type, $element);
+                    break;
+
+                case XSDElementType::RESTRICTION:
+                case XSDElementType::EXTENSION:
+                    // we've got a parent
+                    static::parseExtensionOrRestriction($config, $types, $type, $element);
+                    break;
+
+                default:
+                    $config->getLogger()->warning(sprintf(
+                        'Unexpected Type %s first-level child %s: %s',
+                        $type,
+                        $element->getName(),
+                        $element->saveXML()
+                    ));
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \SimpleXMLElement $outer
+     */
+    protected static function extractSimpleInnards(Config $config, Types $types, Type $type, \SimpleXMLElement $outer)
+    {
+        foreach ($outer->children('xs', true) as $element) {
+            switch (strtolower($element->getName())) {
+                case XSDElementType::ATTRIBUTE:
+                case XSDElementType::CHOICE:
+                case XSDElementType::SEQUENCE:
+                case XSDElementType::UNION:
+                    // immediate properties
+                    PropertyExtractor::implementTypeProperty($config, $types, $type, $element);
+                    break;
+
+                case XSDElementType::ANNOTATION:
+                    // documentation!
+                    $type->setDocumentation(XMLUtils::getDocumentation($element));
+                    break;
+
+                case XSDElementType::COMPLEX_TYPE:
+                case XSDElementType::COMPLEX_CONTENT:
+                    self::extractComplexInnards($config, $types, $type, $element);
+                    break;
+
+                case XSDElementType::SIMPLE_TYPE:
+                case XSDElementType::SIMPLE_CONTENT:
+                    static::extractSimpleInnards($config, $types, $type, $element);
                     break;
 
                 case XSDElementType::RESTRICTION:
@@ -149,7 +194,8 @@ abstract class TypeExtractor
      */
     protected static function extractTypesFromXSD(Config $config, Types $types, $file)
     {
-        $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $file));
+        $basename = basename($file);
+        $config->getLogger()->startBreak("Extracting types from {$basename}");
 
         $sxe = static::constructSXEWithFilePath($file, $config);
         foreach ($sxe->children('xs', true) as $child) {
@@ -159,7 +205,6 @@ abstract class TypeExtractor
             }
             $attributes = $child->attributes();
             $fhirElementName = (string)$attributes['name'];
-            $type = new Type($config, $child, $file, $fhirElementName);
 
             if ('' === $fhirElementName) {
                 $attrArray = [];
@@ -171,17 +216,19 @@ abstract class TypeExtractor
                        ->warning(sprintf(
                            'Unable to locate "name" attribute on element %s in file "%s" with attributes ["%s"]',
                            $child->getName(),
-                           basename($file),
+                           $basename,
                            implode('", "', $attrArray)
                        ));
                 continue;
             }
 
+            $type = new Type($config, $child, $file, $fhirElementName);
+
             switch (strtolower($child->getName())) {
                 case XSDElementType::COMPLEX_TYPE:
                     $types->addType($type, $file);
                     ClassTypeUtils::parseComplexClassType($config, $type);
-                    static::extractInnards($config, $types, $type, $type->getSourceSXE());
+                    static::extractComplexInnards($config, $types, $type, $type->getSourceSXE());
 
                     $type->setClassName(NameUtils::getComplexTypeClassName($fhirElementName));
 
@@ -197,18 +244,19 @@ abstract class TypeExtractor
                         $t,
                         $type->getFHIRTypeNamespace(),
                         $type->getClassName(),
-                        basename($file)
+                        $basename
                     ));
                     break;
 
                 case XSDElementType::SIMPLE_TYPE:
                     $types->addType($type, $file);
                     $type->setSimpleType(ClassTypeUtils::getSimpleClassType($child));
+                    static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
                     $config->getLogger()->info(sprintf(
                         'Located "Simple" Type class "%s\\%s" in file "%s"',
                         $type->getFHIRTypeNamespace(),
                         $type->getClassName(),
-                        basename($file)
+                        $basename
                     ));
                     break;
 
@@ -216,7 +264,7 @@ abstract class TypeExtractor
                     $config->getLogger()->info(sprintf(
                         'Skipping root level element %s in file %s',
                         $child->getName(),
-                        basename($file)
+                        $basename
                     ));
                     break;
 
@@ -224,11 +272,13 @@ abstract class TypeExtractor
                     $config->getLogger()->warning(sprintf(
                         'Saw unexpected element "%s" in root of file "%s": %s',
                         $child->getName(),
-                        basename($file),
+                        $basename,
                         $child->saveXML()
                     ));
             }
         }
+
+        $config->getLogger()->endBreak("Extracting types from {$basename}");
     }
 
     /**
