@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Enum\PHPScope;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
@@ -34,7 +34,7 @@ class BaseMethodTemplate extends AbstractTemplate
     /** @var string */
     protected $name;
 
-    /** @var \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null */
+    /** @var \DCarbone\PHPFHIR\Enum\PHPScope|null */
     protected $scope;
 
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate[] */
@@ -52,9 +52,9 @@ class BaseMethodTemplate extends AbstractTemplate
      * BaseMethodTemplate constructor.
      * @param \DCarbone\PHPFHIR\Config $config
      * @param string $name
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null $scope
+     * @param \DCarbone\PHPFHIR\Enum\PHPScope|null $scope
      */
-    public function __construct(Config $config, $name, PHPScopeEnum $scope = null)
+    public function __construct(Config $config, $name, PHPScope $scope = null)
     {
         $this->config = $config;
 
@@ -65,7 +65,7 @@ class BaseMethodTemplate extends AbstractTemplate
         }
 
         if (null === $scope) {
-            $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
+            $this->scope = new PHPScope(PHPScope::_PUBLIC);
         } else {
             $this->scope = $scope;
         }
@@ -208,7 +208,7 @@ class BaseMethodTemplate extends AbstractTemplate
     }
 
     /**
-     * @return PHPScopeEnum
+     * @return \DCarbone\PHPFHIR\Enum\PHPScope
      */
     public function getScope()
     {

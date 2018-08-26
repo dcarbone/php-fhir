@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Config;
  * Class Types
  * @package DCarbone\PHPFHIR
  */
-class Types implements \Iterator, \Countable
+class Types implements \Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Type[] */
     private $types = [];
@@ -71,12 +71,13 @@ class Types implements \Iterator, \Countable
 
     /**
      * @param string $fqn
+     * @param bool $leadingSlash
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getTypeByFQN($fqn)
+    public function getTypeByFQN($fqn, $leadingSlash)
     {
         foreach ($this->types as $type) {
-            if ($type->getFQN() === $fqn) {
+            if ($type->getFQN($leadingSlash) === $fqn) {
                 return $type;
             }
         }
@@ -101,9 +102,10 @@ class Types implements \Iterator, \Countable
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param string $sourceFilename
      * @return $this
      */
-    public function addType(Type $type)
+    public function addType(Type $type, $sourceFilename)
     {
         $tname = $type->getFHIRName();
         foreach ($this->types as $current) {
@@ -111,10 +113,13 @@ class Types implements \Iterator, \Countable
                 return $this;
             }
             if ($current->getFHIRName() === $tname) {
-                throw new \LogicException(sprintf(
-                    'Type %s is already defined',
-                    $tname
+                $this->config->getLogger()->notice(sprintf(
+                    'Type %s was previously defined in file "%s", found again in "%s".  Keeping original',
+                    $tname,
+                    $current->getSourceFileBasename(),
+                    basename($sourceFilename)
                 ));
+                return $this;
             }
         }
         $this->types[] = $type;
@@ -122,37 +127,11 @@ class Types implements \Iterator, \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type|false
+     * @return \ArrayIterator
      */
-    public function current()
+    public function getIterator()
     {
-        return current($this->types);
-    }
-
-    public function next()
-    {
-        next($this->types);
-    }
-
-    /**
-     * @return int|null
-     */
-    public function key()
-    {
-        return key($this->types);
-    }
-
-    /**
-     * @return bool
-     */
-    public function valid()
-    {
-        return null !== key($this->types);
-    }
-
-    public function rewind()
-    {
-        reset($this->types);
+        return new \ArrayIterator($this->types);
     }
 
     /**

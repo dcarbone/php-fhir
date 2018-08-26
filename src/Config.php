@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -28,7 +27,8 @@ use Psr\Log\NullLogger;
  */
 class Config implements LoggerAwareInterface
 {
-    use LoggerAwareTrait;
+    /** @var \DCarbone\PHPFHIR\Logger */
+    private $logger;
 
     /** @var string */
     private $xsdPath;
@@ -58,7 +58,7 @@ class Config implements LoggerAwareInterface
         }
 
         // be lazy...
-        $this->setXsdPath(isset($this->xsdPath) ? $this->xsdPath : null);
+        $this->setXSDPath(isset($this->xsdPath) ? $this->xsdPath : null);
     }
 
     /**
@@ -67,6 +67,14 @@ class Config implements LoggerAwareInterface
     public function getLogger()
     {
         return $this->logger;
+    }
+
+    /**
+     * @param \Psr\Log\LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = new Logger($logger);
     }
 
     /**
@@ -79,9 +87,9 @@ class Config implements LoggerAwareInterface
 
     /**
      * @param string $xsdPath
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     * @return $this
      */
-    public function setXsdPath($xsdPath)
+    public function setXSDPath($xsdPath)
     {
         // Bunch'o validation
         if (false === is_dir($xsdPath)) {
@@ -104,7 +112,7 @@ class Config implements LoggerAwareInterface
 
     /**
      * @param string $outputPath
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     * @return $this
      */
     public function setOutputPath($outputPath)
     {
@@ -133,7 +141,7 @@ class Config implements LoggerAwareInterface
 
     /**
      * @param array $xmlSerializationAttributeOverrides
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     * @return $this
      */
     public function setXmlSerializationAttributeOverrides(array $xmlSerializationAttributeOverrides)
     {
@@ -147,7 +155,7 @@ class Config implements LoggerAwareInterface
     /**
      * @param string $elementName
      * @param string $propertyName
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     * @return $this
      */
     public function setXmlSerializationAttributeOverride($elementName, $propertyName)
     {
@@ -175,7 +183,7 @@ class Config implements LoggerAwareInterface
 
     /**
      * @param string $outputNamespace
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Config
+     * @return $this
      */
     public function setOutputNamespace($outputNamespace)
     {

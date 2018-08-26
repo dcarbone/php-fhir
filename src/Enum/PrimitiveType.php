@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator\Enum;
+<?php namespace DCarbone\PHPFHIR\Enum;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -22,7 +22,7 @@ use MyCLabs\Enum\Enum;
  * Class PrimitivePropertyTypesEnum
  * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
-class PrimitivePropertyTypesEnum extends Enum
+class PrimitiveType extends Enum
 {
     const POSITIVE_INTEGER = 'positiveint';
     const NEGATIVE_INTEGER = 'negativeint';

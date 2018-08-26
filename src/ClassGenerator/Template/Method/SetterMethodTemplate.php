@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Enum\PHPScope;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
@@ -41,7 +41,7 @@ class SetterMethodTemplate extends BaseMethodTemplate
             $name = sprintf('set%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
         }
 
-        parent::__construct($config, $name, new PHPScopeEnum(PHPScopeEnum::_PUBLIC));
+        parent::__construct($config, $name, new PHPScope(PHPScope::_PUBLIC));
 
         $this->setDocumentation($propertyTemplate->getDocumentation());
         $this->setReturnValueType('$this');

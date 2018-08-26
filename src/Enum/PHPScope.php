@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\ClassGenerator\Enum;
+<?php namespace DCarbone\PHPFHIR\Enum;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,26 +19,12 @@
 use MyCLabs\Enum\Enum;
 
 /**
- * Class ElementTypeEnum
+ * Class PHPScopeEnum
  * @package DCarbone\PHPFHIR\ClassGenerator\Enum
  */
-class ElementTypeEnum extends Enum
+class PHPScope extends Enum
 {
-    const COMPLEX_TYPE = 'complextype';
-    const COMPLEX_CONTENT = 'complexcontent';
-
-    const SIMPLE_TYPE = 'simpletype';
-    const SIMPLE_CONTENT = 'simplecontent';
-
-    const ANNOTATION = 'annotation';
-    const DOCUMENTATION = 'documentation';
-    const RESTRICTION = 'restriction';
-    const EXTENSION = 'extension';
-
-    const ATTRIBUTE = 'attribute';
-    const SEQUENCE = 'sequence';
-    const UNION = 'union';
-    const ELEMENT = 'element';
-    const CHOICE = 'choice';
-    const ENUMERATION = 'enumeration';
+    const _PRIVATE = 'private';
+    const _PROTECTED = 'protected';
+    const _PUBLIC = 'public';
 }

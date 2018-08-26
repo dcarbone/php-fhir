@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\PrimitivePropertyTypesEnum;
+use DCarbone\PHPFHIR\Enum\PrimitiveType;
 
 /**
  * Class PrimitiveTypeUtils
@@ -25,39 +25,39 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\PrimitivePropertyTypesEnum;
 abstract class PrimitiveTypeUtils
 {
     /**
-     * @param PrimitivePropertyTypesEnum $type
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $type
      * @return string
      */
-    public static function getSimpleTypeVariableType(PrimitivePropertyTypesEnum $type)
+    public static function getSimpleTypeVariableType(PrimitiveType $type)
     {
         $strType = (string)$type;
         switch ($strType) {
-            case PrimitivePropertyTypesEnum::BOOLEAN:
-            case PrimitivePropertyTypesEnum::INTEGER:
-            case PrimitivePropertyTypesEnum::STRING:
+            case PrimitiveType::BOOLEAN:
+            case PrimitiveType::INTEGER:
+            case PrimitiveType::STRING:
                 return $strType;
 
-            case PrimitivePropertyTypesEnum::NEGATIVE_INTEGER:
-            case PrimitivePropertyTypesEnum::POSITIVE_INTEGER:
-            case PrimitivePropertyTypesEnum::UNSIGNED_INTEGER:
+            case PrimitiveType::NEGATIVE_INTEGER:
+            case PrimitiveType::POSITIVE_INTEGER:
+            case PrimitiveType::UNSIGNED_INTEGER:
                 return 'integer';
 
-            case PrimitivePropertyTypesEnum::DECIMAL:
+            case PrimitiveType::DECIMAL:
                 return 'float';
 
-            case PrimitivePropertyTypesEnum::TIME:
-            case PrimitivePropertyTypesEnum::INSTANT:
-            case PrimitivePropertyTypesEnum::DATE:
-            case PrimitivePropertyTypesEnum::DATETIME:
+            case PrimitiveType::TIME:
+            case PrimitiveType::INSTANT:
+            case PrimitiveType::DATE:
+            case PrimitiveType::DATETIME:
 
-            case PrimitivePropertyTypesEnum::MARKDOWN:
-            case PrimitivePropertyTypesEnum::UUID:
-            case PrimitivePropertyTypesEnum::OID:
-            case PrimitivePropertyTypesEnum::ID:
-            case PrimitivePropertyTypesEnum::XML_ID_REF:
-            case PrimitivePropertyTypesEnum::URI:
-            case PrimitivePropertyTypesEnum::BASE_64_BINARY:
-            case PrimitivePropertyTypesEnum::CODE:
+            case PrimitiveType::MARKDOWN:
+            case PrimitiveType::UUID:
+            case PrimitiveType::OID:
+            case PrimitiveType::ID:
+            case PrimitiveType::XML_ID_REF:
+            case PrimitiveType::URI:
+            case PrimitiveType::BASE_64_BINARY:
+            case PrimitiveType::CODE:
                 return 'string';
 
             // TODO: At some point, would looooove to turn this value into a real DateTime object...

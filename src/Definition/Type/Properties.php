@@ -25,7 +25,7 @@ use DCarbone\PHPFHIR\Definition\Type;
  * Class Properties
  * @package DCarbone\PHPFHIR\Definition\Type
  */
-class Properties implements \Iterator, \Countable
+class Properties implements \Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Type\Property[] */
     private $properties = [];
@@ -110,37 +110,10 @@ class Properties implements \Iterator, \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property|null
+     * @return \ArrayIterator
      */
-    public function current()
-    {
-        return current($this->properties);
-    }
-
-    public function next()
-    {
-        next($this->properties);
-    }
-
-    /**
-     * @return int|null
-     */
-    public function key()
-    {
-        return key($this->properties);
-    }
-
-    /**
-     * @return bool
-     */
-    public function valid()
-    {
-        return null !== key($this->properties);
-    }
-
-    public function rewind()
-    {
-        reset($this->properties);
+    public function getIterator() {
+        return new \ArrayIterator($this->properties);
     }
 
     /**

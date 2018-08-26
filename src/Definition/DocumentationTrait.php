@@ -24,11 +24,11 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 trait DocumentationTrait
 {
-    /** @var string */
-    private $documentation;
+    /** @var string|null */
+    private $documentation = null;
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getDocumentation()
     {

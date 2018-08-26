@@ -17,8 +17,10 @@
  */
 
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Enum\BaseType;
+use DCarbone\PHPFHIR\Enum\SimpleType;
 
 /**
  * Class NSUtils
@@ -52,44 +54,16 @@ abstract class NSUtils
     }
 
     /**
-     * @param SimpleClassTypesEnum $type
+     * @param \DCarbone\PHPFHIR\Enum\SimpleType $type
      * @return string
      */
-    public static function getSimpleTypeNamespace(SimpleClassTypesEnum $type)
+    public static function getSimpleTypeNamespace(SimpleType $type)
     {
         switch ((string)$type) {
-            case SimpleClassTypesEnum::_LIST:
+            case SimpleType::_LIST:
                 return 'FHIRList';
-            case SimpleClassTypesEnum::PRIMITIVE:
+            case SimpleType::PRIMITIVE:
                 return 'FHIRPrimitive';
-
-            default:
-                return '';
-        }
-    }
-
-    /**
-     * @param string $name
-     * @param ComplexClassTypesEnum|null $type
-     * @return string
-     */
-    public static function getComplexTypeNamespace($name, ComplexClassTypesEnum $type = null)
-    {
-        switch ((string)$type) {
-            case ComplexClassTypesEnum::DOMAIN_RESOURCE:
-                return 'FHIRDomainResource';
-
-            case ComplexClassTypesEnum::RESOURCE:
-                return 'FHIRResource';
-
-            case ComplexClassTypesEnum::ELEMENT:
-                return 'FHIRElement';
-
-            case ComplexClassTypesEnum::QUANTITY:
-                return 'FHIRElement\\FHIRQuantity';
-
-            case ComplexClassTypesEnum::COMPONENT:
-                return sprintf('FHIRResource\\FHIR%s', strstr($name, '.', true));
 
             default:
                 return '';

@@ -57,4 +57,8 @@ abstract class TypeRelationshipBuilder
             $type
         ));
     }
+
+    public static function findPropertyType(Config $config, Types $types, Type $type) {
+
+    }
 }

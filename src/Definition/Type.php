@@ -21,6 +21,8 @@ namespace DCarbone\PHPFHIR\Definition;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type\Properties;
 use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Enum\BaseType;
+use DCarbone\PHPFHIR\Enum\SimpleType;
 
 /**
  * Class Type
@@ -30,31 +32,28 @@ class Type
 {
     use DocumentationTrait;
 
-    const BASE_TYPE_ELEMENT          = 'Element';
-    const BASE_TYPE_BACKBONE_ELEMENT = 'BackboneElement';
-    const BASE_TYPE_RESOURCE         = 'Resource';
-    const BASE_TYPE_DOMAIN_RESOURCE  = 'DomainResource';
-    const BASE_TYPE_QUANTITY         = 'Quantity';
-
     /** @var \DCarbone\PHPFHIR\Config */
     private $config;
     /** @var \SimpleXMLElement */
     private $sourceSXE;
 
     /** @var string */
+    private $sourceFilename;
+    /** @var string */
     private $fhirName;
-    /** @var null|string */
+    /** @var null|\DCarbone\PHPFHIR\Enum\BaseType */
     private $baseType = null;
     /** @var bool */
     private $component = false;
 
     /** @var string */
-    private $namespace;
-    /** @var string */
     private $className;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $parentType = null;
+
+    /** @var null|\DCarbone\PHPFHIR\Enum\SimpleType */
+    private $simpleType = null;
 
     /** @var \DCarbone\PHPFHIR\Definition\Type\Properties */
     private $properties;
@@ -63,12 +62,14 @@ class Type
      * FHIRType constructor.
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \SimpleXMLElement $sourceSXE
+     * @param $sourceFilename
      * @param string $fhirName
      */
-    public function __construct(Config $config, \SimpleXMLElement $sourceSXE, $fhirName)
+    public function __construct(Config $config, \SimpleXMLElement $sourceSXE, $sourceFilename, $fhirName)
     {
         $this->config = $config;
         $this->sourceSXE = $sourceSXE;
+        $this->sourceFilename = $sourceFilename;
         $this->fhirName = $fhirName;
         $this->properties = new Properties($config, $this);
     }
@@ -92,6 +93,22 @@ class Type
     /**
      * @return string
      */
+    public function getSourceFilename()
+    {
+        return $this->sourceFilename;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSourceFileBasename()
+    {
+        return basename($this->getSourceFilename());
+    }
+
+    /**
+     * @return string
+     */
     public function getFHIRName()
     {
         return $this->fhirName;
@@ -106,21 +123,21 @@ class Type
     }
 
     /**
-     * @param string $baseType
-     * @return $this
-     */
-    public function setBaseType($baseType)
-    {
-        $this->baseType = $baseType;
-        return $this;
-    }
-
-    /**
-     * @return string|null
+     * @return \DCarbone\PHPFHIR\Enum\BaseType|null
      */
     public function getBaseType()
     {
         return $this->baseType;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\BaseType|null $baseType
+     * @return Type
+     */
+    public function setBaseType(BaseType $baseType)
+    {
+        $this->baseType = $baseType;
+        return $this;
     }
 
     /**
@@ -144,19 +161,29 @@ class Type
     /**
      * @return string
      */
-    public function getNamespace()
+    public function getFHIRTypeNamespace()
     {
-        return $this->namespace;
-    }
+        if ($this->isComponent()) {
+            return sprintf('FHIRResources\\FHIR%s', strstr($this->getFHIRName(), '.', true));
+        }
+        if (!$this->isBaseType()) {
+            return '';
+        }
+        switch ($bt = $this->getBaseType()) {
+            case BaseType::ELEMENT:
+            case BaseType::BACKBONE_ELEMENT:
+            case BaseType::RESOURCE:
+            case BaseType::DOMAIN_RESOURCE:
+            case BaseType::QUANTITY:
+                return "FHIR{$bt}";
 
-    /**
-     * @param $namespace
-     * @return $this
-     */
-    public function setNamespace($namespace)
-    {
-        $this->namespace = $namespace;
-        return $this;
+            default:
+                throw new \LogicException(sprintf(
+                    'Type %s has unknown Base Type %s',
+                    $this,
+                    $bt
+                ));
+        }
     }
 
     /**
@@ -178,11 +205,44 @@ class Type
     }
 
     /**
+     * @return \DCarbone\PHPFHIR\Enum\SimpleType|null
+     */
+    public function getSimpleType()
+    {
+        return $this->simpleType;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\SimpleType $simpleType
+     * @return Type
+     */
+    public function setSimpleType(SimpleType $simpleType)
+    {
+        $this->simpleType = $simpleType;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSimpleType()
+    {
+        return null !== $this->getSimpleType();
+    }
+
+    /**
+     * @param bool $leadingSlash
      * @return string
      */
-    public function getFQN()
+    public function getFQN($leadingSlash)
     {
-        return "{$this->namespace}\\{$this->className}";
+        $fhirNS = $this->getFHIRTypeNamespace();
+        if ('' === $fhirNS) {
+            $ns = sprintf('%s\\%s', $this->config->getOutputNamespace(), $this->getClassName());
+        } else {
+            $ns = sprintf('%s\\%s\\%s', $this->config->getOutputNamespace(), $fhirNS, $this->getClassName());
+        }
+        return $leadingSlash ? '\\' . $ns : $ns;
     }
 
     /**

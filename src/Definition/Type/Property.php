@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Definition\Type;
 
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\DocumentationTrait;
+use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Type\Property\Enumeration;
 
 /**
@@ -57,6 +58,9 @@ class Property
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type\Property\Enumeration */
     private $enumeration = null;
+
+    /** @var \DCarbone\PHPFHIR\Definition\Type */
+    private $valueType = null;
 
     /**
      * Property constructor.
@@ -206,6 +210,24 @@ class Property
     public function setEnumeration(Enumeration $enumeration)
     {
         $this->enumeration = $enumeration;
+        return $this;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function getValueType()
+    {
+        return $this->valueType;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $valueType
+     * @return Property
+     */
+    public function setValueType(Type $valueType)
+    {
+        $this->valueType = $valueType;
         return $this;
     }
 

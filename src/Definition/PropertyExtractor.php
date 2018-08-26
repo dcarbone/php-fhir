@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Enum\XSDElementType;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -42,12 +42,12 @@ abstract class PropertyExtractor
         if ($parent = $type->getParentType()) {
             $pName = $property->getName();
             $pType = $property->getFHIRType();
-            foreach ($parent->getProperties() as $property) {
+            foreach ($parent->getProperties()->getIterator() as $property) {
                 if ($property->getName() === $pName && $property->getFHIRType() === $pType) {
                     return true;
                 }
             }
-            return static::isPropertyImplementedByParent($config, $types, $type, $property);
+            return static::isPropertyImplementedByParent($config, $types, $parent, $property);
         } else {
             return false;
         }
@@ -214,17 +214,27 @@ abstract class PropertyExtractor
     {
         /** @var \SimpleXMLElement $child */
         switch (strtolower($element->getName())) {
-            case ElementTypeEnum::ATTRIBUTE:
+            case XSDElementType::ATTRIBUTE:
                 self::parseAttributeElementProperty($config, $types, $type, $element);
                 break;
-            case ElementTypeEnum::CHOICE:
+            case XSDElementType::CHOICE:
                 self::implementChoiceProperty($config, $types, $type, $element);
                 break;
-            case ElementTypeEnum::SEQUENCE:
+            case XSDElementType::SEQUENCE:
                 self::implementPropertySequence($config, $types, $type, $element);
                 break;
-            case ElementTypeEnum::UNION:
-            case ElementTypeEnum::ENUMERATION:
+            case XSDElementType::ELEMENT:
+                self::implementElementProperty($config, $types, $type, $element);
+                break;
+
+            case XSDElementType::ANNOTATION:
+                if (!$type->getDocumentation()) {
+                    $type->setDocumentation(XMLUtils::getDocumentation($element));
+                }
+                break;
+
+            case XSDElementType::UNION:
+            case XSDElementType::ENUMERATION:
                 $config->getLogger()->warning(sprintf(
                     'Ignoring %s element under %s...',
                     $element->getName(),
@@ -237,7 +247,7 @@ abstract class PropertyExtractor
                     'Unexpected Type %s Property element "%s" found: %s',
                     $type,
                     $element->getName(),
-                    $element
+                    $element->saveXML()
                 ));
         }
     }

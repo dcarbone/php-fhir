@@ -18,11 +18,10 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Enum\XSDElementType;
 use DCarbone\PHPFHIR\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
-use DCarbone\PHPFHIR\Utilities\NSUtils;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -102,30 +101,30 @@ abstract class TypeExtractor
     {
         foreach ($outer->children('xs', true) as $element) {
             switch (strtolower($element->getName())) {
-                case ElementTypeEnum::ATTRIBUTE:
-                case ElementTypeEnum::CHOICE:
-                case ElementTypeEnum::SEQUENCE:
-                case ElementTypeEnum::UNION:
-                case ElementTypeEnum::ENUMERATION:
+                case XSDElementType::ATTRIBUTE:
+                case XSDElementType::CHOICE:
+                case XSDElementType::SEQUENCE:
+                case XSDElementType::UNION:
+                case XSDElementType::ENUMERATION:
                     // immediate properties
                     PropertyExtractor::implementTypeProperty($config, $types, $type, $element);
                     break;
 
-                case ElementTypeEnum::ANNOTATION:
+                case XSDElementType::ANNOTATION:
                     // documentation!
                     $type->setDocumentation(XMLUtils::getDocumentation($element));
                     break;
 
-                case ElementTypeEnum::COMPLEX_TYPE:
-                case ElementTypeEnum::COMPLEX_CONTENT:
-                case ElementTypeEnum::SIMPLE_TYPE:
-                case ElementTypeEnum::SIMPLE_CONTENT:
+                case XSDElementType::COMPLEX_TYPE:
+                case XSDElementType::COMPLEX_CONTENT:
+                case XSDElementType::SIMPLE_TYPE:
+                case XSDElementType::SIMPLE_CONTENT:
                     // sub-types
                     static::extractInnards($config, $types, $type, $element);
                     break;
 
-                case ElementTypeEnum::RESTRICTION:
-                case ElementTypeEnum::EXTENSION:
+                case XSDElementType::RESTRICTION:
+                case XSDElementType::EXTENSION:
                     // we've got a parent
                     static::parseExtensionOrRestriction($config, $types, $type, $element);
                     break;
@@ -155,50 +154,79 @@ abstract class TypeExtractor
         $sxe = static::constructSXEWithFilePath($file, $config);
         foreach ($sxe->children('xs', true) as $child) {
             /** @var \SimpleXMLElement $child */
+            if ('include' === $child->getName() || 'import' === $child->getName()) {
+                continue;
+            }
             $attributes = $child->attributes();
             $fhirElementName = (string)$attributes['name'];
-            $type = new Type($config, $child, $fhirElementName);
+            $type = new Type($config, $child, $file, $fhirElementName);
 
             if ('' === $fhirElementName) {
                 $attrArray = [];
                 foreach ($attributes as $attribute) {
                     /** @var \SimpleXMLElement $attribute */
-                    $attrArray[] = sprintf('%s : %s', $attribute->getName(), (string)$attribute);
+                    $attrArray[] = sprintf('%s" : "%s', $attribute->getName(), (string)$attribute);
                 }
                 $config->getLogger()
                        ->warning(sprintf(
-                           'Unable to locate "name" attribute on element in file "%s" with attributes ["%s"]',
-                           $file,
+                           'Unable to locate "name" attribute on element %s in file "%s" with attributes ["%s"]',
+                           $child->getName(),
+                           basename($file),
                            implode('", "', $attrArray)
                        ));
                 continue;
             }
 
-            if (ElementTypeEnum::COMPLEX_TYPE === strtolower($child->getName())) {
-                $types->addType($type);
-                ClassTypeUtils::parseComplexClassType($config, $type);
-                static::extractInnards($config, $types, $type, $type->getSourceSXE());
+            switch (strtolower($child->getName())) {
+                case XSDElementType::COMPLEX_TYPE:
+                    $types->addType($type, $file);
+                    ClassTypeUtils::parseComplexClassType($config, $type);
+                    static::extractInnards($config, $types, $type, $type->getSourceSXE());
 
-                $type
-                    ->setNamespace(NSUtils::generateRootNamespace(
-                        $config,
-                        NSUtils::getComplexTypeNamespace($fhirElementName, $type)
-                    ))
-                    ->setClassName(NameUtils::getComplexTypeClassName($fhirElementName));
+                    $type->setClassName(NameUtils::getComplexTypeClassName($fhirElementName));
 
-                $config->getLogger()->info(sprintf(
-                    'Located "%s" class "%s\\%s" in file "%s"',
-                    $type->getBaseType(),
-                    $type->getNamespace(),
-                    $type->getClassName(),
-                    basename($file)
-                ));
-            } else {
-                $config->getLogger()->warning(sprintf(
-                    'Saw non-complex element "%s" in root: %s',
-                    $child->getName(),
-                    $child
-                ));
+                    if ($type->isComponent()) {
+                        $t = 'ResourceComponent';
+                    } elseif ($type->isBaseType()) {
+                        $t = $type->getBaseType();
+                    } else {
+                        $t = 'Base';
+                    }
+                    $config->getLogger()->info(sprintf(
+                        'Located "%s" Type class "%s\\%s" in file "%s"',
+                        $t,
+                        $type->getFHIRTypeNamespace(),
+                        $type->getClassName(),
+                        basename($file)
+                    ));
+                    break;
+
+                case XSDElementType::SIMPLE_TYPE:
+                    $types->addType($type, $file);
+                    $type->setSimpleType(ClassTypeUtils::getSimpleClassType($child));
+                    $config->getLogger()->info(sprintf(
+                        'Located "Simple" Type class "%s\\%s" in file "%s"',
+                        $type->getFHIRTypeNamespace(),
+                        $type->getClassName(),
+                        basename($file)
+                    ));
+                    break;
+
+                case XSDElementType::ELEMENT:
+                    $config->getLogger()->info(sprintf(
+                        'Skipping root level element %s in file %s',
+                        $child->getName(),
+                        basename($file)
+                    ));
+                    break;
+
+                default:
+                    $config->getLogger()->warning(sprintf(
+                        'Saw unexpected element "%s" in root of file "%s": %s',
+                        $child->getName(),
+                        basename($file),
+                        $child->saveXML()
+                    ));
             }
         }
     }

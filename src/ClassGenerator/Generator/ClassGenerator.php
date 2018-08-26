@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Enum\PHPScope;
 use DCarbone\PHPFHIR\Utilities\ClassTypeUtils;
 
 /**
@@ -78,7 +78,7 @@ abstract class ClassGenerator
     public static function addBaseClassProperties(ClassTemplate $classTemplate, XSDMap\XSDMapEntry $mapEntry)
     {
         // Add the source element name to each class...
-        $property = new BasePropertyTemplate($mapEntry, new PHPScopeEnum(PHPScopeEnum::_PRIVATE), true, false);
+        $property = new BasePropertyTemplate($mapEntry, new PHPScope(PHPScope::_PRIVATE), true, false);
         $property->setDefaultValue($mapEntry->fhirElementName);
         $property->setName('_fhirElementName');
         $property->setPHPType('string');

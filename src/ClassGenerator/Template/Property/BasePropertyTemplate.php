@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
+use DCarbone\PHPFHIR\Enum\PHPScope;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
@@ -33,7 +33,7 @@ class BasePropertyTemplate extends AbstractTemplate
     /** @var string */
     protected $name;
 
-    /** @var PHPScopeEnum */
+    /** @var PHPScope */
     protected $scope;
 
     /** @var bool */
@@ -70,18 +70,18 @@ class BasePropertyTemplate extends AbstractTemplate
     /**
      * BasePropertyTemplate constructor.
      * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null $scope
+     * @param \DCarbone\PHPFHIR\Enum\PHPScope|null $scope
      * @param bool $requiresGetter
      * @param bool $requiresSetter
      */
     public function __construct(XSDMapEntry $mapEntry = null,
-                                PHPScopeEnum $scope = null,
+                                PHPScope $scope = null,
                                 $requiresGetter = true,
                                 $requiresSetter = true)
     {
         $this->mapEntry = $mapEntry;
         if (null === $scope) {
-            $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
+            $this->scope = new PHPScope(PHPScope::_PUBLIC);
         } else {
             $this->scope = $scope;
         }
@@ -251,7 +251,7 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @return PHPScopeEnum
+     * @return PHPScope
      */
     public function getScope()
     {
@@ -259,10 +259,10 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum $scope
+     * @param \DCarbone\PHPFHIR\Enum\PHPScope $scope
      * @return $this
      */
-    public function setScope(PHPScopeEnum $scope)
+    public function setScope(PHPScope $scope)
     {
         $this->scope = $scope;
         return $this;

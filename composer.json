@@ -51,5 +51,9 @@
       "PHPFHIRGenerated\\": "output/PHPFHIRGenerated",
       "HL7\\": "output/HL7"
     }
+  },
+  "suggest": {
+    "myena/default-logger": "Simple PSR-compliant logger",
+    "ext-zip": "To enable unzipping of downloaded source files"
   }
 }

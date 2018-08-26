@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Enum\BaseType;
+use DCarbone\PHPFHIR\Enum\SimpleType;
 
 /**
  * Class ClassTypeUtils
@@ -28,7 +29,7 @@ abstract class ClassTypeUtils
 {
     /**
      * @param string|\SimpleXMLElement $input
-     * @return SimpleClassTypesEnum
+     * @return SimpleType
      */
     public static function getSimpleClassType($input)
     {
@@ -39,7 +40,7 @@ abstract class ClassTypeUtils
         }
 
         if (is_string($name)) {
-            return new SimpleClassTypesEnum(ltrim(strrchr($name, '-'), "-"));
+            return new SimpleType(ltrim(strrchr($name, '-'), "-"));
         }
 
         throw new \InvalidArgumentException('Unable to determine Simple Class Type for "' . (string)$input . '"');
@@ -67,21 +68,6 @@ abstract class ClassTypeUtils
             }
         }
 
-        switch ($baseName) {
-            case Type::BASE_TYPE_ELEMENT:
-            case Type::BASE_TYPE_BACKBONE_ELEMENT:
-            case Type::BASE_TYPE_RESOURCE:
-            case Type::BASE_TYPE_DOMAIN_RESOURCE:
-            case Type::BASE_TYPE_QUANTITY:
-                $type->setBaseType($baseName);
-                break;
-
-            default:
-                $config->getLogger()->warning(sprintf(
-                    'Unknown base type "%s" seen for Type %s',
-                    $baseName,
-                    $type
-                ));
-        }
+        $type->setBaseType(new BaseType($baseName));
     }
 }

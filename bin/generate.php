@@ -27,7 +27,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
-use DCarbone\PHPFHIR\Generator;
+use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
 
 // ----- constants
 
@@ -44,6 +45,9 @@ $configFile = null;
 $schemaPath = '';
 $classesPath = '';
 $versionsToGenerate = null;
+$logger = false;
+$log = new NullLogger();
+$configLogLevel = null;
 
 // ----- functions
 
@@ -193,8 +197,36 @@ if ($argc > 1) {
             case '--versions':
                 $versionsToGenerate = array_map('trim', explode(',', $argv[++$i]));
                 break;
+
+            case '--logger':
+                $log = new \MyENA\DefaultANSILogger();
+                break;
+
+            case '--logLevel':
+                switch ($l = strtolower(trim($argv[++$i]))) {
+                    case LogLevel::EMERGENCY:
+                    case LogLevel::ALERT:
+                    case LogLevel::CRITICAL:
+                    case LogLevel::ERROR:
+                    case LogLevel::WARNING:
+                    case LogLevel::NOTICE:
+                    case LogLevel::INFO:
+                    case LogLevel::DEBUG:
+                        $configLogLevel = $l;
+                        break;
+                    default:
+                        echo "Specified log level {$l} is invalid\n";
+                        exit(1);
+                }
+                break;
         }
     }
+}
+
+if (null !== $configLogLevel) {
+    $log->setLogLevel($configLogLevel);
+} else {
+    $log->setLogLevel(LogLevel::WARNING);
 }
 
 // try to determine which config file to use...
@@ -336,6 +368,10 @@ foreach ($versionsToGenerate as $version) {
     }
 
     if ($unzip) {
+        if (!class_exists('\\ZipArchive', true)) {
+            echo "ext-zip not found, cannot unzip.\n";
+            exit(1);
+        }
         $zip = new ZipArchive;
 
         if (true !== ($res = $zip->open($schemaDir . '.zip'))) {
@@ -360,11 +396,13 @@ foreach ($versionsToGenerate as $version) {
         'outputPath'      => $classesPath,
         'outputNamespace' => $namespace,
     ]);
+    $config->setLogger($log);
 
     $definition = new Definition($config, $version);
+    $definition->buildDefinition();
 
-    $generator = new Generator($config, $definition);
-    $generator->generate();
+//    $generator = new Generator($config, $definition);
+//    $generator->generate();
 }
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;
