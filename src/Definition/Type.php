@@ -30,6 +30,8 @@ use DCarbone\PHPFHIR\Enum\SimpleType;
  */
 class Type
 {
+    const RESOURCE_CONTAINER = 'ResourceContainer';
+
     use DocumentationTrait;
 
     /** @var \DCarbone\PHPFHIR\Config */
@@ -244,15 +246,23 @@ class Type
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFQN($leadingSlash)
+    public function getFullyQualifiedNamespace($leadingSlash)
     {
+        $ns = $this->getConfig()->getOutputNamespace();
         $fhirNS = $this->getFHIRTypeNamespace();
-        if ('' === $fhirNS) {
-            $ns = sprintf('%s\\%s', $this->config->getOutputNamespace(), $this->getClassName());
-        } else {
-            $ns = sprintf('%s\\%s\\%s', $this->config->getOutputNamespace(), $fhirNS, $this->getClassName());
+        if ('' !== $fhirNS) {
+            $ns = "{$ns}\\{$fhirNS}";
         }
         return $leadingSlash ? '\\' . $ns : $ns;
+    }
+
+    /**
+     * @param bool $leadingSlash
+     * @return string
+     */
+    public function getFullyQualifiedClassName($leadingSlash)
+    {
+        return $this->getFullyQualifiedNamespace($leadingSlash) . '\\' . $this->getClassName();
     }
 
     /**
@@ -291,6 +301,14 @@ class Type
     public function getProperties()
     {
         return $this->properties;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isResourceContainer()
+    {
+        return self::RESOURCE_CONTAINER === $this->getFHIRName();
     }
 
     /**

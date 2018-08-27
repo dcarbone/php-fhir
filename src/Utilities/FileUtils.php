@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class FileUtils
@@ -58,5 +59,15 @@ abstract class FileUtils
     public static function buildDirPathFromNS($namespace)
     {
         return preg_replace(['{[\\\]}S', '{[/]{2,}}S'], '/', trim($namespace, "\\"));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    public static function buildFilePath(Type $type)
+    {
+        $fp = static::buildDirPathFromNS($type->getFullyQualifiedNamespace(true));
+        return "{$fp}/{$type->getClassName()}.php";
     }
 }

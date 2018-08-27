@@ -20,6 +20,7 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
+use DCarbone\PHPFHIR\Generator\AbstractTemplate;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
@@ -316,80 +317,6 @@ class ClassTemplate extends AbstractTemplate
         }
 
         return sprintf("%s\n}", $output);
-    }
-
-    /**
-     * @return string
-     */
-    private function _compileUseStatements()
-    {
-        $useStatement = '';
-
-        $thisClassName = $this->compileFullyQualifiedClassName();
-        $thisNamespace = $this->getNamespace();
-
-        $imports = array();
-        if ($this->extendedElementMapEntry) {
-            $imports[] = sprintf(
-                '%s\\%s',
-                $this->extendedElementMapEntry->namespace,
-                $this->extendedElementMapEntry->className
-            );
-        }
-
-        if (count($this->implementedInterfaces) > 0) {
-            foreach ($this->implementedInterfaces as $interface) {
-                $imports[] = $interface;
-            }
-        }
-
-        // TODO: The below may eventually be used for type-hinting.
-//        foreach($this->_properties as $property)
-//        {
-//            $type = $property->getPhpType();
-//            if (null === $type)
-//                continue;
-//
-//            $usedClasses[] = $type;
-//        }
-
-        $imports = array_count_values(array_merge($this->getImports(), $imports));
-        ksort($imports);
-
-        foreach ($imports as $name => $timesImported) {
-            // Don't import base namespace things.
-            if (0 === strpos($name, '\\') && 1 === substr_count($name, '\\')) {
-                continue;
-            }
-
-            // Don't use yourself, dog...
-            if ($name === $thisClassName) {
-                continue;
-            }
-
-            // If this class is already in the same namespace as this one...
-            $remainder = str_replace(array($thisNamespace, '\\'), '', $name);
-            if (basename($name) === $remainder) {
-                continue;
-            }
-
-            $useStatement = sprintf("%suse %s;\n", $useStatement, ltrim($name, "\\"));
-        }
-
-        return $useStatement;
-    }
-
-    /**
-     * @param bool|true $leadingSlashes
-     * @return string
-     */
-    public function compileFullyQualifiedClassName($leadingSlashes = true)
-    {
-        if ($leadingSlashes) {
-            return sprintf('\\%s\\%s', $this->getNamespace(), $this->getClassName());
-        }
-
-        return sprintf('%s\\%s', $this->getNamespace(), $this->getClassName());
     }
 
     /**

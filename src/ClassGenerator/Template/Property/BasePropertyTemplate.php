@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry;
 use DCarbone\PHPFHIR\Enum\PHPScope;
+use DCarbone\PHPFHIR\Generator\AbstractTemplate;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**

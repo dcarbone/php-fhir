@@ -25,6 +25,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // --- use statements
 
+use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
 use Psr\Log\LogLevel;
@@ -401,8 +402,8 @@ foreach ($versionsToGenerate as $version) {
     $definition = new Definition($config, $version);
     $definition->buildDefinition();
 
-//    $generator = new Generator($config, $definition);
-//    $generator->generate();
+    $builder = new Builder($config, $definition);
+    $builder->build();
 }
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;

@@ -85,7 +85,7 @@ class Types implements \Countable
     public function getTypeByFQN($fqn, $leadingSlash)
     {
         foreach ($this->types as $type) {
-            if ($type->getFQN($leadingSlash) === $fqn) {
+            if ($type->getFullyQualifiedClassName($leadingSlash) === $fqn) {
                 return $type;
             }
         }

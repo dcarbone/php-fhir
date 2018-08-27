@@ -16,17 +16,16 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Generator\ClassGenerator;
-use DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator;
+use DCarbone\PHPFHIR\Builder\ClassBuilder;
 use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /**
- * Class Generator
- * @package PHPFHIR
+ * Class Builder
+ * @package DCarbone\PHPFHIR
  */
-class Generator
+class Builder
 {
     /** @var \DCarbone\PHPFHIR\Config */
     protected $config;
@@ -48,7 +47,7 @@ class Generator
     /**
      * Generate FHIR object classes based on XSD
      */
-    public function generate()
+    public function build()
     {
         $this->beforeGeneration();
 
@@ -56,19 +55,19 @@ class Generator
         if (!$this->definition->isDefined()) {
             $this->definition->buildDefinition();
         }
-        foreach ($this->types as $fhirElementName => $mapEntry) {
-            $this->config->getLogger()->debug("Generating class for element {$fhirElementName}...");
-            $classTemplate = ClassGenerator::buildFHIRElementClassTemplate($this->config, $this->types, $mapEntry);
+        foreach ($this->definition->getTypes()->getIterator() as $type) {
+            $this->config->getLogger()->debug("Generating class for element {$type}...");
+            $classTemplate = ClassBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
 
-            FileUtils::createDirsFromNS($classTemplate->getNamespace(), $this->config);
-
-            // Generate class file
-            MethodGenerator::implementConstructor($this->config, $classTemplate);
-            $classTemplate->writeToFile($this->config->getOutputPath());
-
-            $this->mapTemplate->addEntry($classTemplate);
-            $this->autoloadMap->addPHPFHIRClassEntry($classTemplate);
-            $this->config->getLogger()->debug("{$fhirElementName} completed.");
+//            FileUtils::createDirsFromNS($classTemplate->getNamespace(), $this->config);
+//
+//            // Generate class file
+//            MethodGenerator::implementConstructor($this->config, $classTemplate);
+//            $classTemplate->writeToFile($this->config->getOutputPath());
+//
+//            $this->mapTemplate->addEntry($classTemplate);
+//            $this->autoloadMap->addPHPFHIRClassEntry($classTemplate);
+//            $this->config->getLogger()->debug("{$fhirElementName} completed.");
         }
         $this->config->getLogger()->endBreak('Class Generation');
 
@@ -119,14 +118,14 @@ class Generator
      */
     protected function afterGeneration()
     {
-        $this->mapTemplate->writeToFile();
-        $this->autoloadMap->writeToFile();
-
-        $responseParserTemplate = new ResponseParserTemplate($this->config);
-        $this->autoloadMap->addEntry(
-            $responseParserTemplate->getClassName(),
-            $responseParserTemplate->getClassPath()
-        );
-        $responseParserTemplate->writeToFile();
+//        $this->mapTemplate->writeToFile();
+//        $this->autoloadMap->writeToFile();
+//
+//        $responseParserTemplate = new ResponseParserTemplate($this->config);
+//        $this->autoloadMap->addEntry(
+//            $responseParserTemplate->getClassName(),
+//            $responseParserTemplate->getClassPath()
+//        );
+//        $responseParserTemplate->writeToFile();
     }
 }
