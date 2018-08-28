@@ -5,6 +5,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class ConstructorUtils
@@ -14,43 +15,90 @@ abstract class ConstructorUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param ClassTemplate $class
-     * @param BaseMethodTemplate $method
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
      */
-    public static function implementDefault(Config $config, ClassTemplate $class, BaseMethodTemplate $method)
+    public static function implementDefault(Config $config, Type $type)
     {
-        $method->addLineToBody('if (is_array($data)) {');
-        foreach ($class->getProperties() as $name => $property) {
-            if (0 === strpos($name, '_')) {
-                continue;
-            }
-            $method->addLineToBody('    if (isset($data[\'' . $name . '\'])) {');
+        $out = <<<PHP
+    /**
+     * {$type->getClassName()} Constructor
+
+PHP;
+        $out .= $type->getDocBlockDocumentationFragment();
+        $out .= <<<PHP
+     * @var null|array \$data
+     */
+    public function __construct(\$data = null)
+    {
+
+PHP;
+        if ($type->getParentType()) {
+            $out .= "       parent::__construct(\$data);\n";
+        }
+        $out .= <<<PHP
+        if (is_array(\$data)) {
+
+PHP;
+        foreach ($type->getProperties()->getSortedIterator() as $property) {
+            $name = $property->getName();
             if ($property->isCollection()) {
-                // TODO: case-insensitive method calling gives me...pains...
-                $method->addBlockToBody(<<<PHP
-        if (is_array(\$data['{$name}'])) {
-            foreach(\$data['{$name}'] as \$d) {
-                \$this->add{$name}(\$d);
-            }
-        } else {
-            throw new \\InvalidArgumentException('"{$name}" must be array of objects or null, '.gettype(\$data['{$name}']).' seen.'); 
-        }
-PHP
-                );
+                $setter = 'add' . ucfirst($name);
             } else {
-                $method->addLineToBody('        $this->set' . ucfirst($name) . '($data[\'' . $name . '\']);');
+                $setter = 'set' . ucfirst($name);
             }
-            $method->addLineToBody('    }');
+            $out .= <<<PHP
+            if (isset(\$data['{$name}'])) {
+                \$this->{$setter}(\$data['{$name}']);
+            }
+
+PHP;
         }
-        $method->addBlockToBody(<<<PHP
-} else if (null !== \$data) {
-    throw new \\InvalidArgumentException('\$data expected to be array of values, saw "'.gettype(\$data).'"');
-}
-PHP
-        );
-        if ($class->getExtendedElementMapEntry()) {
-            $method->addLineToBody('parent::__construct($data);');
+        $out .= <<<PHP
+        } else if (null !== \$data) {
+            throw new \InvalidArgumentException(
+                '{$type->getFullyQualifiedClassName(true)}::__construct - Argument 1 expected to be array or null, '.
+                gettype(\$data).
+                ' seen.'
+            );
         }
+    }
+
+PHP;
+
+        return $out;
+//        $method->addLineToBody('if (is_array($data)) {');
+//        foreach ($class->getProperties() as $name => $property) {
+//            if (0 === strpos($name, '_')) {
+//                continue;
+//            }
+//            $method->addLineToBody('    if (isset($data[\'' . $name . '\'])) {');
+//            if ($property->isCollection()) {
+//                // TODO: case-insensitive method calling gives me...pains...
+//                $method->addBlockToBody(<<<PHP
+//        if (is_array(\$data['{$name}'])) {
+//            foreach(\$data['{$name}'] as \$d) {
+//                \$this->add{$name}(\$d);
+//            }
+//        } else {
+//            throw new \\InvalidArgumentException('"{$name}" must be array of objects or null, '.gettype(\$data['{$name}']).' seen.');
+//        }
+//PHP
+//                );
+//            } else {
+//                $method->addLineToBody('        $this->set' . ucfirst($name) . '($data[\'' . $name . '\']);');
+//            }
+//            $method->addLineToBody('    }');
+//        }
+//        $method->addBlockToBody(<<<PHP
+//} else if (null !== \$data) {
+//    throw new \\InvalidArgumentException('\$data expected to be array of values, saw "'.gettype(\$data).'"');
+//}
+//PHP
+//        );
+//        if ($class->getExtendedElementMapEntry()) {
+//            $method->addLineToBody('parent::__construct($data);');
+//        }
     }
 
     /**

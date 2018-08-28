@@ -30,6 +30,9 @@ class Properties implements \Countable
     /** @var \DCarbone\PHPFHIR\Definition\Type\Property[] */
     private $properties = [];
 
+    /** @var bool */
+    private $sorted = false;
+
     /** @var */
     private $config;
 
@@ -91,6 +94,7 @@ class Properties implements \Countable
             }
         }
         $this->properties[] = $property;
+        $this->sorted = false;
         return $this;
     }
 
@@ -123,6 +127,25 @@ class Properties implements \Countable
     public function getIterator()
     {
         return new \ArrayIterator($this->properties);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Type\Property[]
+     */
+    public function getSortedIterator()
+    {
+        if (!$this->sorted) {
+            usort(
+                $this->properties,
+                function ($a, $b) {
+                    /** @var \DCarbone\PHPFHIR\Definition\Type\Property $a */
+                    /** @var \DCarbone\PHPFHIR\Definition\Type\Property $b */
+                    return strnatcmp($a->getName(), $b->getName());
+                }
+            );
+            $this->sorted = true;
+        }
+        return $this->getIterator();
     }
 
     /**

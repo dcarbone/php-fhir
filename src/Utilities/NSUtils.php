@@ -82,20 +82,20 @@ abstract class NSUtils
                         $propNS
                     ));
                 }
-            } elseif (Type\Property::TYPE_HTML === $property->getFHIRType()) {
+            } elseif (Type\Property::TYPE_HTML === $property->getFHIRTypeName()) {
                 $imports[] = static::generateRootNamespace($config, 'PHPFHIRHelper');
                 $config->getLogger()->debug(sprintf(
                     'Type %s Property %s is of type %s, adding PHPFHIRHelper use statement',
                     $type,
                     $property,
-                    $property->getFHIRType()
+                    $property->getFHIRTypeName()
                 ));
             } else {
                 $config->getLogger()->debug(sprintf(
                     'Type %s Property %s is a %s, which has no Type associated with it.  Will not add use statement',
                     $type,
                     $property,
-                    $property->getFHIRType()
+                    $property->getFHIRTypeName()
                 ));
             }
         }

@@ -20,6 +20,7 @@ use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
+use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
@@ -65,7 +66,7 @@ PHP;
 
 PHP;
 
-        foreach ($type->getProperties()->getIterator() as $property) {
+        foreach ($type->getProperties()->getSortedIterator() as $property) {
             $out .= "\n    /**\n";
             $out .= $property->getDocBlockDocumentationFragment();
             $out .= "     * @var {$property->getPHPTypeName()}\n";
@@ -73,6 +74,18 @@ PHP;
             $out .= '    public ';
             $out .= NameUtils::getPropertyVariableName($property->getName());
             $out .= ";\n";
+        }
+
+        $out .= "\n";
+
+        if ($type->isResourceContainer()) {
+
+        } elseif ($type->isPrimitive()) {
+
+        } elseif ($type->isList()) {
+
+        } else {
+            $out .= ConstructorUtils::implementDefault($config, $type);
         }
 
         return $out . '}';

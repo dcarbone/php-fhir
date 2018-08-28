@@ -41,9 +41,9 @@ abstract class PropertyExtractor
     {
         if ($parent = $type->getParentType()) {
             $pName = $property->getName();
-            $pType = $property->getFHIRType();
+            $pType = $property->getFHIRTypeName();
             foreach ($parent->getProperties()->getIterator() as $property) {
-                if ($property->getName() === $pName && $property->getFHIRType() === $pType) {
+                if ($property->getName() === $pName && $property->getFHIRTypeName() === $pType) {
                     return true;
                 }
             }

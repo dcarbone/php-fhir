@@ -101,7 +101,7 @@ abstract class TypeRelationshipBuilder
     {
         foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
-                if ($pt = $types->getTypeByFHIRName($property->getFHIRType())) {
+                if ($pt = $types->getTypeByFHIRName($property->getFHIRTypeName())) {
                     $property->setValueType($pt);
                     $config->getLogger()->info(sprintf(
                         'Setting Type %s Property %s to Type %s',
@@ -114,7 +114,7 @@ abstract class TypeRelationshipBuilder
                         'Unable to locate Type %s Property %s value Type of %s',
                         $type,
                         $property,
-                        $property->getFHIRType()
+                        $property->getFHIRTypeName()
                     ));
                 }
             }

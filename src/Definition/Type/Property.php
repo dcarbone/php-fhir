@@ -44,7 +44,7 @@ class Property
     private $name;
 
     /** @var string */
-    private $fhirType;
+    private $fhirTypeName;
     /** @var string */
     private $phpTypeName;
 
@@ -74,7 +74,7 @@ class Property
         $this->config = $config;
         $this->sourceSXE = $sourceSXE;
         $this->name = $name;
-        $this->fhirType = $fhirType;
+        $this->fhirTypeName = $fhirType;
     }
 
     /**
@@ -104,9 +104,9 @@ class Property
     /**
      * @return string
      */
-    public function getFHIRType()
+    public function getFHIRTypeName()
     {
-        return $this->fhirType;
+        return $this->fhirTypeName;
     }
 
     /**
@@ -114,7 +114,7 @@ class Property
      */
     public function isHTML()
     {
-        return self::TYPE_HTML === $this->getFHIRType();
+        return self::TYPE_HTML === $this->getFHIRTypeName();
     }
 
     /**
@@ -261,22 +261,6 @@ class Property
     public function unlimitedOccurrences()
     {
         return self::OCCURS_UNLIMITED === $this->getMaxOccurs();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isPrimitive()
-    {
-        return false !== strpos($this->getFHIRType(), '-primitive');
-    }
-
-    /**
-     * @return bool
-     */
-    public function isList()
-    {
-        return false !== strpos($this->getFHIRType(), '-list');
     }
 
     /**

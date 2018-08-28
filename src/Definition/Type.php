@@ -280,6 +280,22 @@ class Type
     }
 
     /**
+     * @return bool
+     */
+    public function isPrimitive()
+    {
+        return false !== strpos($this->getFHIRName(), '-primitive');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isList()
+    {
+        return false !== strpos($this->getFHIRName(), '-list');
+    }
+
+    /**
      * @return string
      */
     public function __toString()
