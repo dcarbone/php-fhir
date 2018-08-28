@@ -21,6 +21,7 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
 
 /**
@@ -54,6 +55,25 @@ PHP;
         }
         $out .= ' implements \\JsonSerializable';
         $out .= "\n{\n";
+
+        $out .= <<<PHP
+    /**
+     * Raw name of FHIR type represented by this class
+     * @var string
+     */
+    private \$_fhirElementName = "{$type->getFHIRName()}";
+
+PHP;
+
+        foreach ($type->getProperties()->getIterator() as $property) {
+            $out .= "\n    /**\n";
+            $out .= $property->getDocBlockDocumentationFragment();
+            $out .= "     * @var {$property->getPHPTypeName()}\n";
+            $out .= "     */\n";
+            $out .= '    public ';
+            $out .= NameUtils::getPropertyVariableName($property->getName());
+            $out .= ";\n";
+        }
 
         return $out . '}';
     }
