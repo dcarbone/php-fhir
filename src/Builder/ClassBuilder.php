@@ -77,15 +77,17 @@ PHP;
         }
 
         $out .= "\n";
+        $out .= ConstructorUtils::buildHeader($config, $type);
 
         if ($type->isResourceContainer()) {
 
         } elseif ($type->isPrimitive()) {
-
+            $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
         } elseif ($type->isList()) {
-
+            // TODO: this probably is not correct.
+            $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
         } else {
-            $out .= ConstructorUtils::implementDefault($config, $type);
+            $out .= ConstructorUtils::buildDefaultBody($config, $type);
         }
 
         return $out . '}';

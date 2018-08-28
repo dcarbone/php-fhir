@@ -89,7 +89,7 @@ abstract class PropertyExtractor
             }
 
             if (0 === strpos($ref, 'xhtml')) {
-                $property = new Property($config, $element, substr($ref, 6), Property::TYPE_HTML);
+                $property = new Property($config, substr($ref, 6), Property::TYPE_HTML);
                 $property->setPHPTypeName('string');
                 return $property;
             }
@@ -98,7 +98,7 @@ abstract class PropertyExtractor
             $type = $ref;
         }
 
-        $property = new Property($config, $element, $name, $type);
+        $property = new Property($config, $name, $type);
 
         if (null !== $documentation) {
             $property->setDocumentation($documentation);

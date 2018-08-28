@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition\Type\Property;
 use DCarbone\PHPFHIR\Enum\XSDElementType;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
@@ -244,6 +245,7 @@ abstract class TypeExtractor
                 case XSDElementType::SIMPLE_TYPE:
                     $types->addType($type, $file);
                     $type->setClassName(NameUtils::getTypeClassName($fhirElementName));
+                    $type->addProperty(new Property($config, 'value', $fhirElementName));
                     static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
                     $config->getLogger()->info(sprintf(
                         'Located "Simple" Type class "%s\\%s" in file "%s"',

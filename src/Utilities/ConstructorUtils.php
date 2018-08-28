@@ -18,7 +18,7 @@ abstract class ConstructorUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function implementDefault(Config $config, Type $type)
+    public static function buildHeader(Config $config, Type $type)
     {
         $out = <<<PHP
     /**
@@ -33,6 +33,19 @@ PHP;
     {
 
 PHP;
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    public static function buildDefaultBody(Config $config, Type $type)
+    {
+        $properties = $type->getProperties();
+
+        $out = '';
         if ($type->getParentType()) {
             $out .= "       parent::__construct(\$data);\n";
         }
@@ -40,7 +53,7 @@ PHP;
         if (is_array(\$data)) {
 
 PHP;
-        foreach ($type->getProperties()->getSortedIterator() as $property) {
+        foreach ($properties->getSortedIterator() as $property) {
             $name = $property->getName();
             if ($property->isCollection()) {
                 $setter = 'add' . ucfirst($name);
@@ -67,55 +80,23 @@ PHP;
 PHP;
 
         return $out;
-//        $method->addLineToBody('if (is_array($data)) {');
-//        foreach ($class->getProperties() as $name => $property) {
-//            if (0 === strpos($name, '_')) {
-//                continue;
-//            }
-//            $method->addLineToBody('    if (isset($data[\'' . $name . '\'])) {');
-//            if ($property->isCollection()) {
-//                // TODO: case-insensitive method calling gives me...pains...
-//                $method->addBlockToBody(<<<PHP
-//        if (is_array(\$data['{$name}'])) {
-//            foreach(\$data['{$name}'] as \$d) {
-//                \$this->add{$name}(\$d);
-//            }
-//        } else {
-//            throw new \\InvalidArgumentException('"{$name}" must be array of objects or null, '.gettype(\$data['{$name}']).' seen.');
-//        }
-//PHP
-//                );
-//            } else {
-//                $method->addLineToBody('        $this->set' . ucfirst($name) . '($data[\'' . $name . '\']);');
-//            }
-//            $method->addLineToBody('    }');
-//        }
-//        $method->addBlockToBody(<<<PHP
-//} else if (null !== \$data) {
-//    throw new \\InvalidArgumentException('\$data expected to be array of values, saw "'.gettype(\$data).'"');
-//}
-//PHP
-//        );
-//        if ($class->getExtendedElementMapEntry()) {
-//            $method->addLineToBody('parent::__construct($data);');
-//        }
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param ClassTemplate $class
-     * @param BaseMethodTemplate $method
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
      */
-    public static function implementPrimitive(Config $config,
-                                              ClassTemplate $class,
-                                              BaseMethodTemplate $method)
+    public static function buildPrimitiveBody(Config $config, Type $type)
     {
-        // TODO: type-specific checking?
-        $method->addLineToBody('if (is_scalar($data)) {');
-        $method->addLineToBody('    parent::__construct([\'value\' => $data]);;');
-        $method->addLineToBody('} else {');
-        $method->addLineToBody('    parent::__construct($data);');
-        $method->addLineToBody('}');
+        $out = <<<PHP
+        if (is_scalar(\$data)) {
+            \$this->setValue(\$data);
+            return;
+        }
+
+PHP;
+        return $out . self::buildDefaultBody($config, $type);
     }
 
     /**

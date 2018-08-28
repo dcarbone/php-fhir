@@ -37,9 +37,6 @@ class Property
     /** @var \DCarbone\PHPFHIR\Config */
     private $config;
 
-    /** @var \SimpleXMLElement */
-    private $sourceSXE;
-
     /** @var string */
     private $name;
 
@@ -65,14 +62,12 @@ class Property
     /**
      * Property constructor.
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \SimpleXMLElement $sourceSXE
      * @param string $name
      * @param $fhirType
      */
-    public function __construct(Config $config, \SimpleXMLElement $sourceSXE, $name, $fhirType)
+    public function __construct(Config $config, $name, $fhirType)
     {
         $this->config = $config;
-        $this->sourceSXE = $sourceSXE;
         $this->name = $name;
         $this->fhirTypeName = $fhirType;
     }
@@ -83,14 +78,6 @@ class Property
     public function getConfig()
     {
         return $this->config;
-    }
-
-    /**
-     * @return \SimpleXMLElement
-     */
-    public function getSourceSXE()
-    {
-        return $this->sourceSXE;
     }
 
     /**
