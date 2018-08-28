@@ -2,8 +2,6 @@
 
 namespace DCarbone\PHPFHIR\Utilities;
 
-use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type;
 
@@ -27,7 +25,7 @@ abstract class ConstructorUtils
 PHP;
         $out .= $type->getDocBlockDocumentationFragment();
         $out .= <<<PHP
-     * @var null|array \$data
+     * @var mixed \$data Value depends upon object being constructed.
      */
     public function __construct(\$data = null)
     {
@@ -75,7 +73,6 @@ PHP;
                 ' seen.'
             );
         }
-    }
 
 PHP;
 
@@ -101,26 +98,30 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param ClassTemplate $class
-     * @param BaseMethodTemplate $method
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
      */
-    public static function implementResourceContainer(Config $config,
-                                                      ClassTemplate $class,
-                                                      BaseMethodTemplate $method)
+    public static function buildResourceContainerBody(Config $config, Type $type)
     {
-        $method->addBlockToBody(<<<PHP
-if (is_object(\$data)) {
-    \$this->{sprintf('set%s', substr(strrchr(get_class(\$data), 'FHIR'), 4))}(\$data);
-} else if (is_array(\$data)) {
-    if (1 === (\$cnt = count(\$data))) {
-        \$this->{sprintf('set%s', key(\$data))}(reset(\$data));
-    } else if (1 < \$cnt) {
-        throw new \InvalidArgumentException(sprintf('ResourceContainers may only contain 1 object, "%d" values provided', \$cnt));
-    }
-} else if (null !== \$data) {
-    throw new \\InvalidArgumentException('\$data expected to be object or array, saw '.gettype(\$data));
-}
-PHP
-        );
+        return <<<PHP
+        if (is_array(\$data)) {
+            \$key = key(\$data);
+            if (!is_string(\$key)) {
+                throw new \InvalidArgumentException(sprintf(
+                    '{$type->getFullyQualifiedClassName(true)}::__construct - When \$data is an array, the first key must be a string with a value equal to one of the fields defined in this object.  %s seen',
+                    \$key
+                ));
+            }
+            \$this->{"set{\$key}"}(current(\$data));
+        } else if (is_object(\$data)) {
+            \$this->{sprintf('set%s', substr(strrchr(get_class(\$data), 'FHIR'), 4))}(\$data);
+        } else if (null !== \$data) {
+            throw new \InvalidArgumentException(sprintf(
+                '{$type->getFullyQualifiedClassName(true)}::__construct - \$data must be an array, an object, or null.  %s seen.',
+                gettype(\$data)
+            ));
+        }
+
+PHP;
     }
 }

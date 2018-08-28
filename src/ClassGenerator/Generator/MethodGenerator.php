@@ -51,7 +51,7 @@ abstract class MethodGenerator
         if ($class->isPrimitive()) {
             ConstructorUtils::buildPrimitiveBody($config, $class, $method);
         } elseif ('ResourceContainer' === $class->getElementName()) {
-            ConstructorUtils::implementResourceContainer($config, $class, $method);
+            ConstructorUtils::buildResourceContainerBody($config, $class, $method);
         } else {
             ConstructorUtils::buildDefaultBody($config, $class, $method);
         }

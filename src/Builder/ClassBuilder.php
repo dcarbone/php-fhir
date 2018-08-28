@@ -80,7 +80,7 @@ PHP;
         $out .= ConstructorUtils::buildHeader($config, $type);
 
         if ($type->isResourceContainer()) {
-
+            $out .= ConstructorUtils::buildResourceContainerBody($config, $type);
         } elseif ($type->isPrimitive()) {
             $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
         } elseif ($type->isList()) {
@@ -89,6 +89,7 @@ PHP;
         } else {
             $out .= ConstructorUtils::buildDefaultBody($config, $type);
         }
+        $out .= "   }\n";
 
         return $out . '}';
     }
