@@ -72,7 +72,7 @@ abstract class NSUtils
         foreach ($type->getProperties()->getIterator() as $property) {
             if ($propertyType = $property->getValueType()) {
                 if (($propNS = $propertyType->getFullyQualifiedNamespace(false)) !== $fqns) {
-                    $imports[] = $propNS;
+                    $imports[] = $propertyType->getFullyQualifiedClassName(false);
                     $config->getLogger()->debug(sprintf(
                         'Type %s Property %s is of Type %s, which has a different root namespace (%s vs %s).  Will add use statement.',
                         $type,
@@ -100,7 +100,8 @@ abstract class NSUtils
             }
         }
 
-        $imports = array_unique($imports, SORT_NATURAL);
+        $imports = array_unique($imports);
+        sort($imports, SORT_NATURAL);
 
         $stmt = '';
         foreach ($imports as $import) {
