@@ -42,9 +42,20 @@ PHP;
         $out .= CopyrightUtils::getFullPHPFHIRCopyrightComment();
         $out .= "\n\n";
         $out .= NSUtils::compileUseStatements($config, $types, $type);
+        if ("\n\n" !== substr($out, -2)) {
+            $out .= "\n";
+        }
+        if ($doc = $type->getDocBlockDocumentationFragment(1)) {
+            $out .= "/**\n{$doc} */\n";
+        }
+        $out .= "class {$type->getClassName()}";
+        if ($ptype = $type->getParentType()) {
+            $out .= " extends {$ptype->getClassName()}";
+        }
+        $out .= ' implements \\JsonSerializable';
+        $out .= "\n{\n";
 
-        echo $out . "\n";
-        exit;
+        return $out . '}';
     }
 
     /**

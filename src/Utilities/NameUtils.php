@@ -79,7 +79,7 @@ abstract class NameUtils
      * @param string $name
      * @return string
      */
-    public static function getSimpleTypeClassName($name)
+    public static function getTypeClassName($name)
     {
         if (false !== ($pos = strpos($name, '-primitive'))) {
             $name = sprintf('%sPrimitive', substr($name, 0, $pos));
@@ -94,15 +94,6 @@ abstract class NameUtils
         }
 
         return sprintf('FHIR%s', str_replace(self::$classNameSearch, self::$classNameReplace, $name));
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    public static function getComplexTypeClassName($name)
-    {
-        return sprintf('FHIR%s', ucfirst(str_replace(self::$classNameSearch, self::$classNameReplace, $name)));
     }
 
     /**

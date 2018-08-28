@@ -17,7 +17,6 @@
  */
 
 use DCarbone\PHPFHIR\Builder\ClassBuilder;
-use DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR\ResponseParserTemplate;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
@@ -57,9 +56,14 @@ class Builder
         }
         foreach ($this->definition->getTypes()->getIterator() as $type) {
             $this->config->getLogger()->debug("Generating class for element {$type}...");
-            $classTemplate = ClassBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
-
-//            FileUtils::createDirsFromNS($classTemplate->getNamespace(), $this->config);
+            $classDefinition = ClassBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
+            FileUtils::createDirsFromNS($type->getFullyQualifiedNamespace(false), $this->config);
+            if (!(bool)file_put_contents(FileUtils::buildFilePath($this->config, $type), $classDefinition)) {
+                throw new \RuntimeException(sprintf(
+                    'Unable to write Type %s',
+                    $type
+                ));
+            }
 //
 //            // Generate class file
 //            MethodGenerator::implementConstructor($this->config, $classTemplate);

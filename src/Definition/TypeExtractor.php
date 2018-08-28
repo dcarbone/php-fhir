@@ -20,7 +20,6 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\XSDElementType;
-use DCarbone\PHPFHIR\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
@@ -227,21 +226,15 @@ abstract class TypeExtractor
             switch (strtolower($child->getName())) {
                 case XSDElementType::COMPLEX_TYPE:
                     $types->addType($type, $file);
-                    ClassTypeUtils::parseComplexClassType($config, $type);
-                    static::extractComplexInnards($config, $types, $type, $type->getSourceSXE());
-
-                    $type->setClassName(NameUtils::getComplexTypeClassName($fhirElementName));
-
-                    if ($type->isComponent()) {
-                        $t = 'ResourceComponent';
-                    } elseif ($type->isBaseType()) {
-                        $t = $type->getBaseType();
-                    } else {
-                        $t = 'Base';
+                    $sxe = $type->getSourceSXE();
+                    $name = XMLUtils::getObjectNameFromElement($sxe);
+                    if (false !== strpos($name, '.')) {
+                        TypeRelationshipBuilder::findComponentOfType($config, $types, $type, $name);
                     }
+                    static::extractComplexInnards($config, $types, $type, $type->getSourceSXE());
+                    $type->setClassName(NameUtils::getTypeClassName($fhirElementName));
                     $config->getLogger()->info(sprintf(
-                        'Located "%s" Type class "%s\\%s" in file "%s"',
-                        $t,
+                        'Located "Complex" Type class "%s\\%s" in file "%s"',
                         $type->getFHIRTypeNamespace(),
                         $type->getClassName(),
                         $basename
@@ -250,7 +243,7 @@ abstract class TypeExtractor
 
                 case XSDElementType::SIMPLE_TYPE:
                     $types->addType($type, $file);
-                    $type->setSimpleType(ClassTypeUtils::getSimpleClassType($child));
+                    $type->setClassName(NameUtils::getTypeClassName($fhirElementName));
                     static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
                     $config->getLogger()->info(sprintf(
                         'Located "Simple" Type class "%s\\%s" in file "%s"',

@@ -21,10 +21,10 @@ namespace DCarbone\PHPFHIR\Definition;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type\Properties;
 use DCarbone\PHPFHIR\Definition\Type\Property;
-use DCarbone\PHPFHIR\Enum\BaseType;
-use DCarbone\PHPFHIR\Enum\SimpleType;
 
 /**
+ * TODO: Tracking too much state in this class...
+ *
  * Class Type
  * @package DCarbone\PHPFHIR
  */
@@ -43,19 +43,15 @@ class Type
     private $sourceFilename;
     /** @var string */
     private $fhirName;
-    /** @var null|\DCarbone\PHPFHIR\Enum\BaseType */
-    private $baseType = null;
-    /** @var bool */
-    private $component = false;
+
+    /** @var null|\DCarbone\PHPFHIR\Definition\Type */
+    private $componentOfType = null;
 
     /** @var string */
     private $className;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $parentType = null;
-
-    /** @var null|\DCarbone\PHPFHIR\Enum\SimpleType */
-    private $simpleType = null;
 
     /** @var \DCarbone\PHPFHIR\Definition\Type\Properties */
     private $properties;
@@ -127,47 +123,35 @@ class Type
     }
 
     /**
-     * @return bool
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function isBaseType()
+    public function getComponentOfType()
     {
-        return null !== $this->baseType;
+        return $this->componentOfType;
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\BaseType|null
-     */
-    public function getBaseType()
-    {
-        return $this->baseType;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Enum\BaseType|null $baseType
+     * @param \DCarbone\PHPFHIR\Definition\Type|null $componentOfType
      * @return Type
      */
-    public function setBaseType(BaseType $baseType)
+    public function setComponentOfType(Type $componentOfType)
     {
-        $this->baseType = $baseType;
+        $this->componentOfType = $componentOfType;
         return $this;
     }
 
     /**
-     * @param bool $component
-     * @return $this
+     * @return \DCarbone\PHPFHIR\Definition\Type[]
      */
-    public function setComponent($component)
+    public function getParentTypes()
     {
-        $this->component = $component;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isComponent()
-    {
-        return $this->component;
+        $parents = [];
+        $p = $this->getParentType();
+        while (null !== $p) {
+            $parents[] = $p;
+            $p = $p->getParentType();
+        }
+        return $parents;
     }
 
     /**
@@ -175,27 +159,37 @@ class Type
      */
     public function getFHIRTypeNamespace()
     {
-        if ($this->isComponent()) {
-            return sprintf('FHIRResources\\FHIR%s', strstr($this->getFHIRName(), '.', true));
-        }
-        if (!$this->isBaseType()) {
+        if ($this->isRootType()) {
             return '';
         }
-        switch ($bt = $this->getBaseType()) {
-            case BaseType::ELEMENT:
-            case BaseType::BACKBONE_ELEMENT:
-            case BaseType::RESOURCE:
-            case BaseType::DOMAIN_RESOURCE:
-            case BaseType::QUANTITY:
-                return "FHIR{$bt}";
-
-            default:
-                throw new \LogicException(sprintf(
-                    'Type %s has unknown Base Type %s',
-                    $this,
-                    $bt
-                ));
+        $ns = [];
+        foreach ($this->getParentTypes() as $parent) {
+            array_unshift($ns, $parent->getClassName());
         }
+        if ($ctype = $this->getComponentOfType()) {
+            $ns[] = $ctype->getClassName();
+        }
+        return implode('\\', $ns);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRootType()
+    {
+        return null === $this->getParentType();
+    }
+
+    /**
+     * @return $this|\DCarbone\PHPFHIR\Definition\Type
+     */
+    public function getRootType()
+    {
+        if ($this->isRootType()) {
+            return $this;
+        }
+        $parents = $this->getParentTypes();
+        return end($parents);
     }
 
     /**
@@ -214,32 +208,6 @@ class Type
     {
         $this->className = $className;
         return $this;
-    }
-
-    /**
-     * @return \DCarbone\PHPFHIR\Enum\SimpleType|null
-     */
-    public function getSimpleType()
-    {
-        return $this->simpleType;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Enum\SimpleType $simpleType
-     * @return Type
-     */
-    public function setSimpleType(SimpleType $simpleType)
-    {
-        $this->simpleType = $simpleType;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSimpleType()
-    {
-        return null !== $this->getSimpleType();
     }
 
     /**

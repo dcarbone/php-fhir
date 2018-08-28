@@ -62,12 +62,13 @@ abstract class FileUtils
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildFilePath(Type $type)
+    public static function buildFilePath(Config $config, Type $type)
     {
         $fp = static::buildDirPathFromNS($type->getFullyQualifiedNamespace(true));
-        return "{$fp}/{$type->getClassName()}.php";
+        return "{$config->getOutputPath()}/{$fp}/{$type->getClassName()}.php";
     }
 }

@@ -52,23 +52,6 @@ abstract class NSUtils
         return sprintf('%s\\%s', $outputNS, $classNS);
     }
 
-    /**
-     * @param \DCarbone\PHPFHIR\Enum\SimpleType $type
-     * @return string
-     */
-    public static function getSimpleTypeNamespace(SimpleType $type)
-    {
-        switch ((string)$type) {
-            case SimpleType::_LIST:
-                return 'FHIRList';
-            case SimpleType::PRIMITIVE:
-                return 'FHIRPrimitive';
-
-            default:
-                return '';
-        }
-    }
-
     public static function compileUseStatements(Config $config, Types $types, Type $type)
     {
         $fqns = $type->getFullyQualifiedNamespace(false);
@@ -77,7 +60,7 @@ abstract class NSUtils
 
         if ($parentType = $type->getParentType()) {
             if (($parentNS = $parentType->getFullyQualifiedNamespace(false)) !== $fqns) {
-                $imports[] = $parentNS;
+                $imports[] = $parentType->getFullyQualifiedClassName(false);
                 $config->getLogger()->debug(sprintf(
                     'Type %s has parent Type %s, will add use statement.',
                     $type,

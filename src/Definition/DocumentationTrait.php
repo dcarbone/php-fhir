@@ -51,7 +51,7 @@ trait DocumentationTrait
     {
         if (null !== $documentation) {
             if (is_string($documentation)) {
-                $documentation = array($documentation);
+                $documentation = [$documentation];
             }
 
             if (is_array($documentation)) {
@@ -61,5 +61,21 @@ trait DocumentationTrait
             }
         }
         return $this;
+    }
+
+    /**
+     * @param int $spaces
+     * @return string
+     */
+    public function getDocBlockDocumentationFragment($spaces = 5)
+    {
+        $output = '';
+        $spaces = str_repeat(' ', $spaces);
+        if (isset($this->documentation)) {
+            foreach ($this->documentation as $doc) {
+                $output = sprintf("%s%s* %s\n", $output, $spaces, $doc);
+            }
+        }
+        return $output;
     }
 }
