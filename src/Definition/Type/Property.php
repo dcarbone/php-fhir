@@ -109,6 +109,12 @@ class Property
      */
     public function getPHPTypeName()
     {
+        if (!isset($this->phpTypeName)) {
+            if ($ptype = $this->getValueType()) {
+                return $ptype->getFullyQualifiedClassName(true);
+            }
+            return 'string';
+        }
         return $this->phpTypeName;
     }
 

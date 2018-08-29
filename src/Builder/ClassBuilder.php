@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\MethodUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
 
@@ -31,8 +32,16 @@ use DCarbone\PHPFHIR\Utilities\NSUtils;
  */
 abstract class ClassBuilder
 {
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
     public static function generateTypeClass(Config $config, Types $types, Type $type)
     {
+        $properties = $type->getProperties();
+
         $out = <<<PHP
 <?php
 
@@ -66,13 +75,21 @@ PHP;
 
 PHP;
 
-        foreach ($type->getProperties()->getSortedIterator() as $property) {
+        foreach ($properties->getSortedIterator() as $property) {
             $out .= "\n    /**\n";
             $out .= $property->getDocBlockDocumentationFragment();
-            $out .= "     * @var {$property->getPHPTypeName()}\n";
-            $out .= "     */\n";
+            $out .= "     * @var {$property->getPHPTypeName()}";
+            if ($property->isCollection()) {
+                $out .= '[]';
+            }
+            $out .= "\n     */\n";
             $out .= '    public ';
             $out .= NameUtils::getPropertyVariableName($property->getName());
+            if ($property->isCollection()) {
+                $out .= ' = []';
+            } else {
+                $out .= ' = null';
+            }
             $out .= ";\n";
         }
 
@@ -90,6 +107,14 @@ PHP;
             $out .= ConstructorUtils::buildDefaultBody($config, $type);
         }
         $out .= "   }\n";
+
+        foreach ($properties->getSortedIterator() as $property) {
+            if ($ptype = $property->getValueType()) {
+                if ($ptype->isPrimitive()) {
+                    $out .= MethodUtils::createPrimitiveSetter($config, $type, $property);
+                }
+            }
+        }
 
         return $out . '}';
     }

@@ -21,10 +21,7 @@ abstract class ConstructorUtils
         $out = <<<PHP
     /**
      * {$type->getClassName()} Constructor
-
-PHP;
-        $out .= $type->getDocBlockDocumentationFragment();
-        $out .= <<<PHP
+     *
      * @var mixed \$data Value depends upon object being constructed.
      */
     public function __construct(\$data = null)

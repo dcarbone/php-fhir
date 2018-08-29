@@ -28,7 +28,7 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
-use DCarbone\PHPFHIR\Utilities\SetterUtils;
+use DCarbone\PHPFHIR\Utilities\MethodUtils;
 
 /**
  * Class MethodGenerator
@@ -143,7 +143,7 @@ abstract class MethodGenerator
                 $paramName
             ));
         } elseif (!$class->isPrimitive() && $property->isPrimitive()) {
-            $setterTemplate = SetterUtils::createPrimitive($config, $class, $property);
+            $setterTemplate = MethodUtils::createPrimitiveSetter($config, $class, $property);
         } else {
             $setterTemplate->addLineToBody("\$this->{$property->getName()} = {$paramName};");
         }
