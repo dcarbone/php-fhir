@@ -279,6 +279,8 @@ PHP;
 
         if ($type->isPrimitive() || $type->isPrimitiveContainer()) {
             $out .= " (string)\$this->getValue();";
+        } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
+            $out .= " (string)\$this->jsonSerialize();";
         } else {
             $out .= " (string)\$this->_fhirElementName;";
         }
