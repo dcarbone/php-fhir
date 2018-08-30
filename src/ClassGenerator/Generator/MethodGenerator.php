@@ -16,19 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
-use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\Method\BaseMethodTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\Method\GetterMethodTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\Method\SetterMethodTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\PropertyParameterTemplate;
-use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
-use DCarbone\PHPFHIR\Utilities\MethodUtils;
 
 /**
  * Class MethodGenerator

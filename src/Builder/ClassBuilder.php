@@ -89,7 +89,7 @@ PHP;
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
             $out .= ConstructorUtils::buildHeader($config, $type);
-            $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
+            $out .= ConstructorUtils::buildPrimitiveContainerBody($config, $type);
             $out .= "    }\n";
             $out .= "\n";
             $valueProperty = $type->getProperties()->getProperty('value');
@@ -98,7 +98,7 @@ PHP;
             $out .= MethodUtils::createDefaultGetter($config, $valueProperty);
             $out .= "\n";
             $out .= MethodUtils::buildToString($config, $type);
-        } elseif ($type->isResourceContainer()) {
+        } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
             $out .= ConstructorUtils::buildHeader($config, $type);

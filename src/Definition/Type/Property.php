@@ -22,7 +22,6 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\DocumentationTrait;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Type\Property\Enumeration;
-use DCarbone\PHPFHIR\Utilities\PrimitiveTypeUtils;
 
 /**
  * Class Property

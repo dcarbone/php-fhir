@@ -52,6 +52,12 @@ abstract class NSUtils
         return sprintf('%s\\%s', $outputNS, $classNS);
     }
 
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
     public static function compileUseStatements(Config $config, Types $types, Type $type)
     {
         $fqns = $type->getFullyQualifiedNamespace(false);
@@ -82,9 +88,9 @@ abstract class NSUtils
                         $propNS
                     ));
                 }
-                if ($propertyType->isResourceContainer()) {
-                    // TODO: bit hacky...
-                    $propNS = $config->getOutputNamespace() . '\\FHIRResource';
+                if ($propertyType->isResourceContainer() || $propertyType->isInlineResource()) {
+                    $resourceType = $types->getTypeByFHIRName('Resource');
+                    $propNS = $resourceType->getFullyQualifiedNamespace(false);
                     if ($propNS !== $fqns) {
                         $imports[] = $propNS;
                     }

@@ -29,32 +29,6 @@ abstract class PropertyExtractor
 {
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
-     * @return bool
-     */
-    public static function isPropertyImplementedByParent(Config $config,
-                                                         Types $types,
-                                                         Type $type,
-                                                         Property $property)
-    {
-        if ($parent = $type->getParentType()) {
-            $pName = $property->getName();
-            $pType = $property->getFHIRTypeName();
-            foreach ($parent->getProperties()->getIterator() as $property) {
-                if ($property->getName() === $pName && $property->getFHIRTypeName() === $pType) {
-                    return true;
-                }
-            }
-            return static::isPropertyImplementedByParent($config, $types, $parent, $property);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \SimpleXMLElement $element
      * @param string|null $documentation
      * @param null $pattern
@@ -142,7 +116,7 @@ abstract class PropertyExtractor
                                                             \SimpleXMLElement $element)
     {
         $property = self::buildTypeProperty($config, $element);
-        if ($property && !static::isPropertyImplementedByParent($config, $types, $type, $property)) {
+        if ($property) {
             $type->addProperty($property);
         }
     }
@@ -165,7 +139,7 @@ abstract class PropertyExtractor
 
         foreach ($choice->xpath('xs:element') as $element) {
             $property = static::buildTypeProperty($config, $element, $documentation, $pattern, $maxOccurs, $minOccurs);
-            if ($property && !self::isPropertyImplementedByParent($config, $types, $type, $property)) {
+            if ($property) {
                 $type->addProperty($property);
             }
         }
@@ -200,7 +174,7 @@ abstract class PropertyExtractor
                                                     \SimpleXMLElement $element)
     {
         $property = static::buildTypeProperty($config, $element);
-        if ($property && !static::isPropertyImplementedByParent($config, $types, $type, $property)) {
+        if ($property) {
             $type->addProperty($property);
         }
     }

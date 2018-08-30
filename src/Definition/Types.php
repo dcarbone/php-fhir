@@ -93,22 +93,6 @@ class Types implements \Countable
     }
 
     /**
-     * @param string $group
-     * @return \DCarbone\PHPFHIR\Definition\Type[]
-     */
-    public function getTypesByGroup($group)
-    {
-        $types = [];
-        foreach ($this->types as $type) {
-            if ($type->getBaseType() === $group) {
-                $types[] = $type;
-
-            }
-        }
-        return $types;
-    }
-
-    /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param string $sourceFilename
      * @return $this

@@ -29,11 +29,10 @@ abstract class TypeRelationshipBuilder
 {
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function determineTypeParent(Config $config, Types $types, Type $type, \SimpleXMLElement $element)
+    public static function determineTypeParentName(Config $config, Type $type, \SimpleXMLElement $element)
     {
         $fhirName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
         if (null === $fhirName) {
@@ -43,20 +42,8 @@ abstract class TypeRelationshipBuilder
             if (0 === strpos($fhirName, 'xs')) {
                 $fhirName = substr($fhirName, 3);
             }
-            if ($ptype = $types->getTypeByFHIRName($fhirName)) {
-                $type->setParentType($ptype);
-                $config->getLogger()->info(sprintf(
-                    'Type %s has parent %s',
-                    $type,
-                    $ptype
-                ));
-                return;
-            }
+            $type->setParentTypeName($fhirName);
         }
-        $config->getLogger()->info(sprintf(
-            'Unable to locate parent of type %s',
-            $type
-        ));
     }
 
     /**
@@ -65,7 +52,7 @@ abstract class TypeRelationshipBuilder
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param string $name
      */
-    public static function findComponentOfType(Config $config, Types $types, Type $type, $name)
+    public static function determineComponentOfTypeName(Config $config, Types $types, Type $type, $name)
     {
         if (false === strpos($name, '.')) {
             $config->getLogger()->error(sprintf(
@@ -77,20 +64,62 @@ abstract class TypeRelationshipBuilder
             return;
         }
         $split = explode('.', $name, 2);
-        if ($ptype = $types->getTypeByFHIRName($split[0])) {
-            $config->getLogger()->debug(sprintf(
-                'Found Parent Type %s for Component %s',
-                $ptype,
-                $type
-            ));
-            $type->setComponentOfType($ptype);
-        } else {
-            $config->getLogger()->error(sprintf(
-                'Unable to locate Parent Type %s for Component %s',
-                $split[0],
-                $type
-            ));
+        $type->setComponentOfTypeName($split[0]);
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function findComponentOfTypes(Config $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            if ($tname = $type->getComponentOfTypeName()) {
+                if ($ptype = $types->getTypeByFHIRName($tname)) {
+                    $config->getLogger()->debug(sprintf(
+                        'Found Parent Type %s for Component %s',
+                        $ptype,
+                        $type
+                    ));
+                    $type->setComponentOfType($ptype);
+                } else {
+                    $config->getLogger()->error(sprintf(
+                        'Unable to locate Parent Type %s for Component %s',
+                        $tname,
+                        $type
+                    ));
+                }
+            }
+
         }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function findParentTypes(Config $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            if ($type->isPrimitive()) {
+                continue;
+            }
+            if ($parentTypeName = $type->getParentTypeName()) {
+                if ($ptype = $types->getTypeByFHIRName($parentTypeName)) {
+                    $type->setParentType($ptype);
+                    $config->getLogger()->info(sprintf(
+                        'Type %s has parent %s',
+                        $type,
+                        $ptype
+                    ));
+                }
+                $config->getLogger()->info(sprintf(
+                    'Unable to locate parent of type %s',
+                    $type
+                ));
+            }
+        }
+
     }
 
     /**

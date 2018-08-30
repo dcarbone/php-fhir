@@ -39,7 +39,6 @@ class Definition
      * Definition constructor.
      * @param \DCarbone\PHPFHIR\Config $config
      * @param string $fhirVersion
-     * @param string $source
      */
     public function __construct(Config $config, $fhirVersion)
     {
@@ -62,6 +61,8 @@ class Definition
     {
         $this->config->getLogger()->startBreak('Extracting defined types');
         $this->types = TypeExtractor::parseTypes($this->config);
+        TypeRelationshipBuilder::findParentTypes($this->config, $this->types);
+        TypeRelationshipBuilder::findComponentOfTypes($this->config, $this->types);
         TypeRelationshipBuilder::findPropertyTypes($this->config, $this->types);
         $this->config->getLogger()->info(count($this->types) . ' types extracted.');
         $this->config->getLogger()->endBreak('Extracting defined types');

@@ -81,7 +81,7 @@ abstract class TypeExtractor
                                                           Type $type,
                                                           \SimpleXMLElement $element)
     {
-        TypeRelationshipBuilder::determineTypeParent($config, $types, $type, $element);
+        TypeRelationshipBuilder::determineTypeParentName($config, $type, $element);
         PropertyExtractor::extractTypeProperties($config, $types, $type, $element);
     }
 
@@ -230,7 +230,7 @@ abstract class TypeExtractor
                     $sxe = $type->getSourceSXE();
                     $name = XMLUtils::getObjectNameFromElement($sxe);
                     if (false !== strpos($name, '.')) {
-                        TypeRelationshipBuilder::findComponentOfType($config, $types, $type, $name);
+                        TypeRelationshipBuilder::determineComponentOfTypeName($config, $types, $type, $name);
                     }
                     static::extractComplexInnards($config, $types, $type, $type->getSourceSXE());
                     $type->setClassName(NameUtils::getTypeClassName($fhirElementName));

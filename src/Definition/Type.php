@@ -31,6 +31,7 @@ use DCarbone\PHPFHIR\Definition\Type\Property;
 class Type
 {
     const RESOURCE_CONTAINER = 'ResourceContainer';
+    const RESOURCE_INLINE    = 'Resource.Inline';
 
     use DocumentationTrait;
 
@@ -44,12 +45,16 @@ class Type
     /** @var string */
     private $fhirName;
 
+    /** @var null|string */
+    private $componentOfTypeName = null;
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $componentOfType = null;
 
     /** @var string */
     private $className;
 
+    /** @var null|string */
+    private $parentTypeName = null;
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $parentType = null;
 
@@ -140,6 +145,24 @@ class Type
     public function setComponentOfType(Type $componentOfType)
     {
         $this->componentOfType = $componentOfType;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getComponentOfTypeName()
+    {
+        return $this->componentOfTypeName;
+    }
+
+    /**
+     * @param null|string $componentOfTypeName
+     * @return Type
+     */
+    public function setComponentOfTypeName($componentOfTypeName)
+    {
+        $this->componentOfTypeName = $componentOfTypeName;
         return $this;
     }
 
@@ -257,6 +280,24 @@ class Type
     }
 
     /**
+     * @return null|string
+     */
+    public function getParentTypeName()
+    {
+        return $this->parentTypeName;
+    }
+
+    /**
+     * @param null|string $parentTypeName
+     * @return Type
+     */
+    public function setParentTypeName($parentTypeName)
+    {
+        $this->parentTypeName = $parentTypeName;
+        return $this;
+    }
+
+    /**
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return $this
      */
@@ -280,6 +321,14 @@ class Type
     public function isResourceContainer()
     {
         return self::RESOURCE_CONTAINER === $this->getFHIRName();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInlineResource()
+    {
+        return self::RESOURCE_INLINE === $this->getFHIRName();
     }
 
     /**
