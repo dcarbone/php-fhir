@@ -82,6 +82,13 @@ abstract class NSUtils
                         $propNS
                     ));
                 }
+                if ($propertyType->isResourceContainer()) {
+                    // TODO: bit hacky...
+                    $propNS = $config->getOutputNamespace() . '\\FHIRResource';
+                    if ($propNS !== $fqns) {
+                        $imports[] = $propNS;
+                    }
+                }
             } elseif (Type\Property::TYPE_HTML === $property->getFHIRTypeName()) {
                 $imports[] = static::generateRootNamespace($config, 'PHPFHIRHelper');
                 $config->getLogger()->debug(sprintf(

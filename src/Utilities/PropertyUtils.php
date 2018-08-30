@@ -66,11 +66,17 @@ abstract class PropertyUtils
             }
             if ($propType->isPrimitive() || $propType->hasPrimitiveParent() || $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) {
                 $out .= MethodUtils::createPrimitiveSetter($config, $type, $property);
+            } elseif ($propType->isResourceContainer()) {
+                $out .= MethodUtils::createResourceContainerSetter($config, $type, $property);
             } else {
                 $out .= MethodUtils::createDefaultSetter($config, $type, $property);
             }
             $out .= "\n";
-            $out .= MethodUtils::createGetter($config, $property);
+            if ($propType->isResourceContainer()) {
+                $out .= MethodUtils::createResourceContainerGetter($config, $property);
+            } else {
+                $out .= MethodUtils::createDefaultGetter($config, $property);
+            }
             $out .= "\n";
         }
 

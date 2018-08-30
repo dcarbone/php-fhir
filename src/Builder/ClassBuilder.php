@@ -82,8 +82,9 @@ PHP;
             $valueProperty = $type->getProperties()->getProperty('value');
             $out .= MethodUtils::createPrimitiveTypeValueSetter($config, $type, $valueProperty);
             $out .= "\n";
-            $out .= MethodUtils::createGetter($config, $valueProperty);
+            $out .= MethodUtils::createDefaultGetter($config, $valueProperty);
             $out .= "\n";
+            $out .= MethodUtils::buildToString($config, $type);
         } elseif ($type->isPrimitiveContainer()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
@@ -94,8 +95,9 @@ PHP;
             $valueProperty = $type->getProperties()->getProperty('value');
             $out .= MethodUtils::createPrimitiveSetter($config, $type, $valueProperty);
             $out .= "\n";
-            $out .= MethodUtils::createGetter($config, $valueProperty);
+            $out .= MethodUtils::createDefaultGetter($config, $valueProperty);
             $out .= "\n";
+            $out .= MethodUtils::buildToString($config, $type);
         } elseif ($type->isResourceContainer()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
@@ -104,6 +106,8 @@ PHP;
             $out .= "    }\n";
             $out .= "\n";
             $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
+            $out .= "\n";
+            $out .= MethodUtils::buildToString($config, $type);
         } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
@@ -112,77 +116,13 @@ PHP;
             $out .= "    }\n";
             $out .= "\n";
             $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
+            $out .= "\n";
+            $out .= MethodUtils::buildToString($config, $type);
         }
-
-        $out .= MethodUtils::buildToString($config, $type);
 
         return $out . '}';
     }
 
-    /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $XSDMap
-     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
-     * @return \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate
-     */
-//    public static function buildFHIRElementClassTemplate(Config $config, XSDMap $XSDMap, XSDMap\XSDMapEntry $mapEntry)
-//    {
-//        $classTemplate = new ClassTemplate(
-//            $mapEntry->fhirElementName,
-//            $mapEntry->className,
-//            $mapEntry->namespace,
-//            $mapEntry,
-//            ClassTypeUtils::parseComplexClassType($mapEntry->sxe)
-//        );
-//
-//        foreach ($mapEntry->sxe->children('xs', true) as $element) {
-//            /** @var \SimpleXMLElement $element */
-//
-//        }
-//
-//        self::addBaseClassProperties($classTemplate, $mapEntry);
-//
-//        foreach ($classTemplate->getProperties() as $propertyTemplate) {
-//            MethodGenerator::implementMethodsForProperty($config, $classTemplate, $propertyTemplate);
-//        }
-//
-//        self::addBaseClassInterfaces($classTemplate);
-//        self::addBaseClassMethods($config, $classTemplate);
-//
-//        // TODO: Find better place for this...
-//        if ('ResourceContainer' === $classTemplate->getXSDMapEntry()->getFHIRElementName()) {
-//            $method = new BaseMethodTemplate($config, 'getResource');
-//            $method->setReturnValueType('mixed');
-//            $method->addLineToBody('return $this->jsonSerialize();');
-//            $classTemplate->addMethod($method);
-//        }
-//
-//        return $classTemplate;
-//    }
-//
-//    /**
-//     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
-//     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $mapEntry
-//     */
-//    public static function addBaseClassProperties(ClassTemplate $classTemplate, XSDMap\XSDMapEntry $mapEntry)
-//    {
-//        // Add the source element name to each class...
-//        $property = new BasePropertyTemplate($mapEntry, new PHPScope(PHPScope::_PRIVATE), true, false);
-//        $property->setDefaultValue($mapEntry->fhirElementName);
-//        $property->setName('_fhirElementName');
-//        $property->setPHPType('string');
-//        $property->setPrimitive(true);
-//        $classTemplate->addProperty($property);
-//    }
-//
-//    /**
-//     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
-//     */
-//    public static function addBaseClassInterfaces(ClassTemplate $classTemplate)
-//    {
-//        $classTemplate->addImplementedInterface('\\JsonSerializable');
-//    }
-//
 //    /**
 //     * @param \DCarbone\PHPFHIR\Config $config
 //     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate

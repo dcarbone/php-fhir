@@ -40,26 +40,6 @@ abstract class MethodGenerator
     /**
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
-     */
-    public static function implementConstructor(Config $config, ClassTemplate $class)
-    {
-        $method = new BaseMethodTemplate($config, '__construct');
-        $param = new BaseParameterTemplate($config, 'data', 'mixed', '[]');
-        $method->addParameter($param);
-        $class->addMethod($method);
-
-        if ($class->isPrimitive()) {
-            ConstructorUtils::buildPrimitiveBody($config, $class, $method);
-        } elseif ('ResourceContainer' === $class->getElementName()) {
-            ConstructorUtils::buildResourceContainerBody($config, $class, $method);
-        } else {
-            ConstructorUtils::buildDefaultBody($config, $class, $method);
-        }
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $class
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $property
      */
     public static function implementMethodsForProperty(Config $config,
