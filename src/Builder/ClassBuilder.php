@@ -85,7 +85,7 @@ PHP;
             $out .= MethodUtils::createDefaultGetter($config, $valueProperty);
             $out .= "\n";
             $out .= MethodUtils::buildToString($config, $type);
-        } elseif ($type->isPrimitiveContainer()) {
+        } elseif (!$type->hasPrimitiveParent() && $type->isPrimitiveContainer()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
             $out .= ConstructorUtils::buildHeader($config, $type);
