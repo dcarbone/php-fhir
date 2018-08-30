@@ -16,15 +16,14 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\MethodUtils;
-use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
+use DCarbone\PHPFHIR\Utilities\PropertyUtils;
 
 /**
  * Class ClassGenerator
@@ -40,8 +39,6 @@ abstract class ClassBuilder
      */
     public static function generateTypeClass(Config $config, Types $types, Type $type)
     {
-        $properties = $type->getProperties();
-
         $out = <<<PHP
 <?php
 
@@ -60,8 +57,8 @@ PHP;
             $out .= "/**\n{$doc} */\n";
         }
         $out .= "class {$type->getClassName()}";
-        if ($ptype = $type->getParentType()) {
-            $out .= " extends {$ptype->getClassName()}";
+        if ($propType = $type->getParentType()) {
+            $out .= " extends {$propType->getClassName()}";
         }
         $out .= ' implements \\JsonSerializable';
         $out .= "\n{\n";
@@ -75,46 +72,49 @@ PHP;
 
 PHP;
 
-        foreach ($properties->getSortedIterator() as $property) {
-            $out .= "\n    /**\n";
-            $out .= $property->getDocBlockDocumentationFragment();
-            $out .= "     * @var {$property->getPHPTypeName()}";
-            if ($property->isCollection()) {
-                $out .= '[]';
-            }
-            $out .= "\n     */\n";
-            $out .= '    public ';
-            $out .= NameUtils::getPropertyVariableName($property->getName());
-            if ($property->isCollection()) {
-                $out .= ' = []';
-            } else {
-                $out .= ' = null';
-            }
-            $out .= ";\n";
-        }
-
-        $out .= "\n";
-        $out .= ConstructorUtils::buildHeader($config, $type);
-
-        if ($type->isResourceContainer()) {
+        if ($type->isPrimitive()) {
+            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
+            $out .= "\n";
+            $out .= ConstructorUtils::buildHeader($config, $type);
+            $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
+            $out .= "    }\n";
+            $out .= "\n";
+            $valueProperty = $type->getProperties()->getProperty('value');
+            $out .= MethodUtils::createPrimitiveTypeValueSetter($config, $type, $valueProperty);
+            $out .= "\n";
+            $out .= MethodUtils::createGetter($config, $valueProperty);
+            $out .= "\n";
+        } elseif ($type->isPrimitiveContainer()) {
+            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
+            $out .= "\n";
+            $out .= ConstructorUtils::buildHeader($config, $type);
+            $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
+            $out .= "    }\n";
+            $out .= "\n";
+            $valueProperty = $type->getProperties()->getProperty('value');
+            $out .= MethodUtils::createPrimitiveSetter($config, $type, $valueProperty);
+            $out .= "\n";
+            $out .= MethodUtils::createGetter($config, $valueProperty);
+            $out .= "\n";
+        } elseif ($type->isResourceContainer()) {
+            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
+            $out .= "\n";
+            $out .= ConstructorUtils::buildHeader($config, $type);
             $out .= ConstructorUtils::buildResourceContainerBody($config, $type);
-        } elseif ($type->isPrimitive()) {
-            $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
-        } elseif ($type->isList()) {
-            // TODO: this probably is not correct.
-            $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
-        } else {
+            $out .= "    }\n";
+            $out .= "\n";
+            $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
+        } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
+            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
+            $out .= "\n";
+            $out .= ConstructorUtils::buildHeader($config, $type);
             $out .= ConstructorUtils::buildDefaultBody($config, $type);
+            $out .= "    }\n";
+            $out .= "\n";
+            $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
         }
-        $out .= "   }\n";
 
-        foreach ($properties->getSortedIterator() as $property) {
-            if ($ptype = $property->getValueType()) {
-                if ($ptype->isPrimitive()) {
-                    $out .= MethodUtils::createPrimitiveSetter($config, $type, $property);
-                }
-            }
-        }
+        $out .= MethodUtils::buildToString($config, $type);
 
         return $out . '}';
     }

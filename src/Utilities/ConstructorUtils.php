@@ -42,7 +42,7 @@ PHP;
 
         $out = '';
         if ($type->getParentType()) {
-            $out .= "       parent::__construct(\$data);\n";
+            $out .= "        parent::__construct(\$data);\n";
         }
         $out .= <<<PHP
         if (is_array(\$data)) {
@@ -83,14 +83,14 @@ PHP;
      */
     public static function buildPrimitiveBody(Config $config, Type $type)
     {
-        $out = <<<PHP
+        return <<<PHP
         if (is_scalar(\$data)) {
             \$this->setValue(\$data);
-            return;
+        } elseif (is_array(\$data) && isset(\$data['value'])) {
+            \$this->setValue(\$data['value']);
         }
 
 PHP;
-        return $out . self::buildDefaultBody($config, $type);
     }
 
     /**

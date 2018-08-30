@@ -143,7 +143,7 @@ abstract class MethodGenerator
                 $paramName
             ));
         } elseif (!$class->isPrimitive() && $property->isPrimitive()) {
-            $setterTemplate = MethodUtils::createPrimitiveSetter($config, $class, $property);
+            $setterTemplate = MethodUtils::createPrimitiveFieldValueSetter($config, $class, $property);
         } else {
             $setterTemplate->addLineToBody("\$this->{$property->getName()} = {$paramName};");
         }

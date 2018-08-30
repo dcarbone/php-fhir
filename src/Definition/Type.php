@@ -53,6 +53,9 @@ class Type
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $parentType = null;
 
+    /** @var null|\DCarbone\PHPFHIR\Enum\PrimitiveType */
+    private $primitiveType;
+
     /** @var \DCarbone\PHPFHIR\Definition\Type\Properties */
     private $properties;
 
@@ -280,11 +283,56 @@ class Type
     }
 
     /**
+     * Is this a child of a "primitive" type?
+     *
+     * @return bool
+     */
+    public function hasPrimitiveParent()
+    {
+        foreach ($this->getParentTypes() as $parent) {
+            if ($parent->isPrimitive()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Is this immediate type a "primitive"?
+     *
      * @return bool
      */
     public function isPrimitive()
     {
         return false !== strpos($this->getFHIRName(), '-primitive');
+    }
+
+    /**
+     * Is this type just a primitive container?
+     *
+     * @return bool
+     */
+    public function isPrimitiveContainer()
+    {
+        return 1 === count($this->properties) &&
+            null !== ($prop = $this->properties->getProperty('value')) &&
+            null !== ($type = $prop->getValueType()) &&
+            ($type->isPrimitive() || $type->hasPrimitiveParent());
+    }
+
+    /**
+     * Does this type extend a type that is a primitive container?
+     *
+     * @return bool
+     */
+    public function hasPrimitiveContainerParent()
+    {
+        foreach ($this->getParentTypes() as $parentType) {
+            if ($parentType->isPrimitiveContainer()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
