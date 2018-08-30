@@ -24,7 +24,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 trait DocumentationTrait
 {
-    /** @var null|string|array */
+    /** @var null|array */
     private $documentation = null;
 
     /**

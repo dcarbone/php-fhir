@@ -117,15 +117,11 @@ abstract class XMLUtils
             }
         }
 
-        $documentation = $annotation->xpath('xs:documentation');
-
-        if (0 === count($documentation)) {
-            return null;
-        }
-
         $return = [];
-        foreach ($documentation as $element) {
-            $return[] = (string)$element;
+        foreach ($annotation->children('xs', true) as $child) {
+            if ('documentation' === $child->getName()) {
+                $return[] = (string)$child;
+            }
         }
         return $return;
     }

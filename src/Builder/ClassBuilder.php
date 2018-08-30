@@ -53,9 +53,11 @@ PHP;
         if ("\n\n" !== substr($out, -2)) {
             $out .= "\n";
         }
+        $out .= "/**\n";
         if ($doc = $type->getDocBlockDocumentationFragment(1)) {
-            $out .= "/**\n{$doc} */\n";
+            $out .= $doc." *\n";
         }
+        $out .= " * Class {$type->getClassName()}\n * @package {$type->getFullyQualifiedNamespace(false)}\n */\n";
         $out .= "class {$type->getClassName()}";
         if ($propType = $type->getParentType()) {
             $out .= " extends {$propType->getClassName()}";
