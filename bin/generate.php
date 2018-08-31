@@ -49,6 +49,8 @@ $versionsToGenerate = null;
 $logger = false;
 $log = new NullLogger();
 $configLogLevel = null;
+$mungePrimitives = false;
+$generateTests = false;
 
 // ----- functions
 
@@ -80,8 +82,10 @@ Below is an example config file:
 
 <?php
 return [
-    'schemaPath'  => __DIR__ . '/../input',
-    'classesPath' => __DIR__ . '/../output',
+    'schemaPath'        => __DIR__ . '/../input',
+    'classesPath'       => __DIR__ . '/../output',
+    'mungePrimitives'   => true,
+    'generateTests'     => false,
     'versions' => [
         'DSTU1'  => ['url' => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU1'],
         'DSTU2'  => ['url' => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU2'],
@@ -123,6 +127,10 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
                         ex: ./bin/generate.sh --config path/to/file
     --versions:     Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions DSTU1,DSTU2
+    --munge:        Forces primitive types to have only their values output during serialization
+                        ex: "<element id="value" />" vs <element><id>value</id></element>
+    --tests         If set, will generate a set of PHPUnit tests to execute against the output
+                        EXPERIMENTAL
 
 - Configuration:
     There are 3 possible ways to define a configuration file for this script to use:
@@ -220,6 +228,14 @@ if ($argc > 1) {
                         exit(1);
                 }
                 break;
+
+            case '--munge':
+                $mungePrimitives = true;
+                break;
+
+            case '--tests':
+                $generateTests = true;
+                break;
         }
     }
 }
@@ -257,6 +273,13 @@ $config = require $configFile;
 $schemaPath = (isset($config['schemaPath']) ? $config['schemaPath'] : null);
 $classesPath = (isset($config['classesPath']) ? $config['classesPath'] : null);
 $versions = (isset($config['versions']) ? $config['versions'] : null);
+
+if (!$mungePrimitives && isset($config['mungePrimitives'])) {
+    $mungePrimitives = (bool)$config['mungePrimitives'];
+}
+if (!$generateTests && isset($config['generateTests'])) {
+    $generateTests = (bool)$config['generateTests'];
+}
 
 if (null === $schemaPath) {
     echo "Config file \"{$configFile}\" is missing \"schemaPath\" directive\n";
@@ -396,6 +419,8 @@ foreach ($versionsToGenerate as $version) {
         'xsdPath'         => $schemaDir,
         'outputPath'      => $classesPath,
         'outputNamespace' => $namespace,
+        'mungePrimitives' => $mungePrimitives,
+        'generateTests'   => $generateTests,
     ]);
     $config->setLogger($log);
 

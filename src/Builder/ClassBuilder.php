@@ -21,7 +21,9 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\JSONSerializeUtils;
 use DCarbone\PHPFHIR\Utilities\MethodUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
 use DCarbone\PHPFHIR\Utilities\PropertyUtils;
 
@@ -39,10 +41,28 @@ abstract class ClassBuilder
      */
     public static function generateTypeClass(Config $config, Types $types, Type $type)
     {
+        $fqns = $type->getFullyQualifiedNamespace(false);
+        if (!NameUtils::isValidNSName($fqns)) {
+            throw new \RuntimeException(sprintf(
+                'Type %s has invalid namespace of "%s"',
+                $type,
+                $fqns
+            ));
+        }
+
+        $typeClassName = $type->getClassName();
+        if (!NameUtils::isValidClassName($typeClassName)) {
+            throw new \RuntimeException(sprintf(
+                'Type %s has invalid class name of "%s"',
+                $type,
+                $typeClassName
+            ));
+        }
+
         $out = <<<PHP
 <?php
 
-namespace {$type->getFullyQualifiedNamespace(false)};
+namespace {$fqns};
 
 
 PHP;
@@ -55,24 +75,24 @@ PHP;
         }
         $out .= "/**\n";
         if ($doc = $type->getDocBlockDocumentationFragment(1)) {
-            $out .= $doc." *\n";
+            $out .= $doc . " *\n";
         }
-        $out .= " * Class {$type->getClassName()}\n * @package {$type->getFullyQualifiedNamespace(false)}\n */\n";
-        $out .= "class {$type->getClassName()}";
-        if ($propType = $type->getParentType()) {
-            $out .= " extends {$propType->getClassName()}";
+        $out .= " * Class {$typeClassName}\n * @package {$type->getFullyQualifiedNamespace(false)}\n */\n";
+        $out .= "class {$typeClassName}";
+        if ($parentType = $type->getParentType()) {
+            $out .= " extends {$parentType->getClassName()}";
         }
         $out .= ' implements \\JsonSerializable';
         $out .= "\n{\n";
 
         $out .= <<<PHP
-    /**
-     * Raw name of FHIR type represented by this class
-     * @var string
-     */
-    private \$_fhirElementName = "{$type->getFHIRName()}";
+    // Raw name of FHIR type represented by this class
+    const FHIR_TYPE_NAME = '{$type->getFHIRName()}';
 
 PHP;
+
+        // TODO: for the moment, types that extend primitive types (string-primitive) or primitive container types (string)
+        // are going to be basically empty.  This will changes when type checking and value validation are implemented
 
         if ($type->isPrimitive()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
@@ -84,9 +104,13 @@ PHP;
             $valueProperty = $type->getProperties()->getProperty('value');
             $out .= MethodUtils::createPrimitiveTypeValueSetter($config, $type, $valueProperty);
             $out .= "\n";
-            $out .= MethodUtils::createDefaultGetter($config, $valueProperty);
+            $out .= MethodUtils::createDefaultGetter($config, $type, $valueProperty);
             $out .= "\n";
             $out .= MethodUtils::buildToString($config, $type);
+            $out .= "\n";
+            $out .= JSONSerializeUtils::buildHeader($config, $type);
+            $out .= JSONSerializeUtils::buildPrimitiveBody($config, $type);
+            $out .= "    }\n";
         } elseif (!$type->hasPrimitiveParent() && $type->isPrimitiveContainer()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
@@ -97,9 +121,13 @@ PHP;
             $valueProperty = $type->getProperties()->getProperty('value');
             $out .= MethodUtils::createPrimitiveSetter($config, $type, $valueProperty);
             $out .= "\n";
-            $out .= MethodUtils::createDefaultGetter($config, $valueProperty);
+            $out .= MethodUtils::createDefaultGetter($config, $type, $valueProperty);
             $out .= "\n";
             $out .= MethodUtils::buildToString($config, $type);
+            $out .= "\n";
+            $out .= JSONSerializeUtils::buildHeader($config, $type);
+            $out .= JSONSerializeUtils::buildPrimitiveContainerBody($config, $type);
+            $out .= "    }\n";
         } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
@@ -110,6 +138,10 @@ PHP;
             $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
             $out .= "\n";
             $out .= MethodUtils::buildToString($config, $type);
+            $out .= "\n";
+            $out .= JSONSerializeUtils::buildHeader($config, $type);
+            $out .= JSONSerializeUtils::buildResourceContainerBody($config, $type);
+            $out .= "    }\n";
         } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
@@ -120,6 +152,10 @@ PHP;
             $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
             $out .= "\n";
             $out .= MethodUtils::buildToString($config, $type);
+            $out .= "\n";
+            $out .= JSONSerializeUtils::buildHeader($config, $type);
+            $out .= JSONSerializeUtils::buildDefaultBody($config, $type);
+            $out .= "    }\n";
         }
 
         return $out . '}';

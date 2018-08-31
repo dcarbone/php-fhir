@@ -63,7 +63,7 @@ abstract class PropertyExtractor
             }
 
             if (0 === strpos($ref, 'xhtml')) {
-                $property = new Property($config, substr($ref, 6), Property::TYPE_HTML);
+                $property = new Property($config, substr($ref, 6), PHPFHIR_PROPERTY_TYPE_HTML);
                 $property->setPHPTypeName('string');
                 return $property;
             }

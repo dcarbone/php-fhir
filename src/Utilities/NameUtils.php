@@ -22,11 +22,6 @@
  */
 abstract class NameUtils
 {
-    const VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
-    const FUNCNAME_REGEX      = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
-    const CLASSNAME_REGEX     = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
-    const NSNAME_REGEX        = '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-zA-Z0-9_]$}';
-
     /** @var array */
     public static $classNameSearch = [
         '.',
@@ -45,7 +40,7 @@ abstract class NameUtils
      */
     public static function isValidVariableName($name)
     {
-        return (bool)preg_match(self::VARIABLE_NAME_REGEX, $name);
+        return (bool)preg_match(PHPFHIR_VARIABLE_NAME_REGEX, $name);
     }
 
     /**
@@ -54,7 +49,7 @@ abstract class NameUtils
      */
     public static function isValidFunctionName($name)
     {
-        return (bool)preg_match(self::FUNCNAME_REGEX, $name);
+        return (bool)preg_match(PHPFHIR_FUNCTION_NAME_REGEX, $name);
     }
 
     /**
@@ -63,7 +58,7 @@ abstract class NameUtils
      */
     public static function isValidClassName($name)
     {
-        return (bool)preg_match(self::CLASSNAME_REGEX, $name);
+        return (bool)preg_match(PHPFHIR_CLASSNAME_REGEX, $name);
     }
 
     /**
@@ -72,7 +67,7 @@ abstract class NameUtils
      */
     public static function isValidNSName($name)
     {
-        return null === $name || '' === $name || (bool)preg_match(self::NSNAME_REGEX, $name);
+        return null === $name || '' === $name || (bool)preg_match(PHPFHIR_NAMESPACE_REGEX, $name);
     }
 
     /**

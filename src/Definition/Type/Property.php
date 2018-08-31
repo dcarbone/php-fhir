@@ -31,9 +31,6 @@ class Property
 {
     use DocumentationTrait;
 
-    const TYPE_HTML        = 'html';
-    const OCCURS_UNLIMITED = -1;
-
     /** @var \DCarbone\PHPFHIR\Config */
     private $config;
 
@@ -101,7 +98,7 @@ class Property
      */
     public function isHTML()
     {
-        return self::TYPE_HTML === $this->getFHIRTypeName();
+        return PHPFHIR_PROPERTY_TYPE_HTML === $this->getFHIRTypeName();
     }
 
     /**
@@ -146,7 +143,7 @@ class Property
     public function setMaxOccurs($maxOccurs)
     {
         if (is_string($maxOccurs) && 'unbounded' === strtolower($maxOccurs)) {
-            $this->maxOccurs = self::OCCURS_UNLIMITED;
+            $this->maxOccurs = PHPFHIR_PROPERTY_OCCURS_UNLIMITED;
         } else {
             $this->maxOccurs = (int)$maxOccurs;
         }
@@ -256,7 +253,7 @@ class Property
      */
     public function unlimitedOccurrences()
     {
-        return self::OCCURS_UNLIMITED === $this->getMaxOccurs();
+        return PHPFHIR_PROPERTY_OCCURS_UNLIMITED === $this->getMaxOccurs();
     }
 
     /**

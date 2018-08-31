@@ -41,6 +41,14 @@ abstract class MethodUtils
         $phpType = $property->getPHPTypeName();
         $propType = $property->getValueType();
         $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
+        if (!NameUtils::isValidFunctionName($methodName)) {
+            throw new \LogicException(sprintf(
+                'Type %s Property %s setter func name %s is not valid',
+                $type,
+                $property,
+                $methodName
+            ));
+        }
 
         $out = "    /**\n";
         $out .= $property->getDocBlockDocumentationFragment();
@@ -89,6 +97,14 @@ PHP;
         $varName = NameUtils::getPropertyVariableName($propName);
         $phpType = $property->getPHPTypeName();
         $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
+        if (!NameUtils::isValidFunctionName($methodName)) {
+            throw new \LogicException(sprintf(
+                'Type %s Property %s setter func name %s is not valid',
+                $type,
+                $property,
+                $methodName
+            ));
+        }
         return <<<PHP
     /**
 {$property->getDocBlockDocumentationFragment()}
@@ -116,9 +132,17 @@ PHP;
     {
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
-        $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
         $propType = $property->getValueType();
         $propTypeClass = $propType->getClassName();
+        $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
+        if (!NameUtils::isValidFunctionName($methodName)) {
+            throw new \LogicException(sprintf(
+                'Type %s Property %s setter func name %s is not valid',
+                $type,
+                $property,
+                $methodName
+            ));
+        }
 
         $out = "    /**\n";
         $out .= $property->getDocBlockDocumentationFragment();
@@ -174,6 +198,14 @@ PHP;
         $varName = NameUtils::getPropertyVariableName($propName);
         $phpType = $property->getPHPTypeName();
         $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
+        if (!NameUtils::isValidFunctionName($methodName)) {
+            throw new \LogicException(sprintf(
+                'Type %s Property %s setter func name %s is not valid',
+                $type,
+                $property,
+                $methodName
+            ));
+        }
 
         $out = "    /**\n";
         $out .= $property->getDocBlockDocumentationFragment();
@@ -200,13 +232,23 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createDefaultGetter(Config $config, Property $property)
+    public static function createDefaultGetter(Config $config, Type $type, Property $property)
     {
-        $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
         $collection = $property->isCollection() ? '[]' : '';
+        $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
+        if (!NameUtils::isValidFunctionName($methodName)) {
+            throw new \LogicException(sprintf(
+                'Type %s Property %s setter func name %s is not valid',
+                $type,
+                $property,
+                $methodName
+            ));
+        }
+
         return <<<PHP
     /**
 {$property->getDocBlockDocumentationFragment()}
@@ -223,14 +265,23 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createResourceContainerGetter(Config $config, Property $property)
+    public static function createResourceContainerGetter(Config $config, Type $type, Property $property)
     {
-        $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
         $propName = $property->getName();
         $propType = $property->getValueType();
+        $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
+        if (!NameUtils::isValidFunctionName($methodName)) {
+            throw new \LogicException(sprintf(
+                'Type %s Property %s getter func name %s is not valid',
+                $type,
+                $property,
+                $methodName
+            ));
+        }
         $out = <<<PHP
     /**
 {$property->getDocBlockDocumentationFragment()},
@@ -282,7 +333,7 @@ PHP;
         } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
             $out .= " (string)\$this->jsonSerialize();";
         } else {
-            $out .= " (string)\$this->_fhirElementName;";
+            $out .= " (string)self::FHIR_TYPE_NAME;";
         }
 
         return $out . "\n    }\n";

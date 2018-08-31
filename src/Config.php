@@ -37,6 +37,11 @@ class Config implements LoggerAwareInterface
     /** @var string */
     private $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
 
+    /** @var bool */
+    private $generateTests = false;
+    /** @var bool */
+    private $mungePrimitives = false;
+
     /** @var array */
     private $xmlSerializationAttributeOverrides = [];
 
@@ -197,5 +202,41 @@ class Config implements LoggerAwareInterface
         }
         $this->outputNamespace = trim($outputNamespace, "\\;");
         return $this;
+    }
+
+    /**
+     * @param bool $generateTests
+     * @return $this
+     */
+    public function setGenerateTests($generateTests)
+    {
+        $this->generateTests = (bool)$generateTests;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function mustGenerateTests()
+    {
+        return $this->generateTests;
+    }
+
+    /**
+     * @param $mungePrimitives
+     * @return $this
+     */
+    public function setMungePrimitives($mungePrimitives)
+    {
+        $this->mungePrimitives = (bool)$mungePrimitives;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function mustMungePrimitives()
+    {
+        return $this->mungePrimitives;
     }
 }

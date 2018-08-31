@@ -95,7 +95,7 @@ abstract class NSUtils
                         $imports[] = $propNS;
                     }
                 }
-            } elseif (Type\Property::TYPE_HTML === $property->getFHIRTypeName()) {
+            } elseif (PHPFHIR_PROPERTY_TYPE_HTML === $property->getFHIRTypeName()) {
                 $imports[] = static::generateRootNamespace($config, 'PHPFHIRHelper');
                 $config->getLogger()->debug(sprintf(
                     'Type %s Property %s is of type %s, adding PHPFHIRHelper use statement',

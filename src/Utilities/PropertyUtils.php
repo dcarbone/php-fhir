@@ -119,11 +119,74 @@ abstract class PropertyUtils
             }
             $out .= "\n";
             if ($propType->isResourceContainer()) {
-                $out .= MethodUtils::createResourceContainerGetter($config, $property);
+                $out .= MethodUtils::createResourceContainerGetter($config, $type, $property);
             } else {
-                $out .= MethodUtils::createDefaultGetter($config, $property);
+                $out .= MethodUtils::createDefaultGetter($config, $type, $property);
             }
             $out .= "\n";
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
+    public static function buildPrimitiveJSONMarshalStatement(Config $config, Type $type, Property $property)
+    {
+        $propName = $property->getName();
+        $varName = NameUtils::getPropertyVariableName($propName);
+        $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
+        $out = '';
+        if ($property->isCollection()) {
+            $out .= <<<PHP
+        if (0 < count(\$this->{$varName})) {
+            \$vs = [];
+            foreach(\$this->{$methodName}() as \$v) {
+                if (null !== \$v) {
+                    
+                }
+            }
+
+PHP;
+            if ($config->mustMungePrimitives()) {
+                $out .= <<<PHP
+                    if (null !== (\$vv = \$v->getValue())) {
+                        \$vs[] = \$vv;
+                    }
+
+PHP;
+            } else {
+                $out .= <<<PHP
+                    \$vs[] = \$v;
+
+PHP;
+            }
+            $out .= <<<PHP
+            if (0 < count(\$vs)) {
+                \$a['{$propName}'] = \$vs;
+            }
+        }
+    }
+
+PHP;
+        } elseif ($config->mustMungePrimitives()) {
+            $out .= <<<PHP
+        if (null !== (\$v = \$this->{$methodName}()) && null !== (\$vv = \$v->getValue())) {
+            \$a['{$propName}'] = \$vv;
+        }
+
+PHP;
+        } else {
+            $out .= <<<PHP
+        if (null !== (\$v = \$this->{$methodName}())) {
+            \$a['{$propName}'] = \$v;
+        }
+
+PHP;
         }
 
         return $out;

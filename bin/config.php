@@ -20,6 +20,9 @@ return [
     'schemaPath'  => __DIR__ . '/../input',
     'classesPath' => __DIR__ . '/../output',
 
+    'mungePrimitive' => true,
+    'generateTests' => true,
+
     'versions' => [
         'DSTU1' => ['url' => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU1'],
         'DSTU2' => ['url' => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU2'],

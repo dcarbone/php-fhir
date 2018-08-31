@@ -30,9 +30,6 @@ use DCarbone\PHPFHIR\Definition\Type\Property;
  */
 class Type
 {
-    const RESOURCE_CONTAINER = 'ResourceContainer';
-    const RESOURCE_INLINE    = 'Resource.Inline';
-
     use DocumentationTrait;
 
     /** @var \DCarbone\PHPFHIR\Config */
@@ -320,7 +317,7 @@ class Type
      */
     public function isResourceContainer()
     {
-        return self::RESOURCE_CONTAINER === $this->getFHIRName();
+        return PHPFHIR_TYPE_RESOURCE_CONTAINER === $this->getFHIRName();
     }
 
     /**
@@ -328,7 +325,7 @@ class Type
      */
     public function isInlineResource()
     {
-        return self::RESOURCE_INLINE === $this->getFHIRName();
+        return PHPFHIR_TYPE_RESOURCE_INLINE === $this->getFHIRName();
     }
 
     /**
@@ -359,6 +356,8 @@ class Type
     /**
      * Is this type just a primitive container?
      *
+     * TODO: this could stand to be improved, right now only looks for "value" types...
+     *
      * @return bool
      */
     public function isPrimitiveContainer()
@@ -378,6 +377,24 @@ class Type
     {
         foreach ($this->getParentTypes() as $parentType) {
             if ($parentType->isPrimitiveContainer()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isResource()
+    {
+        $n = $this->getFHIRName();
+        if (PHPFHIR_TYPE_RESOURCE === $n || PHPFHIR_TYPE_DOMAIN_RESOURCE === $n) {
+            return true;
+        }
+        foreach ($this->getParentTypes() as $parentType) {
+            $n = $parentType->getFHIRName();
+            if (PHPFHIR_TYPE_RESOURCE === $n || PHPFHIR_TYPE_DOMAIN_RESOURCE === $n) {
                 return true;
             }
         }
