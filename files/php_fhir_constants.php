@@ -52,3 +52,14 @@ define(
 
 PHP
 );
+define(
+    'PHPFHIR_DEFAULT_XML_SERIALIZE_HEADER',
+    <<<PHP
+    /**
+     * @return string|\SimpleXMLElement
+     */
+     public function xmlSerialize(\$returnSXE = false, \SimpleXMLElement \$sxe = null)
+     {
+
+PHP
+);
