@@ -251,8 +251,7 @@ PHP;
 
         return <<<PHP
     /**
-{$property->getDocBlockDocumentationFragment()}
-     * @return null|{$property->getPHPTypeName()}{$collection}
+{$property->getDocBlockDocumentationFragment()}     * @return null|{$property->getPHPTypeName()}{$collection}
      */
     public function {$methodName}()
     {

@@ -109,7 +109,7 @@ PHP;
             $out .= MethodUtils::buildToString($config, $type);
             $out .= "\n";
             $out .= JSONSerializeUtils::buildHeader($config, $type);
-            $out .= JSONSerializeUtils::buildPrimitiveBody($config, $type);
+            $out .= JSONSerializeUtils::buildBody($config, $type);
             $out .= "    }\n";
         } elseif (!$type->hasPrimitiveParent() && $type->isPrimitiveContainer()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
@@ -126,7 +126,7 @@ PHP;
             $out .= MethodUtils::buildToString($config, $type);
             $out .= "\n";
             $out .= JSONSerializeUtils::buildHeader($config, $type);
-            $out .= JSONSerializeUtils::buildPrimitiveContainerBody($config, $type);
+            $out .= JSONSerializeUtils::buildBody($config, $type);
             $out .= "    }\n";
         } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
@@ -140,7 +140,7 @@ PHP;
             $out .= MethodUtils::buildToString($config, $type);
             $out .= "\n";
             $out .= JSONSerializeUtils::buildHeader($config, $type);
-            $out .= JSONSerializeUtils::buildResourceContainerBody($config, $type);
+            $out .= JSONSerializeUtils::buildBody($config, $type);
             $out .= "    }\n";
         } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
@@ -154,7 +154,7 @@ PHP;
             $out .= MethodUtils::buildToString($config, $type);
             $out .= "\n";
             $out .= JSONSerializeUtils::buildHeader($config, $type);
-            $out .= JSONSerializeUtils::buildDefaultBody($config, $type);
+            $out .= JSONSerializeUtils::buildBody($config, $type);
             $out .= "    }\n";
         }
 

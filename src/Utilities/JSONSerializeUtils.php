@@ -42,7 +42,7 @@ abstract class JSONSerializeUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildResourceContainerBody(Config $config, Type $type)
+    protected static function buildResourceContainerBody(Config $config, Type $type)
     {
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $i => $property) {
@@ -61,7 +61,7 @@ abstract class JSONSerializeUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildPrimitiveBody(Config $config, Type $type)
+    protected static function buildPrimitiveBody(Config $config, Type $type)
     {
         return <<<PHP
         return \$this->getValue();
@@ -70,7 +70,12 @@ PHP;
 
     }
 
-    public static function buildParentCall(Config $config, Type $type)
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    protected static function buildParentCall(Config $config, Type $type)
     {
         $out = '        $a = ';
         if ($parentType = $type->getParentType()) {
@@ -92,14 +97,14 @@ PHP;
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildPrimitiveContainerBody(Config $config, Type $type)
+    protected static function buildPrimitiveContainerBody(Config $config, Type $type)
     {
         $out = static::buildParentCall($config, $type);
-        $properties = $type->getProperties()->getSortedIterator();
         if ($config->mustMungePrimitives()) {
             // "primitive containers" are things like "string".  Types that extend
             // "Element" but are only used to store a primitive value.  When we see these,
             // and NOTHING but their "value" field is set, only return the value if munging is enabled
+            $properties = $type->getProperties()->getSortedIterator();
             $out .= '        if (0 === count($a) && null !== ($v = $this->getValue())';
             if (1 < count($properties)) {
                 foreach ($properties as $i => $property) {
@@ -117,19 +122,23 @@ PHP;
             $out .= ") {\n";
             $out .= "            return \$v->getValue();\n";
             $out .= "        }\n";
-
         }
-        return $out;
+        return $out . self::buildDefaultBody($config, $type, false);
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param bool $needsParentCall
      * @return string
      */
-    public static function buildDefaultBody(Config $config, Type $type)
+    protected static function buildDefaultBody(Config $config, Type $type, $needsParentCall)
     {
-        $out = static::buildParentCall($config, $type);
+        if ($needsParentCall) {
+            $out = static::buildParentCall($config, $type);
+        } else {
+            $out = '';
+        }
         $properties = $type->getProperties()->getSortedIterator();
         foreach ($properties as $property) {
             $propType = $property->getValueType();
@@ -142,11 +151,28 @@ PHP;
                 ));
                 continue;
             }
-            if ($propType->isPrimitive()) {
-                $out .= PropertyUtils::buildPrimitiveJSONMarshalStatement($config, $type, $property);
-            }
+            $out .= PropertyUtils::buildDefaultJSONMarshalStatement($config, $type, $property);
         }
 
-        return $out . "        return \$a;\n";
+        return $out . "        return count(\$a) > 0 ? \$a : null;\n";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    public static function buildBody(Config $config, Type $type)
+    {
+        if ($type->isPrimitive()) {
+            return static::buildPrimitiveBody($config, $type);
+        }
+        if ($type->hasPrimitiveParent()) {
+            return '';
+        }
+        if ($type->isPrimitiveContainer()) {
+            return static::buildPrimitiveContainerBody($config, $type);
+        }
+        return static::buildDefaultBody($config, $type, true);
     }
 }

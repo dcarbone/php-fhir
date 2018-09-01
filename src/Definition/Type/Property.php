@@ -109,7 +109,7 @@ class Property
         if (!isset($this->phpTypeName)) {
             if ($propType = $this->getValueType()) {
                 if ($propType->isPrimitive()) {
-                    return 'mixed';
+                    return "mixed|{$propType->getFullyQualifiedClassName(true)}";
                 }
                 return $propType->getFullyQualifiedClassName(true);
             }

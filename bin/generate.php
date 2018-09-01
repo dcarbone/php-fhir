@@ -127,6 +127,9 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
                         ex: ./bin/generate.sh --config path/to/file
     --versions:     Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions DSTU1,DSTU2
+    --logger        Create a logger to pass to definition and generation processes
+    --logLevel      If --logger is provided, specify a log level.
+                        ex: ./bin/generate.sh --logger --logLevel info
     --munge:        Forces primitive types to have only their values output during serialization
                         ex: "<element id="value" />" vs <element><id>value</id></element>
     --tests         If set, will generate a set of PHPUnit tests to execute against the output
@@ -240,10 +243,14 @@ if ($argc > 1) {
     }
 }
 
-if (null !== $configLogLevel) {
-    $log->setLogLevel($configLogLevel);
+if (method_exists($log, 'setLogLevel')) {
+    if (null !== $configLogLevel) {
+        $log->setLogLevel($configLogLevel);
+    } else {
+        $log->setLogLevel(LogLevel::WARNING);
+    }
 } else {
-    $log->setLogLevel(LogLevel::WARNING);
+    // TODO: complain about not being able to set a log level..?
 }
 
 // try to determine which config file to use...
@@ -303,12 +310,29 @@ if (!is_array($versions)) {
     exit(1);
 }
 
+// test provided versions are defined
+if (null === $versionsToGenerate) {
+    $versionsToGenerate = array_keys($versions);
+}
+
+foreach($versionsToGenerate as $vg) {
+    if (!isset($versions[$vg])) {
+        echo sprintf(
+            "Version \"%s\" not found in config.  Available: %s\n\n",
+            $vg,
+            implode(', ', array_keys($versions))
+        );
+        exit(1);
+    }
+}
+
 $schemaPath = realpath($schemaPath);
 $classesPath = realpath($classesPath);
 
 $ins = [STDIN];
 $null = null;
 
+// try to clean up working dir
 $dir = $classesPath . DIRECTORY_SEPARATOR . 'HL7';
 if (is_dir($dir)) {
     if ($forceDelete || yesno("Work Directory \"{$dir}\" already exists.\nWould you like to purge its current contents prior to generation?")) {
@@ -318,25 +342,12 @@ if (is_dir($dir)) {
     }
 }
 
-if (null === $versionsToGenerate) {
-    $versionsToGenerate = array_keys($versions);
-}
-
 echo sprintf(
     "\nGenerating classes for versions: %s\n\n",
     implode(', ', $versionsToGenerate)
 );
 
 foreach ($versionsToGenerate as $version) {
-    if (!isset($versions[$version])) {
-        echo sprintf(
-            "Version \"%s\" not found in config.  Available: %s\n\n",
-            $version,
-            implode(', ', array_keys($versions))
-        );
-        exit(1);
-    }
-
     $versionConf = $versions[$version];
 
     $url = $versionConf['url'];
