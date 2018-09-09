@@ -50,9 +50,9 @@ abstract class XMLSerializeUtils
             $type->getFHIRName()
         );
         return <<<PHP
-    if (null === \$sxe) {
-        \$sxe = new \SimpleXMLElement('<{$name} xmlns="{$ns}"></{$name}>');
-    }
+        if (null === \$sxe) {
+            \$sxe = new \SimpleXMLElement('<{$name} xmlns="{$ns}"></{$name}>');
+        }
 
 PHP;
     }
@@ -63,10 +63,10 @@ PHP;
     protected static function returnStmt()
     {
         return <<<PHP
-    if (\$returnSXE) {
-        return \$sxe;
-    }
-    return \$sxe->saveXML();
+        if (\$returnSXE) {
+            return \$sxe;
+        }
+        return \$sxe->saveXML();
 
 PHP;
 
@@ -77,12 +77,43 @@ PHP;
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildPrimitiveBody(Config $config, Type $type)
+    protected static function buildResourceContainerBody(Config $config, Type $type)
     {
         $out = static::buildSXE($type);
-        $out .= <<<PHP
-        if (null !== (\$v = \$this->getValue())) {
-            \$sxe->addAttribute('value', (string)\$v);
+        foreach ($type->getProperties()->getSortedIterator() as $i => $property) {
+            $propName = $property->getName();
+            $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
+            $out .= '       ';
+            if (0 < $i) {
+                $out .= '} else';
+            }
+            $out .= <<<PHP
+if (null !== (\$v = \$this->{$methodName}())) {
+            return \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));
+        }
+PHP;
+
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    protected static function buildPrimitiveBody(Config $config, Type $type)
+    {
+        static $ns = FHIR_XMLNS;
+        $name = str_replace(
+            NameUtils::$classNameSearch,
+            NameUtils::$classNameReplace,
+            $type->getFHIRName()
+        );
+        $out = <<<PHP
+        if (null === \$sxe) {
+            \$sxe = new \SimpleXMLElement("<{$name} xmlns=\"{$ns}\" value=\"{\$this->getValue()}\"></{$name}>");
+        } else {
+            \$sxe->addAttribute('{$name}', (string)\$this->getValue());
         }
 
 PHP;
@@ -96,7 +127,7 @@ PHP;
      */
     protected static function buildPrimitiveContainerBody(Config $config, Type $type)
     {
-        $out = static::buildSXE($type);
+            $out = static::buildSXE($type);
 
         return $out . static::returnStmt();
     }

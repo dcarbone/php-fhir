@@ -46,12 +46,20 @@ abstract class JSONSerializeUtils
     {
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $i => $property) {
+            $propName = $property->getName();
+            $methodName = NameUtils::getPropertyMethodName($propName);
             if ($i > 0) {
-                $out .= '        elseif ';
+                $out .= 'else';
             } else {
-                $out .= '        if';
+                $out .= '        ';
             }
-            $out .= "(isset(\$this->{$property->getName()})) return \$this->{$property->getName()}\n";
+            $out .= <<<PHP
+if (null !== (\$v = \$this->{$methodName}())) {
+            return \$v;
+        }
+PHP;
+
+            $out .= "(isset(\$this->{$property->getName()})) {\nreturn \$this->{$property->getName()}\n";
         }
         return $out . "else return null;\n";
     }
@@ -154,7 +162,8 @@ PHP;
             $out .= PropertyUtils::buildDefaultJSONMarshalStatement($config, $type, $property);
         }
 
-        return $out . "        return count(\$a) > 0 ? \$a : null;\n";
+        // TODO: return null if empty?
+        return $out . "        return \$a;\n";
     }
 
     /**
@@ -172,6 +181,9 @@ PHP;
         }
         if ($type->isPrimitiveContainer()) {
             return static::buildPrimitiveContainerBody($config, $type);
+        }
+        if ($type->isResourceContainer() || $type->isInlineResource()) {
+            return static::buildResourceContainerBody($config, $type);
         }
         return static::buildDefaultBody($config, $type, true);
     }

@@ -26,6 +26,7 @@ use DCarbone\PHPFHIR\Utilities\MethodUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
 use DCarbone\PHPFHIR\Utilities\PropertyUtils;
+use DCarbone\PHPFHIR\Utilities\XMLSerializeUtils;
 
 /**
  * Class ClassGenerator
@@ -110,6 +111,9 @@ PHP;
             $out .= "\n";
             $out .= JSONSerializeUtils::buildHeader($config, $type);
             $out .= JSONSerializeUtils::buildBody($config, $type);
+            $out .= "    }\n\n";
+            $out .= XMLSerializeUtils::buildHeader($config, $type);
+            $out .= XMLSerializeUtils::buildBody($config, $type);
             $out .= "    }\n";
         } elseif (!$type->hasPrimitiveParent() && $type->isPrimitiveContainer()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
@@ -127,6 +131,9 @@ PHP;
             $out .= "\n";
             $out .= JSONSerializeUtils::buildHeader($config, $type);
             $out .= JSONSerializeUtils::buildBody($config, $type);
+            $out .= "    }\n\n";
+            $out .= XMLSerializeUtils::buildHeader($config, $type);
+            $out .= XMLSerializeUtils::buildBody($config, $type);
             $out .= "    }\n";
         } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
@@ -141,6 +148,9 @@ PHP;
             $out .= "\n";
             $out .= JSONSerializeUtils::buildHeader($config, $type);
             $out .= JSONSerializeUtils::buildBody($config, $type);
+            $out .= "    }\n\n";
+            $out .= XMLSerializeUtils::buildHeader($config, $type);
+            $out .= XMLSerializeUtils::buildBody($config, $type);
             $out .= "    }\n";
         } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
@@ -155,6 +165,9 @@ PHP;
             $out .= "\n";
             $out .= JSONSerializeUtils::buildHeader($config, $type);
             $out .= JSONSerializeUtils::buildBody($config, $type);
+            $out .= "    }\n\n";
+            $out .= XMLSerializeUtils::buildHeader($config, $type);
+            $out .= XMLSerializeUtils::buildBody($config, $type);
             $out .= "    }\n";
         }
 

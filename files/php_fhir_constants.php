@@ -56,10 +56,12 @@ define(
     'PHPFHIR_DEFAULT_XML_SERIALIZE_HEADER',
     <<<PHP
     /**
+     * @param bool \$returnSXE
+     * @param null|\SimpleXMLElement \$sxe
      * @return string|\SimpleXMLElement
      */
-     public function xmlSerialize(\$returnSXE = false, \SimpleXMLElement \$sxe = null)
-     {
+    public function xmlSerialize(\$returnSXE = false, \SimpleXMLElement \$sxe = null)
+    {
 
 PHP
 );
