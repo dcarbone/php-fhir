@@ -21,7 +21,7 @@
 // --- autoload setup
 
 date_default_timezone_set('UTC');
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 // --- use statements
 
@@ -41,7 +41,7 @@ $printHelp = false;
 $forceDelete = false;
 $configEnv = getenv(PHPFHIR_GENERATE_CONFIG_FILE);
 $configArg = '';
-$configDef = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
+$configDef = __DIR__.DIRECTORY_SEPARATOR.'config.php';
 $configFile = null;
 $schemaPath = '';
 $classesPath = '';
@@ -61,7 +61,7 @@ $generateTests = false;
 function missingConfigText($return)
 {
     global $configEnv, $configArg, $configDef;
-    $out = 'Unable to locate generate script configuration file.  I looked in the following locations:' . PHP_EOL;
+    $out = 'Unable to locate generate script configuration file.  I looked in the following locations:'.PHP_EOL;
     $out .= sprintf(
         '   - env var "%s": %s%s',
         PHPFHIR_GENERATE_CONFIG_FILE,
@@ -71,9 +71,9 @@ function missingConfigText($return)
     $out .= sprintf('   - "--config" flag: %s%s', ('' === $configArg ? 'Not Defined' : $configArg), PHP_EOL);
     $out .= sprintf('   - Default: %s%s', $configDef, PHP_EOL);
     $out .= PHP_EOL;
-    $out .= 'Please do one of the following:' . PHP_EOL;
+    $out .= 'Please do one of the following:'.PHP_EOL;
     $out .= sprintf('   - Define "%s" environment variable%s', PHPFHIR_GENERATE_CONFIG_FILE, PHP_EOL);
-    $out .= '   - Pass "--config" flag with valid path to config file' . PHP_EOL;
+    $out .= '   - Pass "--config" flag with valid path to config file'.PHP_EOL;
     $out .= sprintf('   - Place "config.php" file in "%s"%s', $configDef, PHP_EOL);
 
     $out .= <<<STRING
@@ -178,13 +178,22 @@ function yesno($q)
 function removeDir($dir)
 {
     echo "Executing \"rm -rf {$dir}\" ...\n";
-    shell_exec('rm -rf ' . $dir);
+    shell_exec('rm -rf '.$dir);
     sleep(1);
     if (file_exists($dir)) {
         echo "Unable to delete dir {$dir}\n";
         exit(1);
     }
     echo "Done.\n";
+}
+
+/**
+ * @param string $dir
+ * @return bool
+ */
+function isDirEmpty($dir)
+{
+    return 0 === iterator_count(new FilesystemIterator($dir, FilesystemIterator::SKIP_DOTS));
 }
 
 
@@ -248,6 +257,12 @@ if (method_exists($log, 'setLogLevel')) {
         $log->setLogLevel($configLogLevel);
     } else {
         $log->setLogLevel(LogLevel::WARNING);
+    }
+} elseif (method_exists($log, 'setLevel')) {
+    if (null !== $configLogLevel) {
+        $log->setLevel($configLogLevel);
+    } else {
+        $log->setLevel(LogLevel::WARNING);
     }
 } else {
     // TODO: complain about not being able to set a log level..?
@@ -315,7 +330,7 @@ if (null === $versionsToGenerate) {
     $versionsToGenerate = array_keys($versions);
 }
 
-foreach($versionsToGenerate as $vg) {
+foreach ($versionsToGenerate as $vg) {
     if (!isset($versions[$vg])) {
         echo sprintf(
             "Version \"%s\" not found in config.  Available: %s\n\n",
@@ -333,9 +348,10 @@ $ins = [STDIN];
 $null = null;
 
 // try to clean up working dir
-$dir = $classesPath . DIRECTORY_SEPARATOR . 'HL7';
+$dir = $classesPath.DIRECTORY_SEPARATOR.'HL7';
 if (is_dir($dir)) {
-    if ($forceDelete || yesno("Work Directory \"{$dir}\" already exists.\nWould you like to purge its current contents prior to generation?")) {
+    if ($forceDelete ||
+        yesno("Work Directory \"{$dir}\" already exists.\nWould you like to purge its current contents prior to generation?")) {
         removeDir($dir);
     } else {
         echo "Continuing without work directory cleanup\n";
@@ -354,16 +370,17 @@ foreach ($versionsToGenerate as $version) {
 
     $namespace = $versionConf['namespace'];
     $version = trim($version);
-    $schemaDir = $schemaPath . DIRECTORY_SEPARATOR . $version;
+    $schemaDir = $schemaPath.DIRECTORY_SEPARATOR.$version;
 
     // Download zip files
-    $zipFileName = $schemaPath . DIRECTORY_SEPARATOR . $version . '.zip';
+    $zipFileName = $schemaPath.DIRECTORY_SEPARATOR.$version.'.zip';
     $zipExists = file_exists($zipFileName);
 
     $download = $unzip = true;
 
     if ($zipExists) {
-        if ($forceDelete || yesno("ZIP \"{$zipFileName}\" already exists.\nWould you like to re-download from \"{$url}\"?")) {
+        if ($forceDelete ||
+            yesno("ZIP \"{$zipFileName}\" already exists.\nWould you like to re-download from \"{$url}\"?")) {
             echo "Deleting {$zipFileName} ...\n";
             unlink($zipFileName);
             if (file_exists($zipFileName)) {
@@ -378,7 +395,7 @@ foreach ($versionsToGenerate as $version) {
     }
 
     if ($download) {
-        echo 'Downloading ' . $version . ' from ' . $url . PHP_EOL;
+        echo 'Downloading '.$version.' from '.$url.PHP_EOL;
         // Download/extract ZIP file
         if (!copy($url, $zipFileName)) {
             echo "Unable to download.\n";
@@ -387,12 +404,19 @@ foreach ($versionsToGenerate as $version) {
     }
 
     if (is_dir($schemaDir)) {
-        if (!$download) {
+        if (isDirEmpty($schemaDir)) {
+            echo "Schema dir \"{$schemaDir}\" is empty, will remove and re-create\n";
+            removeDir($schemaDir);
+            if (!mkdir($schemaDir, 0755, true)) {
+                echo "Unable to create directory \"{$schemaDir}\. Exiting\n";
+                exit(1);
+            }
+        } elseif (!$download) {
             echo "Did not download new zip and schema dir \"{$schemaDir}\" already exists, using...\n";
             $unzip = false;
         } elseif ($forceDelete || yesno("Schema dir \"{$schemaDir}\" already exists, ok to delete?")) {
             removeDir($schemaDir);
-            if (!mkdir($schemaDir, 0777, true)) {
+            if (!mkdir($schemaDir, 0755, true)) {
                 echo "Unable to create directory \"{$schemaDir}\. Exiting\n";
                 exit(1);
             }
@@ -409,7 +433,7 @@ foreach ($versionsToGenerate as $version) {
         }
         $zip = new ZipArchive;
 
-        if (true !== ($res = $zip->open($schemaDir . '.zip'))) {
+        if (true !== ($res = $zip->open($schemaDir.'.zip'))) {
             echo "Unable to open file {$schemaDir}.zip.  ZipArchive err: {$res}\n";
             exit(1);
         }
@@ -442,4 +466,4 @@ foreach ($versionsToGenerate as $version) {
     $builder->build();
 }
 
-echo PHP_EOL . 'Generation completed' . PHP_EOL;
+echo PHP_EOL.'Generation completed'.PHP_EOL;

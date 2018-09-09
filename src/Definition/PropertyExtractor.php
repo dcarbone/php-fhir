@@ -64,7 +64,6 @@ abstract class PropertyExtractor
 
             if (0 === strpos($ref, 'xhtml')) {
                 $property = new Property($config, substr($ref, 6), PHPFHIR_PROPERTY_TYPE_HTML);
-                $property->setPHPTypeName('string');
                 return $property;
             }
 
@@ -210,6 +209,10 @@ abstract class PropertyExtractor
 
             case XSDElementType::UNION:
             case XSDElementType::ENUMERATION:
+            case XSDElementType::MIN_LENGTH:
+            case XSDElementType::MAX_LENGTH:
+            case XSDElementType::PATTERN:
+                // TODO: don't ignore these...
                 $config->getLogger()->debug(sprintf(
                     'Ignoring %s element under Type %s...',
                     $element->getName(),

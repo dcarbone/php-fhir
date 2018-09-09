@@ -64,9 +64,10 @@ abstract class PropertyUtils
     {
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $property) {
+            $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
             $out .= "\n    /**\n";
             $out .= $property->getDocBlockDocumentationFragment();
-            $out .= "     * @var {$property->getPHPTypeName()}";
+            $out .= "     * @var {$phpType}";
             if ($property->isCollection()) {
                 $out .= '[]';
             }
@@ -110,7 +111,10 @@ abstract class PropertyUtils
             if ('' !== $out) {
                 $out .= "\n";
             }
-            if ($propType->isPrimitive() || $propType->hasPrimitiveParent() || $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) {
+            if ($propType->isPrimitive() ||
+                $propType->hasPrimitiveParent() ||
+                $propType->isPrimitiveContainer() ||
+                $propType->hasPrimitiveContainerParent()) {
                 $out .= MethodUtils::createPrimitiveSetter($config, $type, $property);
             } elseif ($propType->isResourceContainer() || $propType->isInlineResource()) {
                 $out .= MethodUtils::createResourceContainerSetter($config, $type, $property);
@@ -138,7 +142,7 @@ abstract class PropertyUtils
     public static function buildPrimitiveJSONMarshalStatement(Config $config, Type $type, Property $property)
     {
         $propName = $property->getName();
-        $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
+        $methodName = 'get'.NameUtils::getPropertyMethodName($propName);
         $out = '';
         if ($property->isCollection()) {
             $out .= <<<PHP
@@ -198,7 +202,7 @@ PHP;
     {
         $out = '';
         $propName = $property->getName();
-        $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
+        $methodName = 'get'.NameUtils::getPropertyMethodName($propName);
         if ($property->isCollection()) {
             $out .= <<<PHP
         if (0 < count(\$values = \$this->{$methodName}())) {
@@ -224,5 +228,25 @@ PHP;
 
         }
         return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
+    public static function getPropertyPHPTypeName(Type $type, Property $property)
+    {
+        if ($property->isHTML()) {
+            return 'string';
+        }
+        if (($type->isPrimitive() || $type->hasPrimitiveParent()) && 'value' === $property->getName()) {
+            // TODO: enable primitive-type specific values here.
+            return 'mixed';
+        }
+        if ($propType = $property->getValueType()) {
+            return $propType->getFullyQualifiedClassName(true);
+        }
+        return 'mixed';
     }
 }

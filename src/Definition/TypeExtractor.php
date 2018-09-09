@@ -245,7 +245,7 @@ abstract class TypeExtractor
                 case XSDElementType::SIMPLE_TYPE:
                     $types->addType($type, $file);
                     $type->setClassName(NameUtils::getTypeClassName($fhirElementName));
-                    $type->addProperty(new Property($config, 'value', $fhirElementName));
+                    $type->addProperty(new Property($config, 'value', ''));
                     static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
                     $config->getLogger()->info(sprintf(
                         'Located "Simple" Type class "%s\\%s" in file "%s"',

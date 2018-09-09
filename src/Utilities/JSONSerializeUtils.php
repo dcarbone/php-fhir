@@ -47,21 +47,20 @@ abstract class JSONSerializeUtils
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $i => $property) {
             $propName = $property->getName();
-            $methodName = NameUtils::getPropertyMethodName($propName);
+            $methodName = 'get'.NameUtils::getPropertyMethodName($propName);
             if ($i > 0) {
-                $out .= 'else';
+                $out .= ' elseif ';
             } else {
-                $out .= '        ';
+                $out .= '        if ';
             }
             $out .= <<<PHP
-if (null !== (\$v = \$this->{$methodName}())) {
+(null !== (\$v = (\$this->{$methodName}()))) {
             return \$v;
         }
 PHP;
 
-            $out .= "(isset(\$this->{$property->getName()})) {\nreturn \$this->{$property->getName()}\n";
         }
-        return $out . "else return null;\n";
+        return $out . " else {\n            return null;\n        }\n";
     }
 
     /**
@@ -149,20 +148,10 @@ PHP;
         }
         $properties = $type->getProperties()->getSortedIterator();
         foreach ($properties as $property) {
-            $propType = $property->getValueType();
-            if (null === $propType) {
-                $config->getLogger()->warning(sprintf(
-                    'Type %s Property %s has undefined type "%s", skipping json marshal output...',
-                    $type,
-                    $property,
-                    $property->getPHPTypeName()
-                ));
-                continue;
-            }
             $out .= PropertyUtils::buildDefaultJSONMarshalStatement($config, $type, $property);
         }
 
-        // TODO: return null if empty?
+        // TODO: enable returning null if output is empty
         return $out . "        return \$a;\n";
     }
 
