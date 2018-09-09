@@ -60,13 +60,29 @@ class Property
      * Property constructor.
      * @param \DCarbone\PHPFHIR\Config $config
      * @param string $name
-     * @param $fhirType
+     * @param string $fhirTypeName
      */
-    public function __construct(Config $config, $name, $fhirType)
+    public function __construct(Config $config, $name, $fhirTypeName)
     {
         $this->config = $config;
         $this->name = $name;
-        $this->fhirTypeName = $fhirType;
+        $this->fhirTypeName = $fhirTypeName;
+    }
+
+    /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return [
+            'name'         => $this->getName(),
+            'fhirTypeName' => $this->getFHIRTypeName(),
+            'minOccurs'    => $this->getMinOccurs(),
+            'maxOccurs'    => $this->getMaxOccurs(),
+            'pattern'      => $this->getPattern(),
+            'enumeration'  => $this->getEnumeration(),
+            'valueType'    => (string)$this->getValueType(),
+        ];
     }
 
     /**
@@ -99,33 +115,6 @@ class Property
     public function isHTML()
     {
         return PHPFHIR_PROPERTY_TYPE_HTML === $this->getFHIRTypeName();
-    }
-
-    /**
-     * @return string
-     */
-    public function getPHPTypeName()
-    {
-        if (!isset($this->phpTypeName)) {
-            if ($propType = $this->getValueType()) {
-                if ($propType->isPrimitive()) {
-                    return "mixed|{$propType->getFullyQualifiedClassName(true)}";
-                }
-                return $propType->getFullyQualifiedClassName(true);
-            }
-            return 'string';
-        }
-        return $this->phpTypeName;
-    }
-
-    /**
-     * @param string $phpTypeName
-     * @return Property
-     */
-    public function setPHPTypeName($phpTypeName)
-    {
-        $this->phpTypeName = $phpTypeName;
-        return $this;
     }
 
     /**
@@ -255,6 +244,7 @@ class Property
     {
         return PHPFHIR_PROPERTY_OCCURS_UNLIMITED === $this->getMaxOccurs();
     }
+
 
     /**
      * @return string

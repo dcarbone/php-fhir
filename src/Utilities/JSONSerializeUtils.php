@@ -141,20 +141,11 @@ PHP;
         }
         $properties = $type->getProperties()->getSortedIterator();
         foreach ($properties as $property) {
-            $propType = $property->getValueType();
-            if (null === $propType) {
-                $config->getLogger()->warning(sprintf(
-                    'Type %s Property %s has undefined type "%s", skipping json marshal output...',
-                    $type,
-                    $property,
-                    $property->getPHPTypeName()
-                ));
-                continue;
-            }
             $out .= PropertyUtils::buildDefaultJSONMarshalStatement($config, $type, $property);
         }
 
-        return $out . "        return count(\$a) > 0 ? \$a : null;\n";
+        // TODO: enable returning null if output is empty
+        return $out . "        return \$a;\n";
     }
 
     /**

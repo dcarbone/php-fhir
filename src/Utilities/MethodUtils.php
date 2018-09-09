@@ -38,9 +38,9 @@ abstract class MethodUtils
     {
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
-        $phpType = $property->getPHPTypeName();
+        $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
         $propType = $property->getValueType();
-        $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
+        $methodName = ($property->isCollection() ? 'add' : 'set').NameUtils::getPropertyMethodName($propName);
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(
                 'Type %s Property %s setter func name %s is not valid',
@@ -95,8 +95,8 @@ PHP;
     {
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
-        $phpType = $property->getPHPTypeName();
-        $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
+        $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
+        $methodName = ($property->isCollection() ? 'add' : 'set').NameUtils::getPropertyMethodName($propName);
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(
                 'Type %s Property %s setter func name %s is not valid',
@@ -134,7 +134,7 @@ PHP;
         $varName = NameUtils::getPropertyVariableName($propName);
         $propType = $property->getValueType();
         $propTypeClass = $propType->getClassName();
-        $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
+        $methodName = ($property->isCollection() ? 'add' : 'set').NameUtils::getPropertyMethodName($propName);
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(
                 'Type %s Property %s setter func name %s is not valid',
@@ -196,8 +196,8 @@ PHP;
         $propName = $property->getName();
         $propType = $property->getValueType();
         $varName = NameUtils::getPropertyVariableName($propName);
-        $phpType = $property->getPHPTypeName();
-        $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
+        $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
+        $methodName = ($property->isCollection() ? 'add' : 'set').NameUtils::getPropertyMethodName($propName);
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(
                 'Type %s Property %s setter func name %s is not valid',
@@ -239,7 +239,7 @@ PHP;
     public static function createDefaultGetter(Config $config, Type $type, Property $property)
     {
         $collection = $property->isCollection() ? '[]' : '';
-        $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
+        $methodName = 'get'.NameUtils::getPropertyMethodName($property->getName());
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(
                 'Type %s Property %s setter func name %s is not valid',
@@ -249,9 +249,11 @@ PHP;
             ));
         }
 
+        $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
+
         return <<<PHP
     /**
-{$property->getDocBlockDocumentationFragment()}     * @return null|{$property->getPHPTypeName()}{$collection}
+{$property->getDocBlockDocumentationFragment()}     * @return null|{$phpType}{$collection}
      */
     public function {$methodName}()
     {
@@ -272,7 +274,7 @@ PHP;
     {
         $propName = $property->getName();
         $propType = $property->getValueType();
-        $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
+        $methodName = 'get'.NameUtils::getPropertyMethodName($property->getName());
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(
                 'Type %s Property %s getter func name %s is not valid',
@@ -308,7 +310,7 @@ PHP;
 PHP;
 
         }
-        return $out . "    }\n";
+        return $out."    }\n";
     }
 
     /**
@@ -335,6 +337,6 @@ PHP;
             $out .= " (string)self::FHIR_TYPE_NAME;";
         }
 
-        return $out . "\n    }\n";
+        return $out."\n    }\n";
     }
 }

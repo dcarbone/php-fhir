@@ -130,6 +130,10 @@ abstract class TypeRelationshipBuilder
     {
         foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
+                // TODO: this is kinda hacky...
+                if ('value' === $property->getName() && ($type->isPrimitive() || $type->hasPrimitiveParent())) {
+                    continue;
+                }
                 if ($pt = $types->getTypeByFHIRName($property->getFHIRTypeName())) {
                     $property->setValueType($pt);
                     $config->getLogger()->info(sprintf(
