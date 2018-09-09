@@ -175,7 +175,7 @@ function yesno($q)
 /**
  * @param string $dir
  */
-function removeDir($dir)
+function nukeDir($dir)
 {
     echo "Executing \"rm -rf {$dir}\" ...\n";
     shell_exec('rm -rf '.$dir);
@@ -352,7 +352,7 @@ $dir = $classesPath.DIRECTORY_SEPARATOR.'HL7';
 if (is_dir($dir)) {
     if ($forceDelete ||
         yesno("Work Directory \"{$dir}\" already exists.\nWould you like to purge its current contents prior to generation?")) {
-        removeDir($dir);
+        nukeDir($dir);
     } else {
         echo "Continuing without work directory cleanup\n";
     }
@@ -406,7 +406,7 @@ foreach ($versionsToGenerate as $version) {
     if (is_dir($schemaDir)) {
         if (isDirEmpty($schemaDir)) {
             echo "Schema dir \"{$schemaDir}\" is empty, will remove and re-create\n";
-            removeDir($schemaDir);
+            nukeDir($schemaDir);
             if (!mkdir($schemaDir, 0755, true)) {
                 echo "Unable to create directory \"{$schemaDir}\. Exiting\n";
                 exit(1);
@@ -415,7 +415,7 @@ foreach ($versionsToGenerate as $version) {
             echo "Did not download new zip and schema dir \"{$schemaDir}\" already exists, using...\n";
             $unzip = false;
         } elseif ($forceDelete || yesno("Schema dir \"{$schemaDir}\" already exists, ok to delete?")) {
-            removeDir($schemaDir);
+            nukeDir($schemaDir);
             if (!mkdir($schemaDir, 0755, true)) {
                 echo "Unable to create directory \"{$schemaDir}\. Exiting\n";
                 exit(1);
@@ -441,6 +441,31 @@ foreach ($versionsToGenerate as $version) {
         // Extract Zip
         $zip->extractTo($schemaDir);
         $zip->close();
+    }
+
+    if (is_dir($classesPath)) {
+        if (isDirEmpty($classesPath)) {
+            echo "Output directory \"{$classesPath}\" already exists, but is empty.  Will use.\n";
+        } elseif ($forceDelete) {
+            echo "Output directory \"{$classesPath}\" already exists, deleting...\n";
+            nukeDir($classesPath);
+            if (!mkdir($classesPath, 0755, true)) {
+                echo "Unable to create directory \"{$classesPath}\". Exiting.\n";
+                exit(1);
+            }
+        } else {
+            echo "Output Directory \"{$classesPath}\" already exists.\n";
+            if (yesno('Would you like to delete the directory?')) {
+                nukeDir($classesPath);
+                if (!mkdir($classesPath, 0755, true)) {
+                    echo "Unable to create directory \"{$classesPath}\".  Exiting.\n";
+                    exit(1);
+                }
+            } else {
+                echo "Exiting.\n";
+                exit(0);
+            }
+        }
     }
 
     echo sprintf(
