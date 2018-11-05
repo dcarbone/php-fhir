@@ -24,7 +24,7 @@ return [
         'DSTU1' => ['url' => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU1'],
         'DSTU2' => ['url' => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU2'],
         'STU3'  => ['url' => 'http://hl7.org/fhir/STU3/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\STU3'],
-        '3.0.1' => ['url' => 'http://https://www.hl7.org/fhir/fhir-codegen-xsd.zip', 'namespace' => '\\HL7\\FHIR\\V301'],
+        '3.0.1' => ['url' => 'http://hl7.org/fhir/fhir-codegen-xsd.zip', 'namespace' => '\\HL7\\FHIR\\V301'],
         'Build' => ['url' => 'http://build.fhir.org/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\Build']
     ]
 ];
