@@ -27,6 +27,12 @@ use Psr\Log\NullLogger;
  */
 class Config implements LoggerAwareInterface
 {
+    const KEY_XSD_PATH         = 'xsdPath';
+    const KEY_OUTPUT_PATH      = 'outputPath';
+    const KEY_OUTPUT_NAMESPACE = 'outputNamespace';
+    const KEY_MUNGE_PRIMITIVES = 'mungePrimitives';
+    const KEY_GENERATE_TESTS   = 'generateTests';
+
     /** @var \DCarbone\PHPFHIR\Logger */
     private $logger;
 
@@ -223,7 +229,7 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @param $mungePrimitives
+     * @param bool $mungePrimitives
      * @return $this
      */
     public function setMungePrimitives($mungePrimitives)

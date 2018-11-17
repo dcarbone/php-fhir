@@ -111,24 +111,16 @@ PHP;
         );
         $out = <<<PHP
         if (null === \$sxe) {
-            \$sxe = new \SimpleXMLElement("<{$name} xmlns=\"{$ns}\" value=\"{\$this->getValue()}\"></{$name}>");
+            // This looks weird, however under normal circumstances this case will never be hit.
+            \$sxe = new \SimpleXMLElement("<{$name} xmlns=\"{$ns}\" value=\"".(string)\$this."\">".(string)\$this."</{$name}>");
         } else {
-            \$sxe->addAttribute('{$name}', (string)\$this->getValue());
+            \$sxe->addAttribute('value', (string)\$this);
         }
 
 PHP;
-        return $out . static::returnStmt();
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @return string
-     */
-    protected static function buildPrimitiveContainerBody(Config $config, Type $type)
-    {
-            $out = static::buildSXE($type);
-
+        if ($type->isPrimitiveContainer()) {
+            return $out . "        return parent::xmlSerialize(\$returnSXE, \$sxe);\n";
+        }
         return $out . static::returnStmt();
     }
 
@@ -152,14 +144,8 @@ PHP;
      */
     public static function buildBody(Config $config, Type $type)
     {
-        if ($type->isPrimitive()) {
+        if ($type->isPrimitive() || $type->isPrimitiveContainer()) {
             return static::buildPrimitiveBody($config, $type);
-        }
-        if ($type->hasPrimitiveParent()) {
-            return '';
-        }
-        if ($type->isPrimitiveContainer()) {
-            return static::buildPrimitiveContainerBody($config, $type);
         }
         return static::buildDefaultBody($config, $type, true);
     }

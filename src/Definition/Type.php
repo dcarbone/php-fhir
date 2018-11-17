@@ -34,12 +34,21 @@ class Type
 
     /** @var \DCarbone\PHPFHIR\Config */
     private $config;
-    /** @var \SimpleXMLElement */
+    /**
+     * The raw element this type was parsed from
+     * @var \SimpleXMLElement
+     */
     private $sourceSXE;
 
-    /** @var string */
+    /**
+     * Name of file in definition this type was parsed from
+     * @var string
+     */
     private $sourceFilename;
-    /** @var string */
+    /**
+     * The raw name of the FHIR element this type was created from
+     * @var string
+     */
     private $fhirName;
 
     /** @var null|string */
@@ -65,7 +74,7 @@ class Type
      * FHIRType constructor.
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \SimpleXMLElement $sourceSXE
-     * @param $sourceFilename
+     * @param string $sourceFilename
      * @param string $fhirName
      */
     public function __construct(Config $config, \SimpleXMLElement $sourceSXE, $sourceFilename, $fhirName)
