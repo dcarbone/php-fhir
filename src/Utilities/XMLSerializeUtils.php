@@ -145,12 +145,26 @@ PHP;
         foreach ($type->getProperties()->getSortedIterator() as $property) {
             $propName = $property->getName();
             $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
-            $out .= <<<PHP
+            if ($property->isCollection()) {
+                $out .= <<<PHP
+        if (0 < count(\$values = \$this->{$methodName}())) {
+            foreach(\$values as \$v) {
+                if (null !== \$v) {
+                    \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));
+                }
+            }
+        }
+
+PHP;
+
+            } else {
+                $out .= <<<PHP
         if (null !== (\$v = \$this->{$methodName}())) {
             \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));
         }
 
 PHP;
+            }
         }
         return $out . static::returnStmt($config, $type);
     }

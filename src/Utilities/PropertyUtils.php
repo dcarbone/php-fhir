@@ -72,7 +72,7 @@ abstract class PropertyUtils
                 $out .= '[]';
             }
             $out .= "\n     */\n";
-            $out .= '    public ';
+            $out .= '    private ';
             $out .= NameUtils::getPropertyVariableName($property->getName());
             if ($property->isCollection()) {
                 $out .= ' = []';

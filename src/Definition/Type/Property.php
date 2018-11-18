@@ -226,7 +226,7 @@ class Property
      */
     public function isCollection()
     {
-        return 1 < $this->getMaxOccurs();
+        return PHPFHIR_PROPERTY_OCCURS_UNLIMITED === ($o = $this->getMaxOccurs()) || 1 < $o;
     }
 
     /**
@@ -244,7 +244,6 @@ class Property
     {
         return PHPFHIR_PROPERTY_OCCURS_UNLIMITED === $this->getMaxOccurs();
     }
-
 
     /**
      * @return string
