@@ -146,7 +146,7 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
 - Flags:
     --help:         Print this help text 
                         ex: ./bin/generate.sh --help
-    --force:        Forcibly delete all pre-existing FHIR schema files and output files without being prompted [default: false]
+    --force:        Forcibly delete all pre-existing FHIR schema files and output files without being prompted 
                         ex: ./bin/generate.sh --force
     --useExisting:  Do no prompt for any cleanup tasks.  Mutually exclusive with --force
                         ex: ./bin/generate.sh --useExisting
@@ -157,8 +157,8 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
     --logger        Create a logger to pass to definition and generation processes
     --logLevel      If --logger is provided, specify a log level.
                         ex: ./bin/generate.sh --logger --logLevel info
-    --munge:        Forces primitive types to have only their values output during serialization
-                        ex: "<element id="value" />" vs <element><id>value</id></element>
+    --munge:        In a few edge cases where an object's sole purpose is to carry the value of another object, this 
+                        will make it so that this container object is not part of any serialized output.
     --tests         If set, will generate a set of PHPUnit tests to execute against the output
                         EXPERIMENTAL
 
@@ -563,7 +563,7 @@ foreach ($versions_to_generate as $version) {
         Config::KEY_XSD_PATH         => $schema_dir,
         Config::KEY_OUTPUT_PATH      => $classes_path,
         Config::KEY_OUTPUT_NAMESPACE => $namespace,
-        Config::KEY_MUNGE_PRIMITIVES => $munge_primitives,
+        Config::KEY_MUNGE            => $munge_primitives,
         Config::KEY_GENERATE_TESTS   => $generate_tests,
     ]);
     $config->setLogger($log);

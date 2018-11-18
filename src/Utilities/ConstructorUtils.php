@@ -57,9 +57,6 @@ PHP;
         $properties = $type->getProperties();
 
         $out = '';
-        if ($type->getParentType()) {
-            $out .= "        parent::__construct(\$data);\n";
-        }
         $out .= <<<PHP
         if (is_array(\$data)) {
 
@@ -88,6 +85,10 @@ PHP;
         }
 
 PHP;
+
+        if ($type->getParentType()) {
+            $out .= "        parent::__construct(\$data);\n";
+        }
 
         return $out;
     }

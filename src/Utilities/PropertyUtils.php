@@ -142,7 +142,7 @@ abstract class PropertyUtils
     public static function buildPrimitiveJSONMarshalStatement(Config $config, Type $type, Property $property)
     {
         $propName = $property->getName();
-        $methodName = 'get'.NameUtils::getPropertyMethodName($propName);
+        $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
         $out = '';
         if ($property->isCollection()) {
             $out .= <<<PHP
@@ -152,7 +152,7 @@ abstract class PropertyUtils
                 if (null !== \$v) {
 
 PHP;
-            if ($config->mustMungePrimitives()) {
+            if ($config->mustMunge()) {
                 $out .= <<<PHP
                     if (null !== (\$vv = \$v->getValue())) {
                         \$vs[] = \$vv;
@@ -173,7 +173,7 @@ PHP;
     }
 
 PHP;
-        } elseif ($config->mustMungePrimitives()) {
+        } elseif ($config->mustMunge()) {
             $out .= <<<PHP
         if (null !== (\$v = \$this->{$methodName}()) && null !== (\$vv = \$v->getValue())) {
             \$a['{$propName}'] = \$vv;
@@ -202,7 +202,7 @@ PHP;
     {
         $out = '';
         $propName = $property->getName();
-        $methodName = 'get'.NameUtils::getPropertyMethodName($propName);
+        $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
         if ($property->isCollection()) {
             $out .= <<<PHP
         if (0 < count(\$values = \$this->{$methodName}())) {
@@ -248,5 +248,15 @@ PHP;
             return $propType->getFullyQualifiedClassName(true);
         }
         return 'mixed';
+    }
+
+    /**
+     *
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return bool
+     */
+    public static function isVariadicValueElement(Type $type)
+    {
+
     }
 }

@@ -30,7 +30,7 @@ class Config implements LoggerAwareInterface
     const KEY_XSD_PATH         = 'xsdPath';
     const KEY_OUTPUT_PATH      = 'outputPath';
     const KEY_OUTPUT_NAMESPACE = 'outputNamespace';
-    const KEY_MUNGE_PRIMITIVES = 'mungePrimitives';
+    const KEY_MUNGE            = 'munge';
     const KEY_GENERATE_TESTS   = 'generateTests';
 
     /** @var \DCarbone\PHPFHIR\Logger */
@@ -46,7 +46,7 @@ class Config implements LoggerAwareInterface
     /** @var bool */
     private $generateTests = false;
     /** @var bool */
-    private $mungePrimitives = false;
+    private $munge = false;
 
     /** @var array */
     private $xmlSerializationAttributeOverrides = [];
@@ -229,20 +229,20 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @param bool $mungePrimitives
+     * @param bool $munge
      * @return $this
      */
-    public function setMungePrimitives($mungePrimitives)
+    public function setMunge($munge)
     {
-        $this->mungePrimitives = (bool)$mungePrimitives;
+        $this->munge = (bool)$munge;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function mustMungePrimitives()
+    public function mustMunge()
     {
-        return $this->mungePrimitives;
+        return $this->munge;
     }
 }

@@ -107,7 +107,7 @@ PHP;
     protected static function buildPrimitiveContainerBody(Config $config, Type $type)
     {
         $out = static::buildParentCall($config, $type);
-        if ($config->mustMungePrimitives()) {
+        if ($config->mustMunge()) {
             // "primitive containers" are things like "string".  Types that extend
             // "Element" but are only used to store a primitive value.  When we see these,
             // and NOTHING but their "value" field is set, only return the value if munging is enabled

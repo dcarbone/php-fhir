@@ -79,21 +79,35 @@ PHP;
      */
     protected static function buildResourceContainerBody(Config $config, Type $type)
     {
-        $out = static::buildSXE($type);
+        if ($config->mustMunge()) {
+            $out = '';
+        } else {
+            $out = static::buildSXE($type);
+        }
+
         foreach ($type->getProperties()->getSortedIterator() as $i => $property) {
             $propName = $property->getName();
             $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
-            $out .= '       ';
+            $out .= '        ';
             if (0 < $i) {
                 $out .= '} else';
             }
-            $out .= <<<PHP
-if (null !== (\$v = \$this->{$methodName}())) {
-            return \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));
+            $out .= "if (null !== (\$v = \$this->{$methodName}())) {\n";
+            if ($config->mustMunge()) {
+                $out .= "            return \$v->xmlSerialize(\$returnSXE, \$sxe);\n";
+            } else {
+                $out .= "            return \$v->xmlSerialize(\$returnSXE, \$sxe->addChild('{$propName}'));\n";
+            }
         }
-PHP;
 
+        return $out . <<<PHP
+        } elseif (\$returnSXE) {
+            return \$sxe;
+        } else {
+            return \$sxe->saveXML();
         }
+
+PHP;
     }
 
     /**
@@ -118,7 +132,7 @@ PHP;
         }
 
 PHP;
-        if ($type->isPrimitiveContainer()) {
+        if ($type->isPrimitiveContainer() && $type->hasParent()) {
             return $out . "        return parent::xmlSerialize(\$returnSXE, \$sxe);\n";
         }
         return $out . static::returnStmt();
@@ -146,7 +160,10 @@ PHP;
     {
         if ($type->isPrimitive() || $type->isPrimitiveContainer()) {
             return static::buildPrimitiveBody($config, $type);
+        } elseif ($type->isResourceContainer()) {
+            return static::buildResourceContainerBody($config, $type);
+        } else {
+            return static::buildDefaultBody($config, $type, true);
         }
-        return static::buildDefaultBody($config, $type, true);
     }
 }

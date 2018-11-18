@@ -304,6 +304,14 @@ class Type
     }
 
     /**
+     * @return bool
+     */
+    public function hasParent()
+    {
+        return null !== $this->getParentTypeName();
+    }
+
+    /**
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return $this
      */
@@ -363,6 +371,14 @@ class Type
     }
 
     /**
+     * @return bool
+     */
+    public function isList()
+    {
+        return false !== strpos($this->getFHIRName(), '-list');
+    }
+
+    /**
      * Is this type just a primitive container?
      *
      * TODO: this could stand to be improved, right now only looks for "value" types...
@@ -411,11 +427,39 @@ class Type
     }
 
     /**
+     * Returns true if this Type is an element who's only property is a "value" of some sort
+     *
      * @return bool
      */
-    public function isList()
+    public function isValueElement()
     {
-        return false !== strpos($this->getFHIRName(), '-list');
+        if ($this->isPrimitive() || $this->isPrimitiveContainer() || $this->isList()) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if this Type is an element who's only properties are various "valueString",
+     * "valueCodeableConcept", etc...
+     *
+     * @return bool
+     */
+    public function isVariadicValueElement()
+    {
+        if ($this->isPrimitive() || $this->isPrimitiveContainer() || $this->isList()) {
+            return false;
+        }
+        if (1 < count($this->properties)) {
+            foreach ($this->getProperties()->getIterator() as $property) {
+                $name = $property->getName();
+                if ('value' !== $name && 0 === strpos($property->getName(), 'value')) {
+                    continue;
+                }
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
