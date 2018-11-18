@@ -58,17 +58,16 @@ PHP;
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function returnStmt()
+    protected static function returnStmt(Config $config, Type $type)
     {
-        return <<<PHP
-        if (\$returnSXE) {
-            return \$sxe;
+        if (!$type->isPrimitive() && $type->hasParent()) {
+            return "        return parent::xmlSerialize(\$returnSXE, \$sxe);\n";
         }
-        return \$sxe->saveXML();
-
-PHP;
+        return "        return \$returnSXE ? \$sxe : \$sxe->saveXML();\n";
 
     }
 
@@ -79,6 +78,7 @@ PHP;
      */
     protected static function buildResourceContainerBody(Config $config, Type $type)
     {
+        // if munging, do not serialize the container directly
         if ($config->mustMunge()) {
             $out = '';
         } else {
@@ -104,7 +104,7 @@ PHP;
         } elseif (\$returnSXE) {
             return \$sxe;
         } else {
-            return \$sxe->saveXML();
+            return null === \$sxe ? '' : \$sxe->saveXML();
         }
 
 PHP;
@@ -125,30 +125,34 @@ PHP;
         );
         $out = <<<PHP
         if (null === \$sxe) {
-            // This looks weird, however under normal circumstances this case will never be hit.
-            \$sxe = new \SimpleXMLElement("<{$name} xmlns=\"{$ns}\" value=\"".(string)\$this."\">".(string)\$this."</{$name}>");
+            \$sxe = new \SimpleXMLElement('<{$name} xmlns="{$ns}" value="'.(string)\$this.'">'.(string)\$this.'</{$name}>');
         } else {
             \$sxe->addAttribute('value', (string)\$this);
         }
 
 PHP;
-        if ($type->isPrimitiveContainer() && $type->hasParent()) {
-            return $out . "        return parent::xmlSerialize(\$returnSXE, \$sxe);\n";
-        }
-        return $out . static::returnStmt();
+        return $out . static::returnStmt($config, $type);
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param bool $needsParentCall
      * @return string
      */
-    protected static function buildDefaultBody(Config $config, Type $type, $needsParentCall)
+    protected static function buildDefaultBody(Config $config, Type $type)
     {
         $out = static::buildSXE($type);
+        foreach ($type->getProperties()->getSortedIterator() as $property) {
+            $propName = $property->getName();
+            $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
+            $out .= <<<PHP
+        if (null !== (\$v = \$this->{$methodName}())) {
+            \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));
+        }
 
-        return $out . static::returnStmt();
+PHP;
+        }
+        return $out . static::returnStmt($config, $type);
     }
 
     /**
@@ -163,7 +167,7 @@ PHP;
         } elseif ($type->isResourceContainer()) {
             return static::buildResourceContainerBody($config, $type);
         } else {
-            return static::buildDefaultBody($config, $type, true);
+            return static::buildDefaultBody($config, $type);
         }
     }
 }

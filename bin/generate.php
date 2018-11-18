@@ -331,14 +331,13 @@ if (method_exists($log, LOG_LEVEL_SETTER_SETLOGLEVEL)) {
     } else {
         $log->setLevel(LogLevel::WARNING);
     }
-} else {
+} elseif (!($log instanceof NullLogger)) {
     echo sprintf(
         "Unable to set log level, class %s does not have a method named \"%s\" or \"%s\"\n",
         get_class($log),
         LOG_LEVEL_SETTER_SETLOGLEVEL,
         LOG_LEVEL_SETTER_SETLEVEL
     );
-    // TODO: complain about not being able to set a log level..?
 }
 
 // try to determine which config file to use...

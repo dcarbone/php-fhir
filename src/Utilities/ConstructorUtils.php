@@ -117,14 +117,17 @@ PHP;
      */
     public static function buildPrimitiveContainerBody(Config $config, Type $type)
     {
-        return <<<PHP
+        $out = <<<PHP
         if (is_scalar(\$data)) {
             \$this->setValue(\$data);
-            return;
-        }
 
-PHP
-            . self::buildDefaultBody($config, $type);
+PHP;
+        if ($type->hasParent()) {
+            $out .= <<<PHP
+            parent::__construct(\$data);
+PHP;
+        }
+        return $out . "\n            return;\n        }\n" . self::buildDefaultBody($config, $type);
     }
 
     /**

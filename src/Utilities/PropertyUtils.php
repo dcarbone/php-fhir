@@ -249,14 +249,4 @@ PHP;
         }
         return 'mixed';
     }
-
-    /**
-     *
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @return bool
-     */
-    public static function isVariadicValueElement(Type $type)
-    {
-
-    }
 }
