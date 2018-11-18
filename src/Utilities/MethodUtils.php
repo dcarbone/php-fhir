@@ -259,6 +259,7 @@ PHP;
     {
         return \$this->{$property->getName()};
     }
+
 PHP;
 
     }

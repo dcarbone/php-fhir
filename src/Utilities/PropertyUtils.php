@@ -127,7 +127,6 @@ abstract class PropertyUtils
             } else {
                 $out .= MethodUtils::createDefaultGetter($config, $type, $property);
             }
-            $out .= "\n";
         }
 
         return $out;
