@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Definition\Type\Property;
 
 /**
  * Class ConstructorUtils
@@ -27,6 +28,107 @@ use DCarbone\PHPFHIR\Definition\Type;
  */
 abstract class ConstructorUtils
 {
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
+    protected static function buildDefaultSetter(Config $config, Type $type, Property $property)
+    {
+        $name = $property->getName();
+        $method = 'set' . ucfirst($name);
+        $propertyType = $property->getValueType();
+        if (null === $propertyType) {
+            $config->getLogger()->error(sprintf(
+                'Cannot create setter for type %s property %s as it defines an unknown type %s',
+                $type->getFHIRName(),
+                $property->getName(),
+                $property->getFHIRTypeName()
+            ));
+            return '';
+        }
+        $propertyTypeClassName = $property->getValueType()->getClassName();
+        $typeFQN = $property->getValueType()->getFullyQualifiedClassName(true);
+
+        $out = <<<PHP
+                if (is_array(\$value)) {
+                    \$value = new {$propertyTypeClassName}(\$value);
+                } 
+PHP;
+        if ($propertyType->isPrimitive() || $propertyType->isPrimitiveContainer()) {
+            $out .= <<<PHP
+ elseif (is_scalar(\$value)) {
+                    \$value = new {$propertyTypeClassName}(\$value);
+                }
+PHP;
+        }
+        $out .= <<<PHP
+
+                if (!(\$value instanceof {$propertyTypeClassName})) {
+                    throw new \InvalidArgumentException("{$type->getFullyQualifiedClassName(true)}::__construct - Property \"{$name}\" must either be instance of {$typeFQN} or data to construct type, saw ".gettype(\$value)); 
+                }
+                \$this->{$method}(\$value);
+
+PHP;
+
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
+    protected static function buildCollectionSetter(Config $config, Type $type, Property $property)
+    {
+        $name = $property->getName();
+        $method = 'add' . ucfirst($name);
+        $propertyType = $property->getValueType();
+        if (null === $propertyType) {
+            $config->getLogger()->error(sprintf(
+                'Cannot create setter for type %s property %s as it defines an unknown type %s',
+                $type->getFHIRName(),
+                $property->getName(),
+                $property->getFHIRTypeName()
+            ));
+            return '';
+        }
+        $propertyTypeClassName = $property->getValueType()->getClassName();
+        $typeFQN = $property->getValueType()->getFullyQualifiedClassName(true);
+
+        $out = <<<PHP
+                if (is_array(\$value)) {
+                    foreach(\$value as \$i => \$v) {
+                        if (null === \$v) {
+                            continue;
+                        } elseif (is_array(\$v)) {
+                            \$v = new {$propertyTypeClassName}(\$v);
+                        } 
+PHP;
+        if ($propertyType->isPrimitive() || $propertyType->isPrimitiveContainer()) {
+            $out .= <<<PHP
+ elseif (is_scalar(\$v)) {
+                            \$v = new {$propertyTypeClassName}(\$v);
+                        }
+PHP;
+
+        }
+
+        $out .= <<<PHP
+
+                        if (!(\$v instanceof {$propertyTypeClassName})) {
+                            throw new \InvalidArgumentException("{$type->getFullyQualifiedClassName(true)}::__construct - Collection field \"{$name}\" offset {\$i} must either be instance of {$typeFQN} or data to construct type, saw ".gettype(\$v)); 
+                        }
+                        \$this->{$method}(\$v);
+                    }
+                }
+
+PHP;
+        return $out;
+    }
+
     /**
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
@@ -62,18 +164,18 @@ PHP;
 
 PHP;
         foreach ($properties->getSortedIterator() as $property) {
-            $name = $property->getName();
-            if ($property->isCollection()) {
-                $setter = 'add' . ucfirst($name);
-            } else {
-                $setter = 'set' . ucfirst($name);
-            }
             $out .= <<<PHP
-            if (isset(\$data['{$name}'])) {
-                \$this->{$setter}(\$data['{$name}']);
-            }
+            if (isset(\$data['{$property->getName()}'])) {
+                \$value = \$data['{$property->getName()}'];
 
 PHP;
+
+            if ($property->isCollection()) {
+                $out .= static::buildCollectionSetter($config, $type, $property);
+            } else {
+                $out .= static::buildDefaultSetter($config, $type, $property);
+            }
+            $out .= "            }\n";
         }
         $out .= <<<PHP
         } else if (null !== \$data) {
@@ -100,14 +202,17 @@ PHP;
      */
     public static function buildPrimitiveBody(Config $config, Type $type)
     {
-        return <<<PHP
+        $out = <<<PHP
         if (is_scalar(\$data)) {
             \$this->setValue(\$data);
         } elseif (is_array(\$data) && isset(\$data['value'])) {
             \$this->setValue(\$data['value']);
+        } elseif (null !== \$data) {
+            throw new \InvalidArgumentException('{$type->getFullyQualifiedClassName(true)}::__construct - Expected either scalar value or array with "value" key, saw '.gettype(\$data));
         }
 
 PHP;
+        return $out;
     }
 
     /**
@@ -120,14 +225,11 @@ PHP;
         $out = <<<PHP
         if (is_scalar(\$data)) {
             \$this->setValue(\$data);
+            return;
+        }
 
 PHP;
-        if ($type->hasParent()) {
-            $out .= <<<PHP
-            parent::__construct(\$data);
-PHP;
-        }
-        return $out . "\n            return;\n        }\n" . self::buildDefaultBody($config, $type);
+        return $out . self::buildDefaultBody($config, $type);
     }
 
     /**

@@ -40,6 +40,116 @@ abstract class ClassBuilder
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
+    protected static function buildPrimitiveTypeClass(Config $config, Types $types, Type $type)
+    {
+        $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
+        $out .= "\n";
+        $out .= ConstructorUtils::buildHeader($config, $type);
+        $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
+        $out .= "    }\n";
+        $out .= "\n";
+        $valueProperty = $type->getProperties()->getProperty('value');
+        $out .= MethodUtils::createPrimitiveTypeValueSetter($config, $type, $valueProperty);
+        $out .= "\n";
+        $out .= MethodUtils::createDefaultGetter($config, $type, $valueProperty);
+        $out .= "\n";
+        $out .= MethodUtils::buildToString($config, $type);
+        $out .= "\n";
+        $out .= JSONSerializeUtils::buildHeader($config, $type);
+        $out .= JSONSerializeUtils::buildBody($config, $type);
+        $out .= "    }\n\n";
+        $out .= XMLSerializeUtils::buildHeader($config, $type);
+        $out .= XMLSerializeUtils::buildBody($config, $type);
+        return $out . "    }\n";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    protected static function buildPrimitiveContainerTypeClass(Config $config, Types $types, Type $type)
+    {
+        $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
+        $out .= "\n";
+        $out .= ConstructorUtils::buildHeader($config, $type);
+        $out .= ConstructorUtils::buildPrimitiveContainerBody($config, $type);
+        $out .= "    }\n";
+        $out .= "\n";
+        $valueProperty = $type->getProperties()->getProperty('value');
+        $out .= MethodUtils::createPrimitiveSetter($config, $type, $valueProperty);
+        $out .= "\n";
+        $out .= MethodUtils::createDefaultGetter($config, $type, $valueProperty);
+        $out .= "\n";
+        $out .= MethodUtils::buildToString($config, $type);
+        $out .= "\n";
+        $out .= JSONSerializeUtils::buildHeader($config, $type);
+        $out .= JSONSerializeUtils::buildBody($config, $type);
+        $out .= "    }\n\n";
+        $out .= XMLSerializeUtils::buildHeader($config, $type);
+        $out .= XMLSerializeUtils::buildBody($config, $type);
+        return $out . "    }\n";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    protected static function buildResourceContainerOrInlineResourceTypeClass(Config $config, Types $types, Type $type)
+    {
+        $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
+        $out .= "\n";
+        $out .= ConstructorUtils::buildHeader($config, $type);
+        $out .= ConstructorUtils::buildResourceContainerBody($config, $type);
+        $out .= "    }\n";
+        $out .= "\n";
+        $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
+        $out .= "\n";
+        $out .= MethodUtils::buildToString($config, $type);
+        $out .= "\n";
+        $out .= JSONSerializeUtils::buildHeader($config, $type);
+        $out .= JSONSerializeUtils::buildBody($config, $type);
+        $out .= "    }\n\n";
+        $out .= XMLSerializeUtils::buildHeader($config, $type);
+        $out .= XMLSerializeUtils::buildBody($config, $type);
+        return $out . "    }\n";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    protected static function buildDefaultTypeClass(Config $config, Types $types, Type $type)
+    {
+        $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
+        $out .= "\n";
+        $out .= ConstructorUtils::buildHeader($config, $type);
+        $out .= ConstructorUtils::buildDefaultBody($config, $type);
+        $out .= "    }\n";
+        $out .= "\n";
+        $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
+        $out .= "\n";
+        $out .= MethodUtils::buildToString($config, $type);
+        $out .= "\n";
+        $out .= JSONSerializeUtils::buildHeader($config, $type);
+        $out .= JSONSerializeUtils::buildBody($config, $type);
+        $out .= "    }\n\n";
+        $out .= XMLSerializeUtils::buildHeader($config, $type);
+        $out .= XMLSerializeUtils::buildBody($config, $type);
+        return $out . "    }\n";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
     public static function generateTypeClass(Config $config, Types $types, Type $type)
     {
         $fqns = $type->getFullyQualifiedNamespace(false);
@@ -96,93 +206,15 @@ PHP;
         // are going to be basically empty.  This will changes when type checking and value validation are implemented
 
         if ($type->isPrimitive()) {
-            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
-            $out .= "\n";
-            $out .= ConstructorUtils::buildHeader($config, $type);
-            $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
-            $out .= "    }\n";
-            $out .= "\n";
-            $valueProperty = $type->getProperties()->getProperty('value');
-            $out .= MethodUtils::createPrimitiveTypeValueSetter($config, $type, $valueProperty);
-            $out .= "\n";
-            $out .= MethodUtils::createDefaultGetter($config, $type, $valueProperty);
-            $out .= "\n";
-            $out .= MethodUtils::buildToString($config, $type);
-            $out .= "\n";
-            $out .= JSONSerializeUtils::buildHeader($config, $type);
-            $out .= JSONSerializeUtils::buildBody($config, $type);
-            $out .= "    }\n\n";
-            $out .= XMLSerializeUtils::buildHeader($config, $type);
-            $out .= XMLSerializeUtils::buildBody($config, $type);
-            $out .= "    }\n";
+            $out .= static::buildPrimitiveTypeClass($config, $types, $type);
         } elseif (!$type->hasPrimitiveParent() && $type->isPrimitiveContainer()) {
-            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
-            $out .= "\n";
-            $out .= ConstructorUtils::buildHeader($config, $type);
-            $out .= ConstructorUtils::buildPrimitiveContainerBody($config, $type);
-            $out .= "    }\n";
-            $out .= "\n";
-            $valueProperty = $type->getProperties()->getProperty('value');
-            $out .= MethodUtils::createPrimitiveSetter($config, $type, $valueProperty);
-            $out .= "\n";
-            $out .= MethodUtils::createDefaultGetter($config, $type, $valueProperty);
-            $out .= "\n";
-            $out .= MethodUtils::buildToString($config, $type);
-            $out .= "\n";
-            $out .= JSONSerializeUtils::buildHeader($config, $type);
-            $out .= JSONSerializeUtils::buildBody($config, $type);
-            $out .= "    }\n\n";
-            $out .= XMLSerializeUtils::buildHeader($config, $type);
-            $out .= XMLSerializeUtils::buildBody($config, $type);
-            $out .= "    }\n";
+            $out .= static::buildPrimitiveContainerTypeClass($config, $types, $type);
         } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
-            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
-            $out .= "\n";
-            $out .= ConstructorUtils::buildHeader($config, $type);
-            $out .= ConstructorUtils::buildResourceContainerBody($config, $type);
-            $out .= "    }\n";
-            $out .= "\n";
-            $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
-            $out .= "\n";
-            $out .= MethodUtils::buildToString($config, $type);
-            $out .= "\n";
-            $out .= JSONSerializeUtils::buildHeader($config, $type);
-            $out .= JSONSerializeUtils::buildBody($config, $type);
-            $out .= "    }\n\n";
-            $out .= XMLSerializeUtils::buildHeader($config, $type);
-            $out .= XMLSerializeUtils::buildBody($config, $type);
-            $out .= "    }\n";
+            $out .= static::buildResourceContainerOrInlineResourceTypeClass($config, $types, $type);
         } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
-            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
-            $out .= "\n";
-            $out .= ConstructorUtils::buildHeader($config, $type);
-            $out .= ConstructorUtils::buildDefaultBody($config, $type);
-            $out .= "    }\n";
-            $out .= "\n";
-            $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
-            $out .= "\n";
-            $out .= MethodUtils::buildToString($config, $type);
-            $out .= "\n";
-            $out .= JSONSerializeUtils::buildHeader($config, $type);
-            $out .= JSONSerializeUtils::buildBody($config, $type);
-            $out .= "    }\n\n";
-            $out .= XMLSerializeUtils::buildHeader($config, $type);
-            $out .= XMLSerializeUtils::buildBody($config, $type);
-            $out .= "    }\n";
+            $out .= static::buildDefaultTypeClass($config, $types, $type);
         }
 
         return $out . '}';
     }
-
-//    /**
-//     * @param \DCarbone\PHPFHIR\Config $config
-//     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate $classTemplate
-//     */
-//    public static function addBaseClassMethods(Config $config, ClassTemplate $classTemplate)
-//    {
-//        MethodGenerator::implementConstructor($config, $classTemplate);
-//        MethodGenerator::implementToString($config, $classTemplate);
-//        MethodGenerator::implementJsonSerialize($config, $classTemplate);
-//        MethodGenerator::implementXMLSerialize($config, $classTemplate);
-//    }
 }
