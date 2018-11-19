@@ -157,7 +157,6 @@ PHP;
     public static function buildDefaultBody(Config $config, Type $type)
     {
         $properties = $type->getProperties();
-
         $out = '';
         $out .= <<<PHP
         if (is_array(\$data)) {

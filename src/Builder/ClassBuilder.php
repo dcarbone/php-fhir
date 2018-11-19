@@ -126,15 +126,18 @@ abstract class ClassBuilder
      */
     protected static function buildDefaultTypeClass(Config $config, Types $types, Type $type)
     {
-        $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
-        $out .= "\n";
-        $out .= ConstructorUtils::buildHeader($config, $type);
-        $out .= ConstructorUtils::buildDefaultBody($config, $type);
-        $out .= "    }\n";
-        $out .= "\n";
-        $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
-        $out .= "\n";
-        $out .= MethodUtils::buildToString($config, $type);
+        $out = '';
+        if (0 < count($type->getProperties())) {
+            $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
+            $out .= "\n";
+            $out .= ConstructorUtils::buildHeader($config, $type);
+            $out .= ConstructorUtils::buildDefaultBody($config, $type);
+            $out .= "    }\n";
+            $out .= "\n";
+            $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
+            $out .= "\n";
+            $out .= MethodUtils::buildToString($config, $type);
+        }
         $out .= "\n";
         $out .= JSONSerializeUtils::buildHeader($config, $type);
         $out .= JSONSerializeUtils::buildBody($config, $type);
@@ -201,9 +204,6 @@ PHP;
     const FHIR_TYPE_NAME = '{$type->getFHIRName()}';
 
 PHP;
-
-        // TODO: for the moment, types that extend primitive types (string-primitive) or primitive container types (string)
-        // are going to be basically empty.  This will changes when type checking and value validation are implemented
 
         if ($type->isPrimitive()) {
             $out .= static::buildPrimitiveTypeClass($config, $types, $type);

@@ -144,13 +144,30 @@ PHP;
         $out = static::buildSXE($type);
         foreach ($type->getProperties()->getSortedIterator() as $property) {
             $propName = $property->getName();
+            $propType = $property->getValueType();
+            if (null === $propType) {
+                $config->getLogger()->error(sprintf(
+                    'Unable to generate "xmlSerialize" output for type %s field %s as it specifies unknown type %s',
+                    $type->getFHIRName(),
+                    $propName,
+                    $property->getFHIRTypeName()
+                ));
+                continue;
+            }
             $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
             if ($property->isCollection()) {
                 $out .= <<<PHP
         if (0 < count(\$values = \$this->{$methodName}())) {
             foreach(\$values as \$v) {
                 if (null !== \$v) {
-                    \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));
+
+PHP;
+                if ($config->mustMunge() && ($propType->isPrimitive() || $propType->isPrimitiveContainer())) {
+                    $out .= "                   \$sxe->addAttribute('{$propName}', (string)\$v);\n";
+                } else {
+                    $out .= "                   \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));\n";
+                }
+                $out .= <<<PHP
                 }
             }
         }
@@ -160,10 +177,14 @@ PHP;
             } else {
                 $out .= <<<PHP
         if (null !== (\$v = \$this->{$methodName}())) {
-            \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));
-        }
 
 PHP;
+                if ($config->mustMunge() && ($propType->isPrimitive() || $propType->isPrimitiveContainer())) {
+                    $out .= "           \$sxe->addAttribute('{$propName}', (string)\$v);\n";
+                } else {
+                    $out .= "           \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));\n";
+                }
+                $out .= "        }\n";
             }
         }
         return $out . static::returnStmt($config, $type);
