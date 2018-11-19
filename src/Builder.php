@@ -32,6 +32,9 @@ class Builder
     /** @var \DCarbone\PHPFHIR\Definition */
     protected $definition;
 
+    /** @var \DCarbone\PHPFHIR\Logger */
+    private $log;
+
     /**
      * Generator constructor.
      * @param \DCarbone\PHPFHIR\Config $config
@@ -41,6 +44,7 @@ class Builder
     {
         $this->config = $config;
         $this->definition = $definition;
+        $this->log = $config->getLogger();
     }
 
     /**
@@ -57,8 +61,7 @@ class Builder
         foreach ($this->definition->getTypes()->getIterator() as $type) {
             $this->config->getLogger()->debug("Generating class for element {$type}...");
             $classDefinition = ClassBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
-            FileUtils::createDirsFromNS($type->getFullyQualifiedNamespace(false), $this->config);
-            if (!(bool)file_put_contents(FileUtils::buildFilePath($this->config, $type), $classDefinition)) {
+            if (!(bool)file_put_contents(FileUtils::buildTypeFilePath($this->config, $type), $classDefinition)) {
                 throw new \RuntimeException(sprintf(
                     'Unable to write Type %s',
                     $type
@@ -84,8 +87,9 @@ class Builder
     protected function beforeGeneration()
     {
         // Initialize some classes and things.
-        $this->config->getLogger()->startBreak('Generator Class Initialization');
-        self::_initializeClasses($this->config);
+        $this->log->startBreak('Generator Class Initialization');
+        $this->log->info('Compiling Copyrights...');
+        CopyrightUtils::compileCopyrights($this->config);
 
 //        $this->autoloadMap = new AutoloaderTemplate($this->config);
 //
@@ -102,19 +106,7 @@ class Builder
 //            $helperTemplate->getClassPath()
 //        );
 
-        $this->config->getLogger()->endBreak('Generator Class Initialization');
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     */
-    private static function _initializeClasses(Config $config)
-    {
-        $config->getLogger()->info('Compiling Copyrights...');
-        CopyrightUtils::compileCopyrights($config);
-
-        $config->getLogger()->info('Creating root directory...');
-        FileUtils::createDirsFromNS($config->getOutputNamespace(), $config);
+        $this->log->endBreak('Generator Class Initialization');
     }
 
     /**

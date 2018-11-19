@@ -48,9 +48,6 @@ class Config implements LoggerAwareInterface
     /** @var bool */
     private $munge = false;
 
-    /** @var array */
-    private $xmlSerializationAttributeOverrides = [];
-
     /**
      * Config constructor.
      * @param array $conf
@@ -140,48 +137,6 @@ class Config implements LoggerAwareInterface
         }
         $this->outputPath = $outputPath;
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getXmlSerializationAttributeOverrides()
-    {
-        return $this->xmlSerializationAttributeOverrides;
-    }
-
-    /**
-     * @param array $xmlSerializationAttributeOverrides
-     * @return $this
-     */
-    public function setXmlSerializationAttributeOverrides(array $xmlSerializationAttributeOverrides)
-    {
-        $this->xmlSerializationAttributeOverrides = [];
-        foreach ($xmlSerializationAttributeOverrides as $k => $v) {
-            $this->setXmlSerializationAttributeOverride($k, $v);
-        }
-        return $this;
-    }
-
-    /**
-     * @param string $elementName
-     * @param string $propertyName
-     * @return $this
-     */
-    public function setXmlSerializationAttributeOverride($elementName, $propertyName)
-    {
-        $this->xmlSerializationAttributeOverrides[$elementName] = $propertyName;
-        return $this;
-    }
-
-    /**
-     * @param string $elementName
-     * @param string $attributeName
-     * @return bool
-     */
-    public function getXmlSerializationAttributeOverride($elementName, $attributeName)
-    {
-        return isset($this->xmlSerializationAttributeOverrides[$elementName]) && $this->xmlSerializationAttributeOverrides[$elementName] === $attributeName;
     }
 
     /**

@@ -26,19 +26,19 @@ use DCarbone\PHPFHIR\Definition\Type;
 abstract class FileUtils
 {
     /**
-     * @param string $namespace
      * @param \DCarbone\PHPFHIR\Config $config
+     * @param string $pathSuffix
+     * @return string
      */
-    public static function createDirsFromNS($namespace, Config $config)
+    public static function mkdirRecurse(Config $config, $pathSuffix)
     {
-        if ('\\' === $namespace) {
-            $config->getLogger()->debug('Skipping dir creation for root namespace.');
-            return;
-        }
-
-        $path = rtrim(trim($config->getOutputPath()), "/\\");
-        foreach (explode('\\', $namespace) as $dirName) {
-            $path = sprintf('%s/%s', $path, $dirName);
+        $path = $config->getOutputPath();
+        foreach (explode('/', str_replace('\\', '/', $pathSuffix)) as $dir) {
+            $dir = trim($dir, "/");
+            if ('' === $dir) {
+                continue;
+            }
+            $path .= "/{$dir}";
             if (is_dir($path)) {
                 $config->getLogger()->debug(sprintf('Directory at path "%s" already exists.', $path));
             } else {
@@ -50,15 +50,7 @@ abstract class FileUtils
                 }
             }
         }
-    }
-
-    /**
-     * @param string $namespace
-     * @return string
-     */
-    public static function buildDirPathFromNS($namespace)
-    {
-        return preg_replace(['{[\\\]}S', '{[/]{2,}}S'], '/', trim($namespace, "\\"));
+        return $path;
     }
 
     /**
@@ -66,9 +58,15 @@ abstract class FileUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildFilePath(Config $config, Type $type)
+    public static function buildTypeFilePath(Config $config, Type $type)
     {
-        $fp = static::buildDirPathFromNS($type->getFullyQualifiedNamespace(true));
-        return "{$config->getOutputPath()}/{$fp}/{$type->getClassName()}.php";
+        return static::mkdirRecurse(
+                $config,
+                preg_replace(
+                    ['{[\\\]}S', '{[/]{2,}}S'],
+                    '/',
+                    $type->getFullyQualifiedNamespace(false)
+                )
+            ) . "/{$type->getClassName()}.php";
     }
 }
