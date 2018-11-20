@@ -111,11 +111,10 @@ abstract class PropertyUtils
             if ('' !== $out) {
                 $out .= "\n";
             }
-            if ($propType->isPrimitive() ||
-                $propType->hasPrimitiveParent() ||
-                $propType->isPrimitiveContainer() ||
-                $propType->hasPrimitiveContainerParent()) {
+            if ($propType->isPrimitive() || $propType->hasPrimitiveParent()) {
                 $out .= MethodUtils::createPrimitiveSetter($config, $type, $property);
+            } elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) {
+                $out .= MethodUtils::createPrimitiveContainerSetter($config, $type, $property);
             } elseif ($propType->isResourceContainer() || $propType->isInlineResource()) {
                 $out .= MethodUtils::createResourceContainerSetter($config, $type, $property);
             } else {

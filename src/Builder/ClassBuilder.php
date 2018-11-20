@@ -78,7 +78,7 @@ abstract class ClassBuilder
         $out .= "    }\n";
         $out .= "\n";
         $valueProperty = $type->getProperties()->getProperty('value');
-        $out .= MethodUtils::createPrimitiveSetter($config, $type, $valueProperty);
+        $out .= MethodUtils::createPrimitiveContainerSetter($config, $type, $valueProperty);
         $out .= "\n";
         $out .= MethodUtils::createDefaultGetter($config, $type, $valueProperty);
         $out .= "\n";

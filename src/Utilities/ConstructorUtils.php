@@ -51,27 +51,24 @@ abstract class ConstructorUtils
         $propertyTypeClassName = $property->getValueType()->getClassName();
         $typeFQN = $property->getValueType()->getFullyQualifiedClassName(true);
 
-        $out = <<<PHP
+        if ($propertyType->isPrimitive() || $propertyType->isPrimitiveContainer()) {
+            $out = <<<PHP
+                \$this->{$method}(\$value);
+
+PHP;
+
+        } else {
+            $out = <<<PHP
                 if (is_array(\$value)) {
                     \$value = new {$propertyTypeClassName}(\$value);
-                } 
-PHP;
-        if ($propertyType->isPrimitive() || $propertyType->isPrimitiveContainer()) {
-            $out .= <<<PHP
- elseif (is_scalar(\$value)) {
-                    \$value = new {$propertyTypeClassName}(\$value);
                 }
-PHP;
-        }
-        $out .= <<<PHP
-
                 if (!(\$value instanceof {$propertyTypeClassName})) {
                     throw new \InvalidArgumentException("{$type->getFullyQualifiedClassName(true)}::__construct - Property \"{$name}\" must either be instance of {$typeFQN} or data to construct type, saw ".gettype(\$value)); 
                 }
                 \$this->{$method}(\$value);
 
 PHP;
-
+        }
         return $out;
     }
 
@@ -96,30 +93,15 @@ PHP;
             return '';
         }
         $propertyTypeClassName = $property->getValueType()->getClassName();
-        $typeFQN = $property->getValueType()->getFullyQualifiedClassName(true);
 
         $out = <<<PHP
                 if (is_array(\$value)) {
                     foreach(\$value as \$i => \$v) {
                         if (null === \$v) {
                             continue;
-                        } elseif (is_array(\$v)) {
-                            \$v = new {$propertyTypeClassName}(\$v);
-                        } 
-PHP;
-        if ($propertyType->isPrimitive() || $propertyType->isPrimitiveContainer()) {
-            $out .= <<<PHP
- elseif (is_scalar(\$v)) {
-                            \$v = new {$propertyTypeClassName}(\$v);
                         }
-PHP;
-
-        }
-
-        $out .= <<<PHP
-
                         if (!(\$v instanceof {$propertyTypeClassName})) {
-                            throw new \InvalidArgumentException("{$type->getFullyQualifiedClassName(true)}::__construct - Collection field \"{$name}\" offset {\$i} must either be instance of {$typeFQN} or data to construct type, saw ".gettype(\$v)); 
+                            \$this->{$method}(new {$propertyTypeClassName}(\$v));
                         }
                         \$this->{$method}(\$v);
                     }
