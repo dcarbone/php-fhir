@@ -49,23 +49,16 @@ abstract class ConstructorUtils
             return '';
         }
         $propertyTypeClassName = $property->getValueType()->getClassName();
-        $typeFQN = $property->getValueType()->getFullyQualifiedClassName(true);
 
         if ($propertyType->isPrimitive() || $propertyType->isPrimitiveContainer()) {
             $out = <<<PHP
-                \$this->{$method}(\$value);
+                \$this->{$method}(\$data['{$property->getName()}']);
 
 PHP;
 
         } else {
             $out = <<<PHP
-                if (is_array(\$value)) {
-                    \$value = new {$propertyTypeClassName}(\$value);
-                }
-                if (!(\$value instanceof {$propertyTypeClassName})) {
-                    throw new \InvalidArgumentException("{$type->getFullyQualifiedClassName(true)}::__construct - Property \"{$name}\" must either be instance of {$typeFQN} or data to construct type, saw ".gettype(\$value)); 
-                }
-                \$this->{$method}(\$value);
+                \$this->{$method}((\$data['{$property->getName()}'] instanceof {$propertyTypeClassName}) ? \$data['{$property->getName()}'] : new {$propertyTypeClassName}(\$data['{$property->getName()}']));
 
 PHP;
         }
@@ -93,10 +86,9 @@ PHP;
             return '';
         }
         $propertyTypeClassName = $property->getValueType()->getClassName();
-
         $out = <<<PHP
-                if (is_array(\$value)) {
-                    foreach(\$value as \$i => \$v) {
+                if (is_array(\$data['{$property->getName()}'])) {
+                    foreach(\$data['{$property->getName()}'] as \$i => \$v) {
                         if (null === \$v) {
                             continue;
                         }
@@ -147,7 +139,6 @@ PHP;
         foreach ($properties->getSortedIterator() as $property) {
             $out .= <<<PHP
             if (isset(\$data['{$property->getName()}'])) {
-                \$value = \$data['{$property->getName()}'];
 
 PHP;
 
