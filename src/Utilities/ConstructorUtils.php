@@ -28,6 +28,13 @@ use DCarbone\PHPFHIR\Definition\Type\Property;
  */
 abstract class ConstructorUtils
 {
+    const NULL_STMT = <<<PHP
+        if (null === \$data) {
+            return;
+        }
+PHP;
+
+
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
@@ -109,7 +116,7 @@ PHP;
     {
 
 PHP;
-        return $out;
+        return $out . self::NULL_STMT;
     }
 
     /**
@@ -139,7 +146,7 @@ PHP;
             $out .= "            }\n";
         }
         $out .= <<<PHP
-        } else if (null !== \$data) {
+        } else {
             throw new \InvalidArgumentException(
                 '{$type->getFullyQualifiedClassName(true)}::__construct - Argument 1 expected to be array or null, '.
                 gettype(\$data).
@@ -164,11 +171,12 @@ PHP;
     public static function buildPrimitiveBody(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
+
         if (is_scalar(\$data)) {
             \$this->setValue(\$data);
         } elseif (is_array(\$data) && isset(\$data['value'])) {
             \$this->setValue(\$data['value']);
-        } elseif (null !== \$data) {
+        } else {
             throw new \InvalidArgumentException('{$type->getFullyQualifiedClassName(true)}::__construct - Expected either scalar value or array with "value" key, saw '.gettype(\$data));
         }
 
@@ -184,6 +192,7 @@ PHP;
     public static function buildPrimitiveContainerBody(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
+
         if (is_scalar(\$data)) {
             \$this->setValue(\$data);
             return;
@@ -201,7 +210,8 @@ PHP;
     public static function buildResourceContainerBody(VersionConfig $config, Type $type)
     {
         return <<<PHP
-        if (is_array(\$data)) {
+        
+ elseif (is_array(\$data)) {
             \$key = key(\$data);
             if (!is_string(\$key)) {
                 throw new \InvalidArgumentException(sprintf(
@@ -210,9 +220,9 @@ PHP;
                 ));
             }
             \$this->{"set{\$key}"}(current(\$data));
-        } else if (is_object(\$data)) {
+        } elseif (is_object(\$data)) {
             \$this->{sprintf('set%s', substr(strrchr(get_class(\$data), 'FHIR'), 4))}(\$data);
-        } else if (null !== \$data) {
+        } else {
             throw new \InvalidArgumentException(sprintf(
                 '{$type->getFullyQualifiedClassName(true)}::__construct - \$data must be an array, an object, or null.  %s seen.',
                 gettype(\$data)

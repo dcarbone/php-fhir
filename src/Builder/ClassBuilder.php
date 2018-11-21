@@ -133,6 +133,7 @@ abstract class ClassBuilder
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
             $out .= ConstructorUtils::buildHeader($config, $type);
+            $out .= "\n";
             $out .= ConstructorUtils::buildDefaultBody($config, $type);
             $out .= "    }\n";
             $out .= "\n";
