@@ -55,15 +55,23 @@ PHP;
         return $out;
     }
 
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
     public static function buildPrimitiveBody(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
-        \$attributes = \$sxe->attributes();
-        if (\$attributes && isset(\$attributes['value'])) {
-            return new static((string)\$attributes['value']);
+        if (null !== (\$v = \$sxe->attributes()->value)) {
+            return new static((string)\$v);
         }
-        if (
-PHP;
+        if ('' !== (\$v = (string)\$sxe->children()->value)) {
+            return new static(\$v);
+        }
+        return null;
 
+PHP;
+        return $out;
     }
 }

@@ -27,6 +27,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\NSUtils;
 use DCarbone\PHPFHIR\Utilities\PropertyUtils;
 use DCarbone\PHPFHIR\Utilities\XMLSerializeUtils;
+use DCarbone\PHPFHIR\Utilities\XMLUnserializeUtils;
 
 /**
  * Class ClassGenerator
@@ -46,8 +47,10 @@ abstract class ClassBuilder
         $out .= "\n";
         $out .= ConstructorUtils::buildHeader($config, $type);
         $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
-        $out .= "    }\n";
-        $out .= "\n";
+        $out .= "    }\n\n";
+        $out .= XMLUnserializeUtils::buildHeader($config, $type);
+        $out .= XMLUnserializeUtils::buildPrimitiveBody($config, $type);
+        $out .= "    }\n\n";
         $valueProperty = $type->getProperties()->getProperty('value');
         $out .= MethodUtils::createPrimitiveTypeValueSetter($config, $type, $valueProperty);
         $out .= "\n";
