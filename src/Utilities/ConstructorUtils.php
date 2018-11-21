@@ -28,13 +28,6 @@ use DCarbone\PHPFHIR\Definition\Type\Property;
  */
 abstract class ConstructorUtils
 {
-    const NULL_STMT = <<<PHP
-        if (null === \$data) {
-            return;
-        }
-PHP;
-
-
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
@@ -114,9 +107,11 @@ PHP;
      */
     public function __construct(\$data = null)
     {
-
+        if (null === \$data) {
+            return;
+        }
 PHP;
-        return $out . self::NULL_STMT;
+        return $out;
     }
 
     /**
