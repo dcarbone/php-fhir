@@ -80,6 +80,15 @@ PHP;
         $varName = NameUtils::getPropertyVariableName($propName);
         $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
         $propType = $property->getValueType();
+        if (null === $propType) {
+            $config->getLogger()->error(sprintf(
+                'Cannot create setter for Type %s field %s as it references unknown type %s',
+                $type->getFHIRName(),
+                $property->getName(),
+                $property->getFHIRTypeName()
+            ));
+            return '';
+        }
         $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(

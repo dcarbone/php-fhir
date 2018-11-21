@@ -50,18 +50,10 @@ abstract class ConstructorUtils
         }
         $propertyTypeClassName = $property->getValueType()->getClassName();
 
-        if ($propertyType->isPrimitive() || $propertyType->isPrimitiveContainer()) {
-            $out = <<<PHP
-                \$this->{$method}(\$data['{$property->getName()}']);
-
-PHP;
-
-        } else {
-            $out = <<<PHP
+        $out = <<<PHP
                 \$this->{$method}((\$data['{$property->getName()}'] instanceof {$propertyTypeClassName}) ? \$data['{$property->getName()}'] : new {$propertyTypeClassName}(\$data['{$property->getName()}']));
 
 PHP;
-        }
         return $out;
     }
 

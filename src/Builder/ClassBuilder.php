@@ -98,7 +98,9 @@ abstract class ClassBuilder
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildResourceContainerOrInlineResourceTypeClass(VersionConfig $config, Types $types, Type $type)
+    protected static function buildResourceContainerOrInlineResourceTypeClass(VersionConfig $config,
+                                                                              Types $types,
+                                                                              Type $type)
     {
         $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
         $out .= "\n";
@@ -207,7 +209,7 @@ PHP;
 
         if ($type->isPrimitive()) {
             $out .= static::buildPrimitiveTypeClass($config, $types, $type);
-        } elseif (!$type->hasPrimitiveParent() && $type->isPrimitiveContainer()) {
+        } elseif ($type->isPrimitiveContainer()) {
             $out .= static::buildPrimitiveContainerTypeClass($config, $types, $type);
         } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
             $out .= static::buildResourceContainerOrInlineResourceTypeClass($config, $types, $type);
