@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Definition\Type;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
@@ -41,10 +41,10 @@ class Properties implements \Countable
 
     /**
      * TypeProperties constructor.
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      */
-    public function __construct(Config $config, Type $type)
+    public function __construct(VersionConfig $config, Type $type)
     {
         $this->config = $config;
         $this->type = $type;

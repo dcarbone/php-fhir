@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Type\Property;
 
@@ -29,12 +29,12 @@ use DCarbone\PHPFHIR\Definition\Type\Property;
 abstract class MethodUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createPrimitiveSetter(Config $config, Type $type, Property $property)
+    public static function createPrimitiveSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
@@ -52,7 +52,7 @@ abstract class MethodUtils
 
         $out = <<<PHP
     /**
-     * @param null|{$phpType}
+{$property->getDocBlockDocumentationFragment()}     * @param null|{$phpType}
      * @return \$this
      */
     public function {$methodName} ({$varName})
@@ -69,12 +69,12 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createPrimitiveContainerSetter(Config $config, Type $type, Property $property)
+    public static function createPrimitiveContainerSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
@@ -91,10 +91,10 @@ PHP;
         }
         $out = <<<PHP
     /**
-     * @param null|array|{$phpType}
+{$property->getDocBlockDocumentationFragment()}     * @param null|array|{$phpType}
      * @return \$this
      */
-    public function {$methodName} ({$varName})
+    public function {$methodName}({$varName})
     {
         if (!({$varName} instanceof {$propType->getClassName()})) {
             {$varName} = new {$propType->getClassName()}({$varName});
@@ -117,12 +117,12 @@ PHP;
     /**
      * TODO: Implement value type, pattern, and/or allowable value check(s)
      *
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createPrimitiveTypeValueSetter(Config $config, Type $type, Property $property)
+    public static function createPrimitiveTypeValueSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
@@ -138,8 +138,7 @@ PHP;
         }
         return <<<PHP
     /**
-{$property->getDocBlockDocumentationFragment()}
-     * @param null|{$phpType}
+{$property->getDocBlockDocumentationFragment()}     * @param null|{$phpType}
      * @return \$this
      */
     public function {$methodName} ($varName)
@@ -154,12 +153,12 @@ PHP;
     /**
      * Used for both DSTU1 Resource.Inline and DSTU2+ ResourceContainer
      *
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createResourceContainerSetter(Config $config, Type $type, Property $property)
+    public static function createResourceContainerSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
@@ -217,12 +216,12 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createDefaultSetter(Config $config, Type $type, Property $property)
+    public static function createDefaultSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
         $propType = $property->getValueType();
@@ -262,12 +261,12 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createDefaultGetter(Config $config, Type $type, Property $property)
+    public static function createDefaultGetter(VersionConfig $config, Type $type, Property $property)
     {
         $collection = $property->isCollection() ? '[]' : '';
         $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
@@ -296,12 +295,12 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function createResourceContainerGetter(Config $config, Type $type, Property $property)
+    public static function createResourceContainerGetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
         $propType = $property->getValueType();
@@ -316,8 +315,7 @@ PHP;
         }
         $out = <<<PHP
     /**
-{$property->getDocBlockDocumentationFragment()},
-     * @return null|mixed
+{$property->getDocBlockDocumentationFragment()}     * @return null|mixed
      */
     public function {$methodName}()
     {
@@ -345,11 +343,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildToString(Config $config, Type $type)
+    public static function buildToString(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
     /**

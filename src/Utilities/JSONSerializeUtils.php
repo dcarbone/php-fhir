@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
@@ -28,21 +28,21 @@ use DCarbone\PHPFHIR\Definition\Type;
 abstract class JSONSerializeUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildHeader(Config $config, Type $type)
+    public static function buildHeader(VersionConfig $config, Type $type)
     {
         return PHPFHIR_DEFAULT_JSON_SERIALIZE_HEADER;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildResourceContainerBody(Config $config, Type $type)
+    protected static function buildResourceContainerBody(VersionConfig $config, Type $type)
     {
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $i => $property) {
@@ -64,11 +64,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildPrimitiveBody(Config $config, Type $type)
+    protected static function buildPrimitiveBody(VersionConfig $config, Type $type)
     {
         return <<<PHP
         return \$this->getValue();
@@ -78,11 +78,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildParentCall(Config $config, Type $type)
+    protected static function buildParentCall(VersionConfig $config, Type $type)
     {
         $out = '        $a = ';
         if ($parentType = $type->getParentType()) {
@@ -100,14 +100,14 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildPrimitiveContainerBody(Config $config, Type $type)
+    protected static function buildPrimitiveContainerBody(VersionConfig $config, Type $type)
     {
         $out = static::buildParentCall($config, $type);
-        if ($config->mustMunge()) {
+        if ($config->mustSquashPrimitives()) {
             $properties = $type->getProperties()->getSortedIterator();
             $out .= '        if (0 === count($a) && null !== ($v = $this->getValue())';
             if (1 < count($properties)) {
@@ -131,12 +131,12 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param bool $needsParentCall
      * @return string
      */
-    protected static function buildDefaultBody(Config $config, Type $type, $needsParentCall)
+    protected static function buildDefaultBody(VersionConfig $config, Type $type, $needsParentCall)
     {
         if ($needsParentCall) {
             $out = static::buildParentCall($config, $type);
@@ -153,11 +153,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildBody(Config $config, Type $type)
+    public static function buildBody(VersionConfig $config, Type $type)
     {
         if ($type->isPrimitive()) {
             return static::buildPrimitiveBody($config, $type);

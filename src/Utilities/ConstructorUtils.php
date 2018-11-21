@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Type\Property;
 
@@ -29,12 +29,12 @@ use DCarbone\PHPFHIR\Definition\Type\Property;
 abstract class ConstructorUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    protected static function buildDefaultSetter(Config $config, Type $type, Property $property)
+    protected static function buildDefaultSetter(VersionConfig $config, Type $type, Property $property)
     {
         $name = $property->getName();
         $method = 'set' . ucfirst($name);
@@ -66,12 +66,12 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    protected static function buildCollectionSetter(Config $config, Type $type, Property $property)
+    protected static function buildCollectionSetter(VersionConfig $config, Type $type, Property $property)
     {
         $name = $property->getName();
         $method = 'add' . ucfirst($name);
@@ -92,10 +92,7 @@ PHP;
                         if (null === \$v) {
                             continue;
                         }
-                        if (!(\$v instanceof {$propertyTypeClassName})) {
-                            \$this->{$method}(new {$propertyTypeClassName}(\$v));
-                        }
-                        \$this->{$method}(\$v);
+                        \$this->{$method}((\$v instanceof {$propertyTypeClassName}) ? \$v : new {$propertyTypeClassName}(\$v));
                     }
                 }
 
@@ -104,11 +101,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildHeader(Config $config, Type $type)
+    public static function buildHeader(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
     /**
@@ -124,11 +121,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildDefaultBody(Config $config, Type $type)
+    public static function buildDefaultBody(VersionConfig $config, Type $type)
     {
         $properties = $type->getProperties();
         $out = '';
@@ -168,11 +165,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildPrimitiveBody(Config $config, Type $type)
+    public static function buildPrimitiveBody(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
         if (is_scalar(\$data)) {
@@ -188,11 +185,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildPrimitiveContainerBody(Config $config, Type $type)
+    public static function buildPrimitiveContainerBody(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
         if (is_scalar(\$data)) {
@@ -205,11 +202,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildResourceContainerBody(Config $config, Type $type)
+    public static function buildResourceContainerBody(VersionConfig $config, Type $type)
     {
         return <<<PHP
         if (is_array(\$data)) {

@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Type\Property;
 use DCarbone\PHPFHIR\Definition\Types;
@@ -30,13 +30,13 @@ use DCarbone\PHPFHIR\Definition\Types;
 abstract class PropertyUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return bool
      */
-    public static function isPropertyImplementedByParent(Config $config,
+    public static function isPropertyImplementedByParent(VersionConfig $config,
                                                          Types $types,
                                                          Type $type,
                                                          Property $property)
@@ -56,11 +56,11 @@ abstract class PropertyUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildClassPropertyDeclarations(Config $config, Type $type)
+    public static function buildClassPropertyDeclarations(VersionConfig $config, Type $type)
     {
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $property) {
@@ -85,12 +85,12 @@ abstract class PropertyUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildClassPropertyMethods(Config $config, Types $types, Type $type)
+    public static function buildClassPropertyMethods(VersionConfig $config, Types $types, Type $type)
     {
         $sortedProperties = $type->getProperties()->getSortedIterator();
 
@@ -132,12 +132,12 @@ abstract class PropertyUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function buildPrimitiveJSONMarshalStatement(Config $config, Type $type, Property $property)
+    public static function buildPrimitiveJSONMarshalStatement(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
         $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
@@ -150,7 +150,7 @@ abstract class PropertyUtils
                 if (null !== \$v) {
 
 PHP;
-            if ($config->mustMunge()) {
+            if ($config->mustSquashPrimitives()) {
                 $out .= <<<PHP
                     if (null !== (\$vv = \$v->getValue())) {
                         \$vs[] = \$vv;
@@ -171,7 +171,7 @@ PHP;
     }
 
 PHP;
-        } elseif ($config->mustMunge()) {
+        } elseif ($config->mustSquashPrimitives()) {
             $out .= <<<PHP
         if (null !== (\$v = \$this->{$methodName}()) && null !== (\$vv = \$v->getValue())) {
             \$a['{$propName}'] = \$vv;
@@ -191,12 +191,12 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function buildDefaultJSONMarshalStatement(Config $config, Type $type, Property $property)
+    public static function buildDefaultJSONMarshalStatement(VersionConfig $config, Type $type, Property $property)
     {
         $out = '';
         $propName = $property->getName();

@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Builder\ClassBuilder;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
@@ -26,7 +27,7 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
  */
 class Builder
 {
-    /** @var \DCarbone\PHPFHIR\Config */
+    /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     protected $config;
 
     /** @var \DCarbone\PHPFHIR\Definition */
@@ -37,10 +38,10 @@ class Builder
 
     /**
      * Generator constructor.
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition $definition
      */
-    public function __construct(Config $config, Definition $definition)
+    public function __construct(VersionConfig $config, Definition $definition)
     {
         $this->config = $config;
         $this->definition = $definition;

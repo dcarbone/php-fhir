@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
@@ -26,13 +26,13 @@ use DCarbone\PHPFHIR\Definition\Type;
 abstract class FileUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param string $pathSuffix
      * @return string
      */
-    public static function mkdirRecurse(Config $config, $pathSuffix)
+    public static function mkdirRecurse(VersionConfig $config, $pathSuffix)
     {
-        $path = $config->getOutputPath();
+        $path = $config->getClassesPath();
         foreach (explode('/', str_replace('\\', '/', $pathSuffix)) as $dir) {
             $dir = trim($dir, "/");
             if ('' === $dir) {
@@ -54,11 +54,11 @@ abstract class FileUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildTypeFilePath(Config $config, Type $type)
+    public static function buildTypeFilePath(VersionConfig $config, Type $type)
     {
         return static::mkdirRecurse(
                 $config,

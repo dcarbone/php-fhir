@@ -30,9 +30,6 @@ require __DIR__ . '/../vendor/autoload.php';
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
-use MyENA\DefaultANSILogger;
-use Psr\Log\LogLevel;
-use Psr\Log\NullLogger;
 
 // ----- constants
 
@@ -43,21 +40,6 @@ const FLAG_FORCE = '--force';
 const FLAG_USE_EXISTING = '--useExisting';
 const FLAG_CONFIG = '--config';
 const FLAG_VERSIONS = '--versions';
-const FLAG_LOGGER = '--logger';
-const FLAG_LOG_LEVEL = '--logLevel';
-const FLAG_MUNGE = '--munge';
-const FLAG_TESTS = '--tests';
-
-
-const CONFIG_SCHEMA_PATH = 'schemaPath';
-const CONFIG_CLASSES_PATH = 'classesPath';
-const CONFIG_VERSIONS = 'versions';
-const CONFIG_NO_CLEANUP = 'noCleanup';
-const CONFIG_MUNGE_PRIMITIVES = 'mungePrimitives';
-const CONFIG_GENERATE_TESTS = 'generateTests';
-
-const LOG_LEVEL_SETTER_SETLOGLEVEL = 'setLogLevel';
-const LOG_LEVEL_SETTER_SETLEVEL = 'setLevel';
 
 // ----- cli and config opts
 
@@ -67,15 +49,8 @@ $config_env = getenv(ENV_GENERATE_CONFIG_FILE);
 $config_arg = '';
 $config_def = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 $config_file = null;
-$schema_path = '';
-$classes_path = '';
 $versions_to_generate = null;
 $use_existing = false;
-$logger = false;
-$log = new NullLogger();
-$config_log_level = null;
-$munge_primitives = false;
-$generate_tests = false;
 
 // ----- functions
 
@@ -101,23 +76,13 @@ function missing_config_text($return)
     $out .= '   - Pass "--config" flag with valid path to config file' . PHP_EOL;
     $out .= sprintf('   - Place "config.php" file in "%s"%s', $config_def, PHP_EOL);
 
+    $exConfig = file_get_contents($config_def);
+
     $out .= <<<STRING
 
 Below is an example config file:
 
-<?php
-return [
-    'schemaPath'        => __DIR__ . '/../input',
-    'classesPath'       => __DIR__ . '/../output',
-    'mungePrimitives'   => true,
-    'generateTests'     => false,
-    'versions' => [
-        'DSTU1'  => ['url' => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU1'],
-        'DSTU2'  => ['url' => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\DSTU2'],
-        'STU3'   => ['url' => 'http://hl7.org/fhir/STU3/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\STU3'],
-        'Build'  => ['url' => 'http://build.fhir.org/fhir-all-xsd.zip', 'namespace' => '\\HL7\\FHIR\\Build']
-    ]
-];
+{$exConfig}
 
 STRING;
 
@@ -154,13 +119,6 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
                         ex: ./bin/generate.sh --config path/to/file
     --versions:     Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions DSTU1,DSTU2
-    --logger        Create a logger to pass to definition and generation processes
-    --logLevel      If --logger is provided, specify a log level.
-                        ex: ./bin/generate.sh --logger --logLevel info
-    --munge:        In a few edge cases where an object's sole purpose is to carry the value of another object, this 
-                        will make it so that this container object is not part of any serialized output.
-    --tests         If set, will generate a set of PHPUnit tests to execute against the output
-                        EXPERIMENTAL
 
 - Configuration:
     There are 3 possible ways to define a configuration file for this script to use:
@@ -270,39 +228,6 @@ if ($argc > 1) {
                 }
                 break;
 
-            case FLAG_LOGGER:
-                $log = new DefaultANSILogger();
-                break;
-
-            case FLAG_LOG_LEVEL:
-                switch ($l = strtolower($next)) {
-                    case LogLevel::EMERGENCY:
-                    case LogLevel::ALERT:
-                    case LogLevel::CRITICAL:
-                    case LogLevel::ERROR:
-                    case LogLevel::WARNING:
-                    case LogLevel::NOTICE:
-                    case LogLevel::INFO:
-                    case LogLevel::DEBUG:
-                        $config_log_level = $l;
-                        break;
-                    default:
-                        echo "Specified log level {$l} is invalid\n";
-                        exit(1);
-                }
-                if (!$found_equal) {
-                    $i++;
-                }
-                break;
-
-            case FLAG_MUNGE:
-                $munge_primitives = true;
-                break;
-
-            case FLAG_TESTS:
-                $generate_tests = true;
-                break;
-
             default:
                 echo "Unknown argument \"{$arg}\" passed at position {$i}\n";
                 exit_with_help(true);
@@ -317,27 +242,6 @@ if ($use_existing && $force_delete) {
         FLAG_USE_EXISTING
     );
     exit_with_help(true);
-}
-
-if (method_exists($log, LOG_LEVEL_SETTER_SETLOGLEVEL)) {
-    if (null !== $config_log_level) {
-        $log->setLogLevel($config_log_level);
-    } else {
-        $log->setLogLevel(LogLevel::WARNING);
-    }
-} elseif (method_exists($log, LOG_LEVEL_SETTER_SETLEVEL)) {
-    if (null !== $config_log_level) {
-        $log->setLevel($config_log_level);
-    } else {
-        $log->setLevel(LogLevel::WARNING);
-    }
-} elseif (!($log instanceof NullLogger)) {
-    echo sprintf(
-        "Unable to set log level, class %s does not have a method named \"%s\" or \"%s\"\n",
-        get_class($log),
-        LOG_LEVEL_SETTER_SETLOGLEVEL,
-        LOG_LEVEL_SETTER_SETLEVEL
-    );
 }
 
 // try to determine which config file to use...
@@ -362,69 +266,29 @@ if (!is_readable($config_file)) {
     exit(1);
 }
 
-$config = require $config_file;
-
-$schema_path = (isset($config[CONFIG_SCHEMA_PATH]) ? $config[CONFIG_SCHEMA_PATH] : null);
-$classes_path = (isset($config[CONFIG_CLASSES_PATH]) ? $config[CONFIG_CLASSES_PATH] : null);
-$versions = (isset($config[CONFIG_VERSIONS]) ? $config[CONFIG_VERSIONS] : null);
-
-if (!$munge_primitives && isset($config[CONFIG_MUNGE_PRIMITIVES])) {
-    $munge_primitives = (bool)$config[CONFIG_MUNGE_PRIMITIVES];
-}
-if (!$generate_tests && isset($config[CONFIG_GENERATE_TESTS])) {
-    $generate_tests = (bool)$config[CONFIG_GENERATE_TESTS];
-}
-
-if (null === $schema_path) {
-    echo sprintf("Config file \"%s\" is missing \"%s\" directive\n", $config_file, CONFIG_SCHEMA_PATH);
-    exit(1);
-}
-if (!is_dir($schema_path) || !is_readable($schema_path) || !is_writable($schema_path)) {
-    echo "Specified schema path \"{$schema_path}\" either does not exist, is not readable, or is not writable.\n";
-    exit(1);
-}
-if (null === $classes_path) {
-    echo "Config file \"{$config_file}\" is missing \"classesPath\" directive\n";
-    exit(1);
-}
-if (!is_dir($classes_path) || !is_readable($classes_path) || !is_writable($classes_path)) {
-    echo "Specified classes path \"{$classes_path}\" either does not exist, is not readable, or is not writable.\n";
-    exit(1);
-}
-
-if (!is_array($versions)) {
-    echo sprintf(
-        "Config file \{%s}\" is either missing \"%s\" directive or has it set to something other than an associative array\n",
-        $config_file,
-        CONFIG_VERSIONS
-    );
-    exit(1);
-}
+$config = new Config(require $config_file);
 
 // test provided versions are defined
 if (null === $versions_to_generate) {
-    $versions_to_generate = array_keys($versions);
+    $versions_to_generate = $config->listVersions();
 }
 
 foreach ($versions_to_generate as $vg) {
-    if (!isset($versions[$vg])) {
+    if (!$config->hasVersion($vg)) {
         echo sprintf(
             "Version \"%s\" not found in config.  Available: %s\n\n",
             $vg,
-            implode(', ', array_keys($versions))
+            implode(', ', $config->listVersions())
         );
         exit(1);
     }
 }
 
-$schema_path = realpath($schema_path);
-$classes_path = realpath($classes_path);
-
 $ins = [STDIN];
 $null = null;
 
 // try to clean up working dir
-$dir = $classes_path . DIRECTORY_SEPARATOR . 'HL7';
+$dir = $config->getClassesPath() . DIRECTORY_SEPARATOR . 'HL7';
 if (is_dir($dir)) {
     if (!$use_existing && ($force_delete ||
             ask("Work Directory \"{$dir}\" already exists.\nWould you like to purge its current contents prior to generation?"))
@@ -441,16 +305,16 @@ echo sprintf(
 );
 
 foreach ($versions_to_generate as $version) {
-    $versionConf = $versions[$version];
+    $buildConfig = new Config\VersionConfig($config, $config->getVersion($version));
 
-    $url = $versionConf['url'];
+    $url = $buildConfig->getUrl();
 
-    $namespace = $versionConf['namespace'];
+    $namespace = $buildConfig->getNamespace();
     $version = trim($version);
-    $schema_dir = $schema_path . DIRECTORY_SEPARATOR . $version;
+    $schema_dir = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version;
 
     // Download zip files
-    $zip_file_name = $schema_path . DIRECTORY_SEPARATOR . $version . '.zip';
+    $zip_file_name = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version . '.zip';
     $zip_exists = file_exists($zip_file_name);
 
     $download = $unzip = true;
@@ -524,23 +388,23 @@ foreach ($versions_to_generate as $version) {
         $zip->close();
     }
 
-    if (is_dir($classes_path)) {
-        if (is_dir_empty($classes_path)) {
-            echo "Output directory \"{$classes_path}\" already exists, but is empty.  Will use.\n";
+    if (is_dir($config->getClassesPath())) {
+        if (is_dir_empty($config->getClassesPath())) {
+            echo "Output directory \"{$config->getClassesPath()}\" already exists, but is empty.  Will use.\n";
         } elseif ($force_delete) {
-            echo "Output directory \"{$classes_path}\" already exists, deleting...\n";
-            nuke_dir($classes_path);
-            if (!mkdir($classes_path, 0755, true)) {
-                echo "Unable to create directory \"{$classes_path}\". Exiting.\n";
+            echo "Output directory \"{$config->getClassesPath()}\" already exists, deleting...\n";
+            nuke_dir($config->getClassesPath());
+            if (!mkdir($config->getClassesPath(), 0755, true)) {
+                echo "Unable to create directory \"{$config->getClassesPath()}\". Exiting.\n";
                 exit(1);
             }
         } else {
-            echo "Output Directory \"{$classes_path}\" already exists.\n";
+            echo "Output Directory \"{$config->getClassesPath()}\" already exists.\n";
             if (!$use_existing) {
                 if (ask('Would you like to delete the directory?')) {
-                    nuke_dir($classes_path);
-                    if (!mkdir($classes_path, 0755, true)) {
-                        echo "Unable to create directory \"{$classes_path}\".  Exiting.\n";
+                    nuke_dir($config->getClassesPath());
+                    if (!mkdir($config->getClassesPath(), 0755, true)) {
+                        echo "Unable to create directory \"{$config->getClassesPath()}\".  Exiting.\n";
                         exit(1);
                     }
                 } else {
@@ -552,25 +416,18 @@ foreach ($versions_to_generate as $version) {
     }
 
     echo sprintf(
-        'Generating "%s" into %s%s%s',
+        'Generating "%s" into %s%s%s%s',
         $version,
-        $classes_path,
+        $config->getClassesPath(),
+        DIRECTORY_SEPARATOR,
         str_replace('\\', DIRECTORY_SEPARATOR, $namespace),
         PHP_EOL
     );
-    $config = new Config([
-        Config::KEY_XSD_PATH         => $schema_dir,
-        Config::KEY_OUTPUT_PATH      => $classes_path,
-        Config::KEY_OUTPUT_NAMESPACE => $namespace,
-        Config::KEY_MUNGE            => $munge_primitives,
-        Config::KEY_GENERATE_TESTS   => $generate_tests,
-    ]);
-    $config->setLogger($log);
 
-    $definition = new Definition($config, $version);
+    $definition = new Definition($buildConfig);
     $definition->buildDefinition();
 
-    $builder = new Builder($config, $definition);
+    $builder = new Builder($buildConfig, $definition);
     $builder->build();
 }
 

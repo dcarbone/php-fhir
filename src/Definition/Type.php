@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type\Properties;
 use DCarbone\PHPFHIR\Definition\Type\Property;
 
@@ -32,7 +32,7 @@ class Type
 {
     use DocumentationTrait;
 
-    /** @var \DCarbone\PHPFHIR\Config */
+    /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
     /**
      * The raw element this type was parsed from
@@ -72,12 +72,12 @@ class Type
 
     /**
      * FHIRType constructor.
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \SimpleXMLElement $sourceSXE
      * @param string $sourceFilename
      * @param string $fhirName
      */
-    public function __construct(Config $config, \SimpleXMLElement $sourceSXE, $sourceFilename, $fhirName)
+    public function __construct(VersionConfig $config, \SimpleXMLElement $sourceSXE, $sourceFilename, $fhirName)
     {
         $this->config = $config;
         $this->sourceSXE = $sourceSXE;
@@ -97,7 +97,7 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Config
+     * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
     public function getConfig()
     {
@@ -248,7 +248,7 @@ class Type
      */
     public function getFullyQualifiedNamespace($leadingSlash)
     {
-        $ns = $this->getConfig()->getOutputNamespace();
+        $ns = $this->getConfig()->getNamespace();
         $fhirNS = $this->getFHIRTypeNamespace();
         if ('' !== $fhirNS) {
             $ns = "{$ns}\\{$fhirNS}";

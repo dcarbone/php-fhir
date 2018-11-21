@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPFHIR;
+<?php
+
+namespace DCarbone\PHPFHIR;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,7 +18,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Config\Version;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -27,26 +29,23 @@ use Psr\Log\NullLogger;
  */
 class Config implements LoggerAwareInterface
 {
-    const KEY_XSD_PATH         = 'xsdPath';
-    const KEY_OUTPUT_PATH      = 'outputPath';
-    const KEY_OUTPUT_NAMESPACE = 'outputNamespace';
-    const KEY_MUNGE            = 'munge';
-    const KEY_GENERATE_TESTS   = 'generateTests';
+    const KEY_SCHEMA_PATH  = 'schemaPath';
+    const KEY_CLASSES_PATH = 'classesPath';
+    const KEY_VERSIONS     = 'versions';
+    const KEY_SILENT       = 'silent';
+
+    /** @var string */
+    private $schemaPath;
+
+    /** @var string */
+    private $classesPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
+    /** @var \DCarbone\PHPFHIR\Config\Version[] */
+    private $versions = [];
 
     /** @var \DCarbone\PHPFHIR\Logger */
-    private $logger;
-
-    /** @var string */
-    private $xsdPath;
-    /** @var string */
-    private $outputPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
-    /** @var string */
-    private $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
-
+    private $log;
     /** @var bool */
-    private $generateTests = false;
-    /** @var bool */
-    private $munge = false;
+    private $silent = false;
 
     /**
      * Config constructor.
@@ -55,18 +54,42 @@ class Config implements LoggerAwareInterface
      */
     public function __construct(array $conf = [], LoggerInterface $logger = null)
     {
-        if ($logger) {
-            $this->logger = new Logger($logger);
+        if (!isset($conf[self::KEY_SCHEMA_PATH])) {
+            throw new \DomainException('Required configuration key "' . self::KEY_SCHEMA_PATH . '" missing');
+        }
+        if (!isset($conf[self::KEY_CLASSES_PATH])) {
+            throw new \DomainException('Required configuration key "' . self::KEY_CLASSES_PATH . '" missing');
+        }
+        if (!isset($conf[self::KEY_VERSIONS]) || !is_array($conf[self::KEY_VERSIONS]) || 0 == count($conf[self::KEY_VERSIONS])) {
+            throw new \DomainException('Configuration key "' . self::KEY_VERSIONS . '" must be an array with at least 1 configured version.');
+        }
+        $this->setSchemaPath($conf[self::KEY_SCHEMA_PATH]);
+        $this->setClassesPath($conf[self::KEY_CLASSES_PATH]);
+        $this->setVersions($conf[self::KEY_VERSIONS]);
+        $this->setSilent(isset($conf[self::KEY_SILENT]) ? (bool)$conf[self::KEY_SILENT] : false);
+        if ($logger && !$this->isSilent()) {
+            $this->log = new Logger($logger);
         } else {
-            $this->logger = new Logger(new NullLogger());
+            $this->log = new Logger(new NullLogger());
         }
+    }
 
-        foreach ($conf as $k => $v) {
-            $this->{'set' . ucfirst($k)}($v);
-        }
+    /**
+     * @return bool
+     */
+    public function isSilent()
+    {
+        return $this->silent;
+    }
 
-        // be lazy...
-        $this->setXSDPath(isset($this->xsdPath) ? $this->xsdPath : null);
+    /**
+     * @param bool $silent
+     * @return Config
+     */
+    public function setSilent($silent)
+    {
+        $this->silent = $silent;
+        return $this;
     }
 
     /**
@@ -74,7 +97,7 @@ class Config implements LoggerAwareInterface
      */
     public function getLogger()
     {
-        return $this->logger;
+        return $this->log;
     }
 
     /**
@@ -82,122 +105,113 @@ class Config implements LoggerAwareInterface
      */
     public function setLogger(LoggerInterface $logger)
     {
-        $this->logger = new Logger($logger);
+        $this->log = new Logger($logger);
     }
 
     /**
      * @return string
      */
-    public function getXsdPath()
+    public function getSchemaPath()
     {
-        return $this->xsdPath;
+        return $this->schemaPath;
     }
 
     /**
-     * @param string $xsdPath
+     * @param string $schemaPath
      * @return $this
      */
-    public function setXSDPath($xsdPath)
+    public function setSchemaPath($schemaPath)
     {
         // Bunch'o validation
-        if (false === is_dir($xsdPath)) {
-            throw new \RuntimeException('Unable to locate XSD dir "' . $xsdPath . '"');
+        if (false === is_dir($schemaPath)) {
+            throw new \RuntimeException('Unable to locate XSD dir "' . $schemaPath . '"');
         }
-        if (false === is_readable($xsdPath)) {
-            throw new \RuntimeException('This process does not have read access to directory "' . $xsdPath . '"');
+        if (false === is_readable($schemaPath)) {
+            throw new \RuntimeException('This process does not have read access to directory "' . $schemaPath . '"');
         }
-        $this->xsdPath = rtrim($xsdPath, "/\\");
+        $this->schemaPath = rtrim($schemaPath, "/\\");
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getOutputPath()
+    public function getClassesPath()
     {
-        return $this->outputPath;
+        return $this->classesPath;
     }
 
     /**
-     * @param string $outputPath
+     * @param string $classesPath
      * @return $this
      */
-    public function setOutputPath($outputPath)
+    public function setClassesPath($classesPath)
     {
-        if (!is_dir($outputPath)) {
-            throw new \RuntimeException('Unable to locate output dir "' . $outputPath . '"');
+        if (!is_dir($classesPath)) {
+            throw new \RuntimeException('Unable to locate output dir "' . $classesPath . '"');
         }
-        if (!is_writable($outputPath)) {
+        if (!is_writable($classesPath)) {
             throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.',
-                $outputPath));
+                $classesPath));
         }
-        if (!is_readable($outputPath)) {
+        if (!is_readable($classesPath)) {
             throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.',
-                $outputPath));
+                $classesPath));
         }
-        $this->outputPath = $outputPath;
+        $this->classesPath = $classesPath;
         return $this;
     }
 
     /**
-     * @return string
-     */
-    public function getOutputNamespace()
-    {
-        return $this->outputNamespace;
-    }
-
-    /**
-     * @param string $outputNamespace
+     * @param array $versions
      * @return $this
      */
-    public function setOutputNamespace($outputNamespace)
+    public function setVersions(array $versions)
     {
-        if (null === $outputNamespace) {
-            $outputNamespace = PHPFHIR_DEFAULT_NAMESPACE;
+        $this->versions = [];
+        foreach ($versions as $name => $version) {
+            $this->versions[$name] = ($version instanceof Version) ? $version : new Version($name, $version);
         }
-        $outputNamespace = ltrim($outputNamespace, "\\");
-        if (false === NameUtils::isValidNSName($outputNamespace)) {
-            throw new \InvalidArgumentException(sprintf('Specified root namespace "%s" is not a valid PHP namespace.',
-                $outputNamespace));
-        }
-        $this->outputNamespace = trim($outputNamespace, "\\;");
         return $this;
     }
 
     /**
-     * @param bool $generateTests
-     * @return $this
+     * @return \DCarbone\PHPFHIR\Config\Version[]
      */
-    public function setGenerateTests($generateTests)
+    public function getVersions()
     {
-        $this->generateTests = (bool)$generateTests;
-        return $this;
+        return $this->versions;
     }
 
     /**
+     * @param string $version
      * @return bool
      */
-    public function mustGenerateTests()
+    public function hasVersion($version)
     {
-        return $this->generateTests;
+        return isset($this->versions[$version]);
     }
 
     /**
-     * @param bool $munge
-     * @return $this
+     * @param string $version
+     * @return \DCarbone\PHPFHIR\Config\Version
      */
-    public function setMunge($munge)
+    public function getVersion($version)
     {
-        $this->munge = (bool)$munge;
-        return $this;
+        if (!$this->hasVersion($version)) {
+            throw new \OutOfBoundsException(
+                'No version with name "' . $version . '" has been configured.  Available: ["' . implode('", "',
+                    array_keys($this->versions)) . '"]'
+            );
+        }
+        return $this->versions[$version];
     }
 
     /**
-     * @return bool
+     * @return array
      */
-    public function mustMunge()
+    public function listVersions()
     {
-        return $this->munge;
+        return array_keys($this->versions);
     }
 }

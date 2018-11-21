@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type\Property;
 use DCarbone\PHPFHIR\Enum\XSDElementType;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
@@ -32,10 +32,10 @@ abstract class TypeExtractor
 {
     /**
      * @param string $filePath
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @return \SimpleXMLElement
      */
-    protected static function constructSXEWithFilePath($filePath, Config $config)
+    protected static function constructSXEWithFilePath($filePath, VersionConfig $config)
     {
         $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $filePath));
 
@@ -71,12 +71,12 @@ abstract class TypeExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    protected static function parseExtensionOrRestriction(Config $config,
+    protected static function parseExtensionOrRestriction(VersionConfig $config,
                                                           Types $types,
                                                           Type $type,
                                                           \SimpleXMLElement $element)
@@ -86,12 +86,12 @@ abstract class TypeExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $outer
      */
-    protected static function extractComplexInnards(Config $config, Types $types, Type $type, \SimpleXMLElement $outer)
+    protected static function extractComplexInnards(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $outer)
     {
         foreach ($outer->children('xs', true) as $element) {
             switch (strtolower($element->getName())) {
@@ -136,12 +136,12 @@ abstract class TypeExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $outer
      */
-    protected static function extractSimpleInnards(Config $config, Types $types, Type $type, \SimpleXMLElement $outer)
+    protected static function extractSimpleInnards(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $outer)
     {
         foreach ($outer->children('xs', true) as $element) {
             switch (strtolower($element->getName())) {
@@ -190,9 +190,9 @@ abstract class TypeExtractor
      *
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param string $file
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
-    protected static function extractTypesFromXSD(Config $config, Types $types, $file)
+    protected static function extractTypesFromXSD(VersionConfig $config, Types $types, $file)
     {
         $basename = basename($file);
         $config->getLogger()->startBreak("Extracting types from {$basename}");
@@ -277,14 +277,14 @@ abstract class TypeExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @return \DCarbone\PHPFHIR\Definition\Types
      */
-    public static function parseTypes(Config $config)
+    public static function parseTypes(VersionConfig $config)
     {
         $types = new Types($config);
 
-        $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $config->getXSDPath());
+        $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $config->getSchemaPath());
 
         if (!file_exists($fhirBaseXSD)) {
             $msg = sprintf(
@@ -299,7 +299,7 @@ abstract class TypeExtractor
         static::extractTypesFromXSD($config, $types, $fhirBaseXSD);
 
         // Then scoop up the rest
-        foreach (glob(sprintf('%s/*.xsd', $config->getXSDPath()), GLOB_NOSORT) as $xsdFile) {
+        foreach (glob(sprintf('%s/*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
             /** @var string $xsdFile */
             $basename = basename($xsdFile);
 

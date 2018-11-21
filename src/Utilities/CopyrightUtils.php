@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 
 /**
  * Class CopyrightUtils
@@ -40,9 +40,9 @@ abstract class CopyrightUtils
     private static $_standardDate;
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
-    public static function compileCopyrights(Config $config)
+    public static function compileCopyrights(VersionConfig $config)
     {
         self::$_standardDate = date('F jS, Y');
 
@@ -70,7 +70,7 @@ abstract class CopyrightUtils
             '',
         ];
 
-        $fhirBase = sprintf('%s/fhir-base.xsd', $config->getXSDPath());
+        $fhirBase = sprintf('%s/fhir-base.xsd', $config->getSchemaPath());
 
         $config->getLogger()->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
 

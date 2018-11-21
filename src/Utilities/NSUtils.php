@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\SimpleType;
 
 /**
  * Class NSUtils
@@ -28,13 +27,13 @@ use DCarbone\PHPFHIR\Enum\SimpleType;
 abstract class NSUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param string|null $classNS
      * @return string
      */
-    public static function generateRootNamespace(Config $config, $classNS)
+    public static function generateRootNamespace(VersionConfig $config, $classNS)
     {
-        $outputNS = (string)$config->getOutputNamespace();
+        $outputNS = (string)$config->getNamespace();
         $classNS = (string)$classNS;
 
         if ('' === $outputNS && '' === $classNS) {
@@ -53,12 +52,12 @@ abstract class NSUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function compileUseStatements(Config $config, Types $types, Type $type)
+    public static function compileUseStatements(VersionConfig $config, Types $types, Type $type)
     {
         $fqns = $type->getFullyQualifiedNamespace(false);
 

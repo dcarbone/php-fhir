@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -28,11 +28,11 @@ use DCarbone\PHPFHIR\Utilities\XMLUtils;
 abstract class TypeRelationshipBuilder
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function determineTypeParentName(Config $config, Type $type, \SimpleXMLElement $element)
+    public static function determineTypeParentName(VersionConfig $config, Type $type, \SimpleXMLElement $element)
     {
         $fhirName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
         if (null === $fhirName) {
@@ -47,12 +47,12 @@ abstract class TypeRelationshipBuilder
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param string $name
      */
-    public static function determineComponentOfTypeName(Config $config, Types $types, Type $type, $name)
+    public static function determineComponentOfTypeName(VersionConfig $config, Types $types, Type $type, $name)
     {
         if (false === strpos($name, '.')) {
             $config->getLogger()->error(sprintf(
@@ -68,10 +68,10 @@ abstract class TypeRelationshipBuilder
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findComponentOfTypes(Config $config, Types $types)
+    public static function findComponentOfTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
             if ($tname = $type->getComponentOfTypeName()) {
@@ -95,10 +95,10 @@ abstract class TypeRelationshipBuilder
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findParentTypes(Config $config, Types $types)
+    public static function findParentTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
             if ($type->isPrimitive()) {
@@ -123,10 +123,10 @@ abstract class TypeRelationshipBuilder
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findPropertyTypes(Config $config, Types $types)
+    public static function findPropertyTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {

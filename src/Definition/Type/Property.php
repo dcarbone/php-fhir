@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Definition\Type;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\DocumentationTrait;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Type\Property\Enumeration;
@@ -31,7 +31,7 @@ class Property
 {
     use DocumentationTrait;
 
-    /** @var \DCarbone\PHPFHIR\Config */
+    /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
 
     /** @var string */
@@ -58,11 +58,11 @@ class Property
 
     /**
      * Property constructor.
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param string $name
      * @param string $fhirTypeName
      */
-    public function __construct(Config $config, $name, $fhirTypeName)
+    public function __construct(VersionConfig $config, $name, $fhirTypeName)
     {
         $this->config = $config;
         $this->name = $name;
@@ -86,7 +86,7 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Config
+     * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
     public function getConfig()
     {

@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\TypeExtractor;
 use DCarbone\PHPFHIR\Definition\TypeRelationshipBuilder;
 
@@ -27,23 +28,19 @@ use DCarbone\PHPFHIR\Definition\TypeRelationshipBuilder;
  */
 class Definition
 {
-    /** @var \DCarbone\PHPFHIR\Config */
+    /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
-    /** @var string */
-    private $fhirVersion;
 
     /** @var \DCarbone\PHPFHIR\Definition\Types */
     private $types = null;
 
     /**
      * Definition constructor.
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param string $fhirVersion
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
-    public function __construct(Config $config, $fhirVersion)
+    public function __construct(VersionConfig $config)
     {
         $this->config = $config;
-        $this->fhirVersion = $fhirVersion;
     }
 
     /**
@@ -52,8 +49,7 @@ class Definition
     public function __debugInfo()
     {
         return [
-            'fhirVersion' => $this->fhirVersion,
-            'types'       => $this->types,
+            'types' => $this->types,
         ];
     }
 
@@ -69,19 +65,11 @@ class Definition
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Config
+     * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
     public function getConfig()
     {
         return $this->config;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFHIRVersion()
-    {
-        return $this->fhirVersion;
     }
 
     /**

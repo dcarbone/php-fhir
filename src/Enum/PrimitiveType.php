@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Type;
 use MyCLabs\Enum\Enum;
 
 /**
@@ -46,10 +45,6 @@ class PrimitiveType extends Enum
     const OID            = 'oid';
     const UUID           = 'uuid';
     const MARKDOWN       = 'markdown';
-
-    public static function getPHPTypeFromType(Type $type) {
-
-    }
 
     /**
      * @return string

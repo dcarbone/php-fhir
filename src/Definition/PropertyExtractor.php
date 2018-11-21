@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type\Property;
 use DCarbone\PHPFHIR\Enum\XSDElementType;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
@@ -28,7 +28,7 @@ use DCarbone\PHPFHIR\Utilities\XMLUtils;
 abstract class PropertyExtractor
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \SimpleXMLElement $element
      * @param string|null $documentation
      * @param null $pattern
@@ -36,7 +36,7 @@ abstract class PropertyExtractor
      * @param int|null $minOccurs
      * @return \DCarbone\PHPFHIR\Definition\Type\Property
      */
-    protected static function buildTypeProperty(Config $config,
+    protected static function buildTypeProperty(VersionConfig $config,
                                                 \SimpleXMLElement $element,
                                                 $documentation = null,
                                                 $pattern = null,
@@ -104,12 +104,12 @@ abstract class PropertyExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    protected static function parseAttributeElementProperty(Config $config,
+    protected static function parseAttributeElementProperty(VersionConfig $config,
                                                             Types $types,
                                                             Type $type,
                                                             \SimpleXMLElement $element)
@@ -123,12 +123,12 @@ abstract class PropertyExtractor
     /**
      * TODO: Do better, this is all over the place in XHTML responses...
      *
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $choice
      */
-    public static function implementChoiceProperty(Config $config, Types $types, Type $type, \SimpleXMLElement $choice)
+    public static function implementChoiceProperty(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $choice)
     {
         $attributes = $choice->attributes();
         $minOccurs = isset($attributes['minOccurs']) ? (int)$attributes['minOccurs'] : null;
@@ -145,12 +145,12 @@ abstract class PropertyExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $sequence
      */
-    public static function implementPropertySequence(Config $config,
+    public static function implementPropertySequence(VersionConfig $config,
                                                      Types $types,
                                                      Type $type,
                                                      \SimpleXMLElement $sequence)
@@ -162,12 +162,12 @@ abstract class PropertyExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function implementElementProperty(Config $config,
+    public static function implementElementProperty(VersionConfig $config,
                                                     Types $types,
                                                     Type $type,
                                                     \SimpleXMLElement $element)
@@ -179,12 +179,12 @@ abstract class PropertyExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function implementTypeProperty(Config $config, Types $types, Type $type, \SimpleXMLElement $element)
+    public static function implementTypeProperty(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $element)
     {
         /** @var \SimpleXMLElement $child */
         switch (strtolower($element->getName())) {
@@ -231,12 +231,12 @@ abstract class PropertyExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $parent
      */
-    public static function extractTypeProperties(Config $config, Types $types, Type $type, \SimpleXMLElement $parent)
+    public static function extractTypeProperties(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $parent)
     {
         foreach ($parent->children('xs', true) as $element) {
             /** @var \SimpleXMLElement $element */

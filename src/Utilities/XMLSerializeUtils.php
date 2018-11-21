@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
@@ -28,11 +28,11 @@ use DCarbone\PHPFHIR\Definition\Type;
 abstract class XMLSerializeUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildHeader(Config $config, Type $type)
+    public static function buildHeader(VersionConfig $config, Type $type)
     {
         return PHPFHIR_DEFAULT_XML_SERIALIZE_HEADER;
     }
@@ -58,11 +58,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function returnStmt(Config $config, Type $type)
+    protected static function returnStmt(VersionConfig $config, Type $type)
     {
         if (!$type->isPrimitive() && $type->hasParent()) {
             return "        return parent::xmlSerialize(\$returnSXE, \$sxe);\n";
@@ -72,14 +72,14 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildResourceContainerBody(Config $config, Type $type)
+    protected static function buildResourceContainerBody(VersionConfig $config, Type $type)
     {
         // if munging, do not serialize the container directly
-        if ($config->mustMunge()) {
+        if ($config->mustSquashPrimitives()) {
             $out = '';
         } else {
             $out = static::buildSXE($type);
@@ -93,7 +93,7 @@ PHP;
                 $out .= '} else';
             }
             $out .= "if (null !== (\$v = \$this->{$methodName}())) {\n";
-            if ($config->mustMunge()) {
+            if ($config->mustSquashPrimitives()) {
                 $out .= "            return \$v->xmlSerialize(\$returnSXE, \$sxe);\n";
             } else {
                 $out .= "            return \$v->xmlSerialize(\$returnSXE, \$sxe->addChild('{$propName}'));\n";
@@ -111,11 +111,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildPrimitiveBody(Config $config, Type $type)
+    protected static function buildPrimitiveBody(VersionConfig $config, Type $type)
     {
         static $ns = FHIR_XMLNS;
         $name = str_replace(
@@ -135,11 +135,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    protected static function buildDefaultBody(Config $config, Type $type)
+    protected static function buildDefaultBody(VersionConfig $config, Type $type)
     {
         $out = static::buildSXE($type);
         foreach ($type->getProperties()->getSortedIterator() as $property) {
@@ -162,7 +162,7 @@ PHP;
                 if (null !== \$v) {
 
 PHP;
-                if ($config->mustMunge() && ($propType->isPrimitive() || $propType->isPrimitiveContainer())) {
+                if ($config->mustSquashPrimitives() && ($propType->isPrimitive() || $propType->isPrimitiveContainer())) {
                     $out .= "                   \$sxe->addAttribute('{$propName}', (string)\$v);\n";
                 } else {
                     $out .= "                   \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));\n";
@@ -179,7 +179,7 @@ PHP;
         if (null !== (\$v = \$this->{$methodName}())) {
 
 PHP;
-                if ($config->mustMunge() && ($propType->isPrimitive() || $propType->isPrimitiveContainer())) {
+                if ($config->mustSquashPrimitives() && ($propType->isPrimitive() || $propType->isPrimitiveContainer())) {
                     $out .= "           \$sxe->addAttribute('{$propName}', (string)\$v);\n";
                 } else {
                     $out .= "           \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));\n";
@@ -191,11 +191,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildBody(Config $config, Type $type)
+    public static function buildBody(VersionConfig $config, Type $type)
     {
         if ($type->isPrimitive() || $type->isPrimitiveContainer()) {
             return static::buildPrimitiveBody($config, $type);

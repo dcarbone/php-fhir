@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 
 /**
  * Class Types
@@ -29,14 +29,14 @@ class Types implements \Countable
     /** @var \DCarbone\PHPFHIR\Definition\Type[] */
     private $types = [];
 
-    /** @var \DCarbone\PHPFHIR\Config */
+    /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
 
     /**
      * FHIRTypes constructor.
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
-    public function __construct(Config $config)
+    public function __construct(VersionConfig $config)
     {
         $this->config = $config;
     }
