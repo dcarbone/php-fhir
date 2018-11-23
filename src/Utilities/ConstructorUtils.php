@@ -68,6 +68,7 @@ PHP;
         $name = $property->getName();
         $method = 'add' . ucfirst($name);
         $propertyType = $property->getValueType();
+        $propertyName = $property->getName();
         if (null === $propertyType) {
             $config->getLogger()->error(sprintf(
                 'Cannot create setter for type %s property %s as it defines an unknown type %s',
@@ -79,8 +80,8 @@ PHP;
         }
         $propertyTypeClassName = $property->getValueType()->getClassName();
         $out = <<<PHP
-                if (is_array(\$data['{$property->getName()}'])) {
-                    foreach(\$data['{$property->getName()}'] as \$i => \$v) {
+                if (is_array(\$data['{$propertyName}'])) {
+                    foreach(\$data['{$propertyName}'] as \$i => \$v) {
                         if (null === \$v) {
                             continue;
                         }

@@ -30,6 +30,57 @@ abstract class XMLUnserializeUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
+    protected static function buildDefaultParser(VersionConfig $config, Type $type, Type\Property $property)
+    {
+        $propertyType = $property->getValueType();
+        if (null === $propertyType) {
+            return '';
+        }
+        $typeName = $type->getClassName();
+        $methodName = 'set' . ucfirst($property->getName());
+        $propertyName = $property->getName();
+        $propertyTypeClassName = $propertyType->getClassName();
+        $out = '';
+        if ($propertyType->isPrimitive() ||
+            $propertyType->hasPrimitiveParent() ||
+            $propertyType->isPrimitiveContainer() ||
+            $propertyType->hasPrimitiveContainerParent()) {
+            $out .= <<<PHP
+        if (null !== (\$v = \$attributes->{$propertyName})) {
+            \${$typeName}->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$v));
+        } else
+PHP;
+        } else {
+            $out .= "        ";
+        }
+        $out .= <<<PHP
+if (isset(\$children->{$propertyName})) {
+            \${$typeName}->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$children->{$propertyName}));
+        }
+
+PHP;
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
+    protected static function buildCollectionParser(VersionConfig $config, Type $type, Type\Property $property)
+    {
+        $out = '';
+
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
     public static function buildHeader(VersionConfig $config, Type $type)
@@ -72,6 +123,52 @@ PHP;
         return null;
 
 PHP;
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    public static function buildDefaultBody(VersionConfig $config, Type $type)
+    {
+        $properties = $type->getProperties();
+        $out = <<<PHP
+        \${$type->getClassName()} = new {$type->getClassName()};
+        \$children = \$sxe->children();
+
+PHP;
+        if ($properties->containsPrimitive() || $properties->containsPrimitiveContainer()) {
+            $out .= <<<PHP
+        \$attributes = \$sxe->attributes();
+        if (0 === count(\$children) && 0 === count(\$attributes)) {
+            return null;
+        }
+
+PHP;
+        } else {
+            $out .= <<<PHP
+        if (0 === count(\$children)) {
+            return null;
+        }
+
+PHP;
+
+        }
+
+        foreach ($type->getProperties()->getSortedIterator() as $property) {
+            if ($property->isCollection()) {
+                $out .= static::buildCollectionParser($config, $type, $property);
+            } else {
+                $out .= static::buildDefaultParser($config, $type, $property);
+            }
+        }
+        $out .= <<<PHP
+        return \${$type->getClassName()};
+
+PHP;
+
         return $out;
     }
 }

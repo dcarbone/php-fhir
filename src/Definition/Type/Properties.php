@@ -122,6 +122,32 @@ class Properties implements \Countable
     }
 
     /**
+     * @return bool
+     */
+    public function containsPrimitive()
+    {
+        foreach ($this->properties as $property) {
+            if (null !== ($type = $property->getValueType()) && ($type->isPrimitive() || $type->hasPrimitiveParent())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function containsPrimitiveContainer()
+    {
+        foreach ($this->properties as $property) {
+            if (null !== ($type = $property->getValueType()) && ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Definition\Type\Property[]
      */
     public function getIterator()
