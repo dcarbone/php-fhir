@@ -33,7 +33,7 @@ abstract class XMLUnserializeUtils
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    protected static function buildDefaultParser(VersionConfig $config, Type $type, Type\Property $property)
+    protected static function buildDefaultSetter(VersionConfig $config, Type $type, Type\Property $property)
     {
         $propertyType = $property->getValueType();
         if (null === $propertyType) {
@@ -71,7 +71,7 @@ PHP;
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    protected static function buildCollectionParser(VersionConfig $config, Type $type, Type\Property $property)
+    protected static function buildCollectionSetter(VersionConfig $config, Type $type, Type\Property $property)
     {
         $propertyType = $property->getValueType();
         if (null === $propertyType) {
@@ -146,6 +146,54 @@ PHP;
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
+    public static function buildResourceContainerBody(VersionConfig $config, Type $type)
+    {
+        $typeName = $type->getClassName();
+
+        $out = <<<PHP
+        \$children = \$sxe->children();
+        if (0 === count(\$children)) {
+            return null;
+        }
+        \${$typeName} = new {$type->getClassName()};
+
+PHP;
+
+        foreach ($type->getProperties()->getSortedIterator() as $i => $property) {
+            $propertyType = $property->getValueType();
+            if (null === $propertyType) {
+                continue;
+            }
+            $propertyName = $property->getName();
+            $methodName = 'set' . ucfirst($propertyName);
+            $propertyTypeClassName = $propertyType->getClassName();
+            if (0 === $i) {
+                $out .= '        ';
+            } else {
+                $out .= ' else';
+            }
+            $out .= <<<PHP
+if (isset(\$children->{$propertyName})) {
+            \${$typeName}->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$children->{$propertyName}));
+        }
+PHP;
+        }
+
+        $out .= <<<PHP
+ else {
+            return null;
+        }
+        return \${$typeName};
+
+PHP;
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
     public static function buildDefaultBody(VersionConfig $config, Type $type)
     {
         $properties = $type->getProperties();
@@ -174,9 +222,9 @@ PHP;
 
         foreach ($type->getProperties()->getSortedIterator() as $property) {
             if ($property->isCollection()) {
-                $out .= static::buildCollectionParser($config, $type, $property);
+                $out .= static::buildCollectionSetter($config, $type, $property);
             } else {
-                $out .= static::buildDefaultParser($config, $type, $property);
+                $out .= static::buildDefaultSetter($config, $type, $property);
             }
         }
         $out .= <<<PHP

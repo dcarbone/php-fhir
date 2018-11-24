@@ -78,8 +78,7 @@ abstract class ClassBuilder
         $out .= "\n";
         $out .= ConstructorUtils::buildHeader($config, $type);
         $out .= ConstructorUtils::buildPrimitiveContainerBody($config, $type);
-        $out .= "    }\n";
-        $out .= "\n";
+        $out .= "    }\n\n";
         $out .= XMLUnserializeUtils::buildHeader($config, $type);
         $out .= XMLUnserializeUtils::buildDefaultBody($config, $type);
         $out .= "    }\n\n";
@@ -112,8 +111,10 @@ abstract class ClassBuilder
         $out .= "\n";
         $out .= ConstructorUtils::buildHeader($config, $type);
         $out .= ConstructorUtils::buildResourceContainerBody($config, $type);
-        $out .= "    }\n";
-        $out .= "\n";
+        $out .= "    }\n\n";
+        $out .= XMLUnserializeUtils::buildHeader($config, $type);
+        $out .= XMLUnserializeUtils::buildResourceContainerBody($config, $type);
+        $out .= "    }\n\n";
         $out .= PropertyUtils::buildClassPropertyMethods($config, $types, $type);
         $out .= "\n";
         $out .= MethodUtils::buildToString($config, $type);

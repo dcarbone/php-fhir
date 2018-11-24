@@ -206,7 +206,6 @@ PHP;
     public static function buildResourceContainerBody(VersionConfig $config, Type $type)
     {
         return <<<PHP
-        
  elseif (is_array(\$data)) {
             \$key = key(\$data);
             if (!is_string(\$key)) {
