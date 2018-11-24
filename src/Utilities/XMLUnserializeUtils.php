@@ -73,7 +73,22 @@ PHP;
      */
     protected static function buildCollectionParser(VersionConfig $config, Type $type, Type\Property $property)
     {
-        $out = '';
+        $propertyType = $property->getValueType();
+        if (null === $propertyType) {
+            return '';
+        }
+        $typeName = $type->getClassName();
+        $methodName = 'add' . ucfirst($property->getName());
+        $propertyName = $property->getName();
+        $propertyTypeClassName = $propertyType->getClassName();
+        $out = <<<PHP
+        if (isset(\$children->{$propertyName}) && 0 < count(\$children->{$propertyName})) {
+            foreach(\$children->{$propertyName} as \$child) {
+                \${$typeName}->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$child));
+            }
+        }
+
+PHP;
 
         return $out;
     }
