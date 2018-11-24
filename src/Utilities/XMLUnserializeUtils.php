@@ -103,9 +103,10 @@ PHP;
         $out = <<<PHP
     /**
      * @param \SimpleXMLElement|string|null \$sxe
+     * @param null|{$type->getFullyQualifiedClassName(true)} \${$type->getClassName()}
      * @return null|{$type->getFullyQualifiedClassName(true)}
      */
-    public static function xmlUnserialize(\$sxe = null)
+    public static function xmlUnserialize(\$sxe = null, {$type->getClassName()} \${$type->getClassName()} = null)
     {
         if (null === \$sxe) {
             return null;
@@ -116,8 +117,15 @@ PHP;
         if (!(\$sxe instanceof \SimpleXMLElement)) {
             throw new \InvalidArgumentException('{$type->getClassName()}::fromXML - Argument 1 expected to be XML string or instance of \SimpleXMLElement, '.gettype(\$sxe).' seen.');
         }
-
+        if (null === \${$type->getClassName()}) {
+            
 PHP;
+        if ($type->hasParent() && null !== $type->getParentType()) {
+            $out .= "\${$type->getClassName()} = {$type->getParentType()->getClassName()}::xmlUnserialize(\$sxe, new {$type->getClassName()});\n";
+        } else {
+            $out .= "\${$type->getClassName()} = new {$type->getClassName()};\n";
+        }
+        $out .= "        }\n";
         return $out;
     }
 
@@ -130,12 +138,12 @@ PHP;
     {
         $out = <<<PHP
         if (null !== (\$v = \$sxe->attributes()->value)) {
-            return new static((string)\$v);
+            return \${$type->getClassName()}->setValue((string)\$v);
         }
         if ('' !== (\$v = (string)\$sxe->children()->value)) {
-            return new static(\$v);
+            return \${$type->getClassName()}->setValue(\$v);
         }
-        return null;
+        return \${$type->getClassName()};
 
 PHP;
         return $out;
@@ -153,9 +161,8 @@ PHP;
         $out = <<<PHP
         \$children = \$sxe->children();
         if (0 === count(\$children)) {
-            return null;
+            return \${$type->getClassName()};
         }
-        \${$typeName} = new {$type->getClassName()};
 
 PHP;
 
@@ -180,9 +187,6 @@ PHP;
         }
 
         $out .= <<<PHP
- else {
-            return null;
-        }
         return \${$typeName};
 
 PHP;
@@ -197,11 +201,7 @@ PHP;
     public static function buildDefaultBody(VersionConfig $config, Type $type)
     {
         $properties = $type->getProperties();
-        $out = <<<PHP
-        \${$type->getClassName()} = new {$type->getClassName()};
-        \$children = \$sxe->children();
-
-PHP;
+        $out = "        \$children = \$sxe->children();\n";
         if ($properties->containsPrimitive() || $properties->containsPrimitiveContainer()) {
             $out .= <<<PHP
         \$attributes = \$sxe->attributes();
