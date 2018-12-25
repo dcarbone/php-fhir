@@ -50,7 +50,7 @@ abstract class XMLUnserializeUtils
             $propertyType->hasPrimitiveContainerParent()) {
             $out .= <<<PHP
         if (null !== (\$v = \$attributes->{$propertyName})) {
-            \${$typeName}->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$v));
+            \$type->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$v));
         } else
 PHP;
         } else {
@@ -58,7 +58,7 @@ PHP;
         }
         $out .= <<<PHP
 if (isset(\$children->{$propertyName})) {
-            \${$typeName}->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$children->{$propertyName}));
+            \$type->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$children->{$propertyName}));
         }
 
 PHP;
@@ -84,7 +84,7 @@ PHP;
         $out = <<<PHP
         if (isset(\$children->{$propertyName}) && 0 < count(\$children->{$propertyName})) {
             foreach(\$children->{$propertyName} as \$child) {
-                \${$typeName}->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$child));
+                \$type->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$child));
             }
         }
 
@@ -104,9 +104,9 @@ PHP;
     /**
      * @param \SimpleXMLElement|string|null \$sxe
      * @param null|{$type->getFullyQualifiedClassName(true)} \${$type->getClassName()}
-     * @return null|{$type->getFullyQualifiedClassName(true)}
+     * @return null|{$type->getFullyQualifiedClassName(true)} \$type
      */
-    public static function xmlUnserialize(\$sxe = null, {$type->getClassName()} \${$type->getClassName()} = null)
+    public static function xmlUnserialize(\$sxe = null, \$type = null)
     {
         if (null === \$sxe) {
             return null;
@@ -117,13 +117,20 @@ PHP;
         if (!(\$sxe instanceof \SimpleXMLElement)) {
             throw new \InvalidArgumentException('{$type->getClassName()}::fromXML - Argument 1 expected to be XML string or instance of \SimpleXMLElement, '.gettype(\$sxe).' seen.');
         }
-        if (null === \${$type->getClassName()}) {
+        if (null !== \$type) {
+            if (!is_object(\$type) || !(\$type instanceof {$type->getClassName()})) {
+                throw new \RuntimeException(sprintf(
+                    '\$type must be instance of {$type->getFullyQualifiedClassName(true)} or null, %s seen.',
+                    is_object(\$type) ? get_class(\$type) : gettype(\$type)
+                ));
+            }
+        } else {
             
 PHP;
         if ($type->hasParent() && null !== $type->getParentType()) {
-            $out .= "\${$type->getClassName()} = {$type->getParentType()->getClassName()}::xmlUnserialize(\$sxe, new {$type->getClassName()});\n";
+            $out .= "\$type = {$type->getParentType()->getClassName()}::xmlUnserialize(\$sxe, new {$type->getClassName()});\n";
         } else {
-            $out .= "\${$type->getClassName()} = new {$type->getClassName()};\n";
+            $out .= "\$type = new {$type->getClassName()};\n";
         }
         $out .= "        }\n";
         return $out;
@@ -138,12 +145,12 @@ PHP;
     {
         $out = <<<PHP
         if (null !== (\$v = \$sxe->attributes()->value)) {
-            return \${$type->getClassName()}->setValue((string)\$v);
+            return \$type->setValue((string)\$v);
         }
         if ('' !== (\$v = (string)\$sxe->children()->value)) {
-            return \${$type->getClassName()}->setValue(\$v);
+            return \$type->setValue(\$v);
         }
-        return \${$type->getClassName()};
+        return \$type;
 
 PHP;
         return $out;
@@ -161,7 +168,7 @@ PHP;
         $out = <<<PHP
         \$children = \$sxe->children();
         if (0 === count(\$children)) {
-            return \${$type->getClassName()};
+            return \$type;
         }
 
 PHP;
@@ -181,13 +188,13 @@ PHP;
             }
             $out .= <<<PHP
 if (isset(\$children->{$propertyName})) {
-            \${$typeName}->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$children->{$propertyName}));
+            \$type->{$methodName}({$propertyTypeClassName}::xmlUnserialize(\$children->{$propertyName}));
         }
 PHP;
         }
 
         $out .= <<<PHP
-        return \${$typeName};
+        return \$type;
 
 PHP;
         return $out;
@@ -228,7 +235,7 @@ PHP;
             }
         }
         $out .= <<<PHP
-        return \${$type->getClassName()};
+        return \$type;
 
 PHP;
 

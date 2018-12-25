@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Builder\ClassBuilder;
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Utilities\AutoloaderUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
@@ -115,6 +116,16 @@ class Builder
      */
     protected function afterGeneration()
     {
+        $autoloaderFilePath = FileUtils::buildGenericClassFilePath(
+            $this->config,
+            $this->config->getNamespace(),
+            'PHPFHIRAutoloader'
+        );
+        if (!(bool)file_put_contents(
+            $autoloaderFilePath,
+            AutoloaderUtils::buildAutoloader($this->config, $this->definition))) {
+            throw new \RuntimeException("Unable to write autoloader to path: {$autoloaderFilePath}");
+        }
 //        $this->mapTemplate->writeToFile();
 //        $this->autoloadMap->writeToFile();
 //

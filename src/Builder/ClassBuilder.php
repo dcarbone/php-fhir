@@ -21,6 +21,7 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\JSONSerializeUtils;
 use DCarbone\PHPFHIR\Utilities\MethodUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
@@ -185,16 +186,9 @@ abstract class ClassBuilder
             ));
         }
 
-        $out = <<<PHP
-<?php
+        // opens php, defines namespace (if applicable), and sets comment
+        $out = FileUtils::buildFileHeader($fqns);
 
-namespace {$fqns};
-
-
-PHP;
-
-        $out .= CopyrightUtils::getFullPHPFHIRCopyrightComment();
-        $out .= "\n\n";
         $out .= NSUtils::compileUseStatements($config, $types, $type);
         if ("\n\n" !== substr($out, -2)) {
             $out .= "\n";

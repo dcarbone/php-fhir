@@ -25,6 +25,25 @@ use DCarbone\PHPFHIR\Definition\Type;
  */
 abstract class FileUtils
 {
+    const REGEX_SLASH_SEARCH         = '{[\\\]}S';
+    const REGEX_SLASH_SEARCH_CLEANUP = '{[/]{2,}}S';
+    const REGEX_SLASH_REPLACE        = '/';
+
+    /**
+     * @param string $namespace
+     * @return string
+     */
+    public static function buildFileHeader($namespace)
+    {
+        $out = "<?php\n\n";
+        $namespace = trim($namespace, " \t\n\r\0\x0b\\/");
+        if ('' !== $namespace) {
+            $out .= "namespace {$namespace};\n\n";
+        }
+        $out .= CopyrightUtils::getFullPHPFHIRCopyrightComment();
+        return $out . "\n\n";
+    }
+
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param string $pathSuffix
@@ -55,6 +74,17 @@ abstract class FileUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param string $namespace
+     * @param string $classname
+     * @return string
+     */
+    public static function buildGenericClassFilePath(VersionConfig $config, $namespace, $classname)
+    {
+        return self::mkdirRecurse($config, self::cleanupPath($namespace)) . "/{$classname}.php";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
@@ -62,11 +92,21 @@ abstract class FileUtils
     {
         return static::mkdirRecurse(
                 $config,
-                preg_replace(
-                    ['{[\\\]}S', '{[/]{2,}}S'],
-                    '/',
-                    $type->getFullyQualifiedNamespace(false)
-                )
+                self::cleanupPath($type->getFullyQualifiedNamespace(false))
             ) . "/{$type->getClassName()}.php";
+    }
+
+    /**
+     * @param string $namespace
+     * @return string
+     */
+    protected static function cleanupPath($namespace)
+    {
+        $namespace = rtrim($namespace, '\\/');
+        return preg_replace(
+            [self::REGEX_SLASH_SEARCH, self::REGEX_SLASH_SEARCH_CLEANUP],
+            self::REGEX_SLASH_REPLACE,
+            $namespace
+        );
     }
 }
