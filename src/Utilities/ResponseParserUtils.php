@@ -84,7 +84,7 @@ PHP;
     }
 PHP;
 
-    const FUNC_PARSE_JSON = <<<PHP
+    const FUNC_PARSE_JSON = <<<STUPID73HEREDOCBULLSHIT
     /**
      * @param string \$in
      * @return null|object
@@ -108,24 +108,24 @@ PHP;
                 gettype(\$decoded)
             ));
         }
-        if (!isset(\$decoded[self::RESOURCE_TYPE_FIELD])) {
+        if (!isset(\$decoded[PHPFHIRTypeMap::RESOURCE_TYPE_FIELD])) {
             throw new \DomainException(sprintf(
                 'Cannot decode JSON response, expected field "%s" not found.  Root fields: ["%s"]',
-                self::RESOURCE_TYPE_FIELD,
+                PHPFHIRTypeMap::RESOURCE_TYPE_FIELD,
                 implode('","', array_keys(\$decoded))
             ));
         }
-        if (!isset(\$this->_typeMap[\$decoded[self::RESOURCE_TYPE_FIELD]])) {
+        if (null === (\$class = PHPFHIRTypeMap::getClassForType(\$decoded[PHPFHIRTypeMap::RESOURCE_TYPE_FIELD]))) {
             throw new \DomainException(sprintf(
                 'Unable to find class for type %s',
-                \$decoded[self::RESOURCE_TYPE_FIELD]
+                \$decoded[PHPFHIRTypeMap::RESOURCE_TYPE_FIELD]
             ));
+        } else {
+            return new \$class(\$decoded);
         }
-        \$class = \$this->_typeMap[\$decoded[self::RESOURCE_TYPE_FIELD]];
-        return new \$class(\$decoded);
     }
 
-PHP;
+STUPID73HEREDOCBULLSHIT;
 
     const FUNC_PARSE_XML = <<<PHP
     /**
@@ -145,14 +145,14 @@ PHP;
                 \$err
             ));
         }
-        if (!isset(\$this->_typeMap[\$sxe->getName()])) {
+        if (null === (\$class = PHPFHIRTypeMap::getClassForType(\$sxe->getName()))) {
             throw new \DomainException(sprintf(
                 'Unable to find class for type %s',
                 \$sxe->getName()
             ));
+        } else {
+            return \$class::xmlUnserialize(\$sxe);
         }
-        \$class = \$this->_typeMap[\$sxe->getName()];
-        return \$class::xmlUnserialize(\$sxe);
     }
 
 PHP;
@@ -160,16 +160,11 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition $definition
      * @return string
      */
-    public static function buildResponseParser(Config\VersionConfig $config, Definition $definition)
+    public static function build(Config\VersionConfig $config)
     {
         $rootNamespace = $config->getNamespace();
-        $typeMap = [];
-        foreach ($definition->getTypes()->getIterator() as $type) {
-            $typeMap[$type->getFHIRName()] = $type->getFullyQualifiedClassName(true);
-        }
 
         $out = FileUtils::buildFileHeader($config->getNamespace());
 
@@ -189,7 +184,7 @@ class PHPFHIRResponseParser
 
 PHP;
 
-        $out .= sprintf(self::VARS, var_export($typeMap, true));
+        $out .= self::VARS;
         $out .= "\n";
         $out .= self::FUNC_CONSTRUCTOR;
         $out .= "\n";

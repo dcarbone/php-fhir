@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Utilities\AutoloaderUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\ResponseParserUtils;
+use DCarbone\PHPFHIR\Utilities\TypeMapUtils;
 
 /**
  * Class Builder
@@ -108,7 +109,7 @@ class Builder
         );
         if (!(bool)file_put_contents(
             $autoloaderFilePath,
-            AutoloaderUtils::buildAutoloader($this->config, $this->definition))) {
+            AutoloaderUtils::build($this->config, $this->definition))) {
             throw new \RuntimeException("Unable to write autoloader to path: {$autoloaderFilePath}");
         }
         $parserFilePath = FileUtils::buildGenericClassFilePath(
@@ -118,8 +119,18 @@ class Builder
         );
         if (!(bool)file_put_contents(
             $parserFilePath,
-            ResponseParserUtils::buildResponseParser($this->config, $this->definition))) {
+            ResponseParserUtils::build($this->config))) {
             throw new \RuntimeException("Unable to write response parser to path: {$parserFilePath}");
+        }
+        $typeMapFilePath = FileUtils::buildGenericClassFilePath(
+            $this->config,
+            $this->config->getNamespace(),
+            'PHPFHIRTypeMap'
+        );
+        if (!(bool)file_put_contents(
+            $typeMapFilePath,
+            TypeMapUtils::build($this->config, $this->definition))) {
+            throw new \RuntimeException("Unable to write response parser to path: {$typeMapFilePath}");
         }
     }
 }

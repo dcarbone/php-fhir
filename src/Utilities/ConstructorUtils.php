@@ -208,18 +208,26 @@ PHP;
     {
         return <<<PHP
  elseif (is_array(\$data)) {
-            if (isset(\$data['resourceType'])) {
-                \$containedType = \$data['resourceType];
-                
+            if (isset(\$data[PHPFHIRTypeMap::RESOURCE_TYPE_FIELD])) {
+                \$type = \$data[PHPFHIRTypeMap::RESOURCE_TYPE_FIELD];
+                \$class = PHPFHIRTypeMap::getClassForType(\$type);
+                if (null === \$class) {
+                    throw new \RuntimeException(sprintf(
+                       'Unable to determine class for type %s',
+                       \$data[PHPFHIRTypeMap::RESOURCE_TYPE_FIELD]
+                    ));
+                }
+                \$this->{"set{\$type}"}(new \$class(\$data));
+            } else {
+                \$key = key(\$data);
+                if (!is_string(\$key)) {
+                    throw new \InvalidArgumentException(sprintf(
+                        '{$type->getFullyQualifiedClassName(true)}::__construct - When \$data is an array, the first key must be a string with a value equal to one of the fields defined in this object.  %s seen',
+                        \$key
+                    ));
+                }
+                \$this->{"set{\$key}"}(current(\$data));
             }
-            \$key = key(\$data);
-            if (!is_string(\$key)) {
-                throw new \InvalidArgumentException(sprintf(
-                    '{$type->getFullyQualifiedClassName(true)}::__construct - When \$data is an array, the first key must be a string with a value equal to one of the fields defined in this object.  %s seen',
-                    \$key
-                ));
-            }
-            \$this->{"set{\$key}"}(current(\$data));
         } elseif (is_object(\$data)) {
             \$this->{sprintf('set%s', substr(strrchr(get_class(\$data), 'FHIR'), 4))}(\$data);
         } else {

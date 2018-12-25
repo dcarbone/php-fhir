@@ -86,7 +86,7 @@ PHP;
      * @param \DCarbone\PHPFHIR\Definition $definition
      * @return string
      */
-    public static function buildAutoloader(Config\VersionConfig $config, Definition $definition)
+    public static function build(Config\VersionConfig $config, Definition $definition)
     {
         $rootNamespace = $config->getNamespace();
         $classMap = [
