@@ -21,7 +21,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Utilities\AutoloaderUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
-use DCarbone\PHPFHIR\Utilities\ParserUtils;
+use DCarbone\PHPFHIR\Utilities\ResponseParserUtils;
 
 /**
  * Class Builder
@@ -118,7 +118,7 @@ class Builder
         );
         if (!(bool)file_put_contents(
             $parserFilePath,
-            ParserUtils::buildResponseParser($this->config, $this->definition))) {
+            ResponseParserUtils::buildResponseParser($this->config, $this->definition))) {
             throw new \RuntimeException("Unable to write response parser to path: {$parserFilePath}");
         }
     }

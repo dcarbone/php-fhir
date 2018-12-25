@@ -6,23 +6,18 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
 
 /**
- * Class ParserUtils
+ * Class ResponseParserUtils
  * @package DCarbone\PHPFHIR\Utilities
  */
-abstract class ParserUtils
+abstract class ResponseParserUtils
 {
     const VARS = <<<PHP
-    const RESOURCE_TYPE_FIELD = 'resourceType';
-    
     /**
      * If response is XML, these arguments will be passed into the \SimpleXMLElement constructor
      * @see http://php.net/manual/en/libxml.constants.php for a list of options.
      * @var int
      */
     private \$_sxeArgs;
-    
-    /** @var array */
-    private \$_typeMap = %s;
 
 PHP;
 
@@ -68,7 +63,7 @@ PHP;
      */
     public function parse(\$in)
     {
-        if (is_string(\$in)) {
+        if (!is_string(\$in)) {
             throw new \InvalidArgumentException(sprintf(
                 '\$in must be string, %s seen',
                 gettype(\$in)
@@ -77,9 +72,9 @@ PHP;
         
         \$first = substr(\$in, 0, 1);
         if ('<' === \$first) {
-            return \$this->_parseJSON(\$in);
-        } else if ('{' === \$first) {
             return \$this->_parseXML(\$in);
+        } else if ('{' === \$first) {
+            return \$this->_parseJSON(\$in);
         } else {
             throw new \InvalidArgumentException(sprintf(
                 'Unknown data format provided, expected XML ("<") or JSON ("{") first character, saw %s',
@@ -137,7 +132,7 @@ PHP;
      * @param string \$in
      * @return null|object
      */
-    public function _parseXML(\$in)
+    private function _parseXML(\$in)
     {
         libxml_use_internal_errors(true);
         \$sxe = new \SimpleXMLElement(\$in, \$this->_sxeArgs);

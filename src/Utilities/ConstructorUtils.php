@@ -126,6 +126,7 @@ PHP;
         $out = '';
         $out .= <<<PHP
         if (is_array(\$data)) {
+            unset(\$data['resourceType']);
 
 PHP;
         foreach ($properties->getSortedIterator() as $property) {
@@ -207,6 +208,10 @@ PHP;
     {
         return <<<PHP
  elseif (is_array(\$data)) {
+            if (isset(\$data['resourceType'])) {
+                \$containedType = \$data['resourceType];
+                
+            }
             \$key = key(\$data);
             if (!is_string(\$key)) {
                 throw new \InvalidArgumentException(sprintf(

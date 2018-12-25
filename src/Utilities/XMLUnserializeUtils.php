@@ -103,8 +103,8 @@ PHP;
         $out = <<<PHP
     /**
      * @param \SimpleXMLElement|string|null \$sxe
-     * @param null|{$type->getFullyQualifiedClassName(true)} \${$type->getClassName()}
-     * @return null|{$type->getFullyQualifiedClassName(true)} \$type
+     * @param null|{$type->getFullyQualifiedClassName(true)} \$type
+     * @return null|{$type->getFullyQualifiedClassName(true)}
      */
     public static function xmlUnserialize(\$sxe = null, \$type = null)
     {
