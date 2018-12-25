@@ -21,6 +21,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Utilities\AutoloaderUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
+use DCarbone\PHPFHIR\Utilities\ParserUtils;
 
 /**
  * Class Builder
@@ -92,22 +93,6 @@ class Builder
         $this->log->startBreak('Generator Class Initialization');
         $this->log->info('Compiling Copyrights...');
         CopyrightUtils::compileCopyrights($this->config);
-
-//        $this->autoloadMap = new AutoloaderTemplate($this->config);
-//
-//        $this->mapTemplate = new ParserMapTemplate($this->config);
-//        $this->autoloadMap->addEntry(
-//            $this->mapTemplate->getClassName(),
-//            $this->mapTemplate->getClassPath()
-//        );
-//
-//        $helperTemplate = new HelperTemplate($this->config);
-//        $helperTemplate->writeToFile();
-//        $this->autoloadMap->addEntry(
-//            $helperTemplate->getClassName(),
-//            $helperTemplate->getClassPath()
-//        );
-
         $this->log->endBreak('Generator Class Initialization');
     }
 
@@ -126,14 +111,15 @@ class Builder
             AutoloaderUtils::buildAutoloader($this->config, $this->definition))) {
             throw new \RuntimeException("Unable to write autoloader to path: {$autoloaderFilePath}");
         }
-//        $this->mapTemplate->writeToFile();
-//        $this->autoloadMap->writeToFile();
-//
-//        $responseParserTemplate = new ResponseParserTemplate($this->config);
-//        $this->autoloadMap->addEntry(
-//            $responseParserTemplate->getClassName(),
-//            $responseParserTemplate->getClassPath()
-//        );
-//        $responseParserTemplate->writeToFile();
+        $parserFilePath = FileUtils::buildGenericClassFilePath(
+            $this->config,
+            $this->config->getNamespace(),
+            'PHPFHIRResponseParser'
+        );
+        if (!(bool)file_put_contents(
+            $parserFilePath,
+            ParserUtils::buildResponseParser($this->config, $this->definition))) {
+            throw new \RuntimeException("Unable to write response parser to path: {$parserFilePath}");
+        }
     }
 }
