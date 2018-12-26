@@ -125,7 +125,7 @@ abstract class TypeExtractor
                     break;
 
                 default:
-                    $config->getLogger()->warning(sprintf(
+                    throw new \DomainException(sprintf(
                         'Unexpected Type %s first-level child %s: %s',
                         $type,
                         $element->getName(),
@@ -175,7 +175,7 @@ abstract class TypeExtractor
                     break;
 
                 default:
-                    $config->getLogger()->warning(sprintf(
+                    throw new \DomainException(sprintf(
                         'Unexpected Type %s first-level child %s: %s',
                         $type,
                         $element->getName(),
@@ -212,8 +212,7 @@ abstract class TypeExtractor
                     /** @var \SimpleXMLElement $attribute */
                     $attrArray[] = sprintf('%s" : "%s', $attribute->getName(), (string)$attribute);
                 }
-                $config->getLogger()
-                       ->warning(sprintf(
+                throw new \DomainException(sprintf(
                            'Unable to locate "name" attribute on element %s in file "%s" with attributes ["%s"]',
                            $child->getName(),
                            $basename,
@@ -264,7 +263,7 @@ abstract class TypeExtractor
                     break;
 
                 default:
-                    $config->getLogger()->warning(sprintf(
+                    throw new \RuntimeException(sprintf(
                         'Saw unexpected element "%s" in root of file "%s": %s',
                         $child->getName(),
                         $basename,

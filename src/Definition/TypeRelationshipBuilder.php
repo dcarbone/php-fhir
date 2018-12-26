@@ -143,7 +143,7 @@ abstract class TypeRelationshipBuilder
                         $pt
                     ));
                 } else {
-                    $config->getLogger()->notice(sprintf(
+                    $config->getLogger()->warning(sprintf(
                         'Unable to locate Type %s Property %s value Type of %s',
                         $type,
                         $property,

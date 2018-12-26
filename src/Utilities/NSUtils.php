@@ -63,6 +63,10 @@ abstract class NSUtils
 
         $imports = [];
 
+        if ($type->isResourceContainer()) {
+            $imports[] = "{$config->getNamespace()}\\PHPFHIRTypeMap";
+        }
+
         if ($parentType = $type->getParentType()) {
             if (($parentNS = $parentType->getFullyQualifiedNamespace(false)) !== $fqns) {
                 $imports[] = $parentType->getFullyQualifiedClassName(false);

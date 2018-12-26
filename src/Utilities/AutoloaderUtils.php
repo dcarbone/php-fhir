@@ -90,7 +90,8 @@ PHP;
     {
         $rootNamespace = $config->getNamespace();
         $classMap = [
-            "{$rootNamespace}\\PHPFHIRResponseParser" => 'PHPFHIRResponseParser',
+            "{$rootNamespace}\\PHPFHIRResponseParser" => 'PHPFHIRResponseParser.php',
+            "{$rootNamespace}\\PHPFHIRTypeMap"        => 'PHPFHIRTypeMap.php',
         ];
 
         foreach ($definition->getTypes()->getIterator() as $type) {

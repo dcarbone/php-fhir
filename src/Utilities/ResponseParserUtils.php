@@ -84,7 +84,7 @@ PHP;
     }
 PHP;
 
-    const FUNC_PARSE_JSON = <<<STUPID73HEREDOCBULLSHIT
+    const FUNC_PARSE_JSON = <<<PH7P
     /**
      * @param string \$in
      * @return null|object
@@ -125,7 +125,7 @@ PHP;
         }
     }
 
-STUPID73HEREDOCBULLSHIT;
+PH7P;
 
     const FUNC_PARSE_XML = <<<PHP
     /**

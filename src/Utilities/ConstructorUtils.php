@@ -38,22 +38,31 @@ abstract class ConstructorUtils
     {
         $name = $property->getName();
         $method = 'set' . ucfirst($name);
+        $propertyName = $property->getName();
         $propertyType = $property->getValueType();
         if (null === $propertyType) {
-            $config->getLogger()->error(sprintf(
-                'Cannot create setter for type %s property %s as it defines an unknown type %s',
-                $type->getFHIRName(),
-                $property->getName(),
-                $property->getFHIRTypeName()
-            ));
-            return '';
-        }
-        $propertyTypeClassName = $property->getValueType()->getClassName();
-
-        $out = <<<PHP
-                \$this->{$method}((\$data['{$property->getName()}'] instanceof {$propertyTypeClassName}) ? \$data['{$property->getName()}'] : new {$propertyTypeClassName}(\$data['{$property->getName()}']));
+            // TODO: this is really hacky...
+            if ('html' === $property->getFHIRTypeName()) {
+                $out = <<<PHP
+            \$this->{$method}((string)\$data['{$propertyName}']);
 
 PHP;
+            } else {
+                throw new \RuntimeException(sprintf(
+                    'Cannot create setter for type %s property %s as it defines an unknown type %s',
+                    $type->getFHIRName(),
+                    $property->getName(),
+                    $property->getFHIRTypeName()
+                ));
+            }
+        } else {
+            $propertyTypeClassName = $property->getValueType()->getClassName();
+
+            $out = <<<PHP
+                \$this->{$method}((\$data['{$propertyName}'] instanceof {$propertyTypeClassName}) ? \$data['{$propertyName}'] : new {$propertyTypeClassName}(\$data['{$propertyName}']));
+
+PHP;
+        }
         return $out;
     }
 
@@ -70,13 +79,12 @@ PHP;
         $propertyType = $property->getValueType();
         $propertyName = $property->getName();
         if (null === $propertyType) {
-            $config->getLogger()->error(sprintf(
+            throw new \RuntimeException(sprintf(
                 'Cannot create setter for type %s property %s as it defines an unknown type %s',
                 $type->getFHIRName(),
                 $property->getName(),
                 $property->getFHIRTypeName()
             ));
-            return '';
         }
         $propertyTypeClassName = $property->getValueType()->getClassName();
         $out = <<<PHP
@@ -222,7 +230,7 @@ PHP;
                 \$key = key(\$data);
                 if (!is_string(\$key)) {
                     throw new \InvalidArgumentException(sprintf(
-                        '{$type->getFullyQualifiedClassName(true)}::__construct - When \$data is an array, the first key must be a string with a value equal to one of the fields defined in this object.  %s seen',
+                        '{$type->getFullyQualifiedClassName(true)}::__construct - When \$data is an array, the first key must be a string with a value equal to one of the fields defined in this object or the definition of a contained type with a "resourceType" field with the name of the type.  %s seen',
                         \$key
                     ));
                 }
