@@ -30,6 +30,8 @@ require __DIR__ . '/../vendor/autoload.php';
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
+use MyENA\DefaultANSILogger;
+use Psr\Log\LogLevel;
 
 // ----- constants
 
@@ -266,7 +268,9 @@ if (!is_readable($config_file)) {
     exit(1);
 }
 
-$config = new Config(require $config_file);
+$logger = new DefaultANSILogger();
+$logger->setLogLevel(LogLevel::DEBUG);
+$config = new Config(require $config_file, $logger);
 
 // test provided versions are defined
 if (null === $versions_to_generate) {

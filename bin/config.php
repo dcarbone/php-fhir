@@ -25,7 +25,7 @@ return [
     'classesPath' => __DIR__ . '/../output',
 
     // If true, will use a noop null logger
-    'silent' => true,
+    'silent' => false,
     'logLevel' => 'INFO',
 
     // Map of versions and configurations to generate

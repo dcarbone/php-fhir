@@ -19,8 +19,8 @@ namespace DCarbone\PHPFHIR\Utilities;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\TypeInterface;
 
 /**
  * Class ConstructorUtils
@@ -30,11 +30,11 @@ abstract class ConstructorUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    protected static function buildDefaultSetter(VersionConfig $config, Type $type, Property $property)
+    protected static function buildDefaultSetter(VersionConfig $config, TypeInterface $type, Property $property)
     {
         $name = $property->getName();
         $method = 'set' . ucfirst($name);
@@ -68,11 +68,11 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    protected static function buildCollectionSetter(VersionConfig $config, Type $type, Property $property)
+    protected static function buildCollectionSetter(VersionConfig $config, TypeInterface $type, Property $property)
     {
         $name = $property->getName();
         $method = 'add' . ucfirst($name);
@@ -103,10 +103,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildHeader(VersionConfig $config, Type $type)
+    public static function buildHeader(VersionConfig $config, TypeInterface $type)
     {
         $out = <<<PHP
     /**
@@ -125,10 +125,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildDefaultBody(VersionConfig $config, Type $type)
+    public static function buildDefaultBody(VersionConfig $config, TypeInterface $type)
     {
         $properties = $type->getProperties();
         $out = '';
@@ -170,10 +170,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildPrimitiveBody(VersionConfig $config, Type $type)
+    public static function buildPrimitiveBody(VersionConfig $config, TypeInterface $type)
     {
         $out = <<<PHP
 
@@ -191,10 +191,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildPrimitiveContainerBody(VersionConfig $config, Type $type)
+    public static function buildPrimitiveContainerBody(VersionConfig $config, TypeInterface $type)
     {
         $out = <<<PHP
 
@@ -209,10 +209,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildResourceContainerBody(VersionConfig $config, Type $type)
+    public static function buildResourceContainerBody(VersionConfig $config, TypeInterface $type)
     {
         return <<<PHP
  elseif (is_array(\$data)) {

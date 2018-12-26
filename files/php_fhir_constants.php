@@ -35,9 +35,10 @@ define('PHPFHIR_TYPE_RESOURCE_CONTAINER', 'ResourceContainer');
 define('PHPFHIR_TYPE_RESOURCE_INLINE', 'Resource.Inline');
 define('PHPFHIR_TYPE_RESOURCE', 'Resource');
 define('PHPFHIR_TYPE_DOMAIN_RESOURCE', 'DomainResource');
+define('PHPFHIR_TYPE_HTML', 'html');
+define('PHPFHIR_TYPE_UNDEFINED', 'undefined');
 
 // Properties
-define('PHPFHIR_PROPERTY_TYPE_HTML', 'html');
 define('PHPFHIR_PROPERTY_OCCURS_UNLIMITED', -1);
 
 // Generation

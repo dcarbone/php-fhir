@@ -27,10 +27,17 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 class Types implements \Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Type[] */
-    private $types = [];
+    private $types;
 
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
+
+
+    // few fixed types
+
+    private $htmlType;
+
+    private $undefinedType;
 
     /**
      * FHIRTypes constructor.
@@ -39,6 +46,13 @@ class Types implements \Countable
     public function __construct(VersionConfig $config)
     {
         $this->config = $config;
+        $this->htmlType = new HTMLType($config, null, '', PHPFHIR_TYPE_HTML);
+        $this->undefinedType = new UndefinedType($config, null, '', PHPFHIR_TYPE_UNDEFINED);
+        // seed types with a few defaults...
+        $this->types = [
+            $this->htmlType,
+            $this->undefinedType,
+        ];
     }
 
     /**
@@ -124,6 +138,22 @@ class Types implements \Countable
     public function getIterator()
     {
         return new \ArrayIterator($this->types);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\HTMLType
+     */
+    public function getHtmlType()
+    {
+        return $this->htmlType;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\UndefinedType
+     */
+    public function getUndefinedType()
+    {
+        return $this->undefinedType;
     }
 
     /**

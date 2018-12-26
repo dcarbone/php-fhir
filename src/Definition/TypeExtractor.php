@@ -232,7 +232,6 @@ abstract class TypeExtractor
                         TypeRelationshipBuilder::determineComponentOfTypeName($config, $types, $type, $name);
                     }
                     static::extractComplexInnards($config, $types, $type, $type->getSourceSXE());
-                    $type->setClassName(NameUtils::getTypeClassName($fhirElementName));
                     $config->getLogger()->info(sprintf(
                         'Located "Complex" Type class "%s\\%s" in file "%s"',
                         $type->getFHIRTypeNamespace(),
@@ -243,7 +242,6 @@ abstract class TypeExtractor
 
                 case XSDElementType::SIMPLE_TYPE:
                     $types->addType($type, $file);
-                    $type->setClassName(NameUtils::getTypeClassName($fhirElementName));
                     $type->addProperty(new Property($config, 'value', ''));
                     static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
                     $config->getLogger()->info(sprintf(
@@ -255,7 +253,7 @@ abstract class TypeExtractor
                     break;
 
                 case XSDElementType::ELEMENT:
-                    $config->getLogger()->info(sprintf(
+                    $config->getLogger()->warning(sprintf(
                         'Skipping root level element %s in file %s',
                         $child->getName(),
                         $basename

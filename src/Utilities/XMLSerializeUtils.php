@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Definition\TypeInterface;
 
 /**
  * Class XMLSerializeUtils
@@ -29,19 +29,19 @@ abstract class XMLSerializeUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildHeader(VersionConfig $config, Type $type)
+    public static function buildHeader(VersionConfig $config, TypeInterface $type)
     {
         return PHPFHIR_DEFAULT_XML_SERIALIZE_HEADER;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    protected static function buildSXE(Type $type)
+    protected static function buildSXE(TypeInterface $type)
     {
         static $ns = FHIR_XMLNS;
         $name = str_replace(
@@ -59,10 +59,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    protected static function returnStmt(VersionConfig $config, Type $type)
+    protected static function returnStmt(VersionConfig $config, TypeInterface $type)
     {
         if (!$type->isPrimitive() && $type->hasParent()) {
             return "        return parent::xmlSerialize(\$returnSXE, \$sxe);\n";
@@ -73,10 +73,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    protected static function buildResourceContainerBody(VersionConfig $config, Type $type)
+    protected static function buildResourceContainerBody(VersionConfig $config, TypeInterface $type)
     {
         // if munging, do not serialize the container directly
         if ($config->mustSquashPrimitives()) {
@@ -112,10 +112,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    protected static function buildPrimitiveBody(VersionConfig $config, Type $type)
+    protected static function buildPrimitiveBody(VersionConfig $config, TypeInterface $type)
     {
         static $ns = FHIR_XMLNS;
         $name = str_replace(
@@ -136,10 +136,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    protected static function buildDefaultBody(VersionConfig $config, Type $type)
+    protected static function buildDefaultBody(VersionConfig $config, TypeInterface $type)
     {
         $out = static::buildSXE($type);
         foreach ($type->getProperties()->getSortedIterator() as $property) {
@@ -192,10 +192,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildBody(VersionConfig $config, Type $type)
+    public static function buildBody(VersionConfig $config, TypeInterface $type)
     {
         if ($type->isPrimitive() || $type->isPrimitiveContainer()) {
             return static::buildPrimitiveBody($config, $type);

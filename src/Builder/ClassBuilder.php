@@ -17,10 +17,9 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Definition\TypeInterface;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\JSONSerializeUtils;
 use DCarbone\PHPFHIR\Utilities\MethodUtils;
@@ -39,10 +38,10 @@ abstract class ClassBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    protected static function buildPrimitiveTypeClass(VersionConfig $config, Types $types, Type $type)
+    protected static function buildPrimitiveTypeClass(VersionConfig $config, Types $types, TypeInterface $type)
     {
         $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
         $out .= "\n";
@@ -70,10 +69,10 @@ abstract class ClassBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    protected static function buildPrimitiveContainerTypeClass(VersionConfig $config, Types $types, Type $type)
+    protected static function buildPrimitiveContainerTypeClass(VersionConfig $config, Types $types, TypeInterface $type)
     {
         $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
         $out .= "\n";
@@ -101,12 +100,12 @@ abstract class ClassBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
     protected static function buildResourceContainerOrInlineResourceTypeClass(VersionConfig $config,
                                                                               Types $types,
-                                                                              Type $type)
+                                                                              TypeInterface $type)
     {
         $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
         $out .= "\n";
@@ -131,10 +130,10 @@ abstract class ClassBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    protected static function buildDefaultTypeClass(VersionConfig $config, Types $types, Type $type)
+    protected static function buildDefaultTypeClass(VersionConfig $config, Types $types, TypeInterface $type)
     {
         $out = '';
         if (0 < count($type->getProperties())) {
@@ -163,10 +162,10 @@ abstract class ClassBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function generateTypeClass(VersionConfig $config, Types $types, Type $type)
+    public static function generateTypeClass(VersionConfig $config, Types $types, TypeInterface $type)
     {
         $fqns = $type->getFullyQualifiedNamespace(false);
         if (!NameUtils::isValidNSName($fqns)) {

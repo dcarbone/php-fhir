@@ -19,17 +19,15 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 /**
- * TODO: Tracking too much state in this class...
- *
- * Class Type
- * @package DCarbone\PHPFHIR
+ * Class HTMLType
+ * @package DCarbone\PHPFHIR\Definition\Type
  */
-class Type extends AbstractType
+class HTMLType extends AbstractType
 {
     /**
      * @return bool
      */
-    public function isHTML()
+    public function isUndefined()
     {
         return false;
     }
@@ -37,8 +35,8 @@ class Type extends AbstractType
     /**
      * @return bool
      */
-    public function isUndefined()
+    public function isHTML()
     {
-        return false;
+        return true;
     }
 }

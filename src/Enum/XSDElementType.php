@@ -42,7 +42,7 @@ class XSDElementType extends Enum
     const CHOICE      = 'choice';
     const ENUMERATION = 'enumeration';
 
-    const  MIN_LENGTH = 'minLength';
-    const  MAX_LENGTH = 'maxLength';
+    const  MIN_LENGTH = 'minlength';
+    const  MAX_LENGTH = 'maxlength';
     const  PATTERN    = 'pattern';
 }

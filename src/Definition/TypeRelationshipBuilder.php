@@ -143,11 +143,13 @@ abstract class TypeRelationshipBuilder
                         $pt
                     ));
                 } else {
+                    $property->setValueType($types->getUndefinedType());
                     $config->getLogger()->warning(sprintf(
-                        'Unable to locate Type %s Property %s value Type of %s',
+                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
                         $type,
                         $property,
-                        $property->getFHIRTypeName()
+                        $property->getFHIRTypeName(),
+                        PHPFHIR_TYPE_UNDEFINED
                     ));
                 }
             }

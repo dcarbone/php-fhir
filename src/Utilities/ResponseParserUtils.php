@@ -3,7 +3,6 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Definition;
 
 /**
  * Class ResponseParserUtils

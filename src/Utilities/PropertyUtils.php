@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Definition\TypeInterface;
 use DCarbone\PHPFHIR\Definition\Type\Property;
 use DCarbone\PHPFHIR\Definition\Types;
 
@@ -32,13 +32,13 @@ abstract class PropertyUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return bool
      */
     public static function isPropertyImplementedByParent(VersionConfig $config,
                                                          Types $types,
-                                                         Type $type,
+                                                         TypeInterface $type,
                                                          Property $property)
     {
         if ($parent = $type->getParentType()) {
@@ -57,10 +57,10 @@ abstract class PropertyUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildClassPropertyDeclarations(VersionConfig $config, Type $type)
+    public static function buildClassPropertyDeclarations(VersionConfig $config, TypeInterface $type)
     {
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $property) {
@@ -87,10 +87,10 @@ abstract class PropertyUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @return string
      */
-    public static function buildClassPropertyMethods(VersionConfig $config, Types $types, Type $type)
+    public static function buildClassPropertyMethods(VersionConfig $config, Types $types, TypeInterface $type)
     {
         $sortedProperties = $type->getProperties()->getSortedIterator();
 
@@ -101,7 +101,7 @@ abstract class PropertyUtils
             }
             $propType = $property->getValueType();
             if (null === $propType) {
-                $config->getLogger()->warning(sprintf(
+                throw new \DomainException(sprintf(
                     'Unable to locate FHIR Type for Type %s Property %s',
                     $type,
                     $property
@@ -133,11 +133,11 @@ abstract class PropertyUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function buildPrimitiveJSONMarshalStatement(VersionConfig $config, Type $type, Property $property)
+    public static function buildPrimitiveJSONMarshalStatement(VersionConfig $config, TypeInterface $type, Property $property)
     {
         $propName = $property->getName();
         $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
@@ -192,11 +192,11 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function buildDefaultJSONMarshalStatement(VersionConfig $config, Type $type, Property $property)
+    public static function buildDefaultJSONMarshalStatement(VersionConfig $config, TypeInterface $type, Property $property)
     {
         $out = '';
         $propName = $property->getName();
@@ -229,11 +229,11 @@ PHP;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    public static function getPropertyPHPTypeName(Type $type, Property $property)
+    public static function getPropertyPHPTypeName(TypeInterface $type, Property $property)
     {
         if ($property->isHTML()) {
             return 'string';

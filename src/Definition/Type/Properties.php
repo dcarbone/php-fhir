@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Definition\Type;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Definition\TypeInterface;
 
 /**
  * Class Properties
@@ -36,15 +36,15 @@ class Properties implements \Countable
     /** @var */
     private $config;
 
-    /** @var \DCarbone\PHPFHIR\Definition\Type; */
+    /** @var \DCarbone\PHPFHIR\Definition\TypeInterface */
     private $type;
 
     /**
-     * TypeProperties constructor.
+     * Properties constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
      */
-    public function __construct(VersionConfig $config, Type $type)
+    public function __construct(VersionConfig $config, TypeInterface $type)
     {
         $this->config = $config;
         $this->type = $type;
@@ -59,7 +59,7 @@ class Properties implements \Countable
     }
 
     /**
-     * @return mixed
+     * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
     public function getConfig()
     {
@@ -67,7 +67,7 @@ class Properties implements \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type
+     * @return \DCarbone\PHPFHIR\Definition\TypeInterface
      */
     public function getType()
     {

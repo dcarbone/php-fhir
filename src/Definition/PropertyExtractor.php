@@ -63,7 +63,7 @@ abstract class PropertyExtractor
             }
 
             if (0 === strpos($ref, 'xhtml')) {
-                $property = new Property($config, substr($ref, 6), PHPFHIR_PROPERTY_TYPE_HTML);
+                $property = new Property($config, substr($ref, 6), PHPFHIR_TYPE_HTML);
                 return $property;
             }
 
@@ -128,7 +128,10 @@ abstract class PropertyExtractor
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $choice
      */
-    public static function implementChoiceProperty(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $choice)
+    public static function implementChoiceProperty(VersionConfig $config,
+                                                   Types $types,
+                                                   Type $type,
+                                                   \SimpleXMLElement $choice)
     {
         $attributes = $choice->attributes();
         $minOccurs = isset($attributes['minOccurs']) ? (int)$attributes['minOccurs'] : null;
@@ -184,7 +187,10 @@ abstract class PropertyExtractor
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function implementTypeProperty(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $element)
+    public static function implementTypeProperty(VersionConfig $config,
+                                                 Types $types,
+                                                 Type $type,
+                                                 \SimpleXMLElement $element)
     {
         /** @var \SimpleXMLElement $child */
         switch (strtolower($element->getName())) {
@@ -212,8 +218,9 @@ abstract class PropertyExtractor
             case XSDElementType::MIN_LENGTH:
             case XSDElementType::MAX_LENGTH:
             case XSDElementType::PATTERN:
+            case XSDElementType::SIMPLE_TYPE:
                 // TODO: don't ignore these...
-                $config->getLogger()->debug(sprintf(
+                $config->getLogger()->warning(sprintf(
                     'Ignoring %s element under Type %s...',
                     $element->getName(),
                     $type
@@ -221,7 +228,7 @@ abstract class PropertyExtractor
                 break;
 
             default:
-                $config->getLogger()->warning(sprintf(
+                throw new \DomainException(sprintf(
                     'Unexpected Type %s Property element "%s" found: %s',
                     $type,
                     $element->getName(),
@@ -236,7 +243,10 @@ abstract class PropertyExtractor
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $parent
      */
-    public static function extractTypeProperties(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $parent)
+    public static function extractTypeProperties(VersionConfig $config,
+                                                 Types $types,
+                                                 Type $type,
+                                                 \SimpleXMLElement $parent)
     {
         foreach ($parent->children('xs', true) as $element) {
             /** @var \SimpleXMLElement $element */

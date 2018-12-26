@@ -20,8 +20,8 @@ namespace DCarbone\PHPFHIR\Definition\Type;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\DocumentationTrait;
-use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Type\Property\Enumeration;
+use DCarbone\PHPFHIR\Definition\TypeInterface;
 
 /**
  * Class Property
@@ -53,7 +53,7 @@ class Property
     /** @var null|\DCarbone\PHPFHIR\Definition\Type\Property\Enumeration */
     private $enumeration = null;
 
-    /** @var \DCarbone\PHPFHIR\Definition\Type */
+    /** @var null|\DCarbone\PHPFHIR\Definition\TypeInterface */
     private $valueType = null;
 
     /**
@@ -114,7 +114,7 @@ class Property
      */
     public function isHTML()
     {
-        return PHPFHIR_PROPERTY_TYPE_HTML === $this->getFHIRTypeName();
+        return PHPFHIR_TYPE_HTML === $this->getFHIRTypeName();
     }
 
     /**
@@ -196,7 +196,7 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type
+     * @return \DCarbone\PHPFHIR\Definition\TypeInterface|null
      */
     public function getValueType()
     {
@@ -204,10 +204,10 @@ class Property
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $valueType
-     * @return Property
+     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $valueType
+     * @return \DCarbone\PHPFHIR\Definition\Type\Property
      */
-    public function setValueType(Type $valueType)
+    public function setValueType(TypeInterface $valueType)
     {
         $this->valueType = $valueType;
         return $this;
