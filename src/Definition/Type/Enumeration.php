@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Definition\Type\Property;
+namespace DCarbone\PHPFHIR\Definition\Type;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,17 +18,19 @@ namespace DCarbone\PHPFHIR\Definition\Type\Property;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Definition\Type\EnumerationValue;
+
 /**
  * Class Enumeration
- * @package DCarbone\PHPFHIR\Definition\Type\Property
+ * @package DCarbone\PHPFHIR\Definition\Type
  */
 class Enumeration implements \Iterator, \Countable
 {
-    /** @var \DCarbone\PHPFHIR\Definition\Type\Property\EnumerationValue[] */
+    /** @var \DCarbone\PHPFHIR\Definition\Type\EnumerationValue[] */
     private $values = [];
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property\EnumerationValue $value
+     * @param \DCarbone\PHPFHIR\Definition\Type\EnumerationValue $value
      * @return $this
      */
     public function addValue(EnumerationValue $value)
@@ -64,7 +66,7 @@ class Enumeration implements \Iterator, \Countable
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property\EnumerationValue $value
+     * @param \DCarbone\PHPFHIR\Definition\Type\EnumerationValue $value
      * @return bool
      */
     public function hasValue(EnumerationValue $value)
@@ -73,7 +75,7 @@ class Enumeration implements \Iterator, \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property\EnumerationValue|false
+     * @return \DCarbone\PHPFHIR\Definition\Type\EnumerationValue|false
      */
     public function current()
     {

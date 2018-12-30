@@ -37,9 +37,10 @@ define('PHPFHIR_TYPE_RESOURCE', 'Resource');
 define('PHPFHIR_TYPE_DOMAIN_RESOURCE', 'DomainResource');
 define('PHPFHIR_TYPE_HTML', 'html');
 define('PHPFHIR_TYPE_UNDEFINED', 'undefined');
+define('PHPFHIR_TYPE_PRIMITIVE_VALUE', 'primitiveValue');
 
 // Properties
-define('PHPFHIR_PROPERTY_OCCURS_UNLIMITED', -1);
+define('PHPFHIR_UNLIMITED', -1);
 
 // Generation
 define(

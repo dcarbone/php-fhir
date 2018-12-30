@@ -1,17 +1,17 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Definition;
+namespace DCarbone\PHPFHIR\Definition\Type;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type\Properties;
-use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\DocumentationTrait;
+use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Class AbstractType
  * @package DCarbone\PHPFHIR\Definition
  */
-abstract class AbstractType implements TypeInterface
+abstract class AbstractType implements Type
 {
     use DocumentationTrait;
 
@@ -35,9 +35,20 @@ abstract class AbstractType implements TypeInterface
      */
     private $fhirName;
 
+    /** @var array */
+    private $unionOf = [];
+    /** @var \DCarbone\PHPFHIR\Definition\Type\Enumeration */
+    private $enumeration;
+    /** @var int */
+    private $minLength = 0;
+    /** @var int */
+    private $maxLength = PHPFHIR_UNLIMITED;
+    /** @var null|string */
+    private $pattern = null;
+
     /** @var null|string */
     private $componentOfTypeName = null;
-    /** @var null|\DCarbone\PHPFHIR\Definition\Type */
+    /** @var null|\DCarbone\PHPFHIR\Definition\Type\StandardType */
     private $componentOfType = null;
 
     /** @var string */
@@ -45,11 +56,8 @@ abstract class AbstractType implements TypeInterface
 
     /** @var null|string */
     private $parentTypeName = null;
-    /** @var null|\DCarbone\PHPFHIR\Definition\TypeInterface */
+    /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $parentType = null;
-
-    /** @var null|\DCarbone\PHPFHIR\Enum\PrimitiveType */
-    private $primitiveType;
 
     /** @var \DCarbone\PHPFHIR\Definition\Type\Properties */
     private $properties;
@@ -57,14 +65,14 @@ abstract class AbstractType implements TypeInterface
     /**
      * AbstractType constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param string $fhirName
      * @param \SimpleXMLElement $sourceSXE
-     * @param $sourceFilename
-     * @param $fhirName
+     * @param string $sourceFilename
      */
     public function __construct(VersionConfig $config,
+                                $fhirName,
                                 \SimpleXMLElement $sourceSXE = null,
-                                $sourceFilename = '',
-                                $fhirName = '')
+                                $sourceFilename = '')
     {
         if ('' === $fhirName) {
             throw new \DomainException('$fhirName must be defined');
@@ -73,6 +81,7 @@ abstract class AbstractType implements TypeInterface
         $this->sourceSXE = $sourceSXE;
         $this->sourceFilename = $sourceFilename;
         $this->fhirName = $fhirName;
+        $this->enumeration = new Enumeration();
         $this->properties = new Properties($config, $this);
     }
 
@@ -128,7 +137,109 @@ abstract class AbstractType implements TypeInterface
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface|null
+     * @return array
+     */
+    public function getUnionOf()
+    {
+        return $this->unionOf;
+    }
+
+    /**
+     * @param array $unionOf
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setUnionOf(array $unionOf)
+    {
+        $this->unionOf = $unionOf;
+        return $this;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Type\Enumeration
+     */
+    public function getEnumeration()
+    {
+        return $this->enumeration;
+    }
+
+    /**
+     * @param mixed $enumValue
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function addEnumerationValue(EnumerationValue $enumValue)
+    {
+        $this->enumeration->addValue($enumValue);
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinLength()
+    {
+        return $this->minLength;
+    }
+
+    /**
+     * @param int $minLength
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setMinLength($minLength)
+    {
+        if (!is_int($minLength)) {
+            throw new \InvalidArgumentException(sprintf(
+                '$minLength must be int, %s seen',
+                gettype($minLength)
+            ));
+        }
+        $this->minLength = $minLength;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxLength()
+    {
+        return $this->maxLength;
+    }
+
+    /**
+     * @param int $maxLength
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setMaxLength($maxLength)
+    {
+        if (!is_int($maxLength)) {
+            throw new \InvalidArgumentException(sprintf(
+                '$maxLength must be int, %s seen',
+                gettype($maxLength)
+            ));
+        }
+        $this->maxLength = $maxLength;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPattern()
+    {
+        return $this->pattern;
+    }
+
+    /**
+     * @param string|null $pattern
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setPattern($pattern)
+    {
+        $this->pattern = $pattern;
+        return $this;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getComponentOfType()
     {
@@ -136,10 +247,10 @@ abstract class AbstractType implements TypeInterface
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setComponentOfType(TypeInterface $type)
+    public function setComponentOfType(Type $type)
     {
         $this->componentOfType = $type;
         return $this;
@@ -155,7 +266,7 @@ abstract class AbstractType implements TypeInterface
 
     /**
      * @param null|string $componentOfTypeName
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function setComponentOfTypeName($componentOfTypeName)
     {
@@ -164,7 +275,7 @@ abstract class AbstractType implements TypeInterface
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface[]
+     * @return \DCarbone\PHPFHIR\Definition\Type[]
      */
     public function getParentTypes()
     {
@@ -204,7 +315,7 @@ abstract class AbstractType implements TypeInterface
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function getRootType()
     {
@@ -250,7 +361,7 @@ abstract class AbstractType implements TypeInterface
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface|null
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getParentType()
     {
@@ -258,10 +369,10 @@ abstract class AbstractType implements TypeInterface
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
-     * @return $this|\DCarbone\PHPFHIR\Definition\TypeInterface
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setParentType(TypeInterface $type)
+    public function setParentType(Type $type)
     {
         $this->parentType = $type;
         return $this;
@@ -277,7 +388,7 @@ abstract class AbstractType implements TypeInterface
 
     /**
      * @param string|null $parentTypeName
-     * @return $this|\DCarbone\PHPFHIR\Definition\TypeInterface
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function setParentTypeName($parentTypeName)
     {
@@ -290,12 +401,12 @@ abstract class AbstractType implements TypeInterface
      */
     public function hasParent()
     {
-        return null !== $this->getParentTypeName();
+        return null !== $this->getParentTypeName() || null !== $this->getParentType();
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function addProperty(Property $property)
     {

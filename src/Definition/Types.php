@@ -19,6 +19,10 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\Type\HTMLValueType;
+use DCarbone\PHPFHIR\Definition\Type\PrimitiveTypeValueType;
+use DCarbone\PHPFHIR\Definition\Type\StandardType;
+use DCarbone\PHPFHIR\Definition\Type\UndefinedType;
 
 /**
  * Class Types
@@ -26,18 +30,11 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
  */
 class Types implements \Countable
 {
-    /** @var \DCarbone\PHPFHIR\Definition\Type[] */
-    private $types;
+    /** @var \DCarbone\PHPFHIR\Definition\Type\StandardType[] */
+    private $types = [];
 
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
-
-
-    // few fixed types
-
-    private $htmlType;
-
-    private $undefinedType;
 
     /**
      * FHIRTypes constructor.
@@ -46,13 +43,6 @@ class Types implements \Countable
     public function __construct(VersionConfig $config)
     {
         $this->config = $config;
-        $this->htmlType = new HTMLType($config, null, '', PHPFHIR_TYPE_HTML);
-        $this->undefinedType = new UndefinedType($config, null, '', PHPFHIR_TYPE_UNDEFINED);
-        // seed types with a few defaults...
-        $this->types = [
-            $this->htmlType,
-            $this->undefinedType,
-        ];
     }
 
     /**
@@ -108,10 +98,9 @@ class Types implements \Countable
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param string $sourceFilename
-     * @return $this
+     * @return \DCarbone\PHPFHIR\Definition\Types
      */
-    public function addType(Type $type, $sourceFilename)
+    public function addType(Type &$type)
     {
         $tname = $type->getFHIRName();
         foreach ($this->types as $current) {
@@ -123,8 +112,9 @@ class Types implements \Countable
                     'Type %s was previously defined in file "%s", found again in "%s".  Keeping original',
                     $tname,
                     $current->getSourceFileBasename(),
-                    basename($sourceFilename)
+                    $type->getSourceFileBasename()
                 ));
+                $type = $current;
                 return $this;
             }
         }
@@ -141,19 +131,66 @@ class Types implements \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\HTMLType
+     * Returns iterator of types natcase sorted by FHIR type name
+     *
+     * @return \DCarbone\PHPFHIR\Definition\Type[]
      */
-    public function getHtmlType()
+    public function getSortedIterator()
     {
-        return $this->htmlType;
+        $tmp = $this->types;
+        usort(
+            $tmp,
+            function (Type $t1, Type $t2) {
+                return strnatcasecmp($t1->getFHIRName(), $t2->getFHIRName());
+            }
+        );
+        return new \ArrayIterator($tmp);
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\UndefinedType
+     * @param string $fhirName
+     * @param \SimpleXMLElement $sourceSXE
+     * @param string $sourceFileName
+     * @return \DCarbone\PHPFHIR\Definition\Type\StandardType
      */
-    public function getUndefinedType()
+    public function newStandardType($fhirName, \SimpleXMLElement $sourceSXE, $sourceFileName)
     {
-        return $this->undefinedType;
+        $type = new StandardType($this->config, $fhirName, $sourceSXE, $sourceFileName);
+        $this->addType($type);
+        return $type;
+    }
+
+    /**
+     * @param string $fhirName
+     * @return \DCarbone\PHPFHIR\Definition\Type\HTMLValueType
+     */
+    public function newHTMLType($fhirName)
+    {
+        $type = new HTMLValueType($this->config, $fhirName);
+        $this->addType($type);
+        return $type;
+    }
+
+    /**
+     * @param string $fhirName
+     * @return \DCarbone\PHPFHIR\Definition\Type\UndefinedType
+     */
+    public function newUndefinedType($fhirName)
+    {
+        $type = new UndefinedType($this->config, $fhirName);
+        $this->addType($type);
+        return $type;
+    }
+
+    /**
+     * @param string $fhirName
+     * @return \DCarbone\PHPFHIR\Definition\Type\PrimitiveTypeValueType
+     */
+    public function newPrimitiveTypeValueType($fhirName)
+    {
+        $type = new PrimitiveTypeValueType($this->config, $fhirName);
+        $this->addType($type);
+        return $type;
     }
 
     /**

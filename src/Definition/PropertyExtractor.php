@@ -17,6 +17,8 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\Type\Enumeration;
+use DCarbone\PHPFHIR\Definition\Type\EnumerationValue;
 use DCarbone\PHPFHIR\Definition\Type\Property;
 use DCarbone\PHPFHIR\Enum\XSDElementType;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
@@ -53,25 +55,18 @@ abstract class PropertyExtractor
 
         if ('' === $name) {
             if ('' === $ref) {
-                trigger_error(sprintf(
+                throw new \DomainException(sprintf(
                     'Encountered property on Type "%s" with no "name" or "ref" attribute, cannot create property for it.  Property definition: "%s"',
                     $type,
                     $element->saveXML()
                 ));
-
-                return null;
-            }
-
-            if (0 === strpos($ref, 'xhtml')) {
-                $property = new Property($config, substr($ref, 6), PHPFHIR_TYPE_HTML);
-                return $property;
             }
 
             $name = $ref;
             $type = $ref;
         }
 
-        $property = new Property($config, $name, $type);
+        $property = new Property($config, $name, $type, $element);
 
         if (null !== $documentation) {
             $property->setDocumentation($documentation);
@@ -187,6 +182,107 @@ abstract class PropertyExtractor
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
+    public static function parseEnumerationElement(VersionConfig $config,
+                                                   Types $types,
+                                                   Type $type,
+                                                   \SimpleXMLElement $element)
+    {
+        // attempt to find the actual value
+        $value = $element->attributes()->value;
+        if (null === $value) {
+            $config->getLogger()->warning(sprintf(
+                'Unable to locate "value" attribute on %s element: %s',
+                XSDElementType::ENUMERATION,
+                $element
+            ));
+            return;
+        }
+        if ($type->getEnumeration()->hasRawValue((string)$value)) {
+            // since the same type definition can appear multiple times, just return false if
+            // this type has already been through the enum parsing stuff once.
+            return;
+        }
+        // create new enum value, attempt to locate "documentation", and add to type
+        $enumValue = new EnumerationValue((string)$value, $element);
+        $enumValue->setDocumentation(XMLUtils::getDocumentation($element));
+        $type->addEnumerationValue($enumValue);
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \SimpleXMLElement $element
+     */
+    public static function parseMinLengthElement(VersionConfig $config,
+                                                 Types $types,
+                                                 Type $type,
+                                                 \SimpleXMLElement $element)
+    {
+        $value = $element->attributes()->value;
+        if (null !== $value) {
+            $type->setMinlength((int)((string)$value));
+        } else {
+            $config->getLogger()->warning(sprintf(
+                'Unable to locate "value" attribute on %s element: %s',
+                XSDElementType::MIN_LENGTH,
+                $element
+            ));
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \SimpleXMLElement $element
+     */
+    public static function parseMaxLengthElement(VersionConfig $config,
+                                                 Types $types,
+                                                 Type $type,
+                                                 \SimpleXMLElement $element)
+    {
+        $value = $element->attributes()->value;
+        if (null !== $value) {
+            $type->setMaxLength((int)((string)$value));
+        } else {
+            $config->getLogger()->warning(sprintf(
+                'Unable to locate "value" attribute on %s element: %s',
+                XSDElementType::MAX_LENGTH,
+                $element
+            ));
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \SimpleXMLElement $element
+     */
+    public static function parsePatternElement(VersionConfig $config,
+                                               Types $types,
+                                               Type $type,
+                                               \SimpleXMLElement $element)
+    {
+        $value = $element->attributes()->value;
+        if (null !== $value) {
+            $type->setPattern((string)$value);
+        } else {
+            $config->getLogger()->warning(sprintf(
+                'Unable to locate "value" attribute on %s element: %s',
+                XSDElementType::PATTERN,
+                $element
+            ));
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \SimpleXMLElement $element
+     */
     public static function implementTypeProperty(VersionConfig $config,
                                                  Types $types,
                                                  Type $type,
@@ -214,10 +310,30 @@ abstract class PropertyExtractor
                 break;
 
             case XSDElementType::UNION:
+                // TODO: don't ignore these...
+                $config->getLogger()->warning(sprintf(
+                    'Ignoring %s element under Type %s...',
+                    $element->getName(),
+                    $type
+                ));
+                break;
+
             case XSDElementType::ENUMERATION:
+                self::parseEnumerationElement($config, $types, $type, $element);
+                break;
+
             case XSDElementType::MIN_LENGTH:
+                self::parseMinLengthElement($config, $types, $type, $element);
+                break;
+
             case XSDElementType::MAX_LENGTH:
+                self::parseMaxLengthElement($config, $types, $type, $element);
+                break;
+
             case XSDElementType::PATTERN:
+                self::parsePatternElement($config, $types, $type, $element);
+                break;
+
             case XSDElementType::SIMPLE_TYPE:
                 // TODO: don't ignore these...
                 $config->getLogger()->warning(sprintf(

@@ -31,7 +31,6 @@ use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
 use MyENA\DefaultANSILogger;
-use Psr\Log\LogLevel;
 
 // ----- constants
 
@@ -42,6 +41,15 @@ const FLAG_FORCE = '--force';
 const FLAG_USE_EXISTING = '--useExisting';
 const FLAG_CONFIG = '--config';
 const FLAG_VERSIONS = '--versions';
+const FLAG_LOG_LEVEL = '--logLevel';
+
+// ----- Log Levels
+
+const LOG_DEBUG = 'debug';
+const LOG_INFO = 'info';
+const LOG_WARN = 'warn';
+const LOG_WARNING = 'warning';
+const LOG_ERROR = 'error';
 
 // ----- cli and config opts
 
@@ -53,6 +61,7 @@ $config_def = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 $config_file = null;
 $versions_to_generate = null;
 $use_existing = false;
+$log_level = LOG_WARNING;
 
 // ----- functions
 
@@ -121,6 +130,8 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
                         ex: ./bin/generate.sh --config path/to/file
     --versions:     Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions DSTU1,DSTU2
+    --logLevel:     Level of verbosity during generation
+                        ex: ./bin/generate.sh --logLevel warning
 
 - Configuration:
     There are 3 possible ways to define a configuration file for this script to use:
@@ -223,6 +234,13 @@ if ($argc > 1) {
                 }
                 break;
 
+            case FLAG_LOG_LEVEL:
+                $log_level = trim($next);
+                if (!$found_equal) {
+                    $i++;
+                }
+                break;
+
             case FLAG_VERSIONS:
                 $versions_to_generate = array_map('trim', explode(',', $next));
                 if (!$found_equal) {
@@ -268,8 +286,19 @@ if (!is_readable($config_file)) {
     exit(1);
 }
 
-$logger = new DefaultANSILogger();
-$logger->setLogLevel(LogLevel::DEBUG);
+// logger setup
+if (class_exists('\\MyENA\\DefaultANSILogger')) {
+    $logger = new DefaultANSILogger();
+    $log_level = strtolower($log_level);
+    if (LOG_WARN === $log_level) {
+        $log_level = LOG_WARNING;
+    }
+    $logger->setLogLevel($log_level);
+} else {
+    $logger = null;
+}
+
+// build configuration
 $config = new Config(require $config_file, $logger);
 
 // test provided versions are defined
@@ -277,6 +306,7 @@ if (null === $versions_to_generate) {
     $versions_to_generate = $config->listVersions();
 }
 
+// test specified versions
 foreach ($versions_to_generate as $vg) {
     if (!$config->hasVersion($vg)) {
         echo sprintf(

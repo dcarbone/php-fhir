@@ -20,8 +20,8 @@ namespace DCarbone\PHPFHIR\Definition\Type;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\DocumentationTrait;
-use DCarbone\PHPFHIR\Definition\Type\Property\Enumeration;
-use DCarbone\PHPFHIR\Definition\TypeInterface;
+use DCarbone\PHPFHIR\Definition\Type\Enumeration;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class Property
@@ -39,8 +39,9 @@ class Property
 
     /** @var string */
     private $fhirTypeName;
-    /** @var string */
-    private $phpTypeName;
+
+    /** @var \SimpleXMLElement */
+    private $sourceSXE;
 
     /** @var int */
     private $minOccurs = 0;
@@ -50,10 +51,10 @@ class Property
     /** @var string|null */
     private $pattern = null;
 
-    /** @var null|\DCarbone\PHPFHIR\Definition\Type\Property\Enumeration */
+    /** @var null|\DCarbone\PHPFHIR\Definition\Type\Enumeration */
     private $enumeration = null;
 
-    /** @var null|\DCarbone\PHPFHIR\Definition\TypeInterface */
+    /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $valueType = null;
 
     /**
@@ -61,12 +62,14 @@ class Property
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param string $name
      * @param string $fhirTypeName
+     * @param \SimpleXMLElement $sxe
      */
-    public function __construct(VersionConfig $config, $name, $fhirTypeName)
+    public function __construct(VersionConfig $config, $name, $fhirTypeName, \SimpleXMLElement $sxe)
     {
         $this->config = $config;
         $this->name = $name;
         $this->fhirTypeName = $fhirTypeName;
+        $this->sourceSXE = $sxe;
     }
 
     /**
@@ -77,6 +80,7 @@ class Property
         return [
             'name'         => $this->getName(),
             'fhirTypeName' => $this->getFHIRTypeName(),
+            'sourceSXE'    => $this->getSourceSXE(),
             'minOccurs'    => $this->getMinOccurs(),
             'maxOccurs'    => $this->getMaxOccurs(),
             'pattern'      => $this->getPattern(),
@@ -110,11 +114,11 @@ class Property
     }
 
     /**
-     * @return bool
+     * @return \SimpleXMLElement
      */
-    public function isHTML()
+    public function getSourceSXE()
     {
-        return PHPFHIR_TYPE_HTML === $this->getFHIRTypeName();
+        return $this->sourceSXE;
     }
 
     /**
@@ -132,7 +136,7 @@ class Property
     public function setMaxOccurs($maxOccurs)
     {
         if (is_string($maxOccurs) && 'unbounded' === strtolower($maxOccurs)) {
-            $this->maxOccurs = PHPFHIR_PROPERTY_OCCURS_UNLIMITED;
+            $this->maxOccurs = PHPFHIR_UNLIMITED;
         } else {
             $this->maxOccurs = (int)$maxOccurs;
         }
@@ -178,7 +182,7 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property\Enumeration|null
+     * @return \DCarbone\PHPFHIR\Definition\Type\Enumeration|null
      */
     public function getEnumeration()
     {
@@ -186,7 +190,7 @@ class Property
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property\Enumeration|null $enumeration
+     * @param \DCarbone\PHPFHIR\Definition\Type\Enumeration|null $enumeration
      * @return Property
      */
     public function setEnumeration(Enumeration $enumeration)
@@ -196,7 +200,7 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface|null
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getValueType()
     {
@@ -204,10 +208,10 @@ class Property
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $valueType
+     * @param \DCarbone\PHPFHIR\Definition\Type $valueType
      * @return \DCarbone\PHPFHIR\Definition\Type\Property
      */
-    public function setValueType(TypeInterface $valueType)
+    public function setValueType(Type $valueType)
     {
         $this->valueType = $valueType;
         return $this;
@@ -226,7 +230,7 @@ class Property
      */
     public function isCollection()
     {
-        return PHPFHIR_PROPERTY_OCCURS_UNLIMITED === ($o = $this->getMaxOccurs()) || 1 < $o;
+        return PHPFHIR_UNLIMITED === ($o = $this->getMaxOccurs()) || 1 < $o;
     }
 
     /**
@@ -242,7 +246,7 @@ class Property
      */
     public function unlimitedOccurrences()
     {
-        return PHPFHIR_PROPERTY_OCCURS_UNLIMITED === $this->getMaxOccurs();
+        return PHPFHIR_UNLIMITED === $this->getMaxOccurs();
     }
 
     /**

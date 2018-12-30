@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\Type\StandardType;
 use DCarbone\PHPFHIR\Enum\XSDElementType;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
@@ -73,12 +74,12 @@ abstract class TypeExtractor
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
      * @param \SimpleXMLElement $element
      */
     protected static function parseExtensionOrRestriction(VersionConfig $config,
                                                           Types $types,
-                                                          Type $type,
+                                                          StandardType $type,
                                                           \SimpleXMLElement $element)
     {
         TypeRelationshipBuilder::determineTypeParentName($config, $type, $element);
@@ -88,10 +89,13 @@ abstract class TypeExtractor
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
      * @param \SimpleXMLElement $outer
      */
-    protected static function extractComplexInnards(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $outer)
+    protected static function extractComplexInnards(VersionConfig $config,
+                                                    Types $types,
+                                                    StandardType $type,
+                                                    \SimpleXMLElement $outer)
     {
         foreach ($outer->children('xs', true) as $element) {
             switch (strtolower($element->getName())) {
@@ -138,10 +142,13 @@ abstract class TypeExtractor
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
      * @param \SimpleXMLElement $outer
      */
-    protected static function extractSimpleInnards(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $outer)
+    protected static function extractSimpleInnards(VersionConfig $config,
+                                                   Types $types,
+                                                   StandardType $type,
+                                                   \SimpleXMLElement $outer)
     {
         foreach ($outer->children('xs', true) as $element) {
             switch (strtolower($element->getName())) {
@@ -200,12 +207,18 @@ abstract class TypeExtractor
         $sxe = static::constructSXEWithFilePath($file, $config);
         foreach ($sxe->children('xs', true) as $child) {
             /** @var \SimpleXMLElement $child */
+
+            // skip these, might be nice at some point to be able to import the files out
+            // of order.
             if ('include' === $child->getName() || 'import' === $child->getName()) {
                 continue;
             }
+
+            // fetch attributes, attempt to locate the name of the type being parsed
             $attributes = $child->attributes();
             $fhirElementName = (string)$attributes['name'];
 
+            // if there was no attribute named "name", build some context then complain about it.
             if ('' === $fhirElementName) {
                 $attrArray = [];
                 foreach ($attributes as $attribute) {
@@ -213,19 +226,17 @@ abstract class TypeExtractor
                     $attrArray[] = sprintf('%s" : "%s', $attribute->getName(), (string)$attribute);
                 }
                 throw new \DomainException(sprintf(
-                           'Unable to locate "name" attribute on element %s in file "%s" with attributes ["%s"]',
-                           $child->getName(),
-                           $basename,
-                           implode('", "', $attrArray)
-                       ));
+                    'Unable to locate "name" attribute on element %s in file "%s" with attributes ["%s"]',
+                    $child->getName(),
+                    $basename,
+                    implode('", "', $attrArray)
+                ));
                 continue;
             }
 
-            $type = new Type($config, $child, $file, $fhirElementName);
-
             switch (strtolower($child->getName())) {
                 case XSDElementType::COMPLEX_TYPE:
-                    $types->addType($type, $file);
+                    $type = $types->newStandardType($fhirElementName, $child, $file);
                     $sxe = $type->getSourceSXE();
                     $name = XMLUtils::getObjectNameFromElement($sxe);
                     if (false !== strpos($name, '.')) {
@@ -241,8 +252,13 @@ abstract class TypeExtractor
                     break;
 
                 case XSDElementType::SIMPLE_TYPE:
-                    $types->addType($type, $file);
-                    $type->addProperty(new Property($config, 'value', ''));
+                    if (null === ($type = $types->getTypeByFHIRName($fhirElementName))) {
+                        $type = $types->newStandardType($fhirElementName, $child, $file);
+
+                        // TODO: Don't really like this, need better way to handle primitive types
+                        $type->addProperty(new Property($config, 'value', '', $type->getSourceSXE()));
+                    }
+
                     static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
                     $config->getLogger()->info(sprintf(
                         'Located "Simple" Type class "%s\\%s" in file "%s"',

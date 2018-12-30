@@ -25,10 +25,11 @@ return [
     'classesPath' => __DIR__ . '/../output',
 
     // If true, will use a noop null logger
-    'silent' => false,
-    'logLevel' => 'INFO',
+    'silent'      => false,
 
     // Map of versions and configurations to generate
+    // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
+    // version, please see http://www.hl7.org/fhir/directory.cfml
     'versions'    => [
         'DSTU1' => [
             // Source URL
@@ -54,13 +55,13 @@ return [
             'squashPrimitives' => false,
         ],
         'STU3'  => [
-            'url'              => 'http://hl7.org/fhir/STU3/fhir-all-xsd.zip',
+            'url'              => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
             'namespace'        => '\\HL7\\FHIR\\STU3',
             'squashPrimitives' => true,
         ],
-        '3.0.1' => [
+        'R4' => [
             'url'              => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
-            'namespace'        => '\\HL7\\FHIR\\V301',
+            'namespace'        => '\\HL7\\FHIR\\R4',
             'squashPrimitives' => true,
         ],
         'Build' => [

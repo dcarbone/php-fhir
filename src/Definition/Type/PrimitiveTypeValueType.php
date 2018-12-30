@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Definition;
+namespace DCarbone\PHPFHIR\Definition\Type;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,12 +18,25 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Definition\Type\AbstractType;
+
 /**
- * Class HTMLType
+ * This is a placeholder type to be used when attempting to assign a type to a primitive property, such as
+ * "string-primitive"
+ *
+ * Class PrimitiveTypeValueType
  * @package DCarbone\PHPFHIR\Definition\Type
  */
-class HTMLType extends AbstractType
+class PrimitiveTypeValueType extends AbstractType
 {
+    /**
+     * @return bool
+     */
+    public function isPrimitive()
+    {
+        return true;
+    }
+
     /**
      * @return bool
      */
@@ -37,6 +50,14 @@ class HTMLType extends AbstractType
      */
     public function isHTML()
     {
-        return true;
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPrimitiveTypeValueType()
+    {
+        return false;
     }
 }

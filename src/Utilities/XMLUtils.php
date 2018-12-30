@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Type\Property\Enumeration;
-use DCarbone\PHPFHIR\Definition\Type\Property\EnumerationValue;
+use DCarbone\PHPFHIR\Definition\Type\Enumeration;
+use DCarbone\PHPFHIR\Definition\Type\EnumerationValue;
 
 /**
  * Class XMLUtils
@@ -160,7 +160,7 @@ abstract class XMLUtils
 
     /**
      * @param \SimpleXMLElement $parent
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property\Enumeration|null
+     * @return \DCarbone\PHPFHIR\Definition\Type\Enumeration|null
      */
     public static function extractEnumeratedValues(\SimpleXMLElement $parent)
     {

@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type\Property;
-use DCarbone\PHPFHIR\Definition\TypeInterface;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class XMLUnserializeUtils
@@ -30,11 +30,11 @@ abstract class XMLUnserializeUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    protected static function buildDefaultSetter(VersionConfig $config, TypeInterface $type, Property $property)
+    protected static function buildDefaultSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propertyType = $property->getValueType();
         if (null === $propertyType) {
@@ -68,11 +68,11 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
-    protected static function buildCollectionSetter(VersionConfig $config, TypeInterface $type, Property $property)
+    protected static function buildCollectionSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propertyType = $property->getValueType();
         if (null === $propertyType) {
@@ -96,10 +96,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildHeader(VersionConfig $config, TypeInterface $type)
+    public static function buildHeader(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
     /**
@@ -139,10 +139,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildPrimitiveBody(VersionConfig $config, TypeInterface $type)
+    public static function buildPrimitiveBody(VersionConfig $config, Type $type)
     {
         $out = <<<PHP
         if (null !== (\$v = \$sxe->attributes()->value)) {
@@ -159,10 +159,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildResourceContainerBody(VersionConfig $config, TypeInterface $type)
+    public static function buildResourceContainerBody(VersionConfig $config, Type $type)
     {
         $typeName = $type->getClassName();
 
@@ -203,10 +203,10 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildDefaultBody(VersionConfig $config, TypeInterface $type)
+    public static function buildDefaultBody(VersionConfig $config, Type $type)
     {
         $properties = $type->getProperties();
         $out = "        \$children = \$sxe->children();\n";

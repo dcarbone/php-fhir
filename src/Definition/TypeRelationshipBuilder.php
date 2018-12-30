@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\Type\StandardType;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -29,10 +30,12 @@ abstract class TypeRelationshipBuilder
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
      * @param \SimpleXMLElement $element
      */
-    public static function determineTypeParentName(VersionConfig $config, Type $type, \SimpleXMLElement $element)
+    public static function determineTypeParentName(VersionConfig $config,
+                                                   StandardType $type,
+                                                   \SimpleXMLElement $element)
     {
         $fhirName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
         if (null === $fhirName) {
@@ -49,10 +52,10 @@ abstract class TypeRelationshipBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
      * @param string $name
      */
-    public static function determineComponentOfTypeName(VersionConfig $config, Types $types, Type $type, $name)
+    public static function determineComponentOfTypeName(VersionConfig $config, Types $types, StandardType $type, $name)
     {
         if (false === strpos($name, '.')) {
             $config->getLogger()->error(sprintf(
@@ -132,9 +135,25 @@ abstract class TypeRelationshipBuilder
             foreach ($type->getProperties()->getIterator() as $property) {
                 // TODO: this is kinda hacky...
                 if ('value' === $property->getName() && ($type->isPrimitive() || $type->hasPrimitiveParent())) {
-                    continue;
-                }
-                if ($pt = $types->getTypeByFHIRName($property->getFHIRTypeName())) {
+                    // if this is a "value" property from a primitive parent, use the primitive value type
+                    $property->setValueType($types->newPrimitiveTypeValueType($property->getName()));
+                    $config->getLogger()->info(sprintf(
+                        'Setting Type %s Property %s to %s',
+                        $type,
+                        $property,
+                        PHPFHIR_TYPE_PRIMITIVE_VALUE
+                    ));
+                } elseif (false !== strpos($property->getFHIRTypeName(), 'xhtml')) {
+                    // if this is an html type...
+                    $property->setValueType($types->newHTMLType($property->getFHIRTypeName()));
+                    $config->getLogger()->notice(sprintf(
+                        'Setting Type %s Property %s value Type to %s',
+                        $type,
+                        $property,
+                        PHPFHIR_TYPE_HTML
+                    ));
+                } elseif ($pt = $types->getTypeByFHIRName($property->getFHIRTypeName())) {
+                    // if this is a "typical" type...
                     $property->setValueType($pt);
                     $config->getLogger()->info(sprintf(
                         'Setting Type %s Property %s to Type %s',
@@ -143,7 +162,8 @@ abstract class TypeRelationshipBuilder
                         $pt
                     ));
                 } else {
-                    $property->setValueType($types->getUndefinedType());
+                    // if we get this far, then there was a type missing from the XSD's
+                    $property->setValueType($types->newUndefinedType($property->getName()));
                     $config->getLogger()->warning(sprintf(
                         'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
                         $type,

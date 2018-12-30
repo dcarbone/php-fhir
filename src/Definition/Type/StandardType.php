@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Definition\Type\Property;
+namespace DCarbone\PHPFHIR\Definition\Type;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,41 +18,35 @@ namespace DCarbone\PHPFHIR\Definition\Type\Property;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\DocumentationTrait;
-
 /**
- * Class EnumerationValue
- * @package DCarbone\PHPFHIR\Definition\Type\Property
+ * This is used to house definitions of Elements and Resources
+ *
+ * Class StandardType
+ * @package DCarbone\PHPFHIR\Definition\Type
  */
-class EnumerationValue
+class StandardType extends AbstractType
 {
-    use DocumentationTrait;
-
-    /** @var mixed */
-    private $value;
-
     /**
-     * Enumeration constructor.
-     * @param $value
+     * @return bool
      */
-    public function __construct($value)
+    public function isHTML()
     {
-        $this->value = $value;
+        return false;
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
-    public function getValue()
+    public function isUndefined()
     {
-        return $this->value;
+        return false;
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function __toString()
+    public function isPrimitiveTypeValueType()
     {
-        return (string)$this->getValue();
+        return false;
     }
 }

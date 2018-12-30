@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Definition;
+namespace DCarbone\PHPFHIR\Definition\Type;
 
 /*
  * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,18 +18,22 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Definition\Type\AbstractType;
 use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
- * Class UndefinedType
+ * This type will be used when an "html" type value is seen.
+ *
+ * Class HTMLValueType
  * @package DCarbone\PHPFHIR\Definition\Type
  */
-class UndefinedType extends AbstractType
+class HTMLValueType extends AbstractType
 {
     /**
      * @return bool
      */
-    public function isHTML()
+    public function isUndefined()
     {
         return false;
     }
@@ -37,32 +41,40 @@ class UndefinedType extends AbstractType
     /**
      * @return bool
      */
-    public function isUndefined()
+    public function isHTML()
     {
         return true;
     }
 
     /**
+     * @return bool
+     */
+    public function isPrimitiveTypeValueType()
+    {
+        return false;
+    }
+
+    /**
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
-     * @return \DCarbone\PHPFHIR\Definition\AbstractType|void
+     * @return \DCarbone\PHPFHIR\Definition\Type|void
      */
     public function addProperty(Property $property)
     {
         throw new \BadMethodCallException(sprintf(
-            'Type %s is not defined by the XSD\'s, and therefore cannot have property "%s"',
+            'Type %s is an HTML type and therefore cannot have property %s',
             $this->getFHIRName(),
             $property->getName()
         ));
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface|void
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DCarbone\PHPFHIR\Definition\Type|void
      */
-    public function setParentType(TypeInterface $type)
+    public function setParentType(Type $type)
     {
         throw new \BadMethodCallException(sprintf(
-            'Type %s is not defined by the XSD\'s, and therefore cannot set parent to "%s"',
+            'Type %s is an HTML type and therefore cannot have parent %s',
             $this->getFHIRName(),
             $type->getFHIRName()
         ));
@@ -70,12 +82,12 @@ class UndefinedType extends AbstractType
 
     /**
      * @param string|null $parentTypeName
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface|void
+     * @return \DCarbone\PHPFHIR\Definition\Type|void
      */
     public function setParentTypeName($parentTypeName)
     {
         throw new \BadMethodCallException(sprintf(
-            'Type %s is not defined by the XSD\'s, and therefore cannot set parent type name to "%s"',
+            'Type %s is an HTML type and therefore cannot have parent name of %s',
             $this->getFHIRName(),
             $parentTypeName
         ));

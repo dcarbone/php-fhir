@@ -17,7 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\TypeInterface;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class FileUtils
@@ -85,10 +85,10 @@ abstract class FileUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildTypeFilePath(VersionConfig $config, TypeInterface $type)
+    public static function buildTypeFilePath(VersionConfig $config, Type $type)
     {
         return static::mkdirRecurse(
                 $config,

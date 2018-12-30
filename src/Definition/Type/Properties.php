@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Definition\Type;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\TypeInterface;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class Properties
@@ -36,15 +36,15 @@ class Properties implements \Countable
     /** @var */
     private $config;
 
-    /** @var \DCarbone\PHPFHIR\Definition\TypeInterface */
+    /** @var \DCarbone\PHPFHIR\Definition\Type */
     private $type;
 
     /**
      * Properties constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      */
-    public function __construct(VersionConfig $config, TypeInterface $type)
+    public function __construct(VersionConfig $config, Type $type)
     {
         $this->config = $config;
         $this->type = $type;
@@ -67,7 +67,7 @@ class Properties implements \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\TypeInterface
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function getType()
     {
@@ -78,7 +78,7 @@ class Properties implements \Countable
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return $this
      */
-    public function addProperty(Property $property)
+    public function addProperty(Property &$property)
     {
         $pname = $property->getName();
         foreach ($this->properties as $current) {
@@ -86,11 +86,13 @@ class Properties implements \Countable
                 return $this;
             }
             if ($pname === $current->getName()) {
-                throw new \LogicException(sprintf(
-                    'Duplicate Type %s property %s seen',
+                $this->config->getLogger()->warning(sprintf(
+                    'Type %s already has property %s, probably some duplicate definition nonsense. Keeping original.',
                     $this->getType()->getFHIRName(),
                     $property->getName()
                 ));
+                $property = $current;
+                return $this;
             }
         }
         $this->properties[] = $property;

@@ -17,7 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\TypeInterface;
+use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 
 /**
@@ -54,10 +54,10 @@ abstract class NSUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\TypeInterface $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function compileUseStatements(VersionConfig $config, Types $types, TypeInterface $type)
+    public static function compileUseStatements(VersionConfig $config, Types $types, Type $type)
     {
         $fqns = $type->getFullyQualifiedNamespace(false);
 
@@ -98,7 +98,7 @@ abstract class NSUtils
                         $imports[] = $propNS;
                     }
                 }
-            } elseif (PHPFHIR_TYPE_HTML === $property->getFHIRTypeName()) {
+            }  elseif ($propertyType->isHTML() || $propertyType->isUndefined()) {
                 $imports[] = static::generateRootNamespace($config, 'PHPFHIRHelper');
                 $config->getLogger()->debug(sprintf(
                     'Type %s Property %s is of type %s, adding PHPFHIRHelper use statement',
