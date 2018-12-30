@@ -58,28 +58,65 @@ abstract class PropertyUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Type\HTMLValueType $valueType
+     * @return string
+     */
+    public static function buildHTMLProperty(VersionConfig $config,
+                                             Type $type,
+                                             Property $property,
+                                             Type\HTMLValueType $valueType)
+    {
+        $out = "\n    /**\n";
+        $out .= $property->getDocBlockDocumentationFragment();
+        $out .= "     * @var string\n";
+        $out .= "     */\n";
+        $out .= "    \$innerHTML = null;\n";
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Type $valueType
+     * @return string
+     */
+    public static function buildDefaultProperty(VersionConfig $config, Type $type, Property $property, Type $valueType)
+    {
+        $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
+        $out = "\n    /**\n";
+        $out .= $property->getDocBlockDocumentationFragment();
+        $out .= "     * @var {$phpType}";
+        if ($property->isCollection()) {
+            $out .= '[]';
+        }
+        $out .= "\n     */\n";
+        $out .= '    private ';
+        $out .= NameUtils::getPropertyVariableName($property->getName());
+        if ($property->isCollection()) {
+            $out .= ' = []';
+        } else {
+            $out .= ' = null';
+        }
+        return $out . ";\n";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
     public static function buildClassPropertyDeclarations(VersionConfig $config, Type $type)
     {
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $property) {
-            $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
-            $out .= "\n    /**\n";
-            $out .= $property->getDocBlockDocumentationFragment();
-            $out .= "     * @var {$phpType}";
-            if ($property->isCollection()) {
-                $out .= '[]';
-            }
-            $out .= "\n     */\n";
-            $out .= '    private ';
-            $out .= NameUtils::getPropertyVariableName($property->getName());
-            if ($property->isCollection()) {
-                $out .= ' = []';
+            $valueType = $property->getValueType();
+            if ($valueType->isHTML()) {
+                $out .= self::buildHTMLProperty($config, $type, $property, $valueType);
             } else {
-                $out .= ' = null';
+                $out .= self::buildDefaultProperty($config, $type, $property, $valueType);
             }
-            $out .= ";\n";
         }
         return $out;
     }
@@ -117,12 +154,16 @@ abstract class PropertyUtils
                 $out .= MethodUtils::createPrimitiveContainerSetter($config, $type, $property);
             } elseif ($propType->isResourceContainer() || $propType->isInlineResource()) {
                 $out .= MethodUtils::createResourceContainerSetter($config, $type, $property);
+            } elseif ($propType->isHTML()) {
+                $out .= MethodUtils::createHTMLValueSetter($config, $type, $property);
             } else {
                 $out .= MethodUtils::createDefaultSetter($config, $type, $property);
             }
             $out .= "\n";
             if ($propType->isResourceContainer()) {
                 $out .= MethodUtils::createResourceContainerGetter($config, $type, $property);
+            } elseif ($propType->isHTML()) {
+                $out .= MethodUtils::createHTMLValueGetter($config, $type, $property);
             } else {
                 $out .= MethodUtils::createDefaultGetter($config, $type, $property);
             }

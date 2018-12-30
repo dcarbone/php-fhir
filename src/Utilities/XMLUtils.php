@@ -157,27 +157,4 @@ abstract class XMLUtils
         }
         return null;
     }
-
-    /**
-     * @param \SimpleXMLElement $parent
-     * @return \DCarbone\PHPFHIR\Definition\Type\Enumeration|null
-     */
-    public static function extractEnumeratedValues(\SimpleXMLElement $parent)
-    {
-        $enum = new Enumeration();
-        foreach ($parent->children('xs', true) as $child) {
-            if ('enumeration' === $child->getName()) {
-                $attrs = $child->attributes();
-                if (isset($attrs['value'])) {
-                    $val = new EnumerationValue((string)$attrs['value']);
-                    $val->setDocumentation(self::getDocumentation($child));
-                    $enum->addValue($val);
-                }
-            }
-        }
-        if (0 < count($enum)) {
-            return $enum;
-        }
-        return null;
-    }
 }

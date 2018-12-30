@@ -230,6 +230,31 @@ PHP;
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
      * @return string
      */
+    public static function createHTMLValueSetter(VersionConfig $config, Type $type, Property $property)
+    {
+        $out = <<<PHP
+    /**
+     * @param null|string \$innerHTML
+     * @return \$this
+     */
+    public function setInnerHTML(\$innerHTML)
+    {
+        \$this->innerHTML = \$innerHTML;
+        return \$this;
+    }
+
+PHP;
+        return $out;
+    }
+
+
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
     public static function createDefaultSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
@@ -267,40 +292,6 @@ PHP;
         $out .= "        return \$this;\n    }\n";
 
         return $out;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
-     * @return string
-     */
-    public static function createDefaultGetter(VersionConfig $config, Type $type, Property $property)
-    {
-        $collection = $property->isCollection() ? '[]' : '';
-        $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
-        if (!NameUtils::isValidFunctionName($methodName)) {
-            throw new \LogicException(sprintf(
-                'Type %s Property %s setter func name %s is not valid',
-                $type,
-                $property,
-                $methodName
-            ));
-        }
-
-        $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
-
-        return <<<PHP
-    /**
-{$property->getDocBlockDocumentationFragment()}     * @return null|{$phpType}{$collection}
-     */
-    public function {$methodName}()
-    {
-        return \$this->{$property->getName()};
-    }
-
-PHP;
-
     }
 
     /**
@@ -349,6 +340,61 @@ PHP;
 
         }
         return $out . "    }\n";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
+    public static function createHTMLValueGetter(VersionConfig $config, Type $type, Property $property)
+    {
+        $out = <<<PHP
+    /**
+     * @return null|string
+     */
+    public function getInnerHTML()
+    {
+        return \$this->innerHTML;
+    }
+
+PHP;
+        return $out;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @return string
+     */
+    public static function createDefaultGetter(VersionConfig $config, Type $type, Property $property)
+    {
+        $collection = $property->isCollection() ? '[]' : '';
+        $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
+        if (!NameUtils::isValidFunctionName($methodName)) {
+            throw new \LogicException(sprintf(
+                'Type %s Property %s setter func name %s is not valid',
+                $type,
+                $property,
+                $methodName
+            ));
+        }
+
+        $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
+
+        return <<<PHP
+    /**
+{$property->getDocBlockDocumentationFragment()}     * @return null|{$phpType}{$collection}
+     */
+    public function {$methodName}()
+    {
+        return \$this->{$property->getName()};
+    }
+
+PHP;
+
     }
 
     /**

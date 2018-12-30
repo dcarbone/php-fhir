@@ -20,7 +20,6 @@ namespace DCarbone\PHPFHIR\Definition\Type;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\DocumentationTrait;
-use DCarbone\PHPFHIR\Definition\Type\Enumeration;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
@@ -50,9 +49,6 @@ class Property
 
     /** @var string|null */
     private $pattern = null;
-
-    /** @var null|\DCarbone\PHPFHIR\Definition\Type\Enumeration */
-    private $enumeration = null;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $valueType = null;
@@ -84,7 +80,6 @@ class Property
             'minOccurs'    => $this->getMinOccurs(),
             'maxOccurs'    => $this->getMaxOccurs(),
             'pattern'      => $this->getPattern(),
-            'enumeration'  => $this->getEnumeration(),
             'valueType'    => (string)$this->getValueType(),
         ];
     }
@@ -182,24 +177,6 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type\Enumeration|null
-     */
-    public function getEnumeration()
-    {
-        return $this->enumeration;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Definition\Type\Enumeration|null $enumeration
-     * @return Property
-     */
-    public function setEnumeration(Enumeration $enumeration)
-    {
-        $this->enumeration = $enumeration;
-        return $this;
-    }
-
-    /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getValueType()
@@ -215,14 +192,6 @@ class Property
     {
         $this->valueType = $valueType;
         return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEnumerated()
-    {
-        return isset($this->enumeration);
     }
 
     /**

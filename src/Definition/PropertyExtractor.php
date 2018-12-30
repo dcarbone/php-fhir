@@ -90,11 +90,6 @@ abstract class PropertyExtractor
             $property->setMinOccurs((string)$attributes['minOccurs']);
         }
 
-        // TODO: this probably isn't gonna work, revisit...
-        if ($enum = XMLUtils::extractEnumeratedValues($element)) {
-            $property->setEnumeration($enum);
-        }
-
         return $property;
     }
 
