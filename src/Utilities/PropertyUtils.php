@@ -59,19 +59,19 @@ abstract class PropertyUtils
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
-     * @param \DCarbone\PHPFHIR\Definition\Type\HTMLValueType $valueType
+     * @param \DCarbone\PHPFHIR\Definition\Type $valueType
      * @return string
      */
     public static function buildHTMLProperty(VersionConfig $config,
                                              Type $type,
                                              Property $property,
-                                             Type\HTMLValueType $valueType)
+                                             Type $valueType)
     {
         $out = "\n    /**\n";
         $out .= $property->getDocBlockDocumentationFragment();
         $out .= "     * @var string\n";
         $out .= "     */\n";
-        $out .= "    \$innerHTML = null;\n";
+        $out .= "    private \$innerHTML = null;\n";
         return $out;
     }
 

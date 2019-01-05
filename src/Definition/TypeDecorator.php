@@ -19,22 +19,22 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type\StandardType;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
- * Class TypeRelator
- * @package DCarbone\PHPFHIR
+ * Class TypeDecorator
+ * @package DCarbone\PHPFHIR\Definition
  */
-abstract class TypeRelationshipBuilder
+abstract class TypeDecorator
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
     public static function determineTypeParentName(VersionConfig $config,
-                                                   StandardType $type,
+                                                   Type $type,
                                                    \SimpleXMLElement $element)
     {
         $fhirName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
@@ -52,10 +52,10 @@ abstract class TypeRelationshipBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param string $name
      */
-    public static function determineComponentOfTypeName(VersionConfig $config, Types $types, StandardType $type, $name)
+    public static function determineComponentOfTypeName(VersionConfig $config, Types $types, Type $type, $name)
     {
         if (false === strpos($name, '.')) {
             $config->getLogger()->error(sprintf(
@@ -104,9 +104,6 @@ abstract class TypeRelationshipBuilder
     public static function findParentTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            if ($type->isPrimitive()) {
-                continue;
-            }
             if ($parentTypeName = $type->getParentTypeName()) {
                 if ($ptype = $types->getTypeByFHIRName($parentTypeName)) {
                     $type->setParentType($ptype);
@@ -133,15 +130,16 @@ abstract class TypeRelationshipBuilder
     {
         foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
+                $typeKind = $type->getKind();
                 // TODO: this is kinda hacky...
-                if ('value' === $property->getName() && ($type->isPrimitive() || $type->hasPrimitiveParent())) {
+                if ('value' === $property->getName() && ($typeKind->isPrimitive() || $type->hasPrimitiveParent())) {
                     // if this is a "value" property from a primitive parent, use the primitive value type
                     $property->setValueType($types->newPrimitiveTypeValueType($property->getName()));
                     $config->getLogger()->info(sprintf(
                         'Setting Type %s Property %s to %s',
                         $type,
                         $property,
-                        PHPFHIR_TYPE_PRIMITIVE_VALUE
+                        TypeKind::PRIMITIVE_VALUE
                     ));
                 } elseif (false !== strpos($property->getFHIRTypeName(), 'xhtml')) {
                     // if this is an html type...
@@ -150,7 +148,7 @@ abstract class TypeRelationshipBuilder
                         'Setting Type %s Property %s value Type to %s',
                         $type,
                         $property,
-                        PHPFHIR_TYPE_HTML
+                        TypeKind::HTML_VALUE
                     ));
                 } elseif ($pt = $types->getTypeByFHIRName($property->getFHIRTypeName())) {
                     // if this is a "typical" type...
@@ -169,7 +167,66 @@ abstract class TypeRelationshipBuilder
                         $type,
                         $property,
                         $property->getFHIRTypeName(),
-                        PHPFHIR_TYPE_UNDEFINED
+                        TypeKind::UNDEFINED
+                    ));
+                }
+            }
+        }
+    }
+
+    /**
+     * This method is specifically designed to determine the "kind" of every type that was successfully
+     * parsed from the provided xsd's.  It does NOT handle value or undefined types.
+     *
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function determineParsedTypesKind(VersionConfig $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            $fhirName = $type->getFHIRName();
+            if ($rootType = $type->getRootType()) {
+                $rootFHIRName = $rootType->getFHIRName();
+                if (false !== strpos($rootFHIRName, '-primitive')) {
+                    $type->setKind(new TypeKind(TypeKind::PRIMITIVE));
+                } elseif (false !== strpos($rootFHIRName, '-list')) {
+                    $type->setKind(new TypeKind(TypeKind::_LIST));
+                } elseif (TypeKind::ELEMENT === $rootFHIRName) {
+                    $type->setKind(new TypeKind(TypeKind::ELEMENT));
+                } elseif (TypeKind::RESOURCE === $rootFHIRName) {
+                    $type->setKind(new TypeKind(TypeKind::RESOURCE));
+                } elseif (TypeKind::RESOURCE_CONTAINER === $rootFHIRName) {
+                    $type->setKind(new TypeKind(TypeKind::RESOURCE_CONTAINER));
+                } elseif (TypeKind::RESOURCE_INLINE === $rootFHIRName) {
+                    $type->setKind(new TypeKind(TypeKind::RESOURCE_INLINE));
+                } elseif (TypeKind::DOMAIN_RESOURCE === $rootFHIRName) {
+                    $type->setKind(new TypeKind(TypeKind::DOMAIN_RESOURCE));
+                } else {
+                    throw new \DomainException(sprintf(
+                        'Unable to determine kind for FHIR object %s with root parent of %s',
+                        $fhirName,
+                        $rootFHIRName
+                    ));
+                }
+            } else {
+                if (false !== strpos($fhirName, '-primitive')) {
+                    $type->setKind(new TypeKind(TypeKind::PRIMITIVE));
+                } elseif (false !== strpos($fhirName, '-list')) {
+                    $type->setKind(new TypeKind(TypeKind::_LIST));
+                } elseif (TypeKind::ELEMENT === $fhirName) {
+                    $type->setKind(new TypeKind(TypeKind::ELEMENT));
+                } elseif (TypeKind::RESOURCE === $fhirName) {
+                    $type->setKind(new TypeKind(TypeKind::RESOURCE));
+                } elseif (TypeKind::RESOURCE_CONTAINER === $fhirName) {
+                    $type->setKind(new TypeKind(TypeKind::RESOURCE_CONTAINER));
+                } elseif (TypeKind::RESOURCE_INLINE === $fhirName) {
+                    $type->setKind(new TypeKind(TypeKind::RESOURCE_INLINE));
+                } elseif (TypeKind::DOMAIN_RESOURCE === $fhirName) {
+                    $type->setKind(new TypeKind(TypeKind::DOMAIN_RESOURCE));
+                } else {
+                    throw new \DomainException(sprintf(
+                        'Unable to determine kind for FHIR object %s with no root parent',
+                        $fhirName
                     ));
                 }
             }

@@ -31,7 +31,7 @@ class Enumeration implements \Iterator, \Countable
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type\EnumerationValue $value
-     * @return $this
+     * @return \DCarbone\PHPFHIR\Definition\Type\Enumeration
      */
     public function addValue(EnumerationValue $value)
     {

@@ -30,15 +30,6 @@ define('PHPFHIR_NAMESPACE_REGEX', '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-
 // FHIR XML NS
 define('FHIR_XMLNS', 'http://hl7.org/fhir');
 
-// Types
-define('PHPFHIR_TYPE_RESOURCE_CONTAINER', 'ResourceContainer');
-define('PHPFHIR_TYPE_RESOURCE_INLINE', 'Resource.Inline');
-define('PHPFHIR_TYPE_RESOURCE', 'Resource');
-define('PHPFHIR_TYPE_DOMAIN_RESOURCE', 'DomainResource');
-define('PHPFHIR_TYPE_HTML', 'html');
-define('PHPFHIR_TYPE_UNDEFINED', 'undefined');
-define('PHPFHIR_TYPE_PRIMITIVE_VALUE', 'primitiveValue');
-
 // Properties
 define('PHPFHIR_UNLIMITED', -1);
 

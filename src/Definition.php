@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\TypeExtractor;
-use DCarbone\PHPFHIR\Definition\TypeRelationshipBuilder;
+use DCarbone\PHPFHIR\Definition\TypeDecorator;
 
 /**
  * Class Definition
@@ -57,9 +57,10 @@ class Definition
     {
         $this->config->getLogger()->startBreak('Extracting defined types');
         $this->types = TypeExtractor::parseTypes($this->config);
-        TypeRelationshipBuilder::findParentTypes($this->config, $this->types);
-        TypeRelationshipBuilder::findComponentOfTypes($this->config, $this->types);
-        TypeRelationshipBuilder::findPropertyTypes($this->config, $this->types);
+
+        TypeDecorator::findParentTypes($this->config, $this->types);
+        TypeDecorator::findComponentOfTypes($this->config, $this->types);
+        TypeDecorator::findPropertyTypes($this->config, $this->types);
         $this->config->getLogger()->info(count($this->types) . ' types extracted.');
         $this->config->getLogger()->endBreak('Extracting defined types');
     }

@@ -20,9 +20,7 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type\Property;
-use DCarbone\PHPFHIR\Definition\Type\StandardType;
 use DCarbone\PHPFHIR\Enum\XSDElementType;
-use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -74,27 +72,27 @@ abstract class TypeExtractor
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
     protected static function parseExtensionOrRestriction(VersionConfig $config,
                                                           Types $types,
-                                                          StandardType $type,
+                                                          Type $type,
                                                           \SimpleXMLElement $element)
     {
-        TypeRelationshipBuilder::determineTypeParentName($config, $type, $element);
+        TypeDecorator::determineTypeParentName($config, $type, $element);
         PropertyExtractor::extractTypeProperties($config, $types, $type, $element);
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $outer
      */
     protected static function extractComplexInnards(VersionConfig $config,
                                                     Types $types,
-                                                    StandardType $type,
+                                                    Type $type,
                                                     \SimpleXMLElement $outer)
     {
         foreach ($outer->children('xs', true) as $element) {
@@ -142,12 +140,12 @@ abstract class TypeExtractor
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type\StandardType $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $outer
      */
     protected static function extractSimpleInnards(VersionConfig $config,
                                                    Types $types,
-                                                   StandardType $type,
+                                                   Type $type,
                                                    \SimpleXMLElement $outer)
     {
         foreach ($outer->children('xs', true) as $element) {
@@ -236,11 +234,11 @@ abstract class TypeExtractor
 
             switch (strtolower($child->getName())) {
                 case XSDElementType::COMPLEX_TYPE:
-                    $type = $types->newStandardType($fhirElementName, $child, $file);
+                    $type = $types->newType($fhirElementName, $child, $file);
                     $sxe = $type->getSourceSXE();
                     $name = XMLUtils::getObjectNameFromElement($sxe);
                     if (false !== strpos($name, '.')) {
-                        TypeRelationshipBuilder::determineComponentOfTypeName($config, $types, $type, $name);
+                        TypeDecorator::determineComponentOfTypeName($config, $types, $type, $name);
                     }
                     static::extractComplexInnards($config, $types, $type, $type->getSourceSXE());
                     $config->getLogger()->info(sprintf(
@@ -253,9 +251,10 @@ abstract class TypeExtractor
 
                 case XSDElementType::SIMPLE_TYPE:
                     if (null === ($type = $types->getTypeByFHIRName($fhirElementName))) {
-                        $type = $types->newStandardType($fhirElementName, $child, $file);
-
-                        // TODO: Don't really like this, need better way to handle primitive types
+                        // create new type
+                        $type = $types->newType($fhirElementName, $child, $file);
+                        // being a simple type,
+                        $valueType = $types->newPrimitiveTypeValueType($fhirElementName);
                         $type->addProperty(new Property($config, 'value', '', $type->getSourceSXE()));
                     }
 

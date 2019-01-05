@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Definition\Type;
+
 /**
  * Class NameUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
@@ -107,5 +109,14 @@ abstract class NameUtils
     public static function getPropertyVariableName($propName)
     {
         return sprintf('$%s', $propName);
+    }
+
+    /**
+     * @param string $fhirName
+     * @return string
+     */
+    public static function getPrimitiveValuePropertyTypeName($fhirName)
+    {
+        return sprintf('%s_value', $fhirName);
     }
 }

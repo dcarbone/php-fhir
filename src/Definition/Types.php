@@ -19,10 +19,8 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type\HTMLValueType;
-use DCarbone\PHPFHIR\Definition\Type\PrimitiveTypeValueType;
-use DCarbone\PHPFHIR\Definition\Type\StandardType;
-use DCarbone\PHPFHIR\Definition\Type\UndefinedType;
+use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Class Types
@@ -30,7 +28,7 @@ use DCarbone\PHPFHIR\Definition\Type\UndefinedType;
  */
 class Types implements \Countable
 {
-    /** @var \DCarbone\PHPFHIR\Definition\Type\StandardType[] */
+    /** @var \DCarbone\PHPFHIR\Definition\Type[] */
     private $types = [];
 
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
@@ -151,18 +149,18 @@ class Types implements \Countable
      * @param string $fhirName
      * @param \SimpleXMLElement $sourceSXE
      * @param string $sourceFileName
-     * @return \DCarbone\PHPFHIR\Definition\Type\StandardType
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function newStandardType($fhirName, \SimpleXMLElement $sourceSXE, $sourceFileName)
+    public function newType($fhirName, \SimpleXMLElement $sourceSXE, $sourceFileName)
     {
-        $type = new StandardType($this->config, $fhirName, $sourceSXE, $sourceFileName);
+        $type = new Type($this->config, $fhirName, $sourceSXE, $sourceFileName);
         $this->addType($type);
         return $type;
     }
 
     /**
      * @param string $fhirName
-     * @return \DCarbone\PHPFHIR\Definition\Type\HTMLValueType
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function newHTMLType($fhirName)
     {
@@ -184,11 +182,11 @@ class Types implements \Countable
 
     /**
      * @param string $fhirName
-     * @return \DCarbone\PHPFHIR\Definition\Type\PrimitiveTypeValueType
+     * @return \DCarbone\PHPFHIR\Definition\Type\Value\PrimitiveTypeValueType
      */
     public function newPrimitiveTypeValueType($fhirName)
     {
-        $type = new PrimitiveTypeValueType($this->config, $fhirName);
+        $type = new PrimitiveTypeValueType($this->config, NameUtils::getPrimitiveValuePropertyTypeName($fhirName));
         $this->addType($type);
         return $type;
     }
