@@ -37,16 +37,18 @@ abstract class TypeDecorator
                                                    Type $type,
                                                    \SimpleXMLElement $element)
     {
-        $fhirName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
-        if (null === $fhirName) {
-            $fhirName = XMLUtils::getBaseFHIRElementNameFromRestriction($element);
+        $parentFHIRName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
+        if ($type->getFHIRName() === $parentFHIRName){
+            var_dump($type, $element->saveXML());exit;
         }
-        if (null !== $fhirName) {
-            if (0 === strpos($fhirName, 'xs')) {
-                $fhirName = substr($fhirName, 3);
-            }
-            $type->setParentTypeName($fhirName);
+        if (null === $parentFHIRName) {
+            throw new \DomainException(sprintf(
+                'Unable to determine parent of Type "%s" from element: %s',
+                $type->getFHIRName(),
+                $element->saveXML()
+            ));
         }
+        $type->setParentTypeName($parentFHIRName);
     }
 
     /**
@@ -143,7 +145,7 @@ abstract class TypeDecorator
                     ));
                 } elseif (false !== strpos($property->getFHIRTypeName(), 'xhtml')) {
                     // if this is an html type...
-                    $property->setValueType($types->newHTMLType($property->getFHIRTypeName()));
+                    $property->setValueType($types->newHTMLValueType($property->getFHIRTypeName()));
                     $config->getLogger()->notice(sprintf(
                         'Setting Type %s Property %s value Type to %s',
                         $type,
@@ -185,45 +187,34 @@ abstract class TypeDecorator
     {
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
+
+            // there are a few specialty types kinds that are set during the parsing process, most notably for
+            // html value types and primitive value types
+            if (null !== $type->getKind()) {
+                $config->getLogger()->info(sprintf(
+                    'Type %s already has Kind %s, will not set again',
+                    $fhirName,
+                    $type->getKind()
+                ));
+                continue;
+            }
+
+
+            // if this is a child type, use the parent type to determine kind
             if ($rootType = $type->getRootType()) {
-                $rootFHIRName = $rootType->getFHIRName();
-                if (false !== strpos($rootFHIRName, '-primitive')) {
-                    $type->setKind(new TypeKind(TypeKind::PRIMITIVE));
-                } elseif (false !== strpos($rootFHIRName, '-list')) {
-                    $type->setKind(new TypeKind(TypeKind::_LIST));
-                } elseif (TypeKind::ELEMENT === $rootFHIRName) {
-                    $type->setKind(new TypeKind(TypeKind::ELEMENT));
-                } elseif (TypeKind::RESOURCE === $rootFHIRName) {
-                    $type->setKind(new TypeKind(TypeKind::RESOURCE));
-                } elseif (TypeKind::RESOURCE_CONTAINER === $rootFHIRName) {
-                    $type->setKind(new TypeKind(TypeKind::RESOURCE_CONTAINER));
-                } elseif (TypeKind::RESOURCE_INLINE === $rootFHIRName) {
-                    $type->setKind(new TypeKind(TypeKind::RESOURCE_INLINE));
-                } elseif (TypeKind::DOMAIN_RESOURCE === $rootFHIRName) {
-                    $type->setKind(new TypeKind(TypeKind::DOMAIN_RESOURCE));
-                } else {
+                try {
+                    $type->setKind(new TypeKind($rootType->getFHIRName()));
+                } catch (\UnexpectedValueException $e) {
                     throw new \DomainException(sprintf(
                         'Unable to determine kind for FHIR object %s with root parent of %s',
                         $fhirName,
-                        $rootFHIRName
+                        $rootType->getFHIRName()
                     ));
                 }
             } else {
-                if (false !== strpos($fhirName, '-primitive')) {
-                    $type->setKind(new TypeKind(TypeKind::PRIMITIVE));
-                } elseif (false !== strpos($fhirName, '-list')) {
-                    $type->setKind(new TypeKind(TypeKind::_LIST));
-                } elseif (TypeKind::ELEMENT === $fhirName) {
-                    $type->setKind(new TypeKind(TypeKind::ELEMENT));
-                } elseif (TypeKind::RESOURCE === $fhirName) {
-                    $type->setKind(new TypeKind(TypeKind::RESOURCE));
-                } elseif (TypeKind::RESOURCE_CONTAINER === $fhirName) {
-                    $type->setKind(new TypeKind(TypeKind::RESOURCE_CONTAINER));
-                } elseif (TypeKind::RESOURCE_INLINE === $fhirName) {
-                    $type->setKind(new TypeKind(TypeKind::RESOURCE_INLINE));
-                } elseif (TypeKind::DOMAIN_RESOURCE === $fhirName) {
-                    $type->setKind(new TypeKind(TypeKind::DOMAIN_RESOURCE));
-                } else {
+                try {
+                    $type->setKind(new TypeKind($rootType->getFHIRName()));
+                } catch (\UnexpectedValueException $e) {
                     throw new \DomainException(sprintf(
                         'Unable to determine kind for FHIR object %s with no root parent',
                         $fhirName

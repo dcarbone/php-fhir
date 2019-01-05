@@ -90,7 +90,7 @@ PHP;
         } else {
             $out .= "[];\n";
         }
-        if ($type->isResource()) {
+        if ($type->getKind()->isResource()) {
             $out .= <<<PHP
         \$a['resourceType'] = self::FHIR_TYPE_NAME;
 
@@ -159,7 +159,8 @@ PHP;
      */
     public static function buildBody(VersionConfig $config, Type $type)
     {
-        if ($type->isPrimitive()) {
+        $typeKind = $type->getKind();
+        if ($typeKind->isPrimitive()) {
             return static::buildPrimitiveBody($config, $type);
         }
         if ($type->hasPrimitiveParent()) {
@@ -168,7 +169,7 @@ PHP;
         if ($type->isPrimitiveContainer()) {
             return static::buildPrimitiveContainerBody($config, $type);
         }
-        if ($type->isResourceContainer() || $type->isInlineResource()) {
+        if ($typeKind->isResourceContainer() || $typeKind->isInlineResource()) {
             return static::buildResourceContainerBody($config, $type);
         }
         return static::buildDefaultBody($config, $type, true);

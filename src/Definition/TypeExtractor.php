@@ -75,13 +75,25 @@ abstract class TypeExtractor
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    protected static function parseExtensionOrRestriction(VersionConfig $config,
-                                                          Types $types,
-                                                          Type $type,
-                                                          \SimpleXMLElement $element)
+    protected static function parseExtension(VersionConfig $config,
+                                             Types $types,
+                                             Type $type,
+                                             \SimpleXMLElement $element)
     {
         TypeDecorator::determineTypeParentName($config, $type, $element);
         PropertyExtractor::extractTypeProperties($config, $types, $type, $element);
+    }
+
+    protected static function parseRestriction(VersionConfig $config,
+                                               Types $types,
+                                               Type $type,
+                                               \SimpleXMLElement $element)
+    {
+        // TODO: Don't do this...
+        $config->getLogger()->info(sprintf(
+            'Ignoring restriction on Type %s',
+            $type->getFHIRName()
+        ));
     }
 
     /**
@@ -120,10 +132,12 @@ abstract class TypeExtractor
                     static::extractSimpleInnards($config, $types, $type, $element);
                     break;
 
-                case XSDElementType::RESTRICTION:
                 case XSDElementType::EXTENSION:
-                    // we've got a parent
-                    static::parseExtensionOrRestriction($config, $types, $type, $element);
+                    static::parseExtension($config, $types, $type, $element);
+                    break;
+
+                case XSDElementType::RESTRICTION:
+                    static::parseRestriction($config, $types, $type, $element);
                     break;
 
                 default:
@@ -173,10 +187,12 @@ abstract class TypeExtractor
                     static::extractSimpleInnards($config, $types, $type, $element);
                     break;
 
-                case XSDElementType::RESTRICTION:
                 case XSDElementType::EXTENSION:
-                    // we've got a parent
-                    static::parseExtensionOrRestriction($config, $types, $type, $element);
+                    static::parseExtension($config, $types, $type, $element);
+                    break;
+
+                case XSDElementType::RESTRICTION:
+                    static::parseRestriction($config, $types, $type, $element);
                     break;
 
                 default:
@@ -255,7 +271,12 @@ abstract class TypeExtractor
                         $type = $types->newType($fhirElementName, $child, $file);
                         // being a simple type,
                         $valueType = $types->newPrimitiveTypeValueType($fhirElementName);
-                        $type->addProperty(new Property($config, 'value', '', $type->getSourceSXE()));
+                        $type->addProperty(
+                            new Property($config,
+                                'value',
+                                $valueType->getFHIRName(),
+                                $type->getSourceSXE())
+                        );
                     }
 
                     static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
@@ -269,7 +290,7 @@ abstract class TypeExtractor
 
                 case XSDElementType::ELEMENT:
                     $config->getLogger()->warning(sprintf(
-                        'Skipping root level element %s in file %s',
+                        'Skipping root level element "%s" in file "%s"',
                         $child->getName(),
                         $basename
                     ));

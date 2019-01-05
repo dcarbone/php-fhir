@@ -38,14 +38,18 @@ abstract class XMLUnserializeUtils
     {
         $propertyType = $property->getValueType();
         if (null === $propertyType) {
-            return '';
+            throw new \DomainException(sprintf(
+                'Type %s Property %s has no defined Type',
+                $type->getFHIRName(),
+                $property->getName()
+            ));
         }
-        $typeName = $type->getClassName();
         $methodName = 'set' . ucfirst($property->getName());
         $propertyName = $property->getName();
         $propertyTypeClassName = $propertyType->getClassName();
+        $propertyTypeKind = $propertyType->getKind();
         $out = '';
-        if ($propertyType->isPrimitive() ||
+        if ($propertyTypeKind->isPrimitive() ||
             $propertyType->hasPrimitiveParent() ||
             $propertyType->isPrimitiveContainer() ||
             $propertyType->hasPrimitiveContainerParent()) {

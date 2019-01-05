@@ -172,6 +172,14 @@ class Type
      */
     public function setKind(TypeKind $kind)
     {
+        if (isset($this->kind) && !$this->kind->equals($kind)) {
+            throw new \LogicException(sprintf(
+                'Cannot overwrite Type %s Kind from %s to %s',
+                $this->getFHIRName(),
+                $this->kind,
+                $kind
+            ));
+        }
         $this->kind = $kind;
         return $this;
     }
@@ -548,7 +556,7 @@ class Type
     public function isVariadicValueElement()
     {
         $kind = $this->getKind();
-        if ($kind->isValue() || $kind->isPrimitive() || $kind->isList() || $this->isPrimitiveContainer()) {
+        if ($kind->isTypeValue() || $kind->isPrimitive() || $kind->isList() || $this->isPrimitiveContainer()) {
             return false;
         }
         if (1 < count($this->properties)) {

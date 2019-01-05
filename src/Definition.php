@@ -56,11 +56,22 @@ class Definition
     public function buildDefinition()
     {
         $this->config->getLogger()->startBreak('Extracting defined types');
+
+        $this->config->getLogger()->info('Parsing types');
         $this->types = TypeExtractor::parseTypes($this->config);
 
+        $this->config->getLogger()->info('Finding parent types');
         TypeDecorator::findParentTypes($this->config, $this->types);
+
+        $this->config->getLogger()->info('Determining type kinds');
+        TypeDecorator::determineParsedTypesKind($this->config, $this->types);
+
+        $this->config->getLogger()->info('Finding component types');
         TypeDecorator::findComponentOfTypes($this->config, $this->types);
+
+        $this->config->getLogger()->info('Finding property types');
         TypeDecorator::findPropertyTypes($this->config, $this->types);
+
         $this->config->getLogger()->info(count($this->types) . ' types extracted.');
         $this->config->getLogger()->endBreak('Extracting defined types');
     }

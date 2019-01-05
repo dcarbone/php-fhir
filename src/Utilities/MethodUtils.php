@@ -404,6 +404,8 @@ PHP;
      */
     public static function buildToString(VersionConfig $config, Type $type)
     {
+        $typeKind = $type->getKind();
+
         $out = <<<PHP
     /**
      * @return string
@@ -413,9 +415,9 @@ PHP;
         return
 PHP;
 
-        if ($type->isPrimitive() || $type->isPrimitiveContainer()) {
+        if ($typeKind->isPrimitive() || $type->isPrimitiveContainer()) {
             $out .= " (string)\$this->getValue();";
-        } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
+        } elseif ($typeKind->isResourceContainer() || $typeKind->isInlineResource()) {
             $out .= " (string)\$this->jsonSerialize();";
         } else {
             $out .= " (string)self::FHIR_TYPE_NAME;";

@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
@@ -162,31 +162,34 @@ class Types implements \Countable
      * @param string $fhirName
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function newHTMLType($fhirName)
+    public function newHTMLValueType($fhirName)
     {
-        $type = new HTMLValueType($this->config, $fhirName);
+        $type = new Type($this->config, $fhirName);
+        $type->setKind(new TypeKind(TypeKind::HTML_VALUE));
         $this->addType($type);
         return $type;
     }
 
     /**
      * @param string $fhirName
-     * @return \DCarbone\PHPFHIR\Definition\Type\UndefinedType
-     */
-    public function newUndefinedType($fhirName)
-    {
-        $type = new UndefinedType($this->config, $fhirName);
-        $this->addType($type);
-        return $type;
-    }
-
-    /**
-     * @param string $fhirName
-     * @return \DCarbone\PHPFHIR\Definition\Type\Value\PrimitiveTypeValueType
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function newPrimitiveTypeValueType($fhirName)
     {
-        $type = new PrimitiveTypeValueType($this->config, NameUtils::getPrimitiveValuePropertyTypeName($fhirName));
+        $type = new Type($this->config, NameUtils::getPrimitiveValuePropertyTypeName($fhirName));
+        $type->setKind(new TypeKind(TypeKind::PRIMITIVE_VALUE));
+        $this->addType($type);
+        return $type;
+    }
+
+    /**
+     * @param string $fhirName
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function newUndefinedType($fhirName)
+    {
+        $type = new Type($this->config, $fhirName);
+        $type->setKind(new TypeKind(TypeKind::UNDEFINED));
         $this->addType($type);
         return $type;
     }

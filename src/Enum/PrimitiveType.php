@@ -29,67 +29,49 @@ class PrimitiveType extends Enum
     const UNSIGNED_INTEGER = 'unsignedint';
     const INTEGER          = 'integer';
     const DECIMAL          = 'decimal';
-
-    const TIME     = 'time';
-    const INSTANT  = 'instant';
-    const DATE     = 'date';
-    const DATETIME = 'datetime';
-
-    const BOOLEAN        = 'boolean';
-    const BASE_64_BINARY = 'base64binary';
-    const STRING         = 'string';
-    const URI            = 'uri';
-    const CODE           = 'code';
-    const XML_ID_REF     = 'xmlidref';
-    const ID             = 'id';
-    const OID            = 'oid';
-    const UUID           = 'uuid';
-    const MARKDOWN       = 'markdown';
+    const BOOLEAN          = 'boolean';
+    const BASE_64_BINARY   = 'base64binary';
+    const STRING           = 'string';
+//    const URI              = 'uri';
+//    const CODE             = 'code';
+//    const XML_ID_REF       = 'xmlidref';
+//    const ID               = 'id';
+//    const OID              = 'oid';
+//    const UUID             = 'uuid';
+//    const MARKDOWN         = 'markdown';
 
     /**
      * @return string
      */
-    public function getPHPType()
-    {
-        $strType = (string)$this;
-        switch ($strType) {
-            case self::BOOLEAN:
-            case self::INTEGER:
-            case self::STRING:
-                return $strType;
-
-            case self::NEGATIVE_INTEGER:
-            case self::POSITIVE_INTEGER:
-            case self::UNSIGNED_INTEGER:
-                return 'integer';
-
-            case self::DECIMAL:
-                return 'float';
-
-            case self::TIME:
-            case self::INSTANT:
-            case self::DATE:
-            case self::DATETIME:
-
-            case self::MARKDOWN:
-            case self::UUID:
-            case self::OID:
-            case self::ID:
-            case self::XML_ID_REF:
-            case self::URI:
-            case self::BASE_64_BINARY:
-            case self::CODE:
-                return 'string';
-
-            // TODO: At some point, would looooove to turn this value into a real DateTime object...
-//            case PrimitivePropertyTypesEnum::TIME:
-//            case PrimitivePropertyTypesEnum::INSTANT:
-//            case PrimitivePropertyTypesEnum::DATE:
-//            case PrimitivePropertyTypesEnum::DATETIME:
-//                return '\\DateTime';
-
-            default:
-                throw new \RuntimeException('No variable type mapping exists for simple property "' . $strType . '"');
-        }
-    }
+//    public function getPHPType()
+//    {
+//        $strType = (string)$this;
+//        switch ($strType) {
+//            case self::BOOLEAN:
+//            case self::INTEGER:
+//            case self::STRING:
+//                return $strType;
+//
+//            case self::NEGATIVE_INTEGER:
+//            case self::POSITIVE_INTEGER:
+//            case self::UNSIGNED_INTEGER:
+//                return 'integer';
+//
+//            case self::DECIMAL:
+//                return 'float';
+//
+//            case self::MARKDOWN:
+//            case self::UUID:
+//            case self::OID:
+//            case self::ID:
+//            case self::XML_ID_REF:
+//            case self::URI:
+//            case self::BASE_64_BINARY:
+//            case self::CODE:
+//                return 'string';
+//
+//            default:
+//                throw new \RuntimeException('No variable type mapping exists for simple property "' . $strType . '"');
+//        }
+//    }
 }

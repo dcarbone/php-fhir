@@ -112,7 +112,8 @@ abstract class PropertyUtils
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $property) {
             $valueType = $property->getValueType();
-            if ($valueType->isHTML()) {
+            $valueTypeKind = $valueType->getKind();
+            if ($valueTypeKind->isHTMLValue()) {
                 $out .= self::buildHTMLProperty($config, $type, $property, $valueType);
             } else {
                 $out .= self::buildDefaultProperty($config, $type, $property, $valueType);
@@ -145,24 +146,30 @@ abstract class PropertyUtils
                 ));
                 continue;
             }
+
+            $propTypeKind = $propType->getKind();
+
             if ('' !== $out) {
                 $out .= "\n";
             }
-            if ($propType->isPrimitive() || $propType->hasPrimitiveParent()) {
+
+            if ($propTypeKind->isPrimitive() || $propType->hasPrimitiveParent()) {
                 $out .= MethodUtils::createPrimitiveSetter($config, $type, $property);
             } elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) {
                 $out .= MethodUtils::createPrimitiveContainerSetter($config, $type, $property);
-            } elseif ($propType->isResourceContainer() || $propType->isInlineResource()) {
+            } elseif ($propTypeKind->isResourceContainer() || $propTypeKind->isInlineResource()) {
                 $out .= MethodUtils::createResourceContainerSetter($config, $type, $property);
-            } elseif ($propType->isHTML()) {
+            } elseif ($propTypeKind->isHTMLValue()) {
                 $out .= MethodUtils::createHTMLValueSetter($config, $type, $property);
             } else {
                 $out .= MethodUtils::createDefaultSetter($config, $type, $property);
             }
+
             $out .= "\n";
-            if ($propType->isResourceContainer()) {
+
+            if ($propTypeKind->isResourceContainer()) {
                 $out .= MethodUtils::createResourceContainerGetter($config, $type, $property);
-            } elseif ($propType->isHTML()) {
+            } elseif ($propTypeKind->isHTMLValue()) {
                 $out .= MethodUtils::createHTMLValueGetter($config, $type, $property);
             } else {
                 $out .= MethodUtils::createDefaultGetter($config, $type, $property);
@@ -276,7 +283,8 @@ PHP;
      */
     public static function getPropertyPHPTypeName(Type $type, Property $property)
     {
-        if (($type->isPrimitive() || $type->hasPrimitiveParent()) && 'value' === $property->getName()) {
+        $typeKind = $type->getKind();
+        if (($typeKind->isPrimitive() || $type->hasPrimitiveParent()) && 'value' === $property->getName()) {
             // TODO: enable primitive-type specific values here.
             return 'mixed';
         }

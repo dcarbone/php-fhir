@@ -210,11 +210,13 @@ abstract class ClassBuilder
 
 PHP;
 
-        if ($type->isPrimitive()) {
+        $typeKind = $type->getKind();
+
+        if ($typeKind->isPrimitive()) {
             $out .= static::buildPrimitiveTypeClass($config, $types, $type);
         } elseif ($type->isPrimitiveContainer()) {
             $out .= static::buildPrimitiveContainerTypeClass($config, $types, $type);
-        } elseif ($type->isResourceContainer() || $type->isInlineResource()) {
+        } elseif ($typeKind->isResourceContainer() || $typeKind->isInlineResource()) {
             $out .= static::buildResourceContainerOrInlineResourceTypeClass($config, $types, $type);
         } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
             $out .= static::buildDefaultTypeClass($config, $types, $type);

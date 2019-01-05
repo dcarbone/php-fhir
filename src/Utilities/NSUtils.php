@@ -60,10 +60,11 @@ abstract class NSUtils
     public static function compileUseStatements(VersionConfig $config, Types $types, Type $type)
     {
         $fqns = $type->getFullyQualifiedNamespace(false);
+        $typeKind = $type->getKind();
 
         $imports = [];
 
-        if ($type->isResourceContainer()) {
+        if ($typeKind->isResourceContainer()) {
             $imports[] = "{$config->getNamespace()}\\PHPFHIRTypeMap";
         }
 
@@ -91,14 +92,14 @@ abstract class NSUtils
                         $propNS
                     ));
                 }
-                if ($propertyType->isResourceContainer() || $propertyType->isInlineResource()) {
+                if ($typeKind->isResourceContainer() || $typeKind->isInlineResource()) {
                     $resourceType = $types->getTypeByFHIRName('Resource');
                     $propNS = $resourceType->getFullyQualifiedNamespace(false);
                     if ($propNS !== $fqns) {
                         $imports[] = $propNS;
                     }
                 }
-            }  elseif ($propertyType->isHTML() || $propertyType->isUndefined()) {
+            }  elseif ($typeKind->isHTMLValue() || $typeKind->isUndefined()) {
                 $imports[] = static::generateRootNamespace($config, 'PHPFHIRHelper');
                 $config->getLogger()->debug(sprintf(
                     'Type %s Property %s is of type %s, adding PHPFHIRHelper use statement',

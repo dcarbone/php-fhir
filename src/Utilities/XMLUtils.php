@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Type\Enumeration;
-use DCarbone\PHPFHIR\Definition\Type\EnumerationValue;
-
 /**
  * Class XMLUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities

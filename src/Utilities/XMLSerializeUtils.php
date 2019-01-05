@@ -64,7 +64,8 @@ PHP;
      */
     protected static function returnStmt(VersionConfig $config, Type $type)
     {
-        if (!$type->isPrimitive() && $type->hasParent()) {
+        $typeKind = $type->getKind();
+        if (!$typeKind->isPrimitive() && $type->hasParent()) {
             return "        return parent::xmlSerialize(\$returnSXE, \$sxe);\n";
         }
         return "        return \$returnSXE ? \$sxe : \$sxe->saveXML();\n";
@@ -154,7 +155,11 @@ PHP;
                 ));
                 continue;
             }
+
+            $propTypeKind = $propType->getKind();
+
             $methodName = 'get' . NameUtils::getPropertyMethodName($propName);
+
             if ($property->isCollection()) {
                 $out .= <<<PHP
         if (0 < count(\$values = \$this->{$methodName}())) {
@@ -162,7 +167,7 @@ PHP;
                 if (null !== \$v) {
 
 PHP;
-                if ($config->mustSquashPrimitives() && ($propType->isPrimitive() || $propType->isPrimitiveContainer())) {
+                if ($config->mustSquashPrimitives() && ($propTypeKind->isPrimitive() || $propType->isPrimitiveContainer())) {
                     $out .= "                   \$sxe->addAttribute('{$propName}', (string)\$v);\n";
                 } else {
                     $out .= "                   \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));\n";
@@ -179,7 +184,7 @@ PHP;
         if (null !== (\$v = \$this->{$methodName}())) {
 
 PHP;
-                if ($config->mustSquashPrimitives() && ($propType->isPrimitive() || $propType->isPrimitiveContainer())) {
+                if ($config->mustSquashPrimitives() && ($propTypeKind->isPrimitive() || $propType->isPrimitiveContainer())) {
                     $out .= "           \$sxe->addAttribute('{$propName}', (string)\$v);\n";
                 } else {
                     $out .= "           \$v->xmlSerialize(true, \$sxe->addChild('{$propName}'));\n";
@@ -197,9 +202,10 @@ PHP;
      */
     public static function buildBody(VersionConfig $config, Type $type)
     {
-        if ($type->isPrimitive() || $type->isPrimitiveContainer()) {
+        $typeKind = $type->getKind();
+        if ($typeKind->isPrimitive() || $type->isPrimitiveContainer()) {
             return static::buildPrimitiveBody($config, $type);
-        } elseif ($type->isResourceContainer()) {
+        } elseif ($typeKind->isResourceContainer()) {
             return static::buildResourceContainerBody($config, $type);
         } else {
             return static::buildDefaultBody($config, $type);
