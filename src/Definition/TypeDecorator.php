@@ -38,8 +38,9 @@ abstract class TypeDecorator
                                                    \SimpleXMLElement $element)
     {
         $parentFHIRName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
-        if ($type->getFHIRName() === $parentFHIRName){
-            var_dump($type, $element->saveXML());exit;
+        if ($type->getFHIRName() === $parentFHIRName) {
+            var_dump($type, $element->saveXML());
+            exit;
         }
         if (null === $parentFHIRName) {
             throw new \DomainException(sprintf(
@@ -88,7 +89,7 @@ abstract class TypeDecorator
                     ));
                     $type->setComponentOfType($ptype);
                 } else {
-                    $config->getLogger()->error(sprintf(
+                    throw new \RuntimeException(sprintf(
                         'Unable to locate Parent Type %s for Component %s',
                         $tname,
                         $type
@@ -134,16 +135,17 @@ abstract class TypeDecorator
             foreach ($type->getProperties()->getIterator() as $property) {
                 $typeKind = $type->getKind();
                 // TODO: this is kinda hacky...
-                if ('value' === $property->getName() && ($typeKind->isPrimitive() || $type->hasPrimitiveParent())) {
-                    // if this is a "value" property from a primitive parent, use the primitive value type
-                    $property->setValueType($types->newPrimitiveTypeValueType($property->getName()));
-                    $config->getLogger()->info(sprintf(
-                        'Setting Type %s Property %s to %s',
-                        $type,
-                        $property,
-                        TypeKind::PRIMITIVE_VALUE
-                    ));
-                } elseif (false !== strpos($property->getFHIRTypeName(), 'xhtml')) {
+//                if ('value' === $property->getName() && ($typeKind->isPrimitive() || $type->hasPrimitiveParent())) {
+//                    // if this is a "value" property from a primitive parent, use the primitive value type
+//                    $property->setValueType($types->newPrimitiveTypeValueType($property->getName()));
+//                    $config->getLogger()->info(sprintf(
+//                        'Setting Type %s Property %s to %s',
+//                        $type,
+//                        $property,
+//                        TypeKind::PRIMITIVE_VALUE
+//                    ));
+//                } else
+                if (false !== strpos($property->getFHIRTypeName(), 'xhtml')) {
                     // if this is an html type...
                     $property->setValueType($types->newHTMLValueType($property->getFHIRTypeName()));
                     $config->getLogger()->notice(sprintf(
@@ -164,7 +166,7 @@ abstract class TypeDecorator
                 } else {
                     // if we get this far, then there was a type missing from the XSD's
                     $property->setValueType($types->newUndefinedType($property->getName()));
-                    $config->getLogger()->warning(sprintf(
+                    $config->getLogger()->alert(sprintf(
                         'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
                         $type,
                         $property,
@@ -183,7 +185,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function determineParsedTypesKind(VersionConfig $config, Types $types)
+    public static function determineParsedTypeKinds(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();

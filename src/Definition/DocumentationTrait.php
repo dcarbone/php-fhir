@@ -65,17 +65,21 @@ trait DocumentationTrait
 
     /**
      * @param int $spaces
+     * @param bool $trailingNewline
      * @return string
      */
-    public function getDocBlockDocumentationFragment($spaces = 5)
+    public function getDocBlockDocumentationFragment($spaces = 5, $trailingNewline = true)
     {
         $output = '';
         $spaces = str_repeat(' ', $spaces);
         if (isset($this->documentation)) {
-            foreach ($this->documentation as $doc) {
-                $output = sprintf("%s%s* %s\n", $output, $spaces, $doc);
+            foreach ($this->documentation as $i => $doc) {
+                if ($i > 0) {
+                    $output .= "\n";
+                }
+                $output = sprintf("%s%s* %s", $output, $spaces, $doc);
             }
         }
-        return $output;
+        return $trailingNewline ? "{$output}\n" : $output;
     }
 }

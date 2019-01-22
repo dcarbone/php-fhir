@@ -67,12 +67,15 @@ abstract class PropertyUtils
                                              Property $property,
                                              Type $valueType)
     {
-        $out = "\n    /**\n";
-        $out .= $property->getDocBlockDocumentationFragment();
-        $out .= "     * @var string\n";
-        $out .= "     */\n";
-        $out .= "    private \$innerHTML = null;\n";
-        return $out;
+        return <<<EOT
+    
+    /**
+{$property->getDocBlockDocumentationFragment(5, false)}
+     * @var string
+     */
+    private \$innerHTML = null;
+
+EOT;
     }
 
     /**

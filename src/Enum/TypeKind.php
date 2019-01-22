@@ -206,6 +206,14 @@ class TypeKind extends Enum
     /**
      * @return bool
      */
+    public function isHTMLValue()
+    {
+        return $this->is(self::HTML_VALUE);
+    }
+
+    /**
+     * @return bool
+     */
     public function isUndefined()
     {
         return $this->is(self::UNDEFINED);

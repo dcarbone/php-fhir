@@ -64,7 +64,7 @@ class Definition
         TypeDecorator::findParentTypes($this->config, $this->types);
 
         $this->config->getLogger()->info('Determining type kinds');
-        TypeDecorator::determineParsedTypesKind($this->config, $this->types);
+        TypeDecorator::determineParsedTypeKinds($this->config, $this->types);
 
         $this->config->getLogger()->info('Finding component types');
         TypeDecorator::findComponentOfTypes($this->config, $this->types);
