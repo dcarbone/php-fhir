@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class Types
@@ -57,7 +56,7 @@ class Types implements \Countable
     public function getTypeByName($name)
     {
         foreach ($this->types as $type) {
-            if ($type->getName() === $name) {
+            if ($type->getFHIRName() === $name) {
                 return $type;
             }
         }
@@ -102,37 +101,22 @@ class Types implements \Countable
      */
     public function addType(Type &$type)
     {
-        $tname = $type->getName();
+        $tname = $type->getFHIRName();
         foreach ($this->types as $current) {
             if ($type === $current) {
                 return $this;
             }
-            if ($current->getName() === $tname && $current->getType() === $type->getType()) {
+            if ($current->getFHIRName() === $tname) {
                 // this happens with FHIR types sometimes...
-                if ($current instanceof FHIRType && $type instanceof FHIRType) {
-                    $this->config->getLogger()->notice(sprintf(
-                        'Type "%s" was previously defined in file "%s", found again in "%s".  Keeping original',
-                        $tname,
-                        $current->getSourceFileBasename(),
-                        $type->getSourceFileBasename()
-                    ));
-                    $type = $current;
-                    return $this;
-                }
-                // if i'm trying to redefine a php type, yell at myself
-                throw new \RuntimeException(sprintf(
-                    'Why are you redefining PHP type "%s"?',
-                    $type->getName()
+                $this->config->getLogger()->notice(sprintf(
+                    'Type "%s" was previously defined in file "%s", found again in "%s".  Keeping original',
+                    $tname,
+                    $current->getSourceFileBasename(),
+                    $type->getSourceFileBasename()
                 ));
+                $type = $current;
+                return $this;
             }
-
-            // if there is a type mismatch, we need to change what we must defer to the FHIR type
-            throw new \DomainException(sprintf(
-                'Type "%s" is already defined and as type "%s", cannot replace with type of "%s"',
-                $type->getName(),
-                $current->getType(),
-                $type->getType()
-            ));
         }
         $this->types[] = $type;
         return $this;
@@ -157,7 +141,7 @@ class Types implements \Countable
         usort(
             $tmp,
             function (Type $t1, Type $t2) {
-                return strnatcasecmp($t1->getName(), $t2->getName());
+                return strnatcasecmp($t1->getFHIRName(), $t2->getFHIRName());
             }
         );
         return new \ArrayIterator($tmp);

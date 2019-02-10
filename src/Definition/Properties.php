@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Definition\Type;
+namespace DCarbone\PHPFHIR\Definition;
 
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Definition\Type;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class Properties
@@ -27,7 +26,7 @@ use DCarbone\PHPFHIR\Definition\Type;
  */
 class Properties implements \Countable
 {
-    /** @var \DCarbone\PHPFHIR\Definition\Type\Property[] */
+    /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private $properties = [];
 
     /** @var bool */
@@ -75,7 +74,7 @@ class Properties implements \Countable
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return $this
      */
     public function addProperty(Property &$property)
@@ -88,7 +87,7 @@ class Properties implements \Countable
             if ($pname === $current->getName()) {
                 $this->config->getLogger()->warning(sprintf(
                     'Type %s already has property %s, probably some duplicate definition nonsense. Keeping original.',
-                    $this->getType()->getName(),
+                    $this->getType()->getFHIRName(),
                     $property->getName()
                 ));
                 $property = $current;
@@ -102,7 +101,7 @@ class Properties implements \Countable
 
     /**
      * @param string $name
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property|null
+     * @return \DCarbone\PHPFHIR\Definition\Property|null
      */
     public function getProperty($name)
     {
@@ -152,7 +151,7 @@ class Properties implements \Countable
 //    }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property[]
+     * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
     public function getIterator()
     {
@@ -160,7 +159,7 @@ class Properties implements \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property[]
+     * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
     public function getSortedIterator()
     {
@@ -168,8 +167,8 @@ class Properties implements \Countable
             usort(
                 $this->properties,
                 function ($a, $b) {
-                    /** @var \DCarbone\PHPFHIR\Definition\Type\Property $a */
-                    /** @var \DCarbone\PHPFHIR\Definition\Type\Property $b */
+                    /** @var \DCarbone\PHPFHIR\Definition\Property $a */
+                    /** @var \DCarbone\PHPFHIR\Definition\Property $b */
                     return strnatcmp($a->getName(), $b->getName());
                 }
             );

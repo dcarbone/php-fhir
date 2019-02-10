@@ -19,8 +19,8 @@ namespace DCarbone\PHPFHIR\Utilities;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\ListType;
-use DCarbone\PHPFHIR\Definition\PrimitiveType;
+use DCarbone\PHPFHIR\Definition\Type\ListType;
+use DCarbone\PHPFHIR\Definition\Type\PrimitiveType;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
@@ -180,7 +180,7 @@ abstract class BuilderUtils
             $parentElement,
             $enum,
             'addEnumerationValue',
-            new Type\EnumerationValue((string)$value, $enum)
+            new \DCarbone\PHPFHIR\Definition\EnumerationValue((string)$value, $enum)
         );
     }
 }

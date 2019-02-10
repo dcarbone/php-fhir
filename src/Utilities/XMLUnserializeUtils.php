@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
@@ -31,7 +31,7 @@ abstract class XMLUnserializeUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     protected static function buildDefaultSetter(VersionConfig $config, Type $type, Property $property)
@@ -73,7 +73,7 @@ PHP;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     protected static function buildCollectionSetter(VersionConfig $config, Type $type, Property $property)

@@ -29,6 +29,7 @@ define('PHPFHIR_NAMESPACE_REGEX', '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-
 
 // suffixes
 define('PHPFHIR_PRIMITIVE_SUFFIX', '-primitive');
+define('PHPFHIR_LIST_SUFFIX', '-list');
 
 // FHIR XML NS
 define('PHPFHIR_FHIR_XMLNS', 'http://hl7.org/fhir');

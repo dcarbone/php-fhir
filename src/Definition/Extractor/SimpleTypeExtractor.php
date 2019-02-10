@@ -19,10 +19,11 @@ namespace DCarbone\PHPFHIR\Definition\Extractor;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\ListType;
-use DCarbone\PHPFHIR\Definition\PrimitiveType;
+use DCarbone\PHPFHIR\Definition\Type\ListType;
+use DCarbone\PHPFHIR\Definition\Type\PrimitiveType;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\Element\SimpleTypeElementUtils;
 
 /**
@@ -31,71 +32,6 @@ use DCarbone\PHPFHIR\Utilities\Element\SimpleTypeElementUtils;
  */
 abstract class SimpleTypeExtractor
 {
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param string $sourceFile
-     * @param \SimpleXMLElement $element
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    protected static function handleDuplicateType(VersionConfig $config,
-                                                  Types $types,
-                                                  Type $type,
-                                                  $sourceFile,
-                                                  \SimpleXMLElement $element)
-    {
-        $config->getLogger()->warning(sprintf(
-            'Seeing duplicate entry for SimpleType "%s".  First seen in file "%s", currently in "%s"',
-            $type->getFHIRName(),
-            $type->getSourceFilename(),
-            $sourceFile
-        ));
-
-        // do shit...
-
-        return $type;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param string $sourceFile
-     * @param string $fhirName
-     * @param \SimpleXMLElement $element
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    protected static function buildPrimitiveType(VersionConfig $config,
-                                                 Types $types,
-                                                 $sourceFile,
-                                                 $fhirName,
-                                                 \SimpleXMLElement $element)
-    {
-        // construct new primitive type
-        $type = new PrimitiveType($config, $fhirName, $element, $sourceFile);
-        SimpleTypeElementUtils::decorateType($config, $types, $type, $element);
-        return $type;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param $sourceFile
-     * @param $fhirName
-     * @param \SimpleXMLElement $element
-     * @return \DCarbone\PHPFHIR\Definition\ListType
-     */
-    protected static function buildListType(VersionConfig $config,
-                                            Types $types,
-                                            $sourceFile,
-                                            $fhirName,
-                                            \SimpleXMLElement $element)
-    {
-        $type = new ListType($config, $fhirName, $element, $sourceFile);
-        SimpleTypeElementUtils::decorateType($config, $types, $type, $element);
-        return $type;
-    }
-
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
@@ -110,31 +46,21 @@ abstract class SimpleTypeExtractor
                                    $fhirElementName,
                                    \SimpleXMLElement $element)
     {
+        $type = new Type($config, $fhirElementName, $element, $sourceFile);
+
         // first, test to see if this type has already been created.
         // TODO: why am i seeing dupes...
-        if (null !== ($type = $types->getTypeByName($fhirElementName))) {
-            return self::handleDuplicateType($config, $types, $type, $sourceFile, $element);
+        if (null !== $types->getTypeByName($fhirElementName)) {
+            throw new \DomainException(sprintf(
+                'Seeing duplicate entry for SimpleType "%s".  First seen in file "%s", currently in "%s"',
+                $type->getFHIRName(),
+                $type->getSourceFilename(),
+                $sourceFile
+            ));
         }
 
-        if (false !== strpos($fhirElementName, '-primitive')) {
-            return self::buildPrimitiveType($config, $types, $sourceFile, $fhirElementName, $element);
-        }
+        SimpleTypeElementUtils::decorateType($config, $types, $type, $element);
 
-        if (false !== strpos($fhirElementName, '-list')) {
-            return self::buildListType($config, $types, $sourceFile, $fhirElementName, $element);
-        }
-
-//        if (null === ()) {
-//            // create new type
-//            $type = $types->newType($fhirElementName, $child, $file);
-//            // being a simple type,
-//            $valueType = $types->newPrimitiveTypeValueType($fhirElementName);
-//            $type->addProperty(
-//                new Property($config,
-//                    'value',
-//                    $valueType->getFHIRName(),
-//                    $type->getSourceSXE())
-//            );
-//        }
+        return $type;
     }
 }

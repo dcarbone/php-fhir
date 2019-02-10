@@ -19,6 +19,8 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\Type\Interfaces\ExtensibleTypeInterface;
+use DCarbone\PHPFHIR\Definition\Type\Interfaces\PropertyContainerInterface;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
@@ -107,7 +109,7 @@ abstract class TypeDecorator
     public static function findParentTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            if ($parentTypeName = $type->getParentTypeName()) {
+            if ($type instanceof ExtensibleTypeInterface && null !== ($parentTypeName = $type->getParentTypeName())) {
                 if ($ptype = $types->getTypeByName($parentTypeName)) {
                     $type->setParentType($ptype);
                     $config->getLogger()->info(sprintf(
@@ -117,7 +119,8 @@ abstract class TypeDecorator
                     ));
                 }
                 $config->getLogger()->info(sprintf(
-                    'Unable to locate parent of type %s',
+                    'Unable to locate parent "%s" of type "%s"',
+                    $parentTypeName,
                     $type
                 ));
             }
@@ -132,9 +135,10 @@ abstract class TypeDecorator
     public static function findPropertyTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            foreach ($type->getProperties()->getIterator() as $property) {
-                $typeKind = $type->getKind();
-                // TODO: this is kinda hacky...
+            if ($type instanceof PropertyContainerInterface) {
+                foreach ($type->getProperties()->getIterator() as $property) {
+                    $typeKind = $type->getKind();
+                    // TODO: this is kinda hacky...
 //                if ('value' === $property->getName() && ($typeKind->isPrimitive() || $type->hasPrimitiveParent())) {
 //                    // if this is a "value" property from a primitive parent, use the primitive value type
 //                    $property->setValueType($types->newPrimitiveTypeValueType($property->getName()));
@@ -145,34 +149,43 @@ abstract class TypeDecorator
 //                        TypeKind::PRIMITIVE_VALUE
 //                    ));
 //                } else
-                if (false !== strpos($property->getFHIRTypeName(), 'xhtml')) {
-                    // if this is an html type...
-                    $property->setValueType($types->newHTMLValueType($property->getFHIRTypeName()));
-                    $config->getLogger()->notice(sprintf(
-                        'Setting Type %s Property %s value Type to %s',
-                        $type,
-                        $property,
-                        TypeKindEnum::HTML_VALUE
-                    ));
-                } elseif ($pt = $types->getTypeByName($property->getFHIRTypeName())) {
-                    // if this is a "typical" type...
-                    $property->setValueType($pt);
-                    $config->getLogger()->info(sprintf(
-                        'Setting Type %s Property %s to Type %s',
-                        $type,
-                        $property,
-                        $pt
-                    ));
-                } else {
-                    // if we get this far, then there was a type missing from the XSD's
-                    $property->setValueType($types->newUndefinedType($property->getName()));
-                    $config->getLogger()->alert(sprintf(
-                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
-                        $type,
-                        $property,
-                        $property->getFHIRTypeName(),
-                        TypeKindEnum::UNDEFINED
-                    ));
+//                    if (false !== strpos($property->getFHIRTypeName(), 'xhtml')) {
+//                        // if this is an html type...
+//                        $property->setValueType($types->newHTMLValueType($property->getFHIRTypeName()));
+//                        $config->getLogger()->notice(sprintf(
+//                            'Setting Type %s Property %s value Type to %s',
+//                            $type,
+//                            $property,
+//                            TypeKindEnum::HTML_VALUE
+//                        ));
+//                    } else
+                    if ($pt = $types->getTypeByName($property->getFHIRTypeName())) {
+                        // if this is a "typical" type...
+                        $property->setValueType($pt);
+                        $config->getLogger()->info(sprintf(
+                            'Setting Type %s Property %s to Type %s',
+                            $type,
+                            $property,
+                            $pt
+                        ));
+                    } else {
+                        throw new \DomainException(sprintf(
+                            'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
+                            $type,
+                            $property,
+                            $property->getFHIRTypeName(),
+                            TypeKindEnum::UNDEFINED
+                        ));
+                        // if we get this far, then there was a type missing from the XSD's
+                        $property->setValueType($types->newUndefinedType($property->getName()));
+                        $config->getLogger()->alert(sprintf(
+                            'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
+                            $type,
+                            $property,
+                            $property->getFHIRTypeName(),
+                            TypeKindEnum::UNDEFINED
+                        ));
+                    }
                 }
             }
         }
@@ -201,27 +214,14 @@ abstract class TypeDecorator
                 continue;
             }
 
-
-            // if this is a child type, use the parent type to determine kind
-            if ($rootType = $type->getRootType()) {
-                try {
-                    $type->setKind(new TypeKindEnum($rootType->getFHIRName()));
-                } catch (\UnexpectedValueException $e) {
-                    throw new \DomainException(sprintf(
-                        'Unable to determine kind for FHIR object %s with root parent of %s',
-                        $fhirName,
-                        $rootType->getFHIRName()
-                    ));
-                }
+            if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
+                $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
+            } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
+                $type->setKind(new TypeKindEnum(TypeKindEnum::_LIST));
+            } elseif ($rootType = $type->getRootType()) {
+                $type->setKind(new TypeKindEnum($rootType->getFHIRName()));
             } else {
-                try {
-                    $type->setKind(new TypeKindEnum($rootType->getFHIRName()));
-                } catch (\UnexpectedValueException $e) {
-                    throw new \DomainException(sprintf(
-                        'Unable to determine kind for FHIR object %s with no root parent',
-                        $fhirName
-                    ));
-                }
+                $type->setKind(new TypeKindEnum($type->getFHIRName()));
             }
         }
     }

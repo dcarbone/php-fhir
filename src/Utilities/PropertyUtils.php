@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Types;
 
 /**
@@ -33,7 +33,7 @@ abstract class PropertyUtils
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return bool
      */
     public static function isPropertyImplementedByParent(VersionConfig $config,
@@ -58,7 +58,7 @@ abstract class PropertyUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @param \DCarbone\PHPFHIR\Definition\Type $valueType
      * @return string
      */
@@ -81,7 +81,7 @@ EOT;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @param \DCarbone\PHPFHIR\Definition\Type $valueType
      * @return string
      */
@@ -185,7 +185,7 @@ EOT;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function buildPrimitiveJSONMarshalStatement(VersionConfig $config, Type $type, Property $property)
@@ -244,7 +244,7 @@ PHP;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function buildDefaultJSONMarshalStatement(VersionConfig $config, Type $type, Property $property)
@@ -281,7 +281,7 @@ PHP;
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function getPropertyPHPTypeName(Type $type, Property $property)

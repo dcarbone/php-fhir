@@ -17,9 +17,9 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type\Enumeration;
-use DCarbone\PHPFHIR\Definition\Type\EnumerationValue;
-use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\Enumeration;
+use DCarbone\PHPFHIR\Definition\EnumerationValue;
+use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
@@ -36,7 +36,7 @@ abstract class PropertyExtractor
      * @param null $pattern
      * @param int|null $maxOccurs
      * @param int|null $minOccurs
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property
+     * @return \DCarbone\PHPFHIR\Definition\Property
      */
     protected static function buildTypeProperty(VersionConfig $config,
                                                 \SimpleXMLElement $element,

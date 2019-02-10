@@ -29,6 +29,12 @@ class TypeKindEnum extends Enum
     // this represents an actual value: string, int, etc.
     const PRIMITIVE = 'primitive';
 
+    // its canon.
+    const CANONICAL = 'canonical';
+
+    // this represents a
+    const PRIMITIVE_CONTAINER = 'primitiveContainer';
+
     // primitive type with limited possible value set
     const _LIST = 'list';
 

@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\Property;
 
 /**
  * Class SetterUtils
@@ -31,7 +31,7 @@ abstract class MethodUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createPrimitiveSetter(VersionConfig $config, Type $type, Property $property)
@@ -71,7 +71,7 @@ PHP;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createPrimitiveContainerSetter(VersionConfig $config, Type $type, Property $property)
@@ -128,7 +128,7 @@ PHP;
      *
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createPrimitiveTypeValueSetter(VersionConfig $config, Type $type, Property $property)
@@ -164,7 +164,7 @@ PHP;
      *
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createResourceContainerSetter(VersionConfig $config, Type $type, Property $property)
@@ -227,7 +227,7 @@ PHP;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createHTMLValueSetter(VersionConfig $config, Type $type, Property $property)
@@ -252,7 +252,7 @@ PHP;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createDefaultSetter(VersionConfig $config, Type $type, Property $property)
@@ -297,7 +297,7 @@ PHP;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createResourceContainerGetter(VersionConfig $config, Type $type, Property $property)
@@ -345,7 +345,7 @@ PHP;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createHTMLValueGetter(VersionConfig $config, Type $type, Property $property)
@@ -366,7 +366,7 @@ PHP;
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
     public static function createDefaultGetter(VersionConfig $config, Type $type, Property $property)

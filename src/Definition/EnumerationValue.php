@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Definition\Type;
+namespace DCarbone\PHPFHIR\Definition;
 
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Definition\DocumentationTrait;
 
 /**
  * Class EnumerationValue
- * @package DCarbone\PHPFHIR\Definition\Type
+ * @package DCarbone\PHPFHIR\Definition
  */
 class EnumerationValue
 {

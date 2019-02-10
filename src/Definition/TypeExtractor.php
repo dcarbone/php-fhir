@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Extractor\SimpleTypeExtractor;
-use DCarbone\PHPFHIR\Definition\Type\Property;
+use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
@@ -153,7 +153,6 @@ abstract class TypeExtractor
     }
 
 
-
     /**
      * Extract Type definitions present in XSD file
      *
@@ -214,7 +213,7 @@ abstract class TypeExtractor
 
                 case ElementTypeEnum::SIMPLE_TYPE:
                     $type = SimpleTypeExtractor::extract($config, $types, $file, $fhirElementName, $child);
-
+                    $types->addType($type);
 
 //                    static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
 //                    $config->getLogger()->info(sprintf(

@@ -71,14 +71,6 @@ class Builder
                     $type
                 ));
             }
-//
-//            // Generate class file
-//            MethodGenerator::implementConstructor($this->config, $classTemplate);
-//            $classTemplate->writeToFile($this->config->getOutputPath());
-//
-//            $this->mapTemplate->addEntry($classTemplate);
-//            $this->autoloadMap->addPHPFHIRClassEntry($classTemplate);
-//            $this->config->getLogger()->debug("{$fhirElementName} completed.");
         }
         $this->config->getLogger()->endBreak('Class Generation');
 
