@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -81,7 +81,7 @@ abstract class TypeDecorator
     {
         foreach ($types->getIterator() as $type) {
             if ($tname = $type->getComponentOfTypeName()) {
-                if ($ptype = $types->getTypeByFHIRName($tname)) {
+                if ($ptype = $types->getTypeByName($tname)) {
                     $config->getLogger()->debug(sprintf(
                         'Found Parent Type %s for Component %s',
                         $ptype,
@@ -108,7 +108,7 @@ abstract class TypeDecorator
     {
         foreach ($types->getIterator() as $type) {
             if ($parentTypeName = $type->getParentTypeName()) {
-                if ($ptype = $types->getTypeByFHIRName($parentTypeName)) {
+                if ($ptype = $types->getTypeByName($parentTypeName)) {
                     $type->setParentType($ptype);
                     $config->getLogger()->info(sprintf(
                         'Type %s has parent %s',
@@ -152,9 +152,9 @@ abstract class TypeDecorator
                         'Setting Type %s Property %s value Type to %s',
                         $type,
                         $property,
-                        TypeKind::HTML_VALUE
+                        TypeKindEnum::HTML_VALUE
                     ));
-                } elseif ($pt = $types->getTypeByFHIRName($property->getFHIRTypeName())) {
+                } elseif ($pt = $types->getTypeByName($property->getFHIRTypeName())) {
                     // if this is a "typical" type...
                     $property->setValueType($pt);
                     $config->getLogger()->info(sprintf(
@@ -171,7 +171,7 @@ abstract class TypeDecorator
                         $type,
                         $property,
                         $property->getFHIRTypeName(),
-                        TypeKind::UNDEFINED
+                        TypeKindEnum::UNDEFINED
                     ));
                 }
             }
@@ -205,7 +205,7 @@ abstract class TypeDecorator
             // if this is a child type, use the parent type to determine kind
             if ($rootType = $type->getRootType()) {
                 try {
-                    $type->setKind(new TypeKind($rootType->getFHIRName()));
+                    $type->setKind(new TypeKindEnum($rootType->getFHIRName()));
                 } catch (\UnexpectedValueException $e) {
                     throw new \DomainException(sprintf(
                         'Unable to determine kind for FHIR object %s with root parent of %s',
@@ -215,7 +215,7 @@ abstract class TypeDecorator
                 }
             } else {
                 try {
-                    $type->setKind(new TypeKind($rootType->getFHIRName()));
+                    $type->setKind(new TypeKindEnum($rootType->getFHIRName()));
                 } catch (\UnexpectedValueException $e) {
                     throw new \DomainException(sprintf(
                         'Unable to determine kind for FHIR object %s with no root parent',

@@ -21,71 +21,26 @@ namespace DCarbone\PHPFHIR\Enum;
 use MyCLabs\Enum\Enum;
 
 /**
- * Class TypeKind
+ * Class TypeKindEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-class TypeKind extends Enum
+class TypeKindEnum extends Enum
 {
     // this represents an actual value: string, int, etc.
     const PRIMITIVE = 'primitive';
 
-    // this is a special type that is, in effect, an enumeration of possible values for the value property on this type
+    // primitive type with limited possible value set
     const _LIST = 'list';
 
-    // date types are treated special
-    const DATE      = 'date';
-    const DATE_TIME = 'dateTime';
-    const TIME      = 'time';
-    const INSTANT   = 'instant';
-
-    // these describe objects
+    // complex types
     const ELEMENT            = 'Element';
     const RESOURCE           = 'Resource';
     const RESOURCE_CONTAINER = 'ResourceContainer';
     const RESOURCE_INLINE    = 'Resource.Inline';
     const DOMAIN_RESOURCE    = 'DomainResource';
 
-    // these are special types that are used to represent the values of types that have special handling
-    const DATE_VALUE      = 'date_value';
-    const DATE_TIME_VALUE = 'dateTime_value';
-    const TIME_VALUE      = 'time_value';
-    const INSTANT_VALUE   = 'instant_value';
-    const HTML_VALUE      = 'html_value';
-    const LIST_VALUE      = 'list_value';
-    const PRIMITIVE_VALUE = 'primitive_value';
-
     // if this is seen, it means something referenced a type that was not defined anywhere in the xsd's
     const UNDEFINED = 'UNDEFINED';
-
-    /**
-     * Creates a new value of some type
-     *
-     * @param string $value
-     *
-     * @throws \UnexpectedValueException if incompatible type is given.
-     */
-    public function __construct($value)
-    {
-        if (!is_string($value)) {
-            parent::__construct($value);
-        } else {
-            $len = strlen($value);
-            if ($len > 10 && '-primitive' === substr($value, -10)) {
-                parent::__construct(self::PRIMITIVE_VALUE);
-            } elseif ($len > 5 && '-list' === substr($value, -5)) {
-                parent::__construct(self::LIST_VALUE);
-            } else {
-                // first, test for primitive type
-                try {
-                    new PrimitiveType($value);
-                    parent::__construct(self::PRIMITIVE);
-                } catch (\UnexpectedValueException $e) {
-                    // finally, pass on through to parent
-                    parent::__construct($value);
-                }
-            }
-        }
-    }
 
     /**
      * @param string $kind
@@ -115,7 +70,7 @@ class TypeKind extends Enum
      */
     public function isPrimitive()
     {
-        return $this->is(TypeKind::PRIMITIVE);
+        return $this->is(TypeKindEnum::PRIMITIVE);
     }
 
     /**
@@ -124,27 +79,6 @@ class TypeKind extends Enum
     public function isList()
     {
         return $this->is(self::_LIST);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCode()
-    {
-        return $this->is(self::CODE);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTypeOfDate()
-    {
-        return $this->isOneOf([
-            self::DATE,
-            self::DATE_TIME,
-            self::TIME,
-            self::INSTANT,
-        ]);
     }
 
     /**
@@ -185,30 +119,6 @@ class TypeKind extends Enum
     public function isDomainResource()
     {
         return $this->is(self::DOMAIN_RESOURCE);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTypeValue()
-    {
-        return $this->isOneOf([
-            self::DATE_VALUE,
-            self::DATE_TIME_VALUE,
-            self::TIME_VALUE,
-            self::INSTANT_VALUE,
-            self::HTML_VALUE,
-            self::LIST_VALUE,
-            self::PRIMITIVE_VALUE,
-        ]);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHTMLValue()
-    {
-        return $this->is(self::HTML_VALUE);
     }
 
     /**

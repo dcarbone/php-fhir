@@ -93,7 +93,7 @@ abstract class NSUtils
                     ));
                 }
                 if ($typeKind->isResourceContainer() || $typeKind->isInlineResource()) {
-                    $resourceType = $types->getTypeByFHIRName('Resource');
+                    $resourceType = $types->getTypeByName('Resource');
                     $propNS = $resourceType->getFullyQualifiedNamespace(false);
                     if ($propNS !== $fqns) {
                         $imports[] = $propNS;

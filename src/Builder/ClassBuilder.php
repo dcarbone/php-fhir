@@ -19,7 +19,7 @@
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Utilities\ConstructorUtils;
+use DCarbone\PHPFHIR\Builder\Methods\Constructor;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\JSONSerializeUtils;
 use DCarbone\PHPFHIR\Utilities\MethodUtils;
@@ -45,8 +45,8 @@ abstract class ClassBuilder
     {
         $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
         $out .= "\n";
-        $out .= ConstructorUtils::buildHeader($config, $type);
-        $out .= ConstructorUtils::buildPrimitiveBody($config, $type);
+        $out .= Constructor::buildHeader($config, $type);
+        $out .= Constructor::buildPrimitiveBody($config, $type);
         $out .= "    }\n\n";
         $out .= XMLUnserializeUtils::buildHeader($config, $type);
         $out .= XMLUnserializeUtils::buildPrimitiveBody($config, $type);
@@ -76,8 +76,8 @@ abstract class ClassBuilder
     {
         $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
         $out .= "\n";
-        $out .= ConstructorUtils::buildHeader($config, $type);
-        $out .= ConstructorUtils::buildPrimitiveContainerBody($config, $type);
+        $out .= Constructor::buildHeader($config, $type);
+        $out .= Constructor::buildPrimitiveContainerBody($config, $type);
         $out .= "    }\n\n";
         $out .= XMLUnserializeUtils::buildHeader($config, $type);
         $out .= XMLUnserializeUtils::buildDefaultBody($config, $type);
@@ -109,8 +109,8 @@ abstract class ClassBuilder
     {
         $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
         $out .= "\n";
-        $out .= ConstructorUtils::buildHeader($config, $type);
-        $out .= ConstructorUtils::buildResourceContainerBody($config, $type);
+        $out .= Constructor::buildHeader($config, $type);
+        $out .= Constructor::buildResourceContainerBody($config, $type);
         $out .= "    }\n\n";
         $out .= XMLUnserializeUtils::buildHeader($config, $type);
         $out .= XMLUnserializeUtils::buildResourceContainerBody($config, $type);
@@ -139,9 +139,9 @@ abstract class ClassBuilder
         if (0 < count($type->getProperties())) {
             $out .= PropertyUtils::buildClassPropertyDeclarations($config, $type);
             $out .= "\n";
-            $out .= ConstructorUtils::buildHeader($config, $type);
+            $out .= Constructor::buildHeader($config, $type);
             $out .= "\n";
-            $out .= ConstructorUtils::buildDefaultBody($config, $type);
+            $out .= Constructor::buildDefaultBody($config, $type);
             $out .= "    }\n\n";
             $out .= XMLUnserializeUtils::buildHeader($config, $type);
             $out .= XMLUnserializeUtils::buildDefaultBody($config, $type);
@@ -214,12 +214,12 @@ PHP;
 
         if ($typeKind->isPrimitive()) {
             $out .= static::buildPrimitiveTypeClass($config, $types, $type);
-        } elseif ($type->isPrimitiveContainer()) {
-            $out .= static::buildPrimitiveContainerTypeClass($config, $types, $type);
-        } elseif ($typeKind->isResourceContainer() || $typeKind->isInlineResource()) {
-            $out .= static::buildResourceContainerOrInlineResourceTypeClass($config, $types, $type);
-        } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
-            $out .= static::buildDefaultTypeClass($config, $types, $type);
+//        } elseif ($type->isPrimitiveContainer()) {
+//            $out .= static::buildPrimitiveContainerTypeClass($config, $types, $type);
+//        } elseif ($typeKind->isResourceContainer() || $typeKind->isInlineResource()) {
+//            $out .= static::buildResourceContainerOrInlineResourceTypeClass($config, $types, $type);
+//        } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
+//            $out .= static::buildDefaultTypeClass($config, $types, $type);
         }
 
         return $out . '}';

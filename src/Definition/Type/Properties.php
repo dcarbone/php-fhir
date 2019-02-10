@@ -88,7 +88,7 @@ class Properties implements \Countable
             if ($pname === $current->getName()) {
                 $this->config->getLogger()->warning(sprintf(
                     'Type %s already has property %s, probably some duplicate definition nonsense. Keeping original.',
-                    $this->getType()->getFHIRName(),
+                    $this->getType()->getName(),
                     $property->getName()
                 ));
                 $property = $current;
@@ -126,10 +126,12 @@ class Properties implements \Countable
     /**
      * @return bool
      */
-    public function containsPrimitive()
+    public function containsImmediatePrimitive()
     {
         foreach ($this->properties as $property) {
-            if (null !== ($type = $property->getValueType()) && ($type->isPrimitive() || $type->hasPrimitiveParent())) {
+            if (null === ($type = $property->getValueType())) {
+                continue;
+            } elseif ($type->getKind()->isPrimitive()) {
                 return true;
             }
         }
@@ -139,15 +141,15 @@ class Properties implements \Countable
     /**
      * @return bool
      */
-    public function containsPrimitiveContainer()
-    {
-        foreach ($this->properties as $property) {
-            if (null !== ($type = $property->getValueType()) && ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent())) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public function containsPrimitiveContainer()
+//    {
+//        foreach ($this->properties as $property) {
+//            if (null !== ($type = $property->getValueType()) && ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type\Property[]

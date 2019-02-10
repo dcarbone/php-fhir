@@ -27,8 +27,11 @@ define('PHPFHIR_FUNCTION_NAME_REGEX', '{^[a-zA-Z_][a-zA-Z0-9_]*$}S');
 define('PHPFHIR_CLASSNAME_REGEX', '{^[a-zA-Z_][a-zA-Z0-9_]*$}S');
 define('PHPFHIR_NAMESPACE_REGEX', '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-zA-Z0-9_]$}');
 
+// suffixes
+define('PHPFHIR_PRIMITIVE_SUFFIX', '-primitive');
+
 // FHIR XML NS
-define('FHIR_XMLNS', 'http://hl7.org/fhir');
+define('PHPFHIR_FHIR_XMLNS', 'http://hl7.org/fhir');
 
 // Properties
 define('PHPFHIR_UNLIMITED', -1);

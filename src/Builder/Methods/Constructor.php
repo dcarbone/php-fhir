@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Utilities;
+namespace DCarbone\PHPFHIR\Builder\Methods;
 
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -23,84 +23,11 @@ use DCarbone\PHPFHIR\Definition\Type\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
- * Class ConstructorUtils
- * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
+ * Class Constructor
+ * @package DCarbone\PHPFHIR\Builder\Methods
  */
-abstract class ConstructorUtils
+abstract class Constructor
 {
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
-     * @return string
-     */
-    protected static function buildDefaultSetter(VersionConfig $config, Type $type, Property $property)
-    {
-        $name = $property->getName();
-        $method = 'set' . ucfirst($name);
-        $propertyName = $property->getName();
-        $propertyType = $property->getValueType();
-        if (null === $propertyType) {
-            // TODO: this is really hacky...
-            if ('html' === $property->getFHIRTypeName()) {
-                $out = <<<PHP
-            \$this->{$method}((string)\$data['{$propertyName}']);
-
-PHP;
-            } else {
-                throw new \RuntimeException(sprintf(
-                    'Cannot create setter for type %s property %s as it defines an unknown type %s',
-                    $type->getFHIRName(),
-                    $property->getName(),
-                    $property->getFHIRTypeName()
-                ));
-            }
-        } else {
-            $propertyTypeClassName = $property->getValueType()->getClassName();
-
-            $out = <<<PHP
-                \$this->{$method}((\$data['{$propertyName}'] instanceof {$propertyTypeClassName}) ? \$data['{$propertyName}'] : new {$propertyTypeClassName}(\$data['{$propertyName}']));
-
-PHP;
-        }
-        return $out;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type\Property $property
-     * @return string
-     */
-    protected static function buildCollectionSetter(VersionConfig $config, Type $type, Property $property)
-    {
-        $name = $property->getName();
-        $method = 'add' . ucfirst($name);
-        $propertyType = $property->getValueType();
-        $propertyName = $property->getName();
-        if (null === $propertyType) {
-            throw new \RuntimeException(sprintf(
-                'Cannot create setter for type %s property %s as it defines an unknown type %s',
-                $type->getFHIRName(),
-                $property->getName(),
-                $property->getFHIRTypeName()
-            ));
-        }
-        $propertyTypeClassName = $property->getValueType()->getClassName();
-        $out = <<<PHP
-                if (is_array(\$data['{$propertyName}'])) {
-                    foreach(\$data['{$propertyName}'] as \$i => \$v) {
-                        if (null === \$v) {
-                            continue;
-                        }
-                        \$this->{$method}((\$v instanceof {$propertyTypeClassName}) ? \$v : new {$propertyTypeClassName}(\$v));
-                    }
-                }
-
-PHP;
-        return $out;
-    }
-
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
@@ -144,9 +71,9 @@ PHP;
 PHP;
 
             if ($property->isCollection()) {
-                $out .= static::buildCollectionSetter($config, $type, $property);
+                $out .= Setter::buildCollectionSetter($config, $type, $property);
             } else {
-                $out .= static::buildDefaultSetter($config, $type, $property);
+                $out .= Setter::buildDefaultSetter($config, $type, $property);
             }
             $out .= "            }\n";
         }

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-namespace PHPFHIR;
+namespace PHPFHIRCLI;
 
 // --- autoload setup
 

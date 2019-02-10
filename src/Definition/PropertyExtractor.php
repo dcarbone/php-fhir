@@ -20,7 +20,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type\Enumeration;
 use DCarbone\PHPFHIR\Definition\Type\EnumerationValue;
 use DCarbone\PHPFHIR\Definition\Type\Property;
-use DCarbone\PHPFHIR\Enum\XSDElementType;
+use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\Utilities\XMLUtils;
 
 /**
@@ -187,7 +187,7 @@ abstract class PropertyExtractor
         if (null === $value) {
             $config->getLogger()->warning(sprintf(
                 'Unable to locate "value" attribute on %s element: %s',
-                XSDElementType::ENUMERATION,
+                ElementTypeEnum::ENUMERATION,
                 $element
             ));
             return;
@@ -220,7 +220,7 @@ abstract class PropertyExtractor
         } else {
             $config->getLogger()->warning(sprintf(
                 'Unable to locate "value" attribute on %s element: %s',
-                XSDElementType::MIN_LENGTH,
+                ElementTypeEnum::MIN_LENGTH,
                 $element
             ));
         }
@@ -243,7 +243,7 @@ abstract class PropertyExtractor
         } else {
             $config->getLogger()->warning(sprintf(
                 'Unable to locate "value" attribute on %s element: %s',
-                XSDElementType::MAX_LENGTH,
+                ElementTypeEnum::MAX_LENGTH,
                 $element
             ));
         }
@@ -266,7 +266,7 @@ abstract class PropertyExtractor
         } else {
             $config->getLogger()->warning(sprintf(
                 'Unable to locate "value" attribute on %s element: %s',
-                XSDElementType::PATTERN,
+                ElementTypeEnum::PATTERN,
                 $element
             ));
         }
@@ -285,26 +285,26 @@ abstract class PropertyExtractor
     {
         /** @var \SimpleXMLElement $child */
         switch (strtolower($element->getName())) {
-            case XSDElementType::ATTRIBUTE:
+            case ElementTypeEnum::ATTRIBUTE:
                 self::parseAttributeElementProperty($config, $types, $type, $element);
                 break;
-            case XSDElementType::CHOICE:
+            case ElementTypeEnum::CHOICE:
                 self::implementChoiceProperty($config, $types, $type, $element);
                 break;
-            case XSDElementType::SEQUENCE:
+            case ElementTypeEnum::SEQUENCE:
                 self::implementPropertySequence($config, $types, $type, $element);
                 break;
-            case XSDElementType::ELEMENT:
+            case ElementTypeEnum::ELEMENT:
                 self::implementElementProperty($config, $types, $type, $element);
                 break;
 
-            case XSDElementType::ANNOTATION:
+            case ElementTypeEnum::ANNOTATION:
                 if (!$type->getDocumentation()) {
                     $type->setDocumentation(XMLUtils::getDocumentation($element));
                 }
                 break;
 
-            case XSDElementType::UNION:
+            case ElementTypeEnum::UNION:
                 // TODO: don't ignore these...
                 $config->getLogger()->warning(sprintf(
                     'Ignoring %s element under Type %s...',
@@ -313,23 +313,23 @@ abstract class PropertyExtractor
                 ));
                 break;
 
-            case XSDElementType::ENUMERATION:
+            case ElementTypeEnum::ENUMERATION:
                 self::parseEnumerationElement($config, $types, $type, $element);
                 break;
 
-            case XSDElementType::MIN_LENGTH:
+            case ElementTypeEnum::MIN_LENGTH:
                 self::parseMinLengthElement($config, $types, $type, $element);
                 break;
 
-            case XSDElementType::MAX_LENGTH:
+            case ElementTypeEnum::MAX_LENGTH:
                 self::parseMaxLengthElement($config, $types, $type, $element);
                 break;
 
-            case XSDElementType::PATTERN:
+            case ElementTypeEnum::PATTERN:
                 self::parsePatternElement($config, $types, $type, $element);
                 break;
 
-            case XSDElementType::SIMPLE_TYPE:
+            case ElementTypeEnum::SIMPLE_TYPE:
                 // TODO: don't ignore these...
                 $config->getLogger()->warning(sprintf(
                     'Ignoring %s element under Type %s...',

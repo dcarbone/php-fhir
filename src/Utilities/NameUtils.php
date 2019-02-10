@@ -80,10 +80,9 @@ abstract class NameUtils
     {
         if (false !== ($pos = strpos($name, '-primitive'))) {
             $name = sprintf('%sPrimitive', substr($name, 0, $pos));
-        } else {
-            if (false !== ($pos = strpos($name, '-list'))) {
-                $name = sprintf('%sList', substr($name, 0, $pos));
-            }
+        } elseif (false !== ($pos = strpos($name, '-list'))) {
+            $name = sprintf('%sList', substr($name, 0, $pos));
+
         }
 
         if (preg_match('{^[a-z]}S', $name)) {
@@ -115,8 +114,8 @@ abstract class NameUtils
      * @param string $fhirName
      * @return string
      */
-    public static function getPrimitiveValuePropertyTypeName($fhirName)
-    {
-        return sprintf('%s_value', $fhirName);
-    }
+//    public static function getPrimitiveValuePropertyTypeName($fhirName)
+//    {
+//        return sprintf('%s_value', $fhirName);
+//    }
 }

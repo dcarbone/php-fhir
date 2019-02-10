@@ -19,8 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Enum\TypeKind;
-use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class Types
@@ -55,10 +54,10 @@ class Types implements \Countable
      * @param string $name
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getTypeByFHIRName($name)
+    public function getTypeByName($name)
     {
         foreach ($this->types as $type) {
-            if ($type->getFHIRName() === $name) {
+            if ($type->getName() === $name) {
                 return $type;
             }
         }
@@ -95,26 +94,45 @@ class Types implements \Countable
     }
 
     /**
+     * This method has a reference receiver as we do not want to have two separate instances of the
+     * same type running around...
+     *
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Definition\Types
      */
     public function addType(Type &$type)
     {
-        $tname = $type->getFHIRName();
+        $tname = $type->getName();
         foreach ($this->types as $current) {
             if ($type === $current) {
                 return $this;
             }
-            if ($current->getFHIRName() === $tname) {
-                $this->config->getLogger()->notice(sprintf(
-                    'Type %s was previously defined in file "%s", found again in "%s".  Keeping original',
-                    $tname,
-                    $current->getSourceFileBasename(),
-                    $type->getSourceFileBasename()
+            if ($current->getName() === $tname && $current->getType() === $type->getType()) {
+                // this happens with FHIR types sometimes...
+                if ($current instanceof FHIRType && $type instanceof FHIRType) {
+                    $this->config->getLogger()->notice(sprintf(
+                        'Type "%s" was previously defined in file "%s", found again in "%s".  Keeping original',
+                        $tname,
+                        $current->getSourceFileBasename(),
+                        $type->getSourceFileBasename()
+                    ));
+                    $type = $current;
+                    return $this;
+                }
+                // if i'm trying to redefine a php type, yell at myself
+                throw new \RuntimeException(sprintf(
+                    'Why are you redefining PHP type "%s"?',
+                    $type->getName()
                 ));
-                $type = $current;
-                return $this;
             }
+
+            // if there is a type mismatch, we need to change what we must defer to the FHIR type
+            throw new \DomainException(sprintf(
+                'Type "%s" is already defined and as type "%s", cannot replace with type of "%s"',
+                $type->getName(),
+                $current->getType(),
+                $type->getType()
+            ));
         }
         $this->types[] = $type;
         return $this;
@@ -139,60 +157,49 @@ class Types implements \Countable
         usort(
             $tmp,
             function (Type $t1, Type $t2) {
-                return strnatcasecmp($t1->getFHIRName(), $t2->getFHIRName());
+                return strnatcasecmp($t1->getName(), $t2->getName());
             }
         );
         return new \ArrayIterator($tmp);
     }
 
-    /**
-     * @param string $fhirName
-     * @param \SimpleXMLElement $sourceSXE
-     * @param string $sourceFileName
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function newType($fhirName, \SimpleXMLElement $sourceSXE, $sourceFileName)
-    {
-        $type = new Type($this->config, $fhirName, $sourceSXE, $sourceFileName);
-        $this->addType($type);
-        return $type;
-    }
-
-    /**
-     * @param string $fhirName
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function newHTMLValueType($fhirName)
-    {
-        $type = new Type($this->config, $fhirName);
-        $type->setKind(new TypeKind(TypeKind::HTML_VALUE));
-        $this->addType($type);
-        return $type;
-    }
-
-    /**
-     * @param string $fhirName
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function newPrimitiveTypeValueType($fhirName)
-    {
-        $type = new Type($this->config, NameUtils::getPrimitiveValuePropertyTypeName($fhirName));
-        $type->setKind(new TypeKind(TypeKind::PRIMITIVE_VALUE));
-        $this->addType($type);
-        return $type;
-    }
-
-    /**
-     * @param string $fhirName
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function newUndefinedType($fhirName)
-    {
-        $type = new Type($this->config, $fhirName);
-        $type->setKind(new TypeKind(TypeKind::UNDEFINED));
-        $this->addType($type);
-        return $type;
-    }
+//    /**
+//     * @param string $fhirName
+//     * @param \SimpleXMLElement $sourceSXE
+//     * @param string $sourceFileName
+//     * @return \DCarbone\PHPFHIR\Definition\Type
+//     */
+//    public function newType($fhirName, \SimpleXMLElement $sourceSXE, $sourceFileName)
+//    {
+//        $type = new Type($this->config, $fhirName, $sourceSXE, $sourceFileName);
+//        $this->addType($type);
+//        return $type;
+//    }
+//
+//    /**
+//     * @param string $fhirName
+//     * @return \DCarbone\PHPFHIR\Definition\Type
+//     */
+//    public function newHTMLValueType($fhirName)
+//    {
+//        $type = new Type($this->config, $fhirName);
+//        $type->setKind(new TypeKindEnum(TypeKindEnum::HTML_VALUE));
+//        $this->addType($type);
+//        return $type;
+//    }
+//
+//
+//    /**
+//     * @param string $fhirName
+//     * @return \DCarbone\PHPFHIR\Definition\Type
+//     */
+//    public function newUndefinedType($fhirName)
+//    {
+//        $type = new Type($this->config, $fhirName);
+//        $type->setKind(new TypeKindEnum(TypeKindEnum::UNDEFINED));
+//        $this->addType($type);
+//        return $type;
+//    }
 
     /**
      * @return int

@@ -43,7 +43,7 @@ abstract class XMLSerializeUtils
      */
     protected static function buildSXE(Type $type)
     {
-        static $ns = FHIR_XMLNS;
+        static $ns = PHPFHIR_FHIR_XMLNS;
         $name = str_replace(
             NameUtils::$classNameSearch,
             NameUtils::$classNameReplace,
@@ -118,7 +118,7 @@ PHP;
      */
     protected static function buildPrimitiveBody(VersionConfig $config, Type $type)
     {
-        static $ns = FHIR_XMLNS;
+        static $ns = PHPFHIR_FHIR_XMLNS;
         $name = str_replace(
             NameUtils::$classNameSearch,
             NameUtils::$classNameReplace,

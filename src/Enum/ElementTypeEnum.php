@@ -20,15 +20,15 @@ use MyCLabs\Enum\Enum;
 
 /**
  * Class ElementTypeEnum
- * @package DCarbone\PHPFHIR\ClassGenerator\Enum
+ * @package DCarbone\PHPFHIR\Enum
  */
-class XSDElementType extends Enum
+class ElementTypeEnum extends Enum
 {
-    const COMPLEX_TYPE    = 'complextype';
-    const COMPLEX_CONTENT = 'complexcontent';
+    const COMPLEX_TYPE    = 'complexType';
+    const COMPLEX_CONTENT = 'complexContent';
 
-    const SIMPLE_TYPE    = 'simpletype';
-    const SIMPLE_CONTENT = 'simplecontent';
+    const SIMPLE_TYPE    = 'simpleType';
+    const SIMPLE_CONTENT = 'simpleContent';
 
     const ANNOTATION    = 'annotation';
     const DOCUMENTATION = 'documentation';
@@ -42,7 +42,7 @@ class XSDElementType extends Enum
     const CHOICE      = 'choice';
     const ENUMERATION = 'enumeration';
 
-    const  MIN_LENGTH = 'minlength';
-    const  MAX_LENGTH = 'maxlength';
+    const  MIN_LENGTH = 'minLength';
+    const  MAX_LENGTH = 'maxLength';
     const  PATTERN    = 'pattern';
 }
