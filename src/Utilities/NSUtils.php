@@ -80,7 +80,7 @@ abstract class NSUtils
         }
 
         foreach ($type->getProperties()->getIterator() as $property) {
-            if ($propertyType = $property->getValueType()) {
+            if ($propertyType = $property->getValueFHIRType()) {
                 if (($propNS = $propertyType->getFullyQualifiedNamespace(false)) !== $fqns) {
                     $imports[] = $propertyType->getFullyQualifiedClassName(false);
                     $config->getLogger()->debug(sprintf(
@@ -105,14 +105,14 @@ abstract class NSUtils
                     'Type %s Property %s is of type %s, adding PHPFHIRHelper use statement',
                     $type,
                     $property,
-                    $property->getFHIRTypeName()
+                    $property->getValueFHIRTypeName()
                 ));
             } else {
                 $config->getLogger()->debug(sprintf(
                     'Type %s Property %s is a %s, which has no Type associated with it.  Will not add use statement',
                     $type,
                     $property,
-                    $property->getFHIRTypeName()
+                    $property->getValueFHIRTypeName()
                 ));
             }
         }

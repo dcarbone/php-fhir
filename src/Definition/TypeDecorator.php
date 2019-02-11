@@ -86,8 +86,16 @@ abstract class TypeDecorator
     {
         foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
-                $typeKind = $type->getKind();
-                // TODO: this is kinda hacky...
+                if ($pt = $types->getTypeByName($property->getValueFHIRTypeName())) {
+                    $property->setValueFHIRType($pt);
+                } elseif (PHPFHIR_XHTML_DIV === $property->getRef()) {
+                    // TODO: do something fancier here...
+                    $property->setValueFHIRType($types->getTypeByName('string-primitive'));
+                } else {
+
+                }
+
+
 //                if ('value' === $property->getName() && ($typeKind->isPrimitive() || $type->hasPrimitiveParent())) {
 //                    // if this is a "value" property from a primitive parent, use the primitive value type
 //                    $property->setValueType($types->newPrimitiveTypeValueType($property->getName()));
@@ -108,33 +116,33 @@ abstract class TypeDecorator
 //                            TypeKindEnum::HTML_VALUE
 //                        ));
 //                    } else
-                if ($pt = $types->getTypeByName($property->getFHIRTypeName())) {
-                    // if this is a "typical" type...
-                    $property->setValueType($pt);
-                    $config->getLogger()->info(sprintf(
-                        'Setting Type %s Property %s to Type %s',
-                        $type,
-                        $property,
-                        $pt
-                    ));
-                } else {
-                    throw new \DomainException(sprintf(
-                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
-                        $type,
-                        $property,
-                        $property->getFHIRTypeName(),
-                        TypeKindEnum::UNDEFINED
-                    ));
-                    // if we get this far, then there was a type missing from the XSD's
-                    $property->setValueType($types->newUndefinedType($property->getName()));
-                    $config->getLogger()->alert(sprintf(
-                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
-                        $type,
-                        $property,
-                        $property->getFHIRTypeName(),
-                        TypeKindEnum::UNDEFINED
-                    ));
-                }
+//                if ($pt = $types->getTypeByName($property->getFHIRTypeName())) {
+//                    // if this is a "typical" type...
+//                    $property->setValueType($pt);
+//                    $config->getLogger()->info(sprintf(
+//                        'Setting Type %s Property %s to Type %s',
+//                        $type,
+//                        $property,
+//                        $pt
+//                    ));
+//                } else {
+//                    throw new \DomainException(sprintf(
+//                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
+//                        $type,
+//                        $property,
+//                        $property->getFHIRTypeName(),
+//                        TypeKindEnum::UNDEFINED
+//                    ));
+//                    // if we get this far, then there was a type missing from the XSD's
+//                    $property->setValueType($types->newUndefinedType($property->getName()));
+//                    $config->getLogger()->alert(sprintf(
+//                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
+//                        $type,
+//                        $property,
+//                        $property->getFHIRTypeName(),
+//                        TypeKindEnum::UNDEFINED
+//                    ));
+//                }
             }
         }
     }

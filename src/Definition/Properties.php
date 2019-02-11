@@ -128,7 +128,7 @@ class Properties implements \Countable
     public function containsImmediatePrimitive()
     {
         foreach ($this->properties as $property) {
-            if (null === ($type = $property->getValueType())) {
+            if (null === ($type = $property->getValueFHIRType())) {
                 continue;
             } elseif ($type->getKind()->isPrimitive()) {
                 return true;

@@ -39,10 +39,10 @@ abstract class Setter
         $name = $property->getName();
         $method = 'set' . ucfirst($name);
         $propertyName = $property->getName();
-        $propertyType = $property->getValueType();
+        $propertyType = $property->getValueFHIRType();
         if (null === $propertyType) {
             // TODO: this is really hacky...
-            if ('html' === $property->getFHIRTypeName()) {
+            if ('html' === $property->getValueFHIRTypeName()) {
                 $out = <<<PHP
             \$this->{$method}((string)\$data['{$propertyName}']);
 
@@ -52,11 +52,11 @@ PHP;
                     'Cannot create setter for type %s property %s as it defines an unknown type %s',
                     $type->getFHIRName(),
                     $property->getName(),
-                    $property->getFHIRTypeName()
+                    $property->getValueFHIRTypeName()
                 ));
             }
         } else {
-            $propertyTypeClassName = $property->getValueType()->getClassName();
+            $propertyTypeClassName = $property->getValueFHIRType()->getClassName();
 
             $out = <<<PHP
                 \$this->{$method}((\$data['{$propertyName}'] instanceof {$propertyTypeClassName}) ? \$data['{$propertyName}'] : new {$propertyTypeClassName}(\$data['{$propertyName}']));
@@ -76,17 +76,17 @@ PHP;
     {
         $name = $property->getName();
         $method = 'add' . ucfirst($name);
-        $propertyType = $property->getValueType();
+        $propertyType = $property->getValueFHIRType();
         $propertyName = $property->getName();
         if (null === $propertyType) {
             throw new \RuntimeException(sprintf(
                 'Cannot create setter for type %s property %s as it defines an unknown type %s',
                 $type->getFHIRName(),
                 $property->getName(),
-                $property->getFHIRTypeName()
+                $property->getValueFHIRTypeName()
             ));
         }
-        $propertyTypeClassName = $property->getValueType()->getClassName();
+        $propertyTypeClassName = $property->getValueFHIRType()->getClassName();
         $out = <<<PHP
                 if (is_array(\$data['{$propertyName}'])) {
                     foreach(\$data['{$propertyName}'] as \$i => \$v) {

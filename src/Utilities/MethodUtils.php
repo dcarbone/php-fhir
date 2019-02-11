@@ -39,7 +39,7 @@ abstract class MethodUtils
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
         $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
-        $propType = $property->getValueType();
+        $propType = $property->getValueFHIRType();
         $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(
@@ -79,13 +79,13 @@ PHP;
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
         $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
-        $propType = $property->getValueType();
+        $propType = $property->getValueFHIRType();
         if (null === $propType) {
             $config->getLogger()->error(sprintf(
                 'Cannot create setter for Type %s field %s as it references unknown type %s',
                 $type->getFHIRName(),
                 $property->getName(),
-                $property->getFHIRTypeName()
+                $property->getValueFHIRTypeName()
             ));
             return '';
         }
@@ -171,7 +171,7 @@ PHP;
     {
         $propName = $property->getName();
         $varName = NameUtils::getPropertyVariableName($propName);
-        $propType = $property->getValueType();
+        $propType = $property->getValueFHIRType();
         $propTypeClass = $propType->getClassName();
         $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
         if (!NameUtils::isValidFunctionName($methodName)) {
@@ -258,7 +258,7 @@ PHP;
     public static function createDefaultSetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
-        $propType = $property->getValueType();
+        $propType = $property->getValueFHIRType();
         $varName = NameUtils::getPropertyVariableName($propName);
         $phpType = PropertyUtils::getPropertyPHPTypeName($type, $property);
         $methodName = ($property->isCollection() ? 'add' : 'set') . NameUtils::getPropertyMethodName($propName);
@@ -303,7 +303,7 @@ PHP;
     public static function createResourceContainerGetter(VersionConfig $config, Type $type, Property $property)
     {
         $propName = $property->getName();
-        $propType = $property->getValueType();
+        $propType = $property->getValueFHIRType();
         $methodName = 'get' . NameUtils::getPropertyMethodName($property->getName());
         if (!NameUtils::isValidFunctionName($methodName)) {
             throw new \LogicException(sprintf(

@@ -36,7 +36,7 @@ abstract class XMLUnserializeUtils
      */
     protected static function buildDefaultSetter(VersionConfig $config, Type $type, Property $property)
     {
-        $propertyType = $property->getValueType();
+        $propertyType = $property->getValueFHIRType();
         if (null === $propertyType) {
             throw new \DomainException(sprintf(
                 'Type %s Property %s has no defined Type',
@@ -78,7 +78,7 @@ PHP;
      */
     protected static function buildCollectionSetter(VersionConfig $config, Type $type, Property $property)
     {
-        $propertyType = $property->getValueType();
+        $propertyType = $property->getValueFHIRType();
         if (null === $propertyType) {
             return '';
         }
@@ -179,7 +179,7 @@ PHP;
 PHP;
 
         foreach ($type->getProperties()->getSortedIterator() as $i => $property) {
-            $propertyType = $property->getValueType();
+            $propertyType = $property->getValueFHIRType();
             if (null === $propertyType) {
                 continue;
             }

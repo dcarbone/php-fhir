@@ -27,9 +27,12 @@ define('PHPFHIR_FUNCTION_NAME_REGEX', '{^[a-zA-Z_][a-zA-Z0-9_]*$}S');
 define('PHPFHIR_CLASSNAME_REGEX', '{^[a-zA-Z_][a-zA-Z0-9_]*$}S');
 define('PHPFHIR_NAMESPACE_REGEX', '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-zA-Z0-9_]$}');
 
-// suffixes
+// type suffixes
 define('PHPFHIR_PRIMITIVE_SUFFIX', '-primitive');
 define('PHPFHIR_LIST_SUFFIX', '-list');
+
+// html property
+define('PHPFHIR_XHTML_DIV', 'xhtml:div');
 
 // FHIR XML NS
 define('PHPFHIR_FHIR_XMLNS', 'http://hl7.org/fhir');

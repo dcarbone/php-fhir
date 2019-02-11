@@ -145,13 +145,13 @@ PHP;
         $out = static::buildSXE($type);
         foreach ($type->getProperties()->getSortedIterator() as $property) {
             $propName = $property->getName();
-            $propType = $property->getValueType();
+            $propType = $property->getValueFHIRType();
             if (null === $propType) {
                 $config->getLogger()->error(sprintf(
                     'Unable to generate "xmlSerialize" output for type %s field %s as it specifies unknown type %s',
                     $type->getFHIRName(),
                     $propName,
-                    $property->getFHIRTypeName()
+                    $property->getValueFHIRTypeName()
                 ));
                 continue;
             }

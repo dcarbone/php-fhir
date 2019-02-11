@@ -33,10 +33,10 @@ class Property
     private $config;
 
     /** @var string */
-    private $name;
+    private $name = null;
 
     /** @var string */
-    private $fhirTypeName;
+    private $valueFHIRTypeName;
 
     /** @var int */
     private $minOccurs = 0;
@@ -47,13 +47,13 @@ class Property
     private $pattern = null;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
-    private $valueType = null;
+    private $valueFHIRType = null;
 
     /** @var \DCarbone\PHPFHIR\Enum\PropertyUseEnum */
     private $use;
 
     /** @var string */
-    private $ref;
+    private $ref = null;
 
     /**
      * Property constructor.
@@ -77,12 +77,12 @@ class Property
         return [
             'name'         => $this->getName(),
             'ref'          => $this->getRef(),
-            'fhirTypeName' => $this->getFHIRTypeName(),
+            'fhirTypeName' => $this->getValueFHIRTypeName(),
             'sourceSXE'    => $this->getSourceSXE(),
             'minOccurs'    => $this->getMinOccurs(),
             'maxOccurs'    => $this->getMaxOccurs(),
             'pattern'      => $this->getPattern(),
-            'valueType'    => (string)$this->getValueType(),
+            'fhirType'     => (string)$this->getValueFHIRType(),
         ];
     }
 
@@ -115,18 +115,18 @@ class Property
     /**
      * @return string
      */
-    public function getFHIRTypeName()
+    public function getValueFHIRTypeName()
     {
-        return $this->fhirTypeName;
+        return $this->valueFHIRTypeName;
     }
 
     /**
-     * @param string $fhirTypeName
+     * @param string $valueFHIRTypeName
      * @return \DCarbone\PHPFHIR\Definition\Property
      */
-    public function setFHIRTypeName($fhirTypeName)
+    public function setValueFHIRTypeName($valueFHIRTypeName)
     {
-        $this->fhirTypeName = $fhirTypeName;
+        $this->valueFHIRTypeName = $valueFHIRTypeName;
         return $this;
     }
 
@@ -193,18 +193,18 @@ class Property
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getValueType()
+    public function getValueFHIRType()
     {
-        return $this->valueType;
+        return $this->valueFHIRType;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $valueType
+     * @param \DCarbone\PHPFHIR\Definition\Type $valueFHIRType
      * @return \DCarbone\PHPFHIR\Definition\Property
      */
-    public function setValueType(Type $valueType)
+    public function setValueFHIRType(Type $valueFHIRType)
     {
-        $this->valueType = $valueType;
+        $this->valueFHIRType = $valueFHIRType;
         return $this;
     }
 
@@ -273,6 +273,9 @@ class Property
      */
     public function __toString()
     {
-        return $this->getName();
+        if (isset($this->name)) {
+            return $this->getName();
+        }
+        return $this->getRef();
     }
 }

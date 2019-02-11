@@ -43,9 +43,9 @@ abstract class PropertyUtils
     {
         if ($parent = $type->getParentType()) {
             $pName = $property->getName();
-            $pType = $property->getFHIRTypeName();
+            $pType = $property->getValueFHIRTypeName();
             foreach ($parent->getProperties()->getIterator() as $property) {
-                if ($property->getName() === $pName && $property->getFHIRTypeName() === $pType) {
+                if ($property->getName() === $pName && $property->getValueFHIRTypeName() === $pType) {
                     return true;
                 }
             }
@@ -114,7 +114,7 @@ EOT;
     {
         $out = '';
         foreach ($type->getProperties()->getSortedIterator() as $property) {
-            $valueType = $property->getValueType();
+            $valueType = $property->getValueFHIRType();
             $valueTypeKind = $valueType->getKind();
             if ($valueTypeKind->isHTMLValue()) {
                 $out .= self::buildHTMLProperty($config, $type, $property, $valueType);
@@ -140,7 +140,7 @@ EOT;
             if (static::isPropertyImplementedByParent($config, $types, $type, $property)) {
                 continue;
             }
-            $propType = $property->getValueType();
+            $propType = $property->getValueFHIRType();
             if (null === $propType) {
                 throw new \DomainException(sprintf(
                     'Unable to locate FHIR Type for Type %s Property %s',
@@ -291,7 +291,7 @@ PHP;
             // TODO: enable primitive-type specific values here.
             return 'mixed';
         }
-        if ($propType = $property->getValueType()) {
+        if ($propType = $property->getValueFHIRType()) {
             return $propType->getFullyQualifiedClassName(true);
         }
         return 'mixed';

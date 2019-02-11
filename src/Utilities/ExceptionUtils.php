@@ -27,6 +27,16 @@ use DCarbone\PHPFHIR\Definition\Type;
  */
 abstract class ExceptionUtils
 {
+    public static function createUnknownPropertyTypeException(Type $type, Property $property)
+    {
+        return new \DomainException(sprintf(
+            'Unable to locate Type "%s" for Property "%s" on Type "%s"',
+            $property->getValueFHIRTypeName(),
+            $property,
+            $type->getFHIRName()
+        ));
+    }
+
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException

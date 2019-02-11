@@ -52,7 +52,7 @@ class ElementElementTypeDecorator
                     $property->{"set{$attrName}"}((string)$attribute);
                     break;
                 case AttributeNameEnum::TYPE:
-                    $property->setFHIRTypeName((string)$attribute);
+                    $property->setValueFHIRTypeName((string)$attribute);
                     break;
 
                 default:

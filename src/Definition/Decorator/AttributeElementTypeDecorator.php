@@ -53,7 +53,7 @@ abstract class AttributeElementTypeDecorator
                     $property->setName((string)$attribute);
                     break;
                 case AttributeNameEnum::TYPE:
-                    $property->setFHIRTypeName((string)$attribute);
+                    $property->setValueFHIRTypeName((string)$attribute);
                     break;
                 case AttributeNameEnum::_USE:
                     $property->setUse(new PropertyUseEnum((string)$attribute));

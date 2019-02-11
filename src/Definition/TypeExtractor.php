@@ -178,15 +178,6 @@ abstract class TypeExtractor
             static::extractTypesFromXSD($config, $types, $xsdFile);
         }
 
-        // perform some sanity checking
-        foreach ($types->getIterator() as $type) {
-            foreach ($type->getProperties()->getIterator() as $property) {
-                if (!$property->getName()) {
-                    throw ExceptionUtils::createPropertyHasNoNameException($type, $property);
-                }
-            }
-        }
-
         return $types;
     }
 }
