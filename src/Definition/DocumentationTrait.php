@@ -28,6 +28,34 @@ trait DocumentationTrait
     private $documentation = null;
 
     /**
+     * @param string|array $documentation
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function addDocumentationFragment($documentation)
+    {
+        if (null !== $documentation) {
+            if (null === $this->documentation) {
+                $this->documentation = [];
+            }
+            if (is_string($documentation)) {
+                if (!in_array($documentation, $this->documentation, true)) {
+                    $this->documentation[] = $documentation;
+                }
+            } elseif (is_array($documentation)) {
+                foreach ($documentation as $doc) {
+                    $this->addDocumentationFragment($doc);
+                }
+            } else {
+                throw new \InvalidArgumentException(sprintf(
+                    'Documentation expected to be array, string, or null, "%s" seen',
+                    gettype($documentation)
+                ));
+            }
+        }
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getDocumentation()
@@ -42,26 +70,32 @@ trait DocumentationTrait
     {
         return implode("\n", $this->getDocumentation());
     }
+//    /**
+//     * @param string $documentation
+//     * @return static
+//     */
+//    public function setDocumentation($documentation)
+//    {
+//        if (null !== $documentation) {
+//            $t = gettype($documentation);
+//            if ('string' === $t) {
+//                return $this->addDocumentationFragment($documentation);
+//            } else if ('array' === $t) {
+//                return $this->add
+//            }
+//            if (is_string($documentation)) {
+//                $documentation = [$documentation];
+//            }
+//
+//            if (is_array($documentation)) {
+//                $this->documentation = $documentation;
+//            } else {
+//                throw new \InvalidArgumentException('Documentation expected to be array, string, or null.');
+//            }
+//        }
+//        return $this;
 
-    /**
-     * @param string $documentation
-     * @return static
-     */
-    public function setDocumentation($documentation)
-    {
-        if (null !== $documentation) {
-            if (is_string($documentation)) {
-                $documentation = [$documentation];
-            }
-
-            if (is_array($documentation)) {
-                $this->documentation = $documentation;
-            } else {
-                throw new \InvalidArgumentException('Documentation expected to be array, string, or null.');
-            }
-        }
-        return $this;
-    }
+//    }
 
     /**
      * @param int $spaces

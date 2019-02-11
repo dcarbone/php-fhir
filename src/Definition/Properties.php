@@ -85,7 +85,7 @@ class Properties implements \Countable
                 return $this;
             }
             if ($pname === $current->getName()) {
-                $this->config->getLogger()->warning(sprintf(
+                $this->config->getLogger()->notice(sprintf(
                     'Type %s already has property %s, probably some duplicate definition nonsense. Keeping original.',
                     $this->getType()->getFHIRName(),
                     $property->getName()

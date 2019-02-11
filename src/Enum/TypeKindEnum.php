@@ -29,21 +29,23 @@ class TypeKindEnum extends Enum
     // this represents an actual value: string, int, etc.
     const PRIMITIVE = 'primitive';
 
-    // its canon.
-    const CANONICAL = 'canonical';
-
-    // this represents a
-    const PRIMITIVE_CONTAINER = 'primitiveContainer';
+    // these represent types that exist to wrap a primitive
+    const PRIMITIVE_CONTAINER = 'primitive_container';
 
     // primitive type with limited possible value set
     const _LIST = 'list';
 
     // complex types
+    const EXTENSION          = 'Extension';
     const ELEMENT            = 'Element';
+    const BACKBONE_ELEMENT   = 'BackboneElement';
     const RESOURCE           = 'Resource';
     const RESOURCE_CONTAINER = 'ResourceContainer';
     const RESOURCE_INLINE    = 'Resource.Inline';
     const DOMAIN_RESOURCE    = 'DomainResource';
+
+    // this indicates a type that is an immediate child of a resource and not used elsewhere
+    const RESOURCE_COMPONENT = 'resource_component';
 
     // if this is seen, it means something referenced a type that was not defined anywhere in the xsd's
     const UNDEFINED = 'UNDEFINED';

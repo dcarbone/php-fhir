@@ -18,16 +18,13 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type\ListType;
-use DCarbone\PHPFHIR\Definition\Type\PrimitiveType;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**
  * Class BuilderUtils
  * @package DCarbone\PHPFHIR\Utilities
  */
-abstract class BuilderUtils
+abstract class TypeBuilderUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
@@ -43,7 +40,7 @@ abstract class BuilderUtils
                                       $value)
     {
         if (!method_exists($type, $setterMethod)) {
-            throw ExceptionUtils::createSetterMethodNotFoundException($type, $parentElement, $source, $setterMethod);
+            throw ExceptionUtils::createTypeSetterMethodNotFoundException($type, $parentElement, $source, $setterMethod);
         }
         $type->{$setterMethod}($value);
     }
@@ -75,9 +72,23 @@ abstract class BuilderUtils
     {
         $attr = $element->attributes()->{$attributeName};
         if (null === $attr) {
-            throw ExceptionUtils::createExpectedElementAttributeNotFoundException($type, $element, $attributeName);
+            throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $element, $attributeName);
         }
         self::setStringFromAttribute($type, $element, $attr, $setterMethod);
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \SimpleXMLElement $parent
+     * @param \SimpleXMLElement $source
+     * @param string $setterMethod
+     */
+    public static function setStringFromElementValue(Type $type,
+                                                     \SimpleXMLElement $parent,
+                                                     \SimpleXMLElement $source,
+                                                     $setterMethod)
+    {
+        self::callSetter($type, $parent, $source, $setterMethod, (string)$source);
     }
 
     /**
@@ -117,7 +128,7 @@ abstract class BuilderUtils
     {
         $attr = $element->attributes()->{$attributeName};
         if (null === $attr) {
-            throw ExceptionUtils::createExpectedElementAttributeNotFoundException($type, $element, $attributeName);
+            throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $element, $attributeName);
         }
         self::setArrayFromAttribute($type, $element, $attr, $setterMethod, $delimiter);
     }
@@ -159,7 +170,7 @@ abstract class BuilderUtils
     {
         $attr = $element->attributes()->{$attributeName};
         if (null === $attr) {
-            throw ExceptionUtils::createExpectedElementAttributeNotFoundException($type, $element, $attributeName);
+            throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $element, $attributeName);
         }
         self::setIntegerFromAttribute($type, $element, $attr, $setterMethod);
     }
@@ -173,7 +184,7 @@ abstract class BuilderUtils
     {
         $value = $enum->attributes()->value;
         if (null === $value) {
-            throw ExceptionUtils::createExpectedElementAttributeNotFoundException($type, $enum, 'value');
+            throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $enum, 'value');
         }
         self::callSetter(
             $type,

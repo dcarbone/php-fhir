@@ -19,10 +19,8 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type\Interfaces\ExtensibleTypeInterface;
-use DCarbone\PHPFHIR\Definition\Type\Interfaces\PropertyContainerInterface;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-use DCarbone\PHPFHIR\Utilities\XMLUtils;
+use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
  * Class TypeDecorator
@@ -32,71 +30,26 @@ abstract class TypeDecorator
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \SimpleXMLElement $element
-     */
-    public static function determineTypeParentName(VersionConfig $config,
-                                                   Type $type,
-                                                   \SimpleXMLElement $element)
-    {
-        $parentFHIRName = XMLUtils::getBaseFHIRElementNameFromExtension($element);
-        if ($type->getFHIRName() === $parentFHIRName) {
-            var_dump($type, $element->saveXML());
-            exit;
-        }
-        if (null === $parentFHIRName) {
-            throw new \DomainException(sprintf(
-                'Unable to determine parent of Type "%s" from element: %s',
-                $type->getFHIRName(),
-                $element->saveXML()
-            ));
-        }
-        $type->setParentTypeName($parentFHIRName);
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param string $name
-     */
-    public static function determineComponentOfTypeName(VersionConfig $config, Types $types, Type $type, $name)
-    {
-        if (false === strpos($name, '.')) {
-            $config->getLogger()->error(sprintf(
-                '%s called with non-component name %s and Type %s',
-                __METHOD__,
-                $name,
-                $type
-            ));
-            return;
-        }
-        $split = explode('.', $name, 2);
-        $type->setComponentOfTypeName($split[0]);
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
     public static function findComponentOfTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            if ($tname = $type->getComponentOfTypeName()) {
-                if ($ptype = $types->getTypeByName($tname)) {
-                    $config->getLogger()->debug(sprintf(
-                        'Found Parent Type %s for Component %s',
-                        $ptype,
-                        $type
-                    ));
-                    $type->setComponentOfType($ptype);
-                } else {
-                    throw new \RuntimeException(sprintf(
-                        'Unable to locate Parent Type %s for Component %s',
-                        $tname,
-                        $type
-                    ));
-                }
+            $fhirName = $type->getFHIRName();
+            if (false === strpos($fhirName, '.')) {
+                continue;
+            }
+            $split = explode('.', $fhirName, 2);
+            $type->setComponentOfTypeName($split[0]);
+            if ($ptype = $types->getTypeByName($split[0])) {
+                $config->getLogger()->debug(sprintf(
+                    'Found Parent Type %s for Component %s',
+                    $ptype,
+                    $type
+                ));
+                $type->setComponentOfType($ptype);
+            } else {
+                throw ExceptionUtils::createComponentParentTypeNotFoundException($type);
             }
 
         }
@@ -109,7 +62,7 @@ abstract class TypeDecorator
     public static function findParentTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            if ($type instanceof ExtensibleTypeInterface && null !== ($parentTypeName = $type->getParentTypeName())) {
+            if (null !== ($parentTypeName = $type->getParentTypeName())) {
                 if ($ptype = $types->getTypeByName($parentTypeName)) {
                     $type->setParentType($ptype);
                     $config->getLogger()->info(sprintf(
@@ -117,12 +70,9 @@ abstract class TypeDecorator
                         $type,
                         $ptype
                     ));
+                } else {
+                    throw ExceptionUtils::createTypeParentNotFoundException($type);
                 }
-                $config->getLogger()->info(sprintf(
-                    'Unable to locate parent "%s" of type "%s"',
-                    $parentTypeName,
-                    $type
-                ));
             }
         }
 
@@ -135,10 +85,9 @@ abstract class TypeDecorator
     public static function findPropertyTypes(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            if ($type instanceof PropertyContainerInterface) {
-                foreach ($type->getProperties()->getIterator() as $property) {
-                    $typeKind = $type->getKind();
-                    // TODO: this is kinda hacky...
+            foreach ($type->getProperties()->getIterator() as $property) {
+                $typeKind = $type->getKind();
+                // TODO: this is kinda hacky...
 //                if ('value' === $property->getName() && ($typeKind->isPrimitive() || $type->hasPrimitiveParent())) {
 //                    // if this is a "value" property from a primitive parent, use the primitive value type
 //                    $property->setValueType($types->newPrimitiveTypeValueType($property->getName()));
@@ -159,33 +108,32 @@ abstract class TypeDecorator
 //                            TypeKindEnum::HTML_VALUE
 //                        ));
 //                    } else
-                    if ($pt = $types->getTypeByName($property->getFHIRTypeName())) {
-                        // if this is a "typical" type...
-                        $property->setValueType($pt);
-                        $config->getLogger()->info(sprintf(
-                            'Setting Type %s Property %s to Type %s',
-                            $type,
-                            $property,
-                            $pt
-                        ));
-                    } else {
-                        throw new \DomainException(sprintf(
-                            'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
-                            $type,
-                            $property,
-                            $property->getFHIRTypeName(),
-                            TypeKindEnum::UNDEFINED
-                        ));
-                        // if we get this far, then there was a type missing from the XSD's
-                        $property->setValueType($types->newUndefinedType($property->getName()));
-                        $config->getLogger()->alert(sprintf(
-                            'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
-                            $type,
-                            $property,
-                            $property->getFHIRTypeName(),
-                            TypeKindEnum::UNDEFINED
-                        ));
-                    }
+                if ($pt = $types->getTypeByName($property->getFHIRTypeName())) {
+                    // if this is a "typical" type...
+                    $property->setValueType($pt);
+                    $config->getLogger()->info(sprintf(
+                        'Setting Type %s Property %s to Type %s',
+                        $type,
+                        $property,
+                        $pt
+                    ));
+                } else {
+                    throw new \DomainException(sprintf(
+                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
+                        $type,
+                        $property,
+                        $property->getFHIRTypeName(),
+                        TypeKindEnum::UNDEFINED
+                    ));
+                    // if we get this far, then there was a type missing from the XSD's
+                    $property->setValueType($types->newUndefinedType($property->getName()));
+                    $config->getLogger()->alert(sprintf(
+                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
+                        $type,
+                        $property,
+                        $property->getFHIRTypeName(),
+                        TypeKindEnum::UNDEFINED
+                    ));
                 }
             }
         }
@@ -200,13 +148,17 @@ abstract class TypeDecorator
      */
     public static function determineParsedTypeKinds(VersionConfig $config, Types $types)
     {
+        $logger = $config->getLogger();
+
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
+
+            $logger->debug(sprintf('Determining TypeKind for "%s"', $fhirName));
 
             // there are a few specialty types kinds that are set during the parsing process, most notably for
             // html value types and primitive value types
             if (null !== $type->getKind()) {
-                $config->getLogger()->info(sprintf(
+                $config->getLogger()->warning(sprintf(
                     'Type %s already has Kind %s, will not set again',
                     $fhirName,
                     $type->getKind()
@@ -218,10 +170,14 @@ abstract class TypeDecorator
                 $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
             } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::_LIST));
-            } elseif ($rootType = $type->getRootType()) {
+            } elseif (false !== strpos($type->getFHIRName(), '.')) {
+                $type->setKind(new TypeKindEnum(TypeKindEnum::RESOURCE_COMPONENT));
+            } elseif ($types->getTypeByName("{$fhirName}-primitive")) {
+                $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE_CONTAINER));
+            } elseif (null !== ($rootType = $type->getRootType())) {
                 $type->setKind(new TypeKindEnum($rootType->getFHIRName()));
             } else {
-                $type->setKind(new TypeKindEnum($type->getFHIRName()));
+                $type->setKind(new TypeKindEnum($fhirName));
             }
         }
     }

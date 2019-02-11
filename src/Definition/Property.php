@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 
 /**
  * Class Property
@@ -26,7 +27,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
  */
 class Property
 {
-    use DocumentationTrait;
+    use DocumentationTrait, SourceTrait;
 
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
@@ -36,9 +37,6 @@ class Property
 
     /** @var string */
     private $fhirTypeName;
-
-    /** @var \SimpleXMLElement */
-    private $sourceSXE;
 
     /** @var int */
     private $minOccurs = 0;
@@ -51,19 +49,24 @@ class Property
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $valueType = null;
 
+    /** @var \DCarbone\PHPFHIR\Enum\PropertyUseEnum */
+    private $use;
+
+    /** @var string */
+    private $ref;
+
     /**
      * Property constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param string $name
-     * @param string $fhirTypeName
      * @param \SimpleXMLElement $sxe
+     * @param string $sourceFilename
      */
-    public function __construct(VersionConfig $config, $name, $fhirTypeName, \SimpleXMLElement $sxe)
+    public function __construct(VersionConfig $config, \SimpleXMLElement $sxe, $sourceFilename)
     {
         $this->config = $config;
-        $this->name = $name;
-        $this->fhirTypeName = $fhirTypeName;
         $this->sourceSXE = $sxe;
+        $this->sourceFilename = $sourceFilename;
+        $this->use = new PropertyUseEnum(PropertyUseEnum::OPTIONAL);
     }
 
     /**
@@ -73,6 +76,7 @@ class Property
     {
         return [
             'name'         => $this->getName(),
+            'ref'          => $this->getRef(),
             'fhirTypeName' => $this->getFHIRTypeName(),
             'sourceSXE'    => $this->getSourceSXE(),
             'minOccurs'    => $this->getMinOccurs(),
@@ -99,6 +103,16 @@ class Property
     }
 
     /**
+     * @param string $name
+     * @return \DCarbone\PHPFHIR\Definition\Property
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getFHIRTypeName()
@@ -107,11 +121,13 @@ class Property
     }
 
     /**
-     * @return \SimpleXMLElement
+     * @param string $fhirTypeName
+     * @return \DCarbone\PHPFHIR\Definition\Property
      */
-    public function getSourceSXE()
+    public function setFHIRTypeName($fhirTypeName)
     {
-        return $this->sourceSXE;
+        $this->fhirTypeName = $fhirTypeName;
+        return $this;
     }
 
     /**
@@ -184,7 +200,7 @@ class Property
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $valueType
-     * @return \DCarbone\PHPFHIR\Definition\Type\Property
+     * @return \DCarbone\PHPFHIR\Definition\Property
      */
     public function setValueType(Type $valueType)
     {
@@ -214,6 +230,42 @@ class Property
     public function unlimitedOccurrences()
     {
         return PHPFHIR_UNLIMITED === $this->getMaxOccurs();
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Enum\PropertyUseEnum
+     */
+    public function getUse()
+    {
+        return $this->use;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\PropertyUseEnum $use
+     * @return \DCarbone\PHPFHIR\Definition\Property
+     */
+    public function setUse(PropertyUseEnum $use)
+    {
+        $this->use = $use;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRef()
+    {
+        return $this->ref;
+    }
+
+    /**
+     * @param string $ref
+     * @return \DCarbone\PHPFHIR\Definition\Property
+     */
+    public function setRef($ref)
+    {
+        $this->ref = $ref;
+        return $this;
     }
 
     /**

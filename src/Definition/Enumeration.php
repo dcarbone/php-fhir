@@ -28,6 +28,17 @@ class Enumeration implements \Iterator, \Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\EnumerationValue[] */
     private $values = [];
+    /** @var \DCarbone\PHPFHIR\Definition\Type */
+    private $type;
+
+    /**
+     * Enumeration constructor.
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     */
+    public function __construct(Type $type)
+    {
+        $this->type = $type;
+    }
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\EnumerationValue $value
@@ -37,14 +48,8 @@ class Enumeration implements \Iterator, \Countable
     {
         $eval = $value->getValue();
         foreach ($this->values as $cval) {
-            if ($value === $cval) {
+            if ($value === $cval || $cval->getValue() === $eval) {
                 return $this;
-            }
-            if ($cval->getValue() === $eval) {
-                throw new \LogicException(sprintf(
-                    'Enum already has value %s',
-                    $value
-                ));
             }
         }
         $this->values[] = $value;

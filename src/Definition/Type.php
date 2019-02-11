@@ -28,23 +28,11 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
  */
 class Type
 {
-    use DocumentationTrait;
+    use DocumentationTrait, SourceTrait;
 
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
 
-    /**
-     * The raw element this type was parsed from.  Will be null for HTML and Undefined types
-     *
-     * @var null|\SimpleXMLElement
-     */
-    private $sourceSXE;
-
-    /**
-     * Name of file in definition this type was parsed from
-     * @var string
-     */
-    private $sourceFilename;
     /**
      * The raw name of the FHIR element this type was created from
      * @var string
@@ -109,7 +97,7 @@ class Type
         $this->sourceSXE = $sourceSXE;
         $this->sourceFilename = $sourceFilename;
         $this->properties = new Properties($config, $this);
-        $this->enumeration = new Enumeration();
+        $this->enumeration = new Enumeration($this);
     }
 
     /**
@@ -128,30 +116,6 @@ class Type
     public function getConfig()
     {
         return $this->config;
-    }
-
-    /**
-     * @return null|\SimpleXMLElement
-     */
-    public function getSourceSXE()
-    {
-        return $this->sourceSXE;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSourceFilename()
-    {
-        return $this->sourceFilename;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSourceFileBasename()
-    {
-        return basename($this->getSourceFilename());
     }
 
     /**
@@ -522,21 +486,6 @@ class Type
         return $this->getFHIRName();
     }
 
-//    /**
-//     * Is this a child of a "primitive" type?
-//     *
-//     * @return bool
-//     */
-//    public function hasPrimitiveParent()
-//    {
-//        foreach ($this->getParentTypes() as $parent) {
-//            if ($parent->getKind()->isPrimitive()) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
 //    /**
 //     * Is this immediate type a "primitive"?
 //     *

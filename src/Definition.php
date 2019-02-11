@@ -63,11 +63,12 @@ class Definition
         $this->config->getLogger()->info('Finding parent types');
         TypeDecorator::findParentTypes($this->config, $this->types);
 
-        $this->config->getLogger()->info('Determining type kinds');
-        TypeDecorator::determineParsedTypeKinds($this->config, $this->types);
-
         $this->config->getLogger()->info('Finding component types');
         TypeDecorator::findComponentOfTypes($this->config, $this->types);
+
+        // TODO: order of operations issue here, ideally this would be first...
+        $this->config->getLogger()->info('Determining type kinds');
+        TypeDecorator::determineParsedTypeKinds($this->config, $this->types);
 
         $this->config->getLogger()->info('Finding property types');
         TypeDecorator::findPropertyTypes($this->config, $this->types);

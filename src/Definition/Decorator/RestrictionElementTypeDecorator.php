@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Utilities\Element;
+namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -23,14 +23,14 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
-use DCarbone\PHPFHIR\Utilities\BuilderUtils;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 
 /**
- * Class RestrictionElementUtils
- * @package DCarbone\PHPFHIR\Utilities\Element
+ * Class RestrictionElementTypeDecorator
+ * @package DCarbone\PHPFHIR\Definition\Decorator
  */
-abstract class RestrictionElementUtils
+abstract class RestrictionElementTypeDecorator
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -38,12 +38,12 @@ abstract class RestrictionElementUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $restriction
      */
-    public static function decorateType(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $restriction)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $restriction)
     {
         foreach ($restriction->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::BASE:
-                    BuilderUtils::setStringFromAttribute($type, $restriction, $attribute, 'setRestrictionBaseFHIRName');
+                    $type->setRestrictionBaseFHIRName((string)$attribute);
                     break;
 
                 default:
@@ -54,19 +54,19 @@ abstract class RestrictionElementUtils
         foreach ($restriction->children('xs', true) as $child) {
             switch ($child->getName()) {
                 case ElementTypeEnum::SIMPLE_TYPE:
-                    SimpleTypeElementUtils::decorateType($config, $types, $type, $child);
+                    SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
                 case ElementTypeEnum::PATTERN:
-                    BuilderUtils::setStringFromElementAttribute($type, $child, 'setPattern');
+                    TypeBuilderUtils::setStringFromElementAttribute($type, $child, 'setPattern');
                     break;
 
                 case ElementTypeEnum::MIN_LENGTH:
                 case ElementTypeEnum::MAX_LENGTH:
-                    BuilderUtils::setIntegerFromElementAttribute($type, $child, 'set' . $child->getName());
+                    TypeBuilderUtils::setIntegerFromElementAttribute($type, $child, 'set' . $child->getName());
                     break;
 
                 case ElementTypeEnum::ENUMERATION:
-                    BuilderUtils::addEnumeratedValue($type, $restriction, $child);
+                    TypeBuilderUtils::addEnumeratedValue($type, $restriction, $child);
                     break;
 
                 default:

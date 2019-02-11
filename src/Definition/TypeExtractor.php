@@ -19,10 +19,11 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Extractor\SimpleTypeExtractor;
-use DCarbone\PHPFHIR\Definition\Property;
+use DCarbone\PHPFHIR\Definition\Decorator\ComplexTypeElementTypeDecorator;
+use DCarbone\PHPFHIR\Definition\Decorator\ElementElementTypeDecorator;
+use DCarbone\PHPFHIR\Definition\Decorator\SimpleTypeElementTypeDecorator;
 use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
-use DCarbone\PHPFHIR\Utilities\XMLUtils;
+use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
  * Class TypeExtractor
@@ -71,101 +72,20 @@ abstract class TypeExtractor
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \SimpleXMLElement $element
-     */
-    protected static function parseExtension(VersionConfig $config,
-                                             Types $types,
-                                             Type $type,
-                                             \SimpleXMLElement $element)
-    {
-        TypeDecorator::determineTypeParentName($config, $type, $element);
-        PropertyExtractor::extractTypeProperties($config, $types, $type, $element);
-    }
-
-    protected static function parseRestriction(VersionConfig $config,
-                                               Types $types,
-                                               Type $type,
-                                               \SimpleXMLElement $element)
-    {
-        // TODO: Don't do this...
-        $config->getLogger()->info(sprintf(
-            'Ignoring restriction on Type %s',
-            $type->getFHIRName()
-        ));
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \SimpleXMLElement $outer
-     */
-    protected static function extractComplexInnards(VersionConfig $config,
-                                                    Types $types,
-                                                    Type $type,
-                                                    \SimpleXMLElement $outer)
-    {
-        foreach ($outer->children('xs', true) as $element) {
-            switch (strtolower($element->getName())) {
-                case ElementTypeEnum::ATTRIBUTE:
-                case ElementTypeEnum::CHOICE:
-                case ElementTypeEnum::SEQUENCE:
-                case ElementTypeEnum::UNION:
-                    // immediate properties
-                    PropertyExtractor::implementTypeProperty($config, $types, $type, $element);
-                    break;
-
-                case ElementTypeEnum::ANNOTATION:
-                    // documentation!
-                    $type->setDocumentation(XMLUtils::getDocumentation($element));
-                    break;
-
-                case ElementTypeEnum::COMPLEX_TYPE:
-                case ElementTypeEnum::COMPLEX_CONTENT:
-                    self::extractComplexInnards($config, $types, $type, $element);
-                    break;
-
-                case ElementTypeEnum::SIMPLE_TYPE:
-                case ElementTypeEnum::SIMPLE_CONTENT:
-                    static::extractSimpleInnards($config, $types, $type, $element);
-                    break;
-
-                case ElementTypeEnum::EXTENSION:
-                    static::parseExtension($config, $types, $type, $element);
-                    break;
-
-                case ElementTypeEnum::RESTRICTION:
-                    static::parseRestriction($config, $types, $type, $element);
-                    break;
-
-                default:
-                    throw new \DomainException(sprintf(
-                        'Unexpected Type %s first-level child %s: %s',
-                        $type,
-                        $element->getName(),
-                        $element->saveXML()
-                    ));
-            }
-        }
-    }
-
-
-    /**
      * Extract Type definitions present in XSD file
      *
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param string $file
+     * @param string $sourceFile
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
-    protected static function extractTypesFromXSD(VersionConfig $config, Types $types, $file)
+    protected static function extractTypesFromXSD(VersionConfig $config, Types $types, $sourceFile)
     {
-        $basename = basename($file);
-        $config->getLogger()->startBreak("Extracting types from {$basename}");
+        $basename = basename($sourceFile);
+        $logger = $config->getLogger();
 
-        $sxe = static::constructSXEWithFilePath($file, $config);
+        $logger->startBreak("Extracting types from {$basename}");
+
+        $sxe = static::constructSXEWithFilePath($sourceFile, $config);
         foreach ($sxe->children('xs', true) as $child) {
             /** @var \SimpleXMLElement $child */
 
@@ -177,72 +97,62 @@ abstract class TypeExtractor
 
             // fetch attributes, attempt to locate the name of the type being parsed
             $attributes = $child->attributes();
-            $fhirElementName = (string)$attributes['name'];
+            $fhirName = (string)$attributes['name'];
 
             // if there was no attribute named "name", build some context then complain about it.
-            if ('' === $fhirElementName) {
-                $attrArray = [];
-                foreach ($attributes as $attribute) {
-                    /** @var \SimpleXMLElement $attribute */
-                    $attrArray[] = sprintf('%s" : "%s', $attribute->getName(), (string)$attribute);
-                }
+            if ('' === $fhirName) {
                 throw new \DomainException(sprintf(
-                    'Unable to locate "name" attribute on element %s in file "%s" with attributes ["%s"]',
+                    'Unable to locate "name" attribute on element %s in file "%s": %s',
                     $child->getName(),
                     $basename,
-                    implode('", "', $attrArray)
+                    $child->saveXML()
                 ));
             }
 
+            // parse top level elements
             switch ($child->getName()) {
-//                case XSDElementType::COMPLEX_TYPE:
-//                    $type = $types->newType($fhirElementName, $child, $file);
-//                    $sxe = $type->getSourceSXE();
-//                    $name = XMLUtils::getObjectNameFromElement($sxe);
-//                    if (false !== strpos($name, '.')) {
-//                        TypeDecorator::determineComponentOfTypeName($config, $types, $type, $name);
-//                    }
-//                    static::extractComplexInnards($config, $types, $type, $type->getSourceSXE());
-//                    $config->getLogger()->info(sprintf(
-//                        'Located "Complex" Type class "%s\\%s" in file "%s"',
-//                        $type->getFHIRTypeNamespace(),
-//                        $type->getClassName(),
-//                        $basename
-//                    ));
-//                    break;
-
                 case ElementTypeEnum::SIMPLE_TYPE:
-                    $type = SimpleTypeExtractor::extract($config, $types, $file, $fhirElementName, $child);
+                    $logger->debug(sprintf('Parsing "%s" from SimpleType', $fhirName));
+                    // build type
+                    $type = new Type($config, $fhirName, $child, $sourceFile);
+
+                    // add type
                     $types->addType($type);
 
-//                    static::extractSimpleInnards($config, $types, $type, $type->getSourceSXE());
-//                    $config->getLogger()->info(sprintf(
-//                        'Located "Simple" Type class "%s\\%s" in file "%s"',
-//                        $type->getFHIRTypeNamespace(),
-//                        $type->getClassName(),
-//                        $basename
-//                    ));
+                    // proceed with decoration
+                    SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
-//                case XSDElementType::ELEMENT:
-//                    $config->getLogger()->warning(sprintf(
-//                        'Skipping root level element "%s" in file "%s"',
-//                        $child->getName(),
-//                        $basename
-//                    ));
-//                    break;
+                case ElementTypeEnum::COMPLEX_TYPE:
+                    $logger->debug(sprintf('Parsing "%s" from ComplexType', $fhirName));
+                    // build type
+                    $type = new Type($config, $fhirName, $child, $sourceFile);
 
-//                default:
-//                    throw new \RuntimeException(sprintf(
-//                        'Saw unexpected element "%s" in root of file "%s": %s',
-//                        $child->getName(),
-//                        $basename,
-//                        $child->saveXML()
-//                    ));
+                    // add type
+                    $types->addType($type);
+
+                    // proceed with decoration
+                    ComplexTypeElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
+
+                case ElementTypeEnum::ELEMENT:
+                    $logger->debug(sprintf('Parsing "%s" from Element', $fhirName));
+                    // build type
+                    $type = new Type($config, $fhirName, $child, $sourceFile);
+
+                    // add type
+                    $types->addType($type);
+
+                    // proceed with decoration
+                    ElementElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
+
+                default:
+                    throw ExceptionUtils::createUnexpectedRootElementException($child, $sourceFile);
             }
         }
 
-        $config->getLogger()->endBreak("Extracting types from {$basename}");
+        $logger->endBreak("Extracting types from {$basename}");
     }
 
     /**
@@ -253,37 +163,29 @@ abstract class TypeExtractor
     {
         $types = new Types($config);
 
-        $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $config->getSchemaPath());
+        // parse all XSD's in output directory
+        // NOTE: there will be LOTS of dupes.  sometimes things are defined in fhir-single.xsd that are not defined in
+        // an individual file, and vice versa.
+        foreach (glob(sprintf('%s/*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
+            /** @var string $xsdFile */
+            $basename = basename($xsdFile);
 
-        if (!file_exists($fhirBaseXSD)) {
-            $msg = sprintf(
-                'Unable to locate "fhir-base.xsd" at expected path "%s".',
-                $fhirBaseXSD
-            );
-            $config->getLogger()->critical($msg);
-            throw new \RuntimeException($msg);
+            if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename) {
+                $config->getLogger()->debug(sprintf('Skipping file "%s"', $xsdFile));
+                continue;
+            }
+
+            static::extractTypesFromXSD($config, $types, $xsdFile);
         }
 
-        // First get class references in fhir-base.xsd
-        static::extractTypesFromXSD($config, $types, $fhirBaseXSD);
-
-        // Then scoop up the rest
-//        foreach (glob(sprintf('%s/*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
-//            /** @var string $xsdFile */
-//            $basename = basename($xsdFile);
-//
-//            if (0 === strpos($basename, 'fhir-')) {
-//                $config->getLogger()->debug(sprintf('Skipping "aggregate" file "%s"', $xsdFile));
-//                continue;
-//            }
-//
-//            if ('xml.xsd' === $basename) {
-//                $config->getLogger()->debug(sprintf('Skipping file "%s"', $xsdFile));
-//                continue;
-//            }
-//
-//            static::extractTypesFromXSD($config, $types, $xsdFile);
-//        }
+        // perform some sanity checking
+        foreach ($types->getIterator() as $type) {
+            foreach ($type->getProperties()->getIterator() as $property) {
+                if (!$property->getName()) {
+                    throw ExceptionUtils::createPropertyHasNoNameException($type, $property);
+                }
+            }
+        }
 
         return $types;
     }

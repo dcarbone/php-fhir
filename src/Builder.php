@@ -58,21 +58,24 @@ class Builder
     {
         $this->beforeGeneration();
 
-        $this->config->getLogger()->startBreak('Class Generation');
         if (!$this->definition->isDefined()) {
+            $this->config->getLogger()->startBreak('XSD Parsing');
             $this->definition->buildDefinition();
+            $this->config->getLogger()->endBreak('XSD Parsing');
         }
-        foreach ($this->definition->getTypes()->getIterator() as $type) {
-            $this->config->getLogger()->debug("Generating class for element {$type}...");
-            $classDefinition = ClassBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
-            if (!(bool)file_put_contents(FileUtils::buildTypeFilePath($this->config, $type), $classDefinition)) {
-                throw new \RuntimeException(sprintf(
-                    'Unable to write Type %s',
-                    $type
-                ));
-            }
-        }
-        $this->config->getLogger()->endBreak('Class Generation');
+
+//        $this->config->getLogger()->startBreak('Class Generation');
+//        foreach ($this->definition->getTypes()->getIterator() as $type) {
+//            $this->config->getLogger()->debug("Generating class for element {$type}...");
+//            $classDefinition = ClassBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
+//            if (!(bool)file_put_contents(FileUtils::buildTypeFilePath($this->config, $type), $classDefinition)) {
+//                throw new \RuntimeException(sprintf(
+//                    'Unable to write Type %s',
+//                    $type
+//                ));
+//            }
+//        }
+//        $this->config->getLogger()->endBreak('Class Generation');
 
         $this->afterGeneration();
     }

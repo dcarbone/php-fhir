@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPFHIR\Enum;
+<?php
+
+namespace DCarbone\PHPFHIR\Enum;
 
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,18 +21,12 @@
 use MyCLabs\Enum\Enum;
 
 /**
- * Class AttributeNameEnum
+ * Class PropertyUseEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-class AttributeNameEnum extends Enum
+class PropertyUseEnum extends Enum
 {
-    const NAME         = 'name';
-    const VALUE        = 'value';
-    const BASE         = 'base';
-    const MEMBER_TYPES = 'memberTypes';
-    const TYPE         = 'type';
-    const _USE         = 'use';
-    const MIN_OCCURS   = 'minOccurs';
-    const MAX_OCCURS   = 'maxOccurs';
-    const REF          = 'ref';
+    const PROHIBITED = 'prohibited';
+    const OPTIONAL   = 'optional';
+    const REQUIRED   = 'required';
 }

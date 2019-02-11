@@ -1,6 +1,6 @@
 <?php
 
-namespace DCarbone\PHPFHIR\Utilities\Element;
+namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -22,39 +22,46 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
-use DCarbone\PHPFHIR\Utilities\BuilderUtils;
+use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
- * Class UnionElementUtils
- * @package DCarbone\PHPFHIR\Utilities
+ * Class SimpleTypeElementTypeDecorator
+ * @package DCarbone\PHPFHIR\Definition\Decorator
  */
-abstract class UnionElementUtils
+abstract class SimpleTypeElementTypeDecorator
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \SimpleXMLElement $union
+     * @param \SimpleXMLElement $simpleType
      */
-    public static function decorateType(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $union)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $simpleType)
     {
-        foreach ($union->attributes() as $attribute) {
+        // parse through attributes
+
+        foreach ($simpleType->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeNameEnum::MEMBER_TYPES:
-                    BuilderUtils::setArrayFromAttribute($type, $union, $attribute, 'setUnionOf');
-                    break;
+                case AttributeNameEnum::NAME:
+                    continue 2;
 
                 default:
-                    throw ExceptionUtils::createUnexpectedAttributeException($type, $union, $attribute);
+                    throw ExceptionUtils::createUnexpectedAttributeException($type, $simpleType, $attribute);
             }
         }
 
-        foreach ($union->children('xs', true) as $child) {
+        foreach ($simpleType->children('xs', true) as $child) {
             switch ($child->getName()) {
+                case ElementTypeEnum::RESTRICTION:
+                    RestrictionElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
+                case ElementTypeEnum::UNION:
+                    UnionElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
 
                 default:
-                    throw ExceptionUtils::createUnexpectedElementException($type, $union, $child);
+                    throw ExceptionUtils::createUnexpectedElementException($type, $simpleType, $child);
             }
         }
     }
