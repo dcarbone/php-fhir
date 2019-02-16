@@ -27,6 +27,37 @@ use DCarbone\PHPFHIR\Definition\Type;
  */
 abstract class ExceptionUtils
 {
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
+    public static function createInvalidTypeClassNameException(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'Type "%s" has invalid class name "%s"',
+            $type->getFHIRName(),
+            $type->getFullyQualifiedClassName(true)
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
+    public static function createInvalidTypeNamespaceException(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'Type "%s" has invalid namespace "%s"',
+            $type->getFHIRName(),
+            $type->getFullyQualifiedNamespace(true)
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @return \DomainException
+     */
     public static function createUnknownPropertyTypeException(Type $type, Property $property)
     {
         return new \DomainException(sprintf(

@@ -46,6 +46,11 @@ define('PHPFHIR_SKIP_FHIR_XSD_PREFIX', 'fhir-');
 define('PHPFHIR_UNLIMITED', -1);
 
 // Generation
+define('PHPFHIR_NAMESPACE_TRIM_CUTSET', " \t\n\r\0\x0b\\/");
+define('PHPFHIR_TEMPLATE_DIR', __DIR__.'/../template');
+define('PHPFHIR_TEMPLATE_COMMON_DIR', PHPFHIR_TEMPLATE_DIR.'/common');
+define('PHPFHIR_TEMPLATE_TYPES_DIR', PHPFHIR_TEMPLATE_DIR.'/types');
+
 define(
     'PHPFHIR_DEFAULT_JSON_SERIALIZE_HEADER',
     <<<PHP

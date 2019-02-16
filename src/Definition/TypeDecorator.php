@@ -92,57 +92,8 @@ abstract class TypeDecorator
                     // TODO: do something fancier here...
                     $property->setValueFHIRType($types->getTypeByName('string-primitive'));
                 } else {
-
+                    throw ExceptionUtils::createUnknownPropertyTypeException($type, $property);
                 }
-
-
-//                if ('value' === $property->getName() && ($typeKind->isPrimitive() || $type->hasPrimitiveParent())) {
-//                    // if this is a "value" property from a primitive parent, use the primitive value type
-//                    $property->setValueType($types->newPrimitiveTypeValueType($property->getName()));
-//                    $config->getLogger()->info(sprintf(
-//                        'Setting Type %s Property %s to %s',
-//                        $type,
-//                        $property,
-//                        TypeKind::PRIMITIVE_VALUE
-//                    ));
-//                } else
-//                    if (false !== strpos($property->getFHIRTypeName(), 'xhtml')) {
-//                        // if this is an html type...
-//                        $property->setValueType($types->newHTMLValueType($property->getFHIRTypeName()));
-//                        $config->getLogger()->notice(sprintf(
-//                            'Setting Type %s Property %s value Type to %s',
-//                            $type,
-//                            $property,
-//                            TypeKindEnum::HTML_VALUE
-//                        ));
-//                    } else
-//                if ($pt = $types->getTypeByName($property->getFHIRTypeName())) {
-//                    // if this is a "typical" type...
-//                    $property->setValueType($pt);
-//                    $config->getLogger()->info(sprintf(
-//                        'Setting Type %s Property %s to Type %s',
-//                        $type,
-//                        $property,
-//                        $pt
-//                    ));
-//                } else {
-//                    throw new \DomainException(sprintf(
-//                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
-//                        $type,
-//                        $property,
-//                        $property->getFHIRTypeName(),
-//                        TypeKindEnum::UNDEFINED
-//                    ));
-//                    // if we get this far, then there was a type missing from the XSD's
-//                    $property->setValueType($types->newUndefinedType($property->getName()));
-//                    $config->getLogger()->alert(sprintf(
-//                        'Unable to locate Type %s Property %s value Type of %s, using type "%s"',
-//                        $type,
-//                        $property,
-//                        $property->getFHIRTypeName(),
-//                        TypeKindEnum::UNDEFINED
-//                    ));
-//                }
             }
         }
     }

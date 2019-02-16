@@ -1,4 +1,4 @@
-<?php namespace DCarbone\PHPFHIR\Builder;
+<?php namespace DCarbone\PHPFHIR\Generator;
 
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -20,6 +20,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Builder\Methods\Constructor;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\JSONSerializeUtils;
 use DCarbone\PHPFHIR\Utilities\MethodUtils;
@@ -30,10 +31,10 @@ use DCarbone\PHPFHIR\Utilities\XMLSerializeUtils;
 use DCarbone\PHPFHIR\Utilities\XMLUnserializeUtils;
 
 /**
- * Class ClassGenerator
- * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
+ * Class TypeClassBuilder
+ * @package DCarbone\PHPFHIR\Generator
  */
-abstract class ClassBuilder
+abstract class TypeClassBuilder
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -167,61 +168,24 @@ abstract class ClassBuilder
      */
     public static function generateTypeClass(VersionConfig $config, Types $types, Type $type)
     {
-        $fqns = $type->getFullyQualifiedNamespace(false);
-        if (!NameUtils::isValidNSName($fqns)) {
-            throw new \RuntimeException(sprintf(
-                'Type %s has invalid namespace of "%s"',
-                $type,
-                $fqns
-            ));
+        switch ($typeKind = $type->getKind()) {
+            case TypeKindEnum::PRIMITIVE:
+                return require PHPFHIR_TEMPLATE_TYPES_DIR.'/primitive_class.php';
+
+            default:
+
         }
 
-        $typeClassName = $type->getClassName();
-        if (!NameUtils::isValidClassName($typeClassName)) {
-            throw new \RuntimeException(sprintf(
-                'Type %s has invalid class name of "%s"',
-                $type,
-                $typeClassName
-            ));
-        }
-
-        // opens php, defines namespace (if applicable), and sets comment
-        $out = FileUtils::buildFileHeader($fqns);
-
-        $out .= NSUtils::compileUseStatements($config, $types, $type);
-        if ("\n\n" !== substr($out, -2)) {
-            $out .= "\n";
-        }
-        $out .= "/**\n";
-        if ($doc = $type->getDocBlockDocumentationFragment(1)) {
-            $out .= $doc . " *\n";
-        }
-        $out .= " * Class {$typeClassName}\n * @package {$type->getFullyQualifiedNamespace(false)}\n */\n";
-        $out .= "class {$typeClassName}";
-        if ($parentType = $type->getParentType()) {
-            $out .= " extends {$parentType->getClassName()}";
-        }
-        $out .= ' implements \\JsonSerializable';
-        $out .= "\n{\n";
-
-        $out .= <<<PHP
-    // Raw name of FHIR type represented by this class
-    const FHIR_TYPE_NAME = '{$type->getFHIRName()}';
-
-PHP;
-
-        $typeKind = $type->getKind();
-
-        if ($typeKind->isPrimitive()) {
-            $out .= static::buildPrimitiveTypeClass($config, $types, $type);
+//        if ($typeKind->isPrimitive()) {
+//            $out .= static::buildPrimitiveTypeClass($config, $types, $type);
 //        } elseif ($type->isPrimitiveContainer()) {
 //            $out .= static::buildPrimitiveContainerTypeClass($config, $types, $type);
 //        } elseif ($typeKind->isResourceContainer() || $typeKind->isInlineResource()) {
 //            $out .= static::buildResourceContainerOrInlineResourceTypeClass($config, $types, $type);
 //        } elseif (!$type->hasPrimitiveParent() && !$type->hasPrimitiveContainerParent()) {
 //            $out .= static::buildDefaultTypeClass($config, $types, $type);
-        }
+//        }
 
-        return $out . '}';
+//        return $out . '}';
     }
 }
