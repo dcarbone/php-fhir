@@ -163,18 +163,30 @@ abstract class TypeExtractor
     {
         $types = new Types($config);
 
-        // parse all XSD's in output directory
-        // NOTE: there will be LOTS of dupes.  sometimes things are defined in fhir-single.xsd that are not defined in
-        // an individual file, and vice versa.
+        // first, parse all .xsd files without the "fhir-" prefix
         foreach (glob(sprintf('%s/*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
-            /** @var string $xsdFile */
             $basename = basename($xsdFile);
-
+            if (false !== strpos($basename, PHPFHIR_SKIP_FHIR_XSD_PREFIX)) {
+                continue;
+            }
             if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename) {
                 $config->getLogger()->debug(sprintf('Skipping file "%s"', $xsdFile));
                 continue;
             }
+            static::extractTypesFromXSD($config, $types, $xsdFile);
+        }
 
+        // next, parse the "fhir-" prefixed ones.
+        // of most interest:
+        //  - fhir-base.xsd: contains primitive types, base Element, Resource, ResourceContainer, etc...
+        //  - fhir-single.xsd: ideally this would just be full of dupes found in other files, but in practice there
+        //    are often types only defined in this file that are not defined in the specific individual files.
+        foreach (glob(sprintf('%s/fhir-*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
+            $basename = basename($xsdFile);
+            if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename) {
+                $config->getLogger()->debug(sprintf('Skipping file "%s"', $xsdFile));
+                continue;
+            }
             static::extractTypesFromXSD($config, $types, $xsdFile);
         }
 

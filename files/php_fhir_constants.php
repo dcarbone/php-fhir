@@ -38,7 +38,6 @@ define('PHPFHIR_XHTML_DIV', 'xhtml:div');
 define('PHPFHIR_FHIR_XMLNS', 'http://hl7.org/fhir');
 
 // XSDs
-define('PHPFHIR_FHIR_BASE_XSD', 'fhir-base.xsd');
 define('PHPFHIR_SKIP_XML_XSD', 'xml.xsd');
 define('PHPFHIR_SKIP_XHTML_XSD', 'fhir-xhtml.xsd');
 define('PHPFHIR_SKIP_FHIR_XSD_PREFIX', 'fhir-');
