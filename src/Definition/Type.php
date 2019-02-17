@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
@@ -149,6 +150,24 @@ class Type
             ));
         }
         $this->kind = $kind;
+        return $this;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setPrimitiveType(PrimitiveTypeEnum $primitiveType)
+    {
+        if (isset($this->primitiveType) && $this->primitiveType->equals($primitiveType)) {
+            throw new \LogicException(sprintf(
+                'Cannot overwrite Type "%s" PrimitiveType from "%s" to "%s"',
+                $this->getFHIRName(),
+                $this->primitiveType,
+                $primitiveType
+            ));
+        }
+        $this->primitiveType = $primitiveType;
         return $this;
     }
 
@@ -485,79 +504,4 @@ class Type
     {
         return $this->getFHIRName();
     }
-
-//    /**
-//     * Is this immediate type a "primitive"?
-//     *
-//     * @return bool
-//     */
-//    public function isPrimitive()
-//    {
-//        return false !== strpos($this->getFHIRName(), '-primitive');
-//    }
-//
-//    /**
-//     * @return bool
-//     */
-//    public function isList()
-//    {
-//        return false !== strpos($this->getFHIRName(), '-list');
-//    }
-
-//    /**
-//     * Is this type just a primitive container?
-//     *
-//     * TODO: this could stand to be improved, right now only looks for "value" types...
-//     *
-//     * @return bool
-//     */
-//    public function isPrimitiveContainer()
-//    {
-//        return 1 === count($this->properties) &&
-//            null !== ($prop = $this->properties->getProperty('value')) &&
-//            null !== ($type = $prop->getValueType()) &&
-//            ($type->getKind()->isPrimitive());
-//    }
-
-//    /**
-//     * Does this type extend a type that is a primitive container?
-//     *
-//     * @return bool
-//     */
-//    public function hasPrimitiveContainerParent()
-//    {
-//        foreach ($this->getParentTypes() as $parentType) {
-//            if ($parentType->isPrimitiveContainer()) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-//    /**
-//     * Returns true if this Type is an element who's only properties are various "valueString",
-//     * "valueCodeableConcept", etc...
-//     *
-//     * @return bool
-//     */
-//    public function isVariadicValueElement()
-//    {
-//        $kind = $this->getKind();
-//        if ($kind->isTypeValue() || $kind->isPrimitive() || $kind->isList() || $this->isPrimitiveContainer()) {
-//            return false;
-//        }
-//        if (1 < count($this->properties)) {
-//            foreach ($this->getProperties()->getIterator() as $property) {
-//                $name = $property->getName();
-//                if ('value' !== $name && 0 === strpos($property->getName(), 'value')) {
-//                    continue;
-//                }
-//                return false;
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
-
-
 }

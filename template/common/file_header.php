@@ -28,14 +28,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 $log = $config->getLogger();
 
 $fqns = $type->getFullyQualifiedNamespace(false);
-if (false === NameUtils::isValidNSName($fqns)) {
-    throw ExceptionUtils::createInvalidTypeNamespaceException($type);
-}
-
 $typeClassName = $type->getClassName();
-if (false === NameUtils::isValidClassName($typeClassName)) {
-    throw ExceptionUtils::createInvalidTypeClassNameException($type);
-}
 
 // start output buffer
 ob_start();
@@ -85,6 +78,8 @@ foreach ($imports as $import) {
     echo "use {$import};\n";
 }
 
-echo "\n";
+if (0 < count($imports)) {
+    echo "\n";
+}
 
 return ob_get_clean();

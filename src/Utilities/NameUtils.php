@@ -93,6 +93,15 @@ abstract class NameUtils
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    public static function getTypeXMLElementName(Type $type)
+    {
+        return str_replace(self::$classNameSearch, self::$classNameReplace, $type->getFHIRName());
+    }
+
+    /**
      * @param string $propName
      * @return string
      */
@@ -109,13 +118,4 @@ abstract class NameUtils
     {
         return sprintf('$%s', $propName);
     }
-
-    /**
-     * @param string $fhirName
-     * @return string
-     */
-//    public static function getPrimitiveValuePropertyTypeName($fhirName)
-//    {
-//        return sprintf('%s_value', $fhirName);
-//    }
 }

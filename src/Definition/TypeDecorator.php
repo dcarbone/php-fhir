@@ -19,8 +19,10 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Class TypeDecorator
@@ -127,6 +129,7 @@ abstract class TypeDecorator
 
             if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
+                $type->setPrimitiveType(new PrimitiveTypeEnum(str_replace(PHPFHIR_PRIMITIVE_SUFFIX, '', $fhirName)));
             } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::_LIST));
             } elseif (false !== strpos($type->getFHIRName(), '.')) {
@@ -137,6 +140,38 @@ abstract class TypeDecorator
                 $type->setKind(new TypeKindEnum($rootType->getFHIRName()));
             } else {
                 $type->setKind(new TypeKindEnum($fhirName));
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function testDecoration(VersionConfig $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            $typeKind = $type->getKind();
+
+            $fqns = $type->getFullyQualifiedNamespace(false);
+            if (false === NameUtils::isValidNSName($fqns)) {
+                throw ExceptionUtils::createInvalidTypeNamespaceException($type);
+            }
+
+            $typeClassName = $type->getClassName();
+            if (false === NameUtils::isValidClassName($typeClassName)) {
+                throw ExceptionUtils::createInvalidTypeClassNameException($type);
+            }
+
+            if (null === $typeKind) {
+                throw ExceptionUtils::createUnknownTypeKindException($type);
+            }
+
+            if ($typeKind->isPrimitive()) {
+                $primitiveType = $type->getPrimitiveType();
+                if (null === $primitiveType) {
+                    throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
+                }
             }
         }
     }

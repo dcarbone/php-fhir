@@ -31,6 +31,31 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
+    public static function createUnknownTypeKindException(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'Type "%s" has no TypeKind defined',
+            $type->getFHIRName()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
+    public static function createUnknownPrimitiveTypeException(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'Primitive Type "%s" has unknown PrimitiveTypeEnum "%s" specified',
+            $type->getFHIRName(),
+            null === ($t = $type->getPrimitiveType()) ? 'NULL' : $t
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
     public static function createInvalidTypeClassNameException(Type $type)
     {
         return new \DomainException(sprintf(

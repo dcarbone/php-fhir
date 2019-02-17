@@ -55,26 +55,31 @@ class Definition
 
     public function buildDefinition()
     {
-        $this->config->getLogger()->startBreak('Extracting defined types');
+        $log = $this->config->getLogger();
 
-        $this->config->getLogger()->info('Parsing types');
+        $log->startBreak('Extracting defined types');
+
+        $log->info('Parsing types');
         $this->types = TypeExtractor::parseTypes($this->config);
 
-        $this->config->getLogger()->info('Finding parent types');
+        $log->info('Finding parent types');
         TypeDecorator::findParentTypes($this->config, $this->types);
 
-        $this->config->getLogger()->info('Finding component types');
+        $log->info('Finding component types');
         TypeDecorator::findComponentOfTypes($this->config, $this->types);
 
         // TODO: order of operations issue here, ideally this would be first...
-        $this->config->getLogger()->info('Determining type kinds');
+        $log->info('Determining type kinds');
         TypeDecorator::determineParsedTypeKinds($this->config, $this->types);
 
-        $this->config->getLogger()->info('Finding property types');
+        $log->info('Finding property types');
         TypeDecorator::findPropertyTypes($this->config, $this->types);
 
-        $this->config->getLogger()->info(count($this->types) . ' types extracted.');
-        $this->config->getLogger()->endBreak('Extracting defined types');
+        $log->info('Performing some sanity checking');
+        TypeDecorator::testDecoration($this->config, $this->types);
+
+        $log->info(count($this->types) . ' types extracted.');
+        $log->endBreak('Extracting defined types');
     }
 
     /**
