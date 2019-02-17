@@ -16,55 +16,37 @@
  * limitations under the License.
  */
 
-
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
+/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 /** @var string $fhirName */
 /** @var string $typeClassName */
 
-ob_start(); ?>
-    /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|string $value
-     */
-    public function __construct($value = null)
-    {
-        $this->setValue($value);
-    }
-
-    /**
-     * @var null|string $value
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
-     */
-    public function setValue($value)
-    {
-        if (null === $value) {
-            $this->value = null;
-        } else if (is_string($value)) {
-            $this->value = $value;
-        } else {
-            throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));
+ob_start();
+echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR.'/xml_unserialize_header.php';
+?>
+        if (null !== ($v = $sxe->attributes()->value)) {
+            return $type->setValue((string)\$v);
         }
-        return $this;
+        if ('' !== ($v = (string)$sxe->children()->value)) {
+            return $type->setValue($v);
+        }
+        return $type;
     }
 
     /**
-     * @return null|string
+     * @param bool \$returnSXE
+     * @param null|\SimpleXMLElement \$sxe
+     * @return string|\SimpleXMLElement
      */
-    public function getValue()
+    public function xmlSerialize($returnSXE = false, \SimpleXMLElement $sxe = null)
     {
-        return $this->value;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function jsonSerialize()
-    {
-        return $this->getValue();
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement('<<?php echo $xmlName; ?> xmlns="<?php echo PHPFHIR_FHIR_XMLNS; ?>"></<?php echo $xmlName; ?>>');
+        }
+        $sxe->addAttribute('value', (string)$this);
+        return $returnSXE ? $sxe : $sxe->saveXML();
     }
 
 <?php return ob_get_clean();

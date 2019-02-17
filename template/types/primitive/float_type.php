@@ -29,7 +29,7 @@ ob_start(); ?>
      * <?php echo $typeClassName; ?> Constructor
      * @param null|float|string $value
      */
-    public function __construct($value)
+    public function __construct($value = null)
     {
         $this->setValue($value);
     }

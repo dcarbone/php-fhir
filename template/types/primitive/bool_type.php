@@ -39,7 +39,7 @@ ob_start(); ?>
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function setValue($value)
+    public function setValue($value = null)
     {
         if (null === $value) {
             $this->value = null;
