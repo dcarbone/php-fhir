@@ -25,9 +25,12 @@
 /** @var string $typeClassName */
 
 ob_start(); ?>
-    const TIME_FORMAT_REGEX  = // language=RegExp
+    /** null|\DateTime */
+    private $dateTime = null;
+
+    const TIME_VALUE_REGEX = // language=RegExp
         '([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?';
-    const TIME_FORMAT        = 'H:i:s';
+    const TIME_FORMAT      = 'H:i:s';
 
     /**
      * <?php echo $typeClassName; ?> Constructor
@@ -46,21 +49,46 @@ ob_start(); ?>
     public function setValue($value)
     {
         if (null === $value) {
-            $this->value = null;
+            $this->value = $this->dateTime = null;
             return $this;
         }
-        if (is_string($value) && preg_match('/' . self::TIME_FORMAT_REGEX . '/', $value)) {
+        if (is_string($value)) {
+            $this->value = $value;
+            $this->dateTime = null;
+            return $this;
+        }
+        throw new \InvalidArgumentException(sprintf('$value must be null or string, %s seen.', gettype($value)));
+    }
+
+    /**
+     * @return null|\DateTime
+     */
+    public function getDateTime()
+    {
+        if (!isset($this->dateTime)) {
+            $value = $this->getValue();
+            if (null === $value) {
+                return null;
+            }
+            if (!$this->isValid()) {
+                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::TIME_VALUE_REGEX));
+            }
             $parsed = \DateTime::createFromFormat(self::TIME_FORMAT, $value);
             if (false === $parsed) {
                 throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
             }
-            $value = $parsed;
+            $this->dateTime = $parsed;
         }
-        if (!($value instanceof \DateTime)) {
-            throw new \InvalidArgumentException(sprintf('Value must be null, string of proper format, or instance of \\DateTime, %s seen.', gettype($value)));
-        }
-        $this->value = $value;
-        return $this;
+        return $this->dateTime;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        $value = $this->getValue();
+        return null === $value || is_string($value) && preg_match('/' . self::TIME_VALUE_REGEX . '/', $value);
     }
 
     /**

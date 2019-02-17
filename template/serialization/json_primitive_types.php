@@ -32,17 +32,7 @@ ob_start(); ?>
      */
     public function jsonSerialize()
     {
-<?php if (PrimitiveTypeEnum::DATE === $primitiveTypeString) : ?>
-        return null === ($value = $this->getValue()) ? null : $value->format($this->valueFormat);
-<?php elseif (PrimitiveTypeEnum::DATETIME === $primitiveTypeString) : ?>
-        return null === ($value = $this->getValue()) ? null : $value->format($this->valueFormat);
-<?php elseif (PrimitiveTypeEnum::TIME === $primitiveTypeString) : ?>
-        return null === ($value = $this->getValue()) ? null : $value->format(self::TIME_FORMAT);
-<?php elseif (PrimitiveTypeEnum::INSTANT === $primitiveTypeString) : ?>
-        return null === ($value = $this->getValue()) ? null : $value->format(self::INSTANT_FORMAT);
-<?php else : ?>
-        return null === ($value = $this->getValue()) ? null : $value;
-<?php endif; ?>
+        return $this->getValue();
     }
 
 <?php return ob_get_clean();

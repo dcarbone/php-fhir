@@ -25,7 +25,7 @@ ob_start();
 echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR.'/xml_unserialize_header.php';
 ?>
         if (null !== ($v = $sxe->attributes()->value)) {
-            return $type->setValue((string)\$v);
+            return $type->setValue((string)$v);
         }
         if ('' !== ($v = (string)$sxe->children()->value)) {
             return $type->setValue($v);
