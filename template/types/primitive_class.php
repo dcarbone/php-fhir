@@ -27,6 +27,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 // define some common things
 $fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassName = $type->getClassName();
+$typeKind = $type->getKind();
 $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
 $sortedProperties = $type->getProperties()->getSortedIterator();
@@ -116,16 +117,72 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     private $value = null;
 
 <?php
-switch($phpValueType) {
-    case 'string':
-        echo require __DIR__.'/primitive/string_php_type.php';
+switch($primitiveType->getValue()) {
+    case PrimitiveTypeEnum::STRING:
+        echo require __DIR__ . '/primitive/string_type.php';
         break;
-    case 'integer':
-        echo require __DIR__.'/primitive/integer_php_type.php';
+
+    case PrimitiveTypeEnum::BOOLEAN:
+        echo require __DIR__ . '/primitive/bool_type.php';
         break;
-    case 'float':
-        echo require __DIR__.'/primitive/float_primitive_type.php';
+
+    case PrimitiveTypeEnum::INTEGER:
+        echo require __DIR__ . '/primitive/integer_type.php';
         break;
+
+    case PrimitiveTypeEnum::DECIMAL:
+        echo require __DIR__ . '/primitive/float_type.php';
+        break;
+
+    case PrimitiveTypeEnum::POSITIVE_INTEGER:
+    case PrimitiveTypeEnum::NEGATIVE_INTEGER:
+        echo require __DIR__ . '/primitive/integer_type.php';
+        break;
+
+    case PrimitiveTypeEnum::UNSIGNED_INTEGER:
+        // TODO: utilize big number lib, maybe?
+        echo require __DIR__ . '/primitive/string_type.php';
+        break;
+
+    case PrimitiveTypeEnum::DATE:
+        echo require __DIR__ . '/primitive/date_type.php';
+        break;
+    case PrimitiveTypeEnum::DATETIME:
+        echo require __DIR__ . '/primitive/datetime_type.php';
+        break;
+    case PrimitiveTypeEnum::TIME:
+        echo require __DIR__ . '/primitive/time_type.php';
+        break;
+    case PrimitiveTypeEnum::INSTANT:
+        echo require __DIR__ . '/primitive/instant_type.php';
+        break;
+
+    case PrimitiveTypeEnum::CODE:
+    case PrimitiveTypeEnum::OID:
+    case PrimitiveTypeEnum::CANONICAL:
+    case PrimitiveTypeEnum::URI:
+    case PrimitiveTypeEnum::URL:
+    case PrimitiveTypeEnum::ID:
+    case PrimitiveTypeEnum::UUID:
+        echo require __DIR__ . '/primitive/string_type.php';
+        break;
+
+    case PrimitiveTypeEnum::BASE_64_BINARY:
+        // TODO: add content decoding?
+        echo require __DIR__ . '/primitive/string_type.php';
+        break;
+
+    case PrimitiveTypeEnum::MARKDOWN:
+        // TODO: markdown lib, maybe?
+        echo require __DIR__ . '/primitive/string_type.php';
+        break;
+
+    case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
+        echo require __DIR__ . '/primitive/string_type.php';
+        break;
+
+    default:
+        throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
 }
 ?>
     /**

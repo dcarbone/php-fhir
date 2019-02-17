@@ -27,7 +27,7 @@
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|string $value
+     * @param null|float|string $value
      */
     public function __construct($value)
     {
@@ -35,7 +35,7 @@ ob_start(); ?>
     }
 
     /**
-     * @var null|string $value
+     * @var null|float|string $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -43,16 +43,18 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
-        } else if (is_string($value)) {
+        } elseif ('double' === ($type = gettype($value))) {
             $this->value = $value;
+        } elseif ('string' === $type && is_numeric($value)) {
+            $this->value = (float)$value;
         } else {
-            throw new \InvalidArgumentException(sprintf('<?php echo $fhirName; ?> value must be null or string, %s seen', gettype($value)));
+            throw new \InvalidArgumentException(sprintf('<?php echo $fhirName; ?> value must be null, float, or numeric string, %s seen.', gettype($value)));
         }
         return $this;
     }
 
     /**
-     * @return null|string
+     * @return null|float|string
      */
     public function getValue()
     {
@@ -60,7 +62,7 @@ ob_start(); ?>
     }
 
     /**
-     * @return null|string
+     * @return null|float|string
      */
     public function jsonSerialize()
     {

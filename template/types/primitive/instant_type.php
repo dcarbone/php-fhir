@@ -25,9 +25,13 @@
 /** @var string $typeClassName */
 
 ob_start(); ?>
+    const INSTANT_FORMAT_REGEX = // language=RegExp
+        '([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))';
+    const INSTANT_FORMAT       = 'Y-m-d\\TH:i:s\\.uP';
+
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|float|string $value
+     * @param null|string $value
      */
     public function __construct($value)
     {
@@ -35,7 +39,7 @@ ob_start(); ?>
     }
 
     /**
-     * @var null|float|string $value
+     * @var null|string $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -43,18 +47,24 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
-        } elseif ('double' === ($type = gettype($value))) {
-            $this->value = $value;
-        } elseif ('string' === $type && is_numeric($value)) {
-            $this->value = (float)$value;
-        } else {
-            throw new \InvalidArgumentException(sprintf('<?php echo $fhirName; ?> value must be null, integer, or string containing only digits, %s seen.', gettype($value)));
+            return $this;
         }
+        if (is_string($value) && preg_match('/' . self::INSTANT_FORMAT_REGEX . '/', $value)) {
+            $parsed = \DateTime::createFromFormat(self::INSTANT_FORMAT, $value);
+            if (false === $value) {
+                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
+            }
+            $value = $parsed;
+        }
+        if (!($value instanceof \DateTime)) {
+            throw new \InvalidArgumentException(sprintf('Value must be null, string of proper format, or instance of \\DateTime, %s seen.', gettype($value)));
+        }
+        $this->value = $value;
         return $this;
     }
 
     /**
-     * @return null|float|string
+     * @return null|string
      */
     public function getValue()
     {
@@ -62,7 +72,7 @@ ob_start(); ?>
     }
 
     /**
-     * @return null|float|string
+     * @return null|string
      */
     public function jsonSerialize()
     {

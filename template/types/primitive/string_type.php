@@ -27,7 +27,7 @@
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|integer|string $value
+     * @param null|string $value
      */
     public function __construct($value)
     {
@@ -35,7 +35,7 @@ ob_start(); ?>
     }
 
     /**
-     * @var null|integer|string $value
+     * @var null|string $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -43,18 +43,16 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
-        } elseif ('integer' === ($type = gettype($value))) {
+        } else if (is_string($value)) {
             $this->value = $value;
-        } elseif ('string' === $type && ctype_digit($value)) {
-            $this->value = (int)$value;
         } else {
-            throw new \InvalidArgumentException(sprintf('<?php echo $fhirName; ?> value must be null, integer, or string containing only digits, %s seen.', gettype($value)));
+            throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));
         }
         return $this;
     }
 
     /**
-     * @return null|integer|string
+     * @return null|string
      */
     public function getValue()
     {
@@ -62,7 +60,7 @@ ob_start(); ?>
     }
 
     /**
-     * @return null|integer|string
+     * @return null|string
      */
     public function jsonSerialize()
     {
