@@ -50,10 +50,11 @@ ob_start(); ?>
             return $this;
         }
         if (is_string($value) && preg_match('/' . self::TIME_FORMAT_REGEX . '/', $value)) {
-            $value = \DateTime::createFromFormat(self::TIME_FORMAT, $value);
-            if (false === $value) {
-                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', implode(', ', \DateTime::getLastErrors())));
+            $parsed = \DateTime::createFromFormat(self::TIME_FORMAT, $value);
+            if (false === $parsed) {
+                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
             }
+            $value = $parsed;
         }
         if (!($value instanceof \DateTime)) {
             throw new \InvalidArgumentException(sprintf('Value must be null, string of proper format, or instance of \\DateTime, %s seen.', gettype($value)));
@@ -68,14 +69,6 @@ ob_start(); ?>
     public function getValue()
     {
         return $this->value;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function jsonSerialize()
-    {
-        return $this->getValue();
     }
 
 <?php return ob_get_clean();

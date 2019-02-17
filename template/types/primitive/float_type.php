@@ -61,12 +61,4 @@ ob_start(); ?>
         return $this->value;
     }
 
-    /**
-     * @return null|float|string
-     */
-    public function jsonSerialize()
-    {
-        return $this->getValue();
-    }
-
 <?php return ob_get_clean();

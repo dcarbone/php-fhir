@@ -32,6 +32,9 @@ ob_start(); ?>
     const DATE_TIME_FORMAT_YEAR_MONTH_DAY      = 'Y-m-d';
     const DATE_TIME_FORMAT_YEAR_MONTH_DAY_TIME = 'Y-m-d\\TH:i:s\\.uP';
 
+    /** @var string */
+    private $valueFormat = self::DATE_TIME_FORMAT_YEAR_MONTH_DAY_TIME;
+
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param null|string $value
@@ -55,22 +58,27 @@ ob_start(); ?>
         if (is_string($value) && preg_match('/' . self::DATE_TIME_FORMAT_REGEX . '/', $value)) {
             switch(strlen($value)) {
                 case 4:
-                    $value = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR, $value);
+                    $this->valueFormat = self::DATE_TIME_FORMAT_YEAR;
+                    $parsed = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR, $value);
                     break;
                 case 7:
-                    $value = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH, $value);
+                    $this->valueFormat = self::DATE_TIME_FORMAT_YEAR_MONTH;
+                    $parsed = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH, $value);
                     break;
                 case 10:
-                    $value = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH_DAY, $value);
+                    $this->valueFormat = self::DATE_TIME_FORMAT_YEAR_MONTH_DAY;
+                    $parsed = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH_DAY, $value);
                     break;
 
                 default:
                     // TODO: better validation on this one...
-                    $value = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH_DAY_TIME, $value);
+                    $this->valueFormat = self::DATE_TIME_FORMAT_YEAR_MONTH_DAY_TIME;
+                    $parsed = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH_DAY_TIME, $value);
             }
-            if (false === $value) {
-                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', implode(', ', \DateTime::getLastErrors())));
+            if (false === $parsed) {
+                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
             }
+            $value = $parsed;
         }
         if (!($value instanceof \DateTime)) {
             throw new \InvalidArgumentException(sprintf('Value must be null, string of proper format, or instance of \\DateTime, %s seen.', gettype($value)));
@@ -85,14 +93,6 @@ ob_start(); ?>
     public function getValue()
     {
         return $this->value;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function jsonSerialize()
-    {
-        return $this->getValue();
     }
 
 <?php return ob_get_clean();

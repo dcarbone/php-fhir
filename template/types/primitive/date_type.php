@@ -31,6 +31,9 @@ ob_start(); ?>
     const DATE_FORMAT_YEAR_MONTH     = 'Y-m';
     const DATE_FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
 
+    /** @var string */
+    private $valueFormat = self::DATE_FORMAT_YEAR_MONTH_DAY;
+
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param null|string $value
@@ -54,22 +57,25 @@ ob_start(); ?>
         if (is_string($value) && preg_match('/' . self::DATE_FORMAT_REGEX . '/', $value)) {
             switch(strlen($value)) {
                 case 4:
+                    $this->valueFormat = self::FORMAT_YEAR;
                     $parsed = \DateTime::createFromFormat(self::DATE_FORMAT_YEAR, $value);
                     break;
                 case 7:
+                    $this->valueFormat = self::FORMAT_YEAR_MONTH;
                     $parsed = \DateTime::createFromFormat(self::DATE_FORMAT_YEAR_MONTH, $value);
                     break;
                 case 10:
+                    $this->valueFormat = self::FORMAT_YEAR_MONTH_DAY;
                     $parsed = \DateTime::createFromFormat(self::DATE_FORMAT_YEAR_MONTH_DAY, $value);
                     break;
 
                 default:
                     throw new \DomainException(sprintf('Value expected to meet %s, %s seen', self::DATE_FORMAT_REGEX, $value));
             }
-            if (false === $value) {
-                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', implode(', ', \DateTime::getLastErrors())));
+            if (false === $parsed) {
+                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
             }
-            $parsed = $value;
+            $value = $parsed;
         }
         if (!($value instanceof \DateTime)) {
             throw new \InvalidArgumentException(sprintf('Value must be null, string of proper format, or instance of \\DateTime, %s seen.', gettype($value)));
@@ -84,14 +90,6 @@ ob_start(); ?>
     public function getValue()
     {
         return $this->value;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function jsonSerialize()
-    {
-        return $this->getValue();
     }
 
 <?php return ob_get_clean();
