@@ -28,9 +28,9 @@ ob_start(); ?>
     /** @var null|\DateTime */
     private $dateTime = null;
 
-    const INSTANT_VALUE_REGEX = // language=RegExp
+    const VALUE_REGEX    = // language=RegExp
         '([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))';
-    const INSTANT_FORMAT      = 'Y-m-d\\TH:i:s\\.uP';
+    const FORMAT_INSTANT = 'Y-m-d\\TH:i:s\\.uP';
 
     /**
      * <?php echo $typeClassName; ?> Constructor
@@ -62,6 +62,7 @@ ob_start(); ?>
 
     /**
      * @return null|\DateTime
+     */
     public function getDateTime()
     {
         if (!isset($this->dateTime)) {
@@ -70,9 +71,9 @@ ob_start(); ?>
                 return null;
             }
             if (!$this->isValid()) {
-                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::INSTANT_VALUE_REGEX));
+                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::VALUE_REGEX));
             }
-            $parsed = \DateTime::createFromFormat(self::INSTANT_FORMAT, $value);
+            $parsed = \DateTime::createFromFormat(self::FORMAT_INSTANT, $value);
             if (false === $value) {
                 throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
             }
@@ -87,7 +88,7 @@ ob_start(); ?>
     public function isValid()
     {
         $value = $this->getValue();
-        return null === $value || is_string($value) && reg_match('/' . self::INSTANT_VALUE_REGEX . '/', $value));
+        return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);
     }
 
     /**

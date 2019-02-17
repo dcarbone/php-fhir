@@ -25,11 +25,11 @@
 /** @var string $typeClassName */
 
 ob_start(); ?>
-    const DATE_VALUE_REGEX           = // language=RegExp
+    const VALUE_REGEX           = // language=RegExp
         '([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?';
-    const DATE_FORMAT_YEAR           = 'Y';
-    const DATE_FORMAT_YEAR_MONTH     = 'Y-m';
-    const DATE_FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
+    const FORMAT_YEAR           = 'Y';
+    const FORMAT_YEAR_MONTH     = 'Y-m';
+    const FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
 
     /**
      * <?php echo $typeClassName; ?> Constructor
@@ -70,21 +70,21 @@ ob_start(); ?>
                 return null;
             }
             if (!$this->isValid()) {
-                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::DATE_VALUE_REGEX));
+                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::VALUE_REGEX));
             }
             switch(strlen($value)) {
                 case 4:
-                    $parsed = \DateTime::createFromFormat(self::DATE_FORMAT_YEAR, $value);
+                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR, $value);
                     break;
                 case 7:
-                    $parsed = \DateTime::createFromFormat(self::DATE_FORMAT_YEAR_MONTH, $value);
+                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR_MONTH, $value);
                     break;
                 case 10:
-                    $parsed = \DateTime::createFromFormat(self::DATE_FORMAT_YEAR_MONTH_DAY, $value);
+                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR_MONTH_DAY, $value);
                     break;
 
                 default:
-                    throw new \DomainException(sprintf('Value expected to meet %s, %s seen', self::DATE_VALUE_REGEX, $value));
+                    throw new \DomainException(sprintf('Value expected to meet %s, %s seen', self::VALUE_REGEX, $value));
             }
             if (false === $parsed) {
                 throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
@@ -100,7 +100,7 @@ ob_start(); ?>
     public function isValid()
     {
         $value = $this->getValue();
-        return null === $value || is_string($value) && preg_match('/' . self::DATE_VALUE_REGEX . '/', $value);
+        return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);
     }
 
     /**

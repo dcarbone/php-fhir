@@ -31,6 +31,9 @@ use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 $primitiveTypeString = (string)$primitiveType;
 
 ob_start(); ?>
+    const INT_MAX = 2147483648;
+    const INT_MIN = -2147483648;
+
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param null|integer|string $value
@@ -56,26 +59,36 @@ ob_start(); ?>
         if (!is_int($value)) {
             throw new \InvalidArgumentException(sprintf('Value must be null, integer, or string containing only numbers, %s seen.', $value));
         }
-<?php if (PrimitiveTypeEnum::POSITIVE_INTEGER === $primitiveTypeString) : ?>
-        if (0 >= $value) {
-            throw new \InvalidArgumentException(sprintf('Value must be > 0, "%d" seen.', $value));
-        }
-<?php elseif ($primitiveType::NEGATIVE_INTEGER === $primitiveTypeString) : ?>
-        if (0 <= $value) {
-            throw new \InvalidArgumentException(sprintf('Value must be < 0, "%d" seen));
-        }
-<?php else : ?>
         $this->value = $value;
-<?php endif; ?>
         return $this;
     }
 
     /**
-     * @return null|integer|string
+     * @return null|integer
      */
     public function getValue()
     {
         return $this->value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        $value = $this->getValue();
+        if (null === $value) {
+            return true;
+        }
+<?php if (PrimitiveTypeEnum::POSITIVE_INTEGER === $primitiveTypeString) : ?>
+        return 0 < $value && $value <= self::INT_MAX;
+<?php elseif (PrimitiveTypeEnum::NEGATIVE_INTEGER === $primitiveTypeString) : ?>
+        return 0 > $value && $value >= self::INT_MIN;
+<?php elseif (PrimitiveTypeEnum::UNSIGNED_INTEGER === $primitiveTypeString) : ?>
+        return 0 <= $value && $value <= self::INT_MAX;
+<?php else : ?>
+        return self::INT_MIN <= $value && $value <= self::INT_MAX;
+<?php endif; ?>
     }
 
 <?php return ob_get_clean();

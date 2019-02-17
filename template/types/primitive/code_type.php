@@ -25,9 +25,13 @@
 /** @var string $typeClassName */
 
 ob_start(); ?>
+    const VALUE_REGEX = // language=RegEx
+        '[^\s]+(\s[^\s]+)*';
+    const MAX_BYTES  = 1048576;
+
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|float|string $value
+     * @param null|string $value
      */
     public function __construct($value = null)
     {
@@ -35,7 +39,7 @@ ob_start(); ?>
     }
 
     /**
-     * @var null|float|string $value
+     * @var null|string $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -43,18 +47,25 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
-        } elseif ('double' === ($type = gettype($value))) {
+        } else if (is_string($value)) {
             $this->value = $value;
-        } elseif ('string' === $type && is_numeric($value)) {
-            $this->value = (float)$value;
         } else {
-            throw new \InvalidArgumentException(sprintf('<?php echo $fhirName; ?> value must be null, float, or numeric string, %s seen.', gettype($value)));
+            throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));
         }
         return $this;
     }
 
     /**
-     * @return null|float|string
+     * @return bool
+     */
+    public function isValid()
+    {
+        $value = $this->getValue();
+        return null === $value || (strlen($value) <= self::MAX_BYTES && preg_match('/'.self::VALUE_REGEX.'/', $value));
+    }
+
+    /**
+     * @return null|string
      */
     public function getValue()
     {

@@ -127,21 +127,14 @@ switch($primitiveType->getValue()) {
         break;
 
     case PrimitiveTypeEnum::INTEGER:
+    case PrimitiveTypeEnum::POSITIVE_INTEGER:
+    case PrimitiveTypeEnum::NEGATIVE_INTEGER:
+    case PrimitiveTypeEnum::UNSIGNED_INTEGER:
         echo require __DIR__ . '/primitive/integer_type.php';
         break;
 
     case PrimitiveTypeEnum::DECIMAL:
-        echo require __DIR__ . '/primitive/float_type.php';
-        break;
-
-    case PrimitiveTypeEnum::POSITIVE_INTEGER:
-    case PrimitiveTypeEnum::NEGATIVE_INTEGER:
-        echo require __DIR__ . '/primitive/integer_type.php';
-        break;
-
-    case PrimitiveTypeEnum::UNSIGNED_INTEGER:
-        // TODO: utilize big number lib, maybe?
-        echo require __DIR__ . '/primitive/string_type.php';
+        echo require __DIR__ . '/primitive/decimal_type.php';
         break;
 
     case PrimitiveTypeEnum::DATE:
@@ -157,24 +150,40 @@ switch($primitiveType->getValue()) {
         echo require __DIR__ . '/primitive/instant_type.php';
         break;
 
-    case PrimitiveTypeEnum::CODE:
-    case PrimitiveTypeEnum::OID:
-    case PrimitiveTypeEnum::CANONICAL:
     case PrimitiveTypeEnum::URI:
-    case PrimitiveTypeEnum::URL:
+        echo require __DIR__.'/primitive/uri_type.php';
+        break;
+
+    case PrimitiveTypeEnum::CODE:
+        echo require __DIR__ . '/primitive/code_type.php';
+        break;
+
+    case PrimitiveTypeEnum::OID:
+        echo require __DIR__.'/primitive/oid_type.php';
+        break;
+
     case PrimitiveTypeEnum::ID:
+        echo require __DIR__.'/primitive/id_type.php';
+        break;
+
+    case PrimitiveTypeEnum::CANONICAL:
+    case PrimitiveTypeEnum::URL:
+        echo require __DIR__ . '/primitive/string_type.php';
+        break;
+
     case PrimitiveTypeEnum::UUID:
+        // TODO: implement uuid lib?
         echo require __DIR__ . '/primitive/string_type.php';
         break;
 
     case PrimitiveTypeEnum::BASE_64_BINARY:
         // TODO: add content decoding?
-        echo require __DIR__ . '/primitive/string_type.php';
+        echo require __DIR__ . '/primitive/base64_binary_type.php';
         break;
 
     case PrimitiveTypeEnum::MARKDOWN:
         // TODO: markdown lib, maybe?
-        echo require __DIR__ . '/primitive/string_type.php';
+        echo require __DIR__ . '/primitive/markdown_type.php';
         break;
 
     case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
@@ -192,6 +201,10 @@ switch($primitiveType->getValue()) {
      */
     public function __toString()
     {
+<?php if (PrimitiveTypeEnum::BOOLEAN === $primitiveType->getValue()) : ?>
+        return $this->getValue() ? 'true' : 'false';
+<?php else : ?>
         return (string)$this->getValue();
+<?php endif; ?>
     }
 }<?php return ob_get_clean();

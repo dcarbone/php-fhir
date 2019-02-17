@@ -28,12 +28,12 @@ ob_start(); ?>
     /** null|\DateTime */
     private $dateTime = null;
 
-    const DATE_TIME_VALUE_REGEX                = // language=RegExp
+    const VALUE_REGEX                = // language=RegExp
         '([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?';
-    const DATE_TIME_FORMAT_YEAR                = 'Y';
-    const DATE_TIME_FORMAT_YEAR_MONTH          = 'Y-m';
-    const DATE_TIME_FORMAT_YEAR_MONTH_DAY      = 'Y-m-d';
-    const DATE_TIME_FORMAT_YEAR_MONTH_DAY_TIME = 'Y-m-d\\TH:i:s\\.uP';
+    const FORMAT_YEAR                = 'Y';
+    const FORMAT_YEAR_MONTH          = 'Y-m';
+    const FORMAT_YEAR_MONTH_DAY      = 'Y-m-d';
+    const FORMAT_YEAR_MONTH_DAY_TIME = 'Y-m-d\\TH:i:s\\.uP';
 
     /**
      * <?php echo $typeClassName; ?> Constructor
@@ -74,22 +74,22 @@ ob_start(); ?>
                 return null;
             }
             if (!$this->isValid()) {
-                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::DATE_TIME_VALUE_REGEX));
+                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::VALUE_REGEX));
             }
             switch(strlen($value)) {
                 case 4:
-                    $parsed = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR, $value);
+                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR, $value);
                     break;
                 case 7:
-                    $parsed = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH, $value);
+                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR_MONTH, $value);
                     break;
                 case 10:
-                    $parsed = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH_DAY, $value);
+                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR_MONTH_DAY, $value);
                     break;
 
                 default:
                     // TODO: better validation on this one...
-                    $parsed = \DateTime::createFromFormat(self::DATE_TIME_FORMAT_YEAR_MONTH_DAY_TIME, $value);
+                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR_MONTH_DAY_TIME, $value);
             }
             if (false === $parsed) {
                 throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
@@ -105,7 +105,7 @@ ob_start(); ?>
     public function isValid()
     {
         $value = $this->getValue();
-        return null === $value || is_string($value) && preg_match('/' . self::DATE_TIME_VALUE_REGEX . '/', $value);
+        return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);
     }
 
     /**

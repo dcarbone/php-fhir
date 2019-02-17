@@ -29,7 +29,7 @@ ob_start(); ?>
      * <?php echo $typeClassName; ?> Constructor
      * @param null|bool $value
      */
-    public function __construct($value)
+    public function __construct($value = null)
     {
         $this->setValue($value);
     }
@@ -47,6 +47,14 @@ ob_start(); ?>
             $this->value = (bool)$value;
         }
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        return true;
     }
 
     /**
