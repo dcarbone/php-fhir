@@ -55,7 +55,18 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
 
 <?php foreach($sortedProperties as $property) :
+    echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php';
+endforeach;?>
+<?php foreach($sortedProperties as $property) :
     echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php';
 endforeach;?>
+<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_constructor.php';?>
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->getValue();
+    }
 }
 <?php return ob_get_clean();

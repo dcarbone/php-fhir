@@ -17,12 +17,11 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 // localize logger so we don't have to call "$config->getLogger()" all over the place...
 $log = $config->getLogger();
@@ -53,20 +52,23 @@ echo "\n\n";
 // store so we can sort them before output
 $imports = [];
 
+$typeNS = $type->getFullyQualifiedNamespace(false);
+
 // determine if we need to import our parent type
 if ($parentType = $type->getParentType()) {
-    if ($parentType->getFullyQualifiedNamespace(false) !== $fqns) {
+    if ($parentType->getFullyQualifiedNamespace(false) !== $typeNS) {
         $imports[] = $parentType->getFullyQualifiedClassName(false);
     }
 }
 
-// next, figure out property types to import
-foreach ($type->getProperties()->getIterator() as $property) {
-    // we need only concern ourselves with type'd properties for now
-    if ($propertyType = $property->getValueFHIRType()) {
-        if ($propertyType->getFullyQualifiedNamespace(false) !== $fqns) {
-            $imports[] = $propertyType->getFullyQualifiedNamespace(false);
-        }
+foreach ($sortedProperties as $property) {
+    $type = $property->getValueFHIRType();
+    $ns = $type->getFullyQualifiedNamespace(false);
+    if ($ns === $typeNS) {
+        continue;
+    }
+    if (!in_array($ns, $imports, true)) {
+        $imports[] = $type->getFullyQualifiedClassName(false);
     }
 }
 

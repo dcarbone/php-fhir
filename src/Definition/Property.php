@@ -271,6 +271,24 @@ class Property
     /**
      * @return string
      */
+    public function getFieldConstantName()
+    {
+        $propName = $this->getName();
+        $constName = '';
+        for ($i = 0, $len = strlen($propName); $i < $len; $i++) {
+            $ord = ord($propName[$i]);
+            if (65 <= $ord && $ord <= 90) {
+                $constName .= "_{$propName[$i]}";
+            } else {
+                $constName .= strtoupper($propName[$i]);
+            }
+        }
+        return "FIELD_{$constName}";
+    }
+
+    /**
+     * @return string
+     */
     public function __toString()
     {
         if (isset($this->name)) {

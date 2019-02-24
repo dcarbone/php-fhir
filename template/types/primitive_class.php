@@ -30,6 +30,7 @@ $typeClassName = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
+$sortedProperties = $type->getProperties()->getSortedIterator();
 $classDocumentation = trim($type->getDocBlockDocumentationFragment(1, true));
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
