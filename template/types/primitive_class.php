@@ -30,67 +30,11 @@ $typeClassName = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
-$sortedProperties = $type->getProperties()->getSortedIterator();
-$classDocumentation = trim($type->getDocBlockDocumentationFragment(1));
+$classDocumentation = trim($type->getDocBlockDocumentationFragment(1, true));
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
 $primitiveType = $type->getPrimitiveType();
-
-switch($primitiveType->getValue()) {
-    case PrimitiveTypeEnum::STRING:
-    case PrimitiveTypeEnum::BOOLEAN:
-    case PrimitiveTypeEnum::INTEGER:
-        $phpValueType = (string)$primitiveType;
-        break;
-
-    case PrimitiveTypeEnum::DECIMAL:
-        $phpValueType = 'float';
-        break;
-
-    case PrimitiveTypeEnum::POSITIVE_INTEGER:
-    case PrimitiveTypeEnum::NEGATIVE_INTEGER:
-        $phpValueType = 'integer';
-        break;
-
-    case PrimitiveTypeEnum::UNSIGNED_INTEGER:
-        // TODO: utilize big number lib, maybe?
-        $phpValueType = 'string';
-        break;
-
-    case PrimitiveTypeEnum::DATE:
-    case PrimitiveTypeEnum::DATETIME:
-    case PrimitiveTypeEnum::TIME:
-    case PrimitiveTypeEnum::INSTANT:
-        $phpValueType = '\\DateTime';
-        break;
-
-    case PrimitiveTypeEnum::CODE:
-    case PrimitiveTypeEnum::OID:
-    case PrimitiveTypeEnum::CANONICAL:
-    case PrimitiveTypeEnum::URI:
-    case PrimitiveTypeEnum::URL:
-    case PrimitiveTypeEnum::ID:
-    case PrimitiveTypeEnum::UUID:
-        $phpValueType = 'string';
-        break;
-
-    case PrimitiveTypeEnum::BASE_64_BINARY:
-        // TODO: add content decoding?
-        $phpValueType = 'string';
-        break;
-
-    case PrimitiveTypeEnum::MARKDOWN:
-        // TODO: markdown lib, maybe?
-        $phpValueType = 'string';
-        break;
-
-    case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
-        $phpValueType = 'string';
-        break;
-
-    default:
-        throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
-}
+$phpValueType = $primitiveType->getPHPValueType();
 
 // begin output buffer
 ob_start();

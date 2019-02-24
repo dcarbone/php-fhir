@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use MyCLabs\Enum\Enum;
 
 /**
@@ -49,4 +50,58 @@ class PrimitiveTypeEnum extends Enum
     const BASE_64_BINARY   = 'base64Binary';
     const MARKDOWN         = 'markdown';
     const SAMPLE_DATA_TYPE = 'SampledDataDataType';
+
+    /**
+     * @return string
+     */
+    public function getPHPValueType()
+    {
+        switch ($v = $this->getValue()) {
+            case PrimitiveTypeEnum::STRING:
+            case PrimitiveTypeEnum::BOOLEAN:
+            case PrimitiveTypeEnum::INTEGER:
+                return $v;
+
+            case PrimitiveTypeEnum::DECIMAL:
+                return 'float';
+
+            case PrimitiveTypeEnum::POSITIVE_INTEGER:
+            case PrimitiveTypeEnum::NEGATIVE_INTEGER:
+                return 'integer';
+
+            case PrimitiveTypeEnum::UNSIGNED_INTEGER:
+                // TODO: utilize big number lib, maybe?
+                return 'string';
+
+            case PrimitiveTypeEnum::DATE:
+            case PrimitiveTypeEnum::DATETIME:
+            case PrimitiveTypeEnum::TIME:
+            case PrimitiveTypeEnum::INSTANT:
+                return '\\DateTime';
+
+            case PrimitiveTypeEnum::CODE:
+            case PrimitiveTypeEnum::OID:
+            case PrimitiveTypeEnum::CANONICAL:
+            case PrimitiveTypeEnum::URI:
+            case PrimitiveTypeEnum::URL:
+            case PrimitiveTypeEnum::ID:
+            case PrimitiveTypeEnum::UUID:
+                return 'string';
+
+            case PrimitiveTypeEnum::BASE_64_BINARY:
+                // TODO: add content decoding?
+                return 'string';
+
+            case PrimitiveTypeEnum::MARKDOWN:
+                // TODO: markdown lib, maybe?
+                return 'string';
+
+            case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
+                return 'string';
+                break;
+
+            default:
+                throw ExceptionUtils::createUnknownPrimitiveTypeException($this);
+        }
+    }
 }

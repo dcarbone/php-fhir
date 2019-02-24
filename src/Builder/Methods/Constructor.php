@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Builder\Methods;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 
 /**

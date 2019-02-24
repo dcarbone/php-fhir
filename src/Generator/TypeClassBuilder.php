@@ -16,16 +16,13 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Builder\Methods\Constructor;
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Builder\Methods\Constructor;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\JSONSerializeUtils;
 use DCarbone\PHPFHIR\Utilities\MethodUtils;
-use DCarbone\PHPFHIR\Utilities\NameUtils;
-use DCarbone\PHPFHIR\Utilities\NSUtils;
 use DCarbone\PHPFHIR\Utilities\PropertyUtils;
 use DCarbone\PHPFHIR\Utilities\XMLSerializeUtils;
 use DCarbone\PHPFHIR\Utilities\XMLUnserializeUtils;
@@ -36,37 +33,6 @@ use DCarbone\PHPFHIR\Utilities\XMLUnserializeUtils;
  */
 abstract class TypeClassBuilder
 {
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @return string
-     */
-    protected static function buildPrimitiveTypeClass(VersionConfig $config, Types $types, Type $type)
-    {
-        $out = PropertyUtils::buildClassPropertyDeclarations($config, $type);
-        $out .= "\n";
-        $out .= Constructor::buildHeader($config, $type);
-        $out .= Constructor::buildPrimitiveBody($config, $type);
-        $out .= "    }\n\n";
-        $out .= XMLUnserializeUtils::buildHeader($config, $type);
-        $out .= XMLUnserializeUtils::buildPrimitiveBody($config, $type);
-        $out .= "    }\n\n";
-        $valueProperty = $type->getProperties()->getProperty('value');
-        $out .= MethodUtils::createPrimitiveTypeValueSetter($config, $type, $valueProperty);
-        $out .= "\n";
-        $out .= MethodUtils::createDefaultGetter($config, $type, $valueProperty);
-        $out .= "\n";
-        $out .= MethodUtils::buildToString($config, $type);
-        $out .= "\n";
-        $out .= JSONSerializeUtils::buildHeader($config, $type);
-        $out .= JSONSerializeUtils::buildBody($config, $type);
-        $out .= "    }\n\n";
-        $out .= XMLSerializeUtils::buildHeader($config, $type);
-        $out .= XMLSerializeUtils::buildBody($config, $type);
-        return $out . "    }\n";
-    }
-
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
@@ -170,7 +136,9 @@ abstract class TypeClassBuilder
     {
         switch ($typeKind = $type->getKind()) {
             case TypeKindEnum::PRIMITIVE:
-                return require PHPFHIR_TEMPLATE_TYPES_DIR.'/primitive_class.php';
+                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_class.php';
+            case TypeKindEnum::PRIMITIVE_CONTAINER:
+                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_container_class.php';
 
             default:
 

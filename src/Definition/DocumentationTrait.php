@@ -25,7 +25,7 @@ namespace DCarbone\PHPFHIR\Definition;
 trait DocumentationTrait
 {
     /** @var null|array */
-    private $documentation = null;
+    private $documentation = [];
 
     /**
      * @param string|array $documentation
@@ -33,25 +33,37 @@ trait DocumentationTrait
      */
     public function addDocumentationFragment($documentation)
     {
-        if (null !== $documentation) {
-            if (null === $this->documentation) {
-                $this->documentation = [];
-            }
-            if (is_string($documentation)) {
-                if (!in_array($documentation, $this->documentation, true)) {
-                    $this->documentation[] = $documentation;
-                }
-            } elseif (is_array($documentation)) {
-                foreach ($documentation as $doc) {
-                    $this->addDocumentationFragment($doc);
-                }
-            } else {
-                throw new \InvalidArgumentException(sprintf(
-                    'Documentation expected to be array, string, or null, "%s" seen',
-                    gettype($documentation)
-                ));
-            }
+        if (null === $documentation) {
+            return $this;
         }
+
+        $phrase = implode(' ', array_filter(array_map('trim', preg_split("/[\r\n]+/", $documentation))));
+        if ('' === $phrase) {
+            return $this;
+        }
+
+        $words = array_filter(explode(' ', $phrase));
+        $bit = '';
+        $bitLen = 0;
+        foreach ($words as $word) {
+            $wordLen = strlen($word);
+            if (($bitLen + $wordLen + 1) > PHPFHIR_DOCBLOC_MAX_LENGTH) {
+                if (!in_array($bit, $this->documentation, true)) {
+                    $this->documentation[] = $bit;
+                }
+                $bit = '';
+            }
+            if ('' === $bit) {
+                $bit = $word;
+            } else {
+                $bit = "{$bit} {$word}";
+            }
+            $bitLen = strlen($bit);
+        }
+        if (!in_array($bit, $this->documentation, true)) {
+            $this->documentation[] = $bit;
+        }
+
         return $this;
     }
 
@@ -70,50 +82,21 @@ trait DocumentationTrait
     {
         return implode("\n", $this->getDocumentation());
     }
-//    /**
-//     * @param string $documentation
-//     * @return static
-//     */
-//    public function setDocumentation($documentation)
-//    {
-//        if (null !== $documentation) {
-//            $t = gettype($documentation);
-//            if ('string' === $t) {
-//                return $this->addDocumentationFragment($documentation);
-//            } else if ('array' === $t) {
-//                return $this->add
-//            }
-//            if (is_string($documentation)) {
-//                $documentation = [$documentation];
-//            }
-//
-//            if (is_array($documentation)) {
-//                $this->documentation = $documentation;
-//            } else {
-//                throw new \InvalidArgumentException('Documentation expected to be array, string, or null.');
-//            }
-//        }
-//        return $this;
-
-//    }
 
     /**
      * @param int $spaces
      * @param bool $trailingNewline
      * @return string
      */
-    public function getDocBlockDocumentationFragment($spaces = 5, $trailingNewline = true)
+    public function getDocBlockDocumentationFragment($spaces, $trailingNewline)
     {
-        $output = '';
+        $pieces = [];
         $spaces = str_repeat(' ', $spaces);
         if (isset($this->documentation)) {
             foreach ($this->documentation as $i => $doc) {
-                if ($i > 0) {
-                    $output .= "\n";
-                }
-                $output = sprintf("%s%s* %s", $output, $spaces, $doc);
+                $pieces[] = "{$spaces}* {$doc}";
             }
         }
-        return $trailingNewline ? "{$output}\n" : $output;
+        return implode("\n", $pieces) . ($trailingNewline ? "\n" : '');
     }
 }
