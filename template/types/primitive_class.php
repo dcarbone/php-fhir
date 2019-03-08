@@ -74,8 +74,12 @@ switch($primitiveType->getValue()) {
     case PrimitiveTypeEnum::INTEGER:
     case PrimitiveTypeEnum::POSITIVE_INTEGER:
     case PrimitiveTypeEnum::NEGATIVE_INTEGER:
-    case PrimitiveTypeEnum::UNSIGNED_INTEGER:
         echo require __DIR__ . '/primitive/integer_type.php';
+        break;
+
+    // treat uint64's as strings for the moment.
+    case PrimitiveTypeEnum::UNSIGNED_INTEGER:
+        echo require __DIR__ . '/primitive/unsigned_integer_type.php';
         break;
 
     case PrimitiveTypeEnum::DECIMAL:

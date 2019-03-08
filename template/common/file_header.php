@@ -50,37 +50,37 @@ echo "\n\n";
 // next, begin use statement compilation
 
 // store so we can sort them before output
-$imports = [];
+$classImports = [];
 
 $typeNS = $type->getFullyQualifiedNamespace(false);
 
 // determine if we need to import our parent type
 if ($parentType = $type->getParentType()) {
     if ($parentType->getFullyQualifiedNamespace(false) !== $typeNS) {
-        $imports[] = $parentType->getFullyQualifiedClassName(false);
+        $classImports[] = $parentType->getFullyQualifiedClassName(false);
     }
 }
 
 foreach ($sortedProperties as $property) {
-    $type = $property->getValueFHIRType();
-    $ns = $type->getFullyQualifiedNamespace(false);
-    if ($ns === $typeNS) {
+    $propertyType = $property->getValueFHIRType();
+    $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
+    if ($propertyTypeNS === $typeNS) {
         continue;
     }
-    if (!in_array($ns, $imports, true)) {
-        $imports[] = $type->getFullyQualifiedClassName(false);
+    if (!in_array($propertyTypeNS, $classImports, true)) {
+        $classImports[] = $propertyType->getFullyQualifiedClassName(false);
     }
 }
 
 // finally, sort and then print the imports
-$imports = array_unique($imports);
-natcasesort($imports);
+$classImports = array_unique($classImports);
+natcasesort($classImports);
 
-foreach ($imports as $import) {
+foreach ($classImports as $import) {
     echo "use {$import};\n";
 }
 
-if (0 < count($imports)) {
+if (0 < count($classImports)) {
     echo "\n";
 }
 

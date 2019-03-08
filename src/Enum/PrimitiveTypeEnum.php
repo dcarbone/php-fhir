@@ -77,8 +77,6 @@ class PrimitiveTypeEnum extends Enum
             case PrimitiveTypeEnum::DATETIME:
             case PrimitiveTypeEnum::TIME:
             case PrimitiveTypeEnum::INSTANT:
-                return '\\DateTime';
-
             case PrimitiveTypeEnum::CODE:
             case PrimitiveTypeEnum::OID:
             case PrimitiveTypeEnum::CANONICAL:

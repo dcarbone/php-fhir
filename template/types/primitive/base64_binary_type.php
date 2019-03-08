@@ -26,7 +26,7 @@ ob_start(); ?>
 <?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
 
     /**
-     * @var null|<?php $primitiveType->getPHPValueType(); ?> $value
+     * @param null|<?php $primitiveType->getPHPValueType(); ?> $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */

@@ -31,6 +31,18 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
+    public static function createPrimitiveValuePropertyNotFound(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'Unable to locate Primitive Type Property "value" for Primitive Container Type "%s"',
+            $type->getFHIRName()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
     public static function createUnknownTypeKindException(Type $type)
     {
         return new \DomainException(sprintf(

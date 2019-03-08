@@ -17,23 +17,34 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
 <?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
 
     /**
-     * @param null|<?php $primitiveType->getPHPValueType(); ?> $value
+     * @param null|integer|string
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function setValue($value = null)
+    public function setValue($value)
     {
         if (null === $value) {
             $this->value = null;
-        } else {
-            $this->value = (bool)$value;
+            return $this;
         }
+        if (is_int($value)) {
+            if (0 > $value) {
+                throw new \OutOfBoundsException(sprintf('Value must be >= 0, %d seen.', $value));
+            }
+            $value = (string)$value;
+        }
+        if (!is_string($value) || !ctype_digit($value)) {
+            throw new \InvalidArgumentException(sprintf('Value must be null, positive integer, or string representation of positive integer, "%s" seen.', gettype($value)));
+        }
+        if ('' === $value) {
+            $value = '0';
+        }
+        $this->value = $value;
         return $this;
     }
 
@@ -42,7 +53,11 @@ ob_start(); ?>
      */
     public function isValid()
     {
-        return true;
+        $value = $this->getValue();
+        if (null === $value) {
+            return true;
+        }
+        return is_string($value) && ctype_digit($value);
     }
 
 <?php return ob_get_clean();

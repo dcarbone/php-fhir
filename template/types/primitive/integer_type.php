@@ -31,7 +31,7 @@ ob_start(); ?>
 <?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
 
     /**
-     * @var null|integer|string $value
+     * @param null|integer|string $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -39,9 +39,21 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
+            return $this;
         }
-        if (is_string($value) && ctype_digit($value)) {
-            $value = (int)$value;
+        if (is_string($value)) {
+            if ('' === $value) {
+                $value = 0;
+            } else {
+                $neg = 1;
+                if ('-' === $value[0]) {
+                    $neg = -1;
+                    $value = substr($value, 1);
+                }
+                if (ctype_digit($value)) {
+                    $value = $neg * (int)$value;
+                }
+            }
         }
         if (!is_int($value)) {
             throw new \InvalidArgumentException(sprintf('Value must be null, integer, or string containing only numbers, %s seen.', $value));
@@ -63,8 +75,6 @@ ob_start(); ?>
         return 0 < $value && $value <= self::INT_MAX;
 <?php elseif (PrimitiveTypeEnum::NEGATIVE_INTEGER === $primitiveTypeString) : ?>
         return 0 > $value && $value >= self::INT_MIN;
-<?php elseif (PrimitiveTypeEnum::UNSIGNED_INTEGER === $primitiveTypeString) : ?>
-        return 0 <= $value && $value <= self::INT_MAX;
 <?php else : ?>
         return self::INT_MIN <= $value && $value <= self::INT_MAX;
 <?php endif; ?>

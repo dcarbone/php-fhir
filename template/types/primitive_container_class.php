@@ -55,11 +55,14 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 
 <?php foreach($sortedProperties as $property) :
     echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php';
-endforeach;?>
-<?php foreach($sortedProperties as $property) :
+endforeach;
+
+foreach($sortedProperties as $property) :
     echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php';
-endforeach;?>
-<?php //echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_constructor.php';?>
+endforeach;
+
+echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container_types.php'; ?>
+
     /**
      * @return string
      */
