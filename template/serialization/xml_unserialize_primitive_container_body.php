@@ -16,26 +16,15 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 ob_start(); ?>
-<?php foreach ($sortedProperties as $property) :
-    $propertyType = $property->getValueFHIRType();
-    $propertyTypeKind = $propertyType->getKind();
-    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER])) :
-        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_primitive.php';
-    else :
-        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_default.php';
-    endif;
-    if ($property->isCollection()) :
-        echo "\n";
-        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_collection.php';
-    endif; ?>
-
-<?php echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/getter_default.php'; ?>
-
-<?php endforeach;
-return ob_get_clean();
+        if (null !== ($v = $sxe->attributes()->value)) {
+            return $type->setValue((string)$v);
+        }
+        if ('' !== ($v = (string)$sxe->children()->value)) {
+            return $type->setValue($v);
+        }
+        return $type;
+<?php return ob_get_clean();

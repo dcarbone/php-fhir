@@ -67,6 +67,8 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 <?php echo trim(require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_methods.php', "\n"); ?>
 
 
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml_unserialize.php'; ?>
+
     /**
      * @return string
      */

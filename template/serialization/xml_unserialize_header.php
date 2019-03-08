@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
@@ -26,6 +25,7 @@ ob_start(); ?>
      * @param \SimpleXMLElement|string|null \$sxe
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
+
      */
     public static function xmlUnserialize($sxe = null, $type = null)
     {
@@ -46,7 +46,7 @@ ob_start(); ?>
         if (null !== $type) {
             if (!is_object($type) || !($type instanceof <?php echo $typeClassName; ?>)) {
                 throw new \RuntimeException(sprintf(
-                    '$type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
+                    '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
                     is_object($type) ? get_class($type) : gettype($type)
                 ));
             }

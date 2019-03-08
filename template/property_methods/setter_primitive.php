@@ -18,10 +18,9 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+/** @var \DCarbone\PHPFHIR\Definition\Type $propertyType */
 
 $propertyName = $property->getName();
-$propertyType = $property->getValueFHIRType();
-$propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 $propertyPrimitiveTypeKind = $propertyType->getPrimitiveType();
 $isCollection = $property->isCollection();
@@ -29,7 +28,8 @@ $isCollection = $property->isCollection();
 $methodName = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
 $documentation = $type->getDocBlockDocumentationFragment(5, true);
 
-ob_start(); ?>
+ob_start();
+?>
     /**
 <?php if ('' !== $documentation) : ?>
 <?php echo $documentation; ?>
@@ -53,4 +53,4 @@ ob_start(); ?>
         $this-><?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         return $this;
     }
-<? return ob_get_clean();
+<?php return ob_get_clean();
