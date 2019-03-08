@@ -20,23 +20,18 @@
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 ob_start(); ?>
-<?php foreach($sortedProperties as $property) :
+<?php foreach ($sortedProperties as $property) :
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
-    ?>
-    <?php if ($property->isCollection()) : ?>
-        <?php if ($propertyTypeKind->isPrimitiveContainer()) : ?>
-            <?php echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/collection_primitive_container.php'; ?>
-        <?php else : ?>
-            <?php echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/collection.php'; ?>
-        <?php endif; ?>
-    <?php else : ?>
-        <?php if ($propertyTypeKind->isPrimitiveContainer()) : ?>
-            <?php echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/single_primitive_container.php'; ?>
-        <?php else : ?>
-            <?php echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/single.php'; ?>
-        <?php endif; ?>
-    <?php endif; ?>
+    if ($propertyTypeKind->isPrimitiveContainer()) :
+        echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/primitive_container_setter.php';
+    else :
+        echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/default_setter.php';
+    endif;
+    if ($property->isCollection()) :
+        echo "\n";
+        echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/collection_setter.php';
+    endif; ?>
 
-<?php endforeach; ?>
-<?php return ob_get_clean();
+<?php endforeach;
+return ob_get_clean();

@@ -63,9 +63,11 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 
 <?php endforeach; ?>
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container_types.php'; ?>
+<?php echo trim(require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container_types.php', "\n"); ?>
 
-<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_setters.php'; ?>
+
+<?php echo trim(require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_setters.php', "\n"); ?>
+
 
     /**
      * @return string

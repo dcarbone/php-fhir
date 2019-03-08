@@ -27,23 +27,6 @@ $propertyTypeClassName = $propertyType->getClassName();
 ob_start(); ?>
     /**
 <?php if ('' !== $documentation) : ?>
-     <?php echo $documentation; ?>
-     *
-     *<?php endif; ?>
-
-     * @param <?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
-
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
-     */
-    public function add<?php echo ucfirst($propertyName); ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?><?php echo $isCollection ? '' : ' = null'; ?>)
-    {
-        $this-><?php echo $propertyName; ?>[] = $<?php echo $propertyName; ?>;
-        return $this;
-    }
-
-    /**
-<?php if ('' !== $documentation) : ?>
      *<?php echo $documentation; ?>
      *<?php endif; ?>
 

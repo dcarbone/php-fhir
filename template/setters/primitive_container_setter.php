@@ -36,41 +36,22 @@ ob_start(); ?>
      *
      *<?php endif; ?>
 
-     * @param <?php echo $isCollection ? '' : 'null|'; ?><?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
+     * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
 
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function <?php echo $methodName; ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?><?php echo $isCollection ? '' : ' = null'; ?>)
+    public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null)
     {
-        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
-        return $this;
-    }<?php if ($isCollection) : ?>
-
-    /**
-<?php if ('' !== $documentation) : ?>
-     *<?php echo $documentation; ?>
-     *<?php endif; ?>
-
-     * @param <?php echo $propertyType->getFullyQualifiedClassName(true); ?>[] $<?php echo $propertyName; ?>
-
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
-     */
-    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [])
-    {
-        $this-><?php echo $propertyName; ?> = [];
-        if ([] === $<?php echo $propertyName; ?>) {
+        if (null === $<?php echo $propertyName; ?>) {
+            $this-><?php echo $propertyName; ?> = null;
             return $this;
         }
-        foreach($<?php echo $propertyName; ?> as $v) {
-            if ($v instanceof <?php echo $propertyType->getClassName(); ?>) {
-                $this-><?php echo $methodName; ?>($v);
-            } else {
-                $this-><?php echo $methodName; ?>(new <?php echo $propertyTypeClassName; ?>($v));
-            }
+        if ($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>) {
+            $this-><?php echo $propertyName; ?> = $<?php echo $propertyName; ?>;
+            return $this;
         }
+        $this-><?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
+        return $this;
     }
-<?php endif; ?>
-
-<?php return ob_get_clean();
+<? return ob_get_clean();
