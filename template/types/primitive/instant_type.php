@@ -16,13 +16,8 @@
  * limitations under the License.
  */
 
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $fhirName */
-/** @var string $typeClassName */
 
 ob_start(); ?>
     /** @var null|\DateTime */
@@ -32,14 +27,7 @@ ob_start(); ?>
         '([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))';
     const FORMAT_INSTANT = 'Y-m-d\\TH:i:s\\.uP';
 
-    /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|string $value
-     */
-    public function __construct($value = null)
-    {
-        $this->setValue($value);
-    }
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
 
     /**
      * @var null|string $value
@@ -48,13 +36,13 @@ ob_start(); ?>
      */
     public function setValue($value)
     {
+        $this->dateTime = null;
         if (null === $value) {
-            $this->value = $this->dateTime = null;
+            $this->value = null;
             return $this;
         }
         if (is_string($value)) {
             $this->value = $value;
-            $this->dateTime = null;
             return $this;
         }
         throw new \InvalidArgumentException(sprintf('Value must be null, string of proper format, or instance of \\DateTime, %s seen.', gettype($value)));
@@ -89,14 +77,6 @@ ob_start(); ?>
     {
         $value = $this->getValue();
         return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getValue()
-    {
-        return $this->value;
     }
 
 <?php return ob_get_clean();

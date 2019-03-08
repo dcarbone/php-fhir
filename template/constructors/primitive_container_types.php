@@ -16,22 +16,13 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
-
-$primitiveTypeString = (string)$primitiveType;
+/** @var string $typeClassName */
 
 ob_start(); ?>
     /**
-     * @return mixed
-     */
-    public function jsonSerialize()
-    {
-        return $this->getValue();
-    }
+     * <?php echo $typeClassName; ?> Constructor
+     * @param null|
 <?php return ob_get_clean();

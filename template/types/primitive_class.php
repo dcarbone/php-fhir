@@ -140,7 +140,17 @@ switch($primitiveType->getValue()) {
 }
 ?>
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR.'/xml_primitive_types.php'; ?>
+
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR.'/json_primitive_types.php'; ?>
+
+    /**
+     * @return null|<?php $primitiveType->getPHPValueType(); ?>
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
     /**
      * @return string
      */

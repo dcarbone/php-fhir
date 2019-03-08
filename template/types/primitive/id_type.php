@@ -16,27 +16,15 @@
  * limitations under the License.
  */
 
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $fhirName */
-/** @var string $typeClassName */
 
 ob_start(); ?>
     const VALUE_REGEX = // language=RegEx
         '[A-Za-z0-9\-\.]{1,64}';
     const MAX_BYTES  = 1048576;
 
-    /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|string $value
-     */
-    public function __construct($value = null)
-    {
-        $this->setValue($value);
-    }
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
 
     /**
      * @var null|string $value
@@ -62,14 +50,6 @@ ob_start(); ?>
     {
         $value = $this->getValue();
         return null === $value || (strlen($value) <= self::MAX_BYTES && preg_match('/'.self::VALUE_REGEX.'/', $value));
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getValue()
-    {
-        return $this->value;
     }
 
 <?php return ob_get_clean();

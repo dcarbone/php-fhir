@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
@@ -60,7 +59,7 @@ endforeach;?>
 <?php foreach($sortedProperties as $property) :
     echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php';
 endforeach;?>
-<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_constructor.php';?>
+<?php //echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_constructor.php';?>
     /**
      * @return string
      */

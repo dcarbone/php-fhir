@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
@@ -32,17 +31,35 @@ ob_start(); ?>
      */
     public function __construct(array $data = [])
     {
-        if (0 === count($data)) {
+        if ([] === $data) {
             return;
         }
 <?php foreach($sortedProperties as $property) :
+    $isCollection = $property->isCollection();
     $propName = $property->getName();
     $const = $property->getFieldConstantName();
     $propType = $property->getValueFHIRType();
+    $propTypeKind = $propType->getKind();
     $propTypeClassname = $propType->getClassName();
-    $setter = 'set'.ucfirst($propName); ?>
+    $setter = ($isCollection ? 'add' : 'set').ucfirst($propName);?>
         if (isset($data[self::<?php echo $const; ?>])) {
-            $this-><?php echo $propName; ?> = $this-><?php echo $setter; ?>($data[self::<?php echo $const; ?>]);
+<?php if ($propTypeKind->is(TypeKindEnum::PRIMITIVE)) : ?>
+            if (is_scalar($data[
+<?php elseif ($propTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) : ?>
+
+<?php else : ?>
+<?php if ($isCollection): ?>
+            if (is_array($data[self::<?php echo $const; ?>])) {
+                foreach($data[self::<?php echo $const; ?>] as $item) {
+                    $this-><?php echo $setter; ?>($item);
+                }
+            } else {
+                $this-><?php echo $setter; ?>($data[self::<?php echo $const; ?>]);
+            }
+<?php else : ?>
+            $this-><?php echo $setter; ?>($data[self::<?php echo $const; ?>]);
+<?php endif; ?>
+<? endif; ?>
         }
 <?php endforeach; ?>
     }

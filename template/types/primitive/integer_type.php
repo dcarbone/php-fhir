@@ -16,17 +16,11 @@
  * limitations under the License.
  */
 
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $fhirName */
-/** @var string $typeClassName */
 
 $primitiveTypeString = (string)$primitiveType;
 
@@ -34,14 +28,7 @@ ob_start(); ?>
     const INT_MAX = 2147483648;
     const INT_MIN = -2147483648;
 
-    /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|integer|string $value
-     */
-    public function __construct($value = null)
-    {
-        $this->setValue($value);
-    }
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
 
     /**
      * @var null|integer|string $value
@@ -61,14 +48,6 @@ ob_start(); ?>
         }
         $this->value = $value;
         return $this;
-    }
-
-    /**
-     * @return null|integer
-     */
-    public function getValue()
-    {
-        return $this->value;
     }
 
     /**

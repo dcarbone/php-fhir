@@ -46,5 +46,4 @@ echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR.'/xml_unserialize_header.php';
         $sxe->addAttribute('value', (string)$this);
         return $returnSXE ? $sxe : $sxe->saveXML();
     }
-
 <?php return ob_get_clean();

@@ -16,13 +16,8 @@
  * limitations under the License.
  */
 
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $fhirName */
-/** @var string $typeClassName */
 
 ob_start(); ?>
     /** null|\DateTime */
@@ -34,29 +29,22 @@ ob_start(); ?>
     const FORMAT_YEAR_MONTH     = 'Y-m';
     const FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
 
-    /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|string $value
-     */
-    public function __construct($value = null)
-    {
-        $this->setValue($value);
-    }
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
 
     /**
-     * @var null|string $value
+     * @var null|<?php $primitiveType->getPHPValueType(); ?> $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
     public function setValue($value)
     {
+        $this->dateTime = null;
         if (null === $value) {
-            $this->value = $this->dateTime = null;
+            $this->value = null;
             return $this;
         }
         if (is_string($value)) {
             $this->value = $value;
-            $this->dateTime = null;
             return $this;
         }
         throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen.', gettype($value)));
@@ -104,14 +92,6 @@ ob_start(); ?>
     {
         $value = $this->getValue();
         return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getValue()
-    {
-        return $this->value;
     }
 
 <?php return ob_get_clean();

@@ -16,26 +16,14 @@
  * limitations under the License.
  */
 
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $fhirName */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|bool $value
-     */
-    public function __construct($value = null)
-    {
-        $this->setValue($value);
-    }
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
 
     /**
-     * @var null|bool $value
+     * @var null|<?php $primitiveType->getPHPValueType(); ?> $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -55,14 +43,6 @@ ob_start(); ?>
     public function isValid()
     {
         return true;
-    }
-
-    /**
-     * @return null|bool
-     */
-    public function getValue()
-    {
-        return $this->value;
     }
 
 <?php return ob_get_clean();
