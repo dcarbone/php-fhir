@@ -21,5 +21,4 @@
 
 ob_start(); ?>
     const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-
 <?php return ob_get_clean();

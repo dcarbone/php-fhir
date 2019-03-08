@@ -16,23 +16,31 @@
  * limitations under the License.
  */
 
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$isCollection = $property->isCollection();
-$propType = $property->getValueFHIRType();
-$typeDocumentation = $propType->getDocBlockDocumentationFragment(5, false);
+$propertyName = $property->getName();
+$propertyType = $property->getValueFHIRType();
+$propertyTypeKind = $propertyType->getKind();
+$propertyTypeClassName = $propertyType->getClassName();
+
+$documentation = trim($type->getDocBlockDocumentationFragment(5, false));
 
 ob_start(); ?>
     /**
-<?php if ('' !== $typeDocumentation) : ?>
-     *<?php echo $typeDocumentation; ?>
-<?php endif; ?>
-     * @var null|<?php echo $propType->getFullyQualifiedClassName(true); ?>
+<?php if ('' !== $documentation) : ?>
+     <?php echo $documentation; ?>
+     *
+     *<?php endif; ?>
+
+     * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
+
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    private $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
+    public function set<?php echo ucfirst($propertyName); ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
+    {
+        $this-><?php echo $propertyName; ?> = $<?php echo $propertyName; ?>;
+        return $this;
+    }
 <?php return ob_get_clean();

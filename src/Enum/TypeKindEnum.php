@@ -84,6 +84,14 @@ class TypeKindEnum extends Enum
     /**
      * @return bool
      */
+    public function isPrimitiveContainer()
+    {
+        return $this->is(TypeKindEnum::PRIMITIVE_CONTAINER);
+    }
+
+    /**
+     * @return bool
+     */
     public function isList()
     {
         return $this->is(self::_LIST);

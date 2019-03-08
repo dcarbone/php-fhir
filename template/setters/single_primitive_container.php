@@ -1,0 +1,76 @@
+<?php
+
+/*
+ * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$propertyName = $property->getName();
+$propertyType = $property->getValueFHIRType();
+$propertyTypeKind = $propertyType->getKind();
+$propertyTypeClassName = $propertyType->getClassName();
+$propertyPrimitiveTypeKind = $propertyType->getPrimitiveType();
+$isCollection = $property->isCollection();
+
+$methodName = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
+$documentation = trim($type->getDocBlockDocumentationFragment(5, false));
+
+ob_start(); ?>
+    /**
+<?php if ('' !== $documentation) : ?>
+     <?php echo $documentation; ?>
+     *
+     *<?php endif; ?>
+
+     * @param <?php echo $isCollection ? '' : 'null|'; ?><?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
+
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
+
+     */
+    public function <?php echo $methodName; ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?><?php echo $isCollection ? '' : ' = null'; ?>)
+    {
+        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
+        return $this;
+    }<?php if ($isCollection) : ?>
+
+    /**
+<?php if ('' !== $documentation) : ?>
+     *<?php echo $documentation; ?>
+     *<?php endif; ?>
+
+     * @param <?php echo $propertyType->getFullyQualifiedClassName(true); ?>[] $<?php echo $propertyName; ?>
+
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
+
+     */
+    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [])
+    {
+        $this-><?php echo $propertyName; ?> = [];
+        if ([] === $<?php echo $propertyName; ?>) {
+            return $this;
+        }
+        foreach($<?php echo $propertyName; ?> as $v) {
+            if ($v instanceof <?php echo $propertyType->getClassName(); ?>) {
+                $this-><?php echo $methodName; ?>($v);
+            } else {
+                $this-><?php echo $methodName; ?>(new <?php echo $propertyTypeClassName; ?>($v));
+            }
+        }
+    }
+<?php endif; ?>
+
+<?php return ob_get_clean();

@@ -53,15 +53,19 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
 
-<?php foreach($sortedProperties as $property) :
-    echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php';
-endforeach;
+<?php foreach($sortedProperties as $property) : ?>
+    <?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php'; ?>
 
-foreach($sortedProperties as $property) :
-    echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php';
-endforeach;
+<?php endforeach; ?>
 
-echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container_types.php'; ?>
+<?php foreach($sortedProperties as $property) : ?>
+    <?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php'; ?>
+
+<?php endforeach; ?>
+
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container_types.php'; ?>
+
+<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_setters.php'; ?>
 
     /**
      * @return string

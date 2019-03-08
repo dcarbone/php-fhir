@@ -58,4 +58,5 @@ ob_start(); ?>
     echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call.php';
 endforeach; ?>
     }
+
 <?php return ob_get_clean();

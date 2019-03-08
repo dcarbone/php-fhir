@@ -24,6 +24,7 @@ $propertyName = $property->getName();
 $propertyFieldConst = $property->getFieldConstantName();
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
+$propertyTypeClassName = $propertyType->getClassName();
 $setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
 
 ob_start(); ?>
@@ -31,22 +32,22 @@ ob_start(); ?>
 <?php if ($isCollection) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $item) {
-                    if ($item instanceof <?php echo $propertyType->getClassName(); ?>) {
+                    if ($item instanceof <?php echo $propertyTypeClassName; ?>) {
                         $this-><?php echo $setter; ?>($item);
                     } else {
-                        $this-><?php echo $setter; ?>(new <?php echo $propertyType->getClassName(); ?>($item));
+                        $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($item));
                     }
                 }
-            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyType->getClassName(); ?>) {
+            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
             } else {
-                $this-><?php echo $setter; ?>(new <?php echo $propertyType->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
+                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
 <?php else : ?>
-            if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyType->getClassName(); ?>) {
+            if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
             } else {
-                $this-><?php echo $setter; ?>(new <?php echo $propertyType->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
+                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
 <?php endif; ?>
         }
