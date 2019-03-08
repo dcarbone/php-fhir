@@ -27,13 +27,12 @@ $propertyPrimitiveTypeKind = $propertyType->getPrimitiveType();
 $isCollection = $property->isCollection();
 
 $methodName = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
-$documentation = trim($type->getDocBlockDocumentationFragment(5, false));
+$documentation = $type->getDocBlockDocumentationFragment(5, true);
 
 ob_start(); ?>
     /**
 <?php if ('' !== $documentation) : ?>
-     <?php echo $documentation; ?>
-     *
+<?php echo $documentation; ?>
      *<?php endif; ?>
 
      * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>

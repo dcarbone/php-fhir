@@ -24,14 +24,16 @@ ob_start(); ?>
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     if ($propertyTypeKind->isPrimitiveContainer()) :
-        echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/primitive_container_setter.php';
+        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_primitive_container.php';
     else :
-        echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/default_setter.php';
+        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_default.php';
     endif;
     if ($property->isCollection()) :
         echo "\n";
-        echo require PHPFHIR_TEMPLATE_SETTERS_DIR . '/collection_setter.php';
+        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_collection.php';
     endif; ?>
+
+<?php echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/getter_default.php'; ?>
 
 <?php endforeach;
 return ob_get_clean();

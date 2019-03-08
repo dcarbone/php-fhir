@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-// define some common things
+// define some common things9
 $fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassName = $type->getClassName();
 $typeKind = $type->getKind();
@@ -54,19 +54,17 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
 
 <?php foreach($sortedProperties as $property) : ?>
-    <?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php'; ?>
 
 <?php endforeach; ?>
-
 <?php foreach($sortedProperties as $property) : ?>
-    <?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php'; ?>
 
 <?php endforeach; ?>
-
 <?php echo trim(require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container_types.php', "\n"); ?>
 
 
-<?php echo trim(require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_setters.php', "\n"); ?>
+<?php echo trim(require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_methods.php', "\n"); ?>
 
 
     /**

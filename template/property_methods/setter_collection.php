@@ -24,10 +24,12 @@ $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 
+$documentation = $type->getDocBlockDocumentationFragment(5, true);
+
 ob_start(); ?>
     /**
 <?php if ('' !== $documentation) : ?>
-     *<?php echo $documentation; ?>
+<?php echo $documentation; ?>
      *<?php endif; ?>
 
      * @param <?php echo $propertyType->getFullyQualifiedClassName(true); ?>[] $<?php echo $propertyName; ?>

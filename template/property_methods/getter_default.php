@@ -24,23 +24,19 @@ $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 
-$documentation = trim($type->getDocBlockDocumentationFragment(5, false));
+$documentation = $type->getDocBlockDocumentationFragment(5, true);
 
 ob_start(); ?>
     /**
 <?php if ('' !== $documentation) : ?>
-     <?php echo $documentation; ?>
-     *
+<?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
-
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
+     * @return null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?>
 
      */
-    public function set<?php echo ucfirst($propertyName); ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
+    public function get<?php echo ucfirst($propertyName); ?>()
     {
-        $this-><?php echo $propertyName; ?> = $<?php echo $propertyName; ?>;
-        return $this;
+        return $this-><?php echo $propertyName; ?>;
     }
 <?php return ob_get_clean();
