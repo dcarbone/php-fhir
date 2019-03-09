@@ -38,8 +38,8 @@ ob_start();
 echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/file_header.php';
 
 // build class header ?>
-/**
-<?php if ('' !== $classDocumentation) : ?>
+/**<?php if ('' !== $classDocumentation) : ?>
+
 <?php echo $classDocumentation; ?>
  *<?php endif; ?>
 

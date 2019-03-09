@@ -30,8 +30,8 @@ $isCollection = $property->isCollection();
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
 ob_start(); ?>
-    /**
-<?php if ('' !== $documentation) : ?>
+    /**<?php if ('' !== $documentation) : ?>
+
 <?php echo $documentation; ?>
      *<?php endif; ?>
 

@@ -32,8 +32,8 @@ $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, 
 
 ob_start();
 ?>
-    /**
-<?php if ('' !== $documentation) : ?>
+    /**<?php if ('' !== $documentation) : ?>
+
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
