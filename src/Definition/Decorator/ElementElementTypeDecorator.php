@@ -64,7 +64,7 @@ class ElementElementTypeDecorator
         foreach ($element->children('xs', true) as $child) {
             switch ($child->getName()) {
                 case ElementTypeEnum::ANNOTATION:
-                    AnnotationElementTypeDecorator::decorate($config, $types, $type, $child);
+                    AnnotationElementPropertyTypeDecorator::decorate($config, $types, $type, $property, $child);
                     break;
 
                 default:

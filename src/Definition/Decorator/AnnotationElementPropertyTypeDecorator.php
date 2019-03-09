@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition\Decorator;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
@@ -29,15 +30,20 @@ use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
  * Class AnnotationElementTypeDecorator
  * @package DCarbone\PHPFHIR\Definition\Decorator
  */
-abstract class AnnotationElementTypeDecorator
+abstract class AnnotationElementPropertyTypeDecorator
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @param \SimpleXMLElement $annotation
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $annotation)
+    public static function decorate(VersionConfig $config,
+                                    Types $types,
+                                    Type $type,
+                                    Property $property,
+                                    \SimpleXMLElement $annotation)
     {
         // parse through attributes
         foreach ($annotation->attributes() as $attribute) {
@@ -52,7 +58,7 @@ abstract class AnnotationElementTypeDecorator
         foreach ($annotation->children('xs', true) as $child) {
             switch ($child->getName()) {
                 case ElementTypeEnum::DOCUMENTATION:
-                    TypeBuilderUtils::setTypeStringFromElementValue($type, $annotation, $child, 'addDocumentationFragment');
+                    TypeBuilderUtils::setPropertyStringFromElementValue($property, $annotation, $child, 'addDocumentationFragment');
                     break;
                 case ElementTypeEnum::COMPLEX_CONTENT:
                     ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);

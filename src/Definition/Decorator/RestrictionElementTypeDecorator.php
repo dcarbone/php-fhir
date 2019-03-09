@@ -57,16 +57,16 @@ abstract class RestrictionElementTypeDecorator
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
                 case ElementTypeEnum::PATTERN:
-                    TypeBuilderUtils::setStringFromElementAttribute($type, $child, 'setPattern');
+                    TypeBuilderUtils::setTypeStringFromElementAttribute($type, $child, 'setPattern');
                     break;
 
                 case ElementTypeEnum::MIN_LENGTH:
                 case ElementTypeEnum::MAX_LENGTH:
-                    TypeBuilderUtils::setIntegerFromElementAttribute($type, $child, 'set' . $child->getName());
+                    TypeBuilderUtils::setTypeIntegerFromElementAttribute($type, $child, 'set' . $child->getName());
                     break;
 
                 case ElementTypeEnum::ENUMERATION:
-                    TypeBuilderUtils::addEnumeratedValue($type, $restriction, $child);
+                    TypeBuilderUtils::addTypeEnumeratedValue($type, $restriction, $child);
                     break;
 
                 default:

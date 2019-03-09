@@ -17,6 +17,8 @@
  */
 
 
+use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
+
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
@@ -24,12 +26,12 @@
 
 $isCollection = $property->isCollection();
 $propType = $property->getValueFHIRType();
-$typeDocumentation = $propType->getDocBlockDocumentationFragment(5, true);
+$documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
 ob_start(); ?>
     /**
-<?php if ('' !== $typeDocumentation) : ?>
-<?php echo $typeDocumentation; ?>
+<?php if ('' !== $documentation) : ?>
+<?php echo $documentation; ?>
      *<?php endif; ?>
 
      * @var null|<?php echo $propType->getFullyQualifiedClassName(true); ?>

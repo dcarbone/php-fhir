@@ -71,7 +71,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
      */
     public function __toString()
     {
-        return (string)$this->getValue();
+        return self::FHIR_TYPE_NAME;
     }
 }
 <?php return ob_get_clean();

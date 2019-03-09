@@ -31,7 +31,6 @@ $typeKind = $type->getKind();
 $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
 $sortedProperties = $type->getProperties()->getSortedIterator();
-$classDocumentation = trim($type->getDocBlockDocumentationFragment(1, true));
 
 $primitiveType = $type->getPrimitiveType();
 $phpValueType = $primitiveType->getPHPValueType();
@@ -44,9 +43,6 @@ echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/file_header.php';
 
 // next, build class header ?>
 /**
-<?php if ('' !== $classDocumentation) : ?>
- *<?php echo $classDocumentation; ?>
- *<?php endif; ?>
  * Class <?php echo $typeClassName; ?>
 
  * @package <?php echo $fqns; ?>

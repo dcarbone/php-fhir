@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 /** @var \DCarbone\PHPFHIR\Definition\Type $propertyType */
@@ -26,7 +28,7 @@ $propertyPrimitiveTypeKind = $propertyType->getPrimitiveType();
 $isCollection = $property->isCollection();
 
 $methodName = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
-$documentation = $type->getDocBlockDocumentationFragment(5, true);
+$documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
 ob_start();
 ?>

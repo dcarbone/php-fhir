@@ -42,7 +42,7 @@ abstract class UnionElementTypeDecorator
         foreach ($union->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::MEMBER_TYPES:
-                    TypeBuilderUtils::setArrayFromAttribute($type, $union, $attribute, 'setUnionOf');
+                    TypeBuilderUtils::setTypeArrayFromAttribute($type, $union, $attribute, 'setUnionOf');
                     break;
 
                 default:

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -25,7 +27,7 @@ $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 $isCollection = $property->isCollection();
 
-$documentation = $type->getDocBlockDocumentationFragment(5, true);
+$documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
 ob_start(); ?>
     /**
