@@ -144,6 +144,7 @@ switch($primitiveType->getValue()) {
 
     /**
      * @return null|<?php $primitiveType->getPHPValueType(); ?>
+
      */
     public function getValue()
     {

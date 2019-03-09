@@ -21,6 +21,7 @@
 ob_start(); ?>
     /**
      * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
+
      */
     public function jsonSerialize()
     {
