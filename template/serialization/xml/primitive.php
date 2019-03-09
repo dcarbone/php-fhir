@@ -44,9 +44,7 @@ echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_header.php';
      */
     public function xmlSerialize($returnSXE = false, \SimpleXMLElement $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<<?php echo $xmlName; ?> xmlns="<?php echo PHPFHIR_FHIR_XMLNS; ?>"></<?php echo $xmlName; ?>>');
-        }
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_header.php'; ?>
         $sxe->addAttribute('value', (string)$this);
         return $returnSXE ? $sxe : $sxe->saveXML();
     }
