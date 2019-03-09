@@ -16,19 +16,20 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
+use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIr\Definition\Type $type */
 
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
-
-$primitiveTypeString = (string)$primitiveType;
+$valueProperty = $type->getProperties()->getProperty('value');
+if (null === $valueProperty) {
+    throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
+}
+$valuePropertyType = $valueProperty->getValueFHIRType();
 
 ob_start(); ?>
     /**
-     * @return mixed
+     * @return null|<?php echo $valuePropertyType->getFullyQualifiedClassName(true); ?>
+
      */
     public function jsonSerialize()
     {

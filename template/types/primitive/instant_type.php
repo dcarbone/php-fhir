@@ -27,7 +27,7 @@ ob_start(); ?>
         '([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))';
     const FORMAT_INSTANT = 'Y-m-d\\TH:i:s\\.uP';
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
 
     /**
      * @param null|string $value

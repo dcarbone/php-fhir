@@ -57,4 +57,6 @@ ob_start(); ?>
             $type = new <?php echo $typeClassName; ?>;
 <?php endif; ?>
         }
+        $attributes = $sxe->attributes();
+        $children = $sxe->children();
 <?php return ob_get_clean();

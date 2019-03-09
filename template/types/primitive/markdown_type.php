@@ -23,7 +23,7 @@ ob_start(); ?>
     const VALUE_REGEX = // language=RegEx
         '\s*(\S|\s)*';
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
 
     /**
      * @param null|string $value

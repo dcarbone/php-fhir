@@ -24,7 +24,7 @@ ob_start(); ?>
         '[^\s]+(\s[^\s]+)*';
     const MAX_BYTES  = 1048576;
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
 
     /**
      * @param null|<?php $primitiveType->getPHPValueType(); ?> $value

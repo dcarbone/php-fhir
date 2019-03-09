@@ -19,7 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 ob_start(); ?>
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
 
     /**
      * @param null|integer|string

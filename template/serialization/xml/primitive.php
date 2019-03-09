@@ -16,18 +16,19 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
+
+$xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start();
-echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR.'/xml_unserialize_header.php';
+echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_header.php';
 ?>
-        if (null !== ($v = $sxe->attributes()->value)) {
+        if (null !== ($v = $attributes->value)) {
             return $type->setValue((string)$v);
         }
-        if ('' !== ($v = (string)$sxe->children()->value)) {
+        if ('' !== ($v = (string)$children->value)) {
             return $type->setValue($v);
         }
         return $type;

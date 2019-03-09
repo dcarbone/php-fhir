@@ -23,7 +23,7 @@ ob_start(); ?>
     const VALUE_REGEX = // language=RegEx
         '(\s*([0-9a-zA-Z\+\=]){4}\s*)+';
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
 
     /**
      * @param null|<?php $primitiveType->getPHPValueType(); ?> $value

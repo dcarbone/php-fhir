@@ -61,13 +61,15 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 <?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php'; ?>
 
 <?php endforeach; ?>
-<?php echo trim(require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container_types.php', "\n"); ?>
+<?php echo trim(require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php', "\n"); ?>
 
 
 <?php echo trim(require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_methods.php', "\n"); ?>
 
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml_unserialize.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
+
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive_container.php'; ?>
 
     /**
      * @return string

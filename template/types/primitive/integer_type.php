@@ -28,7 +28,7 @@ ob_start(); ?>
     const INT_MAX = 2147483648;
     const INT_MIN = -2147483648;
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
 
     /**
      * @param null|integer|string $value

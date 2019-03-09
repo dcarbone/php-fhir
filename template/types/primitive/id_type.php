@@ -24,7 +24,7 @@ ob_start(); ?>
         '[A-Za-z0-9\-\.]{1,64}';
     const MAX_BYTES  = 1048576;
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
 
     /**
      * @param null|string $value

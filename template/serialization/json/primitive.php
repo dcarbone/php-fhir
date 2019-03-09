@@ -16,33 +16,14 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
-
     /**
-     * @param null|<?php $primitiveType->getPHPValueType(); ?> $value
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
      */
-    public function setValue($value = null)
+    public function jsonSerialize()
     {
-        if (null === $value) {
-            $this->value = null;
-        } else {
-            $this->value = (bool)$value;
-        }
-        return $this;
+        return $this->getValue();
     }
-
-    /**
-     * @return bool
-     */
-    public function isValid()
-    {
-        return true;
-    }
-
 <?php return ob_get_clean();

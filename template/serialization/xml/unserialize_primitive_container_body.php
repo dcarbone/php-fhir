@@ -16,21 +16,12 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
-
-ob_start();
-echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml_unserialize_header.php';
-if ($typeKind->isPrimitiveContainer()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml_unserialize_primitive_container_body.php';
-elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
-
-else :
-
-endif;
-?>
-
-    }
+ob_start(); ?>
+        if (isset($attributes->value)) {
+            return $type->setValue((string)$attributes->value);
+        }
+        if (isset($children->value)) {
+            return $type->setValue((string)$children->value);
+        }
+        return $type;
 <?php return ob_get_clean();

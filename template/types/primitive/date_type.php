@@ -29,7 +29,7 @@ ob_start(); ?>
     const FORMAT_YEAR_MONTH     = 'Y-m';
     const FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR.'/primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
 
     /**
      * @param null|<?php $primitiveType->getPHPValueType(); ?> $value

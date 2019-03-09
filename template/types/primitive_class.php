@@ -32,7 +32,6 @@ $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
 $sortedProperties = $type->getProperties()->getSortedIterator();
 $classDocumentation = trim($type->getDocBlockDocumentationFragment(1, true));
-$xmlName = NameUtils::getTypeXMLElementName($type);
 
 $primitiveType = $type->getPrimitiveType();
 $phpValueType = $primitiveType->getPHPValueType();
@@ -143,9 +142,9 @@ switch($primitiveType->getValue()) {
         throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
 }
 ?>
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR.'/xml_primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/primitive.php'; ?>
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR.'/json_primitive_types.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php'; ?>
 
     /**
      * @return null|<?php $primitiveType->getPHPValueType(); ?>

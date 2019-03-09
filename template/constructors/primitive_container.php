@@ -54,6 +54,7 @@ ob_start(); ?>
                 gettype($data)
             ));
         }
+        parent::__construct($data);
 <?php foreach ($sortedProperties as $property) :
     echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call.php';
 endforeach; ?>
