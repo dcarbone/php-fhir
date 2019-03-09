@@ -33,6 +33,7 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 
 ob_start();
 
+
 // build file header
 echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/file_header.php';
 
@@ -54,21 +55,16 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 
 <?php foreach($sortedProperties as $property) : ?>
 <?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php'; ?>
-
 <?php endforeach; ?>
+
 <?php foreach($sortedProperties as $property) : ?>
 <?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php'; ?>
 
 <?php endforeach; ?>
-<?php echo trim(require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php', "\n"); ?>
-
-
 <?php echo trim(require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_methods.php', "\n"); ?>
 
 
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
-
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive_container.php'; ?>
 
     /**
      * @return string

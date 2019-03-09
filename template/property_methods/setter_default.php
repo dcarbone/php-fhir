@@ -23,6 +23,7 @@ $propertyName = $property->getName();
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
+$isCollection = $property->isCollection();
 
 $documentation = $type->getDocBlockDocumentationFragment(5, true);
 
@@ -37,7 +38,7 @@ ob_start(); ?>
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function set<?php echo ucfirst($propertyName); ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
+    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
     {
         $this-><?php echo $propertyName; ?> = $<?php echo $propertyName; ?>;
         return $this;

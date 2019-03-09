@@ -139,6 +139,15 @@ abstract class TypeClassBuilder
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_class.php';
             case TypeKindEnum::PRIMITIVE_CONTAINER:
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_container_class.php';
+            case TypeKindEnum::RESOURCE_CONTAINER:
+
+            case TypeKindEnum::RESOURCE_INLINE:
+
+            case TypeKindEnum::ELEMENT:
+            case TypeKindEnum::RESOURCE:
+            case TypeKindEnum::DOMAIN_RESOURCE;
+            case TypeKindEnum::RESOURCE_COMPONENT:
+                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/default_class.php';
 
             default:
 

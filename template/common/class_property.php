@@ -24,13 +24,14 @@
 
 $isCollection = $property->isCollection();
 $propType = $property->getValueFHIRType();
-$typeDocumentation = $propType->getDocBlockDocumentationFragment(5, false);
+$typeDocumentation = $propType->getDocBlockDocumentationFragment(5, true);
 
 ob_start(); ?>
     /**
 <?php if ('' !== $typeDocumentation) : ?>
-     *<?php echo $typeDocumentation; ?>
-<?php endif; ?>
+<?php echo $typeDocumentation; ?>
+     *<?php endif; ?>
+
      * @var null|<?php echo $propType->getFullyQualifiedClassName(true); ?>
 
      */
