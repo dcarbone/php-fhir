@@ -42,7 +42,7 @@ ob_start(); ?>
      */
     public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
     {
-        $this-><?php echo $propertyName; ?> = $<?php echo $propertyName; ?>;
+        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
 <?php return ob_get_clean();

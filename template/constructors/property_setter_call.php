@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -43,7 +45,7 @@ ob_start(); ?>
             } else {
                 $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
-<?php elseif ($propertyTypeKind->isPrimitive()) : ?>
+<?php elseif ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
             $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
 <?php else : ?>
             if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {

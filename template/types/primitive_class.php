@@ -66,6 +66,7 @@ switch($primitiveType->getValue()) {
         echo require __DIR__ . '/primitive/bool_type.php';
         break;
 
+    // int types
     case PrimitiveTypeEnum::INTEGER:
     case PrimitiveTypeEnum::POSITIVE_INTEGER:
     case PrimitiveTypeEnum::NEGATIVE_INTEGER:
@@ -81,6 +82,7 @@ switch($primitiveType->getValue()) {
         echo require __DIR__ . '/primitive/decimal_type.php';
         break;
 
+    // date types
     case PrimitiveTypeEnum::DATE:
         echo require __DIR__ . '/primitive/date_type.php';
         break;
@@ -110,6 +112,7 @@ switch($primitiveType->getValue()) {
         echo require __DIR__.'/primitive/id_type.php';
         break;
 
+    // TODO: create specific URL type?
     case PrimitiveTypeEnum::CANONICAL:
     case PrimitiveTypeEnum::URL:
         echo require __DIR__ . '/primitive/string_type.php';
