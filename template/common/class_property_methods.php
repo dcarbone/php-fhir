@@ -38,4 +38,4 @@ ob_start(); ?>
 <?php echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/getter_default.php'; ?>
 
 <?php endforeach;
-return ob_get_clean();
+return substr(ob_get_clean(), 0, -1); // trim off final \n

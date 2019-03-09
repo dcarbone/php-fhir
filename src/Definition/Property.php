@@ -278,7 +278,11 @@ class Property
         for ($i = 0, $len = strlen($propName); $i < $len; $i++) {
             $ord = ord($propName[$i]);
             if (65 <= $ord && $ord <= 90) {
-                $constName .= "_{$propName[$i]}";
+                if ($i > 0) {
+                    $constName .= "_{$propName[$i]}";
+                } else {
+                    $constName .= $propName[$i];
+                }
             } else {
                 $constName .= strtoupper($propName[$i]);
             }

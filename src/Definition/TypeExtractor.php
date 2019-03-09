@@ -136,6 +136,19 @@ abstract class TypeExtractor
                     break;
 
                 case ElementTypeEnum::ELEMENT:
+                    /* TODO: this is producing some oddities as the result of things like this:
+                     * src: R4 bundle.xsd
+                     * <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://hl7.org/fhir" xmlns:xhtml="http://www.w3.org/1999/xhtml" targetNamespace="http://hl7.org/fhir" elementFormDefault="qualified" version="1.0">
+                     * <xs:element name="Bundle" type="Bundle">
+                     *
+                     * </xs:element>
+                     * <xs:complexType name="Bundle">
+                     *
+                     * </xs:complexType>
+                     *
+                     * this may be ignorable, but recording for posterity.
+                     */
+
                     $logger->debug(sprintf('Parsing "%s" from Element', $fhirName));
                     // build type
                     $type = new Type($config, $fhirName, $child, $sourceFile);

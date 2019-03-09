@@ -43,6 +43,8 @@ ob_start(); ?>
             } else {
                 $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
+<?php elseif ($propertyTypeKind->isPrimitive()) : ?>
+            $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
 <?php else : ?>
             if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);

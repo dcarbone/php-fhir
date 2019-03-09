@@ -16,49 +16,31 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 /** @var string $typeClassName */
 
-$valueProperty = $type->getProperties()->getProperty('value');
-if (null === $valueProperty) {
-    throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
-}
-
-$valuePrimitiveType =$valueProperty->getValueFHIRType();
-$valuePrimitiveTypeKind = $valuePrimitiveType->getPrimitiveType();
-
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|array|<?php echo $valuePrimitiveTypeKind->getPHPValueType(); ?> $data
+     * @param null|array $data
      */
     public function __construct($data = null)
     {
-        if (null === $data) {
-            return;
-        }
-        if ($data instanceof <?php echo $valuePrimitiveType->getClassName(); ?>) {
-            $this->setValue($data);
-            return;
-        }
-        if (is_scalar($data)) {
-            $this->setValue(new <?php echo $valuePrimitiveType->getClassName(); ?>($data));
+        if (null === $data || [] === $data) {
             return;
         }
         if (!is_array($data)) {
             throw new \InvalidArgumentException(sprintf(
-                '$data must be null, <?php echo $valuePrimitiveTypeKind->getPHPValueType(); ?>, instance of <?php echo $valuePrimitiveType->getFullyQualifiedClassName(true); ?>, or array.  %s seen.',
+                '<?php echo $typeClassName; ?>::_construct - $data expected to be null or array, %s seen',
                 gettype($data)
             ));
         }<?php if ($parentType) : ?>
 
-        parent::__construct($data);
-<?php endif; ?>
-<?php foreach ($sortedProperties as $property) :
+        parent::__construct($data);<?php endif; ?>
+
+<?php foreach($sortedProperties as $property) :
     echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call.php';
 endforeach; ?>
     }
