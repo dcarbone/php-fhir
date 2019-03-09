@@ -25,10 +25,13 @@ $xmlName = NameUtils::getTypeXMLElementName($type);
 ob_start();
 echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_header.php';
 ?>
-        if (null !== ($v = $attributes->value)) {
-            return $type->setValue((string)$v);
+        if (isset($attributes->value)) {
+            return $type->setValue((string)$attributes->value);
         }
-        if ('' !== ($v = (string)$children->value)) {
+        if (isset($children->value)) {
+            return $type->setValue((string)$children->value);
+        }
+        if ('' !== ($v = (string)$sxe)) {
             return $type->setValue($v);
         }
         return $type;

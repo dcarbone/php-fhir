@@ -31,6 +31,5 @@ else :
 
 endif;
 ?>
-
     }
 <?php return ob_get_clean();
