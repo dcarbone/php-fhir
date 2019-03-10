@@ -24,12 +24,13 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 ob_start();
 if ($typeKind->isPrimitive()) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php';
+elseif ($typeKind->isList()) :
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/list.php';
 elseif ($typeKind->isPrimitiveContainer()) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive_container.php';
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
 
 else:
 
-endif; ?>
-
-<?php return ob_get_clean();
+endif;
+return ob_get_clean();

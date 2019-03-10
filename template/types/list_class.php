@@ -16,10 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\NameUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 // define some common things
@@ -32,7 +28,6 @@ $sortedProperties = $type->getProperties()->getSortedIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 
 ob_start();
-
 
 // build file header
 echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/file_header.php';
@@ -53,17 +48,74 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
 
-<?php foreach($sortedProperties as $property) : ?>
-<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php'; ?>
+    const FIELD_VALUE = 'value';
+
+    /** @var null|string */
+    private $value = null;
+
+    /**
+     * The list of values allowed by <?php echo $fhirName; ?>
+
+     * @var array
+     */
+    private static $valueList = [
+<?php foreach($type->getEnumeration() as $enum) : ?>
+        '<?php echo $enum->getValue(); ?>',
 <?php endforeach; ?>
+    ];
 
-<?php foreach($sortedProperties as $property) : ?>
-<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php'; ?>
+    /**
+     * <?php echo $typeClassName; ?> Constructor
+     * @param null|string $value;
+     */
+    public function __construct($value = null)
+    {
+        if (null === $value) {
+            return;
+        }
+        $this->value = (string)$value;
+    }
 
-<?php endforeach; ?>
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php'; ?>
+    /**
+     * @param null|string $value;
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
-<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_methods.php'; ?>
+     */
+    public function setValue($value = null)
+    {
+        if (null === $value) {
+            $this->value = null;
+        } else {
+            $this->value = (string)$value;
+        }
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Returns the list of allowed values for this type
+     * @return string[]
+     */
+    public function getValueList()
+    {
+        return self::$valueList;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        $v = $this->getValue();
+        return null === $v || in_array($v, self::$valueList, true);
+    }
 
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
 
@@ -74,6 +126,6 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
      */
     public function __toString()
     {
-        return self::FHIR_TYPE_NAME;
+        return (string)$this->getValue();
     }
 }<?php return ob_get_clean();

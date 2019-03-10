@@ -16,10 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\NameUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 // define some common things
@@ -75,5 +71,4 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     {
         return (string)$this->getValue();
     }
-}
-<?php return ob_get_clean();
+}<?php return ob_get_clean();

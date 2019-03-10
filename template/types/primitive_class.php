@@ -53,6 +53,8 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
 
+    const FIELD_VALUE = 'value';
+
     /** @var null|<?php echo $phpValueType; ?> */
     private $value = null;
 
@@ -141,10 +143,6 @@ switch($primitiveType->getValue()) {
         throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
 }
 ?>
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
-
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>
-
     /**
      * @return null|<?php $primitiveType->getPHPValueType(); ?>
 
@@ -153,6 +151,10 @@ switch($primitiveType->getValue()) {
     {
         return $this->value;
     }
+
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
+
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>
 
     /**
      * @return string

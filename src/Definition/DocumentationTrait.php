@@ -97,6 +97,9 @@ trait DocumentationTrait
                 $pieces[] = "{$spaces}* {$doc}";
             }
         }
+        if ([] === $pieces) {
+            return '';
+        }
         return implode("\n", $pieces) . ($trailingNewline ? "\n" : '');
     }
 }

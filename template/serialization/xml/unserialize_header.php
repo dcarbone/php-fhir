@@ -43,19 +43,17 @@ ob_start(); ?>
         if (!($sxe instanceof \SimpleXMLElement)) {
             throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $sxe value must be null, \\SimpleXMLElement, or valid XML string, %s seen', gettype($sxe)));
         }
-        if (null !== $type) {
-            if (!is_object($type) || !($type instanceof <?php echo $typeClassName; ?>)) {
-                throw new \RuntimeException(sprintf(
-                    '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
-                    is_object($type) ? get_class($type) : gettype($type)
-                ));
-            }
-        } else {
+        if (null === $type) {
 <?php if (null !== $parentType): ?>
             $type = <?php echo $parentType->getClassName(); ?>::xmlUnserialize(\$sxe, new <?php echo $typeClassName; ?>);
 <?php else : ?>
             $type = new <?php echo $typeClassName; ?>;
 <?php endif; ?>
+        } elseif (!is_object($type) || !($type instanceof <?php echo $typeClassName; ?>)) {
+            throw new \RuntimeException(sprintf(
+                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
+                is_object($type) ? get_class($type) : gettype($type)
+            ));
         }
         $attributes = $sxe->attributes();
         $children = $sxe->children();

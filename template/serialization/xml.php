@@ -24,8 +24,8 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 ob_start();
 // unserialize portion
 echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_header.php';
-if ($typeKind->isPrimitive()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive.php';
+if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_list.php';
 elseif ($typeKind->isPrimitiveContainer()) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_container.php';
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
@@ -39,8 +39,8 @@ endif; ?>
 <?php
 // serialize portion
 echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_header.php';
-if ($typeKind->isPrimitive()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive.php';
+if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_list.php';
 elseif ($typeKind->isPrimitiveContainer()) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_container.php';
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :

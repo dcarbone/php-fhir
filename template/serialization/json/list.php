@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
-
-ob_start();
-if ($parentType) : ?>
-        parent::xmlSerialize(true, $sxe);
-<?php endif; ?>
-        $sxe->addAttribute(self::FIELD_VALUE, (string)$this);
+ob_start(); ?>
+    /**
+     * @return null|string
+     */
+    public function jsonSerialize()
+    {
+        return $this->getValue();
+    }
 <?php return ob_get_clean();

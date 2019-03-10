@@ -19,5 +19,5 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
 ob_start(); ?>
-        $sxe->addAttribute('value', (string)$this);
+        $sxe->addAttribute(self::FIELD_VALUE, (string)$this);
 <?php return ob_get_clean();
