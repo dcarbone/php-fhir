@@ -141,9 +141,9 @@ switch($primitiveType->getValue()) {
         throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
 }
 ?>
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/primitive.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>
 
     /**
      * @return null|<?php $primitiveType->getPHPValueType(); ?>

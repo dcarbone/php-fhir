@@ -16,21 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\NameUtils;
-
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
-
-$xmlName = NameUtils::getTypeXMLElementName($type);
+/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
 ob_start(); ?>
-    /**
-     * @param bool \$returnSXE
-     * @param null|\SimpleXMLElement \$sxe
-     * @return string|\SimpleXMLElement
-     */
-    public function xmlSerialize($returnSXE = false, \SimpleXMLElement $sxe = null)
-    {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<<?php echo $xmlName; ?> xmlns="<?php echo PHPFHIR_FHIR_XMLNS; ?>"></<?php echo $xmlName; ?>>');
-        }
+        $sxe->addAttribute('value', (string)$this);
 <?php return ob_get_clean();

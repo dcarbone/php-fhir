@@ -23,5 +23,7 @@ ob_start(); ?>
         if (isset($children->value)) {
             return $type->setValue((string)$children->value);
         }
-        return $type;
+        if ('' !== ($v = (string)$sxe)) {
+            return $type->setValue($v);
+        }
 <?php return ob_get_clean();

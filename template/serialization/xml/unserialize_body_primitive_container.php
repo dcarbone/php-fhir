@@ -16,36 +16,11 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\NameUtils;
-
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
-
-$xmlName = NameUtils::getTypeXMLElementName($type);
-
-ob_start();
-echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_header.php';
-?>
+ob_start(); ?>
         if (isset($attributes->value)) {
             return $type->setValue((string)$attributes->value);
         }
         if (isset($children->value)) {
             return $type->setValue((string)$children->value);
         }
-        if ('' !== ($v = (string)$sxe)) {
-            return $type->setValue($v);
-        }
-        return $type;
-    }
-
-    /**
-     * @param bool \$returnSXE
-     * @param null|\SimpleXMLElement \$sxe
-     * @return string|\SimpleXMLElement
-     */
-    public function xmlSerialize($returnSXE = false, \SimpleXMLElement $sxe = null)
-    {
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_header.php'; ?>
-        $sxe->addAttribute('value', (string)$this);
-        return $returnSXE ? $sxe : $sxe->saveXML();
-    }
 <?php return ob_get_clean();

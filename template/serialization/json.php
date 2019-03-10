@@ -22,32 +22,14 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 
 ob_start();
-// unserialize portion
-echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_header.php';
 if ($typeKind->isPrimitive()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive.php';
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php';
 elseif ($typeKind->isPrimitiveContainer()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_container.php';
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive_container.php';
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
 
-else :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_default.php';
-endif; ?>
-        return $type;
-    }
-
-<?php
-// serialize portion
-echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_header.php';
-if ($typeKind->isPrimitive()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive.php';
-elseif ($typeKind->isPrimitiveContainer()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_container.php';
-elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
-
-else :
+else:
 
 endif; ?>
-        return $returnSXE ? $sxe : $sxe->saveXML();
-    }
+
 <?php return ob_get_clean();

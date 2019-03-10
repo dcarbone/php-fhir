@@ -67,6 +67,8 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
 
+<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>
+
     /**
      * @return string
      */
