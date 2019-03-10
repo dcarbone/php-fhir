@@ -55,7 +55,7 @@ class VersionConfig
      */
     public function getSchemaPath()
     {
-        return $this->config->getSchemaPath() . '/' . $this->version->getName();
+        return "{$this->config->getSchemaPath()}/{$this->version->getName()}";
     }
 
     /**
@@ -80,14 +80,6 @@ class VersionConfig
     public function getNamespace()
     {
         return $this->version->getNamespace();
-    }
-
-    /**
-     * @return bool
-     */
-    public function mustSquashPrimitives()
-    {
-        return $this->version->mustSquashPrimitives();
     }
 
     /**

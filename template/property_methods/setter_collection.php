@@ -52,5 +52,6 @@ ob_start(); ?>
                 $this->add<?php echo ucfirst($propertyName); ?>(new <?php echo $propertyTypeClassName; ?>($v));
             }
         }
+        return $this;
     }
 <?php return ob_get_clean();

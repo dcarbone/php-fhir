@@ -36,18 +36,6 @@ return [
             'url'              => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
             // Namespace to prefix the generated classes with
             'namespace'        => '\\HL7\\FHIR\\DSTU1',
-            // Whether to "squash" elements that only contain a "value" field in addition to the default Element fields.
-            // JSON:
-            //  Turns:
-            //      {"id": {"value": "idvalue", "extension":[{...}]}}
-            //  Into:
-            //      {"id": "idvalue"}
-            // XML:
-            //  Turns:
-            //      <id><value>idvalue</value><extension>...</extension></id>
-            // Into:
-            //      <id value="idvalue"/>
-            'squashPrimitives' => true,
         ],
         'DSTU2' => [
             'url'              => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
@@ -26,21 +28,31 @@ ob_start(); ?>
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $propertyTypeClassName = $propertyType->getClassName();
-    $setter = ($property->isCollection() ? 'add' : 'set').ucfirst($property->getName());
-    if ($propertyTypeKind->isPrimitiveContainer()) : ?>
-        $type = null;
+    $setter = ($property->isCollection() ? 'add' : 'set').ucfirst($property->getName()); ?>
+        $t = null;
+<?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) : ?>
         if (isset($attributes-><?php echo $propertyName; ?>)) {
-            $type = new <?php echo $propertyTypeClassName; ?>((string)$v));
+            $t = new <?php echo $propertyTypeClassName; ?>((string)$attributes-><?php echo $propertyName; ?>);
+        } elseif (isset($children-><?php echo $propertyName; ?>)) {
+            $t = <?php echo $propertyTypeClassName; ?>::xmlUnserialize($children-><?php echo $propertyName; ?>, $t);
         }
+<?php elseif ($propertyTypeKind->isPrimitiveContainer()) : ?>
         if (isset($children-><?php echo $propertyName; ?>)) {
-            $type = <?php echo $propertyTypeClassName; ?>::xmlUnserialize($children-><?php echo $propertyName; ?>, $type);
+            $t = <?php echo $propertyTypeClassName; ?>::xmlUnserialize($children-><?php echo $propertyName; ?>, $t);
         }
-        if (null !== $type) {
-            $this-><?php echo $setter; ?>($type);
+        if (isset($attributes-><?php echo $propertyName; ?>)) {
+            if (null === $t) {
+                $t = new <?php echo $propertyTypeClassName; ?>((string)$attributes-><?php echo $propertyName; ?>);
+            } else {
+                $t->setValue((string)$attributes-><?php echo $propertyName; ?>);
+            }
         }
 <?php else : ?>
 
 <?php endif; ?>
+        if (null !== $t) {
+            $type-><?php echo $setter; ?>($t);
+        }
 <?php endforeach; ?>
 
 <?php return ob_get_clean();

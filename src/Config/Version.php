@@ -26,9 +26,8 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
  */
 class Version
 {
-    const KEY_URL               = 'url';
-    const KEY_NAMESPACE         = 'namespace';
-    const KEY_SQUASH_PRIMITIVES = 'squashPrimitives';
+    const KEY_URL       = 'url';
+    const KEY_NAMESPACE = 'namespace';
 
     /** @var string */
     private $name;
@@ -37,8 +36,6 @@ class Version
     private $url;
     /** @var string */
     private $namespace;
-    /** @var bool */
-    private $squashPrimitives = false;
 
     /**
      * Version constructor.
@@ -56,9 +53,6 @@ class Version
         }
         $this->setUrl($conf[self::KEY_URL]);
         $this->setNamespace($conf[self::KEY_NAMESPACE]);
-        if (isset($conf[self::KEY_SQUASH_PRIMITIVES])) {
-            $this->setSquashPrimitives($conf[self::KEY_SQUASH_PRIMITIVES]);
-        }
     }
 
     /**
@@ -108,27 +102,11 @@ class Version
         if (false === NameUtils::isValidNSName($namespace)) {
             throw new \InvalidArgumentException(sprintf(
                 'Version "%s" namespace "%s" is not a valid PHP namespace.',
-                $this->$namespace));
+                $this->name,
+                $this->namespace
+            ));
         }
         $this->namespace = trim($namespace, "\\;");
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function mustSquashPrimitives()
-    {
-        return $this->squashPrimitives;
-    }
-
-    /**
-     * @param bool $squashPrimitives
-     * @return Version
-     */
-    public function setSquashPrimitives($squashPrimitives)
-    {
-        $this->squashPrimitives = $squashPrimitives;
         return $this;
     }
 }

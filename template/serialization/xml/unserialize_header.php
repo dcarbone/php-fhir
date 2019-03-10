@@ -47,7 +47,7 @@ ob_start(); ?>
 <?php if (null !== $parentType): ?>
             $type = <?php echo $parentType->getClassName(); ?>::xmlUnserialize(\$sxe, new <?php echo $typeClassName; ?>);
 <?php else : ?>
-            $type = new <?php echo $typeClassName; ?>;
+            $type = new <?php echo $typeClassName; ?>();
 <?php endif; ?>
         } elseif (!is_object($type) || !($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
