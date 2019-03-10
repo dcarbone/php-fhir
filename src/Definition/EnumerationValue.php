@@ -18,8 +18,6 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\DocumentationTrait;
-
 /**
  * Class EnumerationValue
  * @package DCarbone\PHPFHIR\Definition

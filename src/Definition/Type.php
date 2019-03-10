@@ -64,8 +64,6 @@ class Type
     /** @var null|string */
     private $pattern = null;
 
-    /** @var null|string */
-    private $componentOfTypeName = null;
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $componentOfType = null;
 
@@ -432,24 +430,6 @@ class Type
     public function setComponentOfType(Type $type)
     {
         $this->componentOfType = $type;
-        return $this;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getComponentOfTypeName()
-    {
-        return $this->componentOfTypeName;
-    }
-
-    /**
-     * @param null|string $componentOfTypeName
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function setComponentOfTypeName($componentOfTypeName)
-    {
-        $this->componentOfTypeName = $componentOfTypeName;
         return $this;
     }
 

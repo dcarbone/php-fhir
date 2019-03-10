@@ -42,10 +42,9 @@ abstract class TypeDecorator
                 continue;
             }
             $split = explode('.', $fhirName, 2);
-            $type->setComponentOfTypeName($split[0]);
             if ($ptype = $types->getTypeByName($split[0])) {
                 $config->getLogger()->debug(sprintf(
-                    'Found Parent Type %s for Component %s',
+                    'Found Parent Component Type "%s" for Component "%s"',
                     $ptype,
                     $type
                 ));
@@ -63,12 +62,13 @@ abstract class TypeDecorator
      */
     public static function findParentTypes(VersionConfig $config, Types $types)
     {
+        $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             if (null !== ($parentTypeName = $type->getParentTypeName())) {
                 if ($ptype = $types->getTypeByName($parentTypeName)) {
                     $type->setParentType($ptype);
-                    $config->getLogger()->info(sprintf(
-                        'Type %s has parent %s',
+                    $logger->info(sprintf(
+                        'Type "%s" has parent "%s"',
                         $type,
                         $ptype
                     ));
@@ -86,13 +86,26 @@ abstract class TypeDecorator
      */
     public static function findPropertyTypes(VersionConfig $config, Types $types)
     {
+        $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
                 if ($pt = $types->getTypeByName($property->getValueFHIRTypeName())) {
                     $property->setValueFHIRType($pt);
+                    $logger->info(sprintf(
+                        'Type "%s" Property "%s" has Value Type "%s"',
+                        $type->getFHIRName(),
+                        $property->getName(),
+                        $pt->getFHIRName()
+                    ));
                 } elseif (PHPFHIR_XHTML_DIV === $property->getRef()) {
                     // TODO: do something fancier here...
                     $property->setValueFHIRType($types->getTypeByName('string-primitive'));
+                    $logger->warning(sprintf(
+                        'Type "%s" Property "%s" has Ref "%s", setting Type to "string-primitive"',
+                        $type->getFHIRName(),
+                        $property->getName(),
+                        $property->getRef()
+                    ));
                 } else {
                     throw ExceptionUtils::createUnknownPropertyTypeException($type, $property);
                 }
@@ -114,12 +127,10 @@ abstract class TypeDecorator
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
 
-            $logger->debug(sprintf('Determining TypeKind for "%s"', $fhirName));
-
             // there are a few specialty types kinds that are set during the parsing process, most notably for
             // html value types and primitive value types
             if (null !== $type->getKind()) {
-                $config->getLogger()->warning(sprintf(
+                $logger->warning(sprintf(
                     'Type %s already has Kind %s, will not set again',
                     $fhirName,
                     $type->getKind()
@@ -127,10 +138,21 @@ abstract class TypeDecorator
                 continue;
             }
 
+            // log primitives slightly differently
             if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
                 $type->setPrimitiveType(new PrimitiveTypeEnum(str_replace(PHPFHIR_PRIMITIVE_SUFFIX, '', $fhirName)));
-            } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
+                $logger->info(sprintf(
+                    'Setting Type "%s" to Kind "%s" with PrimitiveType "%s"',
+                    $fhirName,
+                    $type->getKind(),
+                    $type->getPrimitiveType()
+                ));
+                continue;
+            }
+
+            // everything else
+            if (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::_LIST));
             } elseif (false !== strpos($type->getFHIRName(), '.')) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::RESOURCE_COMPONENT));
@@ -141,6 +163,11 @@ abstract class TypeDecorator
             } else {
                 $type->setKind(new TypeKindEnum($fhirName));
             }
+            $logger->info(sprintf(
+                'Setting Type "%s" to Kind "%s"',
+                $fhirName,
+                $type->getKind()
+            ));
         }
     }
 

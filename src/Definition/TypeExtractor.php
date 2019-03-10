@@ -38,7 +38,8 @@ abstract class TypeExtractor
      */
     protected static function constructSXEWithFilePath($filePath, VersionConfig $config)
     {
-        $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $filePath));
+        $logger = $config->getLogger();
+        $logger->debug(sprintf('Parsing classes from file "%s"...', $filePath));
 
         $filename = basename($filePath);
 
@@ -60,14 +61,14 @@ abstract class TypeExtractor
                 $filename,
                 $error->message
             );
-            $config->getLogger()->critical($msg);
+            $logger->critical($msg);
             throw new \RuntimeException($msg);
         }
 
         $msg = sprintf(
             'Unknown XML parsing error occurred while parsing "%s".',
             $filename);
-        $config->getLogger()->critical($msg);
+        $logger->critical($msg);
         throw new \RuntimeException($msg);
     }
 
@@ -89,8 +90,6 @@ abstract class TypeExtractor
         foreach ($sxe->children('xs', true) as $child) {
             /** @var \SimpleXMLElement $child */
 
-            // skip these, might be nice at some point to be able to import the files out
-            // of order.
             if ('include' === $child->getName() || 'import' === $child->getName()) {
                 continue;
             }
@@ -175,6 +174,7 @@ abstract class TypeExtractor
     public static function parseTypes(VersionConfig $config)
     {
         $types = new Types($config);
+        $logger = $config->getLogger();
 
         // first, parse all .xsd files without the "fhir-" prefix
         foreach (glob(sprintf('%s/*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
@@ -183,7 +183,7 @@ abstract class TypeExtractor
                 continue;
             }
             if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename) {
-                $config->getLogger()->debug(sprintf('Skipping file "%s"', $xsdFile));
+                $logger->debug(sprintf('Skipping file "%s"', $xsdFile));
                 continue;
             }
             static::extractTypesFromXSD($config, $types, $xsdFile);
@@ -197,7 +197,7 @@ abstract class TypeExtractor
         foreach (glob(sprintf('%s/fhir-*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
             $basename = basename($xsdFile);
             if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename) {
-                $config->getLogger()->debug(sprintf('Skipping file "%s"', $xsdFile));
+                $logger->debug(sprintf('Skipping file "%s"', $xsdFile));
                 continue;
             }
             static::extractTypesFromXSD($config, $types, $xsdFile);

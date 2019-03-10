@@ -123,34 +123,6 @@ class Properties implements \Countable
     }
 
     /**
-     * @return bool
-     */
-    public function containsImmediatePrimitive()
-    {
-        foreach ($this->properties as $property) {
-            if (null === ($type = $property->getValueFHIRType())) {
-                continue;
-            } elseif ($type->getKind()->isPrimitive()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-//    public function containsPrimitiveContainer()
-//    {
-//        foreach ($this->properties as $property) {
-//            if (null !== ($type = $property->getValueType()) && ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent())) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-    /**
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
     public function getIterator()
