@@ -49,7 +49,7 @@ foreach ($sortedProperties as $property) :
     elseif ($propertyTypeKind->isPrimitiveContainer()) :
         echo require 'default_property_primitive_container.php';
     else :
-
+        echo require 'default_property_default.php';
     endif;
 endforeach; ?>
         return [] === $a ? null : $a;
