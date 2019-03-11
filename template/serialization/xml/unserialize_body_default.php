@@ -21,38 +21,18 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
-ob_start(); ?>
-
-<?php foreach($sortedProperties as $property) :
+ob_start();
+foreach ($sortedProperties as $property) :
     $propertyName = $property->getName();
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $propertyTypeClassName = $propertyType->getClassName();
-    $setter = ($property->isCollection() ? 'add' : 'set').ucfirst($property->getName()); ?>
-        $t = null;
-<?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) : ?>
-        if (isset($attributes-><?php echo $propertyName; ?>)) {
-            $t = new <?php echo $propertyTypeClassName; ?>((string)$attributes-><?php echo $propertyName; ?>);
-        } elseif (isset($children-><?php echo $propertyName; ?>)) {
-            $t = <?php echo $propertyTypeClassName; ?>::xmlUnserialize($children-><?php echo $propertyName; ?>, $t);
-        }
-<?php elseif ($propertyTypeKind->isPrimitiveContainer()) : ?>
-        if (isset($children-><?php echo $propertyName; ?>)) {
-            $t = <?php echo $propertyTypeClassName; ?>::xmlUnserialize($children-><?php echo $propertyName; ?>, $t);
-        }
-        if (isset($attributes-><?php echo $propertyName; ?>)) {
-            if (null === $t) {
-                $t = new <?php echo $propertyTypeClassName; ?>((string)$attributes-><?php echo $propertyName; ?>);
-            } else {
-                $t->setValue((string)$attributes-><?php echo $propertyName; ?>);
-            }
-        }
-<?php else : ?>
-
-<?php endif; ?>
-        if (null !== $t) {
-            $type-><?php echo $setter; ?>($t);
-        }
-<?php endforeach; ?>
-
-<?php return ob_get_clean();
+    $isCollection = $property->isCollection();
+    $setter = ($isCollection ? 'add' : 'set') . ucfirst($property->getName());
+    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
+        echo require 'unserialize_property_setter_primitive.php';
+    else :
+        echo require 'unserialize_property_setter_default.php';
+    endif;
+endforeach;
+return ob_get_clean();

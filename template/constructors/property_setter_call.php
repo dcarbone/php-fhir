@@ -45,7 +45,7 @@ ob_start(); ?>
             } else {
                 $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
-<?php elseif ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
+<?php elseif ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
             $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
 <?php else : ?>
             if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {

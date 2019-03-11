@@ -21,11 +21,13 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
-ob_start(); ?>
-<?php foreach ($sortedProperties as $property) :
+ob_start();
+foreach ($sortedProperties as $property) :
     $propertyType = $property->getValueFHIRType();
-    $propertyTypeKind = $propertyType->getKind();
-    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER])) :
+    $propertyTypeKind = $propertyType->getKind(); ?>
+<?php echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/getter_default.php'; ?>
+
+<?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
         echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_primitive.php';
     else :
         echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_default.php';
@@ -34,8 +36,6 @@ ob_start(); ?>
         echo "\n";
         echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_collection.php';
     endif; ?>
-
-<?php echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/getter_default.php'; ?>
 
 <?php endforeach;
 return substr(ob_get_clean(), 0, -1); // trim off final \n

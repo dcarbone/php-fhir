@@ -33,7 +33,6 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 
 ob_start();
 
-
 // build file header
 echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/file_header.php';
 
