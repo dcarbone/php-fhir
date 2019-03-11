@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-/** @var string $propertyTypeClassName */
 /** @var bool $isCollection */
 /** @var string $propertyName */
 /** @var string $propertyConstName */

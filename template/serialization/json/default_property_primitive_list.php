@@ -16,23 +16,19 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+/** @var bool $isCollection */
+/** @var string $propertyName */
+/** @var string $propertyConstName */
+/** @var string $getter */
 
-/** @var \DCarbone\PHPFHIr\Definition\Type $type */
-
-$valueProperty = $type->getProperties()->getProperty('value');
-if (null === $valueProperty) {
-    throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
-}
-$valuePropertyType = $valueProperty->getValueFHIRType();
-
-ob_start(); ?>
-    /**
-     * @return null|<?php echo $valuePropertyType->getFullyQualifiedClassName(true); ?>
-
-     */
-    public function jsonSerialize()
-    {
-        return $this->getValue();
-    }
-<?php return ob_get_clean();
+ob_start();
+if ($isCollection) : ?>
+        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
+            $a[self::<?php echo $propertyConstName; ?>] = $vs;
+        }
+<?php else : ?>
+        if (null !== ($v = $this-><?php echo $getter; ?>())) {
+            $a[self::<?php echo $propertyConstName; ?>] = $v;
+        }
+<?php endif;
+return ob_get_clean();

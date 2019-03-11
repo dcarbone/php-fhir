@@ -26,11 +26,9 @@ if ($typeKind->isPrimitive()) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php';
 elseif ($typeKind->isList()) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/list.php';
-elseif ($typeKind->isPrimitiveContainer()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive_container.php';
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
 
 else:
-
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php';
 endif;
 return ob_get_clean();

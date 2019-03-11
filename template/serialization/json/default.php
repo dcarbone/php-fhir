@@ -19,20 +19,39 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
-ob_start();
+ob_start(); ?>
+    /**
+     * @return null|array
+     */
+    public function jsonSerialize()
+    {
+<?php if ($parentType) : ?>
+        $a = parent::jsonSerialize();
+        if (null === $a) {
+            $a = [];
+        }
+<?php else : ?>
+        $a = [];
+<?php endif;
 foreach ($sortedProperties as $property) :
     $propertyName = $property->getName();
     $propertyConstName = $property->getFieldConstantName();
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
+    $propertyTypeParentType = $propertyType->getParentType();
     $isCollection = $property->isCollection();
     $getter = 'get' . ucfirst($propertyName);
-    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
-        echo require 'serialize_body_default_property_primitive_list.php';
+    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+        echo require 'default_property_primitive_list.php';
+    elseif ($propertyTypeKind->isPrimitiveContainer()) :
+        echo require 'default_property_primitive_container.php';
     else :
-        echo require 'serialize_body_default_property_default.php';
+
     endif;
-endforeach;
-return ob_get_clean();
+endforeach; ?>
+        return [] === $a ? null : $a;
+    }
+<?php return ob_get_clean();

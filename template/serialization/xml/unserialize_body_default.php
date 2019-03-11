@@ -30,7 +30,7 @@ foreach ($sortedProperties as $property) :
     $isCollection = $property->isCollection();
     $setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
     if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
-        echo require 'unserialize_body_default_property_setter_primitive.php';
+        echo require 'unserialize_body_default_property_setter_primitive_list_container.php';
     else :
         echo require 'unserialize_body_default_property_setter_default.php';
     endif;
