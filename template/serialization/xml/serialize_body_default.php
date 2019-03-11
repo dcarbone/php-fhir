@@ -24,15 +24,16 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 ob_start();
 foreach ($sortedProperties as $property) :
     $propertyName = $property->getName();
+    $propertyConstName = $property->getFieldConstantName();
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $propertyTypeClassName = $propertyType->getClassName();
     $isCollection = $property->isCollection();
     $getter = 'get' . ucfirst($propertyName);
     if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
-        echo require 'serialize_body_default_primitive_list.php';
+        echo require 'serialize_body_default_property_primitive_list.php';
     else :
-
+        echo require 'serialize_body_default_property_default.php';
     endif;
 endforeach;
 return ob_get_clean();

@@ -19,6 +19,7 @@
 /** @var string $propertyTypeClassName */
 /** @var bool $isCollection */
 /** @var string $propertyName */
+/** @var string $propertyConstName */
 /** @var string $getter */
 
 ob_start();
@@ -30,22 +31,22 @@ if ($isCollection) : ?>
                     continue;
                 }
                 if ($first) {
-                    $sxe->addAttribute('<?php echo $propertyName; ?>', (string)$v);
+                    $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
                     if (null !== $v->getId() || [] !== $v->getExtension()) {
-                        $v->xmlSerialize(true, $sxe->addChild('<?php echo $propertyName; ?>'));
+                        $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
                     }
                     $first = false;
                 } else {
-                    $v->xmlSerialize(true, $sxe->addChild('<?php echo $propertyName; ?>'));
+                    $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
                 }
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $sxe->addAttribute('<?php echo $propertyName; ?>', (string)$v);
+            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
             if (null !== $v->getId() || [] !== $v->getExtension()) {
-                $v->xmlSerialize(true, $sxe->addChild('<?php echo $propertyName; ?>'));
+                $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
             }
         }
-<?php endif; ?>
-<?php return ob_get_clean();
+<?php endif;
+return ob_get_clean();

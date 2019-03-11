@@ -34,7 +34,7 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @var null|<?php echo $propType->getFullyQualifiedClassName(true); ?>
+     * @var null|<?php echo $propType->getFullyQualifiedClassName(true) . ($isCollection ? '[]' : ''); ?>
 
      */
     private $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
