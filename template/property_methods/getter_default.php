@@ -25,6 +25,7 @@ $propertyName = $property->getName();
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
+$isCollection = $property->isCollection();
 
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
@@ -34,7 +35,7 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @return null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?>
+     * @return null|<?php echo $propertyType->getFullyQualifiedClassName(true) . ($isCollection ? '[]' : ''); ?>
 
      */
     public function get<?php echo ucfirst($propertyName); ?>()

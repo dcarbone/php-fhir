@@ -46,7 +46,7 @@ elseif ($typeKind->isPrimitiveContainer()) :
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
 
 else :
-
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_default.php';
 endif; ?>
         return $returnSXE ? $sxe : $sxe->saveXML();
     }
