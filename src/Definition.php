@@ -65,6 +65,9 @@ class Definition
         $log->info('Finding parent types');
         TypeDecorator::findParentTypes($this->config, $this->types);
 
+        $log->info('Finding restriction base types');
+        TypeDecorator::findRestrictionBaseTypes($this->config, $this->types);
+
         $log->info('Finding component types');
         TypeDecorator::findComponentOfTypes($this->config, $this->types);
 

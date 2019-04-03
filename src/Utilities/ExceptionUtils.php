@@ -111,10 +111,12 @@ abstract class ExceptionUtils
      */
     public static function createComponentParentTypeNotFoundException(Type $type)
     {
+        $s = explode('.', $type->getFHIRName());
+        $n = $s[0];
         return new \DomainException(sprintf(
             'Type "%s" is a component of undefined type "%s"',
             $type->getFHIRName(),
-            $type->getComponentOfTypeName()
+            $n
         ));
     }
 
@@ -142,6 +144,20 @@ abstract class ExceptionUtils
             'Unable to locate parent type "%s" for type "%s" from file "%s"',
             $type->getParentTypeName(),
             $type->getFHIRName(),
+            $type->getSourceFileBasename()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
+    public static function createTypeRestrictionBaseNotFoundException(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'Unable to locate restriction base type "%s" for type "%s" from file "%s"',
+            $type->getRestrictionBaseFHIRName(),
+            $type,
             $type->getSourceFileBasename()
         ));
     }

@@ -17,6 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 // define some common things
 $fqns = $type->getFullyQualifiedNamespace(true);
@@ -26,6 +27,8 @@ $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
 $sortedProperties = $type->getProperties()->getSortedIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
+$restrictionBase = $type->getRestrictionBaseFHIRName();
+$restrictionBaseType = $types->getTypeByName($restrictionBase);
 
 ob_start();
 
@@ -50,7 +53,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 
     const FIELD_VALUE = 'value';
 
-    /** @var null|string */
+    /** @var null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?> */
     private $value = null;
 
     /**
@@ -70,10 +73,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
      */
     public function __construct($value = null)
     {
-        if (null === $value) {
-            return;
-        }
-        $this->value = (string)$value;
+        $this->setValue($value);
     }
 
     /**
@@ -85,9 +85,13 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     {
         if (null === $value) {
             $this->value = null;
-        } else {
-            $this->value = (string)$value;
+            return $this;
         }
+        if ($value instanceof <?php echo $restrictionBaseType->getClassName(); ?>) {
+            $this->value = $value;
+            return $this;
+        }
+        $this->value = new <?php echo $restrictionBaseType->getClassName(); ?>($value);
         return $this;
     }
 

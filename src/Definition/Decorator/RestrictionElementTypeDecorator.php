@@ -43,7 +43,7 @@ abstract class RestrictionElementTypeDecorator
         foreach ($restriction->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::BASE:
-                    $type->setParentTypeName((string)$attribute);
+                    $type->setRestrictionBaseFHIRName((string)$attribute);
                     break;
 
                 default:

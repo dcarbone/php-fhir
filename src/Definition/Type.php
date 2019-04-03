@@ -73,6 +73,12 @@ class Type
     /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum */
     private $primitiveType;
 
+    /** @var null|string */
+    private $restrictionBaseFHIRName = null;
+
+    /** @var null|\DCarbone\PHPFHIR\Definition\Type */
+    private $restrictionBaseFHIRType = null;
+
     /** @var bool */ // TODO: what the hell is this...?
     private $mixed = false;
 
@@ -456,6 +462,42 @@ class Type
     public function setUnionOf(array $unionOf)
     {
         $this->unionOf = $unionOf;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRestrictionBaseFHIRName()
+    {
+        return $this->restrictionBaseFHIRName;
+    }
+
+    /**
+     * @param string $restrictionBaseFHIRName
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setRestrictionBaseFHIRName($restrictionBaseFHIRName)
+    {
+        $this->restrictionBaseFHIRName = $restrictionBaseFHIRName;
+        return $this;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
+     */
+    public function getRestrictionBaseFHIRType()
+    {
+        return $this->restrictionBaseFHIRType;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setRestrictionBaseFHIRType(Type $type)
+    {
+        $this->restrictionBaseFHIRType = $type;
         return $this;
     }
 

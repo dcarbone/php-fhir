@@ -52,7 +52,6 @@ abstract class TypeDecorator
             } else {
                 throw ExceptionUtils::createComponentParentTypeNotFoundException($type);
             }
-
         }
     }
 
@@ -64,7 +63,19 @@ abstract class TypeDecorator
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            if (null !== ($parentTypeName = $type->getParentTypeName())) {
+            // TODO: really don't like doing this, but i don't feel like trying to track the whole chain..
+            if ('ResourceNamesPlusBinary' === $type->getFHIRName()) {
+                if ($ptype = $types->getTypeByName('Binary')) {
+                    $type->setParentType($ptype);
+                    $logger->info(sprintf(
+                        'Type "%s" has parent "%s"',
+                        $type,
+                        $ptype
+                    ));
+                } else {
+                    throw ExceptionUtils::createTypeParentNotFoundException($type);
+                }
+            } elseif (null !== ($parentTypeName = $type->getParentTypeName())) {
                 if ($ptype = $types->getTypeByName($parentTypeName)) {
                     $type->setParentType($ptype);
                     $logger->info(sprintf(
@@ -72,23 +83,41 @@ abstract class TypeDecorator
                         $type,
                         $ptype
                     ));
-                } elseif (0 === strpos($parentTypeName, 'xs:')) {
-                    if (false !== strpos($type->getFHIRName(), PHPFHIR_PRIMITIVE_SUFFIX)) {
-                        // this is to allow primitive types to proceed without having parents associated with them.
-                        continue;
-                    }
-                    $type->setParentType($types->getTypeByName(TypeKindEnum::UNDEFINED));
-                    $logger->warning(sprintf(
-                        'Setting Parent Type for "%s" to "%s"',
-                        $type->getFHIRName(),
-                        TypeKindEnum::UNDEFINED
-                    ));
                 } else {
                     throw ExceptionUtils::createTypeParentNotFoundException($type);
                 }
             }
         }
+    }
 
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function findRestrictionBaseTypes(VersionConfig $config, Types $types)
+    {
+        $logger = $config->getLogger();
+        foreach ($types->getIterator() as $type) {
+            if (null !== ($rb = $type->getRestrictionBaseFHIRName())) {
+                if ($rbtype = $types->getTypeByName($rb)) {
+                    $type->setRestrictionBaseFHIRType($rbtype);
+                    $logger->info(sprintf(
+                        'Type "%s" has restriction base Type "%s"',
+                        $type,
+                        $rbtype
+                    ));
+                } elseif (0 === strpos($rb, 'xs:')) {
+                    // this is mostly primitives
+                    $logger->warning(sprintf(
+                        'Type "%s" has restriction base "%s", skipping restriction type lookup...',
+                        $type,
+                        $rb
+                    ));
+                } else {
+                    throw ExceptionUtils::createTypeRestrictionBaseNotFoundException($type);
+                }
+            }
+        }
     }
 
     /**
@@ -133,6 +162,14 @@ abstract class TypeDecorator
      */
     public static function determineParsedTypeKinds(VersionConfig $config, Types $types)
     {
+        // TODO: this is a horrible hack to continue to support older versions of the spec...
+        static $knownPrimitiveContainers = [
+            'xmlIdRef',
+        ];
+        static $knownLists = [
+            'ResourceType',
+        ];
+
         $logger = $config->getLogger();
 
         foreach ($types->getIterator() as $type) {
@@ -163,11 +200,12 @@ abstract class TypeDecorator
             }
 
             // everything else
-            if (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
+            if (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX) || in_array($fhirName, $knownLists, true)) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::_LIST));
             } elseif (false !== strpos($type->getFHIRName(), '.')) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::RESOURCE_COMPONENT));
-            } elseif ($types->getTypeByName("{$fhirName}-primitive")) {
+            } elseif ($types->getTypeByName("{$fhirName}-primitive") ||
+                in_array($fhirName, $knownPrimitiveContainers, true)) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE_CONTAINER));
             } elseif (null !== ($rootType = $type->getRootType())) {
                 $type->setKind(new TypeKindEnum($rootType->getFHIRName()));

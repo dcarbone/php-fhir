@@ -62,6 +62,14 @@ if ($parentType = $type->getParentType()) {
     }
 }
 
+// determine if we need to import a restriction base
+if ($restrictionBaseType = $type->getRestrictionBaseFHIRType()) {
+    if ($restrictionBaseType->getFullyQualifiedNamespace(false) !== $typeNS) {
+        $classImports[] = $restrictionBaseType->getFullyQualifiedClassName(false);
+    }
+}
+
+// add property types to import statement
 foreach ($sortedProperties as $property) {
     $propertyType = $property->getValueFHIRType();
     $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
