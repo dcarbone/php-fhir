@@ -19,22 +19,23 @@
 /** @var bool $isCollection */
 /** @var string $propertyName */
 /** @var string $propertyConstName */
+/** @var string $propertyConstNameExt */
 /** @var string $getter */
 
 ob_start();
 if ($isCollection) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             $a[self::<?php echo $propertyConstName; ?>] = [];
-            $a['_'.self::<?php echo $propertyConstName; ?>] = [];
+            $a[self::<?php echo $propertyConstNameExt; ?>] = [];
             foreach ($vs as $v) {
                 $a[self::<?php echo $propertyConstName; ?>][] = (string)$v;
-                $a['_'.self::<?php echo $propertyConstName; ?>][] = $v;
+                $a[self::<?php echo $propertyConstNameExt; ?>][] = $v;
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $a[self::<?php echo $propertyConstName; ?>] = (string)$v;
-            $a['_'.self::<?php echo $propertyConstName; ?>] = $v;
+            $a[self::<?php echo $propertyConstNameExt; ?>] = $v;
         }
 <?php endif;
 return ob_get_clean();

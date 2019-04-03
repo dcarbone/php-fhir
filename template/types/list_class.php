@@ -47,6 +47,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 {
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
+    const FIELD_RESOURCE_TYPE = 'resourceType';
 
     const FIELD_VALUE = 'value';
 

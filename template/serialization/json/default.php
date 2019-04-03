@@ -36,6 +36,7 @@ ob_start(); ?>
 foreach ($sortedProperties as $property) :
     $propertyName = $property->getName();
     $propertyConstName = $property->getFieldConstantName();
+    $propertyConstNameExt = "{$propertyConstName}_EXT";
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $propertyTypeParentType = $propertyType->getParentType();
@@ -49,6 +50,6 @@ foreach ($sortedProperties as $property) :
         echo require 'default_property_default.php';
     endif;
 endforeach; ?>
-        return ['resourceType' => self::FHIR_TYPE_NAME] + $a;
+        return [self::FIELD_RESOURCE_TYPE => self::FHIR_TYPE_NAME] + $a;
     }
 <?php return ob_get_clean();
