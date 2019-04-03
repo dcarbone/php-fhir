@@ -40,22 +40,18 @@ return [
         'DSTU2' => [
             'url'              => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
             'namespace'        => '\\HL7\\FHIR\\DSTU2',
-            'squashPrimitives' => false,
         ],
         'STU3'  => [
             'url'              => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
             'namespace'        => '\\HL7\\FHIR\\STU3',
-            'squashPrimitives' => true,
         ],
         'R4' => [
             'url'              => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
             'namespace'        => '\\HL7\\FHIR\\R4',
-            'squashPrimitives' => true,
         ],
         'Build' => [
             'url'              => 'http://build.fhir.org/fhir-all-xsd.zip',
             'namespace'        => '\\HL7\\FHIR\\Build',
-            'squashPrimitives' => true,
         ],
     ],
 ];
