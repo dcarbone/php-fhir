@@ -72,6 +72,17 @@ abstract class TypeDecorator
                         $type,
                         $ptype
                     ));
+                } elseif (0 === strpos($parentTypeName, 'xs:')) {
+                    if (false !== strpos($type->getFHIRName(), PHPFHIR_PRIMITIVE_SUFFIX)) {
+                        // this is to allow primitive types to proceed without having parents associated with them.
+                        continue;
+                    }
+                    $type->setParentType($types->getTypeByName(TypeKindEnum::UNDEFINED));
+                    $logger->warning(sprintf(
+                        'Setting Parent Type for "%s" to "%s"',
+                        $type->getFHIRName(),
+                        TypeKindEnum::UNDEFINED
+                    ));
                 } else {
                     throw ExceptionUtils::createTypeParentNotFoundException($type);
                 }

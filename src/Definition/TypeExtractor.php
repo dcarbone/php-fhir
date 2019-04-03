@@ -159,7 +159,7 @@ abstract class TypeExtractor
                     $types->addType($type);
 
                     // proceed with decoration
-                    ElementElementTypeDecorator::decorate($config, $types, $type, $child);
+                    ElementElementTypeDecorator::rootDecorate($config, $types, $type, $child);
                     break;
 
                 default:

@@ -33,6 +33,64 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 class ElementElementTypeDecorator
 {
     /**
+     * This method is intended to be used for <xs:element...> elements that are at the top level of an xsd file
+     *
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \SimpleXMLElement $element
+     */
+    public static function rootDecorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $element)
+    {
+        foreach ($element->attributes() as $attribute) {
+            switch ($attribute->getName()) {
+                case AttributeNameEnum::NAME:
+                    break;
+                case AttributeNameEnum::TYPE:
+                    /*
+                     * This is to support weird shit like this:
+                     *
+                     * DSTU1:
+                     *  <xs:element name="score" type="xs:decimal">
+                     *      ...
+                     *  </xs:element>
+                     *
+                     * R4:
+                     *  <xs:element name="Bundle" type="Bundle">
+                     *      ...
+                     *  </xs:element>
+                     *
+                     * This seems largely useless in some contexts and needed in others (particularly older versions)
+                     */
+                    $v = (string)$attribute;
+                    if ($type->getFHIRName() === $v) {
+                        // if the "type" value is exactly equivalent to the "name" value, just assume
+                        // weirdness and move on.
+                        break;
+                    }
+                    $type->setParentTypeName($v);
+                    break;
+
+                default:
+                    throw ExceptionUtils::createUnexpectedAttributeException($type, $element, $attribute);
+            }
+        }
+
+        foreach ($element->children('xs', true) as $child) {
+            switch ($child->getName()) {
+                case ElementNameEnum::ANNOTATION:
+                    AnnotationElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
+
+                default:
+                    throw ExceptionUtils::createUnexpectedElementException($type, $element, $child);
+            }
+        }
+    }
+
+    /**
+     * This method is intended to be used for <xs:element...> elements that are children of other elements
+     *
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type

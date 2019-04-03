@@ -54,9 +54,6 @@ class Type
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private $parentType = null;
 
-    /** @var string */
-    private $restrictionBaseFHIRName;
-
     /** @var int */
     private $minLength = 0;
     /** @var int */
@@ -332,24 +329,6 @@ class Type
             }
         }
         return false;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRestrictionBaseFHIRName()
-    {
-        return $this->restrictionBaseFHIRName;
-    }
-
-    /**
-     * @param string $restrictionBaseFHIRName
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function setRestrictionBaseFHIRName($restrictionBaseFHIRName)
-    {
-        $this->restrictionBaseFHIRName = $restrictionBaseFHIRName;
-        return $this;
     }
 
     /**

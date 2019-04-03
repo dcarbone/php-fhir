@@ -45,7 +45,6 @@ abstract class AnnotationElementPropertyTypeDecorator
                                     Property $property,
                                     \SimpleXMLElement $annotation)
     {
-        // parse through attributes
         foreach ($annotation->attributes() as $attribute) {
             switch ($attribute->getName()) {
 
