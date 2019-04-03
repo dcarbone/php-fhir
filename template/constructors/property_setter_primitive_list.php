@@ -16,11 +16,20 @@
  * limitations under the License.
  */
 
+/** @var string $propertyFieldConst */
+/** @var bool $isCollection */
+/** @var string $setter */
 
-/** @var \DCarbone\PHPFHIR\Definition\Property $property */
-
-ob_start(); ?>
-    const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php if ($property->getValueFHIRType()->getKind()->isPrimitiveContainer()) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
-<?php endif; ?>
-<?php return ob_get_clean();
+ob_start();
+if ($isCollection) : ?>
+            if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
+                foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
+                    $this-><?php echo $setter; ?>($v);
+                }
+            } else {
+                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+            }
+<?php else : ?>
+            $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+<?php endif;
+return ob_get_clean();

@@ -24,15 +24,12 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 ob_start(); ?>
     /**
-     * @return null|array
+     * @return array
      */
     public function jsonSerialize()
     {
 <?php if ($parentType) : ?>
         $a = parent::jsonSerialize();
-        if (null === $a) {
-            $a = [];
-        }
 <?php else : ?>
         $a = [];
 <?php endif;
@@ -52,6 +49,6 @@ foreach ($sortedProperties as $property) :
         echo require 'default_property_default.php';
     endif;
 endforeach; ?>
-        return [] === $a ? null : $a;
+        return ['resourceType' => self::FHIR_TYPE_NAME] + $a;
     }
 <?php return ob_get_clean();

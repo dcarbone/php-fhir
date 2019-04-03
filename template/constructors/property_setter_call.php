@@ -24,6 +24,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 $isCollection = $property->isCollection();
 $propertyName = $property->getName();
 $propertyFieldConst = $property->getFieldConstantName();
+$propertyFieldConstExt = "{$propertyFieldConst}_EXT";
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
@@ -31,28 +32,12 @@ $setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
 
 ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
-<?php if ($isCollection) : ?>
-            if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
-                foreach($data[self::<?php echo $propertyFieldConst; ?>] as $item) {
-                    if ($item instanceof <?php echo $propertyTypeClassName; ?>) {
-                        $this-><?php echo $setter; ?>($item);
-                    } else {
-                        $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($item));
-                    }
-                }
-            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
-                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } else {
-                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
-            }
-<?php elseif ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
-            $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-<?php else : ?>
-            if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
-                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } else {
-                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
-            }
-<?php endif; ?>
+<?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+    echo require 'property_setter_primitive_list.php';
+elseif ($propertyTypeKind->isPrimitiveContainer()) :
+    echo require 'property_setter_primitive_container.php';
+else :
+    echo require 'property_setter_default.php';
+endif; ?>
         }
 <?php return ob_get_clean();
