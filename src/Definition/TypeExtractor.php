@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Decorator\ComplexTypeElementTypeDecorator;
 use DCarbone\PHPFHIR\Definition\Decorator\ElementElementTypeDecorator;
 use DCarbone\PHPFHIR\Definition\Decorator\SimpleTypeElementTypeDecorator;
-use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -90,7 +90,10 @@ abstract class TypeExtractor
         foreach ($sxe->children('xs', true) as $child) {
             /** @var \SimpleXMLElement $child */
 
-            if ('include' === $child->getName() || 'import' === $child->getName()) {
+            $childName = $child->getName();
+
+            // skip these root level elements
+            if (ElementNameEnum::_INCLUDE === $childName || ElementNameEnum::IMPORT === $childName || ElementNameEnum::ANNOTATION === $childName) {
                 continue;
             }
 
@@ -101,16 +104,16 @@ abstract class TypeExtractor
             // if there was no attribute named "name", build some context then complain about it.
             if ('' === $fhirName) {
                 throw new \DomainException(sprintf(
-                    'Unable to locate "name" attribute on element %s in file "%s": %s',
-                    $child->getName(),
+                    'Unable to locate "name" attribute on element "%s" in file "%s": %s',
+                    $childName,
                     $basename,
                     $child->saveXML()
                 ));
             }
 
             // parse top level elements
-            switch ($child->getName()) {
-                case ElementTypeEnum::SIMPLE_TYPE:
+            switch ($childName) {
+                case ElementNameEnum::SIMPLE_TYPE:
                     $logger->debug(sprintf('Parsing "%s" from SimpleType', $fhirName));
                     // build type
                     $type = new Type($config, $fhirName, $child, $sourceFile);
@@ -122,7 +125,7 @@ abstract class TypeExtractor
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
-                case ElementTypeEnum::COMPLEX_TYPE:
+                case ElementNameEnum::COMPLEX_TYPE:
                     $logger->debug(sprintf('Parsing "%s" from ComplexType', $fhirName));
                     // build type
                     $type = new Type($config, $fhirName, $child, $sourceFile);
@@ -134,7 +137,7 @@ abstract class TypeExtractor
                     ComplexTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
-                case ElementTypeEnum::ELEMENT:
+                case ElementNameEnum::ELEMENT:
                     /* TODO: this is producing some oddities as the result of things like this:
                      * src: R4 bundle.xsd
                      * <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://hl7.org/fhir" xmlns:xhtml="http://www.w3.org/1999/xhtml" targetNamespace="http://hl7.org/fhir" elementFormDefault="qualified" version="1.0">
@@ -179,10 +182,13 @@ abstract class TypeExtractor
         // first, parse all .xsd files without the "fhir-" prefix
         foreach (glob(sprintf('%s/*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
             $basename = basename($xsdFile);
-            if (false !== strpos($basename, PHPFHIR_SKIP_FHIR_XSD_PREFIX)) {
+            if (0 === strpos($basename, PHPFHIR_SKIP_FHIR_XSD_PREFIX)) {
                 continue;
             }
-            if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename) {
+            if (0 === strpos($basename, PHPFHIR_SKIP_ATOM_XSD_PREFIX)) {
+                continue;
+            }
+            if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename || PHPFHIR_SKIP_TOMBSTONE_XSD === $basename) {
                 $logger->debug(sprintf('Skipping file "%s"', $xsdFile));
                 continue;
             }
@@ -198,6 +204,9 @@ abstract class TypeExtractor
             $basename = basename($xsdFile);
             if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename) {
                 $logger->debug(sprintf('Skipping file "%s"', $xsdFile));
+                continue;
+            }
+            if (0 === strpos($basename, PHPFHIR_SKIP_ATOM_XSD_PREFIX)) {
                 continue;
             }
             static::extractTypesFromXSD($config, $types, $xsdFile);

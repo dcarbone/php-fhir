@@ -18,48 +18,47 @@ namespace DCarbone\PHPFHIR\Definition\Decorator;
  * limitations under the License.
  */
 
+// TODO: this was only seen when parsing the ATOM file, which I currently have no plans on supporting.
+
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 
 /**
- * Class AnnotationElementTypeDecorator
+ * Class SimpleTypeElementPropertyDecorator
  * @package DCarbone\PHPFHIR\Definition\Decorator
  */
-abstract class AnnotationElementTypeDecorator
+abstract class SimpleTypeElementPropertyDecorator
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \SimpleXMLElement $annotation
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \SimpleXMLElement $simpleType
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $annotation)
+    public static function decorate(VersionConfig $config,
+                                    Types $types,
+                                    Type $type,
+                                    Property $property,
+                                    \SimpleXMLElement $simpleType)
     {
         // parse through attributes
-        foreach ($annotation->attributes() as $attribute) {
+        foreach ($simpleType->attributes() as $attribute) {
             switch ($attribute->getName()) {
 
                 default:
-                    throw ExceptionUtils::createUnexpectedAttributeException($type, $annotation, $attribute);
+                    throw ExceptionUtils::createUnexpectedAttributeException($type, $simpleType, $attribute);
             }
         }
 
-        // parse through child elements
-        foreach ($annotation->children('xs', true) as $child) {
+        foreach ($simpleType->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementNameEnum::DOCUMENTATION:
-                    TypeBuilderUtils::setTypeStringFromElementValue($type, $annotation, $child, 'addDocumentationFragment');
-                    break;
-                case ElementNameEnum::COMPLEX_CONTENT:
-                    ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);
-                    break;
 
                 default:
-                    throw ExceptionUtils::createUnexpectedElementException($type, $annotation, $child);
+                    throw ExceptionUtils::createUnexpectedElementException($type, $simpleType, $child);
             }
         }
     }

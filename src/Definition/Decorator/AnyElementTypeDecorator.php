@@ -19,47 +19,55 @@ namespace DCarbone\PHPFHIR\Definition\Decorator;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 
 /**
- * Class AnnotationElementTypeDecorator
+ * Class AnyElementTypeDecorator
  * @package DCarbone\PHPFHIR\Definition\Decorator
  */
-abstract class AnnotationElementTypeDecorator
+abstract class AnyElementTypeDecorator
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \SimpleXMLElement $annotation
+     * @param \SimpleXMLElement $any
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $annotation)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $any)
     {
+        $property = new Property($config, $any, $type->getSourceFilename());
+
+        $property->setValueFHIRTypeName('string-primitive');
+
         // parse through attributes
-        foreach ($annotation->attributes() as $attribute) {
+        foreach ($any->attributes() as $attribute) {
             switch ($attribute->getName()) {
+                case AttributeNameEnum::_NAMESPACE:
+                    $property->setNamespace((string)$attribute);
+                    break;
+                case AttributeNameEnum::MIN_OCCURS:
+                    $property->setMinOccurs((string)$attribute);
+                    break;
+                case AttributeNameEnum::MAX_OCCURS:
+                    $property->setMaxOccurs((string)$attribute);
+                    break;
 
                 default:
-                    throw ExceptionUtils::createUnexpectedAttributeException($type, $annotation, $attribute);
+                    throw ExceptionUtils::createUnexpectedAttributeException($type, $any, $attribute);
             }
         }
 
         // parse through child elements
-        foreach ($annotation->children('xs', true) as $child) {
+        foreach ($any->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementNameEnum::DOCUMENTATION:
-                    TypeBuilderUtils::setTypeStringFromElementValue($type, $annotation, $child, 'addDocumentationFragment');
-                    break;
-                case ElementNameEnum::COMPLEX_CONTENT:
-                    ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);
-                    break;
 
                 default:
-                    throw ExceptionUtils::createUnexpectedElementException($type, $annotation, $child);
+                    throw ExceptionUtils::createUnexpectedElementException($type, $any, $child);
             }
         }
     }

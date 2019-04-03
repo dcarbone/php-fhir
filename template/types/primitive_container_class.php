@@ -30,7 +30,7 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 ob_start();
 
 // build file header
-echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/file_header.php';
+echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header.php';
 
 // build class header ?>
 /**<?php if ('' !== $classDocumentation) : ?>
@@ -47,19 +47,18 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 {
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
-    const FIELD_RESOURCE_TYPE = 'resourceType';
 
 <?php foreach($sortedProperties as $property) : ?>
-<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_field_constant.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php'; ?>
 
 <?php endforeach; ?>
 <?php foreach($sortedProperties as $property) : ?>
-<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php'; ?>
 
 <?php endforeach; ?>
 <?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php'; ?>
 
-<?php echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/class_property_methods.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php'; ?>
 
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
 

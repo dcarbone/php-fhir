@@ -142,6 +142,10 @@ abstract class TypeClassBuilder
             case TypeKindEnum::_LIST:
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/list_class.php';
 
+            case TypeKindEnum::RESOURCE_CONTAINER:
+            case TypeKindEnum::RESOURCE_INLINE:
+                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/resource_container_class.php';
+
             case TypeKindEnum::ELEMENT:
             case TypeKindEnum::RESOURCE:
             case TypeKindEnum::DOMAIN_RESOURCE;

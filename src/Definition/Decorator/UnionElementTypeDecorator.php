@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 
@@ -52,6 +53,9 @@ abstract class UnionElementTypeDecorator
 
         foreach ($union->children('xs', true) as $child) {
             switch ($child->getName()) {
+                case ElementNameEnum::SIMPLE_TYPE:
+                    SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedElementException($type, $union, $child);

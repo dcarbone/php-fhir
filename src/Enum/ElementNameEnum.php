@@ -19,11 +19,14 @@
 use MyCLabs\Enum\Enum;
 
 /**
- * Class ElementTypeEnum
+ * Class ElementNameEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-class ElementTypeEnum extends Enum
+class ElementNameEnum extends Enum
 {
+    const _INCLUDE = 'include';
+    const IMPORT   = 'import';
+
     const COMPLEX_TYPE    = 'complexType';
     const COMPLEX_CONTENT = 'complexContent';
 
@@ -45,4 +48,6 @@ class ElementTypeEnum extends Enum
     const  MIN_LENGTH = 'minLength';
     const  MAX_LENGTH = 'maxLength';
     const  PATTERN    = 'pattern';
+
+    const ANY = 'any';
 }

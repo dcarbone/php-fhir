@@ -99,36 +99,6 @@ PHP;
         return $out;
     }
 
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @return string
-     */
-    protected static function buildPrimitiveContainerBody(VersionConfig $config, Type $type)
-    {
-        $out = static::buildParentCall($config, $type);
-        if ($config->mustSquashPrimitives()) {
-            $properties = $type->getProperties()->getSortedIterator();
-            $out .= '        if (0 === count($a) && null !== ($v = $this->getValue())';
-            if (1 < count($properties)) {
-                foreach ($properties as $i => $property) {
-                    $pname = $property->getName();
-                    if ('value' !== $pname) {
-                        $out .= " &&\n            ";
-                        if ($property->isCollection()) {
-                            $out .= "0 === count(\$this->{$pname})";
-                        } else {
-                            $out .= "!isset(\$this->{$pname})";
-                        }
-                    }
-                }
-            }
-            $out .= ") {\n";
-            $out .= "            return \$v->getValue();\n";
-            $out .= "        }\n";
-        }
-        return $out . self::buildDefaultBody($config, $type, false);
-    }
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config

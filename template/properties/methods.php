@@ -25,16 +25,16 @@ ob_start();
 foreach ($sortedProperties as $property) :
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind(); ?>
-<?php echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/getter_default.php'; ?>
+<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/getter_default.php'; ?>
 
 <?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
-        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_primitive.php';
+        echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_primitive.php';
     else :
-        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_default.php';
+        echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_default.php';
     endif;
     if ($property->isCollection()) :
         echo "\n";
-        echo require PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR . '/setter_collection.php';
+        echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_collection.php';
     endif; ?>
 
 <?php endforeach;

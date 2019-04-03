@@ -23,43 +23,37 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 
 /**
- * Class AnnotationElementTypeDecorator
+ * Class SimpleContentElementTypeDecorator
  * @package DCarbone\PHPFHIR\Definition\Decorator
  */
-abstract class AnnotationElementTypeDecorator
+abstract class SimpleContentElementTypeDecorator
 {
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \SimpleXMLElement $annotation
+     * @param \SimpleXMLElement $simpleContent
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $annotation)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $simpleContent)
     {
-        // parse through attributes
-        foreach ($annotation->attributes() as $attribute) {
+        foreach ($simpleContent->attributes() as $attribute) {
             switch ($attribute->getName()) {
 
                 default:
-                    throw ExceptionUtils::createUnexpectedAttributeException($type, $annotation, $attribute);
+                    throw ExceptionUtils::createUnexpectedAttributeException($type, $simpleContent, $attribute);
             }
         }
 
-        // parse through child elements
-        foreach ($annotation->children('xs', true) as $child) {
+        foreach ($simpleContent->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementNameEnum::DOCUMENTATION:
-                    TypeBuilderUtils::setTypeStringFromElementValue($type, $annotation, $child, 'addDocumentationFragment');
-                    break;
-                case ElementNameEnum::COMPLEX_CONTENT:
-                    ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);
+                case ElementNameEnum::EXTENSION:
+                    ExtensionElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
                 default:
-                    throw ExceptionUtils::createUnexpectedElementException($type, $annotation, $child);
+                    throw ExceptionUtils::createUnexpectedElementException($type, $simpleContent, $child);
             }
         }
     }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ define('PHPFHIR_FHIR_XMLNS', 'http://hl7.org/fhir');
 // XSDs
 define('PHPFHIR_SKIP_XML_XSD', 'xml.xsd');
 define('PHPFHIR_SKIP_XHTML_XSD', 'fhir-xhtml.xsd');
+define('PHPFHIR_SKIP_TOMBSTONE_XSD', 'tombstone.xsd');
+define('PHPFHIR_SKIP_ATOM_XSD_PREFIX', 'fhir-atom');
 define('PHPFHIR_SKIP_FHIR_XSD_PREFIX', 'fhir-');
 
 // Properties
@@ -49,8 +51,8 @@ define('PHPFHIR_UNLIMITED', -1);
 define('PHPFHIR_DOCBLOC_MAX_LENGTH', 80);
 define('PHPFHIR_NAMESPACE_TRIM_CUTSET', " \t\n\r\0\x0b\\/");
 define('PHPFHIR_TEMPLATE_DIR', __DIR__ . '/../template');
-define('PHPFHIR_TEMPLATE_COMMON_DIR', PHPFHIR_TEMPLATE_DIR . '/common');
-define('PHPFHIR_TEMPLATE_PROPERTY_METHODS_DIR', PHPFHIR_TEMPLATE_DIR . '/property_methods');
+define('PHPFHIR_TEMPLATE_FILE_DIR', PHPFHIR_TEMPLATE_DIR . '/file');
+define('PHPFHIR_TEMPLATE_PROPERTIES_DIR', PHPFHIR_TEMPLATE_DIR . '/properties');
 define('PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR', PHPFHIR_TEMPLATE_DIR . '/constructors');
 define('PHPFHIR_TEMPLATE_TYPES_DIR', PHPFHIR_TEMPLATE_DIR . '/types');
 define('PHPFHIR_TEMPLATE_SERIALIZATION_DIR', PHPFHIR_TEMPLATE_DIR . '/serialization');

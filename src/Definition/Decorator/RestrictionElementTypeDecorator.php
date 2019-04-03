@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
-use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 
@@ -53,20 +53,24 @@ abstract class RestrictionElementTypeDecorator
 
         foreach ($restriction->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementTypeEnum::SIMPLE_TYPE:
+                case ElementNameEnum::SIMPLE_TYPE:
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementTypeEnum::PATTERN:
+                case ElementNameEnum::PATTERN:
                     TypeBuilderUtils::setTypeStringFromElementAttribute($type, $child, 'setPattern');
                     break;
-
-                case ElementTypeEnum::MIN_LENGTH:
-                case ElementTypeEnum::MAX_LENGTH:
+                case ElementNameEnum::MIN_LENGTH:
+                case ElementNameEnum::MAX_LENGTH:
                     TypeBuilderUtils::setTypeIntegerFromElementAttribute($type, $child, 'set' . $child->getName());
                     break;
-
-                case ElementTypeEnum::ENUMERATION:
+                case ElementNameEnum::ENUMERATION:
                     TypeBuilderUtils::addTypeEnumeratedValue($type, $restriction, $child);
+                    break;
+                case ElementNameEnum::SEQUENCE:
+                    SequenceElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
+                case ElementNameEnum::ATTRIBUTE:
+                    AttributeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
                 default:

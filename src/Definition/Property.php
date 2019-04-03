@@ -55,6 +55,12 @@ class Property
     /** @var string */
     private $ref = null;
 
+    /** @var null|string */ // TODO: what the hell is this...?
+    private $fixed = null;
+
+    /** @var null|string */ // NOTE: not a php namespace
+    private $namespace = null;
+
     /**
      * Property constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -131,6 +137,25 @@ class Property
     }
 
     /**
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
+     */
+    public function getValueFHIRType()
+    {
+        return $this->valueFHIRType;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $valueFHIRType
+     * @return \DCarbone\PHPFHIR\Definition\Property
+     */
+    public function setValueFHIRType(Type $valueFHIRType)
+    {
+        $this->valueFHIRType = $valueFHIRType;
+        $this->valueFHIRTypeName = $valueFHIRType->getFHIRName();
+        return $this;
+    }
+
+    /**
      * @return int
      */
     public function getMaxOccurs()
@@ -191,24 +216,6 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\Type|null
-     */
-    public function getValueFHIRType()
-    {
-        return $this->valueFHIRType;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $valueFHIRType
-     * @return \DCarbone\PHPFHIR\Definition\Property
-     */
-    public function setValueFHIRType(Type $valueFHIRType)
-    {
-        $this->valueFHIRType = $valueFHIRType;
-        return $this;
-    }
-
-    /**
      * @return bool
      */
     public function isCollection()
@@ -265,6 +272,42 @@ class Property
     public function setRef($ref)
     {
         $this->ref = $ref;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFixed()
+    {
+        return $this->fixed;
+    }
+
+    /**
+     * @param string|null $fixed
+     * @return \DCarbone\PHPFHIR\Definition\Property
+     */
+    public function setFixed($fixed)
+    {
+        $this->fixed = $fixed;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+    /**
+     * @param string|null $namespace
+     * @return \DCarbone\PHPFHIR\Definition\Property
+     */
+    public function setNamespace($namespace)
+    {
+        $this->namespace = $namespace;
         return $this;
     }
 

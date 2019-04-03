@@ -23,6 +23,7 @@ use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
@@ -58,6 +59,9 @@ abstract class AttributeElementTypeDecorator
                 case AttributeNameEnum::_USE:
                     $property->setUse(new PropertyUseEnum((string)$attribute));
                     break;
+                case AttributeNameEnum::FIXED:
+                    $property->setFixed((string)$attribute);
+                    break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $attributeElement, $attribute);
@@ -67,6 +71,9 @@ abstract class AttributeElementTypeDecorator
         // parse through child elements
         foreach ($attributeElement->children('xs', true) as $child) {
             switch ($child->getName()) {
+                case ElementNameEnum::SIMPLE_TYPE:
+                    SimpleTypeElementPropertyDecorator::decorate($config, $types, $type, $property, $child);
+                     break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedElementException($type, $attributeElement, $child);

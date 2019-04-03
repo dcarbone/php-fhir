@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
-use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -44,6 +44,9 @@ abstract class ComplexTypeElementTypeDecorator
             switch ($attribute->getName()) {
                 case AttributeNameEnum::NAME:
                     continue 2;
+                case AttributeNameEnum::MIXED:
+                    $type->setMixed((string)$attribute);
+                    break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $complexType, $attribute);
@@ -52,17 +55,23 @@ abstract class ComplexTypeElementTypeDecorator
 
         foreach ($complexType->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementTypeEnum::ANNOTATION:
+                case ElementNameEnum::ANNOTATION:
                     AnnotationElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementTypeEnum::COMPLEX_CONTENT:
+                case ElementNameEnum::COMPLEX_CONTENT:
                     ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementTypeEnum::SEQUENCE:
+                case ElementNameEnum::SEQUENCE:
                     SequenceElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementTypeEnum::ATTRIBUTE:
+                case ElementNameEnum::ATTRIBUTE:
                     AttributeElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
+                case ElementNameEnum::SIMPLE_CONTENT:
+                    SimpleContentElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
+                case ElementNameEnum::CHOICE:
+                    ChoiceElementTypeDecorator::decorate($config, $types,  $type, $child);
                     break;
 
                 default:

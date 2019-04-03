@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var bool $skipImports */
 
 // localize logger so we don't have to call "$config->getLogger()" all over the place...
 $log = $config->getLogger();
@@ -76,12 +77,15 @@ foreach ($sortedProperties as $property) {
 $classImports = array_unique($classImports);
 natcasesort($classImports);
 
-foreach ($classImports as $import) {
-    echo "use {$import};\n";
+if (!isset($skipImports) || !$skipImports) {
+    foreach ($classImports as $import) {
+        echo "use {$import};\n";
+    }
+
+    if (0 < count($classImports)) {
+        echo "\n";
+    }
 }
 
-if (0 < count($classImports)) {
-    echo "\n";
-}
 
 return ob_get_clean();

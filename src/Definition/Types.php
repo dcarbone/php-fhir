@@ -55,6 +55,9 @@ class Types implements \Countable
      */
     public function getTypeByName($name)
     {
+        if (0 === strpos($name, 'xs:')) {
+            $name = substr($name, 3);
+        }
         foreach ($this->types as $type) {
             if ($type->getFHIRName() === $name) {
                 return $type;

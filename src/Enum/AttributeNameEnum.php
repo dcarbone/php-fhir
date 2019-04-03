@@ -33,4 +33,7 @@ class AttributeNameEnum extends Enum
     const MIN_OCCURS   = 'minOccurs';
     const MAX_OCCURS   = 'maxOccurs';
     const REF          = 'ref';
+    const FIXED        = 'fixed';
+    const MIXED        = 'mixed';
+    const _NAMESPACE    = 'namespace';
 }

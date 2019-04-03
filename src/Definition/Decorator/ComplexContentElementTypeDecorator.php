@@ -22,7 +22,7 @@ namespace DCarbone\PHPFHIR\Definition\Decorator;
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -54,11 +54,14 @@ abstract class ComplexContentElementTypeDecorator
         // parse through child elements
         foreach ($complexContent->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementTypeEnum::ANNOTATION:
+                case ElementNameEnum::ANNOTATION:
                     AnnotationElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementTypeEnum::EXTENSION:
+                case ElementNameEnum::EXTENSION:
                     ExtensionElementTypeDecorator::decorate($config, $types, $type, $child);
+                    break;
+                case ElementNameEnum::RESTRICTION:
+                    RestrictionElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
                 default:

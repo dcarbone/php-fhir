@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
-use DCarbone\PHPFHIR\Enum\ElementTypeEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -63,8 +63,11 @@ class ElementElementTypeDecorator
         // parse through child elements
         foreach ($element->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementTypeEnum::ANNOTATION:
+                case ElementNameEnum::ANNOTATION:
                     AnnotationElementPropertyTypeDecorator::decorate($config, $types, $type, $property, $child);
+                    break;
+                case ElementNameEnum::COMPLEX_TYPE:
+                    ComplexTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
                 default:

@@ -76,6 +76,9 @@ class Type
     /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum */
     private $primitiveType;
 
+    /** @var bool */ // TODO: what the hell is this...?
+    private $mixed = false;
+
     /**
      * Type constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -474,6 +477,24 @@ class Type
     public function setUnionOf(array $unionOf)
     {
         $this->unionOf = $unionOf;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMixed()
+    {
+        return $this->mixed;
+    }
+
+    /**
+     * @param bool $mixed
+     * @return Type
+     */
+    public function setMixed($mixed)
+    {
+        $this->mixed = (bool)$mixed;
         return $this;
     }
 

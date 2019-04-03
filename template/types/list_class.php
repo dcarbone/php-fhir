@@ -30,7 +30,7 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 ob_start();
 
 // build file header
-echo require PHPFHIR_TEMPLATE_COMMON_DIR . '/file_header.php';
+echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header.php';
 
 // build class header ?>
 /**<?php if ('' !== $classDocumentation) : ?>
@@ -47,7 +47,6 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 {
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
-    const FIELD_RESOURCE_TYPE = 'resourceType';
 
     const FIELD_VALUE = 'value';
 
