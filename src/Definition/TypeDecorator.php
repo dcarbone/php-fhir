@@ -59,33 +59,38 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findParentTypes(VersionConfig $config, Types $types)
+    public static function findRestrictionBaseTypes(VersionConfig $config, Types $types)
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            // TODO: really don't like doing this, but i don't feel like trying to track the whole chain..
-            if ('ResourceNamesPlusBinary' === $type->getFHIRName()) {
-                if ($ptype = $types->getTypeByName('Binary')) {
-                    $type->setParentType($ptype);
-                    $logger->info(sprintf(
-                        'Type "%s" has parent "%s"',
-                        $type,
-                        $ptype
-                    ));
-                } else {
-                    throw ExceptionUtils::createTypeParentNotFoundException($type);
+            if (false !== strpos($type->getFHIRName(), PHPFHIR_PRIMITIVE_SUFFIX)) {
+                continue;
+            }
+
+            if (null !== ($rb = $type->getRestrictionBaseFHIRName())) {
+                $rbType = $types->getTypeByName($rb);
+                if (null === $rbType && 0 === strpos($rb, 'xs:')) {
+                    $sub = substr($rb, 3);
+                    // if the value is uppercase, more than likely is some base xml stuff i'm not gonna mess with.
+                    if (ctype_upper($sub[0])) {
+                        $logger->warning(sprintf(
+                            'Type "%s" has restriction base "%s", skipping lookup...',
+                            $type->getFHIRName(),
+                            $rb
+                        ));
+                        continue;
+                    }
+                    $rbType = $types->getTypeByName("{$sub}-primitive");
                 }
-            } elseif (null !== ($parentTypeName = $type->getParentTypeName())) {
-                if ($ptype = $types->getTypeByName($parentTypeName)) {
-                    $type->setParentType($ptype);
-                    $logger->info(sprintf(
-                        'Type "%s" has parent "%s"',
-                        $type,
-                        $ptype
-                    ));
-                } else {
-                    throw ExceptionUtils::createTypeParentNotFoundException($type);
+                if (null === $rbType) {
+                    throw ExceptionUtils::createTypeRestrictionBaseNotFoundException($type);
                 }
+                $type->setRestrictionBaseFHIRType($rbType);
+                $logger->info(sprintf(
+                    'Type "%s" has restriction base Type "%s"',
+                    $type,
+                    $rbType
+                ));
             }
         }
     }
@@ -94,30 +99,98 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findRestrictionBaseTypes(VersionConfig $config, Types $types)
+    public static function findParentTypes(VersionConfig $config, Types $types)
     {
+        // These are here to enable backwards compatibility with dstu1 and 2
+        static $knownBinary = ['ResourceNamesPlusBinary'];
+        static $knownDecimal = ['score'];
+        static $knownInteger = ['totalResults'];
+
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            if (null !== ($rb = $type->getRestrictionBaseFHIRName())) {
-                if ($rbtype = $types->getTypeByName($rb)) {
-                    $type->setRestrictionBaseFHIRType($rbtype);
-                    $logger->info(sprintf(
-                        'Type "%s" has restriction base Type "%s"',
-                        $type,
-                        $rbtype
-                    ));
-                } elseif (0 === strpos($rb, 'xs:')) {
-                    // this is mostly primitives
-                    $logger->warning(sprintf(
-                        'Type "%s" has restriction base "%s", skipping restriction type lookup...',
-                        $type,
-                        $rb
-                    ));
+            $fhirName = $type->getFHIRName();
+
+            // try to locate parent type name...
+            $parentTypeName = $type->getParentTypeName();
+            if (null === $parentTypeName) {
+                if (in_array($fhirName, $knownBinary, true)) {
+                    $parentTypeName = 'Binary';
+                } elseif (in_array($fhirName, $knownDecimal, true)) {
+                    $parentTypeName = 'decimal';
+                } elseif (in_array($fhirName, $knownInteger, true)) {
+                    $parentTypeName = 'integer';
+                } elseif ($rbType = $type->getRestrictionBaseFHIRType()) {
+                    $parentTypeName = $rbType->getFHIRName();
                 } else {
-                    throw ExceptionUtils::createTypeRestrictionBaseNotFoundException($type);
+                    continue;
                 }
             }
+
+            // skip "base" types 'cuz php.
+            if (0 === strpos($parentTypeName, 'xs:')) {
+                $logger->warning(sprintf(
+                    'Type "%s" has un-resolvable parent "%s"',
+                    $type,
+                    $parentTypeName
+                ));
+                continue;
+            }
+
+            if ($ptype = $types->getTypeByName($parentTypeName)) {
+                $type->setParentType($ptype);
+                $logger->info(sprintf(
+                    'Type "%s" has parent "%s"',
+                    $type,
+                    $ptype
+                ));
+            } else {
+                throw ExceptionUtils::createTypeParentNotFoundException($type);
+            }
         }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     */
+    private static function findPropertyType(VersionConfig $config, Types $types, Type $type, Property $property)
+    {
+        $logger = $config->getLogger();
+
+        $valueFHIRTypeName = $property->getValueFHIRTypeName();
+
+        $pt = $types->getTypeByName($valueFHIRTypeName);
+        if (null === $pt) {
+            if (PHPFHIR_XHTML_DIV === $property->getRef()) {
+                // TODO: come up with "raw" type for things like this?
+                $property->setValueFHIRType($types->getTypeByName('string-primitive'));
+                $logger->warning(sprintf(
+                    'Type "%s" Property "%s" has Ref "%s", setting Type to "string-primitive"',
+                    $type->getFHIRName(),
+                    $property->getName(),
+                    $property->getRef()
+                ));
+                return;
+            } elseif (0 === strpos($valueFHIRTypeName, 'xs:')) {
+                $pt = $types->getTypeByName(substr($valueFHIRTypeName, 3) . '-primitive');
+            }
+            if (null === $pt) {
+                throw ExceptionUtils::createUnknownPropertyTypeException($type, $property);
+            }
+        }
+
+        $property->setValueFHIRType($pt);
+
+        $logger->info(sprintf(
+            'Type "%s" Property "%s" has Value Type "%s"',
+            $type->getFHIRName(),
+            $property->getName(),
+            $pt->getFHIRName()
+        ));
+
+        return;
     }
 
     /**
@@ -126,30 +199,103 @@ abstract class TypeDecorator
      */
     public static function findPropertyTypes(VersionConfig $config, Types $types)
     {
-        $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
-                if ($pt = $types->getTypeByName($property->getValueFHIRTypeName())) {
-                    $property->setValueFHIRType($pt);
-                    $logger->info(sprintf(
-                        'Type "%s" Property "%s" has Value Type "%s"',
-                        $type->getFHIRName(),
-                        $property->getName(),
-                        $pt->getFHIRName()
-                    ));
-                } elseif (PHPFHIR_XHTML_DIV === $property->getRef()) {
-                    // TODO: do something fancier here...
-                    $property->setValueFHIRType($types->getTypeByName('string-primitive'));
-                    $logger->warning(sprintf(
-                        'Type "%s" Property "%s" has Ref "%s", setting Type to "string-primitive"',
-                        $type->getFHIRName(),
-                        $property->getName(),
-                        $property->getRef()
-                    ));
-                } else {
-                    throw ExceptionUtils::createUnknownPropertyTypeException($type, $property);
-                }
+                self::findPropertyType($config, $types, $type, $property);
             }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function determinePrimitiveTypes(VersionConfig $config, Types $types)
+    {
+        $logger = $config->getLogger();
+        foreach ($types->getIterator() as $type) {
+            $kind = $type->getKind();
+            if ($kind->isPrimitive()) {
+                if ($type->hasParent()) {
+                    $ptn = $type->getRootType()->getFHIRName();
+                } else {
+                    $ptn = $type->getFHIRName();
+                }
+                $ptn = str_replace('-primitive', '', $ptn);
+                $pt = new PrimitiveTypeEnum($ptn);
+                $type->setPrimitiveType($pt);
+                $logger->info(sprintf(
+                    'Type "%s" is a Primitive of type "%s"',
+                    $type,
+                    $pt
+                ));
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param string $kindName
+     */
+    private static function setTypeKind(VersionConfig $config, Types $types, Type $type, $kindName)
+    {
+        $kind = new TypeKindEnum($kindName);
+        $type->setKind($kind);
+        $config->getLogger()->info(sprintf(
+            'Setting Type "%s" to Kind "%s"',
+            $type->getFHIRName(),
+            $type->getKind()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     */
+    private static function determineParsedTypeKind(VersionConfig $config, Types $types, Type $type)
+    {
+        // enables backwards compatibility with dstu 1 & 2
+        static $knownList = ['ResourceType'];
+
+        $logger = $config->getLogger();
+        $fhirName = $type->getFHIRName();
+
+        // there are a few specialty types kinds that are set during the parsing process, most notably for
+        // html value types and primitive value types
+        if (null !== $type->getKind()) {
+            $logger->warning(sprintf(
+                'Type "%s" already has Kind "%s", will not set again',
+                $fhirName,
+                $type->getKind()
+            ));
+            return;
+        }
+
+        if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
+            self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
+        } elseif (in_array($fhirName, $knownList, true)) {
+            self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
+        } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
+            self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
+        } elseif (false !== strpos($type->getFHIRName(), '.')) {
+            self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
+        } elseif ($types->getTypeByName("{$fhirName}-primitive")) {
+            self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE_CONTAINER);
+        } elseif (null !== ($rootType = $type->getRootType()) && $rootType !== $type) {
+            if (null === $rootType->getKind()) {
+                // ensure root type has kind
+                self::determineParsedTypeKind($config, $types, $rootType);
+            }
+            if ($rootType->getKind()->isPrimitive()) {
+                self::setTypeKind($config, $types, $type, (string)TypeKindEnum::ELEMENT);
+            } else {
+                self::setTypeKind($config, $types, $type, (string)$rootType->getKind());
+            }
+        } else {
+            self::setTypeKind($config, $types, $type, $fhirName);
         }
     }
 
@@ -162,61 +308,8 @@ abstract class TypeDecorator
      */
     public static function determineParsedTypeKinds(VersionConfig $config, Types $types)
     {
-        // TODO: this is a horrible hack to continue to support older versions of the spec...
-        static $knownPrimitiveContainers = [
-            'xmlIdRef',
-        ];
-        static $knownLists = [
-            'ResourceType',
-        ];
-
-        $logger = $config->getLogger();
-
         foreach ($types->getIterator() as $type) {
-            $fhirName = $type->getFHIRName();
-
-            // there are a few specialty types kinds that are set during the parsing process, most notably for
-            // html value types and primitive value types
-            if (null !== $type->getKind()) {
-                $logger->warning(sprintf(
-                    'Type %s already has Kind %s, will not set again',
-                    $fhirName,
-                    $type->getKind()
-                ));
-                continue;
-            }
-
-            // log primitives slightly differently
-            if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
-                $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
-                $type->setPrimitiveType(new PrimitiveTypeEnum(str_replace(PHPFHIR_PRIMITIVE_SUFFIX, '', $fhirName)));
-                $logger->info(sprintf(
-                    'Setting Type "%s" to Kind "%s" with PrimitiveType "%s"',
-                    $fhirName,
-                    $type->getKind(),
-                    $type->getPrimitiveType()
-                ));
-                continue;
-            }
-
-            // everything else
-            if (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX) || in_array($fhirName, $knownLists, true)) {
-                $type->setKind(new TypeKindEnum(TypeKindEnum::_LIST));
-            } elseif (false !== strpos($type->getFHIRName(), '.')) {
-                $type->setKind(new TypeKindEnum(TypeKindEnum::RESOURCE_COMPONENT));
-            } elseif ($types->getTypeByName("{$fhirName}-primitive") ||
-                in_array($fhirName, $knownPrimitiveContainers, true)) {
-                $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE_CONTAINER));
-            } elseif (null !== ($rootType = $type->getRootType())) {
-                $type->setKind(new TypeKindEnum($rootType->getFHIRName()));
-            } else {
-                $type->setKind(new TypeKindEnum($fhirName));
-            }
-            $logger->info(sprintf(
-                'Setting Type "%s" to Kind "%s"',
-                $fhirName,
-                $type->getKind()
-            ));
+            self::determineParsedTypeKind($config, $types, $type);
         }
     }
 

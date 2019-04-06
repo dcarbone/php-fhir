@@ -67,6 +67,8 @@ class ElementElementTypeDecorator
                         // if the "type" value is exactly equivalent to the "name" value, just assume
                         // weirdness and move on.
                         break;
+                    } else if (0 === strpos($v, 'xs:')) {
+                        break;
                     }
                     $type->setParentTypeName($v);
                     break;

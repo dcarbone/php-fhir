@@ -54,7 +54,6 @@ abstract class ExtensionElementTypeDecorator
      */
     public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $extension)
     {
-        // parse through attributes
         foreach ($extension->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::BASE:
@@ -66,7 +65,6 @@ abstract class ExtensionElementTypeDecorator
             }
         }
 
-        // parse through child elements
         foreach ($extension->children('xs', true) as $child) {
             switch ($child->getName()) {
                 case ElementNameEnum::ATTRIBUTE:

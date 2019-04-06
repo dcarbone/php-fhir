@@ -47,6 +47,11 @@ class TypeKindEnum extends Enum
     // this indicates a type that is an immediate child of a resource and not used elsewhere
     const RESOURCE_COMPONENT = 'resource_component';
 
+    // this is deprecated type only found in old implementations
+    const BINARY = 'Binary';
+
+    const GENERIC = 'generic';
+
     // if this is seen, it means something referenced a type that was not defined anywhere in the xsd's
     const UNDEFINED = 'UNDEFINED';
 

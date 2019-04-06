@@ -62,11 +62,11 @@ class Definition
         $log->info('Parsing types');
         $this->types = TypeExtractor::parseTypes($this->config);
 
-        $log->info('Finding parent types');
-        TypeDecorator::findParentTypes($this->config, $this->types);
-
         $log->info('Finding restriction base types');
         TypeDecorator::findRestrictionBaseTypes($this->config, $this->types);
+
+        $log->info('Finding parent types');
+        TypeDecorator::findParentTypes($this->config, $this->types);
 
         $log->info('Finding component types');
         TypeDecorator::findComponentOfTypes($this->config, $this->types);
@@ -74,6 +74,9 @@ class Definition
         // TODO: order of operations issue here, ideally this would be first...
         $log->info('Determining type kinds');
         TypeDecorator::determineParsedTypeKinds($this->config, $this->types);
+
+        $log->info('Determining Primitive Type kinds');
+        TypeDecorator::determinePrimitiveTypes($this->config, $this->types);
 
         $log->info('Finding property types');
         TypeDecorator::findPropertyTypes($this->config, $this->types);
