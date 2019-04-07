@@ -44,6 +44,17 @@ class TypeKindEnum extends Enum
     const RESOURCE_INLINE    = 'Resource.Inline';
     const DOMAIN_RESOURCE    = 'DomainResource';
 
+    /** @var array */
+    public static $knownRoots = [
+        self::EXTENSION,
+        self::ELEMENT,
+        self::BACKBONE_ELEMENT,
+        self::RESOURCE,
+        self::RESOURCE_CONTAINER,
+        self::RESOURCE_INLINE,
+        self::DOMAIN_RESOURCE,
+    ];
+
     // this indicates a type that is an immediate child of a resource and not used elsewhere
     const RESOURCE_COMPONENT = 'resource_component';
 

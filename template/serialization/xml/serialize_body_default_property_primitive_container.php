@@ -23,23 +23,29 @@
 
 ob_start();
 if ($isCollection) : ?>
-    if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-        $first = true;
-        foreach($vs as $v) {
-            if (null === $v) {
-                continue;
+        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
+            $first = true;
+            foreach($vs as $v) {
+                if (null === $v) {
+                    continue;
+                }
+                if ($first) {
+                    $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
+                    if (null !== $v->getId() || [] !== $v->getExtension()) {
+                        $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+                    }
+                    $first = false;
+                } else {
+                    $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+                }
             }
-            if ($first) {
-                $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-                $first = false;
-            }
-            $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
         }
-    }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-            $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+            if (null !== $v->getId() || [] !== $v->getExtension()) {
+                $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+            }
         }
 <?php endif;
 return ob_get_clean();

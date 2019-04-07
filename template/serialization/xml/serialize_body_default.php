@@ -29,8 +29,10 @@ foreach ($sortedProperties as $property) :
     $propertyTypeKind = $propertyType->getKind();
     $isCollection = $property->isCollection();
     $getter = 'get' . ucfirst($propertyName);
-    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
+    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
         echo require 'serialize_body_default_property_primitive_list.php';
+    elseif ($propertyTypeKind->isPrimitiveContainer()) :
+        echo require 'serialize_body_default_property_primitive_container.php';
     else :
         echo require 'serialize_body_default_property_default.php';
     endif;

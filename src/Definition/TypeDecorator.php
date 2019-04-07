@@ -102,28 +102,28 @@ abstract class TypeDecorator
     public static function findParentTypes(VersionConfig $config, Types $types)
     {
         // These are here to enable backwards compatibility with dstu1 and 2
-        static $knownBinary = ['ResourceNamesPlusBinary'];
-        static $knownDecimal = ['score'];
-        static $knownInteger = ['totalResults'];
+//        static $knownBinary = ['ResourceNamesPlusBinary'];
+//        static $knownDecimal = ['score'];
+//        static $knownInteger = ['totalResults'];
 
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            $fhirName = $type->getFHIRName();
+//            $fhirName = $type->getFHIRName();
 
             // try to locate parent type name...
             $parentTypeName = $type->getParentTypeName();
             if (null === $parentTypeName) {
-                if (in_array($fhirName, $knownBinary, true)) {
-                    $parentTypeName = 'Binary';
-                } elseif (in_array($fhirName, $knownDecimal, true)) {
-                    $parentTypeName = 'decimal';
-                } elseif (in_array($fhirName, $knownInteger, true)) {
-                    $parentTypeName = 'integer';
-                } elseif ($rbType = $type->getRestrictionBaseFHIRType()) {
-                    $parentTypeName = $rbType->getFHIRName();
-                } else {
-                    continue;
-                }
+//                if (in_array($fhirName, $knownBinary, true)) {
+//                    $parentTypeName = 'Binary';
+//                } elseif (in_array($fhirName, $knownDecimal, true)) {
+//                    $parentTypeName = 'decimal';
+//                } elseif (in_array($fhirName, $knownInteger, true)) {
+//                    $parentTypeName = 'integer';
+//                } elseif ($rbType = $type->getRestrictionBaseFHIRType()) {
+//                    $parentTypeName = $rbType->getFHIRName();
+//                } else {
+                continue;
+//                }
             }
 
             // skip "base" types 'cuz php.
@@ -276,9 +276,7 @@ abstract class TypeDecorator
 
         if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
-        } elseif (in_array($fhirName, $knownList, true)) {
-            self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
-        } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
+        } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX) || in_array($fhirName, $knownList, true)) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
         } elseif (false !== strpos($type->getFHIRName(), '.')) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
@@ -294,8 +292,10 @@ abstract class TypeDecorator
             } else {
                 self::setTypeKind($config, $types, $type, (string)$rootType->getKind());
             }
-        } else {
+        } elseif (in_array($fhirName, TypeKindEnum::$knownRoots, true)) {
             self::setTypeKind($config, $types, $type, $fhirName);
+        } else {
+            self::setTypeKind($config, $types, $type, TypeKindEnum::GENERIC);
         }
     }
 
