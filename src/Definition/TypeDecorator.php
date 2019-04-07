@@ -313,6 +313,47 @@ abstract class TypeDecorator
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     */
+    public static function removeDuplicatePropertiesFromType(VersionConfig $config, Types $types, Type $type)
+    {
+        $parent = $type->getParentType();
+        while (null !== $parent) {
+            foreach ($type->getProperties()->getIterator() as $property) {
+                foreach ($parent->getProperties()->getIterator() as $parentProperty) {
+                    if ($property->getName() === $parentProperty->getName()) {
+                        $config->getLogger()->warning(sprintf(
+                            'Removing Property "%s" from Type "%s" as Parent "%s" already has it',
+                            $property,
+                            $type,
+                            $parent
+                        ));
+                        $type->getProperties()->removeProperty($property);
+                        continue 2;
+                    }
+                }
+            }
+            $parent = $parent->getParentType();
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function removeDuplicateProperties(VersionConfig $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            if (!$type->hasParent()) {
+                continue;
+            }
+            self::removeDuplicatePropertiesFromType($config, $types, $type);
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
     public static function testDecoration(VersionConfig $config, Types $types)
     {

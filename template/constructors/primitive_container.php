@@ -34,7 +34,7 @@ $valuePrimitiveTypeKind = $valuePrimitiveType->getPrimitiveType();
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|array|<?php echo $valuePrimitiveTypeKind->getPHPValueType(); ?> $data
+     * @param null|array|<?php echo $valuePrimitiveTypeKind->getPHPValueType(); ?>|<?php echo $valuePrimitiveType->getFullyQualifiedClassName(true); ?> $data
      */
     public function __construct($data = null)
     {

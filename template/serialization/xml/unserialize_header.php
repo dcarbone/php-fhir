@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
@@ -56,7 +58,7 @@ ob_start(); ?>
                 is_object($type) ? get_class($type) : gettype($type)
             ));
         }
-<?php if (0 < count($sortedProperties)) : ?>
+<?php if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]) || 0 < count($sortedProperties)) : ?>
         $attributes = $sxe->attributes();
         $children = $sxe->children();
 <?php endif;

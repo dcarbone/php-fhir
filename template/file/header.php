@@ -76,9 +76,7 @@ foreach ($sortedProperties as $property) {
     if ($propertyTypeNS === $typeNS) {
         continue;
     }
-    if (!in_array($propertyTypeNS, $classImports, true)) {
-        $classImports[] = $propertyType->getFullyQualifiedClassName(false);
-    }
+    $classImports[] = $propertyType->getFullyQualifiedClassName(false);
 }
 
 // finally, sort and then print the imports

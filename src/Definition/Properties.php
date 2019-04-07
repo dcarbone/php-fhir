@@ -150,6 +150,33 @@ class Properties implements \Countable
     }
 
     /**
+     * @param string $name
+     */
+    public function removePropertyByName($name)
+    {
+        foreach ($this->properties as $i => $property) {
+            if ($property->getName() === $name) {
+                unset($this->properties[$i]);
+                $this->properties = array_values($this->properties);
+                return;
+            }
+        }
+        return;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     */
+    public function removeProperty(Property $property)
+    {
+        $idx = array_search($property, $this->properties, true);
+        if (false !== $idx) {
+            unset($this->properties[$idx]);
+            $this->properties = array_values($this->properties);
+        }
+    }
+
+    /**
      * @return int
      */
     public function count()

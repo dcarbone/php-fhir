@@ -81,6 +81,9 @@ class Definition
         $log->info('Finding property types');
         TypeDecorator::findPropertyTypes($this->config, $this->types);
 
+        $log->info('Removing duplicate properties from child types');
+        TypeDecorator::removeDuplicateProperties($this->config, $this->types);
+
         $log->info('Performing some sanity checking');
         TypeDecorator::testDecoration($this->config, $this->types);
 
