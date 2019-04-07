@@ -45,7 +45,7 @@ class TypeKindEnum extends Enum
     const DOMAIN_RESOURCE    = 'DomainResource';
 
     /** @var array */
-    public static $knownRoots = [
+    private static $knownRoots = [
         self::EXTENSION,
         self::ELEMENT,
         self::BACKBONE_ELEMENT,
@@ -58,13 +58,17 @@ class TypeKindEnum extends Enum
     // this indicates a type that is an immediate child of a resource and not used elsewhere
     const RESOURCE_COMPONENT = 'resource_component';
 
-    // this is deprecated type only found in old implementations
-    const BINARY = 'Binary';
-
+    // the generic type is applied to anything that is not a child of a known root or a known root itself.
     const GENERIC = 'generic';
 
-    // if this is seen, it means something referenced a type that was not defined anywhere in the xsd's
-    const UNDEFINED = 'UNDEFINED';
+    /**
+     * @param $fhirName
+     * @return bool
+     */
+    public static function isKnownRoot($fhirName)
+    {
+        return in_array($fhirName, self::$knownRoots, true);
+    }
 
     /**
      * @param string $kind
@@ -156,8 +160,8 @@ class TypeKindEnum extends Enum
     /**
      * @return bool
      */
-    public function isUndefined()
+    public function isGeneric()
     {
-        return $this->is(self::UNDEFINED);
+        return $this->is(self::GENERIC);
     }
 }

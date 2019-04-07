@@ -52,6 +52,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 <?php if (null === $parentType) : ?>    const FIELD_RESOURCE_TYPE = 'resourceType';
 <?php endif; ?>
 
+<?php if (0 !== count($sortedProperties)) : ?>
 <?php foreach($sortedProperties as $property) : ?>
 <?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php'; ?>
 <?php endforeach; ?>
@@ -64,6 +65,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 
 <?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php'; ?>
 
+<?php endif; ?>
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
 
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>

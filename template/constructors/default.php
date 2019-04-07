@@ -21,6 +21,9 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 /** @var string $typeClassName */
 
+if (0 === count($sortedProperties)) :
+    return '';
+endif;
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor

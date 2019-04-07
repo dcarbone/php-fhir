@@ -40,10 +40,6 @@ class Types implements \Countable
     public function __construct(VersionConfig $config)
     {
         $this->config = $config;
-        // seed the UNDEFINED type
-        $und =  new Type($config, TypeKindEnum::UNDEFINED);
-        $und->setKind(new TypeKindEnum(TypeKindEnum::UNDEFINED));
-        $this->types[] = $und;
     }
 
     /**
