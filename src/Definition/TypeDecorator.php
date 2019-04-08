@@ -109,6 +109,11 @@ abstract class TypeDecorator
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
 
+            // TODO: this is kinda hacky...
+            if (false !== strpos($fhirName, '-list')) {
+                continue;
+            }
+
             // try to locate parent type name...
             $parentTypeName = $type->getParentTypeName();
             if (null === $parentTypeName) {
