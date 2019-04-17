@@ -104,13 +104,14 @@ abstract class TypeDecorator
         // These are here to enable backwards compatibility with dstu1 and 2
         static $knownDecimal = ['score'];
         static $knownInteger = ['totalResults'];
+        static $knownList = ['ResourceType'];
 
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
 
             // TODO: this is kinda hacky...
-            if (false !== strpos($fhirName, '-list')) {
+            if (false !== strpos($fhirName, '-list') || in_array($type->getFHIRName(), $knownList, true)) {
                 continue;
             }
 
