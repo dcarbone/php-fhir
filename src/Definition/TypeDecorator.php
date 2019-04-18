@@ -67,31 +67,39 @@ abstract class TypeDecorator
                 continue;
             }
 
-            if (null !== ($rb = $type->getRestrictionBaseFHIRName())) {
-                $rbType = $types->getTypeByName($rb);
-                if (null === $rbType && 0 === strpos($rb, 'xs:')) {
-                    $sub = substr($rb, 3);
-                    // if the value is uppercase, more than likely is some base xml stuff i'm not gonna mess with.
-                    if (ctype_upper($sub[0])) {
-                        $logger->warning(sprintf(
-                            'Type "%s" has restriction base "%s", skipping lookup...',
-                            $type->getFHIRName(),
-                            $rb
-                        ));
-                        continue;
-                    }
-                    $rbType = $types->getTypeByName("{$sub}-primitive");
+            $fhirName = $type->getFHIRName();
+            $rbName = $type->getRestrictionBaseFHIRName();
+
+            if (null === $rbName) {
+                if ('ResourceType' === $fhirName) {
+                    $type->setRestrictionBaseFHIRType($types->getTypeByName('string-primitive'));
                 }
-                if (null === $rbType) {
-                    throw ExceptionUtils::createTypeRestrictionBaseNotFoundException($type);
-                }
-                $type->setRestrictionBaseFHIRType($rbType);
-                $logger->info(sprintf(
-                    'Type "%s" has restriction base Type "%s"',
-                    $type,
-                    $rbType
-                ));
+                continue;
             }
+
+            $rbType = $types->getTypeByName($rbName);
+            if (null === $rbType && 0 === strpos($rbName, 'xs:')) {
+                $sub = substr($rbName, 3);
+                // if the value is uppercase, more than likely is some base xml stuff i'm not gonna mess with.
+                if (ctype_upper($sub[0])) {
+                    $logger->warning(sprintf(
+                        'Type "%s" has restriction base "%s", skipping lookup...',
+                        $fhirName,
+                        $rbName
+                    ));
+                    continue;
+                }
+                $rbType = $types->getTypeByName("{$sub}-primitive");
+            }
+            if (null === $rbType) {
+                throw ExceptionUtils::createTypeRestrictionBaseNotFoundException($type);
+            }
+            $type->setRestrictionBaseFHIRType($rbType);
+            $logger->info(sprintf(
+                'Type "%s" has restriction base Type "%s"',
+                $type,
+                $rbType
+            ));
         }
     }
 
@@ -384,6 +392,13 @@ abstract class TypeDecorator
                 $primitiveType = $type->getPrimitiveType();
                 if (null === $primitiveType) {
                     throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
+                }
+            }
+
+            if ($typeKind->isList()) {
+                $rbType = $type->getRestrictionBaseFHIRType();
+                if (null === $rbType) {
+                    throw ExceptionUtils::createUndefinedListRestrictionBaseException($type);
                 }
             }
         }

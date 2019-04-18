@@ -68,6 +68,18 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
+    public static function createUndefinedListRestrictionBaseException(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'List type "%s" has undefined Restriction Base Type',
+            $type->getFHIRName()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
     public static function createInvalidTypeClassNameException(Type $type)
     {
         return new \DomainException(sprintf(

@@ -29,6 +29,9 @@ $sortedProperties = $type->getProperties()->getSortedIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 $restrictionBase = $type->getRestrictionBaseFHIRName();
 $restrictionBaseType = $types->getTypeByName($restrictionBase);
+if (null === $restrictionBaseType) {
+    $restrictionBase = $types->getTypeByName('string-primitive');
+}
 
 ob_start();
 
