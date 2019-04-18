@@ -79,17 +79,21 @@ abstract class TypeDecorator
 
             $rbType = $types->getTypeByName($rbName);
             if (null === $rbType && 0 === strpos($rbName, 'xs:')) {
-                $sub = substr($rbName, 3);
-                // if the value is uppercase, more than likely is some base xml stuff i'm not gonna mess with.
-                if (ctype_upper($sub[0])) {
-                    $logger->warning(sprintf(
-                        'Type "%s" has restriction base "%s", skipping lookup...',
-                        $fhirName,
-                        $rbName
-                    ));
-                    continue;
+                if ('xs:token' === $rbName) {
+                    $rbType = $types->getTypeByName('string-primitive');
+                } else {
+                    $sub = substr($rbName, 3);
+                    // if the value is uppercase, more than likely is some base xml stuff i'm not gonna mess with.
+                    if (ctype_upper($sub[0])) {
+                        $logger->warning(sprintf(
+                            'Type "%s" has restriction base "%s", skipping lookup...',
+                            $fhirName,
+                            $rbName
+                        ));
+                        continue;
+                    }
+                    $rbType = $types->getTypeByName("{$sub}-primitive");
                 }
-                $rbType = $types->getTypeByName("{$sub}-primitive");
             }
             if (null === $rbType) {
                 throw ExceptionUtils::createTypeRestrictionBaseNotFoundException($type);
