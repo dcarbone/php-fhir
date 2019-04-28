@@ -45,14 +45,15 @@ class Version
     public function __construct($name, array $conf = [])
     {
         $this->name = $name;
+
         if (!isset($conf[self::KEY_URL])) {
             throw new\DomainException('Version ' . $name . ' is missing required config key ' . self::KEY_URL);
         }
-        if (!isset($conf[self::KEY_NAMESPACE])) {
-            throw new \DomainException('Version ' . $name . ' is missing required config key ' . self::KEY_NAMESPACE);
-        }
         $this->setUrl($conf[self::KEY_URL]);
-        $this->setNamespace($conf[self::KEY_NAMESPACE]);
+
+        if (isset($conf[self::KEY_NAMESPACE])) {
+            $this->setNamespace($conf[self::KEY_NAMESPACE]);
+        }
     }
 
     /**
@@ -73,7 +74,7 @@ class Version
 
     /**
      * @param string $url
-     * @return Version
+     * @return \DCarbone\PHPFHIR\Config\Version
      */
     public function setUrl($url)
     {
@@ -82,23 +83,27 @@ class Version
     }
 
     /**
+     * @param bool $leadingSlash
      * @return string
      */
-    public function getNamespace()
+    public function getNamespace($leadingSlash)
     {
-        return $this->namespace;
+        return $leadingSlash ? "\\{$this->namespace}" : $this->namespace;
     }
 
     /**
      * @param string $namespace
-     * @return Version
+     * @return \DCarbone\PHPFHIR\Config\Version
      */
     public function setNamespace($namespace)
     {
-        if (null === $namespace) {
-            $namespace = PHPFHIR_DEFAULT_NAMESPACE;
+        // handle no or empty namespace
+        $namespace = trim((string)$namespace, "\\");
+        if ('' === $namespace) {
+            $this->namespace = '';
+            return $this;
         }
-        $namespace = ltrim($namespace, "\\");
+
         if (false === NameUtils::isValidNSName($namespace)) {
             throw new \InvalidArgumentException(sprintf(
                 'Version "%s" namespace "%s" is not a valid PHP namespace.',
@@ -106,7 +111,8 @@ class Version
                 $this->namespace
             ));
         }
-        $this->namespace = trim($namespace, "\\;");
+
+        $this->namespace = $namespace;
         return $this;
     }
 }

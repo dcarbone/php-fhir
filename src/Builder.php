@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Generator\TypeClassBuilder;
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Generator\TemplateBuilder;
 use DCarbone\PHPFHIR\Utilities\AutoloaderUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
@@ -67,7 +67,7 @@ class Builder
         $this->config->getLogger()->startBreak('Class Generation');
         foreach ($this->definition->getTypes()->getIterator() as $type) {
             $this->config->getLogger()->debug("Generating class for element {$type}...");
-            $classDefinition = TypeClassBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
+            $classDefinition = TemplateBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
             if (null !== $classDefinition) {
                 if (!(bool)file_put_contents(FileUtils::buildTypeFilePath($this->config, $type), $classDefinition)) {
                     throw new \RuntimeException(sprintf(
@@ -99,35 +99,52 @@ class Builder
      */
     protected function afterGeneration()
     {
-        $autoloaderFilePath = FileUtils::buildGenericClassFilePath(
+        $this->log->info('Writing Helper...');
+        $helperFilepath = FileUtils::buildGenericClassFilePath(
             $this->config,
-            $this->config->getNamespace(),
-            'PHPFHIRAutoloader'
+            $this->config->getNamespace(true),
+            'PHPFHIRHelpers'
         );
         if (!(bool)file_put_contents(
-            $autoloaderFilePath,
-            AutoloaderUtils::build($this->config, $this->definition))) {
-            throw new \RuntimeException("Unable to write autoloader to path: {$autoloaderFilePath}");
+            $helperFilepath,
+            TemplateBuilder::generateHelpersClass($this->config, $this->definition->getTypes()))) {
+            throw new \RuntimeException(sprintf('Unable to write Helpers class to path: %s', $helperFilepath));
         }
-        $parserFilePath = FileUtils::buildGenericClassFilePath(
-            $this->config,
-            $this->config->getNamespace(),
-            'PHPFHIRResponseParser'
-        );
-        if (!(bool)file_put_contents(
-            $parserFilePath,
-            ResponseParserUtils::build($this->config))) {
-            throw new \RuntimeException("Unable to write response parser to path: {$parserFilePath}");
-        }
-        $typeMapFilePath = FileUtils::buildGenericClassFilePath(
-            $this->config,
-            $this->config->getNamespace(),
-            'PHPFHIRTypeMap'
-        );
-        if (!(bool)file_put_contents(
-            $typeMapFilePath,
-            TypeMapUtils::build($this->config, $this->definition))) {
-            throw new \RuntimeException("Unable to write response parser to path: {$typeMapFilePath}");
-        }
+
+//        $this->log->info('Writing Autoloader...');
+//        $autoloaderFilePath = FileUtils::buildGenericClassFilePath(
+//            $this->config,
+//            $this->config->getNamespace(true),
+//            'PHPFHIRAutoloader'
+//        );
+//        if (!(bool)file_put_contents(
+//            $autoloaderFilePath,
+//            AutoloaderUtils::build($this->config, $this->definition))) {
+//            throw new \RuntimeException("Unable to write autoloader to path: {$autoloaderFilePath}");
+//        }
+//
+//        $this->log->info('Writing ResponseParser...');
+//        $parserFilePath = FileUtils::buildGenericClassFilePath(
+//            $this->config,
+//            $this->config->getNamespace(true),
+//            'PHPFHIRResponseParser'
+//        );
+//        if (!(bool)file_put_contents(
+//            $parserFilePath,
+//            ResponseParserUtils::build($this->config))) {
+//            throw new \RuntimeException("Unable to write response parser to path: {$parserFilePath}");
+//        }
+//
+//        $this->log->info('Writing TypeMap...');
+//        $typeMapFilePath = FileUtils::buildGenericClassFilePath(
+//            $this->config,
+//            $this->config->getNamespace(true),
+//            'PHPFHIRTypeMap'
+//        );
+//        if (!(bool)file_put_contents(
+//            $typeMapFilePath,
+//            TypeMapUtils::build($this->config, $this->definition))) {
+//            throw new \RuntimeException("Unable to write response parser to path: {$typeMapFilePath}");
+//        }
     }
 }

@@ -210,12 +210,12 @@ class Type
      */
     public function getFullyQualifiedNamespace($leadingSlash)
     {
-        $ns = $this->getConfig()->getNamespace();
+        $ns = $this->getConfig()->getNamespace($leadingSlash);
         $fhirNS = $this->getTypeNamespace();
         if ('' !== $fhirNS) {
             $ns = "{$ns}\\{$fhirNS}";
         }
-        return $leadingSlash ? '\\' . $ns : $ns;
+        return $ns;
     }
 
     /**

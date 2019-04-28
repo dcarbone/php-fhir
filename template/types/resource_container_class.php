@@ -33,7 +33,7 @@ $skipImports = true;
 
 ob_start();
 
-echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header.php'; ?>
+echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php'; ?>
 /**<?php if ('' !== $classDocumentation) : ?>
 
 <?php echo $classDocumentation; ?>

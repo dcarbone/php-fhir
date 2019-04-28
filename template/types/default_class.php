@@ -32,7 +32,7 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 ob_start();
 
 // build file header
-echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header.php';
+echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php';
 
 // build class header ?>
 /**<?php if ('' !== $classDocumentation) : ?>

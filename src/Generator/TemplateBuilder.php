@@ -22,12 +22,11 @@ use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /**
- * Class TypeClassBuilder
+ * Class TemplateBuilder
  * @package DCarbone\PHPFHIR\Generator
  */
-abstract class TypeClassBuilder
+abstract class TemplateBuilder
 {
-
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
@@ -51,5 +50,15 @@ abstract class TypeClassBuilder
             default:
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/default_class.php';
         }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generateHelpersClass(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/helper_class.php';
     }
 }

@@ -75,11 +75,12 @@ class VersionConfig
     }
 
     /**
+     * @param $leadingSlash
      * @return string
      */
-    public function getNamespace()
+    public function getNamespace($leadingSlash)
     {
-        return $this->version->getNamespace();
+        return $this->version->getNamespace($leadingSlash);
     }
 
     /**

@@ -19,7 +19,6 @@
 // conf defaults
 define('PHPFHIR_ROOT_DIR', realpath(dirname(__DIR__)));
 define('PHPFHIR_DEFAULT_OUTPUT_DIR', realpath(PHPFHIR_ROOT_DIR . '/output'));
-define('PHPFHIR_DEFAULT_NAMESPACE', 'PHPFHIRGenerated');
 
 // format regex
 define('PHPFHIR_VARIABLE_NAME_REGEX', '{^[a-zA-Z_][a-zA-Z0-9_]*$}S');
@@ -56,6 +55,7 @@ define('PHPFHIR_TEMPLATE_PROPERTIES_DIR', PHPFHIR_TEMPLATE_DIR . '/properties');
 define('PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR', PHPFHIR_TEMPLATE_DIR . '/constructors');
 define('PHPFHIR_TEMPLATE_TYPES_DIR', PHPFHIR_TEMPLATE_DIR . '/types');
 define('PHPFHIR_TEMPLATE_SERIALIZATION_DIR', PHPFHIR_TEMPLATE_DIR . '/serialization');
+define('PHPFHIR_TEMPLATE_UTILITIES_DIR', PHPFHIR_TEMPLATE_DIR . '/utilities');
 
 define(
     'PHPFHIR_DEFAULT_JSON_SERIALIZE_HEADER',

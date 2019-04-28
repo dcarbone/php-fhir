@@ -343,7 +343,7 @@ foreach ($versions_to_generate as $version) {
 
     $url = $buildConfig->getUrl();
 
-    $namespace = $buildConfig->getNamespace();
+    $namespace = $buildConfig->getNamespace(true);
     $version = trim($version);
     $schema_dir = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version;
 
@@ -454,7 +454,7 @@ foreach ($versions_to_generate as $version) {
         $version,
         $config->getClassesPath(),
         DIRECTORY_SEPARATOR,
-        str_replace('\\', DIRECTORY_SEPARATOR, $namespace),
+        str_replace('\\', DIRECTORY_SEPARATOR, trim($namespace, "\\")),
         PHP_EOL
     );
 
