@@ -82,7 +82,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     }
 
     /**
-     * @param null|string $value;
+     * @param null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?> $value;
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -101,7 +101,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     }
 
     /**
-     * @return null|string
+     * @return null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?>
      */
     public function getValue()
     {
@@ -123,7 +123,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     public function isValid()
     {
         $v = $this->getValue();
-        return null === $v || in_array($v, self::$valueList, true);
+        return null === $v || in_array((string)$v, self::$valueList, true);
     }
 
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
