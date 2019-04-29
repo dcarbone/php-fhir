@@ -28,6 +28,8 @@ class Properties implements \Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private $properties = [];
+    /** @var \DCarbone\PHPFHIR\Definition\Property[] */
+    private $sortedProperties;
 
     /** @var bool */
     private $sorted = false;
@@ -75,20 +77,37 @@ class Properties implements \Countable
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Property $property
-     * @return $this
+     * @return \DCarbone\PHPFHIR\Definition\Properties
      */
     public function addProperty(Property &$property)
     {
         $pname = $property->getName();
+        $pref = $property->getRef();
+        if (null === $pname && null === $pref) {
+            throw new \InvalidArgumentException(sprintf(
+                'Cannot add Property to Type "%s" as it has no $name or $ref defined',
+                $this->getType()->getFHIRName()
+            ));
+        }
         foreach ($this->properties as $current) {
             if ($property === $current) {
                 return $this;
             }
-            if ($pname === $current->getName()) {
+            $cname = $current->getName();
+            $cref = $current->getRef();
+            if (null !== $pname && null !== $cname && $pname === $cname) {
                 $this->config->getLogger()->notice(sprintf(
-                    'Type %s already has property %s, probably some duplicate definition nonsense. Keeping original.',
+                    'Type "%s" already has Property "%s" (name), probably some duplicate definition nonsense. Keeping original.',
                     $this->getType()->getFHIRName(),
                     $property->getName()
+                ));
+                $property = $current;
+                return $this;
+            } elseif (null !== $pref && null !== $cref && $cref === $pref) {
+                $this->config->getLogger()->notice(sprintf(
+                    'Type "%s" already has Property "%s" (ref), probably some duplicate definition nonsense. Keeping original.',
+                    $this->getType()->getFHIRName(),
+                    $property->getRef()
                 ));
                 $property = $current;
                 return $this;
@@ -127,7 +146,7 @@ class Properties implements \Countable
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->properties);
+        return \SplFixedArray::fromArray($this->properties, false);
     }
 
     /**
@@ -136,8 +155,9 @@ class Properties implements \Countable
     public function getSortedIterator()
     {
         if (!$this->sorted) {
+            $this->sortedProperties = $this->properties;
             usort(
-                $this->properties,
+                $this->sortedProperties,
                 function ($a, $b) {
                     /** @var \DCarbone\PHPFHIR\Definition\Property $a */
                     /** @var \DCarbone\PHPFHIR\Definition\Property $b */
@@ -146,7 +166,7 @@ class Properties implements \Countable
             );
             $this->sorted = true;
         }
-        return $this->getIterator();
+        return \SplFixedArray::fromArray($this->sortedProperties, false);
     }
 
     /**

@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Definition\Decorator;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
@@ -64,21 +63,15 @@ abstract class ChoiceElementTypeDecorator
                     break;
 
                 case ElementNameEnum::ELEMENT:
-                    $property = new Property($config, $child, $type->getSourceFilename());
-                    if (null !== $annotationElement) {
-                        AnnotationElementPropertyTypeDecorator::decorate(
-                            $config,
-                            $types,
-                            $type,
-                            $property,
-                            $annotationElement);
-                    }
-                    if (null !== $minOccurs) {
-                        $property->setMinOccurs($minOccurs);
-                    }
-                    if (null !== $maxOccurs) {
-                        $property->setMaxOccurs($maxOccurs);
-                    }
+                    ChoiceElementElementPropertyDecorator::decorate(
+                        $config,
+                        $types,
+                        $type,
+                        $child,
+                        $minOccurs,
+                        $maxOccurs,
+                        $annotationElement
+                    );
                     break;
 
                 default:

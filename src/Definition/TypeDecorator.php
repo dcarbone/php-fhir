@@ -190,6 +190,8 @@ abstract class TypeDecorator
                 return;
             } elseif (0 === strpos($valueFHIRTypeName, 'xs:')) {
                 $pt = $types->getTypeByName(substr($valueFHIRTypeName, 3) . '-primitive');
+            } elseif (null !== ($refName = $property->getRef())) {
+                $pt = $types->getTypeByName($refName);
             }
             if (null === $pt) {
                 throw ExceptionUtils::createUnknownPropertyTypeException($type, $property);
@@ -293,7 +295,7 @@ abstract class TypeDecorator
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
         } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX) || in_array($fhirName, $knownList, true)) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
-        } elseif (false !== strpos($type->getFHIRName(), '.')) {
+        } elseif (false !== strpos($fhirName, '.') && TypeKindEnum::RESOURCE_INLINE !== $fhirName) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
         } elseif ($types->getTypeByName("{$fhirName}-primitive")) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE_CONTAINER);

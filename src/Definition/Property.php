@@ -114,6 +114,12 @@ class Property
      */
     public function setName($name)
     {
+        if (!is_string($name) || '' === $name) {
+            throw new \InvalidArgumentException(sprintf(
+                'Type "%s" Property $name cannot be empty',
+                $this->valueFHIRType->getFHIRName()
+            ));
+        }
         $this->name = $name;
         return $this;
     }
@@ -271,6 +277,12 @@ class Property
      */
     public function setRef($ref)
     {
+        if (!is_string($ref) || '' === $ref) {
+            throw new \InvalidArgumentException(sprintf(
+                'Type "%s" Property $ref cannot be empty',
+                $this->valueFHIRType->getFHIRName()
+            ));
+        }
         $this->ref = $ref;
         return $this;
     }
@@ -338,9 +350,12 @@ class Property
      */
     public function __toString()
     {
-        if (isset($this->name)) {
-            return $this->getName();
+        if ($n = $this->getName()) {
+            return $n;
+        } elseif ($n = $this->getRef()) {
+            return $n;
+        } else {
+            return 'UNKNOWN';
         }
-        return $this->getRef();
     }
 }
