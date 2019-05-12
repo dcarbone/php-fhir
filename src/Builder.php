@@ -18,11 +18,8 @@
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Generator\TemplateBuilder;
-use DCarbone\PHPFHIR\Utilities\AutoloaderUtils;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
-use DCarbone\PHPFHIR\Utilities\ResponseParserUtils;
-use DCarbone\PHPFHIR\Utilities\TypeMapUtils;
 
 /**
  * Class Builder
@@ -109,6 +106,19 @@ class Builder
             $helperFilepath,
             TemplateBuilder::generateHelpersClass($this->config, $this->definition->getTypes()))) {
             throw new \RuntimeException(sprintf('Unable to write Helpers class to path: %s', $helperFilepath));
+        }
+
+        $this->log->info('Writing TypeMap...');
+        $typeMapFilepath = FileUtils::buildGenericClassFilePath(
+            $this->config,
+            $this->config->getNamespace(true),
+            'PHPFHIRTypeMap'
+        );
+
+        if (!(bool)file_put_contents(
+            $typeMapFilepath,
+            TemplateBuilder::generateTypeMapClass($this->config, $this->definition->getTypes()))) {
+            throw new \RuntimeException(sprintf('Unable to write TypeMap class to path: %s', $typeMapFilepath));
         }
 
 //        $this->log->info('Writing Autoloader...');

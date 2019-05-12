@@ -39,6 +39,9 @@ abstract class CopyrightUtils
     /** @var string */
     private static $_standardDate;
 
+    /** @var string */
+    private static $_fhirVersion;
+
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
@@ -85,10 +88,25 @@ abstract class CopyrightUtils
                 }
 
                 if ($inComment) {
-                    self::$_fhirCopyright[] = html_entity_decode($line);
-                }
-
-                if ('<!--' === $line) {
+                    $line = html_entity_decode($line);
+                    self::$_fhirCopyright[] = $line;
+                    $line = ltrim($line);
+                    if (0 === strpos($line, 'Generated')) {
+                        $version = trim(str_replace(
+                            'for FHIR',
+                            '',
+                            strrchr($line, 'for FHIR')
+                        ));
+                        if (0 === strpos($version, 'v')) {
+                            self::$_fhirVersion = $version;
+                        } else {
+                            throw new \LogicException(sprintf(
+                                'Unable to determine FHIR version from: %s',
+                                $line
+                            ));
+                        }
+                    }
+                } elseif ('<!--' === $line) {
                     $inComment = true;
                 }
             }
@@ -154,5 +172,13 @@ abstract class CopyrightUtils
     public static function getStandardDate()
     {
         return self::$_standardDate;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getFHIRVersion()
+    {
+        return self::$_fhirVersion;
     }
 }

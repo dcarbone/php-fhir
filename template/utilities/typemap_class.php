@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-// find either Resource Container or Inline.Resource
+$namespace = $config->getNamespace(false);
 
 $containerType = null;
 foreach ($types->getIterator() as $type) {
@@ -33,16 +33,6 @@ foreach ($types->getIterator() as $type) {
     }
 }
 
-if (null === $containerType) {
-    throw new \RuntimeException(sprintf(
-            'Unable to locate either "%s" or "%s" type',
-        TypeKindEnum::RESOURCE_CONTAINER,
-        TypeKindEnum::RESOURCE_INLINE
-    ));
-}
-
-$namespace = $config->getNamespace(false);
-
 $innerTypes = [];
 foreach ($containerType->getProperties()->getSortedIterator() as $property) {
     if ($ptype = $property->getValueFHIRType()) {
@@ -50,15 +40,13 @@ foreach ($containerType->getProperties()->getSortedIterator() as $property) {
     }
 }
 
-$imports = [];
-foreach ($innerTypes as $innerType) {
-    if ($innerType->getFullyQualifiedNamespace(false) !== $namespace) {
-        $imports[] = $innerType->getFullyQualifiedClassName(false);
-    }
+if (null === $containerType) {
+    throw new \RuntimeException(sprintf(
+        'Unable to locate either "%s" or "%s" type',
+        TypeKindEnum::RESOURCE_CONTAINER,
+        TypeKindEnum::RESOURCE_INLINE
+    ));
 }
-
-$imports = array_unique($imports);
-natcasesort($imports);
 
 ob_start();
 
@@ -71,30 +59,40 @@ endif;
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
-
-foreach ($imports as $import) :
-    echo "use {$import};\n";
-endforeach;
-
-echo "\n";
 ?>
 /**
- * Class PHPFHIRHelpers<?php if ('' !== $namespace) : ?>
+ * Class PHPFHIRTypeMap<?php if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
-<?php endif;?>
+<?php endif; ?>
 
  */
-abstract class PHPFHIRHelpers
+abstract class PHPFHIRTypeMap
 {
     /**
-     * This is th array of resource types that are allowed to be contained within a <?php echo $containerType->getFHIRName(); ?>
+     * This array represents every type known to this lib
      * @var array
      */
-    private static $_resourceMap = [<?php foreach($innerTypes as $innerType) :
-    ?>
+    private static $_typeMap = [
+<?php foreach ($types->getSortedIterator() as $type) : ?>
+        '<?php echo $type->getFHIRName(); ?>' => '<?php echo $type->getFullyQualifiedClassName(true); ?>',
 <?php endforeach; ?>    ];
 
+    /**
+     * Get fully qualified class name for FHIR Type name.  Returns null if type not found
+     * @param string $typeName
+     * @return string|null
+     */
+    public static function getTypeClass($typeName) {
+        return (is_string($typeName) && isset(self::$_typeMap[$typeName])) ? self::$_typeMap[$typeName] : null;
+    }
 
+    /**
+     * Returns the full internal class map
+     * @return array
+     */
+    public static function getMap() {
+        return self::$_typeMap;
+    }
 }
 <?php return ob_get_clean();
