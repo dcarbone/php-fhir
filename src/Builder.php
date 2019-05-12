@@ -96,20 +96,37 @@ class Builder
      */
     protected function afterGeneration()
     {
-        $this->log->info('Writing Helper...');
-        $helperFilepath = FileUtils::buildGenericClassFilePath(
+        $types = $this->definition->getTypes();
+
+        $this->log->info('Writing constants...');
+        $constantsFilepath = FileUtils::buildGenericFilePath(
             $this->config,
             $this->config->getNamespace(true),
-            'PHPFHIRHelpers'
+            'constants'
         );
         if (!(bool)file_put_contents(
-            $helperFilepath,
-            TemplateBuilder::generateHelpersClass($this->config, $this->definition->getTypes()))) {
-            throw new \RuntimeException(sprintf('Unable to write Helpers class to path: %s', $helperFilepath));
+            $constantsFilepath,
+            TemplateBuilder::generateConstants($this->config, $types))) {
+            throw new \RuntimeException(sprintf(
+                'Unable to write constants to path: %s',
+                $constantsFilepath
+            ));
         }
 
+//        $this->log->info('Writing Helper...');
+//        $helperFilepath = FileUtils::buildGenericClassFilePath(
+//            $this->config,
+//            $this->config->getNamespace(true),
+//            'PHPFHIRHelpers'
+//        );
+//        if (!(bool)file_put_contents(
+//            $helperFilepath,
+//            TemplateBuilder::generateHelpersClass($this->config, $types))) {
+//            throw new \RuntimeException(sprintf('Unable to write Helpers class to path: %s', $helperFilepath));
+//        }
+
         $this->log->info('Writing TypeMap...');
-        $typeMapFilepath = FileUtils::buildGenericClassFilePath(
+        $typeMapFilepath = FileUtils::buildGenericFilePath(
             $this->config,
             $this->config->getNamespace(true),
             'PHPFHIRTypeMap'
@@ -117,7 +134,7 @@ class Builder
 
         if (!(bool)file_put_contents(
             $typeMapFilepath,
-            TemplateBuilder::generateTypeMapClass($this->config, $this->definition->getTypes()))) {
+            TemplateBuilder::generateTypeMapClass($this->config, $types))) {
             throw new \RuntimeException(sprintf('Unable to write TypeMap class to path: %s', $typeMapFilepath));
         }
 

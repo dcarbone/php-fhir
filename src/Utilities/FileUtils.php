@@ -75,12 +75,12 @@ abstract class FileUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param string $namespace
-     * @param string $classname
+     * @param string $filename
      * @return string
      */
-    public static function buildGenericClassFilePath(VersionConfig $config, $namespace, $classname)
+    public static function buildGenericFilePath(VersionConfig $config, $namespace, $filename)
     {
-        return self::mkdirRecurse($config, self::cleanupPath($namespace)) . "/{$classname}.php";
+        return self::mkdirRecurse($config, self::cleanupPath($namespace)) . "/{$filename}.php";
     }
 
     /**

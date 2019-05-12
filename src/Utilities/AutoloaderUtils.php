@@ -149,7 +149,7 @@ PHP;
                     '',
                     '/',
                 ],
-                FileUtils::buildGenericClassFilePath($config, $classNamespace, $classname)
+                FileUtils::buildGenericFilePath($config, $classNamespace, $classname)
             ),
             '/\\'
         );

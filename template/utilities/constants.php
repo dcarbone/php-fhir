@@ -36,6 +36,12 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
+const FHIR_SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
+const CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
 
-const PHPFHIR_FHIR_SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
-const PHPFHIR_CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+<?php foreach($types->getSortedIterator() as $type) :
+    $constName = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '_', $type->getFHIRName())); ?>
+const TYPE_NAME_<?php echo $constName; ?> = '<?php echo $type->getFHIRName(); ?>';
+const TYPE_CLASS_<?php echo $constName; ?> = '<?php echo $type->getFullyQualifiedClassName(true); ?>';
+<?php endforeach;
+return ob_get_clean();

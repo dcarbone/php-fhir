@@ -24,17 +24,19 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
  */
 abstract class CopyrightUtils
 {
-    /** @var array */
-    private static $_phpFHIRCopyright = [];
+    private static $_compiledWith;
 
     /** @var array */
-    private static $_fhirCopyright = [];
+    private static $_phpFHIRCopyright;
+
+    /** @var array */
+    private static $_fhirCopyright;
 
     /** @var string */
-    private static $_basePHPFHIRCopyrightComment = '';
+    private static $_basePHPFHIRCopyrightComment;
 
     /** @var string */
-    private static $_fullPHPFHIRCopyrightComment = '';
+    private static $_fullPHPFHIRCopyrightComment;
 
     /** @var string */
     private static $_standardDate;
@@ -47,6 +49,12 @@ abstract class CopyrightUtils
      */
     public static function compileCopyrights(VersionConfig $config)
     {
+        if (isset(self::$_compiledWith) && self::$_compiledWith === $config) {
+            return;
+        }
+
+        self::$_compiledWith = $config;
+
         self::$_standardDate = date('F jS, Y');
 
         self::$_phpFHIRCopyright = [
@@ -77,6 +85,7 @@ abstract class CopyrightUtils
 
         $config->getLogger()->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
 
+        self::$_fhirCopyright = [];
         $fh = fopen($fhirBase, 'rb');
         if ($fh) {
             $inComment = false;
@@ -139,6 +148,12 @@ abstract class CopyrightUtils
      */
     public static function getPHPFHIRCopyright()
     {
+        if (!isset(self::$_compiledWith)) {
+            throw new \LogicException(sprintf(
+                'Cannot call %s before calling "compileCopyrights"',
+                __METHOD__
+            ));
+        }
         return self::$_phpFHIRCopyright;
     }
 
@@ -147,6 +162,12 @@ abstract class CopyrightUtils
      */
     public static function getFHIRCopyright()
     {
+        if (!isset(self::$_compiledWith)) {
+            throw new \LogicException(sprintf(
+                'Cannot call %s before calling "compileCopyrights"',
+                __METHOD__
+            ));
+        }
         return self::$_fhirCopyright;
     }
 
@@ -155,6 +176,12 @@ abstract class CopyrightUtils
      */
     public static function getBasePHPFHIRCopyrightComment()
     {
+        if (!isset(self::$_compiledWith)) {
+            throw new \LogicException(sprintf(
+                'Cannot call %s before calling "compileCopyrights"',
+                __METHOD__
+            ));
+        }
         return self::$_basePHPFHIRCopyrightComment;
     }
 
@@ -163,6 +190,12 @@ abstract class CopyrightUtils
      */
     public static function getFullPHPFHIRCopyrightComment()
     {
+        if (!isset(self::$_compiledWith)) {
+            throw new \LogicException(sprintf(
+                'Cannot call %s before calling "compileCopyrights"',
+                __METHOD__
+            ));
+        }
         return self::$_fullPHPFHIRCopyrightComment;
     }
 
@@ -171,6 +204,12 @@ abstract class CopyrightUtils
      */
     public static function getStandardDate()
     {
+        if (!isset(self::$_compiledWith)) {
+            throw new \LogicException(sprintf(
+                'Cannot call %s before calling "compileCopyrights"',
+                __METHOD__
+            ));
+        }
         return self::$_standardDate;
     }
 
@@ -179,6 +218,12 @@ abstract class CopyrightUtils
      */
     public static function getFHIRVersion()
     {
+        if (!isset(self::$_compiledWith)) {
+            throw new \LogicException(sprintf(
+                'Cannot call %s before calling "compileCopyrights"',
+                __METHOD__
+            ));
+        }
         return self::$_fhirVersion;
     }
 }
