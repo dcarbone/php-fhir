@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Class Property
@@ -101,7 +102,7 @@ class Property
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getName()
     {
@@ -264,7 +265,7 @@ class Property
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getRef()
     {
@@ -328,21 +329,7 @@ class Property
      */
     public function getFieldConstantName()
     {
-        $propName = $this->getName();
-        $constName = '';
-        for ($i = 0, $len = strlen($propName); $i < $len; $i++) {
-            $ord = ord($propName[$i]);
-            if (65 <= $ord && $ord <= 90) {
-                if ($i > 0) {
-                    $constName .= "_{$propName[$i]}";
-                } else {
-                    $constName .= $propName[$i];
-                }
-            } else {
-                $constName .= strtoupper($propName[$i]);
-            }
-        }
-        return "FIELD_{$constName}";
+        return 'FIELD_' . NameUtils::getConstName($this->getName());
     }
 
     /**

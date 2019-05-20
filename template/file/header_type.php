@@ -24,12 +24,6 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var bool $skipImports */
 
-// localize logger so we don't have to call "$config->getLogger()" all over the place...
-$log = $config->getLogger();
-
-$fqns = $type->getFullyQualifiedNamespace(false);
-$typeClassName = $type->getClassName();
-
 // start output buffer
 ob_start();
 
@@ -88,7 +82,7 @@ if (!isset($skipImports) || !$skipImports) {
         echo "use {$import};\n";
     }
 
-    if (0 < count($classImports)) {
+    if ([] !== $classImports) {
         echo "\n";
     }
 }

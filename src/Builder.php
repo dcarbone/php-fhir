@@ -113,18 +113,6 @@ class Builder
             ));
         }
 
-//        $this->log->info('Writing Helper...');
-//        $helperFilepath = FileUtils::buildGenericClassFilePath(
-//            $this->config,
-//            $this->config->getNamespace(true),
-//            'PHPFHIRHelpers'
-//        );
-//        if (!(bool)file_put_contents(
-//            $helperFilepath,
-//            TemplateBuilder::generateHelpersClass($this->config, $types))) {
-//            throw new \RuntimeException(sprintf('Unable to write Helpers class to path: %s', $helperFilepath));
-//        }
-
         $this->log->info('Writing TypeMap...');
         $typeMapFilepath = FileUtils::buildGenericFilePath(
             $this->config,
@@ -135,6 +123,19 @@ class Builder
         if (!(bool)file_put_contents(
             $typeMapFilepath,
             TemplateBuilder::generateTypeMapClass($this->config, $types))) {
+            throw new \RuntimeException(sprintf('Unable to write TypeMap class to path: %s', $typeMapFilepath));
+        }
+
+        $this->log->info('Writing PHPFHIRTypeInterface...');
+        $typeMapFilepath = FileUtils::buildGenericFilePath(
+            $this->config,
+            $this->config->getNamespace(true),
+            'PHPFHIRTypeInterface'
+        );
+
+        if (!(bool)file_put_contents(
+            $typeMapFilepath,
+            TemplateBuilder::generatePHPFHIRInterface($this->config, $types))) {
             throw new \RuntimeException(sprintf('Unable to write TypeMap class to path: %s', $typeMapFilepath));
         }
 

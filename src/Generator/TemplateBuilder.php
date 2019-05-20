@@ -30,6 +30,16 @@ abstract class TemplateBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generatePHPFHIRInterface(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_type.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
@@ -43,9 +53,9 @@ abstract class TemplateBuilder
             case TypeKindEnum::_LIST:
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/list_class.php';
 
-            case TypeKindEnum::RESOURCE_CONTAINER:
-            case TypeKindEnum::RESOURCE_INLINE:
-                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/resource_container_class.php';
+//            case TypeKindEnum::RESOURCE_CONTAINER:
+//            case TypeKindEnum::RESOURCE_INLINE:
+//                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/resource_container_class.php';
 
             default:
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/default_class.php';
@@ -55,21 +65,11 @@ abstract class TemplateBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @return mixed
+     * @return string
      */
     public static function generateConstants(VersionConfig $config, Types $types)
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/constants.php';
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @return string
-     */
-    public static function generateHelpersClass(VersionConfig $config, Types $types)
-    {
-        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/helper_class.php';
     }
 
     /**

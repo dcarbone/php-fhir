@@ -38,6 +38,11 @@ elseif ($propertyTypeKind->isPrimitiveContainer()) :
     echo require 'property_setter_primitive_container.php';
 else :
     echo require 'property_setter_default.php';
-endif; ?>
+endif;
+if ($type->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) : ?>
+            return;
+<?php endif; ?>
         }
-<?php return ob_get_clean();
+<?php
+unset($returnAfterCall);
+return ob_get_clean();

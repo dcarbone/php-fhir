@@ -31,6 +31,9 @@ class Type
 {
     use DocumentationTrait, SourceTrait;
 
+    const CONST_NAME_REGEX = // language=RegExp
+        '/[^a-zA-Z0-9]/';
+
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
 
@@ -103,6 +106,8 @@ class Type
         $this->sourceFilename = $sourceFilename;
         $this->properties = new Properties($config, $this);
         $this->enumeration = new Enumeration($this);
+
+        $this->constName = '';
     }
 
     /**
@@ -132,6 +137,31 @@ class Type
     }
 
     /**
+     * @param string $prefix
+     * @return string
+     */
+    public function getConstName($prefix = '')
+    {
+        return strtoupper($prefix).NameUtils::getConstName($this->getFHIRName());
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeNameConst()
+    {
+        return $this->getConstName('FHIR_TYPE_NAME_');
+    }
+
+    /**
+     * @return string
+     */
+    public function getClassNameConst()
+    {
+        return $this->getConstName('FHIR_TYPE_CLASS_');
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Enum\TypeKindEnum
      */
     public function getKind()
@@ -147,7 +177,7 @@ class Type
     {
         if (isset($this->kind) && !$this->kind->equals($kind)) {
             throw new \LogicException(sprintf(
-                'Cannot overwrite Type %s Kind from %s to %s',
+                'Cannot overwrite Type % s Kind from % s to % s',
                 $this->getFHIRName(),
                 $this->kind,
                 $kind

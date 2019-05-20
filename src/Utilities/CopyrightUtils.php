@@ -42,6 +42,8 @@ abstract class CopyrightUtils
     private static $_standardDate;
 
     /** @var string */
+    private static $_fhirGenerationDate;
+    /** @var string */
     private static $_fhirVersion;
 
     /**
@@ -55,7 +57,7 @@ abstract class CopyrightUtils
 
         self::$_compiledWith = $config;
 
-        self::$_standardDate = date('F jS, Y');
+        self::$_standardDate = date('F jS, Y H:iO');
 
         self::$_phpFHIRCopyright = [
             'This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using',
@@ -101,11 +103,19 @@ abstract class CopyrightUtils
                     self::$_fhirCopyright[] = $line;
                     $line = ltrim($line);
                     if (0 === strpos($line, 'Generated')) {
-                        $version = trim(str_replace(
-                            'for FHIR',
-                            '',
-                            strrchr($line, 'for FHIR')
-                        ));
+                        list($generated, $version) = explode('for FHIR', $line);
+
+                        $generated = trim(str_replace('Generated on', '', $generated));
+                        if ('' === $generated) {
+                            throw new \DomainException(sprintf(
+                                'Unable to parse FHIR source generation date from line: %s',
+                                $line
+                            ));
+                        } else {
+                            self::$_fhirGenerationDate = $generated;
+                        }
+
+                        $version = trim($version);
                         if (0 === strpos($version, 'v')) {
                             self::$_fhirVersion = $version;
                         } else {
@@ -211,6 +221,20 @@ abstract class CopyrightUtils
             ));
         }
         return self::$_standardDate;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getFHIRGenerationDate()
+    {
+        if (!isset(self::$_compiledWith)) {
+            throw new \LogicException(sprintf(
+                'Cannot call %s before calling "compileCopyrights"',
+                __METHOD__
+            ));
+        }
+        return self::$_fhirGenerationDate;
     }
 
     /**

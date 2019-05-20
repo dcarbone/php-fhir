@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
@@ -29,6 +30,11 @@ ob_start(); ?>
      */
     public function xmlSerialize(\SimpleXMLElement $sxe = null)
     {
+<?php foreach($sortedProperties as $property) : ?>
+        if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
+            return $v->xmlSerialize($sxe);
+        }
+<?php endforeach; ?>
         if (null === $sxe) {
             $sxe = new \SimpleXMLElement('<<?php echo $xmlName; ?> xmlns="<?php echo PHPFHIR_FHIR_XMLNS; ?>"></<?php echo $xmlName; ?>>');
         }

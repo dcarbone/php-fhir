@@ -33,13 +33,6 @@ foreach ($types->getIterator() as $type) {
     }
 }
 
-$innerTypes = [];
-foreach ($containerType->getProperties()->getSortedIterator() as $property) {
-    if ($ptype = $property->getValueFHIRType()) {
-        $innerTypes[] = $ptype;
-    }
-}
-
 if (null === $containerType) {
     throw new \RuntimeException(sprintf(
         'Unable to locate either "%s" or "%s" type',
@@ -47,6 +40,15 @@ if (null === $containerType) {
         TypeKindEnum::RESOURCE_INLINE
     ));
 }
+/** @var \DCarbone\PHPFHIR\Definition\Type[] $innerTypes */
+$innerTypes = [];
+foreach ($containerType->getProperties()->getSortedIterator() as $property) {
+    if ($ptype = $property->getValueFHIRType()) {
+        $innerTypes[$ptype->getFHIRName()] = $ptype;
+    }
+}
+
+ksort($innerTypes, SORT_NATURAL);
 
 ob_start();
 
@@ -75,7 +77,16 @@ abstract class PHPFHIRTypeMap
      */
     private static $_typeMap = [
 <?php foreach ($types->getSortedIterator() as $type) : ?>
-        '<?php echo $type->getFHIRName(); ?>' => '<?php echo $type->getFullyQualifiedClassName(true); ?>',
+        <?php echo $type->getTypeNameConst(); ?> => <?php echo $type->getClassNameConst(); ?>,
+<?php endforeach; ?>    ];
+
+    /**
+     * This is the list of resource types that are allowed to be contained within a <?php echo $containerType->getFHIRName(); ?> type
+     * @var array
+     */
+    private static $_resourceMap = [
+<?php foreach($innerTypes as $innerType) : ?>
+        <?php echo $innerType->getTypeNameConst(); ?> => <?php echo $innerType->getClassNameConst(); ?>,
 <?php endforeach; ?>    ];
 
     /**
@@ -93,6 +104,118 @@ abstract class PHPFHIRTypeMap
      */
     public static function getMap() {
         return self::$_typeMap;
+    }
+
+    /**
+     * @param string $typeName Name of FHIR object reference by <?php echo $containerType->getFHIRName(); ?>
+
+     * @return string|null Name of class as string or null if type is not contained in map
+     */
+    public static function getResourceContainerTypeClass($typeName)
+    {
+        return (is_string($typeName) && isset(self::$_resourceMap[$typeName])) ? self::$_resourceMap[$typeName] : null;
+    }
+
+    /**
+     * Will attempt to determine if the provided value is or describes a containable resource type
+     * @param object|string|array $type
+     * @return bool
+     * @throws \InvalidArgumentException
+     */
+    public static function isContainableResource($type) {
+        $tt = gettype($type);
+        if ('object' === $tt) {
+            if ($type instanceof PHPFHIRTypeInterface) {
+                return in_array('\\'.ltrim(get_class($type), '\\'), self::$_resourceMap, true);
+            }
+            if ($type instanceof \SimpleXMLElement) {
+                return isset(self::$_resourceMap[$type->getName()]);
+            }
+            throw new \InvalidArgumentException(sprintf(
+                'Expected "$type" class to implement "%s", but provided object "%s" does not.',
+                get_class('PHPFHIRTypeInterface'),
+                get_class($type)
+            ));
+        }
+        if ('string' === $tt) {
+            return isset(self::$_resourceMap[$type]) || in_array('\\'.ltrim($type, '\\'), self::$_resourceMap, true);
+        }
+        if ('array' === $tt) {
+            if (isset($type[FHIR_JSON_FIELD_RESOURCE_TYPE])) {
+                return isset(self::$_resourceMap[$type[FHIR_JSON_FIELD_RESOURCE_TYPE]]);
+            }
+            throw new \InvalidArgumentException(sprintf(
+                'Unable to locate field "%s" in provided $type array.',
+                FHIR_JSON_FIELD_RESOURCE_TYPE
+            ));
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            'Unable to process input of type "%s"',
+            gettype($type)
+        ));
+    }
+
+    /**
+     * @param \SimpleXMLElement $sxe Parent element containing inline resource
+     * @return object|null
+     */
+    public static function getContainedTypeFromXML(\SimpleXMLElement $sxe)
+    {
+        foreach($sxe->children() as $child) {
+            $typeName = $child->getName();
+            $className = self::getResourceContainerTypeClass($typeName);
+            if (null === $className) {
+                throw self::createdInvalidContainedTypeException($typeName);
+            }
+            return $className::xmlUnserialize($child);
+        }
+        return null;
+    }
+
+    /**
+     * @param array|null $data
+     * @return object|null
+     */
+    public static function getContainedTypeFromArray($data)
+    {
+        if (null === $data) {
+            return null;
+        }
+        if (!is_array($data)) {
+            throw new \InvalidArgumentException(sprintf(
+                '$data must be either an array or null, %s seen.',
+                gettype($data)
+            ));
+        }
+        if ([] === $data) {
+            return null;
+        }
+        $resourceType = isset($data[FHIR_JSON_FIELD_RESOURCE_TYPE]) ? $data[FHIR_JSON_FIELD_RESOURCE_TYPE] : null;
+        if (null === $resourceType) {
+            throw new \DomainException(sprintf(
+                'Unable to determine contained Resource type from input (missing "%s" key).  Keys: ["%s"]',
+                FHIR_JSON_FIELD_RESOURCE_TYPE,
+                implode('","', array_keys($data))
+            ));
+        }
+        unset($data[FHIR_JSON_FIELD_RESOURCE_TYPE]);
+        $className = self::getResourceContainerTypeClass($resourceType);
+        if (null === $className) {
+            throw self::createdInvalidContainedTypeException($resourceType);
+        }
+        return new $className($data);
+    }
+
+    /**
+     * @param string $typeName
+     * @return \UnexpectedValueException
+     */
+    private static function createdInvalidContainedTypeException($typeName) {
+        return new \UnexpectedValueException(sprintf(
+            'Type "%s" is not among the list of types allowed within a <?php echo $containerType->getFHIRName(); ?>',
+            $typeName
+        ));
     }
 }
 <?php return ob_get_clean();

@@ -89,6 +89,23 @@ abstract class ChoiceElementElementPropertyDecorator
             }
         }
 
+        if (null === $property->getName()) {
+            if ('' === ($ref = $property->getRef())) {
+                throw new \DomainException(sprintf(
+                    'Unable to determine Property name for Type "%s" in file "%s": %s',
+                    $type->getFHIRName(),
+                    $type->getSourceFileBasename(),
+                    $element->saveXML()
+                ));
+            }
+            $config->getLogger()->notice(sprintf(
+                'No "name" field found on element, using "ref" value for Type "%s" Property name: %s',
+                $type->getFHIRName(),
+                $element->saveXML()
+            ));
+            $property->setName($ref);
+        }
+
         foreach ($element->children('xs', true) as $child) {
             switch ($element->getName()) {
                 default:

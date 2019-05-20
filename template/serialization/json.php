@@ -27,7 +27,7 @@ if ($typeKind->isPrimitive()) :
 elseif ($typeKind->isList()) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/list.php';
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
-
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/resource_container.php';
 else:
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php';
 endif;

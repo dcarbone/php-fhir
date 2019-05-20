@@ -28,8 +28,6 @@ if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_list.php';
 elseif ($typeKind->isPrimitiveContainer()) :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_container.php';
-elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
-
 else :
     echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_default.php';
 endif; ?>
@@ -38,16 +36,18 @@ endif; ?>
 
 <?php
 // serialize portion
-echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_header.php';
-if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_list.php';
-elseif ($typeKind->isPrimitiveContainer()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_container.php';
-elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
-
+if ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_resource_container.php';
 else :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_default.php';
-endif; ?>
-        return $returnSXE ? $sxe : $sxe->saveXML();
+    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_header.php';
+    if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+        echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_list.php';
+    elseif ($typeKind->isPrimitiveContainer()) :
+        echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_container.php';
+    else :
+        echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_default.php';
+    endif; ?>
+<?php endif; ?>
+        return $sxe;
     }
 <?php return ob_get_clean();

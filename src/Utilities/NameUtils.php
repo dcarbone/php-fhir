@@ -93,6 +93,33 @@ abstract class NameUtils
     }
 
     /**
+     * @param string $name
+     * @return string
+     */
+    public static function getConstName($name)
+    {
+        $constName = '';
+        $lastUpper = false;
+        foreach (str_split($name) as $chr) {
+            $ord = ord($chr);
+            if (65 <= $ord && $ord <= 90) {
+                if ('' !== $constName && !$lastUpper && '_' !== substr($constName, -1)) { // really simplistic abbreviation detection...
+                    $constName .= '_';
+                }
+                $constName .= $chr;
+                $lastUpper = true;
+            } elseif (97 <= $ord && $ord <= 122) {
+                $constName .= strtoupper($chr);
+                $lastUpper = false;
+            } else {
+                $constName .= '_';
+                $lastUpper = false;
+            }
+        }
+        return $constName;
+    }
+
+    /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */

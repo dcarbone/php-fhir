@@ -16,32 +16,32 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getNamespace(false);
-
 ob_start();
 
 echo "<?php\n\n";
-
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
 
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
+// FHIR source
 const FHIR_SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
-const CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+const FHIR_SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
 
-<?php foreach($types->getSortedIterator() as $type) :
-    $constName = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '_', $type->getFHIRName())); ?>
-const TYPE_NAME_<?php echo $constName; ?> = '<?php echo $type->getFHIRName(); ?>';
-const TYPE_CLASS_<?php echo $constName; ?> = '<?php echo $type->getFullyQualifiedClassName(true); ?>';
+// PHPFHIR
+const FHIR_CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+
+// Common
+const FHIR_JSON_FIELD_RESOURCE_TYPE = 'resourceType';
+
+// Type names and classes
+<?php foreach($types->getSortedIterator() as $type) : ?>
+const <?php echo $type->getTypeNameConst(); ?> = '<?php echo $type->getFHIRName(); ?>';
+const <?php echo $type->getClassNameConst(); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
 <?php endforeach;
 return ob_get_clean();

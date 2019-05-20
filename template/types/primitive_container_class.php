@@ -43,12 +43,11 @@ echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php';
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {$parentType->getClassName()}" : '' ?> implements \JsonSerializable
+class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {$parentType->getClassName()}" : ' implements PHPFHIRTypeInterface' ?>
+
 {
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
-<?php if (null === $parentType) : ?>    const FIELD_RESOURCE_TYPE = 'resourceType';
-<?php endif; ?>
 
 <?php foreach($sortedProperties as $property) : ?>
 <?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php'; ?>
@@ -59,6 +58,14 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 
 <?php endforeach; ?>
 <?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php'; ?>
+
+    /**
+     * @return string
+     */
+    public function getFHIRTypeName()
+    {
+        return self::FHIR_TYPE_NAME;
+    }
 
 <?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php'; ?>
 

@@ -16,20 +16,21 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\NameUtils;
-
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-
-$xmlName = NameUtils::getTypeXMLElementName($type);
+/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 ob_start(); ?>
     /**
-     * @param null|\SimpleXMLElement \$sxe
-     * @return string|\SimpleXMLElement
+     * @return object|null
      */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null)
-    {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<<?php echo $xmlName; ?> xmlns="<?php echo PHPFHIR_FHIR_XMLNS; ?>"></<?php echo $xmlName; ?>>');
-        }
-<?php return ob_get_clean();
+    public function jsonSerialize()
+    {<?php foreach($sortedProperties as $property) : ?>
+
+        if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
+            return $v;
+        }<?php endforeach; ?>
+
+        return null;
+    }
+<?php return ob_get_clean(); ?>

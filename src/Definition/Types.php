@@ -148,44 +148,6 @@ class Types implements \Countable
         return new \ArrayIterator($tmp);
     }
 
-//    /**
-//     * @param string $fhirName
-//     * @param \SimpleXMLElement $sourceSXE
-//     * @param string $sourceFileName
-//     * @return \DCarbone\PHPFHIR\Definition\Type
-//     */
-//    public function newType($fhirName, \SimpleXMLElement $sourceSXE, $sourceFileName)
-//    {
-//        $type = new Type($this->config, $fhirName, $sourceSXE, $sourceFileName);
-//        $this->addType($type);
-//        return $type;
-//    }
-//
-//    /**
-//     * @param string $fhirName
-//     * @return \DCarbone\PHPFHIR\Definition\Type
-//     */
-//    public function newHTMLValueType($fhirName)
-//    {
-//        $type = new Type($this->config, $fhirName);
-//        $type->setKind(new TypeKindEnum(TypeKindEnum::HTML_VALUE));
-//        $this->addType($type);
-//        return $type;
-//    }
-//
-//
-//    /**
-//     * @param string $fhirName
-//     * @return \DCarbone\PHPFHIR\Definition\Type
-//     */
-//    public function newUndefinedType($fhirName)
-//    {
-//        $type = new Type($this->config, $fhirName);
-//        $type->setKind(new TypeKindEnum(TypeKindEnum::UNDEFINED));
-//        $this->addType($type);
-//        return $type;
-//    }
-
     /**
      * @return int
      */
