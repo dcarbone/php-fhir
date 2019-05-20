@@ -126,7 +126,7 @@ abstract class PHPFHIRTypeMap
         $tt = gettype($type);
         if ('object' === $tt) {
             if ($type instanceof PHPFHIRTypeInterface) {
-                return in_array('\\'.ltrim(get_class($type), '\\'), self::$_resourceMap, true);
+                return in_array('\\'.get_class($type), self::$_resourceMap, true);
             }
             if ($type instanceof \SimpleXMLElement) {
                 return isset(self::$_resourceMap[$type->getName()]);
