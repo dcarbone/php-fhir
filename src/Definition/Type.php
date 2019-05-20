@@ -31,9 +31,6 @@ class Type
 {
     use DocumentationTrait, SourceTrait;
 
-    const CONST_NAME_REGEX = // language=RegExp
-        '/[^a-zA-Z0-9]/';
-
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
 
@@ -106,8 +103,6 @@ class Type
         $this->sourceFilename = $sourceFilename;
         $this->properties = new Properties($config, $this);
         $this->enumeration = new Enumeration($this);
-
-        $this->constName = '';
     }
 
     /**
