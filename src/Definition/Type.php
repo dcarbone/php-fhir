@@ -172,7 +172,7 @@ class Type
     {
         if (isset($this->kind) && !$this->kind->equals($kind)) {
             throw new \LogicException(sprintf(
-                'Cannot overwrite Type % s Kind from % s to % s',
+                'Cannot overwrite Type % s Kind from %s to %s',
                 $this->getFHIRName(),
                 $this->kind,
                 $kind
