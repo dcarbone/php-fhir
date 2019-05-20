@@ -137,7 +137,7 @@ class Type
      */
     public function getConstName($prefix = '')
     {
-        return strtoupper($prefix).NameUtils::getConstName($this->getFHIRName());
+        return strtoupper($prefix) . NameUtils::getConstName($this->getFHIRName());
     }
 
     /**
