@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$propertyName = $property->getName();
-$propertyType = $property->getValueFHIRType();
-$propertyTypeKind = $propertyType->getKind();
-$propertyTypeClassName = $propertyType->getClassName();
+$propName = $property->getName();
+$propType = $property->getValueFHIRType();
+$propTypeKind = $propType->getKind();
+$propTypeClassName = $propType->getClassName();
 $isCollection = $property->isCollection();
 
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
@@ -35,14 +36,17 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
+     * @param null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+    echo $config->getNamespace(true); ?>\PHPFHIRContainedTypeInterface<?php else :
+    echo $propType->getFullyQualifiedClassName(true);
+endif; ?> $<?php echo $propName; ?>
 
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
+    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propName); ?>(<?php echo $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER]) ? 'PHPFHIRContainedTypeInterface' : $propTypeClassName; ?> $<?php echo $propName; ?> = null)
     {
-        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
+        $this-><?php echo $propName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propName; ?>;
         return $this;
     }
 <?php return ob_get_clean();

@@ -34,7 +34,8 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @var null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::PRIMITIVE_CONTAINER])) : echo $config->getNamespace(true); ?>\PHPFHIRContainedTypeInterface<?php else :
+     * @var null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+    echo $config->getNamespace(true); ?>\PHPFHIRContainedTypeInterface<?php else :
     echo $propType->getFullyQualifiedClassName(true);
 endif;
 echo $isCollection ? '[]' : ''; ?>

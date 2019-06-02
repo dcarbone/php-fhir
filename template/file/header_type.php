@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
@@ -49,11 +50,15 @@ if (!isset($skipImports) || !$skipImports) {
     // add property types to import statement
     foreach ($sortedProperties as $property) {
         $propertyType = $property->getValueFHIRType();
-        $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
-        if ($propertyTypeNS === $typeNS) {
-            continue;
+        if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) {
+            $classImports[]= $config->getNamespace(false) . '\\PHPFHIRContainedTypeInterface';
+        } else {
+            $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
+            if ($propertyTypeNS === $typeNS) {
+                continue;
+            }
+            $classImports[] = $propertyType->getFullyQualifiedClassName(false);
         }
-        $classImports[] = $propertyType->getFullyQualifiedClassName(false);
     }
 
     if ($type->isContainedType() && $typeNS !== $config->getNamespace(false)) {

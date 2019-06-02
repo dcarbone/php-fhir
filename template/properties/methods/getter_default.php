@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$propertyName = $property->getName();
-$propertyType = $property->getValueFHIRType();
-$propertyTypeKind = $propertyType->getKind();
-$propertyTypeClassName = $propertyType->getClassName();
+$propName = $property->getName();
+$propType = $property->getValueFHIRType();
+$propTypeKind = $propType->getKind();
+$propTypeClassName = $propType->getClassName();
 $isCollection = $property->isCollection();
 
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
@@ -35,11 +36,15 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @return null|<?php echo $propertyType->getFullyQualifiedClassName(true) . ($isCollection ? '[]' : ''); ?>
+     * @return null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+    echo $config->getNamespace(true); ?>\PHPFHIRContainedTypeInterface<?php else :
+    echo $propType->getFullyQualifiedClassName(true);
+endif;
+echo $isCollection ? '[]' : ''; ?>
 
      */
-    public function get<?php echo ucfirst($propertyName); ?>()
+    public function get<?php echo ucfirst($propName); ?>()
     {
-        return $this-><?php echo $propertyName; ?>;
+        return $this-><?php echo $propName; ?>;
     }
 <?php return ob_get_clean();

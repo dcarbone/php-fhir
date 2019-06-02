@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
@@ -34,7 +35,10 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo $propertyType->getFullyQualifiedClassName(true); ?>[] $<?php echo $propertyName; ?>
+     * @param <?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+    echo $config->getNamespace(true); ?>\PHPFHIRContainedTypeInterface<?php else :
+    echo $propType->getFullyQualifiedClassName(true);
+endif; ?>[] $<?php echo $propertyName; ?>
 
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
