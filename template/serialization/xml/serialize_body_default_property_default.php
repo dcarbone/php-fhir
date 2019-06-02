@@ -28,12 +28,12 @@ if ($isCollection) : ?>
                 if (null === $v) {
                     continue;
                 }
-                $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>));
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>));
         }
 <?php endif;
 return ob_get_clean();

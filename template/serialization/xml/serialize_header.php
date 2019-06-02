@@ -25,7 +25,7 @@ $xmlName = NameUtils::getTypeXMLElementName($type);
 ob_start(); ?>
     /**
      * @param null|\SimpleXMLElement \$sxe
-     * @return string|\SimpleXMLElement
+     * @return \SimpleXMLElement
      */
     public function xmlSerialize(\SimpleXMLElement $sxe = null)
     {

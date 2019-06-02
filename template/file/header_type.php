@@ -24,6 +24,47 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var bool $skipImports */
 
+if (!isset($skipImports) || !$skipImports) {
+    // next, begin use statement compilation
+
+    // store so we can sort them before output
+    $classImports = [];
+
+    $typeNS = $type->getFullyQualifiedNamespace(false);
+
+    // determine if we need to import our parent type
+    if ($parentType = $type->getParentType()) {
+        if ($parentType->getFullyQualifiedNamespace(false) !== $typeNS) {
+            $classImports[] = $parentType->getFullyQualifiedClassName(false);
+        }
+    }
+
+    // determine if we need to import a restriction base
+    if ($restrictionBaseType = $type->getRestrictionBaseFHIRType()) {
+        if ($restrictionBaseType->getFullyQualifiedNamespace(false) !== $typeNS) {
+            $classImports[] = $restrictionBaseType->getFullyQualifiedClassName(false);
+        }
+    }
+
+    // add property types to import statement
+    foreach ($sortedProperties as $property) {
+        $propertyType = $property->getValueFHIRType();
+        $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
+        if ($propertyTypeNS === $typeNS) {
+            continue;
+        }
+        $classImports[] = $propertyType->getFullyQualifiedClassName(false);
+    }
+
+    if ($type->isContainedType() && $typeNS !== $config->getNamespace(false)) {
+        $classImports[] = $config->getNamespace(false) . '\\PHPFHIRContainedTypeInterface';
+    }
+
+    // finally, sort and then print the imports
+    $classImports = array_unique($classImports);
+    natcasesort($classImports);
+}
+
 // start output buffer
 ob_start();
 
@@ -41,41 +82,6 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 // formatting!
 echo "\n\n";
-
-// next, begin use statement compilation
-
-// store so we can sort them before output
-$classImports = [];
-
-$typeNS = $type->getFullyQualifiedNamespace(false);
-
-// determine if we need to import our parent type
-if ($parentType = $type->getParentType()) {
-    if ($parentType->getFullyQualifiedNamespace(false) !== $typeNS) {
-        $classImports[] = $parentType->getFullyQualifiedClassName(false);
-    }
-}
-
-// determine if we need to import a restriction base
-if ($restrictionBaseType = $type->getRestrictionBaseFHIRType()) {
-    if ($restrictionBaseType->getFullyQualifiedNamespace(false) !== $typeNS) {
-        $classImports[] = $restrictionBaseType->getFullyQualifiedClassName(false);
-    }
-}
-
-// add property types to import statement
-foreach ($sortedProperties as $property) {
-    $propertyType = $property->getValueFHIRType();
-    $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
-    if ($propertyTypeNS === $typeNS) {
-        continue;
-    }
-    $classImports[] = $propertyType->getFullyQualifiedClassName(false);
-}
-
-// finally, sort and then print the imports
-$classImports = array_unique($classImports);
-natcasesort($classImports);
 
 if (!isset($skipImports) || !$skipImports) {
     foreach ($classImports as $import) {

@@ -33,13 +33,13 @@ if ($isCollection) : ?>
                 $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
                 $first = false;
             }
-            $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>));
         }
     }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-            $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>));
         }
 <?php endif;
 return ob_get_clean();

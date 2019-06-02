@@ -34,6 +34,12 @@ class Types implements \Countable
     private $config;
 
     /**
+     * This is the type that is used as a proxy type for a multitude of other types!
+     * @var \DCarbone\PHPFHIR\Definition\Type
+     */
+    private $containerType;
+
+    /**
      * FHIRTypes constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
@@ -146,6 +152,51 @@ class Types implements \Countable
             }
         );
         return new \ArrayIterator($tmp);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
+     */
+    public function getContainerType()
+    {
+        if (!isset($this->containerType)) {
+            foreach ($this->types as $type) {
+                if ($type->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
+                    $this->containerType = $type;
+                }
+            }
+        }
+        return isset($this->containerType) ? $this->containerType : null;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return bool
+     */
+    public function isContainedType(Type $type)
+    {
+        static $ignoredTypes = [
+            TypeKindEnum::RESOURCE_INLINE,
+            TypeKindEnum::RESOURCE_CONTAINER,
+            TypeKindEnum::_LIST,
+            TypeKindEnum::PRIMITIVE,
+            TypeKindEnum::PRIMITIVE_CONTAINER,
+        ];
+
+        // only bother with actual Resource types.
+        if ($type->getKind()->isOneOf($ignoredTypes)) {
+            return false;
+        }
+        $container = $this->getContainerType();
+        if (null === $container) {
+            return false;
+        }
+        foreach ($container->getProperties()->getIterator() as $property) {
+            if (($ptype = $property->getValueFHIRType()) && $ptype->getFHIRName() === $type->getFHIRName()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

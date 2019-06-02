@@ -24,15 +24,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 $namespace = $config->getNamespace(false);
 
-$containerType = null;
-foreach ($types->getIterator() as $type) {
-    $kind = $type->getKind();
-    if ($kind->isResourceContainer() || $kind->isInlineResource()) {
-        $containerType = $type;
-        break;
-    }
-}
-
+$containerType = $types->getContainerType();
 if (null === $containerType) {
     throw new \RuntimeException(sprintf(
         'Unable to locate either "%s" or "%s" type',
@@ -40,9 +32,10 @@ if (null === $containerType) {
         TypeKindEnum::RESOURCE_INLINE
     ));
 }
+
 /** @var \DCarbone\PHPFHIR\Definition\Type[] $innerTypes */
 $innerTypes = [];
-foreach ($containerType->getProperties()->getSortedIterator() as $property) {
+foreach ($containerType->getProperties()->getIterator() as $property) {
     if ($ptype = $property->getValueFHIRType()) {
         $innerTypes[$ptype->getFHIRName()] = $ptype;
     }
@@ -132,7 +125,8 @@ abstract class PHPFHIRTypeMap
                 return isset(self::$_resourceMap[$type->getName()]);
             }
             throw new \InvalidArgumentException(sprintf(
-                'Expected "$type" class to implement "%s", but provided object "%s" does not.',
+                'Expected "$type" to be instance of "%s" or "%s", saw "%s"',
+                '\\SimpleXMLElement',
                 get_class('PHPFHIRTypeInterface'),
                 get_class($type)
             ));
@@ -144,10 +138,7 @@ abstract class PHPFHIRTypeMap
             if (isset($type[FHIR_JSON_FIELD_RESOURCE_TYPE])) {
                 return isset(self::$_resourceMap[$type[FHIR_JSON_FIELD_RESOURCE_TYPE]]);
             }
-            throw new \InvalidArgumentException(sprintf(
-                'Unable to locate field "%s" in provided $type array.',
-                FHIR_JSON_FIELD_RESOURCE_TYPE
-            ));
+            return false;
         }
 
         throw new \InvalidArgumentException(sprintf(

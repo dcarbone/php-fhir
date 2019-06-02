@@ -82,6 +82,9 @@ class Type
     /** @var bool */ // TODO: what the hell is this...?
     private $mixed = false;
 
+    /** @var bool */
+    private $containedType = false;
+
     /**
      * Type constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -536,11 +539,29 @@ class Type
 
     /**
      * @param bool $mixed
-     * @return Type
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
     public function setMixed($mixed)
     {
         $this->mixed = (bool)$mixed;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isContainedType()
+    {
+        return $this->containedType;
+    }
+
+    /**
+     * @param bool $containedType
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setContainedType($containedType)
+    {
+        $this->containedType = (bool)$containedType;
         return $this;
     }
 

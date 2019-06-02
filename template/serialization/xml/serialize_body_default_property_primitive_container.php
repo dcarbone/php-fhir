@@ -32,11 +32,11 @@ if ($isCollection) : ?>
                 if ($first) {
                     $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
                     if (null !== $v->getId() || [] !== $v->getExtension()) {
-                        $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+                        $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>));
                     }
                     $first = false;
                 } else {
-                    $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+                    $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>));
                 }
             }
         }
@@ -44,7 +44,7 @@ if ($isCollection) : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
             if (null !== $v->getId() || [] !== $v->getExtension()) {
-                $v->xmlSerialize(true, $sxe->addChild(self::<?php echo $propertyConstName; ?>));
+                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>));
             }
         }
 <?php endif;

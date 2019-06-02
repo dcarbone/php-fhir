@@ -45,7 +45,10 @@ echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php';
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {$parentType->getClassName()}" : ' implements PHPFHIRTypeInterface' ?>
+class <?php echo $typeClassName; ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName();
+if ($type->isContainedType()) : ?> implements PHPFHIRContainedTypeInterface<?php endif;
+elseif ($type->isContainedType()) : ?> implements PHPFHIRContainedTypeInterface<?php else : ?>
+ implements PHPFHIRTypeInterface<?php endif; ?>
 
 {
     // name of FHIR type this class describes

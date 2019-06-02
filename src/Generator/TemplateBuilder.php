@@ -32,9 +32,19 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRInterface(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRTypeInterface(VersionConfig $config, Types $types)
     {
         return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_type.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generatePHPFHIRContainedTypeInterface(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_contained_type.php';
     }
 
     /**

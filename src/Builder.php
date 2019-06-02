@@ -61,8 +61,16 @@ class Builder
             $this->config->getLogger()->endBreak('XSD Parsing');
         }
 
+        $types = $this->definition->getTypes();
+
+        foreach ($types->getIterator() as $type) {
+            if ($types->isContainedType($type)) {
+                $type->setContainedType(true);
+            }
+        }
+
         $this->config->getLogger()->startBreak('Class Generation');
-        foreach ($this->definition->getTypes()->getIterator() as $type) {
+        foreach ($types->getIterator() as $type) {
             $this->config->getLogger()->debug("Generating class for element {$type}...");
             $classDefinition = TemplateBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
             if (null !== $classDefinition) {
@@ -92,52 +100,64 @@ class Builder
     }
 
     /**
+     * @param string $filePath
+     * @param string $fileContents
+     */
+    private function writeClassFile($filePath, $fileContents)
+    {
+        $this->log->info(sprintf('Writing %s...', $filePath));
+        $b = file_put_contents($filePath, $fileContents);
+        if (false === $b) {
+            throw new \RuntimeException(sprintf(
+                'Unable to write "%s"',
+                $filePath
+            ));
+        }
+        $this->log->debug(sprintf('%d bytes written to file %s', $b, $filePath));
+    }
+
+    /**
      * Commands to run after class generation
      */
     protected function afterGeneration()
     {
         $types = $this->definition->getTypes();
 
-        $this->log->info('Writing constants...');
-        $constantsFilepath = FileUtils::buildGenericFilePath(
-            $this->config,
-            $this->config->getNamespace(true),
-            'constants'
-        );
-        if (!(bool)file_put_contents(
-            $constantsFilepath,
-            TemplateBuilder::generateConstants($this->config, $types))) {
-            throw new \RuntimeException(sprintf(
-                'Unable to write constants to path: %s',
-                $constantsFilepath
-            ));
-        }
-
-        $this->log->info('Writing TypeMap...');
-        $typeMapFilepath = FileUtils::buildGenericFilePath(
-            $this->config,
-            $this->config->getNamespace(true),
-            'PHPFHIRTypeMap'
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                'constants'
+            ),
+            TemplateBuilder::generateConstants($this->config, $types)
         );
 
-        if (!(bool)file_put_contents(
-            $typeMapFilepath,
-            TemplateBuilder::generateTypeMapClass($this->config, $types))) {
-            throw new \RuntimeException(sprintf('Unable to write TypeMap class to path: %s', $typeMapFilepath));
-        }
-
-        $this->log->info('Writing PHPFHIRTypeInterface...');
-        $typeMapFilepath = FileUtils::buildGenericFilePath(
-            $this->config,
-            $this->config->getNamespace(true),
-            'PHPFHIRTypeInterface'
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                'PHPFHIRTypeMap'
+            ),
+            TemplateBuilder::generateTypeMapClass($this->config, $types)
         );
 
-        if (!(bool)file_put_contents(
-            $typeMapFilepath,
-            TemplateBuilder::generatePHPFHIRInterface($this->config, $types))) {
-            throw new \RuntimeException(sprintf('Unable to write TypeMap class to path: %s', $typeMapFilepath));
-        }
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                'PHPFHIRTypeInterface'
+            ),
+            TemplateBuilder::generatePHPFHIRTypeInterface($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                'PHPFHIRContainedTypeInterface'
+            ),
+            TemplateBuilder::generatePHPFHIRContainedTypeInterface($this->config, $types)
+        );
 
 //        $this->log->info('Writing Autoloader...');
 //        $autoloaderFilePath = FileUtils::buildGenericClassFilePath(
