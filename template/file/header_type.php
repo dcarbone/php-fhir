@@ -50,8 +50,10 @@ if (!isset($skipImports) || !$skipImports) {
     // add property types to import statement
     foreach ($sortedProperties as $property) {
         $propertyType = $property->getValueFHIRType();
-        if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) {
+        if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE]) &&
+            $typeNS !== $config->getNamespace(false)) {
             $classImports[]= $config->getNamespace(false) . '\\PHPFHIRContainedTypeInterface';
+            $classImports[]= $config->getNamespace(false) . '\\PHPFHIRTypeMap';
         } else {
             $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
             if ($propertyTypeNS === $typeNS) {

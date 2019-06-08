@@ -44,7 +44,11 @@ ob_start(); ?>
         parent::__construct($data);<?php endif; ?>
 
 <?php foreach($sortedProperties as $property) :
-    echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call.php';
+    if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf([\DCarbone\PHPFHIR\Enum\TypeKindEnum::RESOURCE_INLINE, \DCarbone\PHPFHIR\Enum\TypeKindEnum::RESOURCE_CONTAINER])) :
+        echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_resource_container.php';
+    else :
+        echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php';
+    endif;
 endforeach; ?>
     }
 <?php return ob_get_clean();

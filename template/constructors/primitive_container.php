@@ -59,7 +59,7 @@ ob_start(); ?>
         parent::__construct($data);
 <?php endif; ?>
 <?php foreach ($sortedProperties as $property) :
-    echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call.php';
+    echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php';
 endforeach; ?>
     }
 <?php return ob_get_clean();

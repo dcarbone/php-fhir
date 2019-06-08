@@ -104,7 +104,7 @@ abstract class PHPFHIRTypeMap
 
      * @return string|null Name of class as string or null if type is not contained in map
      */
-    public static function getResourceContainerTypeClass($typeName)
+    public static function getContainedTypeClassName($typeName)
     {
         return (is_string($typeName) && isset(self::$_resourceMap[$typeName])) ? self::$_resourceMap[$typeName] : null;
     }
