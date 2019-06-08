@@ -36,6 +36,64 @@ abstract class NameUtils
         '_',
     ];
 
+    private static $upper = [
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'H',
+        'I',
+        'J',
+        'K',
+        'L',
+        'M',
+        'N',
+        'O',
+        'P',
+        'Q',
+        'R',
+        'S',
+        'T',
+        'U',
+        'V',
+        'W',
+        'X',
+        'Y',
+        'Z',
+    ];
+    private static $lower = [
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+        'f',
+        'g',
+        'h',
+        'i',
+        'j',
+        'k',
+        'l',
+        'm',
+        'n',
+        'o',
+        'p',
+        'q',
+        'r',
+        's',
+        't',
+        'u',
+        'v',
+        'w',
+        'x',
+        'y',
+        'z',
+    ];
+    private static $nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
     /**
      * @param string $name
      * @return bool
@@ -98,18 +156,23 @@ abstract class NameUtils
      */
     public static function getConstName($name)
     {
+        // TODO: handle punctuation
+
         $constName = '';
         $lastUpper = false;
         foreach (str_split($name) as $chr) {
-            $ord = ord($chr);
-            if (65 <= $ord && $ord <= 90) {
-                if ('' !== $constName && !$lastUpper && '_' !== substr($constName, -1)) { // really simplistic abbreviation detection...
+            if (in_array($chr, self::$upper, true) || in_array($chr, self::$nums, true)) {
+                if ('' !== $constName && !$lastUpper && '_' !== substr($constName,
+                        -1)) { // really simplistic abbreviation detection...
                     $constName .= '_';
                 }
                 $constName .= $chr;
                 $lastUpper = true;
-            } elseif (97 <= $ord && $ord <= 122) {
+            } elseif (in_array($chr, self::$lower, true)) {
                 $constName .= strtoupper($chr);
+                $lastUpper = false;
+            } elseif (in_array($chr, self::$nums, true)) {
+                $constName .= $chr;
                 $lastUpper = false;
             } else {
                 $constName .= '_';
