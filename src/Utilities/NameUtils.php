@@ -174,6 +174,9 @@ abstract class NameUtils
             } elseif (in_array($chr, self::$nums, true)) {
                 $constName .= $chr;
                 $lastUpper = false;
+            } elseif ('.' === $chr) {
+                $constName .= '_DOT_';
+                $lastUpper = false;
             } else {
                 $constName .= '_';
                 $lastUpper = false;
