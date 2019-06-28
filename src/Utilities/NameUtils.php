@@ -36,6 +36,7 @@ abstract class NameUtils
         '_',
     ];
 
+    /** @var array */
     private static $upper = [
         'A',
         'B',
@@ -64,6 +65,7 @@ abstract class NameUtils
         'Y',
         'Z',
     ];
+    /** @var array */
     private static $lower = [
         'a',
         'b',
@@ -92,11 +94,16 @@ abstract class NameUtils
         'y',
         'z',
     ];
+    /** @var array */
     private static $nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    /** @var array */
     private static $constPunctMap = [
         '.' => '_DOT_',
         '-' => '_HYPHEN_',
     ];
+
+    /** @var array */
+    private static $constNameMap = [];
 
     /**
      * @param string $name
@@ -160,7 +167,9 @@ abstract class NameUtils
      */
     public static function getConstName($name)
     {
-        // TODO: handle punctuation
+        if (isset(self::$constNameMap[$name])) {
+            return self::$constNameMap[$name];
+        }
 
         $constName = '';
         $lastUpper = false;
@@ -186,7 +195,7 @@ abstract class NameUtils
                 $lastUpper = false;
             }
         }
-        return $constName;
+        return self::$constNameMap[$name] = $constName;
     }
 
     /**
