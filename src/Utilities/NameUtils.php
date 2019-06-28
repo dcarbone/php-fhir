@@ -93,6 +93,10 @@ abstract class NameUtils
         'z',
     ];
     private static $nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    private static $constPunctMap = [
+        '.' => '_DOT_',
+        '-' => '_HYPHEN_',
+    ];
 
     /**
      * @param string $name
@@ -174,8 +178,8 @@ abstract class NameUtils
             } elseif (in_array($chr, self::$nums, true)) {
                 $constName .= $chr;
                 $lastUpper = false;
-            } elseif ('.' === $chr) {
-                $constName .= '_DOT_';
+            } elseif (isset(self::$constPunctMap[$chr])) {
+                $constName .= self::$constPunctMap[$chr];
                 $lastUpper = false;
             } else {
                 $constName .= '_';
