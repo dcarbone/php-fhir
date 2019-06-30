@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
@@ -52,8 +53,8 @@ if (!isset($skipImports) || !$skipImports) {
         $propertyType = $property->getValueFHIRType();
         if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE]) &&
             $typeNS !== $config->getNamespace(false)) {
-            $classImports[]= $config->getNamespace(false) . '\\PHPFHIRContainedTypeInterface';
-            $classImports[]= $config->getNamespace(false) . '\\PHPFHIRTypeMap';
+            $classImports[] = $config->getNamespace(false) . '\\PHPFHIRContainedTypeInterface';
+            $classImports[] = $config->getNamespace(false) . '\\PHPFHIRTypeMap';
         } else {
             $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
             if ($propertyTypeNS === $typeNS) {
@@ -72,6 +73,8 @@ if (!isset($skipImports) || !$skipImports) {
     natcasesort($classImports);
 }
 
+$constsIncPath = FileUtils::buildRelativeConstsIncludePath($config, $type->getFullyQualifiedNamespace(false));
+
 // start output buffer
 ob_start();
 
@@ -83,6 +86,8 @@ $namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
 if ('' !== $namespace) {
     echo "namespace {$namespace};\n\n";
 }
+
+echo "include_once {$constsIncPath};\n\n";
 
 // print out huge copyright block
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();

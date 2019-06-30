@@ -29,19 +29,26 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
-// FHIR source
-const FHIR_SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
-const FHIR_SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
+// ensure global namespace
+namespace {
+    // FHIR source
+    const FHIR_SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
+    const FHIR_SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
 
-// PHPFHIR
-const FHIR_CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+    // PHPFHIR
+    const FHIR_CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
 
-// Common
-const FHIR_JSON_FIELD_RESOURCE_TYPE = 'resourceType';
+    // Common
+    const FHIR_JSON_FIELD_RESOURCE_TYPE = 'resourceType';
 
-// Type names and classes
+    // Type names
 <?php foreach($types->getSortedIterator() as $type) : ?>
-const <?php echo $type->getTypeNameConst(); ?> = '<?php echo $type->getFHIRName(); ?>';
-const <?php echo $type->getClassNameConst(); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
+    const <?php echo $type->getTypeNameConst(); ?> = '<?php echo $type->getFHIRName(); ?>';
+<?php endforeach;?>
+
+    // Type classes
+<?php foreach($types->getSortedIterator() as $type) : ?>
+    const <?php echo $type->getClassNameConst(); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
 <?php endforeach;
+echo "}\n";
 return ob_get_clean();

@@ -22,7 +22,7 @@ return [
     'schemaPath'  => __DIR__ . '/../input',
 
     // The path to place generated code files
-    'classesPath' => __DIR__ . '/../output',
+    'classesPath' => '/Volumes/code/src/github.com/dcarbone/php-fhir-generated/src/',
 
     // If true, will use a noop null logger
     'silent'      => false,
@@ -47,7 +47,7 @@ return [
         ],
         'R4' => [
             'url'              => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
-            'namespace'        => '\\HL7\\FHIR\\R4',
+            'namespace'        => 'DCarbone\\PHPFHIRGenerated',
         ],
         'Build' => [
             'url'              => 'http://build.fhir.org/fhir-all-xsd.zip',
