@@ -16,12 +16,8 @@
  * limitations under the License.
  */
 
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $fhirName */
 /** @var string $typeClassName */
 
 ob_start(); ?>
@@ -29,8 +25,15 @@ ob_start(); ?>
         'urn:oid:[0-2](\.(0|[1-9][0-9]*))+';
     const MAX_BYTES  = 1048576;
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
-
+<?php
+echo require_with(
+    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
+    [
+        'primitiveType' => $primitiveType,
+        'typeClassName' => $typeClassName
+    ]
+);
+?>
     /**
      * @param null|string $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>

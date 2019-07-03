@@ -18,13 +18,21 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
+/** @var string $typeClassName */
 
 ob_start(); ?>
     const VALUE_REGEX = // language=RegEx
         '\s*(\S|\s)*';
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
-
+<?php
+echo require_with(
+    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
+    [
+        'primitiveType' => $primitiveType,
+        'typeClassName' => $typeClassName
+    ]
+);
+?>
     /**
      * @param null|string $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>

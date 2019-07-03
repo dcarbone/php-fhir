@@ -55,6 +55,7 @@ abstract class TemplateBuilder
      */
     public static function generateTypeClass(VersionConfig $config, Types $types, Type $type)
     {
+        // use raw require at this level
         switch ($typeKind = $type->getKind()) {
             case TypeKindEnum::PRIMITIVE:
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_class.php';

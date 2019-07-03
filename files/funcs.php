@@ -16,16 +16,23 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 
-ob_start(); ?>
-    /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|<?php $primitiveType->getPHPValueType(); ?> $value
-     */
-    public function __construct($value = null)
-    {
-        $this->setValue($value);
+/**
+ * @param string $_requiredFile
+ * @param array $vars
+ * @return mixed
+ */
+function require_with($_requiredFile, array $vars) {
+    $num = extract($vars, EXTR_OVERWRITE);
+    if ($num !== count($vars)) {
+        throw new \RuntimeException(sprintf(
+            'Expected "%d" variables to be extracted but only "%d" were successful.  Keys: ["%s"]',
+            count($vars),
+            $num,
+            implode('", "', array_keys($vars))
+        ));
     }
-<?php return ob_get_clean();
+    unset($vars, $num);
+    return require $_requiredFile;
+}

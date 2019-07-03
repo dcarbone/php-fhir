@@ -59,89 +59,100 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     private $value = null;
 
 <?php
+$typeFile = null;
 switch($primitiveType->getValue()) {
     case PrimitiveTypeEnum::STRING:
-        echo require __DIR__ . '/primitive/string_type.php';
+        $typeFile = __DIR__ . '/primitive/string_type.php';
         break;
 
     case PrimitiveTypeEnum::BOOLEAN:
-        echo require __DIR__ . '/primitive/bool_type.php';
+        $typeFile = __DIR__ . '/primitive/bool_type.php';
         break;
 
     // int types
     case PrimitiveTypeEnum::INTEGER:
     case PrimitiveTypeEnum::POSITIVE_INTEGER:
     case PrimitiveTypeEnum::NEGATIVE_INTEGER:
-        echo require __DIR__ . '/primitive/integer_type.php';
+        $typeFile = __DIR__ . '/primitive/integer_type.php';
         break;
 
     // treat uint64's as strings for the moment.
     case PrimitiveTypeEnum::UNSIGNED_INTEGER:
-        echo require __DIR__ . '/primitive/unsigned_integer_type.php';
+        $typeFile =  __DIR__ . '/primitive/unsigned_integer_type.php';
         break;
 
     case PrimitiveTypeEnum::DECIMAL:
-        echo require __DIR__ . '/primitive/decimal_type.php';
+        $typeFile = __DIR__ . '/primitive/decimal_type.php';
         break;
 
     // date types
     case PrimitiveTypeEnum::DATE:
-        echo require __DIR__ . '/primitive/date_type.php';
+        $typeFile = __DIR__ . '/primitive/date_type.php';
         break;
     case PrimitiveTypeEnum::DATETIME:
-        echo require __DIR__ . '/primitive/datetime_type.php';
+        $typeFile = __DIR__ . '/primitive/datetime_type.php';
         break;
     case PrimitiveTypeEnum::TIME:
-        echo require __DIR__ . '/primitive/time_type.php';
+        $typeFile = __DIR__ . '/primitive/time_type.php';
         break;
     case PrimitiveTypeEnum::INSTANT:
-        echo require __DIR__ . '/primitive/instant_type.php';
+        $typeFile = __DIR__ . '/primitive/instant_type.php';
         break;
 
     case PrimitiveTypeEnum::URI:
-        echo require __DIR__.'/primitive/uri_type.php';
+        $typeFile = __DIR__.'/primitive/uri_type.php';
         break;
 
     case PrimitiveTypeEnum::CODE:
-        echo require __DIR__ . '/primitive/code_type.php';
+        $typeFile = __DIR__ . '/primitive/code_type.php';
         break;
 
     case PrimitiveTypeEnum::OID:
-        echo require __DIR__.'/primitive/oid_type.php';
+        $typeFile = __DIR__.'/primitive/oid_type.php';
         break;
 
     case PrimitiveTypeEnum::ID:
-        echo require __DIR__.'/primitive/id_type.php';
+        $typeFile = __DIR__.'/primitive/id_type.php';
         break;
 
     // TODO: create specific URL type?
     case PrimitiveTypeEnum::CANONICAL:
     case PrimitiveTypeEnum::URL:
-        echo require __DIR__ . '/primitive/string_type.php';
+        $typeFile =  __DIR__ . '/primitive/string_type.php';
         break;
 
     case PrimitiveTypeEnum::UUID:
         // TODO: implement uuid lib?
-        echo require __DIR__ . '/primitive/string_type.php';
+        $typeFile = __DIR__ . '/primitive/string_type.php';
         break;
 
     case PrimitiveTypeEnum::BASE_64_BINARY:
         // TODO: add content decoding?
-        echo require __DIR__ . '/primitive/base64_binary_type.php';
+        $typeFile =  __DIR__ . '/primitive/base64_binary_type.php';
         break;
 
     case PrimitiveTypeEnum::MARKDOWN:
         // TODO: markdown lib, maybe?
-        echo require __DIR__ . '/primitive/markdown_type.php';
+        $typeFile =  __DIR__ . '/primitive/markdown_type.php';
         break;
 
     case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
-        echo require __DIR__ . '/primitive/string_type.php';
+        $typeFile =  __DIR__ . '/primitive/string_type.php';
         break;
 
     default:
         throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
 }
+
+echo require_with(
+        $typeFile,
+        [
+                'fhirName' => $fhirName,
+                'type' => $type,
+                'primitiveType' => $primitiveType,
+                'typeClassName' => $typeClassName
+        ]
+);
 ?>
     /**
      * @return string

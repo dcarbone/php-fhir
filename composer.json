@@ -40,7 +40,8 @@
   },
   "autoload": {
     "files": [
-      "files/php_fhir_constants.php"
+      "files/constants.php",
+      "files/funcs.php"
     ],
     "psr-4": {
       "DCarbone\\PHPFHIR\\": "src/"

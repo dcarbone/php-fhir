@@ -18,6 +18,7 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
+/** @var string $typeClassName */
 
 ob_start(); ?>
     /** null|\DateTime */
@@ -27,8 +28,15 @@ ob_start(); ?>
         '([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?';
     const FORMAT_TIME = 'H:i:s';
 
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php'; ?>
-
+<?php
+echo require_with(
+    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
+    [
+        'primitiveType' => $primitiveType,
+        'typeClassName' => $typeClassName
+    ]
+);
+?>
     /**
      * @param null|string $value
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
