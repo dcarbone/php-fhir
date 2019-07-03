@@ -127,7 +127,7 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
-                'constants'
+                PHPFHIR_CLASSNAME_CONSTANTS
             ),
             TemplateBuilder::generateConstants($this->config, $types)
         );
@@ -136,7 +136,7 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
-                'PHPFHIRTypeMap'
+                PHPFHIR_CLASSNAME_TYPEMAP
             ),
             TemplateBuilder::generateTypeMapClass($this->config, $types)
         );
@@ -145,7 +145,7 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
-                'PHPFHIRTypeInterface'
+                PHPFHIR_INTERFACE_TYPE
             ),
             TemplateBuilder::generatePHPFHIRTypeInterface($this->config, $types)
         );
@@ -154,7 +154,7 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
-                'PHPFHIRContainedTypeInterface'
+                PHPFHIR_INTERFACE_CONTAINED_TYPE
             ),
             TemplateBuilder::generatePHPFHIRContainedTypeInterface($this->config, $types)
         );

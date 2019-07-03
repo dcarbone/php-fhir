@@ -37,14 +37,14 @@ ob_start(); ?>
      *<?php endif; ?>
 
      * @param null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
-    echo $config->getNamespace(true); ?>\PHPFHIRContainedTypeInterface<?php else :
+    echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; else :
     echo $propType->getFullyQualifiedClassName(true);
 endif; ?> $<?php echo $propName; ?>
 
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propName); ?>(<?php echo $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER]) ? 'PHPFHIRContainedTypeInterface' : $propTypeClassName; ?> $<?php echo $propName; ?> = null)
+    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propName); ?>(<?php echo $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER]) ? PHPFHIR_INTERFACE_CONTAINED_TYPE : $propTypeClassName; ?> $<?php echo $propName; ?> = null)
     {
         $this-><?php echo $propName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propName; ?>;
         return $this;

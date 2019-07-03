@@ -97,24 +97,6 @@ abstract class FileUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param $fileNamespace
-     * @return string
-     */
-    public static function buildRelativeConstsIncludePath(VersionConfig $config, $fileNamespace) {
-        $rootNamespace = self::cleanupPath($config->getNamespace(false));
-        $fileNamespace = self::cleanupPath($fileNamespace);
-        if ($fileNamespace === $rootNamespace) {
-            return '__DIR__.\'/constants.php\'';
-        }
-        $remaining = substr($fileNamespace, strlen($rootNamespace));
-        return sprintf(
-            '__DIR__.\'/%sconstants.php\'',
-            str_repeat('../', substr_count($remaining, '/'))
-        );
-    }
-
-    /**
      * @param string $namespace
      * @return string
      */

@@ -37,7 +37,7 @@ ob_start(); ?>
      *<?php endif; ?>
 
      * @return null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
-    echo $config->getNamespace(true); ?>\PHPFHIRContainedTypeInterface<?php else :
+    echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; else :
     echo $propType->getFullyQualifiedClassName(true);
 endif;
 echo $isCollection ? '[]' : ''; ?>

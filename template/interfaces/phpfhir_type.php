@@ -35,13 +35,13 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Interface PHPFHIRTypeInterface<?php if ('' !== $namespace) : ?>
+ * Interface <?php echo PHPFHIR_INTERFACE_TYPE; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface PHPFHIRTypeInterface extends \JsonSerializable {
+interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     /**
      * @param array|null $data
      */
@@ -55,10 +55,10 @@ interface PHPFHIRTypeInterface extends \JsonSerializable {
 
     /**
      * @param \SimpleXMLElement|string|null \$sxe
-     * @param null|\HL7\FHIR\DSTU1\FHIRElement\FHIRBackboneElement\FHIRResource\FHIRObservation $type
-     * @return null|\HL7\FHIR\DSTU1\FHIRElement\FHIRBackboneElement\FHIRResource\FHIRObservation
+     * @param null|\<?php echo $namespace . '\\' . PHPFHIR_INTERFACE_TYPE; ?> $type
+     * @return null|static
      */
-    public static function xmlUnserialize($sxe = null, $type = null);
+    public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null);
 
     /**
      * @param null|\SimpleXMLElement \$sxe

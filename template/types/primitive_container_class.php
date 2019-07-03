@@ -43,11 +43,11 @@ echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php';
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {$parentType->getClassName()}" : ' implements PHPFHIRTypeInterface' ?>
+class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {$parentType->getClassName()}" : ' implements ' . PHPFHIR_INTERFACE_TYPE; ?>
 
 {
     // name of FHIR type this class describes
-    const FHIR_TYPE_NAME = '<?php echo $fhirName; ?>';
+    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
 <?php foreach($sortedProperties as $property) : ?>
 <?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php'; ?>

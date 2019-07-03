@@ -21,34 +21,48 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
+$namespace = $config->getNamespace(false);
+
 ob_start();
 
 echo "<?php\n\n";
+
+if ('' !== $namespace) :
+    echo "namespace {$namespace};\n\n";
+endif;
 
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
-// ensure global namespace
-namespace {
+/**
+ * Class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; if ('' !== $namespace) : ?>
+
+ * @package \<?php echo $namespace; ?>
+<?php endif; ?>
+
+ */
+abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
+
+{
     // FHIR source
-    const FHIR_SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
-    const FHIR_SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
+    const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
+    const SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
 
     // PHPFHIR
-    const FHIR_CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+    const CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
 
     // Common
-    const FHIR_JSON_FIELD_RESOURCE_TYPE = 'resourceType';
+    const JSON_FIELD_RESOURCE_TYPE = 'resourceType';
 
     // Type names
 <?php foreach($types->getSortedIterator() as $type) : ?>
-    const <?php echo $type->getTypeNameConst(); ?> = '<?php echo $type->getFHIRName(); ?>';
+    const <?php echo $type->getTypeNameConst(false); ?> = '<?php echo $type->getFHIRName(); ?>';
 <?php endforeach;?>
 
     // Type classes
 <?php foreach($types->getSortedIterator() as $type) : ?>
-    const <?php echo $type->getClassNameConst(); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
+    const <?php echo $type->getClassNameConst(false); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
 <?php endforeach;
 echo "}\n";
 return ob_get_clean();

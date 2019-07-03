@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
@@ -33,6 +32,15 @@ if (!isset($skipImports) || !$skipImports) {
     $classImports = [];
 
     $typeNS = $type->getFullyQualifiedNamespace(false);
+    $configNS = $config->getNamespace(false);
+
+    if ($typeNS !== $configNS) {
+        if ($type->isContainedType()) {
+            $classImports[] = "{$configNS}\\" . PHPFHIR_INTERFACE_CONTAINED_TYPE;
+        }
+        $classImports[] = "{$configNS}\\" . PHPFHIR_INTERFACE_TYPE;
+        $classImports[] = "{$configNS}\\" . PHPFHIR_CLASSNAME_CONSTANTS;
+    }
 
     // determine if we need to import our parent type
     if ($parentType = $type->getParentType()) {
@@ -52,9 +60,9 @@ if (!isset($skipImports) || !$skipImports) {
     foreach ($sortedProperties as $property) {
         $propertyType = $property->getValueFHIRType();
         if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE]) &&
-            $typeNS !== $config->getNamespace(false)) {
-            $classImports[] = $config->getNamespace(false) . '\\PHPFHIRContainedTypeInterface';
-            $classImports[] = $config->getNamespace(false) . '\\PHPFHIRTypeMap';
+            $typeNS !== $configNS) {
+            $classImports[] = "{$configNS}\\" . PHPFHIR_INTERFACE_CONTAINED_TYPE;
+            $classImports[] = "{$configNS}\\" . PHPFHIR_CLASSNAME_TYPEMAP;
         } else {
             $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
             if ($propertyTypeNS === $typeNS) {
@@ -64,16 +72,10 @@ if (!isset($skipImports) || !$skipImports) {
         }
     }
 
-    if ($type->isContainedType() && $typeNS !== $config->getNamespace(false)) {
-        $classImports[] = $config->getNamespace(false) . '\\PHPFHIRContainedTypeInterface';
-    }
-
     // finally, sort and then print the imports
     $classImports = array_unique($classImports);
     natcasesort($classImports);
 }
-
-$constsIncPath = FileUtils::buildRelativeConstsIncludePath($config, $type->getFullyQualifiedNamespace(false));
 
 // start output buffer
 ob_start();
@@ -86,8 +88,6 @@ $namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
 if ('' !== $namespace) {
     echo "namespace {$namespace};\n\n";
 }
-
-echo "include_once {$constsIncPath};\n\n";
 
 // print out huge copyright block
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();

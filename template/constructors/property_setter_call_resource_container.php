@@ -38,11 +38,11 @@ ob_start(); ?>
                         continue;
                     }
                     if (is_object($v)) {
-                        if ($v instanceof PHPFHIRContainedTypeInterface) {
+                        if ($v instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
                             $this-><?php echo $setter; ?>($v);
                         } else {
                             throw new \InvalidArgumentException(sprintf(
-                                '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing PHPFHIRContainedTypeInterface, object of type %s seen',
+                                '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>, object of type %s seen',
                                 get_class($v)
                             ));
                         }
@@ -62,7 +62,7 @@ ob_start(); ?>
                         ));
                     }
                 }
-            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof PHPFHIRContainedTypeInterface) {
+            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
             } else {
                 $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
@@ -76,11 +76,11 @@ ob_start(); ?>
             }
 <?php else : ?>
             if (is_object($data[self::<?php echo $propertyFieldConst; ?>])) {
-                if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof PHPFHIRContainedTypeInterface) {
+                if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
                     $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
                 } else {
                     throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an object implementing PHPFHIRContainedTypeInterface, object of type %s seen',
+                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an object implementing <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>, object of type %s seen',
                         get_class($data[self::<?php echo $propertyFieldConst; ?>])
                     ));
                 }

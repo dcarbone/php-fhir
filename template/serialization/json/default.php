@@ -50,6 +50,6 @@ foreach ($sortedProperties as $property) :
         echo require 'default_property_default.php';
     endif;
 endforeach; ?>
-        return [FHIR_JSON_FIELD_RESOURCE_TYPE => self::FHIR_TYPE_NAME] + $a;
+        return [<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => self::FHIR_TYPE_NAME] + $a;
     }
 <?php return ob_get_clean();

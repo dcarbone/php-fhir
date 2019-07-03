@@ -46,7 +46,7 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Interface PHPFHIRContainedTypeInterface
+ * Interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
  *
  * This interface is applied to any class that is containable within a <?php $containerType->getFullyQualifiedClassName(true); ?><?php if ('' !== $namespace) : ?>
 
@@ -54,7 +54,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-interface PHPFHIRContainedTypeInterface extends PHPFHIRTypeInterface {
+interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?> {
     // This interface is merely used as an identifier
 }
 <?php return ob_get_clean();

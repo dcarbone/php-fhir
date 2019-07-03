@@ -135,28 +135,31 @@ class Type
     }
 
     /**
+     * @param bool $withClass
      * @param string $prefix
      * @return string
      */
-    public function getConstName($prefix = '')
+    public function getConstName($withClass, $prefix = '')
     {
-        return strtoupper($prefix) . NameUtils::getConstName($this->getFHIRName());
+        return ($withClass ? PHPFHIR_CLASSNAME_CONSTANTS . '::' : '') . strtoupper($prefix) . NameUtils::getConstName($this->getFHIRName());
     }
 
     /**
+     * @param bool $withClass
      * @return string
      */
-    public function getTypeNameConst()
+    public function getTypeNameConst($withClass)
     {
-        return $this->getConstName('FHIR_TYPE_NAME_');
+        return $this->getConstName($withClass, 'TYPE_NAME_');
     }
 
     /**
+     * @param bool $withClass
      * @return string
      */
-    public function getClassNameConst()
+    public function getClassNameConst($withClass)
     {
-        return $this->getConstName('FHIR_TYPE_CLASS_');
+        return $this->getConstName($withClass, 'TYPE_CLASS_');
     }
 
     /**

@@ -46,13 +46,13 @@ echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php';
 
  */
 class <?php echo $typeClassName; ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName();
-if ($type->isContainedType()) : ?> implements PHPFHIRContainedTypeInterface<?php endif;
-elseif ($type->isContainedType()) : ?> implements PHPFHIRContainedTypeInterface<?php else : ?>
- implements PHPFHIRTypeInterface<?php endif; ?>
+if ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; endif;
+elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; else : ?>
+ implements <?php echo PHPFHIR_INTERFACE_TYPE; endif; ?>
 
 {
     // name of FHIR type this class describes
-    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(); ?>;
+    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
 <?php if (0 !== count($sortedProperties)) : ?>
 <?php foreach($sortedProperties as $property) : ?>

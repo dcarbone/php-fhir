@@ -30,7 +30,7 @@ ob_start(); ?>
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize($sxe = null, $type = null)
+    public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null)
     {
         if (null === $sxe) {
             return null;
