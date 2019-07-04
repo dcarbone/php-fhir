@@ -19,7 +19,8 @@
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
-/** @var string $typeClassName */
+
+$typeClassName = $type->getClassName();
 
 if (0 === count($sortedProperties)) :
     return '';
@@ -45,9 +46,21 @@ ob_start(); ?>
 
 <?php foreach($sortedProperties as $property) :
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf([\DCarbone\PHPFHIR\Enum\TypeKindEnum::RESOURCE_INLINE, \DCarbone\PHPFHIR\Enum\TypeKindEnum::RESOURCE_CONTAINER])) :
-        echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_resource_container.php';
+        echo require_with(
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_resource_container.php',
+                [
+                        'type' => $type,
+                        'property' => $property,
+                ]
+        );
     else :
-        echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php';
+        echo require_with(
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php',
+                [
+                        'type' => $type,
+                        'property' => $property
+                ]
+        );
     endif;
 endforeach; ?>
     }

@@ -32,7 +32,18 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 ob_start();
 
 // build file header
-echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php';
+// first, build file header
+echo require_with(
+    PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
+    [
+        'fqns' => $fqns,
+        'skipImports' => false,
+        'type' => $type,
+        'types' => $types,
+        'config' => $config,
+        'sortedProperties' => $sortedProperties,
+    ]
+);
 
 // build class header ?>
 /**<?php if ('' !== $classDocumentation) : ?>
@@ -56,14 +67,33 @@ elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_C
 
 <?php if (0 !== count($sortedProperties)) : ?>
 <?php foreach($sortedProperties as $property) : ?>
-<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
+        [
+                'property' => $property,
+        ]
+    ); ?>
+
 <?php endforeach; ?>
 
 <?php foreach($sortedProperties as $property) : ?>
-<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
+        [
+                'config' => $config,
+                'property' => $property,
+        ]
+    ); ?>
 
 <?php endforeach; ?>
-<?php echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php',
+        [
+                'type' => $type,
+                'sortedProperties' => $sortedProperties,
+                'parentType' => $parentType,
+        ]
+    ); ?>
 
     /**
      * @return string
