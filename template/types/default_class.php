@@ -103,12 +103,36 @@ elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_C
         return self::FHIR_TYPE_NAME;
     }
 
-<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php',
+        [
+                'config' => $config,
+                'type' => $type,
+                'sortedProperties' => $sortedProperties,
+        ]
+); ?>
 
 <?php endif; ?>
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
+    [
+            'type'     => $type,
+            'typeKind' => $typeKind,
+            'sortedProperties' => $sortedProperties,
+            'parentType' => $parentType,
+            'typeClassName' => $typeClassName,
+    ]
+) ?>
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
+        [
+                'type' => $type,
+                'typeKind' => $typeKind,
+                'sortedProperties' => $sortedProperties,
+                'parentType' => $parentType,
+        ]
+); ?>
 
     /**
      * @return string
