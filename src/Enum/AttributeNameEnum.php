@@ -16,13 +16,11 @@
  * limitations under the License.
  */
 
-use MyCLabs\Enum\Enum;
-
 /**
  * Class AttributeNameEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-class AttributeNameEnum extends Enum
+class AttributeNameEnum extends AbstractEnum
 {
     const NAME         = 'name';
     const VALUE        = 'value';

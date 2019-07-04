@@ -208,7 +208,7 @@ echo require_with(
      */
     public function __toString()
     {
-<?php if (PrimitiveTypeEnum::BOOLEAN === $primitiveType->getValue()) : ?>
+<?php if ($primitiveType->is(PrimitiveTypeEnum::BOOLEAN)) : ?>
         return $this->getValue() ? 'true' : 'false';
 <?php else : ?>
         return (string)$this->getValue();

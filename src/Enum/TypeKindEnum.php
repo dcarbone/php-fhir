@@ -18,13 +18,11 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
-use MyCLabs\Enum\Enum;
-
 /**
  * Class TypeKindEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-class TypeKindEnum extends Enum
+class TypeKindEnum extends AbstractEnum
 {
     // this represents an actual value: string, int, etc.
     const PRIMITIVE = 'primitive';
@@ -68,29 +66,6 @@ class TypeKindEnum extends Enum
     public static function isKnownRoot($fhirName)
     {
         return in_array($fhirName, self::$knownRoots, true);
-    }
-
-    /**
-     * @param string $kind
-     * @return bool
-     */
-    public function is($kind)
-    {
-        return is_string($kind) && $kind === (string)$this;
-    }
-
-    /**
-     * @param array $kinds
-     * @return bool
-     */
-    public function isOneOf(array $kinds)
-    {
-        foreach ($kinds as $kind) {
-            if ($this->is($kind)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

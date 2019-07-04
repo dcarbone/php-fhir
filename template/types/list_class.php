@@ -30,14 +30,23 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 $restrictionBase = $type->getRestrictionBaseFHIRName();
 $restrictionBaseType = $types->getTypeByName($restrictionBase);
 if (null === $restrictionBaseType) {
-    $restrictionBase = $types->getTypeByName('string-primitive');
+    $restrictionBaseType = $types->getTypeByName('string-primitive');
 }
 
 ob_start();
 
 // build file header
-echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php';
-
+echo require_with(
+        PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
+        [
+                'fqns' => $fqns,
+                'skipImports' => false,
+                'type' => $type,
+                'types' => $types,
+                'config' => $config,
+                'sortedProperties' => $sortedProperties,
+        ]
+);
 // build class header ?>
 /**<?php if ('' !== $classDocumentation) : ?>
 
@@ -133,9 +142,26 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
         return null === $v || in_array((string)$v, self::$valueList, true);
     }
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
+    [
+            'type'     => $type,
+            'typeKind' => $typeKind,
+            'sortedProperties' => $sortedProperties,
+            'parentType' => $parentType,
+            'typeClassName' => $typeClassName,
+    ]
+) ?>
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
+        [
+                'type' => $type,
+                'typeKind' => $typeKind,
+                'sortedProperties' => $sortedProperties,
+                'parentType' => $parentType,
+        ]
+); ?>
 
     /**
      * @return string

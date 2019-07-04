@@ -18,13 +18,37 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
+use MyCLabs\Enum\Enum;
+
 /**
- * Class PropertyUseEnum
+ * Class AbstractEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-class PropertyUseEnum extends AbstractEnum
+abstract class AbstractEnum extends Enum
 {
-    const PROHIBITED = 'prohibited';
-    const OPTIONAL   = 'optional';
-    const REQUIRED   = 'required';
+    /**
+     * @param mixed $enumValue
+     * @return bool
+     */
+    public function is($enumValue)
+    {
+        if (is_scalar($enumValue)) {
+            return $enumValue === $this->getValue();
+        }
+        return $this->equals($enumValue);
+    }
+
+    /**
+     * @param array $enumValues
+     * @return bool
+     */
+    public function isOneOf(array $enumValues)
+    {
+        foreach ($enumValues as $kind) {
+            if ($this->is($kind)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

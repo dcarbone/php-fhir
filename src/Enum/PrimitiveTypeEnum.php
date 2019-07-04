@@ -17,13 +17,12 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use MyCLabs\Enum\Enum;
 
 /**
  * Class PrimitiveTypeEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-class PrimitiveTypeEnum extends Enum
+class PrimitiveTypeEnum extends AbstractEnum
 {
     const STRING  = 'string';
     const BOOLEAN = 'boolean';

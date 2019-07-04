@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 ob_start(); ?>
     /**
-     * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
+     * @return null|<?php echo $type->getPrimitiveType()->getPHPValueType(); ?>
 
      */
     public function jsonSerialize()

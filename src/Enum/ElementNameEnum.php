@@ -16,13 +16,11 @@
  * limitations under the License.
  */
 
-use MyCLabs\Enum\Enum;
-
 /**
  * Class ElementNameEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-class ElementNameEnum extends Enum
+class ElementNameEnum extends AbstractEnum
 {
     const _INCLUDE = 'include';
     const IMPORT   = 'import';

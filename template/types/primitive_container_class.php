@@ -17,6 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 // define some common things
 $fqns = $type->getFullyQualifiedNamespace(true);
@@ -41,7 +42,6 @@ echo require_with(
         'sortedProperties' => $sortedProperties,
     ]
 );
-
 
 // build class header ?>
 /**<?php if ('' !== $classDocumentation) : ?>
@@ -106,9 +106,26 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
         ]
 ); ?>
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
+    [
+            'type'     => $type,
+            'typeKind' => $typeKind,
+            'sortedProperties' => $sortedProperties,
+            'parentType' => $parentType,
+            'typeClassName' => $typeClassName,
+    ]
+) ?>
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
+        [
+                'type' => $type,
+                'typeKind' => $typeKind,
+                'sortedProperties' => $sortedProperties,
+                'parentType' => $parentType,
+        ]
+); ?>
 
     /**
      * @return string

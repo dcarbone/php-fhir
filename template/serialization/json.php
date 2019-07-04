@@ -20,7 +20,6 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
-/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 
@@ -29,7 +28,7 @@ if ($typeKind->isPrimitive()) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php',
         [
-            'primitiveType' => $primitiveType,
+            'type' => $type,
         ]
     );
 elseif ($typeKind->isList()) :
