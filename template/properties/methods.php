@@ -18,23 +18,44 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 ob_start();
 foreach ($sortedProperties as $property) :
     $propertyType = $property->getValueFHIRType();
-    $propertyTypeKind = $propertyType->getKind(); ?>
-<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/getter_default.php'; ?>
+    $propertyTypeKind = $propertyType->getKind();
+    $requireArgs = [
+        'type' => $type,
+        'property' => $property,
+    ];
+
+    echo require_with(
+    PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/getter_default.php',
+    [
+        'config' => $config,
+        'property' => $property,
+    ]
+); ?>
 
 <?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
-        echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_primitive.php';
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_primitive.php',
+            $requireArgs
+        );
     else :
-        echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_default.php';
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_default.php',
+            $requireArgs + ['config' => $config]
+        );
     endif;
     if ($property->isCollection()) :
         echo "\n";
-        echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_collection.php';
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_collection.php',
+            $requireArgs + ['config' => $config]
+        );
     endif; ?>
 
 <?php endforeach;

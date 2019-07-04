@@ -82,10 +82,10 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 <?php echo require_with(
         PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php',
         [
-                'sortedProperties' => $sortedProperties,
                 'type' => $type,
-                'parentType' => $parentType,
                 'typeClassName' => $typeClassName,
+                'sortedProperties' => $sortedProperties,
+                'parentType' => $parentType,
         ]
 ); ?>
 
@@ -97,7 +97,14 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
         return self::FHIR_TYPE_NAME;
     }
 
-<?php echo require PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php',
+        [
+                'config' => $config,
+                'type' => $type,
+                'sortedProperties' => $sortedProperties,
+        ]
+); ?>
 
 <?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
 

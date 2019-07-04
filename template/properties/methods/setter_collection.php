@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -35,9 +36,9 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+     * @param <?php if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
     echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; else :
-    echo $propType->getFullyQualifiedClassName(true);
+    echo $propertyType->getFullyQualifiedClassName(true);
 endif; ?>[] $<?php echo $propertyName; ?>
 
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>

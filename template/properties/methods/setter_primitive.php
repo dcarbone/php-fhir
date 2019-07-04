@@ -20,9 +20,9 @@ use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
-/** @var \DCarbone\PHPFHIR\Definition\Type $propertyType */
 
 $propertyName = $property->getName();
+$propertyType = $property->getValueFHIRType();
 $propertyTypeClassName = $propertyType->getClassName();
 $propertyPrimitiveTypeKind = $propertyType->getPrimitiveType();
 $isCollection = $property->isCollection();

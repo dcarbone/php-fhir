@@ -19,13 +19,14 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$propName = $property->getName();
-$propType = $property->getValueFHIRType();
-$propTypeKind = $propType->getKind();
-$propTypeClassName = $propType->getClassName();
+$propertyName = $property->getName();
+$propertyType = $property->getValueFHIRType();
+$propertyTypeKind = $propertyType->getKind();
+$propertyTypeClassName = $propertyType->getClassName();
 $isCollection = $property->isCollection();
 
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
@@ -36,17 +37,17 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+     * @param null|<?php if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
     echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; else :
-    echo $propType->getFullyQualifiedClassName(true);
-endif; ?> $<?php echo $propName; ?>
+    echo $propertyType->getFullyQualifiedClassName(true);
+endif; ?> $<?php echo $propertyName; ?>
 
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propName); ?>(<?php echo $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER]) ? PHPFHIR_INTERFACE_CONTAINED_TYPE : $propTypeClassName; ?> $<?php echo $propName; ?> = null)
+    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo $propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER]) ? PHPFHIR_INTERFACE_CONTAINED_TYPE : $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
     {
-        $this-><?php echo $propName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propName; ?>;
+        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
 <?php return ob_get_clean();

@@ -19,13 +19,13 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$propName = $property->getName();
-$propType = $property->getValueFHIRType();
-$propTypeKind = $propType->getKind();
-$propTypeClassName = $propType->getClassName();
+$propertyName = $property->getName();
+$propertyType = $property->getValueFHIRType();
+$propertyTypeKind = $propertyType->getKind();
+$propertyTypeClassName = $propertyType->getClassName();
 $isCollection = $property->isCollection();
 
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
@@ -36,15 +36,15 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @return null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+     * @return null|<?php if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
     echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; else :
-    echo $propType->getFullyQualifiedClassName(true);
+    echo $propertyType->getFullyQualifiedClassName(true);
 endif;
 echo $isCollection ? '[]' : ''; ?>
 
      */
-    public function get<?php echo ucfirst($propName); ?>()
+    public function get<?php echo ucfirst($propertyName); ?>()
     {
-        return $this-><?php echo $propName; ?>;
+        return $this-><?php echo $propertyName; ?>;
     }
 <?php return ob_get_clean();
