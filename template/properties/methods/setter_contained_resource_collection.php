@@ -28,6 +28,8 @@ $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 
+$setter = 'add'.ucfirst($propertyName);
+
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
 ob_start(); ?>
@@ -36,7 +38,7 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo $propertyType->getFullyQualifiedClassName(true);?>[] $<?php echo $propertyName; ?>
+     * @param <?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>[] $<?php echo $propertyName; ?>
 
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
@@ -48,10 +50,32 @@ ob_start(); ?>
             return $this;
         }
         foreach($<?php echo $propertyName; ?> as $v) {
-            if ($v instanceof <?php echo $propertyType->getClassName(); ?>) {
-                $this->add<?php echo ucfirst($propertyName); ?>($v);
+            if (null === $v) {
+                continue;
+            }
+            if (is_object($v)) {
+                if ($v instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
+                    $this-><?php echo $setter; ?>($v);
+                } else {
+                    throw new \InvalidArgumentException(sprintf(
+                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>, object of type %s seen',
+                        get_class($v)
+                    ));
+                }
+            } else if (is_array($v)) {
+                $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($v);
+                if (null === $typeClass) {
+                    throw new \InvalidArgumentException(sprintf(
+                        '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
+                        json_encode($v)
+                    ));
+                }
+                $this-><?php echo $setter; ?>(new $typeClass($v));
             } else {
-                $this->add<?php echo ucfirst($propertyName); ?>(new <?php echo $propertyTypeClassName; ?>($v));
+                throw new \InvalidArgumentException(sprintf(
+                    '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
+                    json_encode($v)
+                ));
             }
         }
         return $this;

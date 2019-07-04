@@ -44,6 +44,11 @@ foreach ($sortedProperties as $property) :
             PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_primitive.php',
             $requireArgs
         );
+    elseif ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_contained_resource.php',
+            $requireArgs + ['config' => $config]
+        );
     else :
         echo require_with(
             PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_default.php',
@@ -52,10 +57,17 @@ foreach ($sortedProperties as $property) :
     endif;
     if ($property->isCollection()) :
         echo "\n";
-        echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_collection.php',
-            $requireArgs + ['config' => $config]
-        );
+        if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+            echo require_with(
+                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_contained_resource_collection.php',
+                $requireArgs + ['config' => $config]
+            );
+        else :
+            echo require_with(
+                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_collection.php',
+                $requireArgs + ['config' => $config]
+            );
+        endif;
     endif; ?>
 
 <?php endforeach;

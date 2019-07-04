@@ -33,35 +33,7 @@ ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
 <?php if ($isCollection) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
-                foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
-                    if (null === $v) {
-                        continue;
-                    }
-                    if (is_object($v)) {
-                        if ($v instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
-                            $this-><?php echo $setter; ?>($v);
-                        } else {
-                            throw new \InvalidArgumentException(sprintf(
-                                '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>, object of type %s seen',
-                                get_class($v)
-                            ));
-                        }
-                    } else if (is_array($v)) {
-                        $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($v);
-                        if (null === $typeClass) {
-                            throw new \InvalidArgumentException(sprintf(
-                                '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
-                                json_encode($v)
-                            ));
-                        }
-                        $this-><?php echo $setter; ?>(new $typeClass($v));
-                    } else {
-                        throw new \InvalidArgumentException(sprintf(
-                            '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
-                            json_encode($v)
-                        ));
-                    }
-                }
+                $this->set<?php echo ucfirst($propertyName); ?>($data[self::<?php echo $propertyFieldConst; ?>]);
             } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
             } else {
