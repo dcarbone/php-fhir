@@ -24,6 +24,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var bool $skipImports */
+/** @var string $fqns */
 
 if (!isset($skipImports) || !$skipImports) {
     // next, begin use statement compilation

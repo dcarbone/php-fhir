@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 ob_start();
@@ -29,12 +28,26 @@ foreach ($sortedProperties as $property) :
     $propertyTypeKind = $propertyType->getKind();
     $isCollection = $property->isCollection();
     $getter = 'get' . ucfirst($propertyName);
+    $requireArgs = [
+        'isCollection' => $isCollection,
+        'propertyConstName' => $propertyConstName,
+        'getter' => $getter
+    ];
     if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-        echo require 'serialize_body_default_property_primitive_list.php';
+        echo require_with(
+            __DIR__ . '/serialize_body_default_property_primitive_list.php',
+            $requireArgs
+        );
     elseif ($propertyTypeKind->isPrimitiveContainer()) :
-        echo require 'serialize_body_default_property_primitive_container.php';
+        echo require_with(
+            __DIR__ . '/serialize_body_default_property_primitive_container.php',
+            $requireArgs
+        );
     else :
-        echo require 'serialize_body_default_property_default.php';
+        echo require_with(
+            __DIR__ . '/serialize_body_default_property_default.php',
+            $requireArgs
+        );
     endif;
 endforeach;
 return ob_get_clean();

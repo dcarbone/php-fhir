@@ -20,15 +20,34 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
+/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 
 ob_start();
 if ($typeKind->isPrimitive()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php';
+    echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php',
+        [
+            'primitiveType' => $primitiveType,
+        ]
+    );
 elseif ($typeKind->isList()) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/list.php';
+    echo require_with(PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/list.php', []);
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/resource_container.php';
+    echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/resource_container.php',
+        [
+            'sortedProperties' => $sortedProperties,
+        ]
+    );
 else:
-    echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php';
+    echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php',
+        [
+            'sortedProperties' => $sortedProperties,
+            'parentType' => $parentType
+        ]
+    );
 endif;
 return ob_get_clean();

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 ob_start(); ?>

@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
@@ -42,12 +41,26 @@ foreach ($sortedProperties as $property) :
     $propertyTypeParentType = $propertyType->getParentType();
     $isCollection = $property->isCollection();
     $getter = 'get' . ucfirst($propertyName);
+    $requireArgs = [
+            'isCollection' => $isCollection,
+            'getter' => $getter,
+            'propertyConstName' => $propertyConstName,
+    ];
     if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-        echo require 'default_property_primitive_list.php';
+        echo require_with(
+            __DIR__ . '/default_property_primitive_list.php',
+                $requireArgs
+        );
     elseif ($propertyTypeKind->isPrimitiveContainer()) :
-        echo require 'default_property_primitive_container.php';
+        echo require_with(
+            __DIR__ . '/default_property_primitive_container.php',
+                $requireArgs + ['propertyConstNameExt' => $propertyConstNameExt]
+        );
     else :
-        echo require 'default_property_default.php';
+        echo require_with(
+            __DIR__ . '/default_property_default.php',
+                $requireArgs
+        );
     endif;
 endforeach; ?>
         return [<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => self::FHIR_TYPE_NAME] + $a;

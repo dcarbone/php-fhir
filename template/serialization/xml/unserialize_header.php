@@ -18,10 +18,11 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
+/** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
+/** @var string $typeClassName */
 
 ob_start(); ?>
     /**

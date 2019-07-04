@@ -16,12 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\NameUtils;
-
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
-
-$xmlName = NameUtils::getTypeXMLElementName($type);
+/** @var string $xmlName */
 
 ob_start(); ?>
     /**

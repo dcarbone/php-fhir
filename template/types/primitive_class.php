@@ -38,7 +38,18 @@ $phpValueType = $primitiveType->getPHPValueType();
 ob_start();
 
 // first, build file header
-echo require PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php';
+echo require_with(
+        PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
+        [
+                'fqns' => $fqns,
+                'skipImports' => false,
+                'type' => $type,
+                'types' => $types,
+                'config' => $config,
+                'sortedProperties' => $sortedProperties,
+
+        ]
+);
 
 // next, build class header ?>
 /**
@@ -171,9 +182,27 @@ echo require_with(
         return $this->value;
     }
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
+    [
+            'type'     => $type,
+            'typeKind' => $typeKind,
+            'sortedProperties' => $sortedProperties,
+            'parentType' => $parentType,
+            'typeClassName' => $typeClassName,
+    ]
+) ?>
 
-<?php echo require PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php'; ?>
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
+        [
+                'type' => $type,
+                'typeKind' => $typeKind,
+                'primitiveType' => $primitiveType,
+                'sortedProperties' => $sortedProperties,
+                'parentType' => $parentType,
+        ]
+); ?>
 
     /**
      * @return string

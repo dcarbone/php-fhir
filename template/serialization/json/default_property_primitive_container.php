@@ -17,7 +17,6 @@
  */
 
 /** @var bool $isCollection */
-/** @var string $propertyName */
 /** @var string $propertyConstName */
 /** @var string $propertyConstNameExt */
 /** @var string $getter */

@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 if (0 < count($sortedProperties)) :
@@ -35,9 +34,25 @@ if (0 < count($sortedProperties)) :
             TypeKindEnum::_LIST,
             TypeKindEnum::PRIMITIVE_CONTAINER,
         ])) :
-            echo require 'unserialize_body_default_property_setter_primitive_list_container.php';
+            echo require_with(
+                __DIR__ . '/unserialize_body_default_property_setter_primitive_list_container.php',
+                [
+                    'isCollection' => $isCollection,
+                    'propertyName' => $propertyName,
+                    'propertyTypeClassName' => $propertyTypeClassName,
+                    'setter' => $setter,
+                ]
+            );
         else :
-            echo require 'unserialize_body_default_property_setter_default.php';
+            echo require_with(
+                __DIR__ . '/unserialize_body_default_property_setter_default.php',
+                [
+                    'isCollection' => $isCollection,
+                    'propertyName' => $propertyName,
+                    'propertyTypeClassName' => $propertyTypeClassName,
+                    'setter' => $setter,
+                ]
+            );
         endif;
     endforeach;
     return ob_get_clean();
