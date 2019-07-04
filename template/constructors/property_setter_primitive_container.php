@@ -16,10 +16,8 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Property $property */
-/** @var \DCarbone\PHPFHIR\Definition\Type $propertyType */
-/** @var string $propertyName */
 /** @var string $propertyFieldConst */
+/** @var string $propertyFieldConstExt */
 /** @var bool $isCollection */
 /** @var string $setter */
 

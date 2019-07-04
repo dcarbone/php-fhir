@@ -41,7 +41,8 @@
   "autoload": {
     "files": [
       "files/constants.php",
-      "files/funcs.php"
+      "files/funcs.php",
+      "files/errors.php"
     ],
     "psr-4": {
       "DCarbone\\PHPFHIR\\": "src/"

@@ -28,7 +28,7 @@ if (null === $valueProperty) {
     throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
 }
 
-$valuePrimitiveType =$valueProperty->getValueFHIRType();
+$valuePrimitiveType = $valueProperty->getValueFHIRType();
 $valuePrimitiveTypeKind = $valuePrimitiveType->getPrimitiveType();
 
 ob_start(); ?>
@@ -59,7 +59,13 @@ ob_start(); ?>
         parent::__construct($data);
 <?php endif; ?>
 <?php foreach ($sortedProperties as $property) :
-    echo require PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php';
+    echo require_with(
+            PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php',
+            [
+                    'type' => $type,
+                    'property' => $property,
+            ]
+    );
 endforeach; ?>
     }
 <?php return ob_get_clean();

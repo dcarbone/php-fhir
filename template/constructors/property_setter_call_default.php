@@ -29,15 +29,30 @@ $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 $setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
+$requireArgs = [
+        'isCollection' => $isCollection,
+        'propertyFieldConst' => $propertyFieldConst,
+        'propertyTypeClassName' => $propertyTypeClassName,
+        'setter' => $setter,
+];
 
 ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
 <?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-    echo require 'property_setter_primitive_list.php';
+    echo require_with(
+            __DIR__ . '/property_setter_primitive_list.php',
+            $requireArgs
+    );
 elseif ($propertyTypeKind->isPrimitiveContainer()) :
-    echo require 'property_setter_primitive_container.php';
+    echo require_with(
+            __DIR__ . '/property_setter_primitive_container.php',
+            $requireArgs + ['propertyFieldConstExt' => $propertyFieldConstExt]
+    );
 else :
-    echo require 'property_setter_default.php';
+    echo require_with(
+            __DIR__ . '/property_setter_default.php',
+            $requireArgs
+    );
 endif;
 if ($type->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) : ?>
             return;

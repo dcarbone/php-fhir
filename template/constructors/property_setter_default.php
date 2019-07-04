@@ -19,6 +19,7 @@
 /** @var string $propertyFieldConst */
 /** @var bool $isCollection */
 /** @var string $setter */
+/** @var string $propertyTypeClassName */
 
 ob_start();
 if ($isCollection) : ?>

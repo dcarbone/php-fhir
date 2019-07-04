@@ -16,10 +16,6 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Property $property */
-
-ob_start(); ?>
-    const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php if ($property->getValueFHIRType()->getKind()->isPrimitiveContainer()) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
-<?php endif; ?>
-<?php return ob_get_clean();
+set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
+    throw new ErrorException($errStr, $errNum, 1, $errFile, $errLine);
+});

@@ -47,7 +47,6 @@ echo require_with(
                 'types' => $types,
                 'config' => $config,
                 'sortedProperties' => $sortedProperties,
-
         ]
 );
 
