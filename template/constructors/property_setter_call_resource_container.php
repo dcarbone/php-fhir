@@ -33,18 +33,20 @@ ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
 <?php if ($isCollection) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
-                $this->set<?php echo ucfirst($propertyName); ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+                if (is_int(key($data[self::<?php echo $propertyFieldConst; ?>]))) {
+                    $this->set<?php echo ucfirst($propertyName); ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+                } else {
+                    $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
+                    if (null === $typeClass) {
+                        throw new \InvalidArgumentException(sprintf(
+                            '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
+                            json_encode($data[self::<?php echo $propertyFieldConst; ?>])
+                        ));
+                    }
+                    $this-><?php echo $setter; ?>(new $typeClass($data[self::<?php echo $propertyFieldConst; ?>]));
+                }
             } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } else {
-                $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
-                if (null === $typeClass) {
-                    throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
-                        json_encode($data[self::<?php echo $propertyFieldConst; ?>])
-                    ));
-                }
-                $this-><?php echo $setter; ?>(new $typeClass($data[self::<?php echo $propertyFieldConst; ?>]));
             }
 <?php else : ?>
             if (is_object($data[self::<?php echo $propertyFieldConst; ?>])) {
