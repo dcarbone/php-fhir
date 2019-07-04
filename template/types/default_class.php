@@ -73,7 +73,6 @@ elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_C
                 'property' => $property,
         ]
     ); ?>
-
 <?php endforeach; ?>
 
 <?php foreach($sortedProperties as $property) : ?>
