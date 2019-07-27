@@ -157,24 +157,22 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 
     /**
      * @param \SimpleXMLElement $sxe Parent element containing inline resource
-     * @return object|null
+     * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
     public static function getContainedTypeFromXML(\SimpleXMLElement $sxe)
     {
-        foreach($sxe->children() as $child) {
-            $typeName = $child->getName();
-            $className = self::getContainedTypeClassName($typeName);
-            if (null === $className) {
-                throw self::createdInvalidContainedTypeException($typeName);
-            }
-            return $className::xmlUnserialize($child);
+        $typeName = $sxe->getName();
+        $className = self::getContainedTypeClassName($typeName);
+        if (null === $className) {
+            throw self::createdInvalidContainedTypeException($typeName);
         }
-        return null;
+        /** @var \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?> $className */
+        return $className::xmlUnserialize($sxe);
     }
 
     /**
      * @param array|null $data
-     * @return object|null
+     * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
     public static function getContainedTypeFromArray($data)
     {

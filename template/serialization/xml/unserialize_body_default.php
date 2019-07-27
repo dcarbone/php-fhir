@@ -37,20 +37,30 @@ if (0 < count($sortedProperties)) :
             echo require_with(
                 __DIR__ . '/unserialize_body_default_property_setter_primitive_list_container.php',
                 [
-                    'isCollection' => $isCollection,
-                    'propertyName' => $propertyName,
+                    'isCollection'          => $isCollection,
+                    'propertyName'          => $propertyName,
                     'propertyTypeClassName' => $propertyTypeClassName,
-                    'setter' => $setter,
+                    'setter'                => $setter,
+                ]
+            );
+        elseif ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+            echo require_with(
+                __DIR__ . '/unserialize_body_default_property_setter_resource_container.php',
+                [
+                    'isCollection'          => $isCollection,
+                    'propertyName'          => $propertyName,
+                    'propertyTypeClassName' => $propertyTypeClassName,
+                    'setter'                => $setter,
                 ]
             );
         else :
             echo require_with(
                 __DIR__ . '/unserialize_body_default_property_setter_default.php',
                 [
-                    'isCollection' => $isCollection,
-                    'propertyName' => $propertyName,
+                    'isCollection'          => $isCollection,
+                    'propertyName'          => $propertyName,
                     'propertyTypeClassName' => $propertyTypeClassName,
-                    'setter' => $setter,
+                    'setter'                => $setter,
                 ]
             );
         endif;
