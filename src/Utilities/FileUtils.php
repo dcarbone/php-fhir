@@ -97,6 +97,29 @@ abstract class FileUtils
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    public static function buildAutoloaderRelativeFilepath(VersionConfig $config, Type $type)
+    {
+        return ltrim(
+                str_replace(
+                    [
+                        $config->getNamespace(false),
+                        '\\',
+                    ],
+                    [
+                        '',
+                        '/',
+                    ],
+                    $type->getFullyQualifiedClassName(false)
+                ),
+                '/\\'
+            ) . '.php';
+    }
+
+    /**
      * @param string $namespace
      * @return string
      */

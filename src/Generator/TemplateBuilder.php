@@ -92,4 +92,14 @@ abstract class TemplateBuilder
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/typemap_class.php';
     }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generateAutoloaderClass(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/autoloader_class.php';
+    }
 }

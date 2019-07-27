@@ -155,6 +155,24 @@ class Types implements \Countable
     }
 
     /**
+     * Returns iterator of types natcase sorted by FHIR type name
+     *
+     * @return \DCarbone\PHPFHIR\Definition\Type[]
+     */
+
+    public function getNamespaceSortedIterator()
+    {
+        $tmp = $this->types;
+        usort(
+            $tmp,
+            function (Type $t1, Type $t2) {
+                return strnatcasecmp($t1->getFullyQualifiedClassName(false), $t2->getFullyQualifiedClassName(false));
+            }
+        );
+        return new \ArrayIterator($tmp);
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
     public function getContainerType()

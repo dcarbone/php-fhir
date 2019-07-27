@@ -145,6 +145,15 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
+                PHPFHIR_CLASSNAME_AUTOLOADER
+            ),
+            TemplateBuilder::generateAutoloaderClass($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
                 PHPFHIR_INTERFACE_TYPE
             ),
             TemplateBuilder::generatePHPFHIRTypeInterface($this->config, $types)
