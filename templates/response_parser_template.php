@@ -171,7 +171,7 @@ class PHPFHIRResponseParser
 
                 // Ignore properties prefixed with an underscore
                 // Parsing the document fails with these properties
-                if (false !== strpos(\$k, '_')) {
+                if (0 === strpos(\$k, '_')) {
                     continue;
                 } elseif (!isset(\$properties[\$k])) {
                     \$this->_triggerPropertyNotFoundError(\$fhirElementName, \$k);
