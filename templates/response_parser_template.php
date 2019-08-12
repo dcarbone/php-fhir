@@ -112,7 +112,7 @@ class PHPFHIRResponseParser
             (\$error ? \$error->message : 'Unknown Error')
         ));
     }
-    
+
     /**
      * @param array \$jsonEntry
      * @param string \$fhirElementName
@@ -169,8 +169,12 @@ class PHPFHIRResponseParser
                         continue 2;
                 }
 
-                if (!isset(\$properties[\$k]))
-                {
+                // Ignore properties prefixed with an underscore
+                // The fhir spec make no mention of these, but some ehrs
+                // Have an implementation of underscore prefixed properties
+                if (false !== strpos(\$k, '_')) {
+                    continue;
+                } elseif (!isset(\$properties[\$k])) {
                     \$this->_triggerPropertyNotFoundError(\$fhirElementName, \$k);
                     continue;
                 }
@@ -204,7 +208,7 @@ class PHPFHIRResponseParser
 
         return \$object;
     }
-    
+
     /**
      * @param \SimpleXMLElement \$element
      * @param string \$fhirElementName
