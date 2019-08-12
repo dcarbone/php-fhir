@@ -170,7 +170,7 @@ class PHPFHIRResponseParser
                 }
 
                 // Ignore properties prefixed with an underscore
-                // The fhir spec make no mention of these, but some ehrs
+                // The fhir spec makes no mention of these, but some ehrs
                 // Have an implementation of underscore prefixed properties
                 if (false !== strpos(\$k, '_')) {
                     continue;
