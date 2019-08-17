@@ -168,6 +168,24 @@ class Builder
             TemplateBuilder::generatePHPFHIRContainedTypeInterface($this->config, $types)
         );
 
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG
+            ),
+            TemplateBuilder::generatePHPFHIRResponseParserConfigClass($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                PHPFHIR_CLASSNAME_RESPONSE_PARSER
+            ),
+            TemplateBuilder::generatePHPFHIRResponseParserClass($this->config, $types)
+        );
+
 //        $this->log->info('Writing Autoloader...');
 //        $autoloaderFilePath = FileUtils::buildGenericClassFilePath(
 //            $this->config,

@@ -34,8 +34,7 @@ endif;
 
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
+echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
 require __DIR__ . '/<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
 require __DIR__ . '/<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';

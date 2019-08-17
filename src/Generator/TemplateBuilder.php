@@ -50,6 +50,26 @@ abstract class TemplateBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generatePHPFHIRResponseParserConfigClass(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/response_parser_config_class.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generatePHPFHIRResponseParserClass(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/response_parser_class.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
