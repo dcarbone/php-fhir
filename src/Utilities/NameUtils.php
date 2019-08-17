@@ -97,7 +97,7 @@ abstract class NameUtils
     /** @var array */
     private static $nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     /** @var array */
-    private static $constPunctMap = [
+    private static $constPunctuationMap = [
         '.' => '_DOT_',
         '-' => '_HYPHEN_',
     ];
@@ -187,8 +187,8 @@ abstract class NameUtils
             } elseif (in_array($chr, self::$nums, true)) {
                 $constName .= $chr;
                 $lastUpper = false;
-            } elseif (isset(self::$constPunctMap[$chr])) {
-                $constName .= self::$constPunctMap[$chr];
+            } elseif (isset(self::$constPunctuationMap[$chr])) {
+                $constName .= self::$constPunctuationMap[$chr];
                 $lastUpper = false;
             } else {
                 $constName .= '_';
