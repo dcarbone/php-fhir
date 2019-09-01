@@ -28,7 +28,7 @@ ob_start(); ?>
                 $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($child));
             }
 <?php else : ?>
-            $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($child$children-><?php echo $propertyName; ?>));
+            $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($children-><?php echo $propertyName; ?>));
 <?php endif; ?>
         }
 <?php return ob_get_clean();
