@@ -37,12 +37,12 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n"; ?>
 
 /**
-* Class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; if ('' !== $namespace) : ?>
+ * Class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; if ('' !== $namespace) : ?>
 
-    * @package \<?php echo $namespace; ?>
+ * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
-*/
+ */
 class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
 {
