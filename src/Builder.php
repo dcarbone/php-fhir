@@ -53,12 +53,15 @@ class Builder
      */
     public function build()
     {
+        $log = $this->config->getLogger();
+        $skipTests = $this->config->isSKipTests();
+
         $this->beforeGeneration();
 
         if (!$this->definition->isDefined()) {
-            $this->config->getLogger()->startBreak('XSD Parsing');
+            $log->startBreak('XSD Parsing');
             $this->definition->buildDefinition();
-            $this->config->getLogger()->endBreak('XSD Parsing');
+            $log->endBreak('XSD Parsing');
         }
 
         $types = $this->definition->getTypes();
@@ -69,20 +72,44 @@ class Builder
             }
         }
 
-        $this->config->getLogger()->startBreak('Class Generation');
+        $log->startBreak('Type Class Generation');
         foreach ($types->getIterator() as $type) {
-            $this->config->getLogger()->debug("Generating class for element {$type}...");
-            $classDefinition = TemplateBuilder::generateTypeClass($this->config, $this->definition->getTypes(), $type);
+            $log->debug("Generating class for type {$type}...");
+            $classDefinition = TemplateBuilder::generateTypeClass($this->config, $types, $type);
             if (null !== $classDefinition) {
-                if (!(bool)file_put_contents(FileUtils::buildTypeFilePath($this->config, $type), $classDefinition)) {
+                $filepath = FileUtils::buildTypeFilePath($this->config, $type);
+                if (!(bool)file_put_contents($filepath, $classDefinition)) {
                     throw new \RuntimeException(sprintf(
-                        'Unable to write Type %s',
+                        'Unable to write Type %s class definition to file %s',
+                        $filepath,
+                        $type
+                    ));
+                }
+            } else {
+                $log->warning(sprintf(
+                    'Received NULL from generateTypeClass call for type "%s"...',
+                    $type
+                ));
+            }
+        }
+        $log->endBreak('Type Class Generation');
+
+        if (!$this->config->isSKipTests()) {
+            $log->startBreak('Type Test Class Generation');
+            foreach ($types->getIterator() as $type) {
+                $log->debug("Generated test class for type {$type}...");
+                $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type);
+                $filepath = FileUtils::buildTypeTestFilePath($this->config, $type);
+                if (!(bool)file_put_contents($filepath, $classDefinition)) {
+                    throw new \RuntimeException(sprintf(
+                        'Unable to write Type %s class definition to file %s',
+                        $filepath,
                         $type
                     ));
                 }
             }
+            $log->endBreak('Type Test Class Generation');
         }
-        $this->config->getLogger()->endBreak('Class Generation');
 
         $this->afterGeneration();
     }

@@ -54,14 +54,14 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     public function getFHIRTypeName();
 
     /**
-     * @param \SimpleXMLElement|string|null \$sxe
+     * @param \SimpleXMLElement|string|null $sxe
      * @param null|\<?php echo $namespace . '\\' . PHPFHIR_INTERFACE_TYPE; ?> $type
      * @return null|static
      */
     public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null);
 
     /**
-     * @param null|\SimpleXMLElement \$sxe
+     * @param null|\SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize(\SimpleXMLElement $sxe = null);

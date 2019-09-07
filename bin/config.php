@@ -21,11 +21,14 @@ return [
     // The path to look look for and optionally download source XSD files to
     'schemaPath'  => __DIR__ . '/../input',
 
-    // The path to place generated code files
+    // The path to place generated type class files
     'classesPath' => '/Volumes/code/src/github.com/dcarbone/php-fhir-generated/src/',
 
     // If true, will use a noop null logger
     'silent'      => false,
+
+    // If true, will skip generation of test classes
+    'skipTests'   => false,
 
     // Map of versions and configurations to generate
     // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
@@ -33,25 +36,25 @@ return [
     'versions'    => [
         'DSTU1' => [
             // Source URL
-            'url'              => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
+            'url'       => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
             // Namespace to prefix the generated classes with
-            'namespace'        => '\\HL7\\FHIR\\DSTU1',
+            'namespace' => '\\HL7\\FHIR\\DSTU1',
         ],
         'DSTU2' => [
-            'url'              => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
-            'namespace'        => '\\HL7\\FHIR\\DSTU2',
+            'url'       => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
+            'namespace' => '\\HL7\\FHIR\\DSTU2',
         ],
         'STU3'  => [
-            'url'              => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
-            'namespace'        => '\\HL7\\FHIR\\STU3',
+            'url'       => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
+            'namespace' => '\\HL7\\FHIR\\STU3',
         ],
-        'R4' => [
-            'url'              => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
-            'namespace'        => 'DCarbone\\PHPFHIRGenerated',
+        'R4'    => [
+            'url'       => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
+            'namespace' => 'DCarbone\\PHPFHIRGenerated',
         ],
         'Build' => [
-            'url'              => 'http://build.fhir.org/fhir-all-xsd.zip',
-            'namespace'        => '\\HL7\\FHIR\\Build',
+            'url'       => 'http://build.fhir.org/fhir-all-xsd.zip',
+            'namespace' => '\\HL7\\FHIR\\Build',
         ],
     ],
 ];

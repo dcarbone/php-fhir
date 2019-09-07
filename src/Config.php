@@ -33,6 +33,7 @@ class Config implements LoggerAwareInterface
     const KEY_CLASSES_PATH = 'classesPath';
     const KEY_VERSIONS     = 'versions';
     const KEY_SILENT       = 'silent';
+    const KEY_SKIP_TESTS   = 'skipTests';
 
     /** @var string */
     private $schemaPath;
@@ -46,6 +47,8 @@ class Config implements LoggerAwareInterface
     private $log;
     /** @var bool */
     private $silent = false;
+    /** @var bool */
+    private $skipTests = false;
 
     /**
      * Config constructor.
@@ -67,6 +70,7 @@ class Config implements LoggerAwareInterface
         $this->setClassesPath($conf[self::KEY_CLASSES_PATH]);
         $this->setVersions($conf[self::KEY_VERSIONS]);
         $this->setSilent(isset($conf[self::KEY_SILENT]) ? (bool)$conf[self::KEY_SILENT] : false);
+        $this->setSkipTests(isset($conf[self::KEY_SKIP_TESTS]) ? $conf[self::KEY_SKIP_TESTS] : false);
         if ($logger && !$this->isSilent()) {
             $this->log = new Logger($logger);
         } else {
@@ -84,11 +88,29 @@ class Config implements LoggerAwareInterface
 
     /**
      * @param bool $silent
-     * @return Config
+     * @return \DCarbone\PHPFHIR\Config
      */
     public function setSilent($silent)
     {
         $this->silent = $silent;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSkipTests()
+    {
+        return $this->skipTests;
+    }
+
+    /**
+     * @param bool $skipTests
+     * @return \DCarbone\PHPFHIR\Config
+     */
+    public function setSkipTests($skipTests)
+    {
+        $this->skipTests = (bool)$skipTests;
         return $this;
     }
 

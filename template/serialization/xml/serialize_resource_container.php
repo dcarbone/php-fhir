@@ -21,7 +21,7 @@
 
 ob_start(); ?>
     /**
-     * @param null|\SimpleXMLElement \$sxe
+     * @param null|\SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */
     public function xmlSerialize(\SimpleXMLElement $sxe = null)

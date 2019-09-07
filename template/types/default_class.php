@@ -22,7 +22,7 @@
 
 // define some common things
 $fqns = $type->getFullyQualifiedNamespace(true);
-$typeClassName = $type->getClassName();
+$typeClassname = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
@@ -32,7 +32,6 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 ob_start();
 
 // build file header
-// first, build file header
 echo require_with(
     PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
     [
@@ -51,12 +50,12 @@ echo require_with(
 <?php echo $classDocumentation; ?>
  *<?php endif; ?>
 
- * Class <?php echo $typeClassName; ?>
+ * Class <?php echo $typeClassname; ?>
 
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $typeClassName; ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName();
+class <?php echo $typeClassname; ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName();
 if ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; endif;
 elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; else : ?>
  implements <?php echo PHPFHIR_INTERFACE_TYPE; endif; ?>
@@ -115,11 +114,11 @@ elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_C
 <?php echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
     [
-            'type'     => $type,
-            'typeKind' => $typeKind,
-            'sortedProperties' => $sortedProperties,
-            'parentType' => $parentType,
-            'typeClassName' => $typeClassName,
+        'type'     => $type,
+        'typeKind' => $typeKind,
+        'sortedProperties' => $sortedProperties,
+        'parentType' => $parentType,
+        'typeClassName' => $typeClassname,
     ]
 ) ?>
 

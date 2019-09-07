@@ -26,7 +26,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 ob_start(); ?>
     /**
-     * @param \SimpleXMLElement|string|null \$sxe
+     * @param \SimpleXMLElement|string|null $sxe
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
@@ -49,7 +49,7 @@ ob_start(); ?>
         }
         if (null === $type) {
 <?php if (null !== $parentType): ?>
-            $type = <?php echo $parentType->getClassName(); ?>::xmlUnserialize(\$sxe, new <?php echo $typeClassName; ?>);
+            $type = <?php echo $parentType->getClassName(); ?>::xmlUnserialize($sxe, new <?php echo $typeClassName; ?>);
 <?php else : ?>
             $type = new static();
 <?php endif; ?>

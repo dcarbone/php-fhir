@@ -75,12 +75,35 @@ class VersionConfig
     }
 
     /**
-     * @param $leadingSlash
+     * @param boolean $leadingSlash
      * @return string
      */
     public function getNamespace($leadingSlash)
     {
         return $this->version->getNamespace($leadingSlash);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSKipTests()
+    {
+        return $this->config->isSkipTests();
+    }
+
+    /**
+     * @param boolean $leadingSlash
+     * @return string
+     */
+    public function getTestsNamespace($leadingSlash)
+    {
+        $ns = $this->getNamespace(false);
+        if ('' === $ns) {
+            $ns = PHPFHIR_TESTS_NAMESPACE;
+        } else {
+            $ns .= '\\' . PHPFHIR_TESTS_NAMESPACE;
+        }
+        return $leadingSlash ? "\\{$ns}" : $ns;
     }
 
     /**

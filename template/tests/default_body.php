@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -16,16 +15,17 @@
  * limitations under the License.
  */
 
-/** @var string $xmlName */
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-ob_start(); ?>
-    /**
-     * @param null|\SimpleXMLElement $sxe
-     * @return \SimpleXMLElement
-     */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null)
+$typeClassname = $type->getClassName();
+
+ob_start();
+?>
+    public function testCanConstructTypeNoArgs()
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<<?php echo $xmlName; ?> xmlns="<?php echo PHPFHIR_FHIR_XMLNS; ?>"></<?php echo $xmlName; ?>>');
-        }
-<?php return ob_get_clean();
+        $type = new <?php echo $typeClassname; ?>();
+        $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
+    }
+<?php
+return ob_get_clean();

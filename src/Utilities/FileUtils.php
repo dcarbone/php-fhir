@@ -101,6 +101,19 @@ abstract class FileUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
+    public static function buildTypeTestFilePath(VersionConfig $config, Type $type)
+    {
+        return static::mkdirRecurse(
+                $config,
+                self::cleanupPath($type->getFullyQualifiedTestNamespace(false))
+            ) . "/{$type->getTestClassName()}.php";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
     public static function buildAutoloaderRelativeFilepath(VersionConfig $config, Type $type)
     {
         return ltrim(

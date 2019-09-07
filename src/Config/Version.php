@@ -98,7 +98,7 @@ class Version
     public function setNamespace($namespace)
     {
         // handle no or empty namespace
-        $namespace = trim((string)$namespace, "\\");
+        $namespace = trim((string)$namespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
         if ('' === $namespace) {
             $this->namespace = '';
             return $this;

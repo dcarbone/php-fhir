@@ -122,4 +122,15 @@ abstract class TemplateBuilder
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/autoloader_class.php';
     }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return mixed
+     */
+    public static function generateTypeTestClass(VersionConfig $config, Types $types, Type $type)
+    {
+        return require PHPFHIR_TEMPLATE_TESTS_DIR . '/test_class.php';
+    }
 }

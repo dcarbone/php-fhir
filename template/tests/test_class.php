@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -16,16 +15,27 @@
  * limitations under the License.
  */
 
-/** @var string $xmlName */
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-ob_start(); ?>
-    /**
-     * @param null|\SimpleXMLElement $sxe
-     * @return \SimpleXMLElement
-     */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null)
-    {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<<?php echo $xmlName; ?> xmlns="<?php echo PHPFHIR_FHIR_XMLNS; ?>"></<?php echo $xmlName; ?>>');
-        }
-<?php return ob_get_clean();
+ob_start();
+
+echo require_with(
+    PHPFHIR_TEMPLATE_TESTS_DIR . '/class_header.php',
+    [
+        'config' => $config,
+        'type'   => $type,
+    ]
+);
+
+echo require_with(
+    PHPFHIR_TEMPLATE_TESTS_DIR . '/default_body.php',
+    [
+        'config' => $config,
+        'type'   => $type,
+    ]
+);
+
+echo "}\n";
+return ob_get_clean();

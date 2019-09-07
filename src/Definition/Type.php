@@ -241,12 +241,26 @@ class Type
      */
     public function getFullyQualifiedNamespace($leadingSlash)
     {
-        $ns = $this->getConfig()->getNamespace($leadingSlash);
-        $fhirNS = $this->getTypeNamespace();
-        if ('' !== $fhirNS) {
-            $ns = "{$ns}\\{$fhirNS}";
+        $ns = $this->getConfig()->getNamespace(false);
+        $typeNS = $this->getTypeNamespace();
+        if ('' !== $typeNS) {
+            $ns = "{$ns}\\{$typeNS}";
         }
-        return $ns;
+        return $leadingSlash ? "\\{$ns}" : $ns;
+    }
+
+    /**
+     * @param bool $leadingSlash
+     * @return string
+     */
+    public function getFullyQualifiedTestNamespace($leadingSlash)
+    {
+        $ns = $this->getConfig()->getTestsNamespace(false);
+        $typeNS = $this->getTypeNamespace();
+        if ('' !== $typeNS) {
+            $ns = "{$ns}\\{$typeNS}";
+        }
+        return $leadingSlash ? "\\{$ns}" : $ns;
     }
 
     /**
@@ -255,7 +269,36 @@ class Type
      */
     public function getFullyQualifiedClassName($leadingSlash)
     {
-        return $this->getFullyQualifiedNamespace($leadingSlash) . '\\' . $this->getClassName();
+        $cn = $this->getFullyQualifiedNamespace(false);
+        if ('' === $cn) {
+            $cn = $this->getClassName();
+        } else {
+            $cn .= "\\{$this->getClassName()}";
+        }
+        return $leadingSlash ? "\\{$cn}" : $cn;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTestClassName()
+    {
+        return "{$this->getClassName()}Test";
+    }
+
+    /**
+     * @param boolean $leadingSlash
+     * @return string
+     */
+    public function getFullyQualifiedTestClassName($leadingSlash)
+    {
+        $ns = $this->getFullyQualifiedTestNamespace(false);
+        if ('' === $ns) {
+            $cn = $this->getTestClassName();
+        } else {
+            $cn = "{$ns}\\{$this->getTestClassName()}";
+        }
+        return $leadingSlash ? "\\{$cn}" : $ns;
     }
 
     /**
