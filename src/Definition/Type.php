@@ -85,6 +85,9 @@ class Type
     /** @var bool */
     private $containedType = false;
 
+    /** @var \DCarbone\PHPFHIR\Definition\TypeImports */
+    private $imports;
+
     /**
      * Type constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -106,6 +109,7 @@ class Type
         $this->sourceFilename = $sourceFilename;
         $this->properties = new Properties($config, $this);
         $this->enumeration = new Enumeration($this);
+        $this->imports = new TypeImports($this);
     }
 
     /**
@@ -132,6 +136,14 @@ class Type
     public function getFHIRName()
     {
         return $this->fhirName;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\TypeImports
+     */
+    public function getImports()
+    {
+        return $this->imports;
     }
 
     /**
