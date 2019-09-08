@@ -64,16 +64,61 @@ have been generated they should only ever be re-generated if your server switche
 ```php
 require __DIR__.'/vendor/autoload.php';
 
-$xsdPath = 'path to wherever you un-zipped the xsd files';
+$schemaPath = 'schema/path';
 
-$config = new \DCarbone\PHPFHIR\Config(['xsdPath' => $xsdPath]);
-$generator = new \DCarbone\PHPFHIR\Generator($config);
+// first, build new configuration class
+$config = new \DCarbone\PHPFHIR\Config([
+    // The path to look look for and optionally download source XSD files to
+    'schemaPath'  => __DIR__ . '/../input',
 
-$generator->generate();
+    // The path to place generated type class files
+    'classesPath' => '__DIR__ . '/../output',
+
+    // If true, will use a noop null logger
+    'silent'      => false,
+
+    // If true, will skip generation of test classes
+    'skipTests'   => false,
+
+    // Map of versions and configurations to generate
+    // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
+    // version, please see http://www.hl7.org/fhir/directory.cfml
+    'versions'    => [
+        'DSTU1' => [
+            // Source URL
+            'url'       => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
+            // Namespace to prefix the generated classes with
+            'namespace' => '\\HL7\\FHIR\\DSTU1',
+        ],
+        'DSTU2' => [
+            'url'       => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
+            'namespace' => '\\HL7\\FHIR\\DSTU2',
+        ],
+        'STU3'  => [
+            'url'       => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
+            'namespace' => '\\HL7\\FHIR\\STU3',
+        ],
+        'R4'    => [
+            'url'       => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
+            'namespace' => '\\HL7\\FHIR\\R4',
+        ],
+        'Build' => [
+            'url'       => 'http://build.fhir.org/fhir-all-xsd.zip',
+            'namespace' => '\\HL7\\FHIR\\Build',
+        ],
+    ],
+]);
+
+// next, build definition class
+$definition = new \DCarbone\PHPFHIR\Definition($config);
+$definition->buildDefinition();
+
+$builder = new \DCarbone\PHPFHIR\Builder($config, $definition);
+$builder->build();
 ```
 
 Using the above code will generate class files under the included [output](./output) directory, under the namespace
-` PHPFHIRGenerated `
+` HL7\\FHIR\\{version} `
 
 If you wish the files to be placed under a different directory, pass the path in as the 2nd argument in the
 generator constructor.
@@ -98,10 +143,19 @@ own autoloader and not use the generated one if you wish.
 
 ```php
 
+require 'path to PHPFHIRResponseParserConfig.php';
 require 'path to PHPFHIRResponseParser.php';
 
-$parser = new \\YourConfiguredNamespace\\PHPFHIRResponseParser;
+// build config
+$config = new \YourConfiguredNamespace\PHPFHIRResponseParserConfig([
+    'registerAutoloader' => true, // use if you are not using Composer
+    'sxeArgs' => LIBXML_COMPACT | LIBXML_NSCLEAN // choose different SimpleXML arguments if you want, ymmv.
+]);
 
+// build parser
+$parser = new \YourConfiguredNamespace\PHPFHIRResponseParser($config);
+
+// provide input, receive output.
 $object = $parser->parse($yourResponseData);
 
 ```
@@ -115,46 +169,23 @@ $json = json_encode($object);
 ## XML Serialization
 
 ```php
-// To get an XML string back...
-$xml = $object->xmlSerialize();
+// To get an instance of \SimpleXMLElement...
+$sxe = $object->xmlSerialize();
 
-// To get back an instance of \SimpleXMLElement...
-$sxe = $object->xmlSerialize(true);
+// to get as XML string...
+$xml = $sxe->saveXML();
 ```
 
 XML Serialization utilizes [SimpleXMLElement](http://php.net/manual/en/class.simplexmlelement.php).
 
-## Custom XML Serialization
-In some cases, vendors may deviate from the FHIR spec and require some properties of a class to be
-serialized as xml attributes instead of a child. The generator supports this through the following configuration.
-
-```php
-require __DIR__.'/vendor/autoload.php';
-
-$xsdPath = 'path to wherever you un-zipped the xsd files';
-
-$config = new \DCarbone\PHPFHIR\Config([
-    'xsdPath' => $xsdPath,
-    'xmlSerializationAttributeOverrides' => ['SomeFHIRModel' => 'somePropertyName']
-);
-
-$generator = new \DCarbone\PHPFHIR\Generator($config);
-
-$generator->generate();
-
-```
-
 ## Testing
 
-Currently this library is being tested against v0.0.82, v1.0.2, and v1.8.0 using the open server available here:
-http://fhir2.healthintersections.com.au/open/ .
+As part of class generation, a directory & namespace called `PHPFHIRTests` is created under the root namespace and
+output directory.
 
 ## TODO
 
 - Implement event or pull-based XML parsing for large responses
-- Typecast scalar values in XML responses to proper PHP type
-- Attempt to implement Date values into PHP DateTime objects
-- Tests...
 
 ## Suggestions and help
 
