@@ -45,10 +45,14 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 
 if (!isset($skipImports) || !$skipImports) {
+    $imported = 0;
     foreach ($type->getImports() as $import) {
-        echo $import->getUseStatement();
+        if ($import->isRequiresImport()) {
+            echo $import->getUseStatement();
+            $imported++;
+        }
     }
-    if (0 !== count($type->getImports())) {
+    if (0 !== $imported) {
         echo "\n";
     }
 }

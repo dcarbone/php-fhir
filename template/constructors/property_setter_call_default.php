@@ -32,7 +32,7 @@ $setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
 $requireArgs = [
         'isCollection' => $isCollection,
         'propertyFieldConst' => $propertyFieldConst,
-        'propertyTypeClassName' => $propertyTypeClassName,
+        'propertyTypeClassName' => (string)$type->getImports()->getImportByType($propertyType),
         'setter' => $setter,
 ];
 

@@ -31,6 +31,8 @@ if (null === $valueProperty) {
 $valuePrimitiveType = $valueProperty->getValueFHIRType();
 $valuePrimitiveTypeKind = $valuePrimitiveType->getPrimitiveType();
 
+$typeImports = $type->getImports();
+
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
@@ -41,12 +43,12 @@ ob_start(); ?>
         if (null === $data) {
             return;
         }
-        if ($data instanceof <?php echo $valuePrimitiveType->getClassName(); ?>) {
+        if ($data instanceof <?php echo $typeImports->getImportByType($valuePrimitiveType); ?>) {
             $this->setValue($data);
             return;
         }
         if (is_scalar($data)) {
-            $this->setValue(new <?php echo $valuePrimitiveType->getClassName(); ?>($data));
+            $this->setValue(new <?php echo $typeImports->getImportByType($valuePrimitiveType); ?>($data));
             return;
         }
         if (!is_array($data)) {

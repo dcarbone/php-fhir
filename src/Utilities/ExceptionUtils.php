@@ -78,6 +78,21 @@ abstract class ExceptionUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @return \DomainException
+     */
+    public static function createPropertyMissingNameException(Type $type, Property $property)
+    {
+        return new \DomainException(sprintf(
+            'Type "%s" has Property without a name. Source File: %s;  XML: %s',
+            $type->getFHIRName(),
+            $type->getSourceFileBasename(),
+            $property->getSourceSXE()->saveXML()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
     public static function createInvalidTypeClassNameException(Type $type)

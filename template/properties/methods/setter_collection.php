@@ -26,7 +26,7 @@ use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 $propertyName = $property->getName();
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
-$propertyTypeClassName = $propertyType->getClassName();
+$propertyTypeClassName = $type->getImports()->getImportByType($propertyType);
 
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
@@ -48,7 +48,7 @@ ob_start(); ?>
             return $this;
         }
         foreach($<?php echo $propertyName; ?> as $v) {
-            if ($v instanceof <?php echo $propertyType->getClassName(); ?>) {
+            if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this->add<?php echo ucfirst($propertyName); ?>($v);
             } else {
                 $this->add<?php echo ucfirst($propertyName); ?>(new <?php echo $propertyTypeClassName; ?>($v));

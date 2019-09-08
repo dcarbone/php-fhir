@@ -46,7 +46,8 @@ else :
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_default.php',
             [
-                    'sortedProperties' => $sortedProperties
+                    'sortedProperties' => $sortedProperties,
+                    'typeImports' => $type->getImports(),
             ]
     );
 endif; ?>

@@ -58,7 +58,7 @@ class TypeImports implements \Iterator, \Countable
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Definition\TypeImport|null
      */
-    public function getTypeImport(Type $type)
+    public function getImportByType(Type $type)
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -182,8 +182,9 @@ class TypeImports implements \Iterator, \Countable
     /**
      * @param string $classname
      * @param string $namespace
+     * @param bool $requriesImport
      */
-    private function addImport($classname, $namespace)
+    private function addImport($classname, $namespace, $requriesImport)
     {
         if (isset($this->imports[$classname])) {
             // if we have already seen this type, move on.
@@ -193,18 +194,18 @@ class TypeImports implements \Iterator, \Countable
 
             // if there is a conflicting imported type here...
             $aliasName = $this->findNextAliasName($classname, $namespace);
-            $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName);
+            $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName, $requriesImport);
             return;
         }
 
         if ($classname === $this->type->getClassName()) {
             // if the imported type has the same class name as the direct type
             $aliasName = $this->findNextAliasName($classname, $namespace);
-            $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName);
+            $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName, $requriesImport);
             return;
         }
 
-        $this->imports[$classname] = new TypeImport($classname, $namespace, false, '');
+        $this->imports[$classname] = new TypeImport($classname, $namespace, false, '', $requriesImport);
     }
 
     private function buildImports()
@@ -219,24 +220,22 @@ class TypeImports implements \Iterator, \Countable
 
         if ($typeNS !== $configNS) {
             if ($this->type->isContainedType()) {
-                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
+                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS, true);
             }
-            $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
-            $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
+            $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS, true);
+            $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS, true);
         }
 
         // determine if we need to import our parent type
         if ($parentType = $this->type->getParentType()) {
-            if (($pns = $parentType->getFullyQualifiedNamespace(false)) !== $typeNS) {
-                $this->addImport($parentType->getClassName(), $pns);
-            }
+            $pns = $parentType->getFullyQualifiedNamespace(false);
+            $this->addImport($parentType->getClassName(), $pns, $pns !== $typeNS);
         }
 
         // determine if we need to import a restriction base
         if ($restrictionBaseType = $this->type->getRestrictionBaseFHIRType()) {
-            if (($rns = $restrictionBaseType->getFullyQualifiedNamespace(false)) !== $typeNS) {
-                $this->addImport($restrictionBaseType->getClassName(), $rns);
-            }
+            $rns = $restrictionBaseType->getFullyQualifiedNamespace(false);
+                $this->addImport($restrictionBaseType->getClassName(), $rns, $rns !== $typeNS);
         }
 
         // add property types to import statement
@@ -244,14 +243,11 @@ class TypeImports implements \Iterator, \Countable
             $propertyType = $property->getValueFHIRType();
             if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE]) &&
                 $typeNS !== $configNS) {
-                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
-                $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);
+                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS, true);
+                $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS, true);
             } else {
                 $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
-                if ($propertyTypeNS === $typeNS) {
-                    continue;
-                }
-                $this->addImport($propertyType->getClassName(), $propertyTypeNS);
+                $this->addImport($propertyType->getClassName(), $propertyTypeNS, $propertyTypeNS !== $typeNS);
             }
         }
 

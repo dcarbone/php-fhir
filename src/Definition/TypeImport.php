@@ -33,9 +33,11 @@ class TypeImport
     /** @var string */
     private $fqcn;
     /** @var bool */
-    private $aliased = false;
+    private $aliased;
     /** @var string */
     private $aliasName;
+    /** @var bool */
+    private $requiresImport;
 
     /**
      * TypeImport constructor.
@@ -43,14 +45,16 @@ class TypeImport
      * @param string $namespace
      * @param bool $aliased
      * @param string $aliasName
+     * @param bool $requiresImport
      */
-    public function __construct($classname, $namespace, $aliased, $aliasName)
+    public function __construct($classname, $namespace, $aliased, $aliasName, $requiresImport)
     {
         $this->classname = $classname;
         $this->namespace = $namespace;
         $this->fqcn = ('' === $namespace ? $classname : "{$namespace}\\{$classname}");
         $this->aliased = $aliased;
         $this->aliasName = $aliasName;
+        $this->requiresImport = $requiresImport;
     }
 
     /**
@@ -115,6 +119,14 @@ class TypeImport
     }
 
     /**
+     * @return bool
+     */
+    public function isRequiresImport()
+    {
+        return $this->requiresImport;
+    }
+
+    /**
      * @return string
      */
     public function getUseStatement()
@@ -124,5 +136,13 @@ class TypeImport
             $use .= " as {$this->getAliasName()}";
         }
         return $use . ";\n";
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getImportedName();
     }
 }

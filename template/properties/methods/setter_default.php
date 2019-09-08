@@ -26,7 +26,7 @@ use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 $propertyName = $property->getName();
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
-$propertyTypeClassName = $propertyType->getClassName();
+$propertyTypeClassName = $type->getImports()->getImportByType($propertyType);
 $isCollection = $property->isCollection();
 
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);

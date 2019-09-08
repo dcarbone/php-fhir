@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
 $propertyName = $property->getName();
 $propertyType = $property->getValueFHIRType();
-$propertyTypeClassName = $propertyType->getClassName();
+$propertyTypeClassName = $type->getImports()->getImportByType($propertyType);
 $propertyPrimitiveTypeKind = $propertyType->getPrimitiveType();
 $isCollection = $property->isCollection();
 

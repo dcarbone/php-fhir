@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\TypeImports $typeImports */
 
 if (0 < count($sortedProperties)) :
     ob_start();
@@ -26,7 +27,7 @@ if (0 < count($sortedProperties)) :
         $propertyName = $property->getName();
         $propertyType = $property->getValueFHIRType();
         $propertyTypeKind = $propertyType->getKind();
-        $propertyTypeClassName = $propertyType->getClassName();
+        $propertyTypeClassName =  $typeImports->getImportByType($propertyType);
         $isCollection = $property->isCollection();
         $setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
         if ($propertyTypeKind->isOneOf([

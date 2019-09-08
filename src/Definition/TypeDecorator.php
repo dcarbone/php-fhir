@@ -375,6 +375,38 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
+    public static function setMissingPropertyNames(VersionConfig $config, Types $types)
+    {
+        $log = $config->getLogger();
+        foreach ($types->getIterator() as $type) {
+            foreach ($type->getProperties()->getIterator() as $property) {
+                $propName = $property->getName();
+                if ('' === $propName || null === $propName) {
+                    $ref = $property->getRef();
+                    if (null !== $ref && '' !== $ref) {
+                        $newName = $ref;
+                        if (0 === strpos($ref, 'xhtml:')) {
+                            $split = explode(':', $ref, 2);
+                            if (2 === count($split) && '' !== $split[1]) {
+                                $newName = $split[1];
+                            }
+                        }
+                        $log->warning(sprintf(
+                            'Setting Type "%s" Property name to "%s"',
+                            $type,
+                            $newName
+                        ));
+                        $property->setName($newName);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
     public static function testDecoration(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
@@ -405,6 +437,13 @@ abstract class TypeDecorator
                 $rbType = $type->getRestrictionBaseFHIRType();
                 if (null === $rbType) {
                     throw ExceptionUtils::createUndefinedListRestrictionBaseException($type);
+                }
+            }
+
+            foreach ($type->getProperties()->getIterator() as $property) {
+                $name = $property->getName();
+                if (null === $name || '' === $name) {
+                    throw ExceptionUtils::createPropertyMissingNameException($type, $property);
                 }
             }
         }
