@@ -92,6 +92,17 @@ function removeDir($dir)
     echo "Done.\n";
 }
 
+function downloadFile($url, $fileName) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_SSLVERSION,3);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    file_put_contents($fileName, $result);
+}
+
 if (!file_exists(__DIR__ . '/config.php')) {
     exitWithHelp();
 }
@@ -159,7 +170,7 @@ foreach ($versions as $name => $version) {
         }
     }
 
-    copy($url, $zipFileName);
+    downloadFile($url, $zipFileName);
 
     // Download/extract ZIP file
     $zip = new ZipArchive;

@@ -15,14 +15,17 @@ generate classes for every version in the `output` folder.
 * Run `php ./bin/generate.php`
 
 ```php
-Downloading DSTU1 from http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip
-Generating DSTU1
-Downloading DSTU2 from http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip
-Generating DSTU2
-Downloading STU3 from http://hl7.org/fhir/STU3/fhir-all-xsd.zip
-Generating STU3
+php ./bin/generate.php 
+Downloading DSTU1 from https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip
+Generating DSTU1 into /Users/pim/web/forks/php-fhir/output
+Downloading DSTU2 from https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip
+Generating DSTU2 into /Users/pim/web/forks/php-fhir/output
+Downloading STU3 from https://hl7.org/fhir/STU3/fhir-all-xsd.zip
+Generating STU3 into /Users/pim/web/forks/php-fhir/output
+Downloading R4 from https://hl7.org/fhir/R4/fhir-all-xsd.zip
+Generating R4 into /Users/pim/web/forks/php-fhir/output
 Downloading Build from http://build.fhir.org/fhir-all-xsd.zip
-Generating Build
+Generating Build into /Users/pim/web/forks/php-fhir/output
 Done
 ```
 
@@ -32,7 +35,7 @@ Done
 
 Require entry:
 ```json
-    "dcarbone/php-fhir": "0.5.*"
+    "dcarbone/php-fhir": "^0.5"
 ```
 
 ## Basic Workflow
