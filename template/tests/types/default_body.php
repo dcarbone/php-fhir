@@ -26,7 +26,6 @@ ob_start();
     {
         $type = new <?php echo $typeClassname; ?>();
         $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
-        unset($type);
     }
 <?php
 return ob_get_clean();

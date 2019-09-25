@@ -77,14 +77,30 @@ abstract class ExceptionUtils
     }
 
     /**
+     * @param bool $expected
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \UnexpectedValueException
      */
-    public static function createContainedTypeFlagMismatchException(Type $type)
+    public static function createContainedTypeFlagMismatchException($expected, Type $type)
     {
         return new \UnexpectedValueException(sprintf(
-            'Type "%s" is considered a "contained" type, but its local flag is false',
-            $type->getFHIRName()
+            'Type "%s" has a conflicting "contained" type flag.  Expected: %s; Actual: %s',
+            $type->getFHIRName(),
+            $expected ? 'true' : 'false',
+            $type->isContainedType()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \UnexpectedValueException
+     */
+    public static function createDuplicateClassException(Type $type)
+    {
+        return new \UnexpectedValueException(sprintf(
+            'Type "%s" has the fully qualified name "%s", but this was already seen from another type',
+            $type->getFHIRName(),
+            $type->getFullyQualifiedClassName(true)
         ));
     }
 

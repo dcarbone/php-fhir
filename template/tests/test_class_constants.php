@@ -21,17 +21,13 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 $rootNS = $config->getNamespace(false);
-$rootFilepath = $config->getClassesPath();
-
 $testNS = $config->getTestsNamespace(false);
 
 ob_start();
+echo "<?php\n\n";?>
+namespace <?php echo $testNS; ?>;
 
-echo "<?php\n\n";
-
-echo "namespace {$testNS};\n";
-
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment(); ?>
+<?php echo CopyrightUtils::getFullPHPFHIRCopyrightComment(); ?>
 
 use <?php echo $rootNS; ?>\<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>;
 use PHPUnit\Framework\TestCase;

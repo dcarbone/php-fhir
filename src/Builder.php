@@ -126,6 +126,15 @@ class Builder
             TemplateBuilder::generateConstantsTestClass($this->config, $types)
         );
 
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getTestsNamespace(true),
+                PHPFHIR_TEST_CLASSNAME_TYPEMAP
+            ),
+            TemplateBuilder::generateTypeMapTestClass($this->config, $types)
+        );
+
         foreach ($types->getIterator() as $type) {
             $log->debug("Generated test class for type {$type}...");
             $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type);

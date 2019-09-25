@@ -422,6 +422,7 @@ abstract class TypeDecorator
      */
     public static function testDecoration(VersionConfig $config, Types $types)
     {
+        $seenClasses = [];
         foreach ($types->getIterator() as $type) {
             $typeKind = $type->getKind();
 
@@ -453,8 +454,8 @@ abstract class TypeDecorator
                 }
             }
 
-            if ($types->isContainedType($type) && !$type->isContainedType()) {
-                throw ExceptionUtils::createContainedTypeFlagMismatchException($type);
+            if ($types->isContainedType($type) !== $type->isContainedType()) {
+                throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($type), $type);
             }
 
             foreach ($type->getProperties()->getIterator() as $property) {
@@ -462,6 +463,13 @@ abstract class TypeDecorator
                 if (null === $name || '' === $name) {
                     throw ExceptionUtils::createPropertyMissingNameException($type, $property);
                 }
+            }
+
+            $cname = $type->getFullyQualifiedClassName(false);
+            if (isset($seenClasses[$cname])) {
+                throw ExceptionUtils::createDuplicateClassException($type);
+            } else {
+                $seenClasses[$cname] = true;
             }
         }
     }
