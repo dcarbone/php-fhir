@@ -126,11 +126,31 @@ abstract class TemplateBuilder
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generateConstantsTestClass(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_TESTS_DIR . '/test_class_constants.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generateTypeMapTestClass(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_TESTS_DIR . '/test_class_type_map.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @return mixed
+     * @return string
      */
     public static function generateTypeTestClass(VersionConfig $config, Types $types, Type $type)
     {
-        return require PHPFHIR_TEMPLATE_TESTS_DIR . '/test_class.php';
+        return require PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/test_class.php';
     }
 }

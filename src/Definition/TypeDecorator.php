@@ -375,6 +375,19 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
+    public static function setContainedTypeFlag(VersionConfig $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            if ($types->isContainedType($type)) {
+                $type->setContainedType(true);
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
     public static function setMissingPropertyNames(VersionConfig $config, Types $types)
     {
         $log = $config->getLogger();
@@ -438,6 +451,10 @@ abstract class TypeDecorator
                 if (null === $rbType) {
                     throw ExceptionUtils::createUndefinedListRestrictionBaseException($type);
                 }
+            }
+
+            if ($types->isContainedType($type) && !$type->isContainedType()) {
+                throw ExceptionUtils::createContainedTypeFlagMismatchException($type);
             }
 
             foreach ($type->getProperties()->getIterator() as $property) {

@@ -1,6 +1,7 @@
+
 <?php
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +16,21 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
-$typeClassname = $type->getClassName();
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+
+$testsNS = $config->getTestsNamespace(false);
+
+echo "<?php\n\n";
+
+echo "namespace {$testsNS};\n";
+
+echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo "\n\n";
+echo "use PHPUnit\\Framework\\TestCase;\n";
+
+
 
 ob_start();
-?>
-    public function testCanConstructTypeNoArgs()
-    {
-        $type = new <?php echo $typeClassname; ?>();
-        $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
-    }
-<?php
-return ob_get_clean();

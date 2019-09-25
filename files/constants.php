@@ -58,38 +58,21 @@ define('PHPFHIR_TEMPLATE_TYPES_DIR', PHPFHIR_TEMPLATE_DIR . '/types');
 define('PHPFHIR_TEMPLATE_SERIALIZATION_DIR', PHPFHIR_TEMPLATE_DIR . '/serialization');
 define('PHPFHIR_TEMPLATE_UTILITIES_DIR', PHPFHIR_TEMPLATE_DIR . '/utilities');
 define('PHPFHIR_TEMPLATE_TESTS_DIR', PHPFHIR_TEMPLATE_DIR . '/tests');
+define('PHPFHIR_TEMPLATE_TESTS_TYPES_DIR', PHPFHIR_TEMPLATE_TESTS_DIR . '/types');
 
+// static class names
 define('PHPFHIR_CLASSNAME_AUTOLOADER', 'PHPFHIRAutoloader');
 define('PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG', 'PHPFHIRResponseParserConfig');
 define('PHPFHIR_CLASSNAME_RESPONSE_PARSER', 'PHPFHIRResponseParser');
 define('PHPFHIR_CLASSNAME_CONSTANTS', 'PHPFHIRConstants');
 define('PHPFHIR_CLASSNAME_TYPEMAP', 'PHPFHIRTypeMap');
+
+// static interface names
 define('PHPFHIR_INTERFACE_TYPE', 'PHPFHIRTypeInterface');
 define('PHPFHIR_INTERFACE_CONTAINED_TYPE', 'PHPFHIRContainedTypeInterface');
 
+// static test namespaces and class names
 define('PHPFHIR_TESTS_NAMESPACE', 'PHPFHIRTests');
-
-define(
-    'PHPFHIR_DEFAULT_JSON_SERIALIZE_HEADER',
-    <<<PHP
-    /**
-     * @return mixed
-     */
-    public function jsonSerialize()
-    {
-
-PHP
-);
-define(
-    'PHPFHIR_DEFAULT_XML_SERIALIZE_HEADER',
-    <<<PHP
-    /**
-     * @param bool \$returnSXE
-     * @param null|\SimpleXMLElement \$sxe
-     * @return string|\SimpleXMLElement
-     */
-    public function xmlSerialize(\$returnSXE = false, \SimpleXMLElement \$sxe = null)
-    {
-
-PHP
-);
+define('PHPFHIR_TEST_CLASSNAME_CONSTANTS', PHPFHIR_CLASSNAME_CONSTANTS . 'Test');
+define('PHPFHIR_TEST_CLASSNAME_AUTOLOADER', PHPFHIR_CLASSNAME_AUTOLOADER . 'Test');
+define('PHPFHIR_TEST_CLASSNAME_TYPEMAP', PHPFHIR_CLASSNAME_TYPEMAP . 'Test');

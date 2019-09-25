@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -16,8 +15,18 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-ob_start(); ?>
-        $sxe->addAttribute(self::FIELD_VALUE, (string)$this);
-<?php return ob_get_clean();
+$typeClassname = $type->getClassName();
+
+ob_start();
+?>
+    public function testCanConstructTypeNoArgs()
+    {
+        $type = new <?php echo $typeClassname; ?>();
+        $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
+        unset($type);
+    }
+<?php
+return ob_get_clean();

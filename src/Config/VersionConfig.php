@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Config;
 
 /*
- * Copyright 2018 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ class VersionConfig
     /**
      * @return bool
      */
-    public function isSKipTests()
+    public function isSkipTests()
     {
         return $this->config->isSkipTests();
     }
@@ -104,6 +104,14 @@ class VersionConfig
             $ns .= '\\' . PHPFHIR_TESTS_NAMESPACE;
         }
         return $leadingSlash ? "\\{$ns}" : $ns;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTestEndpoint()
+    {
+        return $this->version->getTestEndpoint();
     }
 
     /**

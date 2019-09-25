@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,32 +18,18 @@
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-ob_start();
+$testsNS = $config->getTestsNamespace(false);
 
 echo "<?php\n\n";
-
-$testsNS = $type->getFullyQualifiedTestNamespace(false);
-$testClassname = $type->getTestClassName();
-$typeNS = $type->getFullyQualifiedClassName(false);
-$typeClassname = $type->getClassName();
 
 echo "namespace {$testsNS};\n";
 
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 echo "use PHPUnit\\Framework\\TestCase;\n";
-echo "use {$type->getFullyQualifiedClassName(false)};\n\n";
-?>
 
-/**
- * Class <?php echo $testClassname; ?>
 
- * @package \<?php echo $testsNS; ?>
 
- */
-class <?php echo $testClassname; ?> extends TestCase
-{
-<?php
-return ob_get_clean();
+ob_start();

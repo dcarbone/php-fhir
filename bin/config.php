@@ -41,16 +41,19 @@ return [
             'namespace' => '\\HL7\\FHIR\\DSTU1',
         ],
         'DSTU2' => [
-            'url'       => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
-            'namespace' => '\\HL7\\FHIR\\DSTU2',
+            'url'          => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
+            'namespace'    => '\\HL7\\FHIR\\DSTU2',
+            'testEndpoint' => 'http://test.fhir.org/r2/',
         ],
         'STU3'  => [
-            'url'       => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
-            'namespace' => '\\HL7\\FHIR\\STU3',
+            'url'          => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
+            'namespace'    => '\\HL7\\FHIR\\STU3',
+            'testEndpoint' => 'http://test.fhir.org/r3/',
         ],
         'R4'    => [
-            'url'       => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
-            'namespace' => 'DCarbone\\PHPFHIRGenerated',
+            'url'          => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
+            'namespace'    => 'DCarbone\\PHPFHIRGenerated',
+            'testEndpoint' => 'http://test.fhir.org/r4/',
         ],
         'Build' => [
             'url'       => 'http://build.fhir.org/fhir-all-xsd.zip',

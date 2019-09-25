@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -16,8 +15,27 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-ob_start(); ?>
-        $sxe->addAttribute(self::FIELD_VALUE, (string)$this);
-<?php return ob_get_clean();
+ob_start();
+
+echo require_with(
+    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/class_header.php',
+    [
+        'config' => $config,
+        'type'   => $type,
+    ]
+);
+
+echo require_with(
+    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/default_body.php',
+    [
+        'config' => $config,
+        'type'   => $type,
+    ]
+);
+
+echo "}\n";
+return ob_get_clean();

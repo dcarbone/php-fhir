@@ -78,6 +78,18 @@ abstract class ExceptionUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \UnexpectedValueException
+     */
+    public static function createContainedTypeFlagMismatchException(Type $type)
+    {
+        return new \UnexpectedValueException(sprintf(
+            'Type "%s" is considered a "contained" type, but its local flag is false',
+            $type->getFHIRName()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return \DomainException
      */

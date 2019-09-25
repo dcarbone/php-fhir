@@ -36,6 +36,9 @@ class Builder
     /** @var \DCarbone\PHPFHIR\Logger */
     private $log;
 
+    /** @var bool */
+    private $preGenerationCompleted = false;
+
     /**
      * Generator constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -48,15 +51,13 @@ class Builder
         $this->log = $config->getLogger();
     }
 
+
     /**
-     * Generate FHIR object classes based on XSD
+     * @return \DCarbone\PHPFHIR\Definition
      */
-    public function build()
+    public function getDefinition()
     {
         $log = $this->config->getLogger();
-        $skipTests = $this->config->isSKipTests();
-
-        $this->beforeGeneration();
 
         if (!$this->definition->isDefined()) {
             $log->startBreak('XSD Parsing');
@@ -64,15 +65,23 @@ class Builder
             $log->endBreak('XSD Parsing');
         }
 
-        $types = $this->definition->getTypes();
+        return $this->definition;
+    }
 
-        foreach ($types->getIterator() as $type) {
-            if ($types->isContainedType($type)) {
-                $type->setContainedType(true);
-            }
-        }
+    /**
+     * Generate FHIR classes only.
+     */
+    public function buildFHIRClasses()
+    {
+        $log = $this->config->getLogger();
 
-        $log->startBreak('Type Class Generation');
+        $this->beforeGeneration();
+
+        $definition = $this->getDefinition();
+        $types = $definition->getTypes();
+
+
+        $log->startBreak('FHIR Class Generation');
         foreach ($types->getIterator() as $type) {
             $log->debug("Generating class for type {$type}...");
             $classDefinition = TemplateBuilder::generateTypeClass($this->config, $types, $type);
@@ -92,26 +101,66 @@ class Builder
                 ));
             }
         }
-        $log->endBreak('Type Class Generation');
+        $log->endBreak('FHIR Class Generation');
+    }
 
-        if (!$this->config->isSKipTests()) {
-            $log->startBreak('Type Test Class Generation');
-            foreach ($types->getIterator() as $type) {
-                $log->debug("Generated test class for type {$type}...");
-                $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type);
-                $filepath = FileUtils::buildTypeTestFilePath($this->config, $type);
-                if (!(bool)file_put_contents($filepath, $classDefinition)) {
-                    throw new \RuntimeException(sprintf(
-                        'Unable to write Type %s class definition to file %s',
-                        $filepath,
-                        $type
-                    ));
-                }
+    /**
+     * Generate Test classes only.  Tests will not pass if FHIR classes have not been built.
+     */
+    public function buildTestClasses()
+    {
+        $log = $this->config->getLogger();
+
+        $this->beforeGeneration();
+
+        $definition = $this->getDefinition();
+        $types = $definition->getTypes();
+
+        $log->startBreak('Test Class Generation');
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getTestsNamespace(true),
+                PHPFHIR_TEST_CLASSNAME_CONSTANTS
+            ),
+            TemplateBuilder::generateConstantsTestClass($this->config, $types)
+        );
+
+        foreach ($types->getIterator() as $type) {
+            $log->debug("Generated test class for type {$type}...");
+            $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type);
+            $filepath = FileUtils::buildTypeTestFilePath($this->config, $type);
+            if (!(bool)file_put_contents($filepath, $classDefinition)) {
+                throw new \RuntimeException(sprintf(
+                    'Unable to write Type %s class definition to file %s',
+                    $filepath,
+                    $type
+                ));
             }
-            $log->endBreak('Type Test Class Generation');
         }
 
-        $this->afterGeneration();
+        $log->endBreak('Test Class Generation');
+    }
+
+    /**
+     * Generate FHIR object classes based on XSD
+     */
+    public function build()
+    {
+        $log = $this->config->getLogger();
+        $skipTests = $this->config->isSkipTests();
+        $this->beforeGeneration();
+
+        $definition = $this->getDefinition();
+        $types = $definition->getTypes();
+
+        $this->buildFHIRClasses();
+
+        if (!$this->config->isSkipTests()) {
+            $this->buildTestClasses();
+        }
+
+        $this->staticClassGeneration();
     }
 
     /**
@@ -120,10 +169,13 @@ class Builder
     protected function beforeGeneration()
     {
         // Initialize some classes and things.
-        $this->log->startBreak('Generator Class Initialization');
-        $this->log->info('Compiling Copyrights...');
-        CopyrightUtils::compileCopyrights($this->config);
-        $this->log->endBreak('Generator Class Initialization');
+        if (!$this->preGenerationCompleted) {
+            $this->log->startBreak('Generator Class Initialization');
+            $this->log->info('Compiling Copyrights...');
+            CopyrightUtils::compileCopyrights($this->config);
+            $this->log->endBreak('Generator Class Initialization');
+            $this->preGenerationCompleted = true;
+        }
     }
 
     /**
@@ -146,7 +198,7 @@ class Builder
     /**
      * Commands to run after class generation
      */
-    protected function afterGeneration()
+    protected function staticClassGeneration()
     {
         $types = $this->definition->getTypes();
 
@@ -212,41 +264,5 @@ class Builder
             ),
             TemplateBuilder::generatePHPFHIRResponseParserClass($this->config, $types)
         );
-
-//        $this->log->info('Writing Autoloader...');
-//        $autoloaderFilePath = FileUtils::buildGenericClassFilePath(
-//            $this->config,
-//            $this->config->getNamespace(true),
-//            'PHPFHIRAutoloader'
-//        );
-//        if (!(bool)file_put_contents(
-//            $autoloaderFilePath,
-//            AutoloaderUtils::build($this->config, $this->definition))) {
-//            throw new \RuntimeException("Unable to write autoloader to path: {$autoloaderFilePath}");
-//        }
-//
-//        $this->log->info('Writing ResponseParser...');
-//        $parserFilePath = FileUtils::buildGenericClassFilePath(
-//            $this->config,
-//            $this->config->getNamespace(true),
-//            'PHPFHIRResponseParser'
-//        );
-//        if (!(bool)file_put_contents(
-//            $parserFilePath,
-//            ResponseParserUtils::build($this->config))) {
-//            throw new \RuntimeException("Unable to write response parser to path: {$parserFilePath}");
-//        }
-//
-//        $this->log->info('Writing TypeMap...');
-//        $typeMapFilePath = FileUtils::buildGenericClassFilePath(
-//            $this->config,
-//            $this->config->getNamespace(true),
-//            'PHPFHIRTypeMap'
-//        );
-//        if (!(bool)file_put_contents(
-//            $typeMapFilePath,
-//            TypeMapUtils::build($this->config, $this->definition))) {
-//            throw new \RuntimeException("Unable to write response parser to path: {$typeMapFilePath}");
-//        }
     }
 }
