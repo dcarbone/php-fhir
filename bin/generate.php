@@ -37,9 +37,11 @@ use MyENA\DefaultANSILogger;
 const ENV_GENERATE_CONFIG_FILE = 'PHPFHIR_GENERATE_CONFIG_FILE';
 
 const FLAG_HELP = '--help';
-const FLAG_FORCE = '--force';
+const FLAG_FORCE_DELETE = '--forceDelete';
 const FLAG_USE_EXISTING = '--useExisting';
 const FLAG_CONFIG = '--config';
+const FLAG_ONLY_LIBRARY = '--onlyLibrary';
+const FLAG_ONLY_TESTS = '--onlyTests';
 const FLAG_VERSIONS = '--versions';
 const FLAG_LOG_LEVEL = '--logLevel';
 
@@ -57,6 +59,8 @@ $print_help = false;
 $force_delete = false;
 $config_env = getenv(ENV_GENERATE_CONFIG_FILE);
 $config_arg = '';
+$only_library = false;
+$only_tests = false;
 $config_def = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 $config_file = null;
 $versions_to_generate = null;
@@ -122,10 +126,14 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
 - Flags:
     --help:         Print this help text 
                         ex: ./bin/generate.sh --help
-    --force:        Forcibly delete all pre-existing FHIR schema files and output files without being prompted 
-                        ex: ./bin/generate.sh --force
-    --useExisting:  Do no prompt for any cleanup tasks.  Mutually exclusive with --force
+    --forceDelete:  Forcibly delete all pre-existing FHIR schema files and output files without being prompted 
+                        ex: ./bin/generate.sh --forceDelete
+    --useExisting:  Do no prompt for any cleanup tasks.  Mutually exclusive with --forceDelete
                         ex: ./bin/generate.sh --useExisting
+    --onlyLibrary   Only generate Library classes.  Mutually exclusive with --onlyTests
+                        ex: ./bin/generate.sh --onlyLibrary
+    --onlyTests     Only generate Test classes.  Mutually exclusive with --onlyLibrary
+                        ex: ./bin/generate.sh --onlyTests
     --config:       Specify location of config [default: {$config_def}]
                         ex: ./bin/generate.sh --config path/to/file
     --versions:     Comma-separated list of specific versions to parse from config
@@ -219,7 +227,7 @@ if ($argc > 1) {
                 $print_help = true;
                 break;
 
-            case FLAG_FORCE:
+            case FLAG_FORCE_DELETE:
                 $force_delete = true;
                 break;
 
@@ -248,6 +256,14 @@ if ($argc > 1) {
                 }
                 break;
 
+            case FLAG_ONLY_LIBRARY:
+                $only_library = true;
+                break;
+
+            case FLAG_ONLY_TESTS:
+                $only_tests = true;
+                break;
+
             default:
                 echo "Unknown argument \"{$arg}\" passed at position {$i}\n";
                 exit_with_help(true);
@@ -258,8 +274,17 @@ if ($argc > 1) {
 if ($use_existing && $force_delete) {
     echo sprintf(
         "Flags %s and %s are mutually exclusive, please specify one or the other.\n",
-        FLAG_FORCE,
+        FLAG_FORCE_DELETE,
         FLAG_USE_EXISTING
+    );
+    exit_with_help(true);
+}
+
+if ($only_library && $only_tests) {
+    echo sprintf(
+        "Flags %s and %s are mutually exclusive, please specify one or neither.\n",
+        FLAG_ONLY_LIBRARY,
+        FLAG_ONLY_TESTS
     );
     exit_with_help(true);
 }
@@ -462,7 +487,13 @@ foreach ($versions_to_generate as $version) {
     $definition->buildDefinition();
 
     $builder = new Builder($buildConfig, $definition);
-    $builder->build();
+    if ($only_library) {
+        $builder->buildFHIRClasses();
+    } elseif ($only_tests) {
+        $builder->buildTestClasses();
+    } else {
+        $builder->build();
+    }
 }
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;
