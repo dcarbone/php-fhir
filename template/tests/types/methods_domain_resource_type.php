@@ -33,12 +33,12 @@ ob_start(); ?>
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT        => 5, // set low timeout to move things along...
+            CURLOPT_TIMEOUT        => 10, // set low timeout to move things along...
         ]);
         $res = curl_exec($ch);
         $err = curl_error($ch);
         curl_close($ch);
-        $this->assertEmpty($err);
+        $this->assertEmpty($err, sprintf('curl error seen: %s', $err));
         $this->assertIsString($res);
         return $res;
     }
@@ -49,6 +49,13 @@ ob_start(); ?>
         $xml = $this->fetchResource('xml');
         $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize($xml);
         $this->assertInstanceOf('<?php echo $bundleType->getFullyQualifiedClassName(true); ?>', $bundle);
+        if (0 === count($bundle->getEntry())) {
+            $this->markTestSkipped(sprintf(
+                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any "<?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
+                $xml
+            ));
+            return;
+        }
         $this->assertCount(1, $bundle->getEntry());
         $entry = $bundle->getEntry()[0]->getResource();
         $xml2 = $entry->xmlSerialize()->saveXML();
