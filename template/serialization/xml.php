@@ -84,6 +84,7 @@ else :
         echo require_with(
                 PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_default.php',
                 [
+                        'parentType' => $parentType,
                         'sortedProperties' => $sortedProperties,
                 ]
         );

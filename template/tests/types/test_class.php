@@ -15,17 +15,36 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+
+$typeKind = $type->getKind();
+
+$bundleType = null;
+if ($type->isDomainResource()) {
+    // TODO: find a more efficient way to do this...
+    foreach ($types->getIterator() as $bt) {
+        if ($bt->getFHIRName() === 'Bundle') {
+            $bundleType = $bt;
+            break;
+        }
+    }
+    if (null === $bundleType) {
+        throw ExceptionUtils::createBundleTypeNotFoundException($type);
+    }
+}
 
 ob_start();
 
 echo require_with(
     PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/class_header.php',
     [
-        'config' => $config,
-        'type'   => $type,
+        'config'     => $config,
+        'type'       => $type,
+        'bundleType' => $bundleType,
     ]
 );
 
@@ -36,6 +55,17 @@ echo require_with(
         'type'   => $type,
     ]
 );
+
+if ($type->isDomainResource()) {
+    echo require_with(
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods_domain_resource_type.php',
+        [
+            'config'     => $config,
+            'type'       => $type,
+            'bundleType' => $bundleType,
+        ]
+    );
+}
 
 echo "}\n";
 return ob_get_clean();

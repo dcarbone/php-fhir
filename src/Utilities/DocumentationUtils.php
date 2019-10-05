@@ -17,8 +17,11 @@
  */
 
 use DCarbone\PHPFHIR\Definition\Property;
-use DCarbone\PHPFHIR\Definition\Type;
 
+/**
+ * Class DocumentationUtils
+ * @package DCarbone\PHPFHIR\Utilities
+ */
 abstract class DocumentationUtils
 {
     /**

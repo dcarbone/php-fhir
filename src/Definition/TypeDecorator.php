@@ -275,7 +275,7 @@ abstract class TypeDecorator
     private static function determineParsedTypeKind(VersionConfig $config, Types $types, Type $type)
     {
         // enables backwards compatibility with dstu 1 & 2
-        static $knownList = ['ResourceType'];
+        static $knownListTypes = ['ResourceType'];
 
         $logger = $config->getLogger();
         $fhirName = $type->getFHIRName();
@@ -293,7 +293,7 @@ abstract class TypeDecorator
 
         if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
-        } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX) || in_array($fhirName, $knownList, true)) {
+        } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX) || in_array($fhirName, $knownListTypes, true)) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
         } elseif (false !== strpos($fhirName, '.') && TypeKindEnum::RESOURCE_INLINE !== $fhirName) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
@@ -304,10 +304,11 @@ abstract class TypeDecorator
                 // ensure root type has kind
                 self::determineParsedTypeKind($config, $types, $rootType);
             }
-            if ($rootType->getKind()->isPrimitive()) {
+            $rootTypeKind = $rootType->getKind();
+            if ($rootTypeKind->isPrimitive()) {
                 self::setTypeKind($config, $types, $type, (string)TypeKindEnum::GENERIC);
             } else {
-                self::setTypeKind($config, $types, $type, (string)$rootType->getKind());
+                self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
             }
         } elseif (TypeKindEnum::isKnownRoot($fhirName)) {
             self::setTypeKind($config, $types, $type, $fhirName);

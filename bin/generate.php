@@ -57,12 +57,12 @@ const LOG_ERROR = 'error';
 
 $print_help = false;
 $force_delete = false;
-$config_env = getenv(ENV_GENERATE_CONFIG_FILE);
-$config_arg = '';
+$config_location_def = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
+$config_location_env = getenv(ENV_GENERATE_CONFIG_FILE);
+$config_location_arg = '';
+$config_file = null;
 $only_library = false;
 $only_tests = false;
-$config_def = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
-$config_file = null;
 $versions_to_generate = null;
 $use_existing = false;
 $log_level = LOG_WARNING;
@@ -75,23 +75,23 @@ $log_level = LOG_WARNING;
  */
 function missing_config_text($return)
 {
-    global $config_env, $config_arg, $config_def;
+    global $config_location_env, $config_location_arg, $config_location_def;
     $out = 'Unable to locate generate script configuration file.  I looked in the following locations:' . PHP_EOL;
     $out .= sprintf(
         '   - env var "%s": %s%s',
         ENV_GENERATE_CONFIG_FILE,
-        (false === $config_env ? 'Not Defined' : $config_env),
+        (false === $config_location_env ? 'Not Defined' : $config_location_env),
         PHP_EOL
     );
-    $out .= sprintf('   - "--config" flag: %s%s', ('' === $config_arg ? 'Not Defined' : $config_arg), PHP_EOL);
-    $out .= sprintf('   - Default: %s%s', $config_def, PHP_EOL);
+    $out .= sprintf('   - "--config" flag: %s%s', ('' === $config_location_arg ? 'Not Defined' : $config_location_arg), PHP_EOL);
+    $out .= sprintf('   - Default: %s%s', $config_location_def, PHP_EOL);
     $out .= PHP_EOL;
     $out .= 'Please do one of the following:' . PHP_EOL;
     $out .= sprintf('   - Define "%s" environment variable%s', ENV_GENERATE_CONFIG_FILE, PHP_EOL);
     $out .= '   - Pass "--config" flag with valid path to config file' . PHP_EOL;
-    $out .= sprintf('   - Place "config.php" file in "%s"%s', $config_def, PHP_EOL);
+    $out .= sprintf('   - Place "config.php" file in "%s"%s', $config_location_def, PHP_EOL);
 
-    $exConfig = file_get_contents($config_def);
+    $exConfig = file_get_contents($config_location_def);
 
     $out .= <<<STRING
 
@@ -109,14 +109,18 @@ STRING;
     exit(1);
 }
 
-
+/**
+ * @param bool $err
+ */
 function exit_with_help($err = false)
 {
-    global $config_def;
+    global $config_location_def;
     $env_var = ENV_GENERATE_CONFIG_FILE;
     $out = sprintf(<<<STRING
 
 PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
+
+Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
 
 - Links: 
     Source:         https://github.com/dcarbone/php-fhir
@@ -134,7 +138,7 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
                         ex: ./bin/generate.sh --onlyLibrary
     --onlyTests     Only generate Test classes.  Mutually exclusive with --onlyLibrary
                         ex: ./bin/generate.sh --onlyTests
-    --config:       Specify location of config [default: {$config_def}]
+    --config:       Specify location of config [default: {$config_location_def}]
                         ex: ./bin/generate.sh --config path/to/file
     --versions:     Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions DSTU1,DSTU2
@@ -145,7 +149,7 @@ PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
     There are 3 possible ways to define a configuration file for this script to use:
         1. Define env var {$env_var}
         2. Pass "--config" flag at run time
-        3. Place "config.php" in dir {$config_def}
+        3. Place "config.php" in dir {$config_location_def}
 
 
 STRING
@@ -236,7 +240,7 @@ if ($argc > 1) {
                 break;
 
             case FLAG_CONFIG:
-                $config_arg = trim($next);
+                $config_location_arg = trim($next);
                 if (!$found_equal) {
                     $i++;
                 }
@@ -290,12 +294,12 @@ if ($only_library && $only_tests) {
 }
 
 // try to determine which config file to use...
-if ('' !== $config_arg) {
-    $config_file = $config_arg;
-} elseif (false !== $config_env) {
-    $config_file = $config_env;
+if ('' !== $config_location_arg) {
+    $config_file = $config_location_arg;
+} elseif (false !== $config_location_env) {
+    $config_file = $config_location_env;
 } else {
-    $config_file = $config_def;
+    $config_file = $config_location_def;
 }
 
 if ($print_help) {

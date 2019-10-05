@@ -19,6 +19,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Type $bundleType */
 
 ob_start();
 
@@ -34,7 +35,12 @@ echo "namespace {$testNS};\n";
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 echo "use PHPUnit\\Framework\\TestCase;\n";
-echo "use {$type->getFullyQualifiedClassName(false)};\n\n";
+echo "use {$type->getFullyQualifiedClassName(false)};\n";
+if ($type->isDomainResource()) {
+    echo "use {$bundleType->getFullyQualifiedClassName(false)};\n";
+}
+echo "\n";
+
 ?>
 
 /**

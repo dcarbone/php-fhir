@@ -416,11 +416,21 @@ class Type
     {
         foreach ($this->getParentTypes() as $parentType) {
             $kind = $parentType->getKind();
-            if ($kind->isResource() || $kind->isDomainResource()) {
+            if ($kind->isResource()) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * TODO: super hacky.
+     *
+     * @return bool
+     */
+    public function isDomainResource()
+    {
+        return false !== strpos($this->getFullyQualifiedNamespace(false), 'DomainResource');
     }
 
     /**

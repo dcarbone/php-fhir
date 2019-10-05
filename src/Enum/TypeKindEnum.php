@@ -40,7 +40,6 @@ class TypeKindEnum extends AbstractEnum
     const RESOURCE           = 'Resource';
     const RESOURCE_CONTAINER = 'ResourceContainer';
     const RESOURCE_INLINE    = 'Resource.Inline';
-    const DOMAIN_RESOURCE    = 'DomainResource';
 
     /** @var array */
     private static $knownRoots = [
@@ -50,7 +49,6 @@ class TypeKindEnum extends AbstractEnum
         self::RESOURCE,
         self::RESOURCE_CONTAINER,
         self::RESOURCE_INLINE,
-        self::DOMAIN_RESOURCE,
     ];
 
     // this indicates a type that is an immediate child of a resource and not used elsewhere
@@ -122,14 +120,6 @@ class TypeKindEnum extends AbstractEnum
     public function isInlineResource()
     {
         return $this->is(self::RESOURCE_INLINE);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDomainResource()
-    {
-        return $this->is(self::DOMAIN_RESOURCE);
     }
 
     /**

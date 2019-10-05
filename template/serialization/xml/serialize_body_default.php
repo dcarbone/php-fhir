@@ -19,8 +19,12 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
 ob_start();
+if (null !== $parentType) : ?>
+    parent::xmlSerialize($sxe);
+<?php endif;
 foreach ($sortedProperties as $property) :
     $propertyName = $property->getName();
     $propertyConstName = $property->getFieldConstantName();

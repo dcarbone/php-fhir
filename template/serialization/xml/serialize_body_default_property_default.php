@@ -21,7 +21,10 @@
 /** @var string $getter */
 
 ob_start();
-if ($isCollection) : ?>
+
+?>
+
+<?php if ($isCollection) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             foreach($vs as $v) {
                 if (null === $v) {

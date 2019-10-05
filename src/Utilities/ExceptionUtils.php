@@ -372,4 +372,16 @@ abstract class ExceptionUtils
             $source->saveXML()
         ));
     }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \RuntimeException
+     */
+    public static function createBundleTypeNotFoundException(Type $type)
+    {
+        return new \RuntimeException(sprintf(
+            'Unable to locate "Bundle" Resource type when generating test class for Type "%s"',
+            $type->getFHIRName()
+        ));
+    }
 }

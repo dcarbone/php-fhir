@@ -22,7 +22,7 @@ return [
     'schemaPath'  => __DIR__ . '/../input',
 
     // The path to place generated type class files
-    'classesPath' => '/Volumes/code/src/github.com/dcarbone/php-fhir-generated/src/',
+    'classesPath' => __DIR__ . '/../output/src/',
 
     // If true, will use a noop null logger
     'silent'      => false,
@@ -43,17 +43,17 @@ return [
         'DSTU2' => [
             'url'          => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
             'namespace'    => '\\HL7\\FHIR\\DSTU2',
-            'testEndpoint' => 'http://test.fhir.org/r2/',
+            'testEndpoint' => 'http://hapi.fhir.org/baseDstu2',
         ],
         'STU3'  => [
             'url'          => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
             'namespace'    => '\\HL7\\FHIR\\STU3',
-            'testEndpoint' => 'http://test.fhir.org/r3/',
+            'testEndpoint' => 'http://hapi.fhir.org/baseDstu3',
         ],
         'R4'    => [
             'url'          => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
-            'namespace'    => 'DCarbone\\PHPFHIRGenerated',
-            'testEndpoint' => 'http://test.fhir.org/r4/',
+            'namespace'    => '\\HL7\\FHIR\\R4',
+            'testEndpoint' => 'http://hapi.fhir.org/baseR4',
         ],
         'Build' => [
             'url'       => 'http://build.fhir.org/fhir-all-xsd.zip',
