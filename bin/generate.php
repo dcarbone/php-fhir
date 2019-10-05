@@ -141,7 +141,7 @@ Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
     --config:       Specify location of config [default: {$config_location_def}]
                         ex: ./bin/generate.sh --config path/to/file
     --versions:     Comma-separated list of specific versions to parse from config
-                        ex: ./bin/generate.sh --versions DSTU1,DSTU2
+                        ex: ./bin/generate.sh --versions STU3,R4
     --logLevel:     Level of verbosity during generation
                         ex: ./bin/generate.sh --logLevel warning
 
