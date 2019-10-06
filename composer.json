@@ -26,8 +26,12 @@
     "psr/log": "@stable"
   },
   "require-dev": {
+    "ext-libxml": "*",
+    "ext-json": "*",
+    "ext-simplexml": "*",
+    "ext-curl": "*",
     "myena/default-logger": "@stable",
-    "phpunit/phpunit": "<7.0"
+    "phpunit/phpunit": "@stable"
   },
   "replace": {
     "php-fhir/parser": "*",
@@ -40,7 +44,9 @@
   },
   "autoload": {
     "files": [
-      "files/php_fhir_constants.php"
+      "files/constants.php",
+      "files/funcs.php",
+      "files/errors.php"
     ],
     "psr-4": {
       "DCarbone\\PHPFHIR\\": "src/"
@@ -48,8 +54,11 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "PHPFHIRGenerated\\": "output/PHPFHIRGenerated",
       "HL7\\": "output/HL7"
     }
+  },
+  "suggest": {
+    "myena/default-logger": "Simple PSR-compliant logger",
+    "ext-zip": "To enable unzipping of downloaded source files"
   }
 }

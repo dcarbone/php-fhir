@@ -1,11 +1,6 @@
 /vendor
 /composer.lock
 /tmp
-/class.Diff.php
-*.iml
-.idea/
-/.svn
-/serialized.json
-/curl.json
 /*.iml
 /.idea
+/.svn
