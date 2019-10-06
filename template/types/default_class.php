@@ -64,35 +64,40 @@ elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_C
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
-<?php if (0 !== count($sortedProperties)) : ?>
-<?php foreach($sortedProperties as $property) : ?>
-<?php echo require_with(
+<?php if (0 !== count($sortedProperties)) :
+    foreach($sortedProperties as $property) :
+        echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
         [
                 'property' => $property,
         ]
-    ); ?>
-<?php endforeach; ?>
+    );
+    endforeach; ?>
 
-<?php foreach($sortedProperties as $property) : ?>
-<?php echo require_with(
+<?php foreach($sortedProperties as $property) :
+    echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
         [
                 'config' => $config,
                 'property' => $property,
         ]
-    ); ?>
+    );
+endforeach;
 
-<?php endforeach; ?>
-<?php echo require_with(
+echo "\n";
+
+endif;
+echo require_with(
         PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php',
         [
                 'type' => $type,
                 'sortedProperties' => $sortedProperties,
                 'parentType' => $parentType,
         ]
-    ); ?>
+    );
 
+echo "\n";
+?>
     /**
      * @return string
      */
@@ -100,17 +105,18 @@ elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_C
     {
         return self::FHIR_TYPE_NAME;
     }
-
-<?php echo require_with(
+<?php if (0 < count($sortedProperties)) :
+    echo "\n";
+    echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php',
         [
                 'config' => $config,
                 'type' => $type,
                 'sortedProperties' => $sortedProperties,
         ]
-); ?>
+    );
+endif;?>
 
-<?php endif; ?>
 <?php echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
     [

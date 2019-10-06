@@ -27,19 +27,21 @@ foreach ($sortedProperties as $property) :
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $requireArgs = [
-        'type' => $type,
+        'type'     => $type,
         'property' => $property,
     ];
 
     echo require_with(
-    PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/getter_default.php',
-    [
-        'config' => $config,
-        'property' => $property,
-    ]
-); ?>
+        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/getter_default.php',
+        [
+            'config'   => $config,
+            'property' => $property,
+        ]
+    );
 
-<?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
+    echo "\n";
+
+    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
         echo require_with(
             PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_primitive.php',
             $requireArgs
@@ -68,7 +70,9 @@ foreach ($sortedProperties as $property) :
                 $requireArgs + ['config' => $config]
             );
         endif;
-    endif; ?>
+    endif;
 
-<?php endforeach;
+    echo "\n";
+
+endforeach;
 return substr(ob_get_clean(), 0, -1); // trim off final \n

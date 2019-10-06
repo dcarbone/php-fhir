@@ -20,7 +20,7 @@
 
 ob_start();
 if ($parentType) : ?>
-        parent::xmlSerialize(true, $sxe);
+        parent::xmlSerialize($sxe);
 <?php endif; ?>
         $sxe->addAttribute(self::FIELD_VALUE, (string)$this);
 <?php return ob_get_clean();

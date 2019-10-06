@@ -87,6 +87,9 @@ class Definition
         $log->info('Manually setting some property names');
         TypeDecorator::setMissingPropertyNames($this->config, $this->types);
 
+        $log->info('Parsing union memberOf Types');
+        TypeDecorator::parseUnionMemberTypes($this->config, $this->types);
+
         $log->info('Setting contained type flags');
         TypeDecorator::setContainedTypeFlag($this->config, $this->types);
 

@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 ob_start();
 if (null !== $parentType) : ?>
-    parent::xmlSerialize($sxe);
+        parent::xmlSerialize($sxe);
 <?php endif;
 foreach ($sortedProperties as $property) :
     $propertyName = $property->getName();

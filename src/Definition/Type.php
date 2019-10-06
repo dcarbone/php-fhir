@@ -380,6 +380,7 @@ class Type
     public function setParentType(Type $type)
     {
         $this->parentType = $type;
+        $this->setParentTypeName($type->getFHIRName());
         return $this;
     }
 

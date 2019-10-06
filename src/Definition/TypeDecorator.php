@@ -421,6 +421,46 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
+    public static function parseUnionMemberTypes(VersionConfig $config, Types $types)
+    {
+        $log = $config->getLogger();
+        foreach ($types->getIterator() as $type) {
+            $unionOf = $type->getUnionOf();
+            if ([] === $unionOf) {
+                continue;
+            }
+            $extended = false;
+            foreach ($unionOf as $v) {
+                // attempt to determine if this is a FHIR type
+                $utype = $types->getTypeByName($v);
+                if (null !== $utype) {
+                    if ($extended) {
+                        $log->info(sprintf(
+                            'Type "%s" has union member "%s" but has already been extended, adding properties...',
+                            $type->getFHIRName(),
+                            $utype->getFHIRName()
+                        ));
+                        foreach ($utype->getProperties()->getIterator() as $property) {
+                            $type->addProperty(clone $property);
+                        }
+                    } else {
+                        $log->info(sprintf(
+                            'Type "%s" has union member "%s", setting it as parent type...',
+                            $type->getFHIRName(),
+                            $utype->getFHIRName()
+                        ));
+                        $type->setParentType($utype);
+                        $extended = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
     public static function testDecoration(VersionConfig $config, Types $types)
     {
         $seenClasses = [];

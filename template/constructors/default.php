@@ -22,9 +22,6 @@
 
 $typeClassName = $type->getClassName();
 
-if (0 === count($sortedProperties)) :
-    return '';
-endif;
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
