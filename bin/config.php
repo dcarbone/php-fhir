@@ -19,10 +19,10 @@
  */
 return [
     // The path to look look for and optionally download source XSD files to
-    'schemaPath'  => __DIR__ . '/../input',
+    'schemaPath'  => __DIR__ . '/../input/',
 
     // The path to place generated type class files
-    'classesPath' => __DIR__ . '/../output/src/',
+    'classesPath' => __DIR__ . '/../output/',
 
     // If true, will use a noop null logger
     'silent'      => false,

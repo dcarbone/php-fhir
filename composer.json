@@ -26,8 +26,12 @@
     "psr/log": "@stable"
   },
   "require-dev": {
+    "ext-libxml": "*",
+    "ext-json": "*",
+    "ext-simplexml": "*",
+    "ext-curl": "*",
     "myena/default-logger": "@stable",
-    "phpunit/phpunit": "<7.0"
+    "phpunit/phpunit": "@stable"
   },
   "replace": {
     "php-fhir/parser": "*",
@@ -50,7 +54,6 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "PHPFHIRGenerated\\": "output/PHPFHIRGenerated",
       "HL7\\": "output/HL7"
     }
   },

@@ -1,0 +1,19 @@
+language: php
+dist: trusty
+sudo: false
+
+php:
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+
+install:
+  - composer install --no-interaction --no-progress --no-suggest
+  - ./bin/generate.sh --logLevel debug --forceDelete
+
+script:
+  - ./vendor/bin/phpunit -c phpunit.xml

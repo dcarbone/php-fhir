@@ -47,6 +47,15 @@ ob_start(); ?>
     public function testXML()
     {
         $xml = $this->fetchResource('xml');
+        try {
+            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml2);
+        } catch (\Exception $e) {
+            $this->fail(sprintf(
+                'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
+                $e->getMessage(),
+                $xml
+            ));
+        }
         $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize($xml);
         $this->assertInstanceOf('<?php echo $bundleType->getFullyQualifiedClassName(true); ?>', $bundle);
         if (0 === count($bundle->getEntry())) {
@@ -59,7 +68,15 @@ ob_start(); ?>
         $this->assertCount(1, $bundle->getEntry());
         $entry = $bundle->getEntry()[0]->getResource();
         $xml2 = $entry->xmlSerialize()->saveXML();
-        $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml2);
+        try {
+            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml2);
+        } catch (\Exception $e) {
+            $this->fail(sprintf(
+                'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
+                $e->getMessage(),
+                $xml2
+            ));
+        }
         $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
         $this->assertEquals($entry->xmlSerialize()->saveXML(), $type->xmlSerialize()->saveXML());
     }

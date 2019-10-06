@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/8.0/phpunit.xsd"
+        bootstrap="./vendor/autoload.php"
+        colors="true"
+>
+    <testsuites>
+        <testsuite name="DSTU1-Primitives">
+            <directory>./output/HL7/FHIR/DSTU1/PHPFHIRTests</directory>
+            <exclude>./output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement</exclude>
+        </testsuite>
+        <testsuite name="DSTU1-Elements">
+            <directory>./output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement</directory>
+            <exclude>./output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement/FHIRBackboneElement</exclude>
+        </testsuite>
+        <testsuite name="DSTU1-BackboneElements">
+            <directory>./output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement/FHIRBackboneElement</directory>
+            <exclude>./output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement/FHIRBackboneElement/FHIRResource</exclude>
+        </testsuite>
+        <testsuite name="DSTU1-Resources">
+            <directory>./output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement/FHIRBackboneElement/FHIRResource</directory>
+        </testsuite>
+        <testsuite name="DSTU1-Static">
+            <file>./output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
+            <file>./output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+        </testsuite>
+
+        <testsuite name="DSTU2-Primitives">
+            <directory>./output/HL7/FHIR/DSTU2/PHPFHIRTests</directory>
+            <exclude>./output/HL7/FHIR/DSTU2/PHPFHIRTests/FHIRElement</exclude>
+            <exclude>./output/HL7/FHIR/DSTU2/PHPFHIRTests/FHIRResource</exclude>
+        </testsuite>
+        <testsuite name="DSTU2-Elements">
+            <directory>./output/HL7/FHIR/DSTU2/PHPFHIRTests/FHIRElement</directory>
+        </testsuite>
+        <testsuite name="DSTU2-Resources">
+            <directory>./output/HL7/FHIR/DSTU2/PHPFHIRTests/FHIRResource</directory>
+        </testsuite>
+        <testsuite name="DSTU2-Static">
+            <file>./output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
+            <file>./output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+        </testsuite>
+
+        <testsuite name="STU3-Primitives">
+            <directory>./output/HL7/FHIR/STU3/PHPFHIRTests</directory>
+            <exclude>./output/HL7/FHIR/STU3/PHPFHIRTests/FHIRElement</exclude>
+            <exclude>./output/HL7/FHIR/STU3/PHPFHIRTests/FHIRResource</exclude>
+        </testsuite>
+        <testsuite name="STU3-Elements">
+            <directory>./output/HL7/FHIR/STU3/PHPFHIRTests/FHIRElement</directory>
+        </testsuite>
+        <testsuite name="STU3-Resources">
+            <directory>./output/HL7/FHIR/STU3/PHPFHIRTests/FHIRResource</directory>
+        </testsuite>
+        <testsuite name="STU3-Static">
+            <file>./output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
+            <file>./output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+        </testsuite>
+
+        <testsuite name="R4-Primitives">
+            <directory>./output/HL7/FHIR/R4/PHPFHIRTests</directory>
+            <exclude>./output/HL7/FHIR/R4/PHPFHIRTests/FHIRElement</exclude>
+            <exclude>./output/HL7/FHIR/R4/PHPFHIRTests/FHIRResource</exclude>
+        </testsuite>
+        <testsuite name="R4-Elements">
+            <directory>./output/HL7/FHIR/R4/PHPFHIRTests/FHIRElement</directory>
+        </testsuite>
+        <testsuite name="R4-Resources">
+            <directory>./output/HL7/FHIR/R4/PHPFHIRTests/FHIRResource</directory>
+        </testsuite>
+        <testsuite name="R4-Static">
+            <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
+            <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+    <php>
+        <env name="CACHE_DRIVER" value="array"/>
+    </php>
+</phpunit>
