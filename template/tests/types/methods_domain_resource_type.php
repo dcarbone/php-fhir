@@ -39,7 +39,11 @@ ob_start(); ?>
         $err = curl_error($ch);
         curl_close($ch);
         $this->assertEmpty($err, sprintf('curl error seen: %s', $err));
-        $this->assertIsString($res);
+        if (method_exists($this, 'assertIsString')) {
+            $this->assertIsString($res);
+        } else {
+            $this->assertInternalType('string', $res);
+        }
         return $res;
     }
 
@@ -48,7 +52,7 @@ ob_start(); ?>
     {
         $xml = $this->fetchResource('xml');
         try {
-            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml2);
+            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml);
         } catch (\Exception $e) {
             $this->fail(sprintf(
                 'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from XML: %s; Returned XML: %s',

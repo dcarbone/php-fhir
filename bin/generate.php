@@ -83,7 +83,9 @@ function missing_config_text($return)
         (false === $config_location_env ? 'Not Defined' : $config_location_env),
         PHP_EOL
     );
-    $out .= sprintf('   - "--config" flag: %s%s', ('' === $config_location_arg ? 'Not Defined' : $config_location_arg), PHP_EOL);
+    $out .= sprintf('   - "--config" flag: %s%s',
+        ('' === $config_location_arg ? 'Not Defined' : $config_location_arg),
+        PHP_EOL);
     $out .= sprintf('   - Default: %s%s', $config_location_def, PHP_EOL);
     $out .= PHP_EOL;
     $out .= 'Please do one of the following:' . PHP_EOL;
@@ -207,7 +209,14 @@ function nuke_dir($dir)
  */
 function is_dir_empty($dir)
 {
-    return 0 === iterator_count(new \FilesystemIterator($dir, \FilesystemIterator::SKIP_DOTS));
+    $res = glob($dir, GLOB_NOSORT);
+    foreach ($res as $r) {
+        if (0 === strpos($r, '.')) {
+            continue;
+        }
+        return false;
+    }
+    return true;
 }
 
 
@@ -350,24 +359,12 @@ foreach ($versions_to_generate as $vg) {
 $ins = [STDIN];
 $null = null;
 
-// try to clean up working dir
-$dir = $config->getClassesPath() . DIRECTORY_SEPARATOR . 'HL7';
-if (is_dir($dir)) {
-    if (!$use_existing && ($force_delete ||
-            ask("Work Directory \"{$dir}\" already exists.\nWould you like to purge its current contents prior to generation?"))
-    ) {
-        nuke_dir($dir);
-    } else {
-        echo "Continuing without work directory cleanup\n";
-    }
-}
-
 echo sprintf(
     "\nGenerating classes for versions: %s\n\n",
     implode(', ', $versions_to_generate)
 );
 
-foreach ($versions_to_generate as $version) {
+foreach ($versions_to_generate as $i => $version) {
     $buildConfig = new Config\VersionConfig($config, $config->getVersion($version));
 
     $url = $buildConfig->getUrl();
@@ -449,33 +446,6 @@ foreach ($versions_to_generate as $version) {
         // Extract Zip
         $zip->extractTo($schema_dir);
         $zip->close();
-    }
-
-    if (is_dir($config->getClassesPath())) {
-        if (is_dir_empty($config->getClassesPath())) {
-            echo "Output directory \"{$config->getClassesPath()}\" already exists, but is empty.  Will use.\n";
-        } elseif ($force_delete) {
-            echo "Output directory \"{$config->getClassesPath()}\" already exists, deleting...\n";
-            nuke_dir($config->getClassesPath());
-            if (!mkdir($config->getClassesPath(), 0755, true)) {
-                echo "Unable to create directory \"{$config->getClassesPath()}\". Exiting.\n";
-                exit(1);
-            }
-        } else {
-            echo "Output Directory \"{$config->getClassesPath()}\" already exists.\n";
-            if (!$use_existing) {
-                if (ask('Would you like to delete the directory?')) {
-                    nuke_dir($config->getClassesPath());
-                    if (!mkdir($config->getClassesPath(), 0755, true)) {
-                        echo "Unable to create directory \"{$config->getClassesPath()}\".  Exiting.\n";
-                        exit(1);
-                    }
-                } else {
-                    echo "Exiting.\n";
-                    exit(0);
-                }
-            }
-        }
     }
 
     echo sprintf(
