@@ -13,7 +13,7 @@ php:
 
 install:
   - composer install --no-interaction --no-progress --no-suggest
-  - ./bin/generate.sh --logLevel debug --forceDelete
+  - ./bin/generate.sh --forceDelete
 
 script:
   - ./vendor/bin/phpunit -d memory_limit=1024M -c phpunit.xml
