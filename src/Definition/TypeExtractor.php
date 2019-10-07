@@ -45,7 +45,11 @@ abstract class TypeExtractor
 
         libxml_clear_errors();
         libxml_use_internal_errors(true);
-        $sxe = new \SimpleXMLElement(file_get_contents($filePath), LIBXML_COMPACT | LIBXML_NSCLEAN);
+        $sxe = new \SimpleXMLElement(
+            file_get_contents($filePath),
+            LIBXML_NONET | LIBXML_COMPACT | LIBXML_NSCLEAN,
+            false
+        );
         libxml_use_internal_errors(false);
 
         if ($sxe instanceof \SimpleXMLElement) {

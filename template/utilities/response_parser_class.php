@@ -160,12 +160,13 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param string $input
+     * @param null|int $libxmlOpts
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    protected function parseStringXMLInput($input)
+    protected function parseStringXMLInput($input, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
         libxml_use_internal_errors(true);
-        $sxe = new \SimpleXMLElement($input);
+        $sxe = new \SimpleXMLElement($input, $libxmlOpts);
         $err = libxml_get_last_error();
         libxml_use_internal_errors(false);
         if ($sxe instanceof \SimpleXMLElement) {

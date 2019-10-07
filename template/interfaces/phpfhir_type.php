@@ -54,17 +54,31 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     public function getFHIRTypeName();
 
     /**
+     * Returns the xml namespace to use for this type when serializing to XML, if applicable.
+     * @return string
+     */
+    public function getFHIRXMLNamespace();
+
+    /**
+     * Returns the base xml element definition for this type
+     * @return string
+     */
+    public function getFHIRXMLElementDefinition();
+
+    /**
      * @param \SimpleXMLElement|string|null $sxe
      * @param null|\<?php echo $namespace . '\\' . PHPFHIR_INTERFACE_TYPE; ?> $type
+     * @param null|int $libxmlOpts
      * @return null|static
      */
-    public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null);
+    public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>);
 
     /**
      * @param null|\SimpleXMLElement $sxe
+     * @param null|int $libxmlOpts
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null);
+    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>);
 
     /**
      * @return string

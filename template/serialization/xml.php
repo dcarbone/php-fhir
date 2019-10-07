@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
@@ -31,6 +32,7 @@ ob_start();
 echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_header.php',
     [
+        'config' => $config,
         'type' => $type,
         'typeKind' => $typeKind,
         'sortedProperties' => $sortedProperties,
@@ -60,6 +62,7 @@ if ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_resource_container.php',
             [
+                    'config' => $config,
                     'xmlName' => $xmlName,
                     'sortedProperties' => $sortedProperties,
             ]
@@ -68,6 +71,7 @@ else :
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_header.php',
         [
+                'config' => $config,
                 'xmlName' => $xmlName,
         ]
     );

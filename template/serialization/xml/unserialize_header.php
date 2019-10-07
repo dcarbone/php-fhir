@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
@@ -28,17 +29,18 @@ ob_start(); ?>
     /**
      * @param \SimpleXMLElement|string|null $sxe
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
+     * @param null|int $libxmlOpts
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null)
+    public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
         if (null === $sxe) {
             return null;
         }
         if (is_string($sxe)) {
             libxml_use_internal_errors(true);
-            $sxe = new \SimpleXMLElement($sxe);
+            $sxe = new \SimpleXMLElement($sxe, $libxmlOpts, false);
             if ($sxe === false) {
                 throw new \DomainException(sprintf('<?php echo $typeClassName; ?>::xmlUnserialize - String provided is not parseable as XML: %s', implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))));
             }
@@ -59,6 +61,8 @@ ob_start(); ?>
                 is_object($type) ? get_class($type) : gettype($type)
             ));
         }
+        $ns = $sxe->getDocNamespaces(false, false);
+        $type->_xmlns = (isset($ns['']) && '' !== $ns['']) ? $ns[''] : null;
 <?php if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]) || 0 < count($sortedProperties)) : ?>
         $attributes = $sxe->attributes();
         $children = $sxe->children();

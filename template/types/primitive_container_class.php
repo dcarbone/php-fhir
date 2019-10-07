@@ -60,6 +60,9 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
+    /** @var string */
+    private $_xmlns = '';
+
 <?php foreach($sortedProperties as $property) : ?>
 <?php echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
@@ -87,17 +90,16 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
                 'sortedProperties' => $sortedProperties,
                 'parentType' => $parentType,
         ]
-); ?>
+);
 
-    /**
-     * @return string
-     */
-    public function getFHIRTypeName()
-    {
-        return self::FHIR_TYPE_NAME;
-    }
+echo require_with(
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    [
+        'type' => $type,
+    ]
+);
 
-<?php echo require_with(
+echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php',
         [
                 'config' => $config,
@@ -109,6 +111,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 <?php echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
     [
+            'config' => $config,
             'type'     => $type,
             'typeKind' => $typeKind,
             'sortedProperties' => $sortedProperties,

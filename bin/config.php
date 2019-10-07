@@ -30,10 +30,13 @@ return [
     // If true, will skip generation of test classes
     'skipTests'   => false,
 
+    // If you wish to specify alternative libxml opts, do so here.
+    'libxmlOpts'  => LIBXML_NONET | LIBXML_PARSEHUGE | LIBXML_COMPACT,
+
     // Map of versions and configurations to generate
     // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
     // version, please see http://www.hl7.org/fhir/directory.cfml
-    'versions'    => [
+    'versions' => [
         'DSTU1' => [
             // Source URL
             'url'       => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
@@ -55,9 +58,9 @@ return [
             'namespace'    => '\\HL7\\FHIR\\R4',
             'testEndpoint' => 'http://hapi.fhir.org/baseR4',
         ],
-//        'Build' => [
-//            'url'       => 'http://build.fhir.org/fhir-all-xsd.zip',
-//            'namespace' => '\\HL7\\FHIR\\Build',
-//        ],
+        //        'Build' => [
+        //            'url'       => 'http://build.fhir.org/fhir-all-xsd.zip',
+        //            'namespace' => '\\HL7\\FHIR\\Build',
+        //        ],
     ],
 ];

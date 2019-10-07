@@ -92,6 +92,14 @@ class VersionConfig
     }
 
     /**
+     * @return int|null
+     */
+    public function getLibxmlOpts()
+    {
+        return $this->config->getLibxmlOpts();
+    }
+
+    /**
      * @param boolean $leadingSlash
      * @return string
      */

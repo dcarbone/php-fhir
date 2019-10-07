@@ -17,7 +17,6 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
@@ -45,18 +44,18 @@ echo "\n\n"; ?>
 class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSerializable
 {
     const KEY_REGISTER_AUTOLOADER = 'registerAutoloader';
-    const KEY_SIMPLEXML_FLAGS = 'simpleXMLFlags';
+    const KEY_LIBXML_OPTS         = 'libxmlOpts';
 
     /** @var array */
     private static $_keysWithDefaults = [
         self::KEY_REGISTER_AUTOLOADER => false,
-        self::KEY_SIMPLEXML_FLAGS => 73728, // LIBXML_COMPACT | LIBXML_NSCLEAN
+        self::KEY_LIBXML_OPTS => <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>,
     ];
 
     /** @var bool */
     private $registerAutoloader;
     /** @var int */
-    private $simpleXMLFlags;
+    private $libxmlOpts;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> Constructor
@@ -91,17 +90,17 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSe
     }
 
     /**
-     * @param int $simpleXMLFlags
+     * @param int $libxmlOpts
      */
-    public function setSimpleXMLFlags($simpleXMLFlags)
+    public function setLibxmlOpts($libxmlOpts)
     {
-        $this->simpleXMLFlags = (int)$simpleXMLFlags;
+        $this->simpleXMLFlags = (int)$libxmlOpts;
     }
 
     /**
      * @return int
      */
-    public function getSimpleXMLFlags()
+    public function getLibxmlOpts()
     {
         return $this->simpleXMLFlags;
     }

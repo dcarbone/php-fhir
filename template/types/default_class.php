@@ -64,6 +64,9 @@ elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_C
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
+    /** @var string */
+    private $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
+
 <?php if (0 !== count($sortedProperties)) :
     foreach($sortedProperties as $property) :
         echo require_with(
@@ -97,15 +100,15 @@ echo require_with(
     );
 
 echo "\n";
-?>
-    /**
-     * @return string
-     */
-    public function getFHIRTypeName()
-    {
-        return self::FHIR_TYPE_NAME;
-    }
-<?php if (0 < count($sortedProperties)) :
+
+echo require_with(
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    [
+        'type' => $type,
+    ]
+);
+
+ if (0 < count($sortedProperties)) :
     echo "\n";
     echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php',
@@ -120,6 +123,7 @@ endif;?>
 <?php echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
     [
+        'config' => $config,
         'type'     => $type,
         'typeKind' => $typeKind,
         'sortedProperties' => $sortedProperties,

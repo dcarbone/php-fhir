@@ -29,12 +29,14 @@ ob_start();
                 if (null === $v) {
                     continue;
                 }
-                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->getFHIRXMLNamespace()));
+                $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
+                $v->xmlSerialize($tsxe->addChild($v->getFHIRTypeName(), null, $v->getFHIRXMLNamespace()));
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->getFHIRXMLNamespace()));
+            $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
+            $v->xmlSerialize($tsxe->addChild($v->getFHIRTypeName(), null, $v->getFHIRXMLNamespace()));
         }
 <?php endif;
 return ob_get_clean();

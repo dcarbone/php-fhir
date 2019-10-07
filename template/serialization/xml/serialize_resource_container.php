@@ -22,16 +22,17 @@
 ob_start(); ?>
     /**
      * @param null|\SimpleXMLElement $sxe
+     * @param null|int $libxmlOpts
      * @return string|\SimpleXMLElement
      */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null)
+    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
 <?php foreach($sortedProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
-            return $v->xmlSerialize($sxe);
+            return $v->xmlSerialize($sxe, $libxmlOpts);
         }
 <?php endforeach; ?>
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<<?php echo $xmlName; ?> xmlns="<?php echo PHPFHIR_FHIR_XMLNS; ?>"></<?php echo $xmlName; ?>>');
+            $sxe = new \SimpleXMLElement($this->getFHIRXMLElementDefinition(), $libxmlOpts, false);
         }
 <?php return ob_get_clean();

@@ -34,6 +34,7 @@ class Config implements LoggerAwareInterface
     const KEY_VERSIONS     = 'versions';
     const KEY_SILENT       = 'silent';
     const KEY_SKIP_TESTS   = 'skipTests';
+    const KEY_LIBXML_OPTS  = 'libxmlOpts';
 
     /** @var string */
     private $schemaPath;
@@ -49,6 +50,8 @@ class Config implements LoggerAwareInterface
     private $silent = false;
     /** @var bool */
     private $skipTests = false;
+    /** @var int|null */
+    private $libxmlOpts;
 
     /**
      * Config constructor.
@@ -71,6 +74,7 @@ class Config implements LoggerAwareInterface
         $this->setVersions($conf[self::KEY_VERSIONS]);
         $this->setSilent(isset($conf[self::KEY_SILENT]) ? (bool)$conf[self::KEY_SILENT] : false);
         $this->setSkipTests(isset($conf[self::KEY_SKIP_TESTS]) ? $conf[self::KEY_SKIP_TESTS] : false);
+        $this->setLibxmlOpts(isset($conf[self::KEY_LIBXML_OPTS]) ? $conf[self::KEY_LIBXML_OPTS] : null);
         if ($logger && !$this->isSilent()) {
             $this->log = new Logger($logger);
         } else {
@@ -111,6 +115,24 @@ class Config implements LoggerAwareInterface
     public function setSkipTests($skipTests)
     {
         $this->skipTests = (bool)$skipTests;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getLibxmlOpts()
+    {
+        return $this->libxmlOpts;
+    }
+
+    /**
+     * @param int|null $libxmlOpts
+     * @return \DCarbone\PHPFHIR\Config
+     */
+    public function setLibxmlOpts($libxmlOpts)
+    {
+        $this->libxmlOpts = $libxmlOpts;
         return $this;
     }
 

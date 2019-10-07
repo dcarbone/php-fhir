@@ -66,6 +66,9 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 
     const FIELD_VALUE = 'value';
 
+    /** @var string */
+    private $_xmlns = '';
+
     /** @var null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?> */
     private $value = null;
 
@@ -89,13 +92,14 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
         $this->setValue($value);
     }
 
-    /**
-     * @return string
-     */
-    public function getFHIRTypeName()
-    {
-        return self::FHIR_TYPE_NAME;
-    }
+<?php
+echo require_with(
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    [
+        'type' => $type,
+    ]
+);
+?>
 
     /**
      * @param null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?> $value;
@@ -145,6 +149,7 @@ class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {
 <?php echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
     [
+            'config' => $config,
             'type'     => $type,
             'typeKind' => $typeKind,
             'sortedProperties' => $sortedProperties,

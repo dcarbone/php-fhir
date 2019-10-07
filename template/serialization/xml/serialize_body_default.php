@@ -47,6 +47,11 @@ foreach ($sortedProperties as $property) :
             __DIR__ . '/serialize_body_default_property_primitive_container.php',
             $requireArgs
         );
+    elseif ($propertyTypeKind->isResourceContainer()) :
+        echo require_with(
+            __DIR__ . '/serialize_body_default_property_resource_container.php',
+            $requireArgs
+        );
     else :
         echo require_with(
             __DIR__ . '/serialize_body_default_property_default.php',
