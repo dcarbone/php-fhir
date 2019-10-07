@@ -16,4 +16,4 @@ install:
   - ./bin/generate.sh --forceDelete
 
 script:
-  - ./vendor/bin/phpunit -d memory_limit=1024M -c phpunit.xml
+  - ./vendor/bin/phpunit -d memory_limit=2048M -c phpunit.xml

@@ -18,9 +18,8 @@
 
 ob_start(); ?>
         if (isset($attributes->value)) {
-            return $type->setValue((string)$attributes->value);
-        }
-        if (isset($children->value)) {
-            return $type->setValue((string)$children->value);
+            $type->setValue((string)$attributes->value);
+        } elseif (isset($children->value)) {
+            $type->setValue((string)$children->value);
         }
 <?php return ob_get_clean();

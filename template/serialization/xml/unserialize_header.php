@@ -61,8 +61,13 @@ ob_start(); ?>
                 is_object($type) ? get_class($type) : gettype($type)
             ));
         }
-        $ns = $sxe->getDocNamespaces(false, false);
-        $type->_xmlns = (isset($ns['']) && '' !== $ns['']) ? $ns[''] : null;
+        $xmlNamespaces = $sxe->getDocNamespaces(false, false);
+        if ([] !== $xmlNamespaces) {
+            $ns = reset($xmlNamespaces);
+            if (false !== $ns && '' !== $ns) {
+                $type->_xmlns = $ns;
+            }
+        }
 <?php if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]) || 0 < count($sortedProperties)) : ?>
         $attributes = $sxe->attributes();
         $children = $sxe->children();
