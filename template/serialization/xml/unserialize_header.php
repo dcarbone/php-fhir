@@ -50,17 +50,16 @@ ob_start(); ?>
             throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $sxe value must be null, \\SimpleXMLElement, or valid XML string, %s seen', gettype($sxe)));
         }
         if (null === $type) {
-<?php if (null !== $parentType): ?>
-            $type = <?php echo $parentType->getClassName(); ?>::xmlUnserialize($sxe, new <?php echo $typeClassName; ?>);
-<?php else : ?>
-            $type = new static();
-<?php endif; ?>
+            $type = new <?php echo $typeClassName; ?>;
         } elseif (!is_object($type) || !($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
                 '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
                 is_object($type) ? get_class($type) : gettype($type)
             ));
         }
+<?php if (null !== $parentType) : ?>
+        <?php echo $parentType->getClassName(); ?>::xmlUnserialize($sxe, $type);
+<?php endif; ?>
         $xmlNamespaces = $sxe->getDocNamespaces(false, false);
         if ([] !== $xmlNamespaces) {
             $ns = reset($xmlNamespaces);
