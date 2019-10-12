@@ -23,18 +23,15 @@
 
 ob_start(); ?>
         if (isset($children-><?php echo $propertyName; ?>)) {
-<?php if ($isCollection) : ?>
             foreach($children-><?php echo $propertyName; ?> as $child) {
                 foreach($child->children() as $babe) {
                     $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babe));
-                    break;
+<?php if ($isCollection) : ?>
+                    continue 2;
+<?php else : ?>
+                    break 2;
+<?php endif; ?>
                 }
             }
-<?php else : ?>
-            $babes = $children-><?php echo $propertyName; ?>->children();
-            if (0 < count($babes)) {
-                $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babes[0]));
-            }
-<?php endif; ?>
         }
 <?php return ob_get_clean();
