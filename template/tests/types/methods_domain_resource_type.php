@@ -20,6 +20,8 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $bundleType */
 
+// TODO: precompile list of ID's to test with?
+
 ob_start(); ?>
 
     /**
@@ -47,20 +49,38 @@ ob_start(); ?>
         return $res;
     }
 
-    // TODO: precompile list of resource id's and use them specifically?
+    /**
+     * @param string $json
+     * @param bool $asArray
+     * @return mixed
+     */
+    protected function decodeJSON($json, $asArray)
+    {
+        $this->assertJson($json);
+        $decoded = json_decode($json, true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            $this->fail(sprintf(
+                'Error decoded JSON: %s; Raw: %s',
+                function_exists('json_last_error_msg') ? json_last_error_msg() : ('Code: '.json_last_error()),
+                $json
+            ));
+        }
+        return $decoded;
+    }
+
     public function testXML()
     {
         $xml = $this->fetchResource('xml');
         try {
-            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml);
-        } catch (\Exception $e) {
+            $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize($xml);
+        } catch(\Exception $e) {
             $this->fail(sprintf(
                 'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
                 $e->getMessage(),
                 $xml
             ));
+            return;
         }
-        $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize($xml);
         $this->assertInstanceOf('<?php echo $bundleType->getFullyQualifiedClassName(true); ?>', $bundle);
         if (0 === count($bundle->getEntry())) {
             $this->markTestSkipped(sprintf(
@@ -76,13 +96,52 @@ ob_start(); ?>
             $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml2);
         } catch (\Exception $e) {
             $this->fail(sprintf(
-                'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
+                'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; XML: %s',
                 $e->getMessage(),
                 $xml2
             ));
+            return;
         }
         $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
         $this->assertEquals($entry->xmlSerialize()->saveXML(), $type->xmlSerialize()->saveXML());
+    }
+
+    public function testJSON()
+    {
+        $json = $this->fetchResource('json');
+        $decoded = $this->decodeJSON($json, true);
+        try {
+            $bundle = new <?php echo $bundleType->getClassName(); ?>($decoded);
+        } catch(\Exception $e) {
+            $this->fail(sprintf(
+                'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from JSON: %s; Returned JSON: %s',
+                $e->getMessage(),
+                $json
+            ));
+            return;
+        }
+        if (0 === count($bundle->getEntry())) {
+            $this->markTestSkipped(sprintf(
+                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                $json
+            ));
+            return;
+        }
+        $this->assertCount(1, $bundle->getEntry());
+        $entry = $bundle->getEntry()[0]->getResource();
+        $json2 = json_encode($entry);
+        $decoded2 = $this->decodeJSON($json2, true);
+        try {
+            $type = new <?php echo $type->getClassName(); ?>($decoded2);
+        } catch (\Exception $e) {
+            $this->fail(sprintf(
+                'Error building type "<?php echo $type->getFHIRName(); ?>" from JSON: %s; JSON: %s',
+                $e->getMessage(),
+                $json2
+            ));
+            return;
+        }
+        $this->assertEquals(json_encode($entry), json_encode($type));
     }
 <?php
 return ob_get_clean();

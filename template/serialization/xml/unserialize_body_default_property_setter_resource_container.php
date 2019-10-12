@@ -23,23 +23,17 @@
 
 ob_start(); ?>
         if (isset($children-><?php echo $propertyName; ?>)) {
-            $babes = $children-><?php echo $propertyName; ?>->children();
 <?php if ($isCollection) : ?>
-            foreach($babes as $babe) {
-                $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babe));
+            foreach($children-><?php echo $propertyName; ?> as $child) {
+                foreach($child->children() as $babe) {
+                    $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babe));
+                    break;
+                }
             }
 <?php else : ?>
-            switch($cnt = count($babes)) {
-                case 0:
-                    break;
-                case 1:
-                    $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babes[0]));
-                    break;
-                default:
-                    throw new \RuntimeException(sprintf(
-                        'Expected to see a single entry for "<?php echo $propertyName; ?>", but saw %d',
-                        $cnt
-                    ));
+            $babes = $children-><?php echo $propertyName; ?>->children();
+            if (0 < count($babes)) {
+                $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babes[0]));
             }
 <?php endif; ?>
         }
