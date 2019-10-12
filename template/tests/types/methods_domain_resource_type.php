@@ -57,7 +57,7 @@ ob_start(); ?>
     protected function decodeJSON($json, $asArray)
     {
         $this->assertJson($json);
-        $decoded = json_decode($json, true);
+        $decoded = json_decode($json, $asArray);
         if (JSON_ERROR_NONE !== json_last_error()) {
             $this->fail(sprintf(
                 'Error decoded JSON: %s; Raw: %s',
