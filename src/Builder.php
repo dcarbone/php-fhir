@@ -251,6 +251,15 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
+                PHPFHIR_INTERFACE_COMPLEX_TYPE
+            ),
+            TemplateBuilder::generatePHPFHIRComplexTypeInterface($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
                 PHPFHIR_INTERFACE_CONTAINED_TYPE
             ),
             TemplateBuilder::generatePHPFHIRContainedTypeInterface($this->config, $types)

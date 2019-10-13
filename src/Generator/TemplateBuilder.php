@@ -42,6 +42,16 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
+    public static function generatePHPFHIRComplexTypeInterface(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_complex_type.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
     public static function generatePHPFHIRContainedTypeInterface(VersionConfig $config, Types $types)
     {
         return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_contained_type.php';

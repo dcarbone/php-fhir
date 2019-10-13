@@ -168,7 +168,7 @@ echo require_with(
 );
 
 echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common_complex.php',
     [
         'type' => $type,
     ]

@@ -30,6 +30,8 @@ $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 $setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
 $requireArgs = [
+        'valueContainer' => $type->isValueContainer(),
+        'propertyTypeKind' => $propertyTypeKind,
         'isCollection' => $isCollection,
         'propertyFieldConst' => $propertyFieldConst,
         'propertyTypeClassName' => (string)$type->getImports()->getImportByType($propertyType),
@@ -43,15 +45,15 @@ ob_start(); ?>
             __DIR__ . '/property_setter_primitive_list.php',
             $requireArgs
     );
-elseif ($propertyTypeKind->isPrimitiveContainer()) :
+elseif ($propertyType->isValueContainer()) :
     echo require_with(
-            __DIR__ . '/property_setter_primitive_container.php',
+            __DIR__ . '/property_setter_value_container.php',
             $requireArgs + ['propertyFieldConstExt' => $propertyFieldConstExt]
     );
 else :
     echo require_with(
             __DIR__ . '/property_setter_default.php',
-            $requireArgs
+            $requireArgs + ['propertyFieldConstExt' => $propertyFieldConstExt]
     );
 endif;
 if ($type->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) : ?>

@@ -70,6 +70,7 @@ define('PHPFHIR_CLASSNAME_TYPEMAP', 'PHPFHIRTypeMap');
 
 // static interface names
 define('PHPFHIR_INTERFACE_TYPE', 'PHPFHIRTypeInterface');
+define('PHPFHIR_INTERFACE_COMPLEX_TYPE', 'PHPFHIRComplexTypeInterface');
 define('PHPFHIR_INTERFACE_CONTAINED_TYPE', 'PHPFHIRContainedTypeInterface');
 
 // static test namespaces and class names

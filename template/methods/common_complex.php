@@ -1,3 +1,4 @@
+
 <?php
 
 /*
@@ -22,50 +23,49 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
-ob_start(); ?>
+ob_start();
+
+echo require_with(
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    [
+        'type' => $type,
+    ]
+);
+?>
     /**
-     * @return string
+     * @return array
      */
-    public function getFHIRTypeName()
+    public function getFHIRComments()
     {
-        return self::FHIR_TYPE_NAME;
+        return $this->_fhirComments;
     }
 
     /**
-     * @return string|null
-     */
-    public function getFHIRXMLNamespace()
-    {
-        return '' === $this->_xmlns ? null : $this->_xmlns;
-    }
-
-    /**
-     * @param null|string $xmlNamespace
+     * @param array $fhirComments
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function setFHIRXMLNamespace($xmlNamespace)
+    public function setFHIRComments(array $fhirComments)
     {
-        if (null === $xmlNamespace || is_string($xmlNamespace)) {
-            $this->_xmlns = (string)$xmlNamespace;
-            return $this;
-        }
-        throw new \InvalidArgumentException(sprintf(
-            '$xmlNamespace must be a null or string value, %s seen.',
-            gettype($xmlNamespace)
-        ));
+        $this->_fhirComments = $fhirComments;
+        return $this;
     }
 
     /**
-     * @return string
+     * @param string $fhirComment
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
+
      */
-    public function getFHIRXMLElementDefinition()
+    public function addFHIRComment($fhirComment)
     {
-        $xmlns = $this->getFHIRXMLNamespace();
-        if (null !== $xmlns) {
-            $xmlns = " xmlns=\"{$xmlns}\"";
+        if (is_string($fhirComment)) {
+            $this->_fhirComments[] = $fhirComment;
+            return $this;
         }
-        return "<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>";
+        throw new \InvalidArgumentException(sprintf(
+            '$fhirComment must be a string, %s seen.',
+            gettype($fhirComment)
+        ));
     }
 
 <?php return ob_get_clean();

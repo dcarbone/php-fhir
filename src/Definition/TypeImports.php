@@ -227,7 +227,9 @@ class TypeImports implements \Iterator, \Countable
             if ($this->type->isContainedType()) {
                 $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
             }
+            // TODO: figure out which of the two interfaces we actually need to import.
             $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
+            $this->addImport(PHPFHIR_INTERFACE_COMPLEX_TYPE, $configNS);
             $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
         }
 

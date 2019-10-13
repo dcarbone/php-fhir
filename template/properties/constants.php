@@ -16,10 +16,15 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$propertyType = $property->getValueFHIRType();
+$propertyTypeKind = $propertyType->getKind();
 
 ob_start(); ?>
     const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php if ($property->getValueFHIRType()->getKind()->isPrimitiveContainer()) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
+<?php if (!$propertyTypeKind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE]) && $propertyType->isValueContainer()) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
 <?php endif; ?>
 <?php return ob_get_clean();

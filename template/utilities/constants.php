@@ -54,6 +54,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
     // Common
     const JSON_FIELD_RESOURCE_TYPE = 'resourceType';
+    const JSON_FIELD_FHIR_COMMENTS = 'fhir_comments';
 
     // Type names
 <?php foreach($types->getSortedIterator() as $type) : ?>

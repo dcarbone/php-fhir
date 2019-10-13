@@ -60,6 +60,13 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     public function getFHIRXMLNamespace();
 
     /**
+     * Set the XML Namespace to be output when serializing this type to XML
+     * @param string $xmlNamespace
+     * @return static
+     */
+    public function setFHIRXMLNamespace($xmlNamespace);
+
+    /**
      * Returns the base xml element definition for this type
      * @return string
      */
@@ -67,7 +74,7 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
 
     /**
      * @param \SimpleXMLElement|string|null $sxe
-     * @param null|\<?php echo $namespace . '\\' . PHPFHIR_INTERFACE_TYPE; ?> $type
+     * @param null|static $type
      * @param null|int $libxmlOpts
      * @return null|static
      */

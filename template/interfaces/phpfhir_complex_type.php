@@ -16,22 +16,11 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
-
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
-$namespace = $config->getNamespace(false);
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 
-$containerType = $types->getContainerType();
-if (null === $containerType) {
-    throw new \RuntimeException(sprintf(
-        'Unable to locate either "%s" or "%s" type',
-        TypeKindEnum::RESOURCE_CONTAINER,
-        TypeKindEnum::RESOURCE_INLINE
-    ));
-}
+$namespace = $config->getNamespace(false);
 
 ob_start();
 
@@ -46,15 +35,31 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
- *
- * This interface is applied to any class that is containable within a <?php $containerType->getFullyQualifiedClassName(true); ?><?php if ('' !== $namespace) : ?>
+ * Interface <?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; ?> {
-    // This interface is merely used as an identifier
+interface <?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?> {
+    /**
+     * Arbitrary comments of a hopefully useful nature
+     * @return array
+     */
+    public function getFHIRComments();
+
+    /**
+     * Set internal fhir_comments list, overwriting any previous value(s)
+     * @param array $fhirComments
+     * @return static
+     */
+    public function setFHIRComments(array $fhirComments);
+
+    /**
+     * Append comment string to internal fhir_comments list
+     * @param string $fhirComment
+     * @return static
+     */
+    public function addFHIRComment($fhirComment);
 }
 <?php return ob_get_clean();

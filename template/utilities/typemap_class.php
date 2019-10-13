@@ -127,14 +127,14 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
     public static function isContainableResource($type) {
         $tt = gettype($type);
         if ('object' === $tt) {
-            if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
+            if ($type instanceof <?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; ?>) {
                 return in_array('\\'.get_class($type), self::$_containableTypes, true);
             }
             if ($type instanceof \SimpleXMLElement) {
                 return isset(self::$_containableTypes[$type->getName()]);
             }
             throw new \InvalidArgumentException(sprintf(
-                'Expected "$type" to be instance of "<?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_TYPE; ?>" or "%s", saw "%s"',
+                'Expected "$type" to be instance of "<?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_COMPLEX_TYPE; ?>" or "%s", saw "%s"',
                 '\\SimpleXMLElement',
                 get_class($type)
             ));
