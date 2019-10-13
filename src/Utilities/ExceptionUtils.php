@@ -106,6 +106,18 @@ abstract class ExceptionUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
+    public static function createValuePropertyNotFoundException(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'Type "%s" is marked as being a value property container, but no property with name "value" was found',
+            $type->getFHIRName()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return \DomainException
      */

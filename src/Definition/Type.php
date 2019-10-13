@@ -85,6 +85,9 @@ class Type
     /** @var bool */
     private $containedType = false;
 
+    /** @var bool */
+    private $valueContainer = false;
+
     /** @var \DCarbone\PHPFHIR\Definition\TypeImports */
     private $imports;
 
@@ -632,6 +635,37 @@ class Type
     {
         $this->containedType = (bool)$containedType;
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValueContainer()
+    {
+        return $this->valueContainer;
+    }
+
+    /**
+     * @param bool $valueContainer
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setValueContainer($valueContainer)
+    {
+        $this->valueContainer = (bool)$valueContainer;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasValueContainerParent()
+    {
+        foreach ($this->getParentTypes() as $parent) {
+            if ($parent->isValueContainer()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

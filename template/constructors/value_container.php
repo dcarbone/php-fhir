@@ -24,6 +24,15 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 $typeClassName = $type->getClassName();
 
+$valueProperty = null;
+// TODO: figure out how to handle multi-value representations of things...
+foreach($sortedProperties as $property) {
+    if ('value' === $property->getName()) {
+        $valueProperty = $property;
+        break;
+    }
+}
+
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
@@ -32,6 +41,10 @@ ob_start(); ?>
     public function __construct($data = null)
     {
         if (null === $data || [] === $data) {
+            return;
+        }
+        if (is_scalar($data)) {
+            $this->setValue(new <?php echo $valueProperty->getValueFHIRType()->getClassName(); ?>($data));
             return;
         }
         if (!is_array($data)) {

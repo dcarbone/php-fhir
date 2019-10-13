@@ -93,6 +93,9 @@ class Definition
         $log->info('Setting contained type flags');
         TypeDecorator::setContainedTypeFlag($this->config, $this->types);
 
+        $log->info('Setting value container flags');
+        TypeDecorator::setValueContainerFlag($this->config, $this->types);
+
         $log->info('Performing some sanity checking');
         TypeDecorator::testDecoration($this->config, $this->types);
 

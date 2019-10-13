@@ -389,6 +389,23 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
+    public static function setValueContainerFlag(VersionConfig $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            foreach ($type->getProperties()->getIterator() as $property) {
+                // TODO: handle valueString, valueQuantity, etc. types?
+                if ('value' === $property->getName()) {
+                    $type->setValueContainer(true);
+                    continue 2;
+                }
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
     public static function setMissingPropertyNames(VersionConfig $config, Types $types)
     {
         $log = $config->getLogger();
@@ -511,6 +528,19 @@ abstract class TypeDecorator
                 throw ExceptionUtils::createDuplicateClassException($type);
             } else {
                 $seenClasses[$cname] = true;
+            }
+
+            if ($type->isValueContainer()) {
+                $valueFound = false;
+                foreach ($type->getProperties()->getIterator() as $property) {
+                    if ('value' === $property->getName()) {
+                        $valueFound = true;
+                        break;
+                    }
+                }
+                if (!$valueFound) {
+                    throw ExceptionUtils::createValuePropertyNotFoundException($type);
+                }
             }
         }
     }

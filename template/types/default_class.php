@@ -29,6 +29,9 @@ $fhirName = $type->getFHIRName();
 $sortedProperties = $type->getProperties()->getSortedIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 
+$isValueContainer = $type->isValueContainer();
+$hasValueContainerParent = $type->hasValueContainerParent();
+
 ob_start();
 
 // build file header
@@ -90,7 +93,17 @@ endforeach;
 echo "\n";
 
 endif;
-echo require_with(
+if ($isValueContainer) :
+    echo require_with(
+            PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/value_container.php',
+        [
+                'type' => $type,
+                'sortedProperties' => $sortedProperties,
+                'parentType' => $parentType,
+        ]
+    );
+else :
+    echo require_with(
         PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php',
         [
                 'type' => $type,
@@ -98,7 +111,7 @@ echo require_with(
                 'parentType' => $parentType,
         ]
     );
-
+endif;
 echo "\n";
 
 echo require_with(
