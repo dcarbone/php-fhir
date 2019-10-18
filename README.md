@@ -1,6 +1,8 @@
 # php-fhir
 Tools for creating PHP classes from the HL7 FHIR Specification
 
+[![Build Status](https://travis-ci.org/dcarbone/php-fhir.svg?branch=master)](https://travis-ci.org/dcarbone/php-fhir)
+
 # Installation
 
 This library requires the use of [Composer](https://getcomposer.org/)
@@ -14,17 +16,10 @@ generate classes for every version in the `output` folder.
 * Run `composer install`
 * Run `php ./bin/generate.php`
 
-```php
-Downloading DSTU1 from http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip
-Generating DSTU1
-Downloading DSTU2 from http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip
-Generating DSTU2
-Downloading STU3 from http://hl7.org/fhir/STU3/fhir-all-xsd.zip
-Generating STU3
-Downloading Build from http://build.fhir.org/fhir-all-xsd.zip
-Generating Build
-Done
-```
+Answer all prompts.  If no custom configuration file is defined, definitions will be downloaded to `./input` and
+classes will be generated under `./output`
+
+Use `./bin/generate --help` to see a list of available options when running the generator script
 
 # Manual Class Generation
 
