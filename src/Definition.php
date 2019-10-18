@@ -19,8 +19,8 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\TypeExtractor;
 use DCarbone\PHPFHIR\Definition\TypeDecorator;
+use DCarbone\PHPFHIR\Definition\TypeExtractor;
 
 /**
  * Class Definition
@@ -80,6 +80,9 @@ class Definition
 
         $log->info('Finding property types');
         TypeDecorator::findPropertyTypes($this->config, $this->types);
+
+        $log->info(sprintf('Removing properties named "%s"', PHPFHIR_RESOURCE_TYPE_PROPERTY));
+        TypeDecorator::removeResourceTypeProperties($this->config, $this->types);
 
         $log->info('Removing duplicate properties from child types');
         TypeDecorator::removeDuplicateProperties($this->config, $this->types);

@@ -45,6 +45,7 @@ define('PHPFHIR_SKIP_FHIR_XSD_PREFIX', 'fhir-');
 
 // Properties
 define('PHPFHIR_UNLIMITED', -1);
+define('PHPFHIR_RESOURCE_TYPE_PROPERTY', 'resourceType');
 
 // Generation
 define('PHPFHIR_DOCBLOC_MAX_LENGTH', 80);

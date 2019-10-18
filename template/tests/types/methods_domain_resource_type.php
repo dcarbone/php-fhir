@@ -74,12 +74,15 @@ ob_start(); ?>
         try {
             $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize($xml);
         } catch(\Exception $e) {
-            $this->fail(sprintf(
-                'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
-                $e->getMessage(),
-                $xml
-            ));
-            return;
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
+                    $e->getMessage(),
+                    $xml
+                ),
+                $e->getCode(),
+                $e
+            );
         }
         $this->assertInstanceOf('<?php echo $bundleType->getFullyQualifiedClassName(true); ?>', $bundle);
         if (0 === count($bundle->getEntry())) {
@@ -95,12 +98,15 @@ ob_start(); ?>
         try {
             $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml2);
         } catch (\Exception $e) {
-            $this->fail(sprintf(
-                'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; XML: %s',
-                $e->getMessage(),
-                $xml2
-            ));
-            return;
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; XML: %s',
+                    $e->getMessage(),
+                    $xml2
+                ),
+                $e->getCode(),
+                $e
+            );
         }
         $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
         $this->assertEquals($entry->xmlSerialize()->saveXML(), $type->xmlSerialize()->saveXML());
@@ -113,12 +119,15 @@ ob_start(); ?>
         try {
             $bundle = new <?php echo $bundleType->getClassName(); ?>($decoded);
         } catch(\Exception $e) {
-            $this->fail(sprintf(
-                'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from JSON: %s; Returned JSON: %s',
-                $e->getMessage(),
-                $json
-            ));
-            return;
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from JSON: %s; Returned JSON: %s',
+                    $e->getMessage(),
+                    $json
+                ),
+                $e->getCode(),
+                $e
+            );
         }
         if (0 === count($bundle->getEntry())) {
             $this->markTestSkipped(sprintf(
@@ -134,12 +143,15 @@ ob_start(); ?>
         try {
             $type = new <?php echo $type->getClassName(); ?>($decoded2);
         } catch (\Exception $e) {
-            $this->fail(sprintf(
-                'Error building type "<?php echo $type->getFHIRName(); ?>" from JSON: %s; JSON: %s',
-                $e->getMessage(),
-                $json2
-            ));
-            return;
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $type->getFHIRName(); ?>" from JSON: %s; JSON: %s',
+                    $e->getMessage(),
+                    $json2
+                ),
+                $e->getCode(),
+                $e
+            );
         }
         $this->assertEquals(json_encode($entry, JSON_PRETTY_PRINT), json_encode($type, JSON_PRETTY_PRINT));
     }
