@@ -129,7 +129,7 @@ ob_start(); ?>
         }
         $this->assertCount(1, $bundle->getEntry());
         $entry = $bundle->getEntry()[0]->getResource();
-        $json2 = json_encode($entry);
+        $json2 = json_encode($entry, JSON_PRETTY_PRINT);
         $decoded2 = $this->decodeJSON($json2, true);
         try {
             $type = new <?php echo $type->getClassName(); ?>($decoded2);
@@ -141,7 +141,7 @@ ob_start(); ?>
             ));
             return;
         }
-        $this->assertEquals(json_encode($entry), json_encode($type));
+        $this->assertEquals(json_encode($entry, JSON_PRETTY_PRINT), json_encode($type, JSON_PRETTY_PRINT));
     }
 <?php
 return ob_get_clean();
