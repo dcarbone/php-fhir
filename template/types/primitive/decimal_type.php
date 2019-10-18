@@ -41,8 +41,8 @@ echo require_with(
             $this->value = null;
         } elseif ('double' === ($type = gettype($value))) {
             $this->value = $value;
-        } elseif ('string' === $type && is_numeric($value)) {
-            $this->value = (float)$value;
+        } elseif ('integer' === $type || ('string' === $type && is_numeric($value))) {
+            $this->value = floatval($value);
         } else {
             throw new \InvalidArgumentException(sprintf('<?php echo $fhirName; ?> value must be null, float, or numeric string, %s seen.', gettype($value)));
         }
