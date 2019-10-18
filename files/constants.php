@@ -51,6 +51,7 @@ define('PHPFHIR_DOCBLOC_MAX_LENGTH', 80);
 define('PHPFHIR_NAMESPACE_TRIM_CUTSET', " \t\n\r\0\x0b\\/");
 define('PHPFHIR_TEMPLATE_DIR', __DIR__ . '/../template');
 define('PHPFHIR_TEMPLATE_INTERFACES_DIR', PHPFHIR_TEMPLATE_DIR . '/interfaces');
+define('PHPFHIR_TEMPLATE_TRAITS_DIR', PHPFHIR_TEMPLATE_DIR . '/traits');
 define('PHPFHIR_TEMPLATE_FILE_DIR', PHPFHIR_TEMPLATE_DIR . '/file');
 define('PHPFHIR_TEMPLATE_PROPERTIES_DIR', PHPFHIR_TEMPLATE_DIR . '/properties');
 define('PHPFHIR_TEMPLATE_METHODS_DIR', PHPFHIR_TEMPLATE_DIR . '/methods');
@@ -70,8 +71,11 @@ define('PHPFHIR_CLASSNAME_TYPEMAP', 'PHPFHIRTypeMap');
 
 // static interface names
 define('PHPFHIR_INTERFACE_TYPE', 'PHPFHIRTypeInterface');
-define('PHPFHIR_INTERFACE_COMPLEX_TYPE', 'PHPFHIRComplexTypeInterface');
 define('PHPFHIR_INTERFACE_CONTAINED_TYPE', 'PHPFHIRContainedTypeInterface');
+define('PHPFHIR_INTERFACE_COMMENT_CONTAINER', 'PHPFHIRCommentContainerInterface');
+
+// fhir_comments trait
+define('PHPFHIR_TRAIT_COMMENT_CONTAINER', 'PHPFHIRCommentContainerTrait');
 
 // static test namespaces and class names
 define('PHPFHIR_TESTS_NAMESPACE', 'PHPFHIRTests');

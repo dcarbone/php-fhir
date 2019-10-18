@@ -182,7 +182,6 @@ class TypeImports implements \Iterator, \Countable
     /**
      * @param string $classname
      * @param string $namespace
-     * @param bool $requiresImport
      */
     private function addImport($classname, $namespace)
     {
@@ -199,7 +198,8 @@ class TypeImports implements \Iterator, \Countable
             return;
         }
 
-        if ($classname === $this->type->getClassName() && $namespace !== $this->type->getFullyQualifiedNamespace(false)) {
+        if ($classname === $this->type->getClassName() &&
+            $namespace !== $this->type->getFullyQualifiedNamespace(false)) {
             // if the imported type has the same class name as the direct type, but a different namespace
             $aliasName = $this->findNextAliasName($classname, $namespace);
             $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName, $requiresImport);
@@ -224,13 +224,14 @@ class TypeImports implements \Iterator, \Countable
         $sortedProperties = $this->type->getProperties()->getSortedIterator();
 
         if ($typeNS !== $configNS) {
-            if ($this->type->isContainedType()) {
-                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
-            }
-            // TODO: figure out which of the two interfaces we actually need to import.
             $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
-            $this->addImport(PHPFHIR_INTERFACE_COMPLEX_TYPE, $configNS);
             $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
+            foreach ($this->type->getDirectlyImplementedInterfaces() as $interface) {
+                $this->addImport($interface, $configNS);
+            }
+            foreach ($this->type->getDirectlyUsedTraits() as $trait) {
+                $this->addImport($trait, $configNS);
+            }
         }
 
         // determine if we need to import our parent type

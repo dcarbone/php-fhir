@@ -159,6 +159,32 @@ abstract class ExceptionUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Type $parentType
+     * @return \DomainException
+     */
+    public static function createRootTypeCannotHaveParentException(Type $type, Type $parentType)
+    {
+        return new \DomainException(sprintf(
+            'Type "%s" is marked as a "root" type, but has a parent: %s',
+            $type->getFHIRName(),
+            $parentType->getFHIRName()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \DomainException
+     */
+    public static function createNonRootTypeMustHaveParentException(Type $type)
+    {
+        return new \DomainException(sprintf(
+            'Type "%s" is marked as non-root, but does not have a parent type associated with it',
+            $type->getFHIRName()
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return \DomainException
      */

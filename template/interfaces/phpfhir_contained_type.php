@@ -54,7 +54,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; ?> {
+interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?> {
     // This interface is merely used as an identifier
 }
 <?php return ob_get_clean();

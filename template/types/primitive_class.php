@@ -57,9 +57,8 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $typeClassName; ?><?php echo null !== $parentType ? " extends {$parentType->getClassName()}" : ' implements ' . PHPFHIR_INTERFACE_TYPE; ?>
+<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => $parentType]); ?>
 
-{
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
@@ -168,7 +167,7 @@ echo require_with(
 );
 
 echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/common_complex.php',
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
     [
         'type' => $type,
     ]

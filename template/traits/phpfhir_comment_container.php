@@ -1,8 +1,6 @@
-
 <?php
-
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +15,33 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 
-$xmlName = NameUtils::getTypeXMLElementName($type);
+$rootNS = $config->getNamespace(false);
 
 ob_start();
+echo "<?php\n\n"; ?>
+namespace <?php echo $rootNS; ?>;
 
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
-    [
-        'type' => $type,
-    ]
-);
+<?php echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 ?>
+
+/**
+ * Trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
+
+ * @package \<?php echo $rootNS; ?>
+
+ */
+trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
+
+{
+    /** @var array */
+    private $_fhirComments = [];
+
     /**
+     * Arbitrary comments of a hopefully useful nature
      * @return array
      */
     public function getFHIRComments()
@@ -41,9 +50,9 @@ echo require_with(
     }
 
     /**
+     * Set internal fhir_comments list, overwriting any previous value(s)
      * @param array $fhirComments
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function setFHIRComments(array $fhirComments)
     {
@@ -52,9 +61,9 @@ echo require_with(
     }
 
     /**
+     * Append comment string to internal fhir_comments list
      * @param string $fhirComment
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function addFHIRComment($fhirComment)
     {
@@ -67,5 +76,6 @@ echo require_with(
             gettype($fhirComment)
         ));
     }
-
-<?php return ob_get_clean();
+}
+<?php
+return ob_get_clean();

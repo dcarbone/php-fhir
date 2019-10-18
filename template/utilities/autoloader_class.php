@@ -37,7 +37,6 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
 require __DIR__ . '/<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
-require __DIR__ . '/<?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; ?>.php';
 require __DIR__ . '/<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
 require __DIR__ . '/<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
 require __DIR__ . '/<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';

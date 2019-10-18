@@ -58,20 +58,13 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $typeClassname; ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName();
-if ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; endif;
-elseif ($type->isContainedType()) : ?> implements <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; else : ?>
- implements <?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; endif; ?>
+<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => $parentType]); ?>
 
-{
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
     /** @var string */
     private $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
-
-    /** @var array */
-    private $_fhirComments = [];
 
 <?php if (0 !== count($sortedProperties)) :
     foreach($sortedProperties as $property) :
@@ -118,7 +111,7 @@ endif;
 echo "\n";
 
 echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/common_complex.php',
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
     [
         'type' => $type,
     ]

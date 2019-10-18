@@ -78,8 +78,10 @@ class Builder
         $this->beforeGeneration();
 
         $definition = $this->getDefinition();
-        $types = $definition->getTypes();
 
+        $this->staticClassGeneration();
+
+        $types = $definition->getTypes();
 
         $log->startBreak('FHIR Class Generation');
         foreach ($types->getIterator() as $type) {
@@ -156,12 +158,7 @@ class Builder
      */
     public function build()
     {
-        $log = $this->config->getLogger();
-        $skipTests = $this->config->isSkipTests();
         $this->beforeGeneration();
-
-        $definition = $this->getDefinition();
-        $types = $definition->getTypes();
 
         $this->buildFHIRClasses();
 
@@ -251,9 +248,18 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
-                PHPFHIR_INTERFACE_COMPLEX_TYPE
+                PHPFHIR_INTERFACE_COMMENT_CONTAINER
             ),
-            TemplateBuilder::generatePHPFHIRComplexTypeInterface($this->config, $types)
+            TemplateBuilder::generatePHPFHIRCommentContainerInterface($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                PHPFHIR_TRAIT_COMMENT_CONTAINER
+            ),
+            TemplateBuilder::generatePHPFHIRCommentContainerTrait($this->config, $types)
         );
 
         $this->writeClassFile(

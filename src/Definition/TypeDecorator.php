@@ -484,6 +484,14 @@ abstract class TypeDecorator
         foreach ($types->getIterator() as $type) {
             $typeKind = $type->getKind();
 
+            if ($type->isRootType()) {
+                if (null !== ($parentType = $type->getParentType())) {
+                    throw ExceptionUtils::createRootTypeCannotHaveParentException($type, $parentType);
+                }
+            } else if (null === $type->getParentType()) {
+                throw ExceptionUtils::createNonRootTypeMustHaveParentException($type);
+            }
+
             $fqns = $type->getFullyQualifiedNamespace(false);
             if (false === NameUtils::isValidNSName($fqns)) {
                 throw ExceptionUtils::createInvalidTypeNamespaceException($type);

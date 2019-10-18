@@ -42,9 +42,19 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRComplexTypeInterface(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRCommentContainerInterface(VersionConfig $config, Types $types)
     {
-        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_complex_type.php';
+        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_comment_container.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generatePHPFHIRCommentContainerTrait(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_comment_container.php';
     }
 
     /**

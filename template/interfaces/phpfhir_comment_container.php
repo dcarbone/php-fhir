@@ -35,13 +35,13 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; if ('' !== $namespace) : ?>
+ * Interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_COMPLEX_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?> {
+interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?> {
     /**
      * Arbitrary comments of a hopefully useful nature
      * @return array
