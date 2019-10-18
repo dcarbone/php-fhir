@@ -40,8 +40,10 @@ echo require_with(
     {
         if (null === $value) {
             $this->value = null;
+        } elseif (is_string($value)) {
+            $this->value = 'true' === strtolower($value);
         } else {
-            $this->value = (bool)$value;
+            $this->value = boolval($value);
         }
         return $this;
     }
