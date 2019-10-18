@@ -43,7 +43,7 @@ echo require_with(
         } elseif (is_string($value)) {
             $this->value = PHPFHIRConstants::STRING_TRUE === strtolower($value);
         } else {
-            $this->value = boolval($value);
+            $this->value = (bool)$value;
         }
         return $this;
     }
