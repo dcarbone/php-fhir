@@ -16,4 +16,4 @@ install:
   - ./bin/generate.sh --forceDelete
 
 script:
-  - ./vendor/bin/phpunit -d memory_limit=2048M -d precision=14 -d serialize_precision=14 -c phpunit.xml
+  - ./vendor/bin/phpunit -d memory_limit=4096M -d precision=14 -d serialize_precision=14 -c phpunit.xml
