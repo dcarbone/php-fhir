@@ -54,7 +54,7 @@ echo require_with(
     /**
      * @return bool
      */
-    public function isValid()
+    public function _isValid()
     {
         $value = $this->getValue();
         return null === $value || preg_match('/'.self::VALUE_REGEX.'/', $value);

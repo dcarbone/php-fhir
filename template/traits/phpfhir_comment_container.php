@@ -22,16 +22,21 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 $rootNS = $config->getNamespace(false);
 
 ob_start();
-echo "<?php\n\n"; ?>
-namespace <?php echo $rootNS; ?>;
+echo "<?php\n\n";
 
-<?php echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+if ('' !== $rootNS) :
+    echo "namespace {$rootNS};\n\n";
+endif;
+
+echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+
+echo "\n\n";
 ?>
-
 /**
- * Trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
+ * Trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER;  if ('' !== $rootNS) : ?>
 
  * @package \<?php echo $rootNS; ?>
+<?php endif; ?>
 
  */
 trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
@@ -44,7 +49,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
      * Arbitrary comments of a hopefully useful nature
      * @return array
      */
-    public function getFHIRComments()
+    public function _getFHIRComments()
     {
         return $this->_fhirComments;
     }
@@ -54,7 +59,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
      * @param array $fhirComments
      * @return static
      */
-    public function setFHIRComments(array $fhirComments)
+    public function _setFHIRComments(array $fhirComments)
     {
         $this->_fhirComments = $fhirComments;
         return $this;
@@ -65,7 +70,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
      * @param string $fhirComment
      * @return static
      */
-    public function addFHIRComment($fhirComment)
+    public function _addFHIRComment($fhirComment)
     {
         if (is_string($fhirComment)) {
             $this->_fhirComments[] = $fhirComment;

@@ -223,12 +223,18 @@ class TypeImports implements \Iterator, \Countable
 
         $sortedProperties = $this->type->getProperties()->getSortedIterator();
 
+        // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
+        // that may need to be imported to ensure function
         if ($typeNS !== $configNS) {
+            // always add the base interface type as its used by the xml serialization func
             $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
+            // always add the constants class as its used everywhere.
             $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
+            // add directly implemented interfaces
             foreach ($this->type->getDirectlyImplementedInterfaces() as $interface) {
                 $this->addImport($interface, $configNS);
             }
+            // add directly implemented traits
             foreach ($this->type->getDirectlyUsedTraits() as $trait) {
                 $this->addImport($trait, $configNS);
             }

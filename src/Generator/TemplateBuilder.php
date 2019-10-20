@@ -72,6 +72,26 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
+    public static function generatePHPFHIRValueContainerInterface(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_value_container.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generatePHPFHIRValueContainerTrait(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_value_container.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
     public static function generatePHPFHIRResponseParserConfigClass(VersionConfig $config, Types $types)
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/response_parser_config_class.php';

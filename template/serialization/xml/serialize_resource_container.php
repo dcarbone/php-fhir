@@ -33,6 +33,6 @@ ob_start(); ?>
         }
 <?php endforeach; ?>
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement($this->getFHIRXMLElementDefinition(), $libxmlOpts, false);
+            $sxe = new \SimpleXMLElement($this->_getFHIRXMLElementDefinition(), $libxmlOpts, false);
         }
 <?php return ob_get_clean();

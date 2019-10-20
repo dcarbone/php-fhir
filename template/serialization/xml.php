@@ -41,9 +41,15 @@ echo require_with(
     ]
 );
 if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-    echo require_with(PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_list.php', []);
+    echo require_with(
+            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_list.php',
+            []
+    );
 elseif ($typeKind->isPrimitiveContainer()) :
-    echo require_with(PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_container.php', []);
+    echo require_with(
+            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_primitive_container.php',
+            []
+    );
 else :
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize_body_default.php',

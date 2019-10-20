@@ -44,6 +44,7 @@ else:
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php',
         [
+            'isContainedType' => $type->isContainedType(),
             'sortedProperties' => $sortedProperties,
             'parentType' => $parentType
         ]

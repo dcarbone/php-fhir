@@ -35,33 +35,29 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; if ('' !== $namespace) : ?>
+ * Interface <?PHP echo PHPFHIR_INTERFACE_VALUE_CONTAINER; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>
+interface <?php echo PHPFHIR_INTERFACE_VALUE_CONTAINER; ?>
 
 {
     /**
-     * Arbitrary comments of a hopefully useful nature
-     * @return array
+     * When called, must mark this type as having a field other than its "value" field(s) defined
+     * @return void
      */
-    public function _getFHIRComments();
+    public function _markNonValueFieldsDefined();
 
     /**
-     * Set internal fhir_comments list, overwriting any previous value(s)
-     * @param array $fhirComments
-     * @return static
+     * This method must return true if the type implementing this interface has fields other
+     * than its "value" field(s) defined.
+     *
+     * Its singular purpose is to determine how to handle marshalling.
+     * @return bool
      */
-    public function _setFHIRComments(array $fhirComments);
-
-    /**
-     * Append comment string to internal fhir_comments list
-     * @param string $fhirComment
-     * @return static
-     */
-    public function _addFHIRComment($fhirComment);
+    public function _hasNonValueFieldsDefined();
 }
-<?php return ob_get_clean();
+<?php
+return ob_get_clean();

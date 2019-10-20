@@ -51,7 +51,7 @@ echo require_with(
     /**
      * @return bool
      */
-    public function isValid()
+    public function _isValid()
     {
         return true;
     }

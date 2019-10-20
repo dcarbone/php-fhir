@@ -30,6 +30,7 @@ $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 $restrictionBase = $type->getRestrictionBaseFHIRName();
 $restrictionBaseType = $types->getTypeByName($restrictionBase);
 if (null === $restrictionBaseType) {
+    // TODO: do better here...
     $restrictionBaseType = $types->getTypeByName('string-primitive');
 }
 
@@ -131,7 +132,7 @@ echo require_with(
      * Returns the list of allowed values for this type
      * @return string[]
      */
-    public function getValueList()
+    public function _getAllowedValueList()
     {
         return self::$valueList;
     }
@@ -139,7 +140,7 @@ echo require_with(
     /**
      * @return bool
      */
-    public function isValid()
+    public function _isValid()
     {
         $v = $this->getValue();
         return null === $v || in_array((string)$v, self::$valueList, true);

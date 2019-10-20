@@ -22,7 +22,7 @@
 
 ob_start(); ?>
     /** null|\DateTime */
-    private $dateTime = null;
+    private $_dateTime = null;
 
     const VALUE_REGEX = // language=RegExp
         '([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?';
@@ -44,7 +44,7 @@ echo require_with(
      */
     public function setValue($value)
     {
-        $this->dateTime = null;
+        $this->_dateTime = null;
         if (null === $value) {
             $this->value = null;
             return $this;
@@ -59,29 +59,29 @@ echo require_with(
     /**
      * @return null|\DateTime
      */
-    public function getDateTime()
+    public function _getDateTime()
     {
-        if (!isset($this->dateTime)) {
+        if (!isset($this->_dateTime)) {
             $value = $this->getValue();
             if (null === $value) {
                 return null;
             }
-            if (!$this->isValid()) {
+            if (!$this->_isValid()) {
                 throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::VALUE_REGEX));
             }
             $parsed = \DateTime::createFromFormat(self::FORMAT_TIME, $value);
             if (false === $parsed) {
                 throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
             }
-            $this->dateTime = $parsed;
+            $this->_dateTime = $parsed;
         }
-        return $this->dateTime;
+        return $this->_dateTime;
     }
 
     /**
      * @return bool
      */
-    public function isValid()
+    public function _isValid()
     {
         $value = $this->getValue();
         return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);

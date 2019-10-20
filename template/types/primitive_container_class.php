@@ -70,9 +70,10 @@ echo require_with(
         ]
     ); ?>
 
-<?php endforeach; ?>
-<?php foreach($sortedProperties as $property) : ?>
-<?php echo require_with(
+<?php endforeach;
+
+foreach($sortedProperties as $property) :
+    echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
         [
                 'config' => $config,
@@ -80,8 +81,9 @@ echo require_with(
         ]
     ); ?>
 
-<?php endforeach; ?>
-<?php echo require_with(
+<?php endforeach;
+
+echo require_with(
         PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php',
         [
                 'type' => $type,
@@ -127,7 +129,17 @@ echo require_with(
                 'sortedProperties' => $sortedProperties,
                 'parentType' => $parentType,
         ]
-); ?>
+);
+
+if (null === $parentType) :
+    if ($type->isContainedType()) :
+        echo require_with(PHPFHIR_TEMPLATE_INTERFACES_DIR . '/contained_type.php', ['type' => $type]);
+    endif;
+    if ($type->isValueContainer()) :
+
+    endif;
+endif;
+?>
 
     /**
      * @return string

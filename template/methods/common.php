@@ -26,7 +26,7 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function getFHIRTypeName()
+    public function _getFHIRTypeName()
     {
         return self::FHIR_TYPE_NAME;
     }
@@ -34,7 +34,7 @@ ob_start(); ?>
     /**
      * @return string|null
      */
-    public function getFHIRXMLNamespace()
+    public function _getFHIRXMLNamespace()
     {
         return '' === $this->_xmlns ? null : $this->_xmlns;
     }
@@ -44,7 +44,7 @@ ob_start(); ?>
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function setFHIRXMLNamespace($xmlNamespace)
+    public function _setFHIRXMLNamespace($xmlNamespace)
     {
         if (null === $xmlNamespace || is_string($xmlNamespace)) {
             $this->_xmlns = (string)$xmlNamespace;
@@ -59,9 +59,9 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function getFHIRXMLElementDefinition()
+    public function _getFHIRXMLElementDefinition()
     {
-        $xmlns = $this->getFHIRXMLNamespace();
+        $xmlns = $this->_getFHIRXMLNamespace();
         if (null !== $xmlns) {
             $xmlns = " xmlns=\"{$xmlns}\"";
         }

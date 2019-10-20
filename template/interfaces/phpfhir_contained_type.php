@@ -55,6 +55,10 @@ echo "\n\n";
 
  */
 interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?> {
-    // This interface is merely used as an identifier
+    /**
+     * The return from this method is used only when json serializing this type
+     * @return string
+     */
+    public function _getResourceType();
 }
 <?php return ob_get_clean();

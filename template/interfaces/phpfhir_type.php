@@ -51,26 +51,26 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
      * Returns the FHIR name represented by this Type
      * @return string
      */
-    public function getFHIRTypeName();
+    public function _getFHIRTypeName();
 
     /**
      * Returns the xml namespace to use for this type when serializing to XML, if applicable.
      * @return string
      */
-    public function getFHIRXMLNamespace();
+    public function _getFHIRXMLNamespace();
 
     /**
      * Set the XML Namespace to be output when serializing this type to XML
      * @param string $xmlNamespace
      * @return static
      */
-    public function setFHIRXMLNamespace($xmlNamespace);
+    public function _setFHIRXMLNamespace($xmlNamespace);
 
     /**
      * Returns the base xml element definition for this type
      * @return string
      */
-    public function getFHIRXMLElementDefinition();
+    public function _getFHIRXMLElementDefinition();
 
     /**
      * @param \SimpleXMLElement|string|null $sxe

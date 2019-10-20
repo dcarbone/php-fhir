@@ -677,21 +677,25 @@ class Type
         $kind = $this->getKind();
         $parentType = $this->getParentType();
 
-        // if this type has no parent..
         if (null === $parentType) {
-            // ... and is not primitive, add comment container interface.
             if (!$kind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE])) {
                 $interfaces[] = PHPFHIR_INTERFACE_COMMENT_CONTAINER;
             }
-
             if ($this->isValueContainer()) {
+                $interfaces[] = PHPFHIR_INTERFACE_VALUE_CONTAINER;
+            }
+            if ($this->isContainedType()) {
                 $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
             } else {
                 $interfaces[] = PHPFHIR_INTERFACE_TYPE;
             }
-
-        } else if ($this->isContainedType() && !$parentType->isContainedType()) {
-            $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
+        } else {
+            if ($this->isContainedType() && !$parentType->isContainedType()) {
+                $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
+            }
+            if ($this->isValueContainer() && !$parentType->isValueContainer()) {
+                $interfaces[] = PHPFHIR_INTERFACE_VALUE_CONTAINER;
+            }
         }
 
         return $interfaces;
@@ -709,6 +713,13 @@ class Type
         if (null === $parentType) {
             if (!$kind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE])) {
                 $traits[] = PHPFHIR_TRAIT_COMMENT_CONTAINER;
+            }
+            if ($this->isValueContainer()) {
+                $traits[] = PHPFHIR_TRAIT_VALUE_CONTAINER;
+            }
+        } else {
+            if ($this->isValueContainer() && !$parentType->isValueContainer()) {
+                $traits[] = PHPFHIR_TRAIT_VALUE_CONTAINER;
             }
         }
 

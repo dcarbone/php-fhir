@@ -27,12 +27,12 @@ if ($isCollection) : ?>
                 if (null === $v) {
                     continue;
                 }
-                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->getFHIRXMLNamespace()));
+                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->getFHIRXMLNamespace()));
+            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
         }
 <?php endif;
 return ob_get_clean();

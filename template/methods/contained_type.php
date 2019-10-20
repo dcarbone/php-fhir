@@ -16,17 +16,16 @@
  * limitations under the License.
  */
 
-/** @var string $xmlName */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 ob_start(); ?>
     /**
-     * @param null|\SimpleXMLElement $sxe
-     * @param null|int $libxmlOpts
-     * @return \SimpleXMLElement
+     * @return string
      */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    public function _getResourceType()
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement($this->_getFHIRXMLElementDefinition(), $libxmlOpts, false);
-        }
-<?php return ob_get_clean();
+        return static::FHIR_TYPE_NAME;
+    }
+
+<?php
+return ob_get_clean();

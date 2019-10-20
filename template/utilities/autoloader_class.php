@@ -36,10 +36,20 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
-require __DIR__ . '/<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
-require __DIR__ . '/<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
-require __DIR__ . '/<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
-require __DIR__ . '/<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
+
+// interfaces
+require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
+require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
+require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
+require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_VALUE_CONTAINER; ?>.php';
+
+// traits
+require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>.php';
+require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_VALUE_CONTAINER; ?>.php';
+
+// common classes
+require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
+require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
 
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; if ('' !== $namespace) : ?>

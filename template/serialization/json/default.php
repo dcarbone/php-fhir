@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var bool $isContainedType */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
@@ -63,6 +64,6 @@ foreach ($sortedProperties as $property) :
         );
     endif;
 endforeach; ?>
-        return [<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => self::FHIR_TYPE_NAME] + $a;
+        return <?php if ($isContainedType) : ?>[<?php  echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => $this->_getResourceType()] + <?php endif; ?>$a;
     }
 <?php return ob_get_clean();

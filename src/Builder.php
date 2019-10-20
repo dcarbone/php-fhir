@@ -248,9 +248,27 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
+                PHPFHIR_INTERFACE_CONTAINED_TYPE
+            ),
+            TemplateBuilder::generatePHPFHIRContainedTypeInterface($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
                 PHPFHIR_INTERFACE_COMMENT_CONTAINER
             ),
             TemplateBuilder::generatePHPFHIRCommentContainerInterface($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                PHPFHIR_INTERFACE_VALUE_CONTAINER
+            ),
+            TemplateBuilder::generatePHPFHIRValueContainerInterface($this->config, $types)
         );
 
         $this->writeClassFile(
@@ -266,9 +284,9 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
-                PHPFHIR_INTERFACE_CONTAINED_TYPE
+                PHPFHIR_TRAIT_VALUE_CONTAINER
             ),
-            TemplateBuilder::generatePHPFHIRContainedTypeInterface($this->config, $types)
+            TemplateBuilder::generatePHPFHIRValueContainerTrait($this->config, $types)
         );
 
         $this->writeClassFile(

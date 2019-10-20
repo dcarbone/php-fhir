@@ -60,7 +60,7 @@ echo require_with(
     /**
      * @return bool
      */
-    public function isValid()
+    public function _isValid()
     {
         $value = $this->getValue();
         if (null === $value) {

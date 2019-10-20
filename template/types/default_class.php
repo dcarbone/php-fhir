@@ -117,6 +117,15 @@ echo require_with(
     ]
 );
 
+if ($type->isContainedType()) :
+    echo require_with(
+        PHPFHIR_TEMPLATE_METHODS_DIR . '/contained_type.php',
+        [
+            'type' => $type,
+        ]
+    );
+endif;
+
  if (0 < count($sortedProperties)) :
     echo "\n";
     echo require_with(

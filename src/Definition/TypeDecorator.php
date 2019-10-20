@@ -406,28 +406,6 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function removeResourceTypeProperties(VersionConfig $config, Types $types)
-    {
-        $log = $config->getLogger();
-        foreach ($types->getIterator() as $type) {
-            $properties = $type->getProperties();
-            foreach ($properties->getIterator() as $property) {
-                if (PHPFHIR_RESOURCE_TYPE_PROPERTY === $property->getName()) {
-                    $log->warning(sprintf(
-                        'Removing Property with name "%s" from Type "%s"...',
-                        PHPFHIR_RESOURCE_TYPE_PROPERTY,
-                        $type->getFHIRName()
-                    ));
-                    $properties->removeProperty($property);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     */
     public static function setMissingPropertyNames(VersionConfig $config, Types $types)
     {
         $log = $config->getLogger();

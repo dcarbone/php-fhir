@@ -30,13 +30,13 @@ ob_start();
                     continue;
                 }
                 $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
-                $v->xmlSerialize($tsxe->addChild($v->getFHIRTypeName(), null, $v->getFHIRXMLNamespace()));
+                $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
-            $v->xmlSerialize($tsxe->addChild($v->getFHIRTypeName(), null, $v->getFHIRXMLNamespace()));
+            $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
         }
 <?php endif;
 return ob_get_clean();

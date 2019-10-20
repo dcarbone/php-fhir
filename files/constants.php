@@ -74,9 +74,11 @@ define('PHPFHIR_CLASSNAME_TYPEMAP', 'PHPFHIRTypeMap');
 define('PHPFHIR_INTERFACE_TYPE', 'PHPFHIRTypeInterface');
 define('PHPFHIR_INTERFACE_CONTAINED_TYPE', 'PHPFHIRContainedTypeInterface');
 define('PHPFHIR_INTERFACE_COMMENT_CONTAINER', 'PHPFHIRCommentContainerInterface');
+define('PHPFHIR_INTERFACE_VALUE_CONTAINER', 'PHPFHIRValueContainerInterface');
 
 // fhir_comments trait
 define('PHPFHIR_TRAIT_COMMENT_CONTAINER', 'PHPFHIRCommentContainerTrait');
+define('PHPFHIR_TRAIT_VALUE_CONTAINER', 'PHPFHIRValueContainerTrait');
 
 // static test namespaces and class names
 define('PHPFHIR_TESTS_NAMESPACE', 'PHPFHIRTests');
