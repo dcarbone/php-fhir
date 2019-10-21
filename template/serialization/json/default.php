@@ -52,19 +52,15 @@ foreach ($sortedProperties as $property) :
             __DIR__ . '/default_property_primitive_list.php',
                 $requireArgs
         );
-    elseif ($propertyType->isValueContainer()) :
+    elseif ($propertyTypeKind->isPrimitiveContainer()) :
         echo require_with(
-            __DIR__ . '/default_property_value_container.php',
+            __DIR__ . '/default_property_primitive_container.php',
                 $requireArgs + [
-                    'propertyTypeIsValueContainer' => $propertyType->isValueContainer(),
                     'propertyConstNameExt' => $propertyConstNameExt,
                 ]
         );
     else :
-        echo require_with(
-            __DIR__ . '/default_property_default.php',
-                $requireArgs
-        );
+        echo require_with(__DIR__ . '/default_property_default.php', $requireArgs);
     endif;
 endforeach; ?>
         return <?php if ($isContainedType) : ?>[<?php  echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => $this->_getResourceType()] + <?php endif; ?>$a;

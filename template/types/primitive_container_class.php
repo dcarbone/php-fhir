@@ -129,17 +129,7 @@ echo require_with(
                 'sortedProperties' => $sortedProperties,
                 'parentType' => $parentType,
         ]
-);
-
-if (null === $parentType) :
-    if ($type->isContainedType()) :
-        echo require_with(PHPFHIR_TEMPLATE_INTERFACES_DIR . '/contained_type.php', ['type' => $type]);
-    endif;
-    if ($type->isValueContainer()) :
-
-    endif;
-endif;
-?>
+); ?>
 
     /**
      * @return string

@@ -89,13 +89,14 @@ endforeach;
 echo "\n";
 
 endif;
-if ($isValueContainer) :
+if ($isValueContainer || $hasValueContainerParent) :
     echo require_with(
             PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/value_container.php',
         [
                 'type' => $type,
                 'sortedProperties' => $sortedProperties,
                 'parentType' => $parentType,
+                'hasValueContainerParent' => $hasValueContainerParent
         ]
     );
 else :

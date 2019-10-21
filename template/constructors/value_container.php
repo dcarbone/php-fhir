@@ -21,15 +21,18 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
+/** @var bool $hasValueContainerParent */
 
 $typeClassName = $type->getClassName();
 
 $valueProperty = null;
 // TODO: figure out how to handle multi-value representations of things...
-foreach($sortedProperties as $property) {
-    if ('value' === $property->getName()) {
-        $valueProperty = $property;
-        break;
+if (!$hasValueContainerParent) {
+    foreach($sortedProperties as $property) {
+        if ('value' === $property->getName()) {
+            $valueProperty = $property;
+            break;
+        }
     }
 }
 
@@ -44,7 +47,11 @@ ob_start(); ?>
             return;
         }
         if (is_scalar($data)) {
+<?php if ($hasValueContainerParent) : ?>
+            parent::__construct($data);
+<?php else : ?>
             $this->setValue(new <?php echo $valueProperty->getValueFHIRType()->getClassName(); ?>($data));
+<?php endif; ?>
             return;
         }
         if (!is_array($data)) {

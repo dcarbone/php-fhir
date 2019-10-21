@@ -30,7 +30,6 @@ $propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 $setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
 $requireArgs = [
-        'valueContainer' => $type->isValueContainer(),
         'propertyTypeKind' => $propertyTypeKind,
         'isCollection' => $isCollection,
         'propertyFieldConst' => $propertyFieldConst,

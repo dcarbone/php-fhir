@@ -17,7 +17,6 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
-/** @var bool $isValueContainer */
 
 ob_start();
 if ($parentType) : ?>

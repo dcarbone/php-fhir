@@ -17,7 +17,6 @@
  */
 
 /** @var bool $isCollection */
-/** @var bool $propertyTypeIsValueContainer */
 /** @var string $propertyConstName */
 /** @var string $propertyConstNameExt */
 /** @var string $getter */
@@ -31,24 +30,13 @@ if ($isCollection) : ?>
                     continue;
                 }
                 $a[self::<?php echo $propertyConstName; ?>][] = $v->getValue();
-<?php if ($propertyTypeIsValueContainer) : ?>
-                if ($v->_hasNonValueFieldsDefined()) {
-                    if (!isset($a[self::<?php echo $propertyConstNameExt; ?>])) {
-                        $a[self::<?php echo $propertyConstNameExt; ?>] = [];
-                    }
-                    $a[self::<?php echo $propertyConstNameExt; ?>][] = $v;
-                }
-<?php endif; ?>
+                $a[self::<?php echo $propertyConstNameExt; ?>][] = $v;
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $a[self::<?php echo $propertyConstName; ?>] = $v->getValue();
-<?php if ($propertyTypeIsValueContainer) : ?>
-            if ($v->_hasNonValueFieldsDefined()) {
-                $a[self::<?php echo $propertyConstNameExt; ?>] = $v;
-            }
-<?php endif; ?>
+            $a[self::<?php echo $propertyConstNameExt; ?>] = $v;
         }
 <?php endif;
 return ob_get_clean();

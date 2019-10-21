@@ -44,9 +44,6 @@ ob_start(); ?>
      */
     public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo $propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER]) ? PHPFHIR_INTERFACE_CONTAINED_TYPE : $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
     {
-<?php if (!$isCollection && $type->isValueContainer() && !$property->isValueProperty()) : ?>
-        $this->_markNonValueFieldsDefined();
-<?php endif; ?>
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
