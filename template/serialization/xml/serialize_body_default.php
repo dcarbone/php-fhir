@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var bool $isValueContainer */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
@@ -42,9 +43,9 @@ foreach ($sortedProperties as $property) :
             __DIR__ . '/serialize_body_default_property_primitive_list.php',
             $requireArgs
         );
-    elseif ($propertyTypeKind->isPrimitiveContainer()) :
+    elseif ($propertyType->isValueContainer()) :
         echo require_with(
-            __DIR__ . '/serialize_body_default_property_primitive_container.php',
+            __DIR__ . '/serialize_body_default_property_value_container.php',
             $requireArgs
         );
     elseif ($propertyTypeKind->isResourceContainer()) :

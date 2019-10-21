@@ -83,19 +83,13 @@ else :
     );
     if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
         echo require_with(PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_list.php', []);
-    elseif ($typeKind->isPrimitiveContainer()) :
-        echo require_with(
-                PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_container.php',
-            [
-                    'parentType' => $parentType
-            ]
-        );
     else :
         echo require_with(
                 PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_default.php',
                 [
                         'parentType' => $parentType,
                         'sortedProperties' => $sortedProperties,
+                        'isValueContainer' => $type->isValueContainer(),
                 ]
         );
     endif; ?>

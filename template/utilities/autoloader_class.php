@@ -83,6 +83,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
         }
         return self::$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
     }
+
     /**
      * @return bool
      */
@@ -96,6 +97,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
         }
         return false;
     }
+
     /**
      * Please see associated documentation for more information on what this method looks for.
      *

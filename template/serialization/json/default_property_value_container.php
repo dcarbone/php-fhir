@@ -17,6 +17,7 @@
  */
 
 /** @var bool $isCollection */
+/** @var bool $propertyTypeIsValueContainer */
 /** @var string $propertyConstName */
 /** @var string $propertyConstNameExt */
 /** @var string $getter */
@@ -25,16 +26,29 @@ ob_start();
 if ($isCollection) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             $a[self::<?php echo $propertyConstName; ?>] = [];
-            $a[self::<?php echo $propertyConstNameExt; ?>] = [];
             foreach ($vs as $v) {
-                $a[self::<?php echo $propertyConstName; ?>][] = (string)$v;
-                $a[self::<?php echo $propertyConstNameExt; ?>][] = $v;
+                if (null === $v) {
+                    continue;
+                }
+                $a[self::<?php echo $propertyConstName; ?>][] = $v->getValue();
+<?php if ($propertyTypeIsValueContainer) : ?>
+                if ($v->_hasNonValueFieldsDefined()) {
+                    if (!isset($a[self::<?php echo $propertyConstNameExt; ?>])) {
+                        $a[self::<?php echo $propertyConstNameExt; ?>] = [];
+                    }
+                    $a[self::<?php echo $propertyConstNameExt; ?>][] = $v;
+                }
+<?php endif; ?>
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $a[self::<?php echo $propertyConstName; ?>] = (string)$v;
-            $a[self::<?php echo $propertyConstNameExt; ?>] = $v;
+            $a[self::<?php echo $propertyConstName; ?>] = $v->getValue();
+<?php if ($propertyTypeIsValueContainer) : ?>
+            if ($v->_hasNonValueFieldsDefined()) {
+                $a[self::<?php echo $propertyConstNameExt; ?>] = $v;
+            }
+<?php endif; ?>
         }
 <?php endif;
 return ob_get_clean();

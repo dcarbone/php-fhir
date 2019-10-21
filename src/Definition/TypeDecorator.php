@@ -394,7 +394,7 @@ abstract class TypeDecorator
         foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
                 // TODO: handle valueString, valueQuantity, etc. types?
-                if ('value' === $property->getName()) {
+                if ($property->isValueProperty()) {
                     $type->setValueContainer(true);
                     continue 2;
                 }
@@ -541,7 +541,7 @@ abstract class TypeDecorator
             if ($type->isValueContainer()) {
                 $valueFound = false;
                 foreach ($type->getProperties()->getIterator() as $property) {
-                    if ('value' === $property->getName()) {
+                    if ($property->isValueProperty()) {
                         $valueFound = true;
                         break;
                     }

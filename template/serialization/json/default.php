@@ -52,10 +52,13 @@ foreach ($sortedProperties as $property) :
             __DIR__ . '/default_property_primitive_list.php',
                 $requireArgs
         );
-    elseif ($propertyTypeKind->isPrimitiveContainer()) :
+    elseif ($propertyType->isValueContainer()) :
         echo require_with(
-            __DIR__ . '/default_property_primitive_container.php',
-                $requireArgs + ['propertyConstNameExt' => $propertyConstNameExt]
+            __DIR__ . '/default_property_value_container.php',
+                $requireArgs + [
+                    'propertyTypeIsValueContainer' => $propertyType->isValueContainer(),
+                    'propertyConstNameExt' => $propertyConstNameExt,
+                ]
         );
     else :
         echo require_with(

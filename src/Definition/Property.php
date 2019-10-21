@@ -333,6 +333,14 @@ class Property
     }
 
     /**
+     * @return bool
+     */
+    public function isValueProperty()
+    {
+        return 'value' === $this->getName();
+    }
+
+    /**
      * @return string
      */
     public function __toString()
