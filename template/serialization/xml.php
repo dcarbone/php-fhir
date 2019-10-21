@@ -64,6 +64,7 @@ endif; ?>
 
 <?php
 // serialize portion
+// ResourceContainer and Resource.Inline types have their own special xml serialization mechanism
 if ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_resource_container.php',
@@ -74,6 +75,7 @@ if ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE
             ]
     );
 else :
+    // everything else shares a common header
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_header.php',
         [
@@ -81,9 +83,23 @@ else :
                 'xmlName' => $xmlName,
         ]
     );
+
     if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+        // primitive and list types have a very simple serialization process
         echo require_with(PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_primitive_list.php', []);
     else :
+//        if ($type->isValueContainer()):
+//            // if this type is a value container, there are some additional considerations
+//            echo require_with(
+//                PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_value_container.php',
+//                [
+//                    'config' => $config,
+//                    'type' => $type,
+//                    'parentType' => $parentType,
+//                    'sortedProperties' => $sortedProperties
+//                ]
+//            );
+//        endif;
         echo require_with(
                 PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize_body_default.php',
                 [
