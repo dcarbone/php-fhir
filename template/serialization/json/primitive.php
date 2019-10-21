@@ -16,7 +16,10 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 
 ob_start(); ?>
     /**
@@ -25,6 +28,10 @@ ob_start(); ?>
      */
     public function jsonSerialize()
     {
+<?php if ($typeKind->is(TypeKindEnum::PRIMITIVE) && false !== strpos($type->getFHIRName(), 'unsigned')) : ?>
+        return intval($this->getValue(), 10);
+<?php else : ?>
         return $this->getValue();
+<?php endif; ?>
     }
 <?php return ob_get_clean();

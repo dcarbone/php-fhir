@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+// TODO: use big numbers library here..
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 /** @var string $typeClassName */
@@ -31,7 +33,7 @@ echo require_with(
 );
 ?>
     /**
-     * @param null|integer|string
+     * @param null|integer|float|string
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -41,11 +43,14 @@ echo require_with(
             $this->value = null;
             return $this;
         }
+        if (is_float($value) || is_string($value)) {
+            $value = intval($value, 10);
+        }
         if (is_int($value)) {
             if (0 > $value) {
                 throw new \OutOfBoundsException(sprintf('Value must be >= 0, %d seen.', $value));
             }
-            $value = (string)$value;
+            $value = strval($value);
         }
         if (!is_string($value) || !ctype_digit($value)) {
             throw new \InvalidArgumentException(sprintf('Value must be null, positive integer, or string representation of positive integer, "%s" seen.', gettype($value)));

@@ -67,5 +67,15 @@ if ($type->isDomainResource()) {
     );
 }
 
+if ($typeKind->isPrimitive()) {
+    echo require_with(
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods_primitive.php',
+        [
+            'config' => $config,
+            'type' => $type,
+        ]
+    );
+}
+
 echo "}\n";
 return ob_get_clean();

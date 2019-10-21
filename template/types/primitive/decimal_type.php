@@ -52,7 +52,7 @@ echo require_with(
      */
     public function _isValid()
     {
-        return true;
+        return is_float($this->getValue());
     }
 
 <?php return ob_get_clean();

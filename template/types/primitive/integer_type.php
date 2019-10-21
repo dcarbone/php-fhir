@@ -57,9 +57,7 @@ echo require_with(
                     $neg = -1;
                     $value = substr($value, 1);
                 }
-                if (ctype_digit($value)) {
-                    $value = $neg * (int)$value;
-                }
+                $value = $neg * intval($value, 10);
             }
         }
         if (!is_int($value)) {

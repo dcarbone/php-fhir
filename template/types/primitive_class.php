@@ -165,13 +165,6 @@ echo require_with(
                 'typeClassName' => $typeClassName
         ]
 );
-
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
-    [
-        'type' => $type,
-    ]
-);
 ?>
 
     /**
@@ -183,7 +176,16 @@ echo require_with(
         return $this->value;
     }
 
-<?php echo require_with(
+<?php
+
+echo require_with(
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    [
+        'type' => $type,
+    ]
+);
+
+echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
     [
             'config' => $config,

@@ -29,6 +29,7 @@ if ($typeKind->isPrimitive()) :
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php',
         [
             'type' => $type,
+            'typeKind' => $typeKind,
         ]
     );
 elseif ($typeKind->isList()) :
