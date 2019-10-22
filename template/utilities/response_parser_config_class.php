@@ -94,7 +94,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSe
      */
     public function setLibxmlOpts($libxmlOpts)
     {
-        $this->simpleXMLFlags = (int)$libxmlOpts;
+        $this->libxmlOpts = (int)$libxmlOpts;
     }
 
     /**
@@ -102,7 +102,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSe
      */
     public function getLibxmlOpts()
     {
-        return $this->simpleXMLFlags;
+        return $this->libxmlOpts;
     }
 
     /**

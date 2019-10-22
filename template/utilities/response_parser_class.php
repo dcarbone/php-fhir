@@ -17,7 +17,6 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
