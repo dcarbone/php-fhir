@@ -38,16 +38,34 @@ echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
 
 // interfaces
-require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
-require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
-require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
+if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_TYPE; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
+}
+if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
+}
+if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
+}
 
 // traits
-require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>.php';
+if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>.php';
+}
 
 // common classes
-require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
-require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
+if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
+}
+if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_CLASSNAME_TYPEMAP; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
+}
+if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>.php';
+}
+if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
+}
 
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; if ('' !== $namespace) : ?>
