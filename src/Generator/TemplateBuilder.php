@@ -169,19 +169,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function generateTypeTestWrapperFile(VersionConfig $config, Types $types, Type $type)
-    {
-        return require PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/wrapper.php';
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param bool $gte8
-     * @return string
-     */
-    public static function generateTypeTestClass(VersionConfig $config, Types $types, Type $type, $gte8)
+    public static function generateTypeTestClass(VersionConfig $config, Types $types, Type $type)
     {
         return require PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/test_class.php';
     }

@@ -40,8 +40,6 @@ if ($type->isDomainResource()) {
     echo "use PHPUnit\\Framework\\AssertionFailedError;\n";
     echo "use {$bundleType->getFullyQualifiedClassName(false)};\n";
 }
-
-// TODO: be more efficient about phpunit version determination...
 ?>
 
 /**
@@ -52,10 +50,5 @@ if ($type->isDomainResource()) {
  */
 class <?php echo $testClassname; ?> extends TestCase
 {
-    protected function tearDown(): void
-    {
-        gc_collect_cycles();
-    }
-
 <?php
 return ob_get_clean();
