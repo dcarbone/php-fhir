@@ -39,8 +39,7 @@ ob_start(); ?>
 
      * @param null|<?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
 
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?> = null)
     {

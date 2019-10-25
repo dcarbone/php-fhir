@@ -40,7 +40,7 @@ if ($type->isDomainResource()) {
 ob_start();
 
 echo require_with(
-    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/class_header.php',
+    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/71_class_header.php',
     [
         'config'     => $config,
         'type'       => $type,
@@ -77,5 +77,45 @@ if ($typeKind->isPrimitive()) {
     );
 }
 
-echo "}\n";
+echo require_with(
+    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/70_class_header.php',
+    [
+        'config'     => $config,
+        'type'       => $type,
+        'bundleType' => $bundleType,
+    ]
+);
+
+echo require_with(
+    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/default_body.php',
+    [
+        'config' => $config,
+        'type'   => $type,
+    ]
+);
+
+if ($type->isDomainResource()) {
+    echo require_with(
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods_domain_resource_type.php',
+        [
+            'config'     => $config,
+            'type'       => $type,
+            'bundleType' => $bundleType,
+        ]
+    );
+}
+
+if ($typeKind->isPrimitive()) {
+    echo require_with(
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods_primitive.php',
+        [
+            'config' => $config,
+            'type' => $type,
+        ]
+    );
+}
+
+
+
+echo "    }\n}\n";
 return ob_get_clean();

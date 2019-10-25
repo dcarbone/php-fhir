@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2019 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,19 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$typeClassname = $type->getClassName();
-
 ob_start();
-?>
-        public function testCanConstructTypeNoArgs()
+
+$testClassname = $type->getTestClassName(); ?>
+    }
+} else {
+    class <?php echo $testClassname; ?> extends TestCase
+    {
+        protected function tearDown()
         {
-            $type = new <?php echo $typeClassname; ?>();
-            $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
+            gc_collect_cycles();
         }
+
 <?php
 return ob_get_clean();

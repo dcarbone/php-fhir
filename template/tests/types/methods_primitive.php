@@ -52,16 +52,16 @@ switch ($primitiveType->getValue()) {
 
 ob_start(); ?>
 
-    public function testCanConstructWithString()
-    {
-        $n = new <?php echo $type->getClassName(); ?>('<?php echo $strVal; ?>');
-        $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
-    }
+        public function testCanConstructWithString()
+        {
+            $n = new <?php echo $type->getClassName(); ?>('<?php echo $strVal; ?>');
+            $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+        }
 
-    public function testCanSetValueFromString()
-    {
-        $n = new <?php echo $type->getClassName(); ?>;
-        $n->setValue('<?php echo $strVal; ?>');
-        $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
-    }
+        public function testCanSetValueFromString()
+        {
+            $n = new <?php echo $type->getClassName(); ?>;
+            $n->setValue('<?php echo $strVal; ?>');
+            $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+        }
 <?php return ob_get_clean();

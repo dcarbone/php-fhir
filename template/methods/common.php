@@ -41,8 +41,7 @@ ob_start(); ?>
 
     /**
      * @param null|string $xmlNamespace
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function _setFHIRXMLNamespace($xmlNamespace)
     {

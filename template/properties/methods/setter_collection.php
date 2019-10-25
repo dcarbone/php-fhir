@@ -38,8 +38,7 @@ ob_start(); ?>
 
      * @param <?php echo $propertyType->getFullyQualifiedClassName(true);?>[] $<?php echo $propertyName; ?>
 
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [])
     {

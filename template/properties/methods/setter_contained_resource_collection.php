@@ -40,8 +40,7 @@ ob_start(); ?>
 
      * @param <?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>[] $<?php echo $propertyName; ?>
 
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [])
     {

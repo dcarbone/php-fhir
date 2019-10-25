@@ -39,8 +39,7 @@ ob_start(); ?>
 
      * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
 
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo $propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER]) ? PHPFHIR_INTERFACE_CONTAINED_TYPE : $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null)
     {

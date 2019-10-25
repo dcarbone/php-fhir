@@ -35,11 +35,14 @@ echo "namespace {$testNS};\n";
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 echo "use PHPUnit\\Framework\\TestCase;\n";
+echo "use PHPUnit\\Runner\\Version;\n";
 echo "use {$type->getFullyQualifiedClassName(false)};\n";
 if ($type->isDomainResource()) {
     echo "use PHPUnit\\Framework\\AssertionFailedError;\n";
     echo "use {$bundleType->getFullyQualifiedClassName(false)};\n";
 }
+
+// TODO: be more efficient about phpunit version determination...
 ?>
 
 /**
@@ -48,7 +51,13 @@ if ($type->isDomainResource()) {
  * @package \<?php echo $testNS; ?>
 
  */
-class <?php echo $testClassname; ?> extends TestCase
-{
+if (8 <= intval(strstr(Version::id(), '.', true), 10)) {
+    class <?php echo $testClassname; ?> extends TestCase
+    {
+        protected function tearDown(): void
+        {
+            gc_collect_cycles();
+        }
+
 <?php
 return ob_get_clean();

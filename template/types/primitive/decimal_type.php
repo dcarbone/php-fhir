@@ -32,8 +32,7 @@ echo require_with(
 ?>
     /**
      * @param null|float|string $value
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function setValue($value)
     {

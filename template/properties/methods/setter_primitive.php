@@ -39,8 +39,7 @@ ob_start();
 
      * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
 
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null)
     {

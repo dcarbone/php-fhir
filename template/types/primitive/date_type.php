@@ -41,8 +41,7 @@ echo require_with(
 ?>
     /**
      * @param null|<?php $primitiveType->getPHPValueType(); ?> $value
-     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
-
+     * @return static
      */
     public function setValue($value)
     {
