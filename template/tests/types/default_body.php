@@ -22,10 +22,10 @@ $typeClassname = $type->getClassName();
 
 ob_start();
 ?>
-        public function testCanConstructTypeNoArgs()
-        {
-            $type = new <?php echo $typeClassname; ?>();
-            $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
-        }
+    public function testCanConstructTypeNoArgs()
+    {
+        $type = new <?php echo $typeClassname; ?>();
+        $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
+    }
 <?php
 return ob_get_clean();

@@ -35,7 +35,6 @@ echo "namespace {$testNS};\n";
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 echo "use PHPUnit\\Framework\\TestCase;\n";
-echo "use PHPUnit\\Runner\\Version;\n";
 echo "use {$type->getFullyQualifiedClassName(false)};\n";
 if ($type->isDomainResource()) {
     echo "use PHPUnit\\Framework\\AssertionFailedError;\n";
@@ -51,13 +50,12 @@ if ($type->isDomainResource()) {
  * @package \<?php echo $testNS; ?>
 
  */
-if (8 <= intval(strstr(Version::id(), '.', true), 10)) {
-    class <?php echo $testClassname; ?> extends TestCase
+class <?php echo $testClassname; ?> extends TestCase
+{
+    protected function tearDown()
     {
-        protected function tearDown(): void
-        {
-            gc_collect_cycles();
-        }
+        gc_collect_cycles();
+    }
 
 <?php
 return ob_get_clean();

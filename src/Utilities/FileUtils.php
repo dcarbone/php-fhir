@@ -25,9 +25,9 @@ use DCarbone\PHPFHIR\Definition\Type;
  */
 abstract class FileUtils
 {
-    const REGEX_SLASH_SEARCH         = '{[\\\]}S';
+    const REGEX_SLASH_SEARCH = '{[\\\]}S';
     const REGEX_SLASH_SEARCH_CLEANUP = '{[/]{2,}}S';
-    const REGEX_SLASH_REPLACE        = '/';
+    const REGEX_SLASH_REPLACE = '/';
 
     /**
      * @param string $namespace
@@ -107,6 +107,26 @@ abstract class FileUtils
                 $config,
                 self::cleanupPath($type->getFullyQualifiedTestNamespace(false))
             ) . "/{$type->getTestClassName()}.php";
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param bool $gt8
+     * @return string
+     */
+    public static function buildPHPUnitVersionedTestFilePath(VersionConfig $config, Type $type, $gt8)
+    {
+        if ($gt8) {
+            return static::mkdirRecurse(
+                    $config,
+                    self::cleanupPath($type->getFullyQualifiedTestNamespace(false))
+                ) . "/{$type->getTestClassName()}_phpunit_gte_8.php";
+        }
+        return static::mkdirRecurse(
+                $config,
+                self::cleanupPath($type->getFullyQualifiedTestNamespace(false))
+            ) . "/{$type->getTestClassName()}_phpunit_lt_8.php";
     }
 
     /**

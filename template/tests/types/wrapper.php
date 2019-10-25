@@ -15,19 +15,23 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 ob_start();
 
-$testClassname = $type->getTestClassName(); ?>
-    }
-} else {
-    class <?php echo $testClassname; ?> extends TestCase
-    {
-        protected function tearDown()
-        {
-            gc_collect_cycles();
-        }
+echo "<?php\n\n";
 
-<?php
-return ob_get_clean();
+echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+
+echo "\n\nuse PHPUnit\\Runner\\Version;\n"; ?>
+
+if (!class_exists('<?php echo $type->getFullyQualifiedTestClassName(true); ?>', true)) {
+    if (8 <= intval(strstr(Version::id(), '.', true), 10)) {
+        require __DIR__ . '/<?php echo $type->getTestClassName() . '_phpunit_gte_8.php'; ?>';
+    } else {
+        require __DIR__ . '/<?php echo $type->getTestClassName() . '_phpunit_lt_8.php'; ?>';
+    }
+}
+<?php return ob_get_clean();

@@ -20,6 +20,7 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var bool $gte8 */
 
 $typeKind = $type->getKind();
 
@@ -39,14 +40,25 @@ if ($type->isDomainResource()) {
 
 ob_start();
 
-echo require_with(
-    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/71_class_header.php',
-    [
-        'config'     => $config,
-        'type'       => $type,
-        'bundleType' => $bundleType,
-    ]
-);
+if ($gte8) {
+    echo require_with(
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/class_header_phpunit_gte_8.php',
+        [
+            'config'     => $config,
+            'type'       => $type,
+            'bundleType' => $bundleType,
+        ]
+    );
+} else {
+    echo require_with(
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/class_header_phpunit_lt_8.php',
+        [
+            'config'     => $config,
+            'type'       => $type,
+            'bundleType' => $bundleType,
+        ]
+    );
+}
 
 echo require_with(
     PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/default_body.php',
@@ -77,45 +89,5 @@ if ($typeKind->isPrimitive()) {
     );
 }
 
-echo require_with(
-    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/70_class_header.php',
-    [
-        'config'     => $config,
-        'type'       => $type,
-        'bundleType' => $bundleType,
-    ]
-);
-
-echo require_with(
-    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/default_body.php',
-    [
-        'config' => $config,
-        'type'   => $type,
-    ]
-);
-
-if ($type->isDomainResource()) {
-    echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods_domain_resource_type.php',
-        [
-            'config'     => $config,
-            'type'       => $type,
-            'bundleType' => $bundleType,
-        ]
-    );
-}
-
-if ($typeKind->isPrimitive()) {
-    echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods_primitive.php',
-        [
-            'config' => $config,
-            'type' => $type,
-        ]
-    );
-}
-
-
-
-echo "    }\n}\n";
+echo "}\n";
 return ob_get_clean();

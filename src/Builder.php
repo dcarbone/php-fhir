@@ -139,11 +139,31 @@ class Builder
 
         foreach ($types->getIterator() as $type) {
             $log->debug("Generated test class for type {$type}...");
-            $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type);
+            $wrapperDefinition = TemplateBuilder::generateTypeTestWrapperFile($this->config, $types, $type);
             $filepath = FileUtils::buildTypeTestFilePath($this->config, $type);
-            if (!(bool)file_put_contents($filepath, $classDefinition)) {
+            if (!(bool)file_put_contents($filepath, $wrapperDefinition)) {
                 throw new \RuntimeException(sprintf(
-                    'Unable to write Type %s class definition to file %s',
+                    'Unable to write Type %s test wrapper file %s',
+                    $filepath,
+                    $type
+                ));
+            }
+
+            $gte8ClassDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type, true);
+            $filepath = FileUtils::buildPHPUnitVersionedTestFilePath($this->config, $type, true);
+            if (!(bool)file_put_contents($filepath, $gte8ClassDefinition)) {
+                throw new \RuntimeException(sprintf(
+                    'Unable to write Type %s test for phpunit >= 8 class definition to file %s',
+                    $filepath,
+                    $type
+                ));
+            }
+
+            $lt8ClassDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type, false);
+            $filepath = FileUtils::buildPHPUnitVersionedTestFilePath($this->config, $type, false);
+            if (!(bool)file_put_contents($filepath, $lt8ClassDefinition)) {
+                throw new \RuntimeException(sprintf(
+                    'Unable to write Type %s test for phpunit < 8 class definition to file %s',
                     $filepath,
                     $type
                 ));
