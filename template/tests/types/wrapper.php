@@ -25,10 +25,11 @@ echo "<?php\n\n";
 
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
-echo "\n\nuse PHPUnit\\Runner\\Version;\n"; ?>
+echo "\n\n";
+?>
 
 if (!class_exists('<?php echo $type->getFullyQualifiedTestClassName(true); ?>', true)) {
-    if (8 <= intval(strstr(Version::id(), '.', true), 10)) {
+    if (class_exists('\\PHPUnit\\Runner\\Version', true) && version_compare(\PHPUnit\Runner\Version::id(),  '8.0', '>=')) {
         require __DIR__ . '/<?php echo $type->getTestClassName() . '_phpunit_gte_8.php'; ?>';
     } else {
         require __DIR__ . '/<?php echo $type->getTestClassName() . '_phpunit_lt_8.php'; ?>';
