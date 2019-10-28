@@ -90,15 +90,13 @@ trait DocumentationTrait
      */
     public function getDocBlockDocumentationFragment($spaces, $trailingNewline)
     {
+        if (!isset($this->documentation) || [] === $this->documentation) {
+            return '';
+        }
         $pieces = [];
         $spaces = str_repeat(' ', $spaces);
-        if (isset($this->documentation)) {
-            foreach ($this->documentation as $i => $doc) {
-                $pieces[] = "{$spaces}* {$doc}";
-            }
-        }
-        if ([] === $pieces) {
-            return '';
+        foreach ($this->documentation as $i => $doc) {
+            $pieces[] = str_replace('@', '\\\\@', "{$spaces}* {$doc}");
         }
         return implode("\n", $pieces) . ($trailingNewline ? "\n" : '');
     }
