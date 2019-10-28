@@ -60,7 +60,7 @@ echo require_with(
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
     /** @var string */
-    private $_xmlns = '';
+    protected $_xmlns = '';
 
 <?php foreach($sortedProperties as $property) : ?>
 <?php echo require_with(

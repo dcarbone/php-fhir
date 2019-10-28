@@ -64,7 +64,7 @@ echo require_with(
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
     /** @var string */
-    private $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
+    protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
 
 <?php if (0 !== count($sortedProperties)) :
     foreach($sortedProperties as $property) :
@@ -85,8 +85,6 @@ echo require_with(
         ]
     );
 endforeach;
-
-echo "\n";
 
 endif;
 if ($isValueContainer || $hasValueContainerParent) :

@@ -67,10 +67,10 @@ echo require_with(
     const FIELD_VALUE = 'value';
 
     /** @var string */
-    private $_xmlns = '';
+    protected $_xmlns = '';
 
     /** @var null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?> */
-    private $value = null;
+    protected $value = null;
 
     /**
      * The list of values allowed by <?php echo $fhirName; ?>

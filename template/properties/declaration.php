@@ -40,5 +40,6 @@ endif;
 echo $isCollection ? '[]' : ''; ?>
 
      */
-    private $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
+    protected $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
+
 <?php return ob_get_clean();

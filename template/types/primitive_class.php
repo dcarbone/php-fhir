@@ -65,10 +65,10 @@ echo require_with(
     const FIELD_VALUE = 'value';
 
     /** @var string */
-    private $_xmlns = '';
+    protected $_xmlns = '';
 
     /** @var null|<?php echo $phpValueType; ?> */
-    private $value = null;
+    protected $value = null;
 
 <?php
 $typeFile = null;

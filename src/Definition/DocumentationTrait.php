@@ -96,7 +96,7 @@ trait DocumentationTrait
         $pieces = [];
         $spaces = str_repeat(' ', $spaces);
         foreach ($this->documentation as $i => $doc) {
-            $pieces[] = str_replace('@', '\\\\@', "{$spaces}* {$doc}");
+            $pieces[] = str_replace('@', '\\@', "{$spaces}* {$doc}");
         }
         return implode("\n", $pieces) . ($trailingNewline ? "\n" : '');
     }
