@@ -38,18 +38,18 @@ echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
 
 // interfaces
-if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_TYPE; ?>', false)) {
+if (!interface_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_TYPE; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
 }
-if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>', false)) {
+if (!interface_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
 }
-if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
+if (!interface_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
 }
 
 // traits
-if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>', false)) {
+if (!trait_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>.php';
 }
 
