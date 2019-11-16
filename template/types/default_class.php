@@ -61,10 +61,10 @@ echo require_with(
 <?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => $parentType]); ?>
 
     // name of FHIR type this class describes
-    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
+    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;<?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
 
-    /** @var string */
-    protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
+    const FIELD_FHIR_COMMENTS = 'fhir_comments';
+<?php endif; ?>
 
 <?php if (0 !== count($sortedProperties)) :
     foreach($sortedProperties as $property) :
@@ -74,20 +74,24 @@ echo require_with(
                 'property' => $property,
         ]
     );
-    endforeach; ?>
+    endforeach;
 
-<?php foreach($sortedProperties as $property) :
-    echo require_with(
-        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
-        [
-                'config' => $config,
-                'property' => $property,
-        ]
-    );
-endforeach;
+    echo "\n";
 
-endif;
-if ($isValueContainer || $hasValueContainerParent) :
+    foreach($sortedProperties as $property) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
+            [
+                    'config' => $config,
+                    'property' => $property,
+            ]
+        );
+    endforeach;
+endif; ?>
+    /** @var string */
+    protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
+
+<?php if ($isValueContainer || $hasValueContainerParent) :
     echo require_with(
             PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/value_container.php',
         [

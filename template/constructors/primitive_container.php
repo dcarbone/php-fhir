@@ -59,7 +59,15 @@ ob_start(); ?>
         }<?php if ($parentType) : ?>
 
         parent::__construct($data);
-<?php endif; ?>
+<?php endif; ?><?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+
+        if (isset($data[self::FIELD_FHIR_COMMENTS])) {
+            if (is_array($data[self::FIELD_FHIR_COMMENTS])) {
+                $this->_setFHIRComments($data[self::FIELD_FHIR_COMMENTS]);
+            } else if (is_string($data[self::FIELD_FHIR_COMMENTS])) {
+                $this->_addFHIRComment($data[self::FIELD_FHIR_COMMENTS]);
+            }
+        }<?php endif; ?>
 <?php foreach ($sortedProperties as $property) :
     echo require_with(
             PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php',

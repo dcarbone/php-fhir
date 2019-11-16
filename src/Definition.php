@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\TypeDecorationValidator;
 use DCarbone\PHPFHIR\Definition\TypeDecorator;
 use DCarbone\PHPFHIR\Definition\TypeExtractor;
 
@@ -97,7 +98,7 @@ class Definition
         TypeDecorator::setValueContainerFlag($this->config, $this->types);
 
         $log->info('Performing some sanity checking');
-        TypeDecorator::testDecoration($this->config, $this->types);
+        TypeDecorationValidator::validateDecoration($this->config, $this->types);
 
         $log->info(count($this->types) . ' types extracted.');
         $log->endBreak('Extracting defined types');

@@ -43,7 +43,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
 
 {
     /** @var array */
-    private $_fhirComments = [];
+    protected $_fhirComments = [];
 
     /**
      * Arbitrary comments of a hopefully useful nature

@@ -678,7 +678,7 @@ class Type
         $parentType = $this->getParentType();
 
         if (null === $parentType) {
-            if (!$kind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE])) {
+            if ($this->isCommentContainer()) {
                 $interfaces[] = PHPFHIR_INTERFACE_COMMENT_CONTAINER;
             }
             if ($this->isContainedType()) {
@@ -701,16 +701,35 @@ class Type
     public function getDirectlyUsedTraits()
     {
         $traits = [];
-        $kind = $this->getKind();
         $parentType = $this->getParentType();
-
         if (null === $parentType) {
-            if (!$kind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE])) {
+            if ($this->isCommentContainer()) {
                 $traits[] = PHPFHIR_TRAIT_COMMENT_CONTAINER;
             }
         }
 
         return $traits;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasCommentContainerParent()
+    {
+        foreach ($this->getParentTypes() as $parentType) {
+            if ($parentType->isCommentContainer()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCommentContainer()
+    {
+        return !$this->getKind()->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE]);
     }
 
     /**

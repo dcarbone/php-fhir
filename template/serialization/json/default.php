@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var bool $isContainedType */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
@@ -32,6 +33,12 @@ ob_start(); ?>
         $a = parent::jsonSerialize();
 <?php else : ?>
         $a = [];
+<?php endif;
+
+if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+        if ([] !== ($vs = $this->_getFHIRComments())) {
+            $a[self::FIELD_FHIR_COMMENTS] = $vs;
+        }
 <?php endif;
 foreach ($sortedProperties as $property) :
     $propertyName = $property->getName();

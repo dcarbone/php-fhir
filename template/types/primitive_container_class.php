@@ -57,20 +57,20 @@ echo require_with(
 <?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => $parentType]); ?>
 
     // name of FHIR type this class describes
-    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
+    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;<?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
 
-    /** @var string */
-    protected $_xmlns = '';
+    const FIELD_FHIR_COMMENTS = 'fhir_comments';
+<?php endif; ?>
 
-<?php foreach($sortedProperties as $property) : ?>
-<?php echo require_with(
+<?php foreach($sortedProperties as $property) :
+    echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
         [
                 'property' => $property,
         ]
-    ); ?>
-
-<?php endforeach;
+    );
+    echo "\n";
+endforeach;
 
 foreach($sortedProperties as $property) :
     echo require_with(
@@ -79,11 +79,12 @@ foreach($sortedProperties as $property) :
                 'config' => $config,
                 'property' => $property,
         ]
-    ); ?>
+    );
+endforeach; ?>
+    /** @var string */
+    protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
 
-<?php endforeach;
-
-echo require_with(
+<?php echo require_with(
         PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php',
         [
                 'type' => $type,
