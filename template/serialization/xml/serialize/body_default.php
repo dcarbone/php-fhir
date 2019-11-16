@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
@@ -26,25 +27,17 @@ if (null !== $parentType) : ?>
         parent::xmlSerialize($sxe);
 <?php endif;
 foreach ($sortedProperties as $property) :
-    $propertyName = $property->getName();
-    $propertyConstName = $property->getFieldConstantName();
-    $propertyType = $property->getValueFHIRType();
-    $propertyTypeKind = $propertyType->getKind();
-    $isCollection = $property->isCollection();
-    $getter = 'get' . ucfirst($propertyName);
+    $propertyTypeKind = $property->getValueFHIRType()->getKind();
+    $getter = 'get' . ucfirst($property->getName());
     $requireArgs = [
-        'isCollection' => $isCollection,
-        'propertyConstName' => $propertyConstName,
+        'isValueProperty' => $property->isValueProperty(),
+        'isCollection' => $property->isCollection(),
+        'propertyConstName' => $property->getFieldConstantName(),
         'getter' => $getter
     ];
     if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
         echo require_with(
             __DIR__ . '/body_default_property_primitive_list.php',
-            $requireArgs
-        );
-    elseif ($propertyTypeKind->isPrimitiveContainer()) :
-        echo require_with(
-            __DIR__ . '/body_default_property_primitive_container.php',
             $requireArgs
         );
     elseif ($propertyTypeKind->isResourceContainer()) :

@@ -86,23 +86,15 @@ else :
 
     if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
         // primitive and list types have a very simple serialization process
-        echo require_with(PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/body_primitive_list.php', []);
+        echo require_with(
+                PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/body_primitive_list.php',
+                []
+        );
     else :
-//        if ($type->isValueContainer()):
-//            // if this type is a value container, there are some additional considerations
-//            echo require_with(
-//                PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/body_value_container.php',
-//                [
-//                    'config' => $config,
-//                    'type' => $type,
-//                    'parentType' => $parentType,
-//                    'sortedProperties' => $sortedProperties
-//                ]
-//            );
-//        endif;
         echo require_with(
                 PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/body_default.php',
                 [
+                        'type' => $type,
                         'parentType' => $parentType,
                         'sortedProperties' => $sortedProperties,
                 ]

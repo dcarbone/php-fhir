@@ -17,6 +17,7 @@
  */
 
 /** @var bool $isCollection */
+/** @var bool $isValueProperty */
 /** @var string $propertyConstName */
 /** @var string $getter */
 
@@ -34,7 +35,12 @@ ob_start();
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
+<?php if ($isValueProperty) : ?>
+            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
             $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+<?php else : ?>
+            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+<?php endif; ?>
         }
 <?php endif;
 return ob_get_clean();

@@ -41,30 +41,25 @@ if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         }
 <?php endif;
 foreach ($sortedProperties as $property) :
-    $propertyName = $property->getName();
-    $propertyConstName = $property->getFieldConstantName();
-    $propertyConstNameExt = "{$propertyConstName}_EXT";
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
-    $propertyTypeParentType = $propertyType->getParentType();
-    $isCollection = $property->isCollection();
-    $getter = 'get' . ucfirst($propertyName);
     $requireArgs = [
-            'isCollection' => $isCollection,
-            'getter' => $getter,
-            'propertyConstName' => $propertyConstName,
+            'hasValueContainerParent' => $propertyType->hasValueContainerParent(),
+            'isValueProperty' => $property->isValueProperty(),
+            'isCollection' => $property->isCollection(),
+            'getter' => 'get' . ucfirst($property->getName()),
+            'propertyConstName' => $property->getFieldConstantName(),
+            'propertyConstNameExt' => "{$property->getFieldConstantName()}_EXT"
     ];
     if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
         echo require_with(
             __DIR__ . '/default_property_primitive_list.php',
                 $requireArgs
         );
-    elseif ($propertyTypeKind->isPrimitiveContainer()) :
+    elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
         echo require_with(
-            __DIR__ . '/default_property_primitive_container.php',
-                $requireArgs + [
-                    'propertyConstNameExt' => $propertyConstNameExt,
-                ]
+            __DIR__ . '/default_property_value_container.php',
+            $requireArgs
         );
     else :
         echo require_with(__DIR__ . '/default_property_default.php', $requireArgs);

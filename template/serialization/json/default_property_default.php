@@ -17,17 +17,35 @@
  */
 
 /** @var bool $isCollection */
+/** @var bool $isValueProperty */
 /** @var string $propertyConstName */
+/** @var string $propertyConstNameExt */
 /** @var string $getter */
 
 ob_start();
 if ($isCollection) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
+<?php if ($isValueProperty) : ?>
+            $a[self::<?php echo $propertyConstName; ?>][] = $v->getValue();
+            if (1 < count($enc = $v->jsonSerialize())) {
+                $a[self::<?php echo $propertyConstNameExt; ?>][] = $enc;
+            } else {
+                $a[self::<?php echo $propertyConstNameExt; ?>][] = null;
+            }
+<?php else : ?>
             $a[self::<?php echo $propertyConstName; ?>] = $vs;
+<?php endif; ?>
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
+<?php if ($isValueProperty) : ?>
+            $a[self::<?php echo $propertyConstName; ?>] = $v->getValue();
+            if (1 < count($enc = $v->jsonSerialize())) {
+                $a[self::<?php echo $propertyConstNameExt; ?>] = $enc;
+            }
+<?php else : ?>
             $a[self::<?php echo $propertyConstName; ?>] = $v;
+<?php endif ?>
         }
 <?php endif;
 return ob_get_clean();

@@ -337,7 +337,7 @@ class Property
      */
     public function isValueProperty()
     {
-        return 'value' === $this->getName();
+        return PHPFHIR_VALUE_PROPERTY_NAME === $this->getName();
     }
 
     /**

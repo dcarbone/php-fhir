@@ -18,21 +18,33 @@
 
 /** @var bool $isCollection */
 /** @var string $propertyConstName */
+/** @var string $propertyConstNameExt */
 /** @var string $getter */
 
 ob_start();
 if ($isCollection) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-            foreach($vs as $v) {
+            $a[self::<?php echo $propertyConstName; ?>] = [];
+            foreach ($vs as $v) {
                 if (null === $v) {
                     continue;
                 }
-                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+                $a[self::<?php echo $propertyConstName; ?>][] = $v->getValue();
+                if (1 < count($enc = $v->jsonSerialize())) {
+                    unset($enc[$v::FIELD_VALUE]);
+                    $a[self::<?php echo $propertyConstNameExt; ?>][] = $enc;
+                } else {
+                    $a[self::<?php echo $propertyConstNameExt; ?>][] = null;
+                }
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+            $a[self::<?php echo $propertyConstName; ?>] = $v->getValue();
+            if (1 < count($enc = $v->jsonSerialize())) {
+                unset($enc[$v::FIELD_VALUE]);
+                $a[self::<?php echo $propertyConstNameExt; ?>] = $enc;
+            }
         }
 <?php endif;
 return ob_get_clean();
