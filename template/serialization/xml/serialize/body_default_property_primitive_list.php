@@ -29,8 +29,7 @@ if ($isCollection) : ?>
             }
             $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
         }
-    }
-<?php else : ?>
+    }<?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
         }<?php endif;

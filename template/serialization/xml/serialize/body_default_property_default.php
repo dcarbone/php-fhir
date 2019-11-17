@@ -32,8 +32,7 @@ ob_start();
                 }
                 $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
             }
-        }
-<?php else : ?>
+        }<?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
 <?php if ($isValueProperty) : ?>
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);

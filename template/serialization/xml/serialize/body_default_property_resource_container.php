@@ -32,8 +32,7 @@ ob_start();
                 $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
                 $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
             }
-        }
-<?php else : ?>
+        }<?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
             $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
