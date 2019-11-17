@@ -33,6 +33,5 @@ if ($isCollection) : ?>
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-        }
-<?php endif;
+        }<?php endif;
 return ob_get_clean();

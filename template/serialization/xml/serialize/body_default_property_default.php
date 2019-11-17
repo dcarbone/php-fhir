@@ -41,6 +41,5 @@ ob_start();
 <?php else : ?>
             $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
 <?php endif; ?>
-        }
-<?php endif;
+        }<?php endif;
 return ob_get_clean();

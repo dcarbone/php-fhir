@@ -25,6 +25,6 @@ $propertyTypeKind = $propertyType->getKind();
 
 ob_start(); ?>
     const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php if (!$propertyTypeKind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE]) && $propertyType->isValueContainer()) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
+<?php if (!$propertyTypeKind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE]) && ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent())) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
 <?php endif; ?>
 <?php return ob_get_clean();

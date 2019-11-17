@@ -101,6 +101,7 @@ else :
         );
     endif; ?>
 <?php endif; ?>
+
         return $sxe;
     }
 <?php return ob_get_clean();

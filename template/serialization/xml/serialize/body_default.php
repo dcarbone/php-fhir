@@ -24,8 +24,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 ob_start();
 if (null !== $parentType) : ?>
-        parent::xmlSerialize($sxe);
-<?php endif;
+        parent::xmlSerialize($sxe);<?php endif;
 foreach ($sortedProperties as $property) :
     $propertyTypeKind = $property->getValueFHIRType()->getKind();
     $getter = 'get' . ucfirst($property->getName());
