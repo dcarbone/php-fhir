@@ -29,21 +29,29 @@ if ($isCollection) : ?>
                 if (null === $v) {
                     continue;
                 }
-                $a[self::<?php echo $propertyConstName; ?>][] = $v->getValue();
-                if (1 < count($enc = $v->jsonSerialize())) {
-                    unset($enc[$v::FIELD_VALUE]);
-                    $a[self::<?php echo $propertyConstNameExt; ?>][] = $enc;
+                if (null !== ($val = $v->getValue())) {
+                    $a[self::<?php echo $propertyConstName; ?>][] = $val;
+                    if (1 < count($enc = $v->jsonSerialize())) {
+                        unset($enc[$v::FIELD_VALUE]);
+                        $a[self::<?php echo $propertyConstNameExt; ?>][] = $enc;
+                    } else {
+                        $a[self::<?php echo $propertyConstNameExt; ?>][] = null;
+                    }
                 } else {
-                    $a[self::<?php echo $propertyConstNameExt; ?>][] = null;
+                    $a[self::<?php echo $propertyConstName; ?>][] = $v;
                 }
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $a[self::<?php echo $propertyConstName; ?>] = $v->getValue();
-            if (1 < count($enc = $v->jsonSerialize())) {
-                unset($enc[$v::FIELD_VALUE]);
-                $a[self::<?php echo $propertyConstNameExt; ?>] = $enc;
+            if (null !== ($val = $v->getValue())) {
+                $a[self::<?php echo $propertyConstName; ?>] = $val;
+                if (1 < count($enc = $v->jsonSerialize())) {
+                    unset($enc[$v::FIELD_VALUE]);
+                    $a[self::<?php echo $propertyConstNameExt; ?>] = $enc;
+                }
+            } else {
+                $a[self::<?php echo $propertyConstName; ?>] = $v;
             }
         }
 <?php endif;

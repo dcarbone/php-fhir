@@ -44,7 +44,7 @@ ob_start(); ?>
             __DIR__ . '/property_setter_primitive_list.php',
             $requireArgs
     );
-elseif ($propertyType->isValueContainer()) :
+elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
     echo require_with(
             __DIR__ . '/property_setter_value_container.php',
             $requireArgs + ['propertyFieldConstExt' => $propertyFieldConstExt]

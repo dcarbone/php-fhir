@@ -24,6 +24,9 @@ ob_start();
 if ($isCollection) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
+                    if (null === $v) {
+                        continue;
+                    }
                     $this-><?php echo $setter; ?>($v);
                 }
             } else {

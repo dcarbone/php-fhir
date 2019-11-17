@@ -28,17 +28,24 @@ ob_start(); ?>
 <?php if ($isCollection) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $i => $v) {
+                    if (null === $v) {
+                        continue;
+                    }
                     if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
                         $this-><?php echo $setter; ?>($v);
-                    } elseif ($ext && is_scalar($v) && isset($ext[$i]) && is_array($ext[$i])) {
-                        $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $v] + $ext[$i]));
+                    } elseif (null !== $ext && isset($ext[$i]) && is_array($ext[$i])) {
+                        if (is_scalar($v)) {
+                            $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $v] + $ext[$i]));
+                        } elseif (is_array($v)) {
+                            $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>(array_merge($v, $ext[$i])));
+                        }
                     } else {
                         $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($v));
                     }
                 }
             } elseif ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } elseif ($ext && is_scalar($data[self::<?php echo $propertyFieldConst; ?>])) {
+            } elseif (null !== $ext && is_scalar($data[self::<?php echo $propertyFieldConst; ?>])) {
                 $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $data[self::<?php echo $propertyFieldConst; ?>]] + $ext));
             } else {
                 $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
@@ -46,8 +53,12 @@ ob_start(); ?>
 <?php else : ?>
             if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } elseif ($ext && is_scalar($data[self::<?php echo $propertyFieldConst; ?>])) {
-                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $data[self::<?php echo $propertyFieldConst; ?>]] + $ext));
+            } elseif (null !== $ext) {
+                if (is_scalar($data[self::<?php echo $propertyFieldConst; ?>])) {
+                    $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $data[self::<?php echo $propertyFieldConst; ?>]] + $ext));
+                } else if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
+                    $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>(array_merge($ext, $data[self::<?php echo $propertyFieldConst; ?>])));
+                }
             } else {
                 $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
