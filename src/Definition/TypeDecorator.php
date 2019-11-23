@@ -22,7 +22,6 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Class TypeDecorator
@@ -123,7 +122,7 @@ abstract class TypeDecorator
             $fhirName = $type->getFHIRName();
 
             // TODO: this is kinda hacky...
-            if (false !== strpos($fhirName, '-list') || in_array($type->getFHIRName(), $knownList, true)) {
+            if (in_array($type->getFHIRName(), $knownList, true)) {
                 continue;
             }
 
@@ -231,22 +230,21 @@ abstract class TypeDecorator
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            $kind = $type->getKind();
-            if ($kind->isPrimitive()) {
-                if ($type->hasParent()) {
-                    $ptn = $type->getRootType()->getFHIRName();
-                } else {
-                    $ptn = $type->getFHIRName();
-                }
-                $ptn = str_replace('-primitive', '', $ptn);
-                $pt = new PrimitiveTypeEnum($ptn);
-                $type->setPrimitiveType($pt);
-                $logger->info(sprintf(
-                    'Type "%s" is a Primitive of type "%s"',
-                    $type,
-                    $pt
-                ));
+            if ($type->getKind()->isPrimitive()) {
+                $ptn = $type->getFHIRName();
+            } elseif ($type->hasPrimitiveParent()) {
+                $ptn = $type->getParentType()->getFHIRName();
+            } else {
+                continue;
             }
+            $ptn = str_replace('-primitive', '', $ptn);
+            $pt = new PrimitiveTypeEnum($ptn);
+            $type->setPrimitiveType($pt);
+            $logger->info(sprintf(
+                'Type "%s" is a Primitive of type "%s"',
+                $type,
+                $pt
+            ));
         }
     }
 
@@ -392,12 +390,11 @@ abstract class TypeDecorator
     public static function setValueContainerFlag(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            foreach ($type->getProperties()->getIterator() as $property) {
-                // TODO: handle valueString, valueQuantity, etc. types?
-                if ($property->isValueProperty()) {
-                    $type->setValueContainer(true);
-                    continue 2;
-                }
+            $properties = $type->getProperties();
+            // TODO: handle valueString, valueQuantity, etc. types?
+            if (1 === count($properties) && $properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+                $type->setValueContainer(true);
+                continue;
             }
         }
     }

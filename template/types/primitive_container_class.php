@@ -98,6 +98,7 @@ echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
     [
         'type' => $type,
+        'parentType' => $parentType,
     ]
 );
 

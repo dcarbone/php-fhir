@@ -68,10 +68,6 @@ class PrimitiveTypeEnum extends AbstractEnum
             case PrimitiveTypeEnum::NEGATIVE_INTEGER:
                 return 'integer';
 
-            case PrimitiveTypeEnum::UNSIGNED_INTEGER:
-                // TODO: utilize big number lib, maybe?
-                return 'string';
-
             case PrimitiveTypeEnum::DATE:
             case PrimitiveTypeEnum::DATETIME:
             case PrimitiveTypeEnum::TIME:
@@ -83,22 +79,14 @@ class PrimitiveTypeEnum extends AbstractEnum
             case PrimitiveTypeEnum::URL:
             case PrimitiveTypeEnum::ID:
             case PrimitiveTypeEnum::UUID:
-                return 'string';
-
-            case PrimitiveTypeEnum::BASE_64_BINARY:
-                // TODO: add content decoding?
-                return 'string';
-
-            case PrimitiveTypeEnum::MARKDOWN:
-                // TODO: markdown lib, maybe?
-                return 'string';
-
             case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
+            case PrimitiveTypeEnum::BASE_64_BINARY: // TODO: add content decoding?
+            case PrimitiveTypeEnum::MARKDOWN: // TODO: markdown lib, maybe?
+            case PrimitiveTypeEnum::UNSIGNED_INTEGER: // TODO: utilize big number lib, maybe?
                 return 'string';
-                break;
 
             default:
-                throw ExceptionUtils::createUnknownPrimitiveTypeException($this);
+                throw ExceptionUtils::createUnknownPrimitiveTypeEnumException($this);
         }
     }
 }

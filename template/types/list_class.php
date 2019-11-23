@@ -64,14 +64,6 @@ echo require_with(
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
-    const FIELD_VALUE = 'value';
-
-    /** @var string */
-    protected $_xmlns = '';
-
-    /** @var null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?> */
-    protected $value = null;
-
     /**
      * The list of values allowed by <?php echo $fhirName; ?>
 
@@ -83,49 +75,15 @@ echo require_with(
 <?php endforeach; ?>
     ];
 
-    /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|string $value;
-     */
-    public function __construct($value = null)
-    {
-        $this->setValue($value);
-    }
-
 <?php
 echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
     [
         'type' => $type,
+        'parentType' => $type->getParentType(),
     ]
 );
 ?>
-
-    /**
-     * @param null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?> $value;
-     * @return static
-     */
-    public function setValue($value = null)
-    {
-        if (null === $value) {
-            $this->value = null;
-            return $this;
-        }
-        if ($value instanceof <?php echo $restrictionBaseType->getClassName(); ?>) {
-            $this->value = $value;
-            return $this;
-        }
-        $this->value = new <?php echo $restrictionBaseType->getClassName(); ?>($value);
-        return $this;
-    }
-
-    /**
-     * @return null|<?php echo $restrictionBaseType->getFullyQualifiedClassName(true); ?>
-     */
-    public function getValue()
-    {
-        return $this->value;
-    }
 
     /**
      * Returns the list of allowed values for this type
@@ -143,35 +101,5 @@ echo require_with(
     {
         $v = $this->getValue();
         return null === $v || in_array((string)$v, self::$valueList, true);
-    }
-
-<?php echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
-    [
-            'config' => $config,
-            'type'     => $type,
-            'typeKind' => $typeKind,
-            'sortedProperties' => $sortedProperties,
-            'parentType' => $parentType,
-            'typeClassName' => $typeClassName,
-    ]
-) ?>
-
-<?php echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
-        [
-                'type' => $type,
-                'typeKind' => $typeKind,
-                'sortedProperties' => $sortedProperties,
-                'parentType' => $parentType,
-        ]
-); ?>
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return (string)$this->getValue();
     }
 }<?php return ob_get_clean();

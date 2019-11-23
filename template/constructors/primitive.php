@@ -22,7 +22,7 @@
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|<?php $primitiveType->getPHPValueType(); ?> $value
+     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
      */
     public function __construct($value = null)
     {

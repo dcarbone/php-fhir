@@ -419,8 +419,20 @@ class Type
     public function hasResourceParent()
     {
         foreach ($this->getParentTypes() as $parentType) {
-            $kind = $parentType->getKind();
-            if ($kind->isResource()) {
+            if ($parentType->getKind()->isResource()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPrimitiveParent()
+    {
+        foreach ($this->getParentTypes() as $parentType) {
+            if ($parentType->getKind()->isPrimitive()) {
                 return true;
             }
         }
@@ -674,7 +686,6 @@ class Type
     public function getDirectlyImplementedInterfaces()
     {
         $interfaces = [];
-        $kind = $this->getKind();
         $parentType = $this->getParentType();
 
         if (null === $parentType) {

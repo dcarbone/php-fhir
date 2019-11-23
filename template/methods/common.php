@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
@@ -29,7 +30,7 @@ ob_start(); ?>
     public function _getFHIRTypeName()
     {
         return self::FHIR_TYPE_NAME;
-    }
+    }<?php if (null === $parentType) : ?>
 
     /**
      * @return string|null
@@ -53,7 +54,8 @@ ob_start(); ?>
             '$xmlNamespace must be a null or string value, %s seen.',
             gettype($xmlNamespace)
         ));
-    }
+    }<?php endif; ?>
+
 
     /**
      * @return string
@@ -66,5 +68,4 @@ ob_start(); ?>
         }
         return "<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>";
     }
-
 <?php return ob_get_clean();

@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 
 /**
  * Class ExceptionUtils
@@ -61,6 +62,18 @@ abstract class ExceptionUtils
             'Primitive Type "%s" has unknown PrimitiveTypeEnum "%s" specified',
             $type->getFHIRName(),
             null === ($t = $type->getPrimitiveType()) ? 'NULL' : $t
+        ));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $typeEnum
+     * @return \DomainException
+     */
+    public static function createUnknownPrimitiveTypeEnumException(PrimitiveTypeEnum $typeEnum)
+    {
+        return new \DomainException(sprintf(
+            'Unknown PrimitiveTypeEnum value: %s',
+            null === $typeEnum ? 'NULL' : (string)$typeEnum
         ));
     }
 

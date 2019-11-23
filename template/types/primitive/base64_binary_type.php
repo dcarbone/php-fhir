@@ -35,7 +35,7 @@ echo require_with(
 ?>
 
     /**
-     * @param null|<?php $primitiveType->getPHPValueType(); ?> $value
+     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
      * @return static
      */
     public function setValue($value)
