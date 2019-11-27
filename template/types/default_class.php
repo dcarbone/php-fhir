@@ -78,6 +78,21 @@ echo require_with(
 
     echo "\n";
 
+    if ($type->isEnumerated()) : ?>
+
+    /**
+     * The list of values allowed by <?php echo $fhirName; ?>
+
+     * @var array
+     */
+    private static $_valueList = [
+<?php foreach($type->getEnumeration() as $enum) : ?>
+        <?php var_export($enum->getValue()); ?>,
+<?php endforeach; ?>
+    ]; <?php endif;
+
+    echo "\n";
+
     foreach($sortedProperties as $property) :
         echo require_with(
             PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
@@ -91,26 +106,15 @@ endif; ?>
     /** @var string */
     protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
 
-<?php if ($isValueContainer || $hasValueContainerParent) :
-    echo require_with(
-            PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/value_container.php',
-        [
-                'type' => $type,
-                'sortedProperties' => $sortedProperties,
-                'parentType' => $parentType,
-                'hasValueContainerParent' => $hasValueContainerParent
-        ]
-    );
-else :
-    echo require_with(
-        PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php',
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
         [
                 'type' => $type,
                 'sortedProperties' => $sortedProperties,
                 'parentType' => $parentType,
         ]
     );
-endif;
+
 echo "\n";
 
 echo require_with(
@@ -163,6 +167,28 @@ endif;?>
                 'parentType' => $parentType,
         ]
 ); ?>
+
+<?php if ($type->isEnumerated()) : ?>
+
+/**
+     * Returns the list of allowed values for this type
+     * @return string[]
+     */
+    public function _getAllowedValueList()
+    {
+        return self::$_valueList;
+    }
+
+    /**
+     * @return bool
+     */
+    public function _isValid()
+    {
+        $v = $this->getValue();
+        return null === $v || in_array((string)$v, self::$_valueList, true);
+    }
+<?php endif; ?>
+
 
     /**
      * @return string

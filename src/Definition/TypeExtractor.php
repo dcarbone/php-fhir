@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Builder\TypeBuilder;
 use DCarbone\PHPFHIR\Definition\Decorator\ComplexTypeElementTypeDecorator;
 use DCarbone\PHPFHIR\Definition\Decorator\ElementElementTypeDecorator;
 use DCarbone\PHPFHIR\Definition\Decorator\SimpleTypeElementTypeDecorator;
@@ -120,7 +121,7 @@ abstract class TypeExtractor
                 case ElementNameEnum::SIMPLE_TYPE:
                     $logger->debug(sprintf('Parsing "%s" from SimpleType', $fhirName));
                     // build type
-                    $type = new Type($config, $fhirName, $child, $sourceFile);
+                    $type = TypeBuilder::build($config, $fhirName, $child, $sourceFile);
 
                     // add type
                     $types->addType($type);
@@ -132,7 +133,7 @@ abstract class TypeExtractor
                 case ElementNameEnum::COMPLEX_TYPE:
                     $logger->debug(sprintf('Parsing "%s" from ComplexType', $fhirName));
                     // build type
-                    $type = new Type($config, $fhirName, $child, $sourceFile);
+                    $type = TypeBuilder::build($config, $fhirName, $child, $sourceFile);
 
                     // add type
                     $types->addType($type);
@@ -157,7 +158,7 @@ abstract class TypeExtractor
 
                     $logger->debug(sprintf('Parsing "%s" from Element', $fhirName));
                     // build type
-                    $type = new Type($config, $fhirName, $child, $sourceFile);
+                    $type = TypeBuilder::build($config, $fhirName, $child, $sourceFile);
 
                     // add type
                     $types->addType($type);

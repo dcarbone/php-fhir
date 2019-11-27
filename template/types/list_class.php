@@ -69,7 +69,7 @@ echo require_with(
 
      * @var array
      */
-    private static $valueList = [
+    private static $_valueList = [
 <?php foreach($type->getEnumeration() as $enum) : ?>
         '<?php echo $enum->getValue(); ?>',
 <?php endforeach; ?>
@@ -91,7 +91,7 @@ echo require_with(
      */
     public function _getAllowedValueList()
     {
-        return self::$valueList;
+        return self::$_valueList;
     }
 
     /**
@@ -100,6 +100,6 @@ echo require_with(
     public function _isValid()
     {
         $v = $this->getValue();
-        return null === $v || in_array((string)$v, self::$valueList, true);
+        return null === $v || in_array((string)$v, self::$_valueList, true);
     }
 }<?php return ob_get_clean();

@@ -23,10 +23,11 @@
 ob_start(); ?>
 <?php
 echo require_with(
-    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
     [
         'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName
+        'typeClassName' => $typeClassName,
+        'type'          => $type,
     ]
 );
 ?>

@@ -21,7 +21,6 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
-/** @var string $typeClassName */
 
 $valueProperty = $type->getProperties()->getProperty('value');
 if (null === $valueProperty) {
@@ -35,7 +34,7 @@ $typeImports = $type->getImports();
 
 ob_start(); ?>
     /**
-     * <?php echo $typeClassName; ?> Constructor
+     * <?php echo $type->getClassName(); ?> Constructor
      * @param null|array|<?php echo $valuePrimitiveTypeKind->getPHPValueType(); ?>|<?php echo $valuePrimitiveType->getFullyQualifiedClassName(true); ?> $data
      */
     public function __construct($data = null)
@@ -70,7 +69,7 @@ ob_start(); ?>
         }<?php endif; ?>
 <?php foreach ($sortedProperties as $property) :
     echo require_with(
-            PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php',
+            PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
             [
                     'type' => $type,
                     'property' => $property,

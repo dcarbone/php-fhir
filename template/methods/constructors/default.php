@@ -39,9 +39,9 @@ ob_start(); ?>
                 '<?php echo $typeClassName; ?>::_construct - $data expected to be null or array, %s seen',
                 gettype($data)
             ));
-        }<?php if ($parentType) : ?>
+        }<?php if ($parentType) : // add parent constructor call ?>
 
-        parent::__construct($data);<?php endif; ?><?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+        parent::__construct($data);<?php endif; ?><?php if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : // only parse comments if parent isn't already doing it. ?>
 
         if (isset($data[self::FIELD_FHIR_COMMENTS])) {
             if (is_array($data[self::FIELD_FHIR_COMMENTS])) {
@@ -54,7 +54,7 @@ ob_start(); ?>
 <?php foreach($sortedProperties as $property) :
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_resource_container.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/resource_container_property_setter_call.php',
                 [
                         'type' => $type,
                         'property' => $property,
@@ -62,7 +62,7 @@ ob_start(); ?>
         );
     else :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
                 [
                         'type' => $type,
                         'property' => $property

@@ -36,8 +36,11 @@ class Property
     /** @var string */
     private $name = null;
 
-    /** @var string */
-    private $valueFHIRTypeName;
+    /** @var string|null */
+    private $valueFHIRTypeName = null;
+
+    /** @var null|string */
+    private $rawPHPValue = null;
 
     /** @var int */
     private $minOccurs = 0;
@@ -89,7 +92,11 @@ class Property
             'minOccurs'    => $this->getMinOccurs(),
             'maxOccurs'    => $this->getMaxOccurs(),
             'pattern'      => $this->getPattern(),
+            'rawPHPValue'  => $this->getRawPHPValue(),
             'fhirType'     => (string)$this->getValueFHIRType(),
+            'use'          => (string)$this->getUse(),
+            'fixed'        => (string)$this->getFixed(),
+            'namespace'    => (string)$this->getNamespace(),
         ];
     }
 
@@ -126,7 +133,7 @@ class Property
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getValueFHIRTypeName()
     {
@@ -159,6 +166,24 @@ class Property
     {
         $this->valueFHIRType = $valueFHIRType;
         $this->valueFHIRTypeName = $valueFHIRType->getFHIRName();
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRawPHPValue()
+    {
+        return $this->rawPHPValue;
+    }
+
+    /**
+     * @param string|null $rawPHPValue
+     * @return Property
+     */
+    public function setRawPHPValue($rawPHPValue)
+    {
+        $this->rawPHPValue = $rawPHPValue;
         return $this;
     }
 
@@ -330,6 +355,14 @@ class Property
     public function getFieldConstantName()
     {
         return 'FIELD_' . NameUtils::getConstName($this->getName());
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldConstantExtensionName()
+    {
+        return $this->getFieldConstantName() . '_EXT';
     }
 
     /**

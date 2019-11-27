@@ -22,37 +22,33 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $isCollection = $property->isCollection();
-$propertyName = $property->getName();
 $propertyFieldConst = $property->getFieldConstantName();
-$propertyFieldConstExt = "{$propertyFieldConst}_EXT";
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
-$propertyTypeClassName = $propertyType->getClassName();
-$setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
 $requireArgs = [
         'propertyTypeKind' => $propertyTypeKind,
         'isCollection' => $isCollection,
         'propertyFieldConst' => $propertyFieldConst,
         'propertyTypeClassName' => (string)$type->getImports()->getImportByType($propertyType),
-        'setter' => $setter,
+        'setter' => ($isCollection ? 'add' : 'set') . ucfirst($property->getName()),
 ];
 
 ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
-<?php if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+<?php if ($propertyTypeKind->isPrimitive() || $propertyType->hasPrimitiveParent()) :
     echo require_with(
-            __DIR__ . '/property_setter_primitive_list.php',
+            __DIR__ . '/property_setter_primitive.php',
             $requireArgs
     );
 elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
     echo require_with(
             __DIR__ . '/property_setter_value_container.php',
-            $requireArgs + ['propertyFieldConstExt' => $propertyFieldConstExt]
+            $requireArgs + ['propertyFieldConstExt' => $property->getFieldConstantExtensionName()]
     );
 else :
     echo require_with(
             __DIR__ . '/property_setter_default.php',
-            $requireArgs + ['propertyFieldConstExt' => $propertyFieldConstExt]
+            $requireArgs + ['propertyFieldConstExt' => $property->getFieldConstantExtensionName()]
     );
 endif;
 if ($type->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) : ?>

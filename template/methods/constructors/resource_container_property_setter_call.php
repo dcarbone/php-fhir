@@ -16,22 +16,18 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$isCollection = $property->isCollection();
+$typeClassName = $type->getClassName();
 $propertyName = $property->getName();
 $propertyFieldConst = $property->getFieldConstantName();
 $propertyType = $property->getValueFHIRType();
-$propertyTypeKind = $propertyType->getKind();
-$propertyTypeClassName = $propertyType->getClassName();
-$setter = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
+$setter = ($property->isCollection() ? 'add' : 'set') . ucfirst($propertyName);
 
 ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
-<?php if ($isCollection) : ?>
+<?php if ($property->isCollection()) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 if (is_int(key($data[self::<?php echo $propertyFieldConst; ?>]))) {
                     $this->set<?php echo ucfirst($propertyName); ?>($data[self::<?php echo $propertyFieldConst; ?>]);
@@ -39,7 +35,7 @@ ob_start(); ?>
                     $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                     if (null === $typeClass) {
                         throw new \InvalidArgumentException(sprintf(
-                            '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
+                            '<?php echo $typeClassName; ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
                             json_encode($data[self::<?php echo $propertyFieldConst; ?>])
                         ));
                     }
@@ -54,7 +50,7 @@ ob_start(); ?>
                     $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
                 } else {
                     throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an object implementing <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>, object of type %s seen',
+                        '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an object implementing <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>, object of type %s seen',
                         get_class($data[self::<?php echo $propertyFieldConst; ?>])
                     ));
                 }
@@ -62,14 +58,14 @@ ob_start(); ?>
                 $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
+                        '<?php echo $typeClassName; ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
                         json_encode($data[self::<?php echo $propertyFieldConst; ?>])
                     ));
                 }
                 $this-><?php echo $setter; ?>(new $typeClass($data[self::<?php echo $propertyFieldConst; ?>]));
             } else {
                 throw new \InvalidArgumentException(sprintf(
-                    '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
+                    '<?php echo $typeClassName; ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
                     json_encode($data[self::<?php echo $propertyFieldConst; ?>])
                 ));
             }

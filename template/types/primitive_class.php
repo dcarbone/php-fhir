@@ -31,8 +31,20 @@ $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
 $sortedProperties = $type->getProperties()->getSortedIterator();
 
-$primitiveType = $type->getPrimitiveType();
+if (null === $parentType) {
+    $primitiveType = $type->getPrimitiveType();
+} else {
+    $primitiveType = $parentType->getPrimitiveType();
+}
+if (null === $primitiveType) {
+    var_dump($type->getFHIRName()); exit;
+}
 $phpValueType = $primitiveType->getPHPValueType();
+
+
+if ($typeKind->isPrimitive()) :
+    var_dump($type->getPattern());exit;
+endif;
 
 // begin output buffer
 ob_start();
@@ -207,7 +219,28 @@ echo require_with(
                 'sortedProperties' => $sortedProperties,
                 'parentType' => $parentType,
         ]
-); ?>
+);
+
+if ($type->isEnumerated()) : ?>
+
+    /**
+     * Returns the list of allowed values for this type
+     * @return string[]
+     */
+    public function _getAllowedValueList()
+    {
+        return self::$_valueList;
+    }
+
+    /**
+     * @return bool
+     */
+    public function _isValid()
+    {
+        $v = $this->getValue();
+        return null === $v || in_array((string)$v, self::$_valueList, true);
+    }
+<?php endif; ?>
 
     /**
      * @return string
