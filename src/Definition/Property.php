@@ -384,14 +384,18 @@ class Property
         $memberOf = $this->getMemberOf();
 
         if (null !== ($v = $this->getPattern())) {
-            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = $v;
+            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = '/^' . addcslashes($v, '/\'') . '$/';
         } elseif (null !== ($v = $memberOf->getPattern())) {
-            $map[ PHPFHIR_VALIDATION_PATTERN_NAME] = $v;
+            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = '/^' . addcslashes($v, '/\'') . '$/';
         }
 
         if ($this->isCollection()) {
-            $map[PHPFHIR_VALIDATION_MIN_OCCURS_NAME] = $this->getMinOccurs();
-            $map[PHPFHIR_VALIDATION_MAX_OCCURS_NAME] = $this->getMaxOccurs();
+            if (null !== ($v = $this->getMinOccurs()) && 0 !== $v) {
+                $map[PHPFHIR_VALIDATION_MIN_OCCURS_NAME] = $v;
+            }
+            if (null !== ($v = $this->getMaxOccurs()) && PHPFHIR_UNLIMITED !== $v) {
+                $map[PHPFHIR_VALIDATION_MAX_OCCURS_NAME] = $v;
+            }
         }
 
         if (null !== ($v = $memberOf->getMinLength()) && 0 !== $v) {

@@ -24,7 +24,6 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 $primitiveType = $type->getPrimitiveType();
 
 ob_start(); ?>
-
     /**
      * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
 
@@ -36,8 +35,18 @@ ob_start(); ?>
 
 <?php
 $typeFile = null;
-switch($primitiveType->getValue()) {
+switch ($primitiveType->getValue()) {
+    // string types
+    case PrimitiveTypeEnum::CANONICAL:
+    case PrimitiveTypeEnum::CODE:
     case PrimitiveTypeEnum::STRING:
+    case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
+    case PrimitiveTypeEnum::ID:
+    case PrimitiveTypeEnum::OID:
+    case PrimitiveTypeEnum::URI:
+    case PrimitiveTypeEnum::MARKDOWN: // TODO: markdown lib, maybe?
+    case PrimitiveTypeEnum::UUID: // TODO: implement uuid lib?
+    case PrimitiveTypeEnum::URL: // TODO: create specific URL type?
         $typeFile = __DIR__ . '/primitive/string_type.php';
         break;
 
@@ -54,7 +63,7 @@ switch($primitiveType->getValue()) {
 
     // treat uint64's as strings for the moment.
     case PrimitiveTypeEnum::UNSIGNED_INTEGER:
-        $typeFile =  __DIR__ . '/primitive/unsigned_integer_type.php';
+        $typeFile = __DIR__ . '/primitive/unsigned_integer_type.php';
         break;
 
     case PrimitiveTypeEnum::DECIMAL:
@@ -75,61 +84,15 @@ switch($primitiveType->getValue()) {
         $typeFile = __DIR__ . '/primitive/instant_type.php';
         break;
 
-    case PrimitiveTypeEnum::URI:
-        $typeFile = __DIR__.'/primitive/uri_type.php';
-        break;
-
-    case PrimitiveTypeEnum::CODE:
-        $typeFile = __DIR__ . '/primitive/code_type.php';
-        break;
-
-    case PrimitiveTypeEnum::OID:
-        $typeFile = __DIR__.'/primitive/oid_type.php';
-        break;
-
-    case PrimitiveTypeEnum::ID:
-        $typeFile = __DIR__.'/primitive/id_type.php';
-        break;
-
-    // TODO: create specific URL type?
-    case PrimitiveTypeEnum::CANONICAL:
-    case PrimitiveTypeEnum::URL:
-        $typeFile =  __DIR__ . '/primitive/string_type.php';
-        break;
-
-    case PrimitiveTypeEnum::UUID:
-        // TODO: implement uuid lib?
-        $typeFile = __DIR__ . '/primitive/string_type.php';
-        break;
-
     case PrimitiveTypeEnum::BASE_64_BINARY:
         // TODO: add content decoding?
-        $typeFile =  __DIR__ . '/primitive/base64_binary_type.php';
-        break;
-
-    case PrimitiveTypeEnum::MARKDOWN:
-        // TODO: markdown lib, maybe?
-        $typeFile =  __DIR__ . '/primitive/markdown_type.php';
-        break;
-
-    case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
-        $typeFile =  __DIR__ . '/primitive/string_type.php';
+        $typeFile = __DIR__ . '/primitive/base64_binary_type.php';
         break;
 
     default:
         throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
 }
 
-echo require_with(
-        $typeFile,
-        [
-                'fhirName' => $fhirName,
-                'type' => $type,
-                'primitiveType' => $primitiveType,
-                'typeClassName' => $typeClassName
-        ]
-);
-?>
+echo require_with($typeFile, ['type' => $type, 'primitiveType' => $primitiveType]);
 
-<?php
 return ob_get_clean();

@@ -30,84 +30,18 @@ if ($type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
     echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/primitive.php',
         [
-            'type'     => $type,
+            'type' => $type,
         ]
     );
 else :
-
-endif;
-
-foreach ($sortedProperties as $property) :
-    if ($property->isOverloaded()) :
-        continue;
-    endif;
-    if ($isPrimitiveType && $property->isValueProperty()) :
-        echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/getter_primitive_value.php',
-            [
-                'type'     => $type,
-                'property' => $property,
-            ]
-        );
-        echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_primitive_value.php',
-            [
-                'type' => $type,
-                'property' => $property,
-            ]
-        );
-        continue;
-    endif;
-
-    $propertyType = $property->getValueFHIRType();
-    $propertyTypeKind = $propertyType->getKind();
-    $requireArgs = [
-        'type'     => $type,
-        'property' => $property,
-    ];
-
     echo require_with(
-        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/getter_default.php',
+        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/default.php',
         [
-            'config'   => $config,
-            'property' => $property,
+            'config'           => $config,
+            'type'             => $type,
+            'sortedProperties' => $sortedProperties,
         ]
     );
+endif;
 
-    echo "\n";
-
-    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
-        echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_primitive.php',
-            $requireArgs
-        );
-    elseif ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
-        echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_contained_resource.php',
-            $requireArgs + ['config' => $config]
-        );
-    else :
-        echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_default.php',
-            $requireArgs + ['config' => $config]
-        );
-    endif;
-    if ($property->isCollection()) :
-        echo "\n";
-        if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
-            echo require_with(
-                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_contained_resource_collection.php',
-                $requireArgs + ['config' => $config]
-            );
-        else :
-            echo require_with(
-                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_collection.php',
-                $requireArgs + ['config' => $config]
-            );
-        endif;
-    endif;
-
-    echo "\n";
-
-endforeach;
-return substr(ob_get_clean(), 0, -1); // trim off final \n
+return ob_get_clean();

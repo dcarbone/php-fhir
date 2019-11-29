@@ -18,33 +18,14 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    /** null|\DateTime */
-    private $_dateTime = null;
-
-    const VALUE_REGEX = // language=RegExp
-        '([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?';
-    const FORMAT_TIME = 'H:i:s';
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName,
-        'type'          => $type,
-    ]
-);
-?>
     /**
      * @param null|string $value
      * @return static
      */
     public function setValue($value)
     {
-        $this->_dateTime = null;
         if (null === $value) {
             $this->value = null;
             return $this;
@@ -57,34 +38,21 @@ echo require_with(
     }
 
     /**
-     * @return null|\DateTime
+     * @return null|\DateTime|false
      */
     public function _getDateTime()
     {
-        if (!isset($this->_dateTime)) {
-            $value = $this->getValue();
-            if (null === $value) {
-                return null;
-            }
-            if (!$this->_isValid()) {
-                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::VALUE_REGEX));
-            }
-            $parsed = \DateTime::createFromFormat(self::FORMAT_TIME, $value);
-            if (false === $parsed) {
-                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
-            }
-            $this->_dateTime = $parsed;
-        }
-        return $this->_dateTime;
-    }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
         $value = $this->getValue();
-        return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);
+        if (null === $value) {
+            return null;
+        }
+        if ([] !== $this->_validationErrors()) {
+            throw new \DomainException(sprintf(
+                'Cannot convert "%s" to \\DateTime as it does not conform to "%s"',
+                $value,
+                self::$_fieldValidation[self::FIELD_VALUE][PHPFHIRConstants::PHPFHIR_VALIDATION_ENUM_NAME]
+            ));
+        }
+        return \DateTime::createFromFormat(PHPFHIRConstants::TIME_FORMAT, $value);
     }
-
 <?php return ob_get_clean();

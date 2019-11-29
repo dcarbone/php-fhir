@@ -18,42 +18,21 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName,
-        'type'          => $type,
-    ]
-);
-?>
-
     /**
-    * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
-    * @return static
-    */
+     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
+     * @return static
+     */
     public function setValue($value = null)
     {
-    if (null === $value) {
-    $this->value = null;
-    } elseif (is_string($value)) {
-    $this->value = PHPFHIRConstants::STRING_TRUE === strtolower($value);
-    } else {
-    $this->value = (bool)$value;
+        if (null === $value) {
+            $this->value = null;
+        } elseif (is_string($value)) {
+            $this->value = PHPFHIRConstants::STRING_TRUE === strtolower($value);
+        } else {
+            $this->value = (bool)$value;
+        }
+        return $this;
     }
-    return $this;
-    }
-
-    /**
-    * @return bool
-    */
-    public function _isValid()
-    {
-    return true;
-    }
-
 <?php return ob_get_clean();

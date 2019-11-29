@@ -58,13 +58,24 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     const STRING_TRUE = 'true';
     const STRING_FALSE = 'false';
 
-    // validation
+    // Date and time formats
+    const DATE_FORMAT_YEAR = 'Y';
+    const DATE_FORMAT_YEAR_MONTH = 'Y-m';
+    const DATE_FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
+    const DATE_FORMAT_YEAR_MONTH_DAY_TIME = 'Y-m-d\\TH:i:s\\.uP';
+    const DATE_FORMAT_INSTANT = 'Y-m-d\\TH:i:s\\.uP';
+    const TIME_FORMAT = 'H:i:s';
+
+    const INT_MAX = 2147483648;
+    const INT_MIN = -2147483648;
+
+    // Validation
     const <?php echo PHPFHIR_VALIDATION_ENUM_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_ENUM); ?>;
-    const <?php echo PHPFHIR_VALIDATION_MIN_LENGTH_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_LENGTH); ?>
-    const <?php echo PHPFHIR_VALIDATION_MAX_LENGTH_NAME; ?>> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MAX_LENGTH); ?>
-    const <?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_PATTERN); ?>
-    const <?php echo PHPFHIR_VALIDATION_MIN_OCCURS_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_OCCURS); ?>
-    const <?php echo PHPFHIR_VALIDATION_MAX_OCCURS_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MAX_OCCURS); ?>
+    const <?php echo PHPFHIR_VALIDATION_MIN_LENGTH_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_LENGTH); ?>;
+    const <?php echo PHPFHIR_VALIDATION_MAX_LENGTH_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MAX_LENGTH); ?>;
+    const <?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_PATTERN); ?>;
+    const <?php echo PHPFHIR_VALIDATION_MIN_OCCURS_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_OCCURS); ?>;
+    const <?php echo PHPFHIR_VALIDATION_MAX_OCCURS_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MAX_OCCURS); ?>;
 
     // Type names
 <?php foreach($types->getSortedIterator() as $type) : ?>

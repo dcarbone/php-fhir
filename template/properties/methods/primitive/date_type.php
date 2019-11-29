@@ -18,35 +18,14 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    /** null|\DateTime */
-    private $_dateTime = null;
-
-    const VALUE_REGEX           = // language=RegExp
-        '([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?';
-    const FORMAT_YEAR           = 'Y';
-    const FORMAT_YEAR_MONTH     = 'Y-m';
-    const FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName,
-        'type'          => $type,
-    ]
-);
-?>
     /**
      * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
      * @return static
      */
     public function setValue($value)
     {
-        $this->_dateTime = null;
         if (null === $value) {
             $this->value = null;
             return $this;
@@ -59,47 +38,30 @@ echo require_with(
     }
 
     /**
-     * @return null|\DateTime
+     * @return null|\DateTime|false
      */
     public function _getDateTime()
     {
-        if (!isset($this->_dateTime)) {
-            $value = $this->getValue();
-            if (null === $value) {
-                return null;
-            }
-            if (!$this->_isValid()) {
-                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::VALUE_REGEX));
-            }
-            switch(strlen($value)) {
-                case 4:
-                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR, $value);
-                    break;
-                case 7:
-                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR_MONTH, $value);
-                    break;
-                case 10:
-                    $parsed = \DateTime::createFromFormat(self::FORMAT_YEAR_MONTH_DAY, $value);
-                    break;
-
-                default:
-                    throw new \DomainException(sprintf('Value expected to meet %s, %s seen', self::VALUE_REGEX, $value));
-            }
-            if (false === $parsed) {
-                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
-            }
-            $this->_dateTime = $parsed;
-        }
-        return $this->_dateTime;
-    }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
         $value = $this->getValue();
-        return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);
+        if (null === $value) {
+            return null;
+        }
+        if ([] !== $this->_validationErrors()) {
+            throw new \DomainException(sprintf(
+                'Cannot convert "%s" to \\DateTime as it does not conform to "%s"',
+                $value,
+                self::$_fieldValidation[self::FIELD_VALUE][PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?>]
+            ));
+        }
+        switch(strlen($value)) {
+            case 4:
+                return \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_YEAR, $value);
+            case 7:
+                return \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH, $value);
+            case 10:
+                return \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH_DAY, $value);
+            default:
+                return false;
+        }
     }
-
 <?php return ob_get_clean();

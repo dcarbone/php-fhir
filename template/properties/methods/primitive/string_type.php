@@ -18,23 +18,8 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    const VALUE_REGEX = // language=RegEx
-        '[ \r\n\t\S]+';
-    const MAX_BYTES  = 1048576;
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName,
-        'type'          => $type,
-    ]
-);
-?>
     /**
      * @param null|string $value
      * @return static
@@ -50,14 +35,4 @@ echo require_with(
         }
         return $this;
     }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        $value = $this->getValue();
-        return null === $value || (strlen($value) <= self::MAX_BYTES && preg_match('/'.self::VALUE_REGEX.'/', $value));
-    }
-
 <?php return ob_get_clean();

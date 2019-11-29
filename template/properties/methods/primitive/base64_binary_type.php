@@ -18,23 +18,8 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    const VALUE_REGEX = // language=RegEx
-        '(\s*([0-9a-zA-Z\+\=]){4}\s*)+';
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName,
-        'type' => $type,
-    ]
-);
-?>
-
     /**
      * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
      * @return static
@@ -52,12 +37,16 @@ echo require_with(
     }
 
     /**
-     * @return bool
-     */
-    public function _isValid()
+     * Will attempt to write the base64-decoded contents of the internal value to the provided file handle
+     *
+     * @param resource $fileHandle
+     * @return int|false
+    public function _writeToFile($fileHandle)
     {
-        $value = $this->getValue();
-        return null === $value || preg_match('/'.self::VALUE_REGEX.'/', $value);
+        $v = $this->getValue();
+        if (null === $v) {
+            return 0;
+        }
+        return fwrite($fileHandle, base64_decode($v));
     }
-
 <?php return ob_get_clean();

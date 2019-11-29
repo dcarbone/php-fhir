@@ -60,11 +60,11 @@ ob_start(); ?>
         parent::__construct($data);
 <?php endif; ?><?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
 
-        if (isset($data[self::FIELD_FHIR_COMMENTS])) {
-            if (is_array($data[self::FIELD_FHIR_COMMENTS])) {
-                $this->_setFHIRComments($data[self::FIELD_FHIR_COMMENTS]);
-            } else if (is_string($data[self::FIELD_FHIR_COMMENTS])) {
-                $this->_addFHIRComment($data[self::FIELD_FHIR_COMMENTS]);
+        if (isset($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
+            if (is_array($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_setFHIRComments($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS]);
+            } else if (is_string($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_addFHIRComment($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS]);
             }
         }<?php endif; ?>
 <?php foreach ($sortedProperties as $property) :

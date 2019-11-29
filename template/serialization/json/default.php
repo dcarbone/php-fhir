@@ -37,7 +37,7 @@ ob_start(); ?>
 
 if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $a[self::FIELD_FHIR_COMMENTS] = $vs;
+            $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
         }
 <?php endif;
 foreach ($sortedProperties as $property) :

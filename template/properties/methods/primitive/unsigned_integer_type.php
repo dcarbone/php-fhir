@@ -20,19 +20,8 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName,
-        'type'          => $type,
-    ]
-);
-?>
     /**
      * @param null|integer|float|string
      * @return static
@@ -61,17 +50,4 @@ echo require_with(
         $this->value = $value;
         return $this;
     }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        $value = $this->getValue();
-        if (null === $value) {
-            return true;
-        }
-        return is_string($value) && ctype_digit($value);
-    }
-
 <?php return ob_get_clean();

@@ -25,19 +25,6 @@ use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 $primitiveTypeString = (string)$primitiveType;
 
 ob_start(); ?>
-    const INT_MAX = 2147483648;
-    const INT_MIN = -2147483648;
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName,
-        'type'          => $type,
-    ]
-);
-?>
     /**
      * @param null|integer|string $value
      * @return static
@@ -66,23 +53,4 @@ echo require_with(
         $this->value = $value;
         return $this;
     }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        $value = $this->getValue();
-        if (null === $value) {
-            return true;
-        }
-<?php if (PrimitiveTypeEnum::POSITIVE_INTEGER === $primitiveTypeString) : ?>
-        return 0 < $value && $value <= self::INT_MAX;
-<?php elseif (PrimitiveTypeEnum::NEGATIVE_INTEGER === $primitiveTypeString) : ?>
-        return 0 > $value && $value >= self::INT_MIN;
-<?php else : ?>
-        return self::INT_MIN <= $value && $value <= self::INT_MAX;
-<?php endif; ?>
-    }
-
 <?php return ob_get_clean();

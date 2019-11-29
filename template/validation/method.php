@@ -17,22 +17,18 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+
+$parentType = $type->getParentType();
 
 ob_start(); ?>
     /**
-     * @param null|float|string $value
-     * @return static
+     * @return array
      */
-    public function setValue($value)
+    public function _validationErrors()
     {
-        if (null === $value) {
-            $this->value = null;
-        } elseif (is_scalar($value)) {
-            $this->value = floatval($value);
-        } else {
-            throw new \InvalidArgumentException(sprintf('<?php echo $type->getFHIRName(); ?> value must be null, float, or numeric string, %s seen.', gettype($value)));
-        }
-        return $this;
+        // TODO: implement validation
+        return [];
     }
-<?php return ob_get_clean();
+<?php
+return ob_get_clean();

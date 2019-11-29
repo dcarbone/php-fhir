@@ -18,33 +18,14 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    /** @var null|\DateTime */
-    private $_dateTime = null;
-
-    const VALUE_REGEX    = // language=RegExp
-        '([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))';
-    const FORMAT_INSTANT = 'Y-m-d\\TH:i:s\\.uP';
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName,
-        'type'          => $type,
-    ]
-);
-?>
     /**
      * @param null|string $value
      * @return static
      */
     public function setValue($value)
     {
-        $this->_dateTime = null;
         if (null === $value) {
             $this->value = null;
             return $this;
@@ -57,34 +38,21 @@ echo require_with(
     }
 
     /**
-     * @return null|\DateTime
+     * @return null|\DateTime|false
      */
     public function _getDateTime()
     {
-        if (!isset($this->_dateTime)) {
-            $value = $this->getValue();
-            if (null === $value) {
-                return null;
-            }
-            if (!$this->_isValid()) {
-                throw new \DomainException(sprintf('Cannot convert "%s" to \\DateTime as it does not conform to "%s"', $value, self::VALUE_REGEX));
-            }
-            $parsed = \DateTime::createFromFormat(self::FORMAT_INSTANT, $value);
-            if (false === $value) {
-                throw new \DomainException(sprintf('Value "%s" could not be parsed as <?php echo $fhirName; ?>: %s', $value, implode(', ', \DateTime::getLastErrors())));
-            }
-            $this->_dateTime = $parsed;
+        $v = $this->getValue();
+        if (null === $v) {
+            return null;
         }
-        return $this->_dateTime;
+        if ([] !== $this->_validationErrors()) {
+            throw new \DomainException(sprintf(
+                'Cannot convert "%s" to \\DateTime as it does not conform to "%s"',
+                $value,
+                self::$_fieldValidation[self::FIELD_VALUE][PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?>]
+            ));
+        }
+        return \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_INSTANT, $v);
     }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        $value = $this->getValue();
-        return null === $value || preg_match('/' . self::VALUE_REGEX . '/', $value);
-    }
-
 <?php return ob_get_clean();

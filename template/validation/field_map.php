@@ -31,8 +31,8 @@ ob_start();
     if ([] !== $validationMap) : ?>
 
         self::<?php echo $property->getFieldConstantName(); ?> => [
-            <?php foreach($validationMap as $k => $v) :
-            echo "PHPFHIRConstants::{$k}"; ?> => <?php
+<?php foreach($validationMap as $k => $v) : ?>
+            PHPFHIRConstants::<?php echo $k; ?> => <?php
             switch ($k) :
                 case PHPFHIR_VALIDATION_ENUM_NAME:
                     echo '[';
@@ -44,7 +44,8 @@ ob_start();
                 default:
                     var_export($v);
             endswitch; ?>,
-        <?php endforeach; ?>],
+<?php endforeach; ?>
+        ],
 <?php endif;
 endforeach; ?>
     ];
