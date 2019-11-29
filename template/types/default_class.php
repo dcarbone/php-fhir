@@ -19,6 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
@@ -187,10 +188,10 @@ endif;?>
 <?php if ($typeKind->isPrimitive()) :
         if ($type->getPrimitiveType()->is(PrimitiveTypeEnum::BOOLEAN)) : ?>
         return $this->getValue() ? PHPFHIRConstants::STRING_TRUE : PHPFHIRConstants::STRING_FALSE;
-<?php else :?>
+<?php else : ?>
         return (string)$this->getValue();
-<?php endif; elseif ($typeKind->isPrimitiveContainer()) : ?>
-        return (string)$this->>getValue();
+<?php endif; elseif ($typeKind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
+        return (string)$this->getValue();
 <?php else : ?>
         return self::FHIR_TYPE_NAME;
 <?php endif; ?>
