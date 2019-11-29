@@ -31,7 +31,7 @@ Require entry:
 ```json
 {
   "require": {
-    "dcarbone/php-fhir": "dev-master"  
+    "dcarbone/php-fhir": "v2.0.*"  
   }
 }
 ```
