@@ -16,43 +16,41 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 /** @var string $typeClassName */
 
-ob_start(); ?>
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName
-    ]
-);
-?>
+$primitiveTypeString = (string)$primitiveType;
 
+ob_start(); ?>
     /**
-     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
+     * @param null|integer|string $value
      * @return static
      */
-    public function setValue($value = null)
+    public function setValue($value)
     {
         if (null === $value) {
             $this->value = null;
-        } elseif (is_string($value)) {
-            $this->value = PHPFHIRConstants::STRING_TRUE === strtolower($value);
-        } else {
-            $this->value = (bool)$value;
+            return $this;
         }
+        if (is_string($value)) {
+            if ('' === $value) {
+                $value = 0;
+            } else {
+                $neg = 1;
+                if ('-' === $value[0]) {
+                    $neg = -1;
+                    $value = substr($value, 1);
+                }
+                $value = $neg * intval($value, 10);
+            }
+        }
+        if (!is_int($value)) {
+            throw new \InvalidArgumentException(sprintf('Value must be null, integer, or string containing only numbers, %s seen.', $value));
+        }
+        $this->value = $value;
         return $this;
     }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        return true;
-    }
-
 <?php return ob_get_clean();

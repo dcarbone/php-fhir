@@ -37,10 +37,13 @@ ob_start(); ?>
 
 if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $a[self::FIELD_FHIR_COMMENTS] = $vs;
+            $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
         }
 <?php endif;
 foreach ($sortedProperties as $property) :
+    if ($property->isOverloaded()) :
+        continue;
+    endif;
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $requireArgs = [

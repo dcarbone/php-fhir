@@ -16,15 +16,20 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
+$memberOf = $property->getMemberOf();
+$memberOfParent = $memberOf->getParentType();
+$memberOfKind = $memberOf->getKind();
 $propertyType = $property->getValueFHIRType();
-$propertyTypeKind = $propertyType->getKind();
+
+// for children of primitive types, they do not need their own "value" constant as the parent has it
+if ($memberOf->hasPrimitiveParent()) :
+    return '';
+endif;
 
 ob_start(); ?>
     const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php if (!$propertyTypeKind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE]) && ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent())) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
+<?php if (null !== $propertyType && ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent())) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
 <?php endif; ?>
 <?php return ob_get_clean();

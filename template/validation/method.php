@@ -16,32 +16,19 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
-$isPrimitiveType = $type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]);
+$parentType = $type->getParentType();
 
-ob_start();
-
-if ($type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-    echo require_with(
-        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/primitive.php',
-        [
-            'type' => $type,
-        ]
-    );
-else :
-    echo require_with(
-        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/default.php',
-        [
-            'config'           => $config,
-            'type'             => $type,
-            'sortedProperties' => $sortedProperties,
-        ]
-    );
-endif;
-
+ob_start(); ?>
+    /**
+     * @return array
+     */
+    public function _validationErrors()
+    {
+        // TODO: implement validation
+        return [];
+    }
+<?php
 return ob_get_clean();

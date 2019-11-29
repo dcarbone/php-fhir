@@ -18,45 +18,21 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    const VALUE_REGEX = // language=RegEx
-        '(\s*([0-9a-zA-Z\+\=]){4}\s*)+';
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName
-    ]
-);
-?>
-
     /**
-     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
+     * @param null|float|string $value
      * @return static
      */
     public function setValue($value)
     {
         if (null === $value) {
             $this->value = null;
-        } else if (is_string($value)) {
-            $this->value = $value;
+        } elseif (is_scalar($value)) {
+            $this->value = floatval($value);
         } else {
-            throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));
+            throw new \InvalidArgumentException(sprintf('<?php echo $type->getFHIRName(); ?> value must be null, float, or numeric string, %s seen.', gettype($value)));
         }
         return $this;
     }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        $value = $this->getValue();
-        return null === $value || preg_match('/'.self::VALUE_REGEX.'/', $value);
-    }
-
 <?php return ob_get_clean();

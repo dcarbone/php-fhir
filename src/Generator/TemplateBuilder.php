@@ -97,12 +97,13 @@ abstract class TemplateBuilder
     {
         // use raw require at this level
         switch ($typeKind = $type->getKind()) {
-            case TypeKindEnum::PRIMITIVE:
-                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_class.php';
+//            case TypeKindEnum::PRIMITIVE:
+//            case TypeKindEnum::_LIST:
+//                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_class.php';
             case TypeKindEnum::PRIMITIVE_CONTAINER:
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_container_class.php';
-            case TypeKindEnum::_LIST:
-                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/list_class.php';
+//            case TypeKindEnum::_LIST:
+//                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/list_class.php';
 
 //            case TypeKindEnum::RESOURCE_CONTAINER:
 //            case TypeKindEnum::RESOURCE_INLINE:

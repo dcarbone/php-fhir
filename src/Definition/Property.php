@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
@@ -30,14 +29,17 @@ class Property
 {
     use DocumentationTrait, SourceTrait;
 
-    /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
-    private $config;
+    /** @var \DCarbone\PHPFHIR\Definition\Type */
+    private $memberOf;
 
     /** @var string */
     private $name = null;
 
-    /** @var string */
-    private $valueFHIRTypeName;
+    /** @var string|null */
+    private $valueFHIRTypeName = null;
+
+    /** @var null|string */
+    private $rawPHPValue = null;
 
     /** @var int */
     private $minOccurs = 0;
@@ -62,15 +64,18 @@ class Property
     /** @var null|string */ // NOTE: not a php namespace
     private $namespace = null;
 
+    /** @var bool */
+    private $overloaded = false;
+
     /**
      * Property constructor.
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $memberOf
      * @param \SimpleXMLElement $sxe
      * @param string $sourceFilename
      */
-    public function __construct(VersionConfig $config, \SimpleXMLElement $sxe, $sourceFilename)
+    public function __construct(Type $memberOf, \SimpleXMLElement $sxe, $sourceFilename)
     {
-        $this->config = $config;
+        $this->memberOf = $memberOf;
         $this->sourceSXE = $sxe;
         $this->sourceFilename = $sourceFilename;
         $this->use = new PropertyUseEnum(PropertyUseEnum::OPTIONAL);
@@ -89,16 +94,20 @@ class Property
             'minOccurs'    => $this->getMinOccurs(),
             'maxOccurs'    => $this->getMaxOccurs(),
             'pattern'      => $this->getPattern(),
+            'rawPHPValue'  => $this->getRawPHPValue(),
             'fhirType'     => (string)$this->getValueFHIRType(),
+            'use'          => (string)$this->getUse(),
+            'fixed'        => (string)$this->getFixed(),
+            'namespace'    => (string)$this->getNamespace(),
         ];
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Config\VersionConfig
+     * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function getConfig()
+    public function getMemberOf()
     {
-        return $this->config;
+        return $this->memberOf;
     }
 
     /**
@@ -126,7 +135,7 @@ class Property
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getValueFHIRTypeName()
     {
@@ -159,6 +168,24 @@ class Property
     {
         $this->valueFHIRType = $valueFHIRType;
         $this->valueFHIRTypeName = $valueFHIRType->getFHIRName();
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRawPHPValue()
+    {
+        return $this->rawPHPValue;
+    }
+
+    /**
+     * @param string|null $rawPHPValue
+     * @return Property
+     */
+    public function setRawPHPValue($rawPHPValue)
+    {
+        $this->rawPHPValue = $rawPHPValue;
         return $this;
     }
 
@@ -333,11 +360,77 @@ class Property
     }
 
     /**
+     * @return string
+     */
+    public function getFieldConstantExtensionName()
+    {
+        return $this->getFieldConstantName() . '_EXT';
+    }
+
+    /**
      * @return bool
      */
     public function isValueProperty()
     {
         return PHPFHIR_VALUE_PROPERTY_NAME === $this->getName();
+    }
+
+    /**
+     * @return array
+     */
+    public function buildValidationMap()
+    {
+        $map = [];
+        $memberOf = $this->getMemberOf();
+
+        if (null !== ($v = $this->getPattern())) {
+            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = '/^' . addcslashes($v, '/\'') . '$/';
+        } elseif (null !== ($v = $memberOf->getPattern())) {
+            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = '/^' . addcslashes($v, '/\'') . '$/';
+        }
+
+        if ($this->isCollection()) {
+            if (null !== ($v = $this->getMinOccurs()) && 0 !== $v) {
+                $map[PHPFHIR_VALIDATION_MIN_OCCURS_NAME] = $v;
+            }
+            if (null !== ($v = $this->getMaxOccurs()) && PHPFHIR_UNLIMITED !== $v) {
+                $map[PHPFHIR_VALIDATION_MAX_OCCURS_NAME] = $v;
+            }
+        }
+
+        if (null !== ($v = $memberOf->getMinLength()) && 0 !== $v) {
+            $map[PHPFHIR_VALIDATION_MIN_LENGTH_NAME] = $v;
+        }
+        if (null !== ($v = $memberOf->getMaxLength()) && PHPFHIR_UNLIMITED !== $v) {
+            $map[PHPFHIR_VALIDATION_MAX_LENGTH_NAME] = $v;
+        }
+
+        if ($memberOf->isEnumerated()) {
+            $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
+            foreach ($memberOf->getEnumeration() as $enum) {
+                $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param bool $overloaded
+     * @return \DCarbone\PHPFHIR\Definition\Property
+     */
+    public function setOverloaded($overloaded)
+    {
+        $this->overloaded = (bool)$overloaded;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOverloaded()
+    {
+        return $this->overloaded;
     }
 
     /**

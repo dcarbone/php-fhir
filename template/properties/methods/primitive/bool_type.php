@@ -18,45 +18,21 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    const VALUE_REGEX = // language=RegEx
-        '[^\s]+(\s[^\s]+)*';
-    const MAX_BYTES  = 1048576;
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName
-    ]
-);
-?>
     /**
      * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
      * @return static
      */
-    public function setValue($value)
+    public function setValue($value = null)
     {
         if (null === $value) {
             $this->value = null;
-        } else if (is_string($value)) {
-            $this->value = $value;
+        } elseif (is_string($value)) {
+            $this->value = PHPFHIRConstants::STRING_TRUE === strtolower($value);
         } else {
-            throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));
+            $this->value = (bool)$value;
         }
         return $this;
     }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        $value = $this->getValue();
-        return null === $value || (strlen($value) <= self::MAX_BYTES && preg_match('/'.self::VALUE_REGEX.'/', $value));
-    }
-
 <?php return ob_get_clean();

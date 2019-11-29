@@ -100,7 +100,7 @@ class ElementElementTypeDecorator
      */
     public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $element)
     {
-        $property = new Property($config, $element, $type->getSourceFilename());
+        $property = new Property($type, $element, $type->getSourceFilename());
 
         // parse through attributes
         foreach ($element->attributes() as $attribute) {

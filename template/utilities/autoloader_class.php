@@ -23,6 +23,7 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 $namespace = $config->getNamespace(false);
+$nsPrefix = null !== $namespace ? "{$namespace}\\" : '';
 
 ob_start();
 
@@ -38,32 +39,32 @@ echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
 
 // interfaces
-if (!interface_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_TYPE; ?>', false)) {
+if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_TYPE; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
 }
-if (!interface_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>', false)) {
+if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
 }
-if (!interface_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
+if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
 }
 
 // traits
-if (!trait_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>', false)) {
+if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>.php';
 }
 
 // common classes
-if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
 }
-if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_CLASSNAME_TYPEMAP; ?>', false)) {
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_TYPEMAP; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
 }
-if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>', false)) {
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>.php';
 }
-if (!class_exists('\<?php echo (null !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>', false)) {
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
 }
 

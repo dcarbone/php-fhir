@@ -62,7 +62,7 @@ class PrimitiveTypeEnum extends AbstractEnum
                 return $v;
 
             case PrimitiveTypeEnum::DECIMAL:
-                return 'float';
+                return 'double';
 
             case PrimitiveTypeEnum::POSITIVE_INTEGER:
             case PrimitiveTypeEnum::NEGATIVE_INTEGER:

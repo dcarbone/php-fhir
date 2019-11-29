@@ -45,7 +45,7 @@ abstract class AttributeElementTypeDecorator
                                     \SimpleXMLElement $attributeElement)
     {
         // create property object
-        $property = new Property($config, $attributeElement, $type->getSourceFilename());
+        $property = new Property($type, $attributeElement, $type->getSourceFilename());
 
         // parse through attributes
         foreach ($attributeElement->attributes() as $attribute) {

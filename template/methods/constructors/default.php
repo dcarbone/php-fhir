@@ -21,20 +21,8 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
-/** @var bool $hasValueContainerParent */
 
 $typeClassName = $type->getClassName();
-
-$valueProperty = null;
-// TODO: figure out how to handle multi-value representations of things...
-if (!$hasValueContainerParent) {
-    foreach($sortedProperties as $property) {
-        if ('value' === $property->getName()) {
-            $valueProperty = $property;
-            break;
-        }
-    }
-}
 
 ob_start(); ?>
     /**
@@ -46,27 +34,30 @@ ob_start(); ?>
         if (null === $data || [] === $data) {
             return;
         }
-        if (is_scalar($data)) {
-<?php if ($hasValueContainerParent) : ?>
-            parent::__construct($data);
-<?php else : ?>
-            $this->setValue(new <?php echo $valueProperty->getValueFHIRType()->getClassName(); ?>($data));
-<?php endif; ?>
-            return;
-        }
         if (!is_array($data)) {
             throw new \InvalidArgumentException(sprintf(
                 '<?php echo $typeClassName; ?>::_construct - $data expected to be null or array, %s seen',
                 gettype($data)
             ));
-        }<?php if ($parentType) : ?>
+        }<?php if ($parentType) : // add parent constructor call ?>
 
-        parent::__construct($data);<?php endif; ?>
+        parent::__construct($data);<?php endif; ?><?php if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : // only parse comments if parent isn't already doing it. ?>
+
+        if (isset($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
+            if (is_array($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_setFHIRComments($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS]);
+            } else if (is_string($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_addFHIRComment($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS]);
+            }
+        }<?php endif; ?>
 
 <?php foreach($sortedProperties as $property) :
+    if ($property->isOverloaded()) :
+        continue;
+    endif;
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_resource_container.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/resource_container_property_setter_call.php',
                 [
                         'type' => $type,
                         'property' => $property,
@@ -74,7 +65,7 @@ ob_start(); ?>
         );
     else :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
                 [
                         'type' => $type,
                         'property' => $property

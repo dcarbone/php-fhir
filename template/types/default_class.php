@@ -17,6 +17,10 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
@@ -63,54 +67,58 @@ echo require_with(
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;<?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
 
-    const FIELD_FHIR_COMMENTS = 'fhir_comments';
 <?php endif; ?>
 
 <?php if (0 !== count($sortedProperties)) :
     foreach($sortedProperties as $property) :
-        echo require_with(
-        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
-        [
-                'property' => $property,
-        ]
-    );
+        if (!$property->isOverloaded()) :
+            echo require_with(
+                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
+                [
+                        'property' => $property,
+                ]
+            );
+        endif;
     endforeach;
+?>
 
-    echo "\n";
-
-    foreach($sortedProperties as $property) :
-        echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
-            [
-                    'config' => $config,
-                    'property' => $property,
-            ]
-        );
-    endforeach;
-endif; ?>
     /** @var string */
     protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
 
-<?php if ($isValueContainer || $hasValueContainerParent) :
-    echo require_with(
-            PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/value_container.php',
-        [
-                'type' => $type,
-                'sortedProperties' => $sortedProperties,
-                'parentType' => $parentType,
-                'hasValueContainerParent' => $hasValueContainerParent
-        ]
-    );
-else :
-    echo require_with(
-        PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php',
-        [
-                'type' => $type,
-                'sortedProperties' => $sortedProperties,
-                'parentType' => $parentType,
-        ]
-    );
+<?php
+    foreach($sortedProperties as $property) :
+        if (!$property->isOverloaded()) :
+            echo require_with(
+                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
+                [
+                        'config' => $config,
+                        'property' => $property,
+                ]
+            );
+        endif;
+    endforeach;
+
 endif;
+
+echo require_with(
+    PHPFHIR_TEMPLATE_VALIDATION_DIR . '/field_map.php',
+    [
+        'type' => $type,
+        'sortedProperties' => $sortedProperties,
+    ]
+);
+
+?>
+
+<?php echo require_with(
+        PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
+        [
+                'type' => $type,
+                'sortedProperties' => $sortedProperties,
+                'parentType' => $parentType,
+        ]
+    );
+
 echo "\n";
 
 echo require_with(
@@ -143,6 +151,14 @@ endif;
 endif;?>
 
 <?php echo require_with(
+        PHPFHIR_TEMPLATE_VALIDATION_DIR . '/method.php',
+    [
+            'type' => $type,
+            'sortedProperties' => $sortedProperties
+    ]
+); ?>
+
+<?php echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
     [
         'config' => $config,
@@ -152,7 +168,7 @@ endif;?>
         'parentType' => $parentType,
         'typeClassName' => $typeClassname,
     ]
-) ?>
+); ?>
 
 <?php echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
@@ -169,6 +185,15 @@ endif;?>
      */
     public function __toString()
     {
+<?php if ($typeKind->isPrimitive()) :
+        if ($type->getPrimitiveType()->is(PrimitiveTypeEnum::BOOLEAN)) : ?>
+        return $this->getValue() ? PHPFHIRConstants::STRING_TRUE : PHPFHIRConstants::STRING_FALSE;
+<?php else : ?>
+        return (string)$this->getValue();
+<?php endif; elseif ($typeKind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
+        return (string)$this->getValue();
+<?php else : ?>
         return self::FHIR_TYPE_NAME;
+<?php endif; ?>
     }
 }<?php return ob_get_clean();

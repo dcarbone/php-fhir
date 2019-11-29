@@ -18,24 +18,10 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    const VALUE_REGEX = // language=RegEx
-        'urn:oid:[0-2](\.(0|[1-9][0-9]*))+';
-    const MAX_BYTES  = 1048576;
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName
-    ]
-);
-?>
     /**
-     * @param null|string $value
+     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
      * @return static
      */
     public function setValue($value)
@@ -51,12 +37,16 @@ echo require_with(
     }
 
     /**
-     * @return bool
-     */
-    public function _isValid()
+     * Will attempt to write the base64-decoded contents of the internal value to the provided file handle
+     *
+     * @param resource $fileHandle
+     * @return int|false
+    public function _writeToFile($fileHandle)
     {
-        $value = $this->getValue();
-        return null === $value || (strlen($value) <= self::MAX_BYTES && preg_match('/'.self::VALUE_REGEX.'/', $value));
+        $v = $this->getValue();
+        if (null === $v) {
+            return 0;
+        }
+        return fwrite($fileHandle, base64_decode($v));
     }
-
 <?php return ob_get_clean();

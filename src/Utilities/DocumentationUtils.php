@@ -32,7 +32,11 @@ abstract class DocumentationUtils
      */
     public static function compilePropertyDocumentation(Property $property, $spaces, $trailingNewline)
     {
-        $typeDoc = trim($property->getValueFHIRType()->getDocBlockDocumentationFragment($spaces, false));
+        $propValueType = $property->getValueFHIRType();
+
+        $typeDoc = null === $propValueType ?
+            '' :
+            trim($propValueType->getDocBlockDocumentationFragment($spaces, false));
         $propDoc = trim($property->getDocBlockDocumentationFragment($spaces, false));
 
         if ('' === $typeDoc && '' === $propDoc) {

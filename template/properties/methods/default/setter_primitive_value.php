@@ -16,16 +16,21 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$primitiveType = $type->getPrimitiveType();
 
 ob_start(); ?>
+
     /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
+     * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
+
      */
-    public function __construct($value = null)
+    public function getValue()
     {
-        $this->setValue($value);
+        return $this->value;
     }
-<?php return ob_get_clean();
+
+<?php
+return ob_get_clean();

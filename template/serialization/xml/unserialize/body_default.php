@@ -24,6 +24,9 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 if (0 < count($sortedProperties)) :
     ob_start();
     foreach ($sortedProperties as $property) :
+        if ($property->isOverloaded()) :
+            continue;
+        endif;
         $propertyName = $property->getName();
         $propertyType = $property->getValueFHIRType();
         $propertyTypeKind = $propertyType->getKind();

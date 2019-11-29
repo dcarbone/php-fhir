@@ -18,22 +18,8 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    const VALUE_REGEX = // language=RegEx
-        '[A-Za-z0-9\-\.]{1,64}';
-    const MAX_BYTES  = 1048576;
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName
-    ]
-);
-?>
     /**
      * @param null|string $value
      * @return static
@@ -42,21 +28,31 @@ echo require_with(
     {
         if (null === $value) {
             $this->value = null;
-        } else if (is_string($value)) {
-            $this->value = $value;
-        } else {
-            throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));
+            return $this;
         }
-        return $this;
+        if (is_string($value)) {
+            $this->value = $value;
+            return $this;
+        }
+        throw new \InvalidArgumentException(sprintf('Value must be null, string of proper format, or instance of \\DateTime, %s seen.', gettype($value)));
     }
 
     /**
-     * @return bool
+     * @return null|\DateTime|false
      */
-    public function _isValid()
+    public function _getDateTime()
     {
-        $value = $this->getValue();
-        return null === $value || (strlen($value) <= self::MAX_BYTES && preg_match('/'.self::VALUE_REGEX.'/', $value));
+        $v = $this->getValue();
+        if (null === $v) {
+            return null;
+        }
+        if ([] !== $this->_validationErrors()) {
+            throw new \DomainException(sprintf(
+                'Cannot convert "%s" to \\DateTime as it does not conform to "%s"',
+                $value,
+                self::$_fieldValidation[self::FIELD_VALUE][PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?>]
+            ));
+        }
+        return \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_INSTANT, $v);
     }
-
 <?php return ob_get_clean();

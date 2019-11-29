@@ -18,40 +18,21 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php',
-    [
-        'primitiveType' => $primitiveType,
-        'typeClassName' => $typeClassName
-    ]
-);
-?>
     /**
-     * @param null|float|string $value
+     * @param null|string $value
      * @return static
      */
     public function setValue($value)
     {
         if (null === $value) {
             $this->value = null;
-        } elseif (is_scalar($value)) {
-            $this->value = floatval($value);
+        } else if (is_string($value)) {
+            $this->value = $value;
         } else {
-            throw new \InvalidArgumentException(sprintf('<?php echo $fhirName; ?> value must be null, float, or numeric string, %s seen.', gettype($value)));
+            throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));
         }
         return $this;
     }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        return is_float($this->getValue());
-    }
-
 <?php return ob_get_clean();

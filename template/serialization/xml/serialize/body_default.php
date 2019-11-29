@@ -27,6 +27,9 @@ if (null !== $parentType) : ?>
         parent::xmlSerialize($sxe);
 <?php endif;
 foreach ($sortedProperties as $property) :
+    if ($property->isOverloaded()) :
+        continue;
+    endif;
     $propertyTypeKind = $property->getValueFHIRType()->getKind();
     $getter = 'get' . ucfirst($property->getName());
     $requireArgs = [

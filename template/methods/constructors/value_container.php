@@ -23,6 +23,18 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
 $typeClassName = $type->getClassName();
+$hasValueContainerParent = (null !== $parentType && $parentType->isValueContainer());
+
+$valueProperty = null;
+// TODO: figure out how to handle multi-value representations of things...
+if (!$hasValueContainerParent) {
+    foreach($sortedProperties as $property) {
+        if ('value' === $property->getName()) {
+            $valueProperty = $property;
+            break;
+        }
+    }
+}
 
 ob_start(); ?>
     /**
@@ -34,6 +46,14 @@ ob_start(); ?>
         if (null === $data || [] === $data) {
             return;
         }
+        if (is_scalar($data)) {
+<?php if ($hasValueContainerParent) : ?>
+            parent::__construct($data);
+<?php else : ?>
+            $this->setValue(new <?php echo $valueProperty->getValueFHIRType()->getClassName(); ?>($data));
+<?php endif; ?>
+            return;
+        }
         if (!is_array($data)) {
             throw new \InvalidArgumentException(sprintf(
                 '<?php echo $typeClassName; ?>::_construct - $data expected to be null or array, %s seen',
@@ -41,20 +61,12 @@ ob_start(); ?>
             ));
         }<?php if ($parentType) : ?>
 
-        parent::__construct($data);<?php endif; ?><?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
-
-        if (isset($data[self::FIELD_FHIR_COMMENTS])) {
-            if (is_array($data[self::FIELD_FHIR_COMMENTS])) {
-                $this->_setFHIRComments($data[self::FIELD_FHIR_COMMENTS]);
-            } else if (is_string($data[self::FIELD_FHIR_COMMENTS])) {
-                $this->_addFHIRComment($data[self::FIELD_FHIR_COMMENTS]);
-            }
-        }<?php endif; ?>
+        parent::__construct($data);<?php endif; ?>
 
 <?php foreach($sortedProperties as $property) :
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_resource_container.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/resource_container_property_setter_call.php',
                 [
                         'type' => $type,
                         'property' => $property,
@@ -62,7 +74,7 @@ ob_start(); ?>
         );
     else :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
                 [
                         'type' => $type,
                         'property' => $property

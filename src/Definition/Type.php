@@ -552,6 +552,14 @@ class Type
     }
 
     /**
+     * @return bool
+     */
+    public function isEnumerated()
+    {
+        return 0 !== count($this->getEnumeration());
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum
      */
     public function getPrimitiveType()

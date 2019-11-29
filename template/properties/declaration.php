@@ -26,18 +26,23 @@ $isCollection = $property->isCollection();
 $propType = $property->getValueFHIRType();
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
+if (null !== ($propType = $property->getValueFHIRType())) :
+    if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+        $typeDef = $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE;
+    else :
+        $typeDef = $propType->getFullyQualifiedClassName(true);
+    endif;
+else :
+    $typeDef = $property->getMemberOf()->getPrimitiveType()->getPHPValueType();
+endif;
+
 ob_start(); ?>
     /**<?php if ('' !== $documentation) : ?>
 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @var null|<?php if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
-    echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE;
-else :
-    echo $propType->getFullyQualifiedClassName(true);
-endif;
-echo $isCollection ? '[]' : ''; ?>
+     * @var null|<?php echo $typeDef . ($isCollection ? '[]' : ''); ?>
 
      */
     protected $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
