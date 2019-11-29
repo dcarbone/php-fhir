@@ -41,7 +41,6 @@ abstract class TypeBuilder
                                              $sourceFilename)
     {
         return new Type($config, $fhirName, $sxe, $sourceFilename);
-
     }
 
     /**
@@ -57,7 +56,7 @@ abstract class TypeBuilder
                                                $sourceFilename)
     {
         $type = self::buildDefaultType($config, $fhirName, $sxe, $sourceFilename);
-        $value = new Property($config, $sxe, $sourceFilename);
+        $value = new Property($type, $sxe, $sourceFilename);
         $value->setName(PHPFHIR_VALUE_PROPERTY_NAME);
         $type->getProperties()->addProperty($value);
         return $type;
@@ -72,7 +71,7 @@ abstract class TypeBuilder
      */
     public static function build(VersionConfig $config, $fhirName, \SimpleXMLElement $sxe, $sourceFilename)
     {
-        if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
+        if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX) || false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
             return self::buildPrimitiveType($config, $fhirName, $sxe, $sourceFilename);
         }
         return self::buildDefaultType($config, $fhirName, $sxe, $sourceFilename);

@@ -68,41 +68,42 @@ echo require_with(
 
 <?php if (0 !== count($sortedProperties)) :
     foreach($sortedProperties as $property) :
-        echo require_with(
-        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
-        [
-                'property' => $property,
-        ]
-    );
+        if (!$property->isOverloaded()) :
+            echo require_with(
+                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
+                [
+                        'property' => $property,
+                ]
+            );
+        endif;
     endforeach;
-
-    echo "\n";
-
-    if ($type->isEnumerated()) : ?>
-
-    /**
-     * The list of values allowed by <?php echo $fhirName; ?>
-
-     * @var array
-     */
-    private static $_valueList = [
-<?php foreach($type->getEnumeration() as $enum) : ?>
-        <?php var_export($enum->getValue()); ?>,
-<?php endforeach; ?>
-    ]; <?php endif;
 
     echo "\n";
 
     foreach($sortedProperties as $property) :
-        echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
-            [
-                    'config' => $config,
-                    'property' => $property,
-            ]
-        );
+        if (!$property->isOverloaded()) :
+            echo require_with(
+                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
+                [
+                        'config' => $config,
+                        'property' => $property,
+                ]
+            );
+        endif;
     endforeach;
-endif; ?>
+
+endif;
+
+echo require_with(
+    PHPFHIR_TEMPLATE_VALIDATION_DIR . '/field_map.php',
+    [
+        'type' => $type,
+        'sortedProperties' => $sortedProperties,
+    ]
+);
+
+?>
+
     /** @var string */
     protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
 
@@ -167,28 +168,6 @@ endif;?>
                 'parentType' => $parentType,
         ]
 ); ?>
-
-<?php if ($type->isEnumerated()) : ?>
-
-/**
-     * Returns the list of allowed values for this type
-     * @return string[]
-     */
-    public function _getAllowedValueList()
-    {
-        return self::$_valueList;
-    }
-
-    /**
-     * @return bool
-     */
-    public function _isValid()
-    {
-        $v = $this->getValue();
-        return null === $v || in_array((string)$v, self::$_valueList, true);
-    }
-<?php endif; ?>
-
 
     /**
      * @return string

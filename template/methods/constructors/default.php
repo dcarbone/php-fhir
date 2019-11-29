@@ -52,6 +52,9 @@ ob_start(); ?>
         }<?php endif; ?>
 
 <?php foreach($sortedProperties as $property) :
+    if ($property->isOverloaded()) :
+        continue;
+    endif;
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
         echo require_with(
                 PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/resource_container_property_setter_call.php',

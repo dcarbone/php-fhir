@@ -42,9 +42,6 @@ echo "\n\n"; ?>
 if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_TYPE; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
 }
-if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?>.php';
-}
 if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
 }

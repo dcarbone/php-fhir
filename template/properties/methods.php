@@ -22,8 +22,43 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
+$isPrimitiveType = $type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]);
+
 ob_start();
+
+if ($type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+    echo require_with(
+        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/primitive.php',
+        [
+            'type'     => $type,
+        ]
+    );
+else :
+
+endif;
+
 foreach ($sortedProperties as $property) :
+    if ($property->isOverloaded()) :
+        continue;
+    endif;
+    if ($isPrimitiveType && $property->isValueProperty()) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/getter_primitive_value.php',
+            [
+                'type'     => $type,
+                'property' => $property,
+            ]
+        );
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/setter_primitive_value.php',
+            [
+                'type' => $type,
+                'property' => $property,
+            ]
+        );
+        continue;
+    endif;
+
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $requireArgs = [

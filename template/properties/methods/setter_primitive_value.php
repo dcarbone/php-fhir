@@ -16,20 +16,21 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$memberOf = $property->getMemberOf();
-$memberOfParent = $memberOf->getParentType();
-$memberOfKind = $memberOf->getKind();
-$propertyType = $property->getValueFHIRType();
-
-// for children of primitive types, they do not need their own "value" constant as the parent has it
-if ($memberOf->hasPrimitiveParent()) :
-    return '';
-endif;
+$primitiveType = $type->getPrimitiveType();
 
 ob_start(); ?>
-    const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php if (null !== $propertyType && ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent())) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
-<?php endif; ?>
-<?php return ob_get_clean();
+
+    /**
+     * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
+
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+<?php
+return ob_get_clean();

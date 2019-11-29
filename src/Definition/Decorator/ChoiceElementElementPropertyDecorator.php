@@ -49,7 +49,7 @@ abstract class ChoiceElementElementPropertyDecorator
                                     \SimpleXMLElement $annotationElement = null)
     {
         $properties = $type->getProperties();
-        $property = new Property($config, $element, $type->getSourceFilename());
+        $property = new Property($type, $element, $type->getSourceFilename());
 
         if (is_int($minOccurs)) {
             $property->setMinOccurs($minOccurs);

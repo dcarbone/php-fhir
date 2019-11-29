@@ -42,16 +42,6 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRPrimitiveTypeInterface(VersionConfig $config, Types $types)
-    {
-        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_primitive_type.php';
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @return string
-     */
     public static function generatePHPFHIRCommentContainerInterface(VersionConfig $config, Types $types)
     {
         return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_comment_container.php';
@@ -107,9 +97,9 @@ abstract class TemplateBuilder
     {
         // use raw require at this level
         switch ($typeKind = $type->getKind()) {
-            case TypeKindEnum::PRIMITIVE:
-            case TypeKindEnum::_LIST:
-                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_class.php';
+//            case TypeKindEnum::PRIMITIVE:
+//            case TypeKindEnum::_LIST:
+//                return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_class.php';
             case TypeKindEnum::PRIMITIVE_CONTAINER:
                 return require PHPFHIR_TEMPLATE_TYPES_DIR . '/primitive_container_class.php';
 //            case TypeKindEnum::_LIST:

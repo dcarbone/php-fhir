@@ -17,8 +17,9 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
+
+$primitiveType = $type->getPrimitiveType();
 
 ob_start(); ?>
     /**
@@ -27,7 +28,7 @@ ob_start(); ?>
      */
     public function __construct($value = null)
     {
-<?php if (null !== $parentType) : ?>parent::__construct($value);<?php else : ?>$this->setValue($value);<?php endif; ?>
+        <?php if (null !== $parentType) : ?>parent::__construct($value);<?php else : ?>$this->setValue($value);<?php endif; ?>
 
     }
 <?php return ob_get_clean();

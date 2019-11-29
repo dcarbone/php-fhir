@@ -30,11 +30,11 @@ $requireArgs = [
 ob_start();
 
 switch (true) :
-    case $typeKind->isPrimitive():
-        echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php', $requireArgs);
-        break;
     case $type->hasPrimitiveParent():
         // types that are just primitive extensions do not get their own constructor.
+        break;
+    case $typeKind->isPrimitive():
+        echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php', $requireArgs);
         break;
     case $typeKind->isPrimitiveContainer():
         echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php', $requireArgs);

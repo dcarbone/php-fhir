@@ -73,6 +73,12 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     public function _getFHIRXMLElementDefinition();
 
     /**
+     * Must return true only if defined value is NULL or adheres to whatever limitations this type may have
+     * @return bool
+     */
+    public function _isValid();
+
+    /**
      * @param \SimpleXMLElement|string|null $sxe
      * @param null|static $type
      * @param null|int $libxmlOpts

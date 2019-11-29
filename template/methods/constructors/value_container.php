@@ -21,9 +21,9 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
-/** @var bool $hasValueContainerParent */
 
 $typeClassName = $type->getClassName();
+$hasValueContainerParent = (null !== $parentType && $parentType->isValueContainer());
 
 $valueProperty = null;
 // TODO: figure out how to handle multi-value representations of things...
@@ -66,7 +66,7 @@ ob_start(); ?>
 <?php foreach($sortedProperties as $property) :
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_resource_container.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/resource_container_property_setter_call.php',
                 [
                         'type' => $type,
                         'property' => $property,
@@ -74,7 +74,7 @@ ob_start(); ?>
         );
     else :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/property_setter_call_default.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
                 [
                         'type' => $type,
                         'property' => $property

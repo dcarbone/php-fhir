@@ -68,6 +68,9 @@ ob_start(); ?>
             }
         }<?php endif; ?>
 <?php foreach ($sortedProperties as $property) :
+    if ($property->isOverloaded()) :
+        continue;
+    endif;
     echo require_with(
             PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
             [

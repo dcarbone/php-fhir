@@ -40,7 +40,7 @@ abstract class AnyElementTypeDecorator
      */
     public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $any)
     {
-        $property = new Property($config, $any, $type->getSourceFilename());
+        $property = new Property($type, $any, $type->getSourceFilename());
 
         $property->setValueFHIRTypeName('string-primitive');
 

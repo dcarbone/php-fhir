@@ -175,16 +175,21 @@ abstract class TypeDecorator
             $typeKind = $type->getKind();
             foreach ($type->getProperties()->getIterator() as $property) {
                 // handle "value" property on primitive types explicitly
-                if ($property->isValueProperty() && $typeKind->isPrimitive()) {
-                    $primitiveType = $type->getPrimitiveType();
-                    $log->info(sprintf(
-                        'Type "%s" Property "%s" as raw PHP value of "%s"',
-                        $type->getFHIRName(),
-                        $property->getName(),
-                        (string)$primitiveType
-                    ));
-                    $property->setRawPHPValue($primitiveType->getPHPValueType());
-                    continue; // move on to next property
+                if ($property->isValueProperty()) {
+                    if ($typeKind->isPrimitive()) {
+                        $primitiveType = $type->getPrimitiveType();
+                        $log->info(sprintf(
+                            'Type "%s" Property "%s" as raw PHP value of "%s"',
+                            $type->getFHIRName(),
+                            $property->getName(),
+                            (string)$primitiveType
+                        ));
+                        $property->setRawPHPValue($primitiveType->getPHPValueType());
+                        continue; // move on to next property
+                    } elseif ($typeKind->isList()) {
+                        $property->setRawPHPValue($type->getParentType()->getPrimitiveType()->getPHPValueType());
+                        continue;
+                    }
                 }
 
                 // everything else
@@ -337,20 +342,22 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      */
-    public static function removeDuplicatePropertiesFromType(VersionConfig $config, Types $types, Type $type)
+    public static function findOverloadedProperties(VersionConfig $config, Types $types, Type $type)
     {
+        $logger = $config->getLogger();
         $parent = $type->getParentType();
         while (null !== $parent) {
             foreach ($type->getProperties()->getIterator() as $property) {
+                $propertyName = $property->getName();
                 foreach ($parent->getProperties()->getIterator() as $parentProperty) {
-                    if ($property->getName() === $parentProperty->getName()) {
-                        $config->getLogger()->warning(sprintf(
-                            'Removing Property "%s" from Type "%s" as Parent "%s" already has it',
+                    if ($propertyName === $parentProperty->getName()) {
+                        $logger->debug(sprintf(
+                            'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
                             $property,
                             $type,
                             $parent
                         ));
-                        $type->getProperties()->removeProperty($property);
+                        $property->setOverloaded(true);
                         continue 2;
                     }
                 }
@@ -369,7 +376,7 @@ abstract class TypeDecorator
             if (!$type->hasParent()) {
                 continue;
             }
-            self::removeDuplicatePropertiesFromType($config, $types, $type);
+            self::findOverloadedProperties($config, $types, $type);
         }
     }
 

@@ -702,8 +702,6 @@ class Type
             }
             if ($this->isContainedType()) {
                 $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
-            } else if ($this->getKind()->isPrimitive()) {
-                $interfaces[] = PHPFHIR_INTERFACE_PRIMITIVE_TYPE;
             } else {
                 $interfaces[] = PHPFHIR_INTERFACE_TYPE;
             }

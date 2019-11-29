@@ -223,6 +223,8 @@ class TypeImports implements \Iterator, \Countable
 
         $sortedProperties = $this->type->getProperties()->getSortedIterator();
 
+        $typeKind = $this->type->getKind();
+
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
         // that may need to be imported to ensure function
         if ($typeNS !== $configNS) {
@@ -253,15 +255,20 @@ class TypeImports implements \Iterator, \Countable
         }
 
         // add property types to import statement
-        foreach ($sortedProperties as $property) {
-            $propertyType = $property->getValueFHIRType();
-            if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE]) &&
-                $typeNS !== $configNS) {
-                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
-                $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);
-            } else {
-                $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
-                $this->addImport($propertyType->getClassName(), $propertyTypeNS);
+        if (!$typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) {
+            foreach ($sortedProperties as $property) {
+                $propertyType = $property->getValueFHIRType();
+                if ($propertyType->getKind()->isOneOf([
+                        TypeKindEnum::RESOURCE_CONTAINER,
+                        TypeKindEnum::RESOURCE_INLINE,
+                    ]) &&
+                    $typeNS !== $configNS) {
+                    $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
+                    $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);
+                } else {
+                    $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
+                    $this->addImport($propertyType->getClassName(), $propertyTypeNS);
+                }
             }
         }
 
