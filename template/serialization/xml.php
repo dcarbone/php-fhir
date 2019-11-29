@@ -41,10 +41,12 @@ echo require_with(
     ]
 );
 if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-    echo require_with(
-            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body_primitive_list.php',
-            []
-    );
+    if (null === $parentType) :
+        echo require_with(
+                PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body_primitive_list.php',
+                []
+        );
+    endif;
 elseif ($typeKind->isPrimitiveContainer()) :
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body_primitive_container.php',
@@ -85,11 +87,13 @@ else :
     );
 
     if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-        // primitive and list types have a very simple serialization process
-        echo require_with(
+        if (null === $parentType) :
+            // primitive and list types have a very simple serialization process
+            echo require_with(
                 PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/body_primitive_list.php',
                 []
-        );
+            );
+        endif;
     else :
         echo require_with(
                 PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/body_default.php',

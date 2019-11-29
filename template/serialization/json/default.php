@@ -41,6 +41,9 @@ if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         }
 <?php endif;
 foreach ($sortedProperties as $property) :
+    if ($property->isOverloaded()) :
+        continue;
+    endif;
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $requireArgs = [
