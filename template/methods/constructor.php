@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
@@ -30,10 +32,7 @@ $requireArgs = [
 ob_start();
 
 switch (true) :
-    case $type->hasPrimitiveParent():
-        // types that are just primitive extensions do not get their own constructor.
-        break;
-    case $typeKind->isPrimitive():
+    case $typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]):
         echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php', $requireArgs);
         break;
     case $typeKind->isPrimitiveContainer():

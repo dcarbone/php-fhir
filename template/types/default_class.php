@@ -102,16 +102,14 @@ echo require_with(
 
 echo "\n";
 
-if (0 !== count($directProperties)) :
-    echo require_with(
-        PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
-        [
-                'type' => $type,
-                'sortedProperties' => $directProperties,
-                'parentType' => $parentType,
-        ]
-    );
-endif;
+echo require_with(
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
+    [
+            'type' => $type,
+            'sortedProperties' => $directProperties,
+            'parentType' => $parentType,
+    ]
+);
 
 echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
