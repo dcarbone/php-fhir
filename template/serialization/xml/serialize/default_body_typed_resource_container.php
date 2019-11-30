@@ -16,29 +16,25 @@
  * limitations under the License.
  */
 
-/** @var bool $isCollection */
-/** @var bool $isValueProperty */
-/** @var string $propertyConstName */
-/** @var string $getter */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$getter = $property->getGetterName();
+$propertyConstName = $property->getFieldConstantName();
 
 ob_start();
-?>
-
-<?php if ($isCollection) : ?>
+if ($property->isCollection()) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             foreach($vs as $v) {
                 if (null === $v) {
                     continue;
                 }
-                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+                $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
+                $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
             }
         }<?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-<?php if ($isValueProperty) : ?>
-            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
-<?php else : ?>
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
-<?php endif; ?>
-        }<?php endif;
+            $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
+            $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
+        }
+<?php endif;
 return ob_get_clean();

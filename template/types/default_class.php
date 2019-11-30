@@ -164,7 +164,6 @@ endif;?>
         'config' => $config,
         'type'     => $type,
         'typeKind' => $typeKind,
-        'sortedProperties' => $sortedProperties,
         'parentType' => $parentType,
         'typeClassName' => $typeClassname,
     ]

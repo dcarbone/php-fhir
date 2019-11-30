@@ -16,22 +16,26 @@
  * limitations under the License.
  */
 
-/** @var string $propertyTypeClassName */
-/** @var bool $isCollection */
-/** @var string $propertyName */
-/** @var string $setter */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-ob_start(); ?>
-        if (isset($children-><?php echo $propertyName; ?>)) {
-            foreach($children-><?php echo $propertyName; ?> as $child) {
-                foreach($child->children() as $babe) {
-                    $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babe));
-<?php if ($isCollection) : ?>
-                    continue 2;
-<?php else : ?>
-                    break 2;
-<?php endif; ?>
-                }
-            }
-        }
-<?php return ob_get_clean();
+$directProperties = $type->getProperties()->getDirectSortedIterator();
+
+ob_start();
+foreach ($directProperties as $property) :
+    if (null !== $property->getValueFHIRType()) :
+        echo require_with(
+            __DIR__ . '/body_parse_typed.php',
+            [
+                'property' => $property,
+            ]
+        );
+    else :
+        echo require_with(
+            __DIR__ . '/body_parse_raw.php',
+            [
+                'property' => $property,
+            ]
+        );
+    endif;
+endforeach;
+return ob_get_clean();

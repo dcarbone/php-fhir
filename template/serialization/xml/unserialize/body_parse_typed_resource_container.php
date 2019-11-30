@@ -16,10 +16,22 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$setter = $property->getSetterName();
+$propertyName = $property->getName();
+
 ob_start(); ?>
-        if (isset($attributes->value)) {
-            $type->setValue((string)$attributes->value);
-        } elseif (isset($children->value)) {
-            $type->setValue((string)$children->value);
+        if (isset($children-><?php echo $propertyName; ?>)) {
+            foreach($children-><?php echo $propertyName; ?> as $child) {
+                foreach($child->children() as $babe) {
+                    $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babe));
+<?php if ($property->isCollection()) : ?>
+                    continue 2;
+<?php else : ?>
+                    break 2;
+<?php endif; ?>
+                }
+            }
         }
 <?php return ob_get_clean();

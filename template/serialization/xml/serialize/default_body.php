@@ -16,17 +16,21 @@
  * limitations under the License.
  */
 
-/** @var string $xmlName */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $directProperties */
 
-ob_start(); ?>
-    /**
-     * @param null|\SimpleXMLElement $sxe
-     * @param null|int $libxmlOpts
-     * @return \SimpleXMLElement
-     */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
-    {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement($this->_getFHIRXMLElementDefinition(), $libxmlOpts, false);
-        }
-<?php return ob_get_clean();
+ob_start();
+foreach ($directProperties as $property) :
+    if (null !== $property->getValueFHIRType()) :
+        echo require_with(
+            __DIR__ . '/default_body_typed.php',
+            [
+                'property' => $property,
+            ]
+        );
+    elseif (null === $parentType) :
+        echo require_with(__DIR__ . '/default_body_raw.php', ['parentType' => $parentType]);
+    endif;
+endforeach;
+return ob_get_clean();

@@ -26,6 +26,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var string $typeClassName */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
+$directProperties = $type->getProperties()->getDirectSortedIterator();
 
 ob_start();
 // unserialize portion
@@ -35,32 +36,20 @@ echo require_with(
         'config' => $config,
         'type' => $type,
         'typeKind' => $typeKind,
-        'sortedProperties' => $sortedProperties,
         'parentType' => $parentType,
         'typeClassName' => $typeClassName
     ]
 );
-if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-    if (null === $parentType) :
-        echo require_with(
-                PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body_primitive_list.php',
-                []
-        );
-    endif;
-elseif ($typeKind->isPrimitiveContainer()) :
+
+if (0 < count($directProperties)) :
     echo require_with(
-            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body_primitive_container.php',
-            []
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body.php',
+        [
+            'type' => $type,
+        ]
     );
-else :
-    echo require_with(
-            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body_default.php',
-            [
-                    'sortedProperties' => $sortedProperties,
-                    'typeImports' => $type->getImports(),
-            ]
-    );
-endif; ?>
+endif;
+?>
         return $type;
     }
 
@@ -72,40 +61,32 @@ if ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/resource_container.php',
             [
                     'config' => $config,
-                    'xmlName' => $xmlName,
-                    'sortedProperties' => $sortedProperties,
+                    'type' => $type,
             ]
     );
 else :
     // everything else shares a common header
+    // header is always output as it is what creates the simplexml instance
     echo require_with(
-            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/header.php',
+            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/default_header.php',
         [
                 'config' => $config,
-                'xmlName' => $xmlName,
+                'parentType' => $parentType,
         ]
     );
 
-    if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
-        if (null === $parentType) :
-            // primitive and list types have a very simple serialization process
-            echo require_with(
-                PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/body_primitive_list.php',
-                []
-            );
-        endif;
-    else :
+    $directProperties = $type->getProperties()->getDirectSortedIterator();
+    if (0 < count($directProperties)) :
         echo require_with(
-                PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/body_default.php',
-                [
-                        'type' => $type,
-                        'parentType' => $parentType,
-                        'sortedProperties' => $sortedProperties,
-                ]
+            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/default_body.php',
+            [
+                'type' => $type,
+                'parentType' => $parentType,
+                'directProperties' => $directProperties,
+            ]
         );
-    endif; ?>
-<?php endif; ?>
-
+    endif;
+endif; ?>
         return $sxe;
     }
 <?php return ob_get_clean();

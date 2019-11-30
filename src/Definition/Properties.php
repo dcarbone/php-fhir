@@ -30,6 +30,8 @@ class Properties implements \Countable
     private $properties = [];
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private $sortedProperties;
+    /** @var \DCarbone\PHPFHIR\Definition\Property[] */
+    private $directSortedProperties;
 
     /** @var bool */
     private $sorted = false;
@@ -154,46 +156,16 @@ class Properties implements \Countable
      */
     public function getSortedIterator()
     {
-        if (!$this->sorted) {
-            $this->sortedProperties = $this->properties;
-            usort(
-                $this->sortedProperties,
-                function ($a, $b) {
-                    /** @var \DCarbone\PHPFHIR\Definition\Property $a */
-                    /** @var \DCarbone\PHPFHIR\Definition\Property $b */
-                    return strnatcmp($a->getName(), $b->getName());
-                }
-            );
-            $this->sorted = true;
-        }
-        return \SplFixedArray::fromArray($this->sortedProperties, false);
+        return \SplFixedArray::fromArray($this->_getSortedProperties(), false);
     }
 
     /**
-     * @param string $name
+     * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function removePropertyByName($name)
+    public function getDirectSortedIterator()
     {
-        foreach ($this->properties as $i => $property) {
-            if ($property->getName() === $name) {
-                unset($this->properties[$i]);
-                $this->properties = array_values($this->properties);
-                return;
-            }
-        }
-        return;
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
-     */
-    public function removeProperty(Property $property)
-    {
-        $idx = array_search($property, $this->properties, true);
-        if (false !== $idx) {
-            unset($this->properties[$idx]);
-            $this->properties = array_values($this->properties);
-        }
+        $this->_getSortedProperties();
+        return \SplFixedArray::fromArray($this->directSortedProperties, false);
     }
 
     /**
@@ -202,5 +174,29 @@ class Properties implements \Countable
     public function count()
     {
         return count($this->properties);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Property[]
+     */
+    private function _getSortedProperties()
+    {
+        if (!$this->sorted) {
+            $this->sortedProperties = $this->properties;
+            $this->directSortedProperties = [];
+            usort(
+                $this->sortedProperties,
+                function (Property $a, Property $b) {
+                    return strnatcmp($a->getName(), $b->getName());
+                }
+            );
+            foreach ($this->sortedProperties as $property) {
+                if (!$property->isOverloaded()) {
+                    $this->directSortedProperties[] = $property;
+                }
+            }
+            $this->sorted = true;
+        }
+        return $this->sortedProperties;
     }
 }

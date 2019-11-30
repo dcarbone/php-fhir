@@ -221,7 +221,7 @@ class TypeImports implements \Iterator, \Countable
         $typeNS = $this->type->getFullyQualifiedNamespace(false);
         $configNS = $this->type->getConfig()->getNamespace(false);
 
-        $sortedProperties = $this->type->getProperties()->getSortedIterator();
+        $sortedProperties = $this->type->getProperties()->getDirectSortedIterator();
 
         $typeKind = $this->type->getKind();
 
@@ -255,20 +255,21 @@ class TypeImports implements \Iterator, \Countable
         }
 
         // add property types to import statement
-        if (!$typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) {
-            foreach ($sortedProperties as $property) {
-                $propertyType = $property->getValueFHIRType();
-                if ($propertyType->getKind()->isOneOf([
-                        TypeKindEnum::RESOURCE_CONTAINER,
-                        TypeKindEnum::RESOURCE_INLINE,
-                    ]) &&
-                    $typeNS !== $configNS) {
-                    $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
-                    $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);
-                } else {
-                    $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
-                    $this->addImport($propertyType->getClassName(), $propertyTypeNS);
-                }
+        foreach ($sortedProperties as $property) {
+            $propertyType = $property->getValueFHIRType();
+            if (null === $propertyType) {
+                continue;
+            }
+            if ($propertyType->getKind()->isOneOf([
+                    TypeKindEnum::RESOURCE_CONTAINER,
+                    TypeKindEnum::RESOURCE_INLINE,
+                ]) &&
+                $typeNS !== $configNS) {
+                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
+                $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);
+            } else {
+                $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
+                $this->addImport($propertyType->getClassName(), $propertyTypeNS);
             }
         }
 

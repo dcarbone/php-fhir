@@ -16,7 +16,20 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 
 ob_start(); ?>
-        $sxe->addAttribute(self::FIELD_VALUE, (string)$this);<?php return ob_get_clean();
+    /**
+     * @param null|\SimpleXMLElement $sxe
+     * @param null|int $libxmlOpts
+     * @return \SimpleXMLElement
+     */
+    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    {
+        if (null === $sxe) {
+            $sxe = new \SimpleXMLElement($this->_getFHIRXMLElementDefinition(), $libxmlOpts, false);
+        }
+<?php if (null !== $parentType) : ?>
+        parent::xmlSerialize($sxe);
+<?php endif;
+return ob_get_clean();

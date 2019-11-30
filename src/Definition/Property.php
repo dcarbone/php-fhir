@@ -376,6 +376,22 @@ class Property
     }
 
     /**
+     * @return string
+     */
+    public function getSetterName()
+    {
+        return ($this->isCollection() ? 'add' : 'set') . ucfirst($this->getName());
+    }
+
+    /**
+     * @return string
+     */
+    public function getGetterName()
+    {
+        return 'get' . ucfirst($this->getName());
+    }
+
+    /**
      * @return array
      */
     public function buildValidationMap()

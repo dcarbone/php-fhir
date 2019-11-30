@@ -16,19 +16,9 @@
  * limitations under the License.
  */
 
-/** @var string $propertyTypeClassName */
-/** @var bool $isCollection */
-/** @var string $propertyName */
-/** @var string $setter */
+/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
 ob_start(); ?>
-        if (isset($children-><?php echo $propertyName; ?>)) {
-<?php if ($isCollection) : ?>
-            foreach($children-><?php echo $propertyName; ?> as $child) {
-                $type-><?php echo $setter; ?>(<?php echo $propertyTypeClassName; ?>::xmlUnserialize($child));
-            }
-<?php else : ?>
-            $type-><?php echo $setter; ?>(<?php echo $propertyTypeClassName; ?>::xmlUnserialize($children-><?php echo $propertyName; ?>));
-<?php endif; ?>
-        }
-<?php return ob_get_clean();
+        $sxe->addAttribute(self::FIELD_VALUE, (string)$this);
+<?php
+return ob_get_clean();

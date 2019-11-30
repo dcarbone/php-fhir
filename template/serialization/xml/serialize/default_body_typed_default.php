@@ -16,25 +16,31 @@
  * limitations under the License.
  */
 
-/** @var bool $isCollection */
-/** @var string $propertyConstName */
-/** @var string $getter */
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$propertyConstName = $property->getFieldConstantName();
+$getter = $property->getGetterName();
 
 ob_start();
-?>
-
-<?php if ($isCollection) : ?>
+if ($property->isCollection()) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             foreach($vs as $v) {
                 if (null === $v) {
                     continue;
                 }
-                $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
-                $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
+                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
             }
-        }<?php else : ?>
+        }
+<?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
-            $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
-        }<?php endif;
+<?php if ($property->isValueProperty() || $property->getValueFHIRType()->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) : ?>
+            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
+<?php endif;
+if (!$property->getValueFHIRType()->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :?>
+            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+<?php endif; ?>
+        }
+<?php endif;
 return ob_get_clean();

@@ -16,21 +16,29 @@
  * limitations under the License.
  */
 
-/** @var bool $isCollection */
-/** @var string $propertyConstName */
-/** @var string $getter */
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$propertyType = $property->getValueFHIRType();
+$propertyTypeKind = $propertyType->getKind();
 
 ob_start();
-if ($isCollection) : ?>
-    if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-        foreach($vs as $v) {
-            if (null === $v) {
-                continue;
-            }
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
-        }
-    }<?php else : ?>
-        if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-        }<?php endif;
+
+if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+    echo require_with(
+        __DIR__ . '/body_parse_typed_resource_container.php',
+        [
+            'property' => $property,
+        ]
+    );
+else :
+    echo require_with(
+        __DIR__ . '/body_parse_typed_default.php',
+        [
+            'property' => $property,
+        ]
+    );
+endif;
+
 return ob_get_clean();

@@ -20,10 +20,11 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
+
+$directProperties = $type->getProperties()->getDirectSortedIterator();
 
 ob_start(); ?>
     /**
@@ -67,7 +68,7 @@ ob_start(); ?>
                 $type->_xmlns = $ns;
             }
         }
-<?php if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]) || 0 < count($sortedProperties)) : ?>
+<?php if (0 < count($directProperties)) : ?>
         $attributes = $sxe->attributes();
         $children = $sxe->children();
 <?php endif;

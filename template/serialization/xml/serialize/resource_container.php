@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
-/** @var string $xmlName */
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+
+$directProperties = $type->getProperties()->getDirectSortedIterator();
 
 ob_start(); ?>
     /**
@@ -27,7 +29,7 @@ ob_start(); ?>
      */
     public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
-<?php foreach($sortedProperties as $property) : ?>
+<?php foreach($directProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
             return $v->xmlSerialize($sxe, $libxmlOpts);
         }
@@ -35,4 +37,5 @@ ob_start(); ?>
         if (null === $sxe) {
             $sxe = new \SimpleXMLElement($this->_getFHIRXMLElementDefinition(), $libxmlOpts, false);
         }
-<?php return ob_get_clean();
+<?php
+return ob_get_clean();
