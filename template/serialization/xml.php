@@ -23,7 +23,6 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
-/** @var string $typeClassName */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 $directProperties = $type->getProperties()->getDirectSortedIterator();

@@ -19,12 +19,12 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
-/** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
+
+$directProperties = $type->getProperties()->getDirectSortedIterator();
+$typeKind = $type->getKind();
 
 ob_start();
-if ($typeKind->isPrimitive()) :
+if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php',
         [
@@ -32,13 +32,11 @@ if ($typeKind->isPrimitive()) :
             'typeKind' => $typeKind,
         ]
     );
-elseif ($typeKind->isList()) :
-    echo require_with(PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/list.php', []);
 elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/resource_container.php',
         [
-            'sortedProperties' => $sortedProperties,
+            'sortedProperties' => $directProperties,
         ]
     );
 else:
@@ -46,9 +44,7 @@ else:
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php',
         [
             'type' => $type,
-            'isContainedType' => $type->isContainedType(),
-            'sortedProperties' => $sortedProperties,
-            'parentType' => $parentType
+            'sortedProperties' => $directProperties,
         ]
     );
 endif;

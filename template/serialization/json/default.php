@@ -18,9 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-/** @var bool $isContainedType */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
 ob_start(); ?>
@@ -29,13 +27,13 @@ ob_start(); ?>
      */
     public function jsonSerialize()
     {
-<?php if ($parentType) : ?>
+<?php if (null !== $type->getParentType()) : ?>
         $a = parent::jsonSerialize();
 <?php else : ?>
         $a = [];
 <?php endif;
 
-if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
             $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
         }
@@ -68,6 +66,6 @@ foreach ($sortedProperties as $property) :
         echo require_with(__DIR__ . '/default_property_default.php', $requireArgs);
     endif;
 endforeach; ?>
-        return <?php if ($isContainedType) : ?>[<?php  echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => $this->_getResourceType()] + <?php endif; ?>$a;
+        return <?php if ($type->isContainedType()) : ?>[<?php  echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => $this->_getResourceType()] + <?php endif; ?>$a;
     }
 <?php return ob_get_clean();

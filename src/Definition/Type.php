@@ -748,7 +748,7 @@ class Type
      */
     public function isCommentContainer()
     {
-        return !$this->getKind()->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE]);
+        return !$this->getKind()->isPrimitive() && !$this->hasPrimitiveParent();
     }
 
     /**

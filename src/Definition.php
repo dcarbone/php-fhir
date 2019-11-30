@@ -82,8 +82,11 @@ class Definition
         $log->info('Finding property types');
         TypeDecorator::findPropertyTypes($this->config, $this->types);
 
-        $log->info('Removing duplicate properties from child types');
-        TypeDecorator::removeDuplicateProperties($this->config, $this->types);
+        $log->info('Ensuring primitive type children have "value" property');
+        TypeDecorator::ensureValueOnPrimitiveChildTypes($this->config, $this->types);
+
+        $log->info('Finding overloaded properties in child types');
+        TypeDecorator::findOverloadedProperties($this->config, $this->types);
 
         $log->info('Manually setting some property names');
         TypeDecorator::setMissingPropertyNames($this->config, $this->types);

@@ -62,42 +62,40 @@ abstract class TypeDecorator
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            if (false !== strpos($type->getFHIRName(), PHPFHIR_PRIMITIVE_SUFFIX)) {
+            $fhirName = $type->getFHIRName();
+
+            // skip primitive types as they are already as base as they can go
+            if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
                 continue;
             }
 
-            $fhirName = $type->getFHIRName();
             $rbName = $type->getRestrictionBaseFHIRName();
 
             if (null === $rbName) {
-                if ('ResourceType' === $fhirName) {
-                    $type->setRestrictionBaseFHIRType($types->getTypeByName('string-primitive'));
-                }
                 continue;
             }
 
-            $rbType = $types->getTypeByName($rbName);
-            if (null === $rbType && 0 === strpos($rbName, 'xs:')) {
-                if ('xs:token' === $rbName) {
-                    $rbType = $types->getTypeByName('string-primitive');
-                } else {
-                    $sub = substr($rbName, 3);
-                    // if the value is uppercase, more than likely is some base xml stuff i'm not gonna mess with.
-                    if (ctype_upper($sub[0])) {
-                        $logger->warning(sprintf(
-                            'Type "%s" has restriction base "%s", skipping lookup...',
-                            $fhirName,
-                            $rbName
-                        ));
-                        continue;
-                    }
-                    $rbType = $types->getTypeByName("{$sub}-primitive");
+            if (0 === strpos($rbName, 'xs:')) {
+                $rbName = substr($rbName, 3);
+                if ('token' === $rbName || ctype_upper($rbName[0])) {
+                    $logger->warning(sprintf(
+                        'Type "%s" has restriction base "%s", setting to string...',
+                        $fhirName,
+                        $rbName
+                    ));
+                    $rbName = 'string';
                 }
+                $rbName = "{$rbName}-primitive";
             }
+
+            $rbType = $types->getTypeByName($rbName);
+
             if (null === $rbType) {
                 throw ExceptionUtils::createTypeRestrictionBaseNotFoundException($type);
             }
+
             $type->setRestrictionBaseFHIRType($rbType);
+
             $logger->info(sprintf(
                 'Type "%s" has restriction base Type "%s"',
                 $type,
@@ -115,16 +113,10 @@ abstract class TypeDecorator
         // These are here to enable backwards compatibility with dstu1 and 2
         static $knownDecimal = ['score'];
         static $knownInteger = ['totalResults'];
-        static $knownList = ['ResourceType'];
 
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
-
-            // TODO: this is kinda hacky...
-            if (in_array($type->getFHIRName(), $knownList, true)) {
-                continue;
-            }
 
             // try to locate parent type name...
             $parentTypeName = $type->getParentTypeName();
@@ -262,6 +254,30 @@ abstract class TypeDecorator
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function ensureValueOnPrimitiveChildTypes(VersionConfig $config, Types $types)
+    {
+        $logger = $config->getLogger();
+        foreach ($types->getIterator() as $type) {
+            if (!$type->hasPrimitiveParent() ||
+                null !== $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+                continue;
+            }
+            $logger->warning(sprintf(
+                'Type "%s" extends primitive "%s" but is missing "%s" property.  Adding...',
+                $type->getFHIRName(),
+                $type->getParentType()->getFHIRName(),
+                PHPFHIR_VALUE_PROPERTY_NAME
+            ));
+            $property = new Property($type, $type->getSourceSXE(), $type->getSourceFilename());
+            $property->setName(PHPFHIR_VALUE_PROPERTY_NAME);
+            $type->getProperties()->addProperty($property);
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param string $kindName
      */
@@ -340,43 +356,33 @@ abstract class TypeDecorator
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
      */
-    public static function findOverloadedProperties(VersionConfig $config, Types $types, Type $type)
+    public static function findOverloadedProperties(VersionConfig $config, Types $types)
     {
         $logger = $config->getLogger();
-        $parent = $type->getParentType();
-        while (null !== $parent) {
-            foreach ($type->getProperties()->getIterator() as $property) {
-                $propertyName = $property->getName();
-                foreach ($parent->getProperties()->getIterator() as $parentProperty) {
-                    if ($propertyName === $parentProperty->getName()) {
-                        $logger->debug(sprintf(
-                            'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
-                            $property,
-                            $type,
-                            $parent
-                        ));
-                        $property->setOverloaded(true);
-                        continue 2;
-                    }
-                }
-            }
-            $parent = $parent->getParentType();
-        }
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     */
-    public static function removeDuplicateProperties(VersionConfig $config, Types $types)
-    {
         foreach ($types->getIterator() as $type) {
             if (!$type->hasParent()) {
                 continue;
             }
-            self::findOverloadedProperties($config, $types, $type);
+            $parent = $type->getParentType();
+            while (null !== $parent) {
+                foreach ($type->getProperties()->getIterator() as $property) {
+                    $propertyName = $property->getName();
+                    foreach ($parent->getProperties()->getIterator() as $parentProperty) {
+                        if ($propertyName === $parentProperty->getName()) {
+                            $logger->debug(sprintf(
+                                'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
+                                $property,
+                                $type,
+                                $parent
+                            ));
+                            $property->setOverloaded(true);
+                            continue 2;
+                        }
+                    }
+                }
+                $parent = $parent->getParentType();
+            }
         }
     }
 

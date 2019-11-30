@@ -32,7 +32,7 @@ $requireArgs = [
 ob_start();
 
 switch (true) :
-    case $typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]):
+    case ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]) || $type->hasPrimitiveParent()):
         echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php', $requireArgs);
         break;
     case $typeKind->isPrimitiveContainer():

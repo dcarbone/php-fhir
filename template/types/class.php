@@ -157,17 +157,21 @@ endif; ?>
         'parentType' => $parentType,
         'typeClassName' => $typeClassname,
     ]
-); ?>
+);
 
-<?php echo require_with(
+if (0 < count($directProperties)) :
+    echo "\n";
+    echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
         [
-                'type' => $type,
-                'typeKind' => $typeKind,
-                'sortedProperties' => $directProperties,
-                'parentType' => $parentType,
+            'type' => $type,
         ]
-); ?>
+    );
+    echo "\n";
+endif;
+
+if (!$type->hasPrimitiveParent()) :
+?>
 
     /**
      * @return string
@@ -185,4 +189,4 @@ endif; ?>
         return self::FHIR_TYPE_NAME;
 <?php endif; ?>
     }
-}<?php return ob_get_clean();
+<?php endif; ?>}<?php return ob_get_clean();

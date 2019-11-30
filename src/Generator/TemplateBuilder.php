@@ -95,7 +95,7 @@ abstract class TemplateBuilder
      */
     public static function generateTypeClass(VersionConfig $config, Types $types, Type $type)
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR . '/default_class.php';
+        return require PHPFHIR_TEMPLATE_TYPES_DIR . '/class.php';
     }
 
     /**
