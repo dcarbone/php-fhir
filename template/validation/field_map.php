@@ -17,10 +17,10 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 
-ob_start();
-?>
+$sortedProperties = $type->getProperties()->getSortedIterator();
+
+ob_start(); ?>
     /**
      * Validation map for fields in type <?php echo $type->getFHIRName(); ?>
 

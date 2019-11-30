@@ -22,7 +22,6 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
 /** @var bool $skipImports */
 /** @var string $fqns */
 

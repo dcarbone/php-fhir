@@ -47,4 +47,6 @@ switch (true) :
         echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php', $requireArgs);
 endswitch;
 
+echo "\n";
+
 return ob_get_clean();

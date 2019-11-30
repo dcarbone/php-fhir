@@ -30,9 +30,8 @@ $typeClassname = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
 $fhirName = $type->getFHIRName();
-$sortedProperties = $type->getProperties()->getSortedIterator();
+$directProperties = $type->getProperties()->getDirectSortedIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
-
 $isValueContainer = $type->isValueContainer();
 $hasValueContainerParent = $type->hasValueContainerParent();
 
@@ -47,7 +46,6 @@ echo require_with(
         'type' => $type,
         'types' => $types,
         'config' => $config,
-        'sortedProperties' => $sortedProperties,
     ]
 );
 
@@ -69,57 +67,51 @@ echo require_with(
 
 <?php endif; ?>
 
-<?php if (0 !== count($sortedProperties)) :
-    foreach($sortedProperties as $property) :
-        if (!$property->isOverloaded()) :
-            echo require_with(
-                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
-                [
-                        'property' => $property,
-                ]
-            );
-        endif;
+<?php if (0 !== count($directProperties)) :
+    foreach($directProperties as $property) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
+            [
+                    'property' => $property,
+            ]
+        );
     endforeach;
-?>
+endif; ?>
 
     /** @var string */
     protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
 
-<?php
-    foreach($sortedProperties as $property) :
-        if (!$property->isOverloaded()) :
-            echo require_with(
-                PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
-                [
-                        'config' => $config,
-                        'property' => $property,
-                ]
-            );
-        endif;
+<?php if (0 !== count($directProperties)) :
+    foreach($directProperties as $property) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
+            [
+                    'config' => $config,
+                    'property' => $property,
+            ]
+        );
     endforeach;
-
 endif;
 
 echo require_with(
     PHPFHIR_TEMPLATE_VALIDATION_DIR . '/field_map.php',
     [
         'type' => $type,
-        'sortedProperties' => $sortedProperties,
     ]
 );
 
-?>
+echo "\n";
 
-<?php echo require_with(
+if (0 !== count($directProperties)) :
+    echo require_with(
         PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
         [
                 'type' => $type,
-                'sortedProperties' => $sortedProperties,
+                'sortedProperties' => $directProperties,
                 'parentType' => $parentType,
         ]
     );
-
-echo "\n";
+endif;
 
 echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
@@ -138,23 +130,23 @@ if ($type->isContainedType()) :
     );
 endif;
 
- if (0 < count($sortedProperties)) :
+ if (0 < count($directProperties)) :
     echo "\n";
     echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php',
         [
                 'config' => $config,
                 'type' => $type,
-                'sortedProperties' => $sortedProperties,
+                'sortedProperties' => $directProperties,
         ]
     );
-endif;?>
+endif; ?>
 
 <?php echo require_with(
         PHPFHIR_TEMPLATE_VALIDATION_DIR . '/method.php',
     [
             'type' => $type,
-            'sortedProperties' => $sortedProperties
+            'sortedProperties' => $directProperties
     ]
 ); ?>
 
@@ -174,7 +166,7 @@ endif;?>
         [
                 'type' => $type,
                 'typeKind' => $typeKind,
-                'sortedProperties' => $sortedProperties,
+                'sortedProperties' => $directProperties,
                 'parentType' => $parentType,
         ]
 ); ?>
