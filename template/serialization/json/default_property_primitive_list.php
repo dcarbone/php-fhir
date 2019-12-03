@@ -16,18 +16,19 @@
  * limitations under the License.
  */
 
-/** @var bool $isCollection */
-/** @var string $propertyConstName */
-/** @var string $getter */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$propertyFieldConst = $property->getFieldConstantName();
+$getter = $property->getGetterName();
 
 ob_start();
-if ($isCollection) : ?>
+if ($property->isCollection()) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-            $a[self::<?php echo $propertyConstName; ?>] = $vs;
+            $a[self::<?php echo $propertyFieldConst; ?>] = $vs;
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $a[self::<?php echo $propertyConstName; ?>] = $v;
+            $a[self::<?php echo $propertyFieldConst; ?>] = $v;
         }
 <?php endif;
 return ob_get_clean();

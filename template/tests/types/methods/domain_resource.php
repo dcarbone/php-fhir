@@ -136,24 +136,22 @@ ob_start(); ?>
             ));
             return;
         }
-        $this->assertCount(1, $bundle->getEntry());
-        $entry = $bundle->getEntry()[0]->getResource();
-        $json2 = json_encode($entry, JSON_PRETTY_PRINT);
-        $decoded2 = $this->decodeJSON($json2, true);
+
+        $reEncoded = json_encode($bundle, JSON_PRETTY_PRINT);
         try {
-            $type = new <?php echo $type->getClassName(); ?>($decoded2);
+            $this->assertEquals($decoded, $this->decodeJSON($reEncoded, true));
         } catch (\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(
-                    'Error building type "<?php echo $type->getFHIRName(); ?>" from JSON: %s; JSON: %s',
+                    "json_encode output of \"<?php echo $type->getClassName(); ?>\" does not match input: %s\nSource:\n%s\nRe-encoded:\n%s\n",
                     $e->getMessage(),
-                    $json2
+                    $json,
+                    $reEncoded
                 ),
                 $e->getCode(),
                 $e
             );
         }
-        $this->assertEquals(json_encode($entry, JSON_PRETTY_PRINT), json_encode($type, JSON_PRETTY_PRINT));
     }
 <?php
 return ob_get_clean();

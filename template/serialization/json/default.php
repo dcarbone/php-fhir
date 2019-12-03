@@ -43,29 +43,25 @@ foreach ($sortedProperties as $property) :
         continue;
     endif;
     $propertyType = $property->getValueFHIRType();
-    $propertyTypeKind = $propertyType->getKind();
-    $requireArgs = [
-            'hasValueContainerParent' => $propertyType->hasValueContainerParent(),
-            'isValueProperty' => $property->isValueProperty(),
-            'isCollection' => $property->isCollection(),
-            'getter' => 'get' . ucfirst($property->getName()),
-            'propertyConstName' => $property->getFieldConstantName(),
-            'propertyConstNameExt' => "{$property->getFieldConstantName()}_EXT"
-    ];
-    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+    if ($propertyType->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
         echo require_with(
             __DIR__ . '/default_property_primitive_list.php',
-                $requireArgs
+                ['property' => $property]
         );
     elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
         echo require_with(
             __DIR__ . '/default_property_value_container.php',
-            $requireArgs
+            ['property' => $property]
         );
     else :
-        echo require_with(__DIR__ . '/default_property_default.php', $requireArgs);
+        echo require_with(__DIR__ . '/default_property_default.php', ['property' => $property]);
     endif;
-endforeach; ?>
+endforeach;
+if ($propertyType->isCommentContainer() || $propertyType->hasCommentContainerParent()) : ?>
+        if ([] !== ($vs = $this->_getFHIRComments())) {
+            $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
+        }<?php endif; ?>
+
         return <?php if ($type->isContainedType()) : ?>[<?php  echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => $this->_getResourceType()] + <?php endif; ?>$a;
     }
 <?php return ob_get_clean();

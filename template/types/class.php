@@ -79,7 +79,7 @@ echo require_with(
 endif; ?>
 
     /** @var string */
-    protected $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
+    private $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
 
 <?php if (0 !== count($directProperties)) :
     foreach($directProperties as $property) :

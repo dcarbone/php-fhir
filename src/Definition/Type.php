@@ -84,9 +84,10 @@ class Type
 
     /** @var bool */
     private $containedType = false;
-
     /** @var bool */
     private $valueContainer = false;
+    /** @var bool */
+    private $commentContainer = false;
 
     /** @var \DCarbone\PHPFHIR\Definition\TypeImports */
     private $imports;
@@ -744,11 +745,21 @@ class Type
     }
 
     /**
+     * @param bool $commentContainer
+     * @return \DCarbone\PHPFHIR\Definition\Type
+     */
+    public function setCommentContainer($commentContainer)
+    {
+        $this->commentContainer = (bool)$commentContainer;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function isCommentContainer()
     {
-        return !$this->getKind()->isPrimitive() && !$this->hasPrimitiveParent();
+        return $this->commentContainer;
     }
 
     /**

@@ -58,7 +58,7 @@ echo require_with(
 
 if ($type->isDomainResource()) {
     echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods_domain_resource_type.php',
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods/domain_resource.php',
         [
             'config'     => $config,
             'type'       => $type,
@@ -69,7 +69,7 @@ if ($type->isDomainResource()) {
 
 if ($typeKind->isPrimitive()) {
     echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods_primitive.php',
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods/primitive.php',
         [
             'config' => $config,
             'type' => $type,

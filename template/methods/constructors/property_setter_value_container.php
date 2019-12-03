@@ -16,51 +16,48 @@
  * limitations under the License.
  */
 
-/** @var string $propertyFieldConst */
-/** @var string $propertyFieldConstExt */
-/** @var bool $isCollection */
-/** @var string $setter */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$propertyTypeClassName = $property->getValueFHIRType()->getClassName();
+$propertyFieldConst = $property->getFieldConstantName();
+$propertyFieldConstExt = $property->getFieldConstantExtensionName();
+$setter = $property->getSetterName();
 
 ob_start(); ?>
-            $ext = (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>]))
-                ? $data[self::<?php echo $propertyFieldConstExt; ?>]
-                : null;
-<?php if ($isCollection) : ?>
+        if (isset($data[self::<?php echo $propertyFieldConst; ?>]) || array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data)) {
+<?php if ($property->isCollection()) : ?>
+            if (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) {
+                $exts = $data[self::<?php echo $propertyFieldConstExt; ?>];
+            } else {
+                $exts = [];
+            }
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $i => $v) {
-                    if (null === $v) {
-                        continue;
-                    }
                     if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
                         $this-><?php echo $setter; ?>($v);
-                    } elseif (null !== $ext && isset($ext[$i]) && is_array($ext[$i])) {
-                        if (is_scalar($v)) {
-                            $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $v] + $ext[$i]));
-                        } elseif (is_array($v)) {
-                            $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>(array_merge($v, $ext[$i])));
-                        }
                     } else {
-                        $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($v));
+                        $ext = (isset($exts[$i]) && is_array($exts[$i])) ? $exts[$i] : [];
+                        if (is_array($v)) {
+                            $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>(array_merge($v, $ext)));
+                        } else {
+                            $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $v] + $ext));
+                        }
                     }
                 }
             } elseif ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } elseif (null !== $ext && is_scalar($data[self::<?php echo $propertyFieldConst; ?>])) {
-                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $data[self::<?php echo $propertyFieldConst; ?>]] + $ext));
-            } else {
-                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
-            }
-<?php else : ?>
-            if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
+            } else<?php else :
+echo "            ";
+endif; ?>if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } elseif (null !== $ext) {
-                if (is_scalar($data[self::<?php echo $propertyFieldConst; ?>])) {
-                    $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $data[self::<?php echo $propertyFieldConst; ?>]] + $ext));
-                } else if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
-                    $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>(array_merge($ext, $data[self::<?php echo $propertyFieldConst; ?>])));
-                }
             } else {
-                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
+                $ext = (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) ? $data[self::<?php echo $propertyFieldConstExt; ?>] : [];
+                if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
+                    $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>(array_merge($ext, $data[self::<?php echo $propertyFieldConst; ?>])));
+                } else {
+                    $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $data[self::<?php echo $propertyFieldConst; ?>]] + $ext));
+                }
             }
-<?php endif;
+        }
+<?php
 return ob_get_clean(); ?>

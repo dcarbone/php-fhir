@@ -21,40 +21,26 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$isCollection = $property->isCollection();
-$propertyFieldConst = $property->getFieldConstantName();
 $propertyType = $property->getValueFHIRType();
-$propertyTypeKind = $propertyType->getKind();
-$requireArgs = [
-        'propertyTypeKind' => $propertyTypeKind,
-        'isCollection' => $isCollection,
-        'propertyFieldConst' => $propertyFieldConst,
-        'propertyTypeClassName' => (string)$type->getImports()->getImportByType($propertyType),
-        'setter' => ($isCollection ? 'add' : 'set') . ucfirst($property->getName()),
-];
+$fieldConstantName = $property->getFieldConstantName();
 
-ob_start(); ?>
-        if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
-<?php if ($propertyTypeKind->isPrimitive() || $propertyType->hasPrimitiveParent()) :
+ob_start();
+
+if ($propertyType->getKind()->isPrimitive() || $propertyType->hasPrimitiveParent()) :
     echo require_with(
             __DIR__ . '/property_setter_primitive.php',
-            $requireArgs
+            ['property' => $property]
     );
 elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
     echo require_with(
             __DIR__ . '/property_setter_value_container.php',
-            $requireArgs + ['propertyFieldConstExt' => $property->getFieldConstantExtensionName()]
+            ['property' => $property]
     );
 else :
     echo require_with(
             __DIR__ . '/property_setter_default.php',
-            $requireArgs + ['propertyFieldConstExt' => $property->getFieldConstantExtensionName()]
+        ['property' => $property]
     );
 endif;
-if ($type->getKind()->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) : ?>
-            return;
-<?php endif; ?>
-        }
-<?php
-unset($returnAfterCall);
+
 return ob_get_clean();

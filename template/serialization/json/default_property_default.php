@@ -16,36 +16,25 @@
  * limitations under the License.
  */
 
-/** @var bool $isCollection */
-/** @var bool $isValueProperty */
-/** @var string $propertyConstName */
-/** @var string $propertyConstNameExt */
-/** @var string $getter */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$propertyFieldConst = $property->getFieldConstantName();
+$getter = $property->getGetterName();
 
 ob_start();
-if ($isCollection) : ?>
+if ($property->isCollection()) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-<?php if ($isValueProperty) : ?>
-            $a[self::<?php echo $propertyConstName; ?>][] = $v->getValue();
-            if (1 < count($enc = $v->jsonSerialize())) {
-                $a[self::<?php echo $propertyConstNameExt; ?>][] = $enc;
-            } else {
-                $a[self::<?php echo $propertyConstNameExt; ?>][] = null;
+            $a[self::<?php echo $propertyFieldConst; ?>] = [];
+            foreach($vs as $v) {
+                if (null === $v) {
+                    continue;
+                }
+                $a[self::<?php echo $propertyFieldConst; ?>][] = $v;
             }
-<?php else : ?>
-            $a[self::<?php echo $propertyConstName; ?>] = $vs;
-<?php endif; ?>
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-<?php if ($isValueProperty) : ?>
-            $a[self::<?php echo $propertyConstName; ?>] = $v->getValue();
-            if (1 < count($enc = $v->jsonSerialize())) {
-                $a[self::<?php echo $propertyConstNameExt; ?>] = $enc;
-            }
-<?php else : ?>
-            $a[self::<?php echo $propertyConstName; ?>] = $v;
-<?php endif ?>
+            $a[self::<?php echo $propertyFieldConst; ?>] = $v;
         }
 <?php endif;
 return ob_get_clean();

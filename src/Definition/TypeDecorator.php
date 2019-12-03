@@ -419,6 +419,17 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
+    public static function setCommentContainerFlag(VersionConfig $config, Types $types)
+    {
+        foreach ($types->getIterator() as $type) {
+            $type->setCommentContainer(!$type->getKind()->isPrimitive() && !$type->hasPrimitiveParent());
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
     public static function setMissingPropertyNames(VersionConfig $config, Types $types)
     {
         $log = $config->getLogger();

@@ -100,6 +100,9 @@ class Definition
         $log->info('Setting value container flags');
         TypeDecorator::setValueContainerFlag($this->config, $this->types);
 
+        $log->info('Setting comment container flags');
+        TypeDecorator::setCommentContainerFlag($this->config, $this->types);
+
         $log->info('Performing some sanity checking');
         TypeDecorationValidator::validateDecoration($this->config, $this->types);
 

@@ -16,12 +16,14 @@
  * limitations under the License.
  */
 
-/** @var string $propertyFieldConst */
-/** @var bool $isCollection */
-/** @var string $setter */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-ob_start();
-if ($isCollection) : ?>
+$propertyFieldConst = $property->getFieldConstantName();
+$setter = $property->getSetterName();
+
+ob_start(); ?>
+        if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
+<?php if ($property->isCollection()) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
                     if (null === $v) {
@@ -34,5 +36,7 @@ if ($isCollection) : ?>
             }
 <?php else : ?>
             $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-<?php endif;
+<?php endif; ?>
+        }
+<?php
 return ob_get_clean();
