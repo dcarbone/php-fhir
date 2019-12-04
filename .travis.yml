@@ -1,5 +1,5 @@
 language: php
-dist: xenial
+dist: bionic
 sudo: false
 
 php:
@@ -10,7 +10,9 @@ php:
   - 7.3
   - 7.4
 
-before_install: phpenv config-add files/php_test.ini
+before_install:
+  - pecl install -f zip
+  - phpenv config-add files/php_test.ini
 
 install:
   - composer install --no-interaction --no-progress --no-suggest
