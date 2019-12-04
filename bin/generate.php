@@ -432,20 +432,28 @@ foreach ($versions_to_generate as $i => $version) {
     }
 
     if ($unzip) {
-        if (!class_exists('\\ZipArchive', true)) {
-            echo "ext-zip not found, cannot unzip.\n";
-            exit(1);
-        }
-        $zip = new \ZipArchive;
+        if (class_exists('\\ZipArchive', true)) {
+            echo "ext-zip found\n";
 
-        if (true !== ($res = $zip->open($schema_dir . '.zip'))) {
-            echo "Unable to open file {$schema_dir}.zip.  ZipArchive err: {$res}\n";
-            exit(1);
-        }
+            $zip = new \ZipArchive;
 
-        // Extract Zip
-        $zip->extractTo($schema_dir);
-        $zip->close();
+            if (true !== ($res = $zip->open($schema_dir . '.zip'))) {
+                echo "Unable to open file {$schema_dir}.zip.  ZipArchive err: {$res}\n";
+                exit(1);
+            }
+
+            // Extract Zip
+            $zip->extractTo($schema_dir);
+            $zip->close();
+        } else {
+            echo "ext-zip not found, trying \"unzip\" directly...\n";
+            $cmd = "unzip -o -qq {$schema_dir}.zip -d {$schema_dir}";
+            echo "executing: {$cmd}\n";
+            if (null !== ($res = shell_exec($cmd))) {
+                echo "unable to unzip: \"{$res}\".  exiting.\n";
+                exit(1);
+            }
+        }
     }
 
     echo sprintf(

@@ -11,8 +11,7 @@ php:
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get -y install zip libzip-dev
-  - pecl install -f zip
+  - sudo apt-get -y install unzip
 
 install:
   - composer install --no-interaction --no-progress --no-suggest
