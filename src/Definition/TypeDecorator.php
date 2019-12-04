@@ -420,7 +420,6 @@ abstract class TypeDecorator
                 continue;
             }
 
-
             $property = $properties->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
             $propertyType = $property->getValueFHIRType();
 
@@ -430,7 +429,6 @@ abstract class TypeDecorator
             }
 
             $type->setValueContainer(true);
-            continue;
         }
     }
 
