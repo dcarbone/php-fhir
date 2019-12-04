@@ -13,7 +13,6 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y install zip libzip-dev
   - pecl install -f zip
-  - phpenv config-add files/php_test.ini
 
 install:
   - composer install --no-interaction --no-progress --no-suggest
