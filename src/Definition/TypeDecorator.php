@@ -406,12 +406,31 @@ abstract class TypeDecorator
     public static function setValueContainerFlag(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            $properties = $type->getProperties();
             // TODO: handle valueString, valueQuantity, etc. types?
-            if (1 === count($properties) && $properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
-                $type->setValueContainer(true);
+
+            // skip primitive types and their child types
+            if ($type->getKind()->isPrimitive() || $type->hasPrimitiveParent()) {
                 continue;
             }
+
+            $properties = $type->getProperties();
+
+            // only target types with a single field on them with the name "value"
+            if (1 !== count($properties) || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+                continue;
+            }
+
+
+            $property = $properties->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+            $propertyType = $property->getValueFHIRType();
+
+            // only target types where the "value" field is itself typed
+            if (null === $propertyType) {
+                continue;
+            }
+
+            $type->setValueContainer(true);
+            continue;
         }
     }
 
