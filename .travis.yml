@@ -10,6 +10,8 @@ php:
   - 7.3
   - 7.4
 
+before_install: phpenv config-add files/php_test.ini
+
 install:
   - composer install --no-interaction --no-progress --no-suggest
   - ./bin/generate.sh --forceDelete
