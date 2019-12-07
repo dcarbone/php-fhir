@@ -30,7 +30,7 @@ ob_start(); ?>
      */
     protected function fetchResource($format)
     {
-        $url = sprintf('<?php echo rtrim($config->getTestEndpoint(), '/') . '/' . $type->getFHIRName(); ?>/?_count=1&_format=%s&_pretty=true', $format);
+        $url = sprintf('<?php echo rtrim($config->getTestEndpoint(), '/') . '/' . $type->getFHIRName(); ?>/?_count=1&_format=%s', $format);
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -137,7 +137,7 @@ ob_start(); ?>
             return;
         }
 
-        $reEncoded = json_encode($bundle, JSON_PRETTY_PRINT);
+        $reEncoded = json_encode($bundle);
         try {
             $this->assertEquals($decoded, $this->decodeJSON($reEncoded, true));
         } catch (\Exception $e) {
