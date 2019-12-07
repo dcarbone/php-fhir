@@ -17,9 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
-
-$parentType = $type->getParentType();
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $directProperties */
 
 ob_start(); ?>
     /**
