@@ -77,8 +77,9 @@ define('PHPFHIR_INTERFACE_TYPE', 'PHPFHIRTypeInterface');
 define('PHPFHIR_INTERFACE_CONTAINED_TYPE', 'PHPFHIRContainedTypeInterface');
 define('PHPFHIR_INTERFACE_COMMENT_CONTAINER', 'PHPFHIRCommentContainerInterface');
 
-// fhir_comments trait
+// traits
 define('PHPFHIR_TRAIT_COMMENT_CONTAINER', 'PHPFHIRCommentContainerTrait');
+define('PHPFHIR_TRAIT_VALIDATION_ASSERTIONS', 'PHPFHIRValidationAssertionsTrait');
 
 // validation constants
 define('PHPFHIR_VALIDATION_ENUM', 0x1);

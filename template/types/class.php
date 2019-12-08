@@ -144,7 +144,6 @@ endif; ?>
         PHPFHIR_TEMPLATE_VALIDATION_DIR . '/method.php',
     [
             'type' => $type,
-            'directProperties' => $directProperties
     ]
 ); ?>
 

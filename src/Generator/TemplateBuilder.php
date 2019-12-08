@@ -62,6 +62,16 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
+    public static function generatePHPFHIRValidationAssertionsTrait(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_validation_assertions_trait.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
     public static function generatePHPFHIRContainedTypeInterface(VersionConfig $config, Types $types)
     {
         return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_contained_type.php';

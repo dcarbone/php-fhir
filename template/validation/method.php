@@ -17,7 +17,6 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $directProperties */
 
 ob_start(); ?>
     /**
@@ -25,8 +24,12 @@ ob_start(); ?>
      */
     public function _validationErrors()
     {
-        // TODO: implement validation
-        return [];
+<?php if (null !== $type->getParentType()) : ?>
+        $errs = parent::_validationErrors();
+<?php else : ?>
+        $errs = [];
+<?php endif; ?>
+        return $errs;
     }
 <?php
 return ob_get_clean();

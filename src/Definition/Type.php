@@ -726,6 +726,7 @@ class Type
             if ($this->isCommentContainer()) {
                 $traits[] = PHPFHIR_TRAIT_COMMENT_CONTAINER;
             }
+            $traits[] = PHPFHIR_TRAIT_VALIDATION_ASSERTIONS;
         }
 
         return $traits;

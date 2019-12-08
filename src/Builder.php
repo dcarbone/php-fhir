@@ -275,6 +275,15 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
+                PHPFHIR_TRAIT_VALIDATION_ASSERTIONS
+            ),
+            TemplateBuilder::generatePHPFHIRValidationAssertionsTrait($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
                 PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG
             ),
             TemplateBuilder::generatePHPFHIRResponseParserConfigClass($this->config, $types)

@@ -69,6 +69,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     const INT_MAX = 2147483648;
     const INT_MIN = -2147483648;
 
+    const UNLIMITED = -1;
+
     // Validation
     const <?php echo PHPFHIR_VALIDATION_ENUM_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_ENUM); ?>;
     const <?php echo PHPFHIR_VALIDATION_MIN_LENGTH_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_LENGTH); ?>;

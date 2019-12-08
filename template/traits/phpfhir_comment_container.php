@@ -33,7 +33,7 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER;  if ('' !== $rootNS) : ?>
+ * Trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; if ('' !== $rootNS) : ?>
 
  * @package \<?php echo $rootNS; ?>
 <?php endif; ?>
