@@ -26,7 +26,7 @@ ob_start(); ?>
 
      * @var array
      */
-    private static $_fieldValidation = [<?php foreach ($sortedProperties as $property) :
+    private static $_validationRules = [<?php foreach ($sortedProperties as $property) :
     $validationMap = $property->buildValidationMap();
     if ([] !== $validationMap) : ?>
 

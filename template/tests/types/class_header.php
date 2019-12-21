@@ -36,10 +36,10 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 echo "use PHPUnit\\Framework\\TestCase;\n";
 echo "use {$type->getFullyQualifiedClassName(false)};\n";
-if ($type->isDomainResource()) {
+if (null !== $config->getTestEndpoint() && $type->isDomainResource()) :
     echo "use PHPUnit\\Framework\\AssertionFailedError;\n";
     echo "use {$bundleType->getFullyQualifiedClassName(false)};\n";
-}
+endif;
 ?>
 
 /**

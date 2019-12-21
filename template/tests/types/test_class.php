@@ -24,18 +24,19 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 $typeKind = $type->getKind();
 
 $bundleType = null;
-if ($type->isDomainResource()) {
+// only bother to locate bundle type if there is a configured test endpoint
+if (null !== $config->getTestEndpoint() && $type->isDomainResource()) :
     // TODO: find a more efficient way to do this...
-    foreach ($types->getIterator() as $bt) {
-        if ($bt->getFHIRName() === 'Bundle') {
+    foreach ($types->getIterator() as $bt) :
+        if ($bt->getFHIRName() === 'Bundle') :
             $bundleType = $bt;
             break;
-        }
-    }
-    if (null === $bundleType) {
+        endif;
+    endforeach;
+    if (null === $bundleType) :
         throw ExceptionUtils::createBundleTypeNotFoundException($type);
-    }
-}
+    endif;
+endif;
 
 ob_start();
 
@@ -56,7 +57,7 @@ echo require_with(
     ]
 );
 
-if ($type->isDomainResource()) {
+if (null !== $config->getTestEndpoint() && $type->isDomainResource()) :
     echo require_with(
         PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods/domain_resource.php',
         [
@@ -65,9 +66,9 @@ if ($type->isDomainResource()) {
             'bundleType' => $bundleType,
         ]
     );
-}
+endif;
 
-if ($typeKind->isPrimitive()) {
+if ($typeKind->isPrimitive()) :
     echo require_with(
         PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods/primitive.php',
         [
@@ -75,7 +76,7 @@ if ($typeKind->isPrimitive()) {
             'type' => $type,
         ]
     );
-}
+endif;
 
 echo "}\n";
 return ob_get_clean();

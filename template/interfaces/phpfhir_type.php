@@ -73,11 +73,17 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     public function _getFHIRXMLElementDefinition();
 
     /**
+     * Must return an associative array in structure ["field" => ["rule" => {constraint}]] to be used during validation
+     * @return array
+     */
+    public function _getValidationRules();
+
+    /**
      * Must return associative array where, if there are validation errors, the keys are the names of fields within the
      * type that failed validation.  The value must be a string message describing the manner of error
      * @return array
      */
-    public function _validationErrors();
+    public function _getValidationErrors();
 
     /**
      * @param \SimpleXMLElement|string|null $sxe

@@ -16,20 +16,13 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 ob_start(); ?>
-    /**
-     * @return array
-     */
-    public function _validationErrors()
-    {
-<?php if (null !== $type->getParentType()) : ?>
-        $errs = parent::_validationErrors();
-<?php else : ?>
-        $errs = [];
-<?php endif; ?>
-        return $errs;
-    }
+        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+            if ([] === ($fieldErrs = $v->_getValidationErrors())) {
+                $errs[self::<?php echo $property->getFieldConstantName(); ?>] = $fieldErrs;
+            }
+        }
 <?php
 return ob_get_clean();

@@ -330,7 +330,18 @@ abstract class TypeDecorator
             if ($rootTypeKind->isPrimitive()) {
                 self::setTypeKind($config, $types, $type, (string)TypeKindEnum::GENERIC);
             } else {
-                self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
+                $set = false;
+                if ($rootTypeKind->isElement() && [] !== ($parentTypes = $type->getParentTypes())) {
+                    foreach ($parentTypes as $parentType) {
+                        if ('Resource' === $parentType->getFHIRName()) {
+                            $set = true;
+                            self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE);
+                        }
+                    }
+                }
+                if (!$set) {
+                    self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
+                }
             }
         } elseif (TypeKindEnum::isKnownRoot($fhirName)) {
             self::setTypeKind($config, $types, $type, $fhirName);

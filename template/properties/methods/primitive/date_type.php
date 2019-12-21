@@ -46,7 +46,7 @@ ob_start(); ?>
         if (null === $value) {
             return null;
         }
-        if ([] !== $this->_validationErrors()) {
+        if ([] !== $this->_getValidationErrors()) {
             throw new \DomainException(sprintf(
                 'Cannot convert "%s" to \\DateTime as it does not conform to "%s"',
                 $value,

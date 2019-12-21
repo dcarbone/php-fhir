@@ -139,7 +139,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
             implode(
                 ', ',
                 array_map(
-                    function($v) { return var_export($v, true); },
+                    function($value) { return var_export($v, true); },
                     $expected
                 )
             )
@@ -160,6 +160,35 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
             return null;
         }
         return sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $fieldName, $typeName, $value, $pattern);
+    }
+
+    /**
+     * @param string $typeName
+     * @param string $fieldName
+     * @param string $ruleName
+     * @param mixed $constraint
+     * @param mixed $value
+     * @return null|string
+     */
+    protected function _performValidation($typeName, $fieldName, $ruleName, $constraint, $value)
+    {
+        switch($ruleName) {
+            case PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_ENUM_NAME; ?>:
+                return $this->_assertValueInEnum($typeName, $fieldName, $constraint, $value);
+            case PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_MIN_LENGTH_NAME; ?>:
+                return $this->_assertMinLength($typeName, $fieldName, $constraint, $value);
+            case PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_MAX_LENGTH_NAME; ?>:
+                return $this->_assertMaxLength($typeName, $fieldName, $constraint, $value);
+            case PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_MIN_OCCURS_NAME; ?>:
+                return $this->_assertMinOccurs($typeName, $fieldName, $constraint, $value);
+            case PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_MAX_OCCURS_NAME; ?>:
+                return $this->_assertMaxOccurs($typeName, $fieldName, $constraint, $value);
+            case PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?>:
+                return $this->_assertPatternMatch($typeName, $fieldName, $constraint, $value);
+
+            default:
+                return sprintf('Type "%s" specifies unknown validation for field "%s": Name "%s"; Constraint "%s"', $typeName, $fieldName, $ruleName, var_export($constraint, true));
+        }
     }
 }
 <?php

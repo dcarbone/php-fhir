@@ -141,7 +141,7 @@ endif;
 endif; ?>
 
 <?php echo require_with(
-        PHPFHIR_TEMPLATE_VALIDATION_DIR . '/method.php',
+        PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods.php',
     [
             'type' => $type,
     ]

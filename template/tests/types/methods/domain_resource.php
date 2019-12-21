@@ -24,12 +24,17 @@
 
 ob_start(); ?>
 
+    private $_fetchedResources = [];
+
     /**
      * @param string $format Either xml or json
      * @return string
      */
     protected function fetchResource($format)
     {
+        if (isset($this->_fetchedResources[$format])) {
+            return $this->_fetchedResources[$format];
+        }
         $url = sprintf('<?php echo rtrim($config->getTestEndpoint(), '/') . '/' . $type->getFHIRName(); ?>/?_count=1&_format=%s', $format);
         $ch = curl_init($url);
         curl_setopt_array($ch, [
@@ -46,6 +51,7 @@ ob_start(); ?>
         } else {
             $this->assertInternalType('string', $res);
         }
+        $this->_fetchedResources[$format] = $res;
         return $res;
     }
 
@@ -148,6 +154,63 @@ ob_start(); ?>
                     $json,
                     $reEncoded
                 ),
+                $e->getCode(),
+                $e
+            );
+        }
+    }
+
+    public function testValidationXML()
+    {
+        $xml = $this->fetchResource('xml');
+        try {
+            $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize($xml);
+        } catch(\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
+                    $e->getMessage(),
+                    $xml
+                ),
+                $e->getCode(),
+                $e
+            );
+        }
+        $errs = $bundle->_getValidationErrors();
+        try {
+            $this->assertCount(0, $errs);
+        } catch (\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf('Unexpected validation errors seen: %s', json_encode($errs, JSON_PRETTY_PRINT)),
+                $e->getCode(),
+                $e
+            );
+        }
+    }
+
+    public function testValidationJSON()
+    {
+        $json = $this->fetchResource('json');
+        $decoded = $this->decodeJSON($json, true);
+        try {
+            $bundle = new <?php echo $bundleType->getClassName(); ?>($decoded);
+        } catch(\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from JSON: %s; Returned JSON: %s',
+                    $e->getMessage(),
+                    $json
+                ),
+                $e->getCode(),
+                $e
+            );
+        }
+        $errs = $bundle->_getValidationErrors();
+        try {
+            $this->assertCount(0, $errs);
+        } catch (\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf('Unexpected validation errors seen: %s', json_encode($errs, JSON_PRETTY_PRINT)),
                 $e->getCode(),
                 $e
             );
