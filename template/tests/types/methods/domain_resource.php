@@ -40,7 +40,6 @@ ob_start(); ?>
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT        => 10, // set low timeout to move things along...
         ]);
         $res = curl_exec($ch);
         $err = curl_error($ch);
