@@ -19,6 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $typeNameConst = $type->getTypeNameConst(true);
+$typeKind = $type->getKind();
 
 // TODO: this is a quick and lazy initial implementation.  Should improve this later...
 
@@ -51,29 +52,43 @@ ob_start(); ?>
 <?php foreach ($type->getProperties()->getDirectSortedIterator() as $property) :
     $propertyType = $property->getValueFHIRType();
     if (null === $propertyType) :
-        continue;
-    endif;
-    if ($property->isCollection()) :
-        echo require_with(
+        if ($property->isCollection()) :
+            echo require_with(
+                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/collection_typed.php',
+                [
+                    'property' => $property
+                ]
+            );
+        else :
+            echo require_with(
+                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/primitive.php',
+                [
+                    'property' => $property
+                ]
+            );
+        endif;
+    else :
+        if ($property->isCollection()) :
+            echo require_with(
                 PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/collection_typed.php',
                 [
                         'property' => $property
                 ]
-        );
-    else :
-        echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/typed.php',
-            [
-                'property' => $property
-            ]
-        );
-    endif; ?>
-<?php endforeach;
-
+            );
+        else :
+            echo require_with(
+                    PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/typed.php',
+                [
+                    'property' => $property
+                ]
+            );
+        endif;
+    endif;
+endforeach;
 if (null !== $type->getParentType()) :
     $ptype = $type;
     while (null !== $ptype) :
-        foreach($ptype->getProperties()->getSortedIterator() as $property) : ?>
+        foreach($ptype->getProperties()->getDirectSortedIterator() as $property) : ?>
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {
@@ -86,7 +101,7 @@ if (null !== $type->getParentType()) :
                 }
             }
         }
-    <?php endforeach;
+<?php endforeach;
         $ptype = $ptype->getParentType();
     endwhile;
 endif; ?>
