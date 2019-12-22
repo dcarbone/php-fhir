@@ -139,7 +139,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
             implode(
                 ', ',
                 array_map(
-                    function($value) { return var_export($v, true); },
+                    function($v) { return var_export($v, true); },
                     $expected
                 )
             )

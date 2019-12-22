@@ -70,9 +70,10 @@ ob_start(); ?>
     endif; ?>
 <?php endforeach;
 
-$ptype = $type;
-while (null !== $ptype) :
-    foreach($ptype->getProperties()->getSortedIterator() as $property) : ?>
+if (null !== $type->getParentType()) :
+    $ptype = $type;
+    while (null !== $ptype) :
+        foreach($ptype->getProperties()->getSortedIterator() as $property) : ?>
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {
@@ -85,9 +86,10 @@ while (null !== $ptype) :
                 }
             }
         }
-<?php endforeach;
-    $ptype = $ptype->getParentType();
-endwhile; ?>
+    <?php endforeach;
+        $ptype = $ptype->getParentType();
+    endwhile;
+endif; ?>
         return $errs;
     }
 <?php

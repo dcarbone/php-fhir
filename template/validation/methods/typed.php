@@ -20,7 +20,7 @@
 
 ob_start(); ?>
         if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
-            if ([] === ($fieldErrs = $v->_getValidationErrors())) {
+            if ([] !== ($fieldErrs = $v->_getValidationErrors())) {
                 $errs[self::<?php echo $property->getFieldConstantName(); ?>] = $fieldErrs;
             }
         }
