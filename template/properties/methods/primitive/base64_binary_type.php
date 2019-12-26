@@ -41,6 +41,7 @@ ob_start(); ?>
      *
      * @param resource $fileHandle
      * @return int|false
+     */
     public function _writeToFile($fileHandle)
     {
         $v = $this->getValue();
