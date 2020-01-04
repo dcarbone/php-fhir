@@ -25,7 +25,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
-$directProperties = $type->getProperties()->getDirectSortedIterator();
+$directProperties = $type->getProperties()->getDirectIterator();
 
 ob_start();
 // unserialize portion
@@ -74,7 +74,7 @@ else :
         ]
     );
 
-    $directProperties = $type->getProperties()->getDirectSortedIterator();
+    $directProperties = $type->getProperties()->getDirectIterator();
     if (0 < count($directProperties)) :
         echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/default_body.php',

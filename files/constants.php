@@ -18,7 +18,10 @@
 
 // conf defaults
 define('PHPFHIR_ROOT_DIR', realpath(dirname(__DIR__)));
-define('PHPFHIR_DEFAULT_OUTPUT_DIR', realpath(PHPFHIR_ROOT_DIR . '/output'));
+define('PHPFHIR_BIN_DIR', realpath(__DIR__ . '/../bin'));
+define('PHPFHIR_DEFAULT_OUTPUT_DIR', realpath(PHPFHIR_ROOT_DIR . DIRECTORY_SEPARATOR . 'output'));
+define('PHPFHIR_OUTPUT_TMP_DIR', PHPFHIR_DEFAULT_OUTPUT_DIR . DIRECTORY_SEPARATOR . 'tmp');
+define('PHPFHIR_FHIR_VALIDATION_JAR', PHPFHIR_BIN_DIR . DIRECTORY_SEPARATOR . 'org.hl7.fhir.validator.jar');
 
 // format regex
 define('PHPFHIR_VARIABLE_NAME_REGEX', '{^[a-zA-Z_][a-zA-Z0-9_]*$}S');

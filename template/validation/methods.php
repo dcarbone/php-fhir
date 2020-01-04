@@ -49,7 +49,7 @@ ob_start(); ?>
         $errs = [];
 <?php endif; ?>
         $validationRules = $this->_getValidationRules();
-<?php foreach ($type->getProperties()->getDirectSortedIterator() as $property) :
+<?php foreach ($type->getProperties()->getDirectIterator() as $property) :
     $propertyType = $property->getValueFHIRType();
     if (null === $propertyType) :
         if ($property->isCollection()) :
@@ -88,7 +88,7 @@ endforeach;
 if (null !== $type->getParentType()) :
     $ptype = $type;
     while (null !== $ptype) :
-        foreach($ptype->getProperties()->getDirectSortedIterator() as $property) : ?>
+        foreach($ptype->getProperties()->getDirectIterator() as $property) : ?>
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {

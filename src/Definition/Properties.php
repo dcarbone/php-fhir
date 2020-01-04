@@ -162,6 +162,14 @@ class Properties implements \Countable
     /**
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
+    public function getDirectIterator()
+    {
+        return \SplFixedArray::fromArray($this->properties, false);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Property[]
+     */
     public function getDirectSortedIterator()
     {
         $this->_getSortedProperties();

@@ -19,7 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$directProperties = $type->getProperties()->getDirectSortedIterator();
+$directProperties = $type->getProperties()->getDirectIterator();
 
 ob_start(); ?>
     /**

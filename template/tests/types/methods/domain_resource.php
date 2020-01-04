@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
@@ -175,6 +178,13 @@ ob_start(); ?>
                 $e
             );
         }
+        if (0 === count($bundle->getEntry())) {
+            $this->markTestSkipped(sprintf(
+                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned XML: %s)',
+                $xml
+            ));
+            return;
+        }
         $errs = $bundle->_getValidationErrors();
         try {
             $this->assertCount(0, $errs);
@@ -200,12 +210,88 @@ ob_start(); ?>
                 $e
             );
         }
+        if (0 === count($bundle->getEntry())) {
+            $this->markTestSkipped(sprintf(
+                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                $json
+            ));
+            return;
+        }
         $errs = $bundle->_getValidationErrors();
         try {
             $this->assertCount(0, $errs);
         } catch (\Exception $e) {
             $this->markTestSkipped(sprintf('Validation errors seen: %s', json_encode($errs, JSON_PRETTY_PRINT)));
         }
+    }
+
+    public function testFHIRValidationXML()
+    {
+        $xml = $this->fetchResource('xml');
+        try {
+            $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize($xml);
+        } catch(\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
+                    $e->getMessage(),
+                    $xml
+                ),
+                $e->getCode(),
+                $e
+            );
+        }
+        if (0 === count($bundle->getEntry())) {
+            $this->markTestSkipped(sprintf(
+                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
+                $xml
+            ));
+            return;
+        }
+        $entry = $bundle->getEntry()[0]->getResource();
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(); ?>.xml';
+        file_put_contents($fname, $entry->xmlSerialize()->saveXML());
+        $this->assertFileExists($fname);
+
+        // TODO: do stuff
+
+        unlink($fname);
+        $this->assertFileNotExists($fname);
+    }
+
+    public function testFHIRValidationJSON()
+    {
+        $json = $this->fetchResource('json');
+        $decoded = $this->decodeJSON($json, true);
+        try {
+            $bundle = new <?php echo $bundleType->getClassName(); ?>($decoded);
+        } catch(\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from JSON: %s; Returned JSON: %s',
+                    $e->getMessage(),
+                    $json
+                ),
+                $e->getCode(),
+                $e
+            );
+        }
+        if (0 === count($bundle->getEntry())) {
+            $this->markTestSkipped(sprintf(
+                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                $json
+            ));
+            return;
+        }
+        $entry = $bundle->getEntry()[0]->getResource();
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(); ?>.json';
+        file_put_contents($fname, json_encode($entry));
+        $this->assertFileExists($fname);
+
+        // TODO: do stuff
+
+        unlink($fname);
+        $this->assertFileNotExists($fname);
     }
 <?php
 return ob_get_clean();

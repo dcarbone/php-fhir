@@ -20,7 +20,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$directProperties = $type->getProperties()->getDirectSortedIterator();
+$directProperties = $type->getProperties()->getDirectIterator();
 $typeKind = $type->getKind();
 
 ob_start();

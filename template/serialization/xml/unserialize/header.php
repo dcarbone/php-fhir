@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
-$directProperties = $type->getProperties()->getDirectSortedIterator();
+$directProperties = $type->getProperties()->getDirectIterator();
 
 ob_start(); ?>
     /**

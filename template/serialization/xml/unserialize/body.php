@@ -18,7 +18,7 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$directProperties = $type->getProperties()->getDirectSortedIterator();
+$directProperties = $type->getProperties()->getDirectIterator();
 
 ob_start();
 foreach ($directProperties as $property) :
