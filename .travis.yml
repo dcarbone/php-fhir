@@ -14,6 +14,8 @@ php:
 before_install:
   - sudo apt-get update
   - sudo apt-get -y install unzip
+  - mkdir output/tmp
+  - wget -O bin/org.hl7.fhir.validator.jar https://fhir.github.io/latest-ig-publisher/org.hl7.fhir.validator.jar
 
 install:
   - composer install --no-interaction --no-progress --no-suggest
