@@ -57,7 +57,7 @@ foreach ($sortedProperties as $property) :
         echo require_with(__DIR__ . '/default_property_default.php', ['property' => $property]);
     endif;
 endforeach;
-if ($propertyType->isCommentContainer() || $propertyType->hasCommentContainerParent()) : ?>
+if ($type->isCommentContainer() || $type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
             $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
         }<?php endif; ?>

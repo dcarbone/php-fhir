@@ -30,6 +30,9 @@ class Properties implements \Countable
     private $properties = [];
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private $sortedProperties;
+
+    /** @var \DCarbone\PHPFHIR\Definition\Property[] */
+    private $directProperties;
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private $directSortedProperties;
 
@@ -164,7 +167,8 @@ class Properties implements \Countable
      */
     public function getDirectIterator()
     {
-        return \SplFixedArray::fromArray($this->properties, false);
+        $this->_getSortedProperties();
+        return \SplFixedArray::fromArray($this->directProperties, false);
     }
 
     /**
@@ -191,6 +195,7 @@ class Properties implements \Countable
     {
         if (!$this->sorted) {
             $this->sortedProperties = $this->properties;
+            $this->directProperties = [];
             $this->directSortedProperties = [];
             usort(
                 $this->sortedProperties,
@@ -198,6 +203,11 @@ class Properties implements \Countable
                     return strnatcmp($a->getName(), $b->getName());
                 }
             );
+            foreach ($this->properties as $property) {
+                if (!$property->isOverloaded()) {
+                    $this->directProperties[] = $property;
+                }
+            }
             foreach ($this->sortedProperties as $property) {
                 if (!$property->isOverloaded()) {
                     $this->directSortedProperties[] = $property;
