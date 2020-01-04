@@ -249,11 +249,28 @@ ob_start(); ?>
             return;
         }
         $entry = $bundle->getEntry()[0]->getResource();
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(); ?>.xml';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
         file_put_contents($fname, $entry->xmlSerialize()->saveXML());
         $this->assertFileExists($fname);
 
-        // TODO: do stuff
+        $output = [];
+        $code = -1;
+        $cmd = sprintf(
+            'java -jar %s %s -version <?php echo CopyrightUtils::getFHIRVersion(true); ?>',
+            PHPFHIR_FHIR_VALIDATION_JAR,
+            $fname
+        );
+
+        exec($cmd, $output, $code);
+
+        $this->assertEquals(
+            0,
+            $code,
+            sprintf(
+                "Expected validation result to be 0, saw %d:\n%s",
+                implode("\n", $output)
+            )
+        );
 
         unlink($fname);
         $this->assertFileNotExists($fname);
@@ -284,11 +301,28 @@ ob_start(); ?>
             return;
         }
         $entry = $bundle->getEntry()[0]->getResource();
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(); ?>.json';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
         file_put_contents($fname, json_encode($entry));
         $this->assertFileExists($fname);
 
-        // TODO: do stuff
+        $output = [];
+        $code = -1;
+        $cmd = sprintf(
+            'java -jar %s %s -version <?php echo CopyrightUtils::getFHIRVersion(true); ?>',
+            PHPFHIR_FHIR_VALIDATION_JAR,
+            $fname
+        );
+
+        exec($cmd, $output, $code);
+
+        $this->assertEquals(
+            0,
+            $code,
+            sprintf(
+                "Expected validation result to be 0, saw %d:\n%s",
+                implode("\n", $output)
+            )
+        );
 
         unlink($fname);
         $this->assertFileNotExists($fname);

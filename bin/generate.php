@@ -448,9 +448,15 @@ foreach ($versions_to_generate as $i => $version) {
         } else {
             echo "ext-zip not found, trying \"unzip\" directly...\n";
             $cmd = "unzip -o -qq {$schema_dir}.zip -d {$schema_dir}";
+            $output = [];
+            $code = 0;
             echo "executing: {$cmd}\n";
-            if (null !== ($res = shell_exec($cmd))) {
-                echo "unable to unzip: \"{$res}\".  exiting.\n";
+            exec($cmd, $output, $code);
+            if (0 !== $code) {
+                echo "unzip failed with code {$code}\noutput:\n";
+                foreach($output as $line) {
+                    echo "-----> {$line}\n";
+                }
                 exit(1);
             }
         }

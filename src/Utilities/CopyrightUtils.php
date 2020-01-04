@@ -238,9 +238,10 @@ abstract class CopyrightUtils
     }
 
     /**
+     * @param bool $trimmed
      * @return string
      */
-    public static function getFHIRVersion()
+    public static function getFHIRVersion($trimmed)
     {
         if (!isset(self::$_compiledWith)) {
             throw new \LogicException(sprintf(
@@ -248,6 +249,6 @@ abstract class CopyrightUtils
                 __METHOD__
             ));
         }
-        return self::$_fhirVersion;
+        return $trimmed ? trim(self::$_fhirVersion, 'v') : self::$_fhirVersion;
     }
 }

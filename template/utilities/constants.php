@@ -46,7 +46,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
 {
     // FHIR source
-    const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
+    const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(false); ?>';
     const SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
 
     // PHPFHIR

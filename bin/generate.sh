@@ -2,4 +2,4 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-/usr/bin/env php ${DIR}/generate.php "$@"
+/usr/bin/env php "${DIR}"/generate.php "$@"
