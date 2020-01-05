@@ -267,7 +267,8 @@ ob_start(); ?>
             0,
             $code,
             sprintf(
-                "Expected validation result to be 0, saw %d:\n%s",
+                "Expected exit code 0, saw %d:\n%s",
+                $code,
                 implode("\n", $output)
             )
         );
@@ -319,7 +320,8 @@ ob_start(); ?>
             0,
             $code,
             sprintf(
-                "Expected validation result to be 0, saw %d:\n%s",
+                "Expected exit code 0, saw %d:\n%s",
+                $code,
                 implode("\n", $output)
             )
         );
