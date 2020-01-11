@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,9 @@ class TypeKindEnum extends AbstractEnum
 
     // the generic type is applied to anything that is not a child of a known root or a known root itself.
     const GENERIC = 'generic';
+
+    // treated a bit different
+    const RAW = 'raw';
 
     /**
      * @param $fhirName
@@ -128,5 +131,13 @@ class TypeKindEnum extends AbstractEnum
     public function isGeneric()
     {
         return $this->is(self::GENERIC);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRaw()
+    {
+        return $this->is(self::RAW);
     }
 }

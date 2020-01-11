@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
@@ -25,14 +24,15 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var bool $skipImports */
 /** @var string $fqns */
 
+// determine if we need to declare a namespace
+$namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
+
 // start output buffer
 ob_start();
 
 // build php opener
 echo "<?php\n\n";
 
-// determine if we need to declare a namespace
-$namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
 if ('' !== $namespace) {
     echo "namespace {$namespace};\n\n";
 }

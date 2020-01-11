@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,10 @@ define('PHPFHIR_LIST_SUFFIX', '-list');
 
 // html property
 define('PHPFHIR_XHTML_DIV', 'xhtml:div');
+
+// raw type
+define('PHPFHIR_RAW_TYPE_NAME', 'raw');
+define('PHPFHIR_RAW_TYPE_DESCRIPTION', 'Raw type used in special cases');
 
 // FHIR XML NS
 define('PHPFHIR_FHIR_XMLNS', 'http://hl7.org/fhir');

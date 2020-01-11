@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,12 +193,13 @@ abstract class TypeDecorator
                     if (PHPFHIR_XHTML_DIV === $property->getRef()) {
                         // TODO: come up with "raw" type for things like this?
                         // TODO: XML/HTML values in particular need their own specific type
-                        $property->setValueFHIRType($types->getTypeByName('string-primitive'));
+                        $property->setValueFHIRType($types->getTypeByName(PHPFHIR_RAW_TYPE_NAME));
                         $log->warning(sprintf(
-                            'Type "%s" Property "%s" has Ref "%s", setting Type to "string-primitive"',
+                            'Type "%s" Property "%s" has Ref "%s", setting Type to "%s"',
                             $type->getFHIRName(),
                             $property->getName(),
-                            $property->getRef()
+                            $property->getRef(),
+                            PHPFHIR_RAW_TYPE_NAME
                         ));
                         continue; // move on to next property
                     }
@@ -420,7 +421,10 @@ abstract class TypeDecorator
             // TODO: handle valueString, valueQuantity, etc. types?
 
             // skip primitive types and their child types
-            if ($type->getKind()->isPrimitive() || $type->hasPrimitiveParent()) {
+            if ($type->getKind()->isOneOf([
+                    TypeKindEnum::PRIMITIVE,
+                    TypeKindEnum::RAW,
+                ]) || $type->hasPrimitiveParent()) {
                 continue;
             }
 
@@ -450,7 +454,9 @@ abstract class TypeDecorator
     public static function setCommentContainerFlag(VersionConfig $config, Types $types)
     {
         foreach ($types->getIterator() as $type) {
-            $type->setCommentContainer(!$type->getKind()->isPrimitive() && !$type->hasPrimitiveParent());
+            $type->setCommentContainer(
+                !$type->hasPrimitiveParent() && !$type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::RAW])
+            );
         }
     }
 
