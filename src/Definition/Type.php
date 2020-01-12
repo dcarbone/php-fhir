@@ -727,6 +727,7 @@ class Type
                 $traits[] = PHPFHIR_TRAIT_COMMENT_CONTAINER;
             }
             $traits[] = PHPFHIR_TRAIT_VALIDATION_ASSERTIONS;
+            $traits[] = PHPFHIR_TRAIT_CHANGE_TRACKING;
         }
 
         return $traits;

@@ -22,9 +22,9 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-// determine if we need to declare a namespace
+$fqns = $type->getFullyQualifiedNamespace(true);
+$classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 $namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
-
 
 ob_start();
 
@@ -46,19 +46,17 @@ echo require_with(
 <?php echo $classDocumentation; ?>
  *<?php endif; ?>
 
- * Class <?php echo $typeClassname; ?>
+ * Class <?php echo $type->getClassName(); ?>
 
  * @package <?php echo $fqns; ?>
 
  */
-<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => $parentType]); ?>
+<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => null]); ?>
 
     // name of FHIR type this class describes
-    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;<?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
-
+    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
     const TO_STRING_FUNC = '__toString';
 
-<?php endif; ?>
     /** @var string */
     private $_data = null;
     /** @var string */
@@ -71,10 +69,20 @@ echo require_with(
      * <?php echo PHPFHIR_RAW_TYPE_NAME; ?> Constructor
      * @param null|string|integer|float|boolean|object $data
      */
-    public function __construct($data)
+    public function __construct($data = null)
     {
         $this->_setData($data);
     }
+
+<?php
+echo require_with(
+    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    [
+        'type' => $type,
+        'parentType' => $type->getParentType(),
+    ]
+);
+?>
 
     /**
      * @return null|string|integer|float|boolean|object
@@ -114,13 +122,13 @@ echo require_with(
     [
         'config' => $config,
         'type' => $type,
-        'typeKind' => $typeKind,
-        'parentType' => $parentType,
-        'typeClassName' => $typeClassName
+        'typeKind' => $type->getKind(),
+        'parentType' => null,
+        'typeClassName' => $type->getClassName()
     ]
 );
 ?>
-        $type->_setData($sxe->saveXML());
+        $type->_setData((string)$sxe);
         return $type;
     }
 
@@ -138,7 +146,7 @@ echo require_with(
                 __METHOD__
             ));
         }
-        return new \SimpleXMLElement(<phpfhir_raw>{$this->_getData()}</phpfhir_raw>, $libxmlOpts, false);
+        return new \SimpleXMLElement("<phpfhir_raw>{$this->_getData()}</phpfhir_raw>", $libxmlOpts, false);
     }
 
     /**
@@ -154,7 +162,7 @@ echo require_with(
      */
     public function __toString()
     {
-        return strval(this->_getData());
+        return strval($this->_getData());
     }
 
 }<?php return ob_get_clean();

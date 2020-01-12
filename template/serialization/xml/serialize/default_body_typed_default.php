@@ -20,6 +20,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
+$propertyType = $property->getValueFHIRType();
 $propertyConstName = $property->getFieldConstantName();
 $getter = $property->getGetterName();
 
@@ -30,15 +31,23 @@ if ($property->isCollection()) : ?>
                 if (null === $v) {
                     continue;
                 }
+<?php if ($propertyType->getKind()->isRaw()) : ?>
+                $sxe->addChild(self::<?php echo $propertyConstName; ?>, (string)$v, $v->_getFHIRXMLNamespace()));
+<?php else : ?>
                 $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+<?php endif; ?>
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-<?php if ($property->isValueProperty() || $property->getValueFHIRType()->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) : ?>
+<?php if ($propertyType->getKind()->isRaw()) : ?>
+            $sxe->addChild(self::<?php echo $propertyConstName; ?>, (string)$v, $v->_getFHIRXMLNamespace());
+<?php elseif ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isPrimitive()) : ?>
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-<?php endif;
-if (!$property->getValueFHIRType()->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :?>
+<?php elseif ($propertyType->isValueContainer()) : /* TODO: improve so we don't double-print value element(s) */ ?>
+            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
+            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+<?php else :?>
             $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
 <?php endif; ?>
         }

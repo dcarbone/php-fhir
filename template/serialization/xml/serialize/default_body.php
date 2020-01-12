@@ -30,7 +30,7 @@ foreach ($directProperties as $property) :
             ]
         );
     elseif (null === $parentType) :
-        echo require_with(__DIR__ . '/default_body_raw.php', ['parentType' => $parentType]);
+        echo require_with(__DIR__ . '/default_body_untyped.php', []);
     endif;
 endforeach;
 return ob_get_clean();

@@ -86,6 +86,12 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     public function _getValidationErrors();
 
     /**
+     * Must return true if any field on this type is set to a non-empty value
+     * @return bool
+     */
+    public function _isValued();
+
+    /**
      * @param \SimpleXMLElement|string|null $sxe
      * @param null|static $type
      * @param null|int $libxmlOpts

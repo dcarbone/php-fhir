@@ -64,7 +64,17 @@ abstract class TemplateBuilder
      */
     public static function generatePHPFHIRValidationAssertionsTrait(VersionConfig $config, Types $types)
     {
-        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_validation_assertions_trait.php';
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_validation_assertions.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generatePHPFHIRChangeTrackingTrait(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_change_tracking.php';
     }
 
     /**
@@ -106,6 +116,17 @@ abstract class TemplateBuilder
     public static function generateTypeClass(VersionConfig $config, Types $types, Type $type)
     {
         return require PHPFHIR_TEMPLATE_TYPES_DIR . '/class.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    public static function generateRawTypeClass(VersionConfig $config, Types $types, Type $type)
+    {
+        return require PHPFHIR_TEMPLATE_TYPES_DIR . '/raw.php';
     }
 
     /**

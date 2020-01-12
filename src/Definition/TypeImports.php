@@ -223,8 +223,6 @@ class TypeImports implements \Iterator, \Countable
 
         $sortedProperties = $this->type->getProperties()->getDirectIterator();
 
-        $typeKind = $this->type->getKind();
-
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
         // that may need to be imported to ensure function
         if ($typeNS !== $configNS) {

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
-
 ob_start(); ?>
         $sxe->addAttribute(self::FIELD_VALUE, (string)$this);
 <?php

@@ -87,6 +87,7 @@ define('PHPFHIR_INTERFACE_COMMENT_CONTAINER', 'PHPFHIRCommentContainerInterface'
 // traits
 define('PHPFHIR_TRAIT_COMMENT_CONTAINER', 'PHPFHIRCommentContainerTrait');
 define('PHPFHIR_TRAIT_VALIDATION_ASSERTIONS', 'PHPFHIRValidationAssertionsTrait');
+define('PHPFHIR_TRAIT_CHANGE_TRACKING', 'PHPFHIRChangeTrackingTrait');
 
 // validation constants
 define('PHPFHIR_VALIDATION_ENUM', 0x1);
