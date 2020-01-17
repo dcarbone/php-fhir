@@ -24,9 +24,14 @@ use MyCLabs\Enum\Enum;
  */
 class BaseObjectTypeEnum extends Enum
 {
-    const ELEMENT = 'Element';
     const BACKBONE_ELEMENT = 'BackboneElement';
-    const RESOURCE = 'Resource';
+    const BACKBONE_TYPE = 'BackboneType';
+    const BASE = 'Base';
+    const CANONICAL_RESOURCE = 'CanonicalResource';
+    const DATA_TYPE = 'DataType';
     const DOMAIN_RESOURCE = 'DomainResource';
+    const ELEMENT = 'Element';
+    const METADATA_RESOURCE = 'MetadataResource';
     const QUANTITY = 'Quantity';
+    const RESOURCE = 'Resource';
 }

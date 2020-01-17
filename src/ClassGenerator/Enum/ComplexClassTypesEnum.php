@@ -24,9 +24,14 @@ use MyCLabs\Enum\Enum;
  */
 class ComplexClassTypesEnum extends Enum
 {
-    const DOMAIN_RESOURCE = 'DomainResource';
-    const RESOURCE = 'Resource';
-    const ELEMENT = 'Element';
+    const BACKBONE_TYPE = 'BackboneType';
+    const BASE = 'Base';
+    const CANONICAL_RESOURCE = 'CanonicalResource';
     const COMPONENT = 'Component';
+    const DATA_TYPE = 'DataType';
+    const DOMAIN_RESOURCE = 'DomainResource';
+    const ELEMENT = 'Element';
+    const METADATA_RESOURCE = 'MetadataResource';
     const QUANTITY = 'Quantity';
+    const RESOURCE = 'Resource';
 }
