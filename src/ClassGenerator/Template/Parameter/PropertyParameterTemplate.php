@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Parameter;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 
@@ -29,22 +30,14 @@ class PropertyParameterTemplate extends BaseParameterTemplate
     private $_property;
 
     /**
-     * Constructor
-     *
-     * @param BasePropertyTemplate $propertyTemplate
+     * PropertyParameterTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(BasePropertyTemplate $propertyTemplate)
+    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate)
     {
-        parent::__construct($propertyTemplate->getName(), $propertyTemplate->getPHPType());
+        parent::__construct($config, $propertyTemplate->getName(), $propertyTemplate->getPHPType());
         $this->_property = $propertyTemplate;
-    }
-
-    /**
-     * @return BasePropertyTemplate
-     */
-    public function getProperty()
-    {
-        return $this->_property;
     }
 
     /**
@@ -60,5 +53,13 @@ class PropertyParameterTemplate extends BaseParameterTemplate
             $property->getPHPType(),
             NameUtils::getPropertyVariableName($property->getName())
         );
+    }
+
+    /**
+     * @return BasePropertyTemplate
+     */
+    public function getProperty()
+    {
+        return $this->_property;
     }
 }

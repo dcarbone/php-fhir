@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Method;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate;
@@ -27,14 +28,17 @@ use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
  */
 class BaseMethodTemplate extends AbstractTemplate
 {
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Config */
+    protected $config;
+
     /** @var string */
     protected $name;
 
-    /** @var PHPScopeEnum */
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null */
     protected $scope;
 
     /** @var \DCarbone\PHPFHIR\ClassGenerator\Template\Parameter\BaseParameterTemplate[] */
-    protected $parameters = array();
+    protected $parameters = [];
 
     /** @var null|string */
     protected $returnValueType = null;
@@ -42,49 +46,29 @@ class BaseMethodTemplate extends AbstractTemplate
     protected $returnStatement = null;
 
     /** @var array */
-    protected $body = array();
+    protected $body = [];
 
     /**
-     * Constructor
-     *
+     * BaseMethodTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param string $name
-     * @param PHPScopeEnum $scope
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum|null $scope
      */
-    public function __construct($name, PHPScopeEnum $scope = null)
+    public function __construct(Config $config, $name, PHPScopeEnum $scope = null)
     {
-        if (NameUtils::isValidFunctionName($name))
+        $this->config = $config;
+
+        if (NameUtils::isValidFunctionName($name)) {
             $this->name = $name;
-        else
-            throw new \InvalidArgumentException('Function name "'.$name.'" is not valid.');
+        } else {
+            throw new \InvalidArgumentException('Function name "' . $name . '" is not valid.');
+        }
 
-        if (null === $scope)
+        if (null === $scope) {
             $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
-        else
+        } else {
             $this->scope = $scope;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @return array
-     */
-    public function getBody()
-    {
-        return $this->body;
-    }
-
-    /**
-     * @param array $body
-     */
-    public function setBody(array $body)
-    {
-        $this->body = $body;
+        }
     }
 
     /**
@@ -96,11 +80,13 @@ class BaseMethodTemplate extends AbstractTemplate
     }
 
     /**
-     * @return PHPScopeEnum
+     * Add an entire block of code to the body of this method
+     *
+     * @param string $block
      */
-    public function getScope()
+    public function addBlockToBody($block)
     {
-        return $this->scope;
+        $this->body = array_merge($this->body, explode(PHP_EOL, $block));
     }
 
     /**
@@ -133,14 +119,6 @@ class BaseMethodTemplate extends AbstractTemplate
     public function setReturnStatement($returnStatement)
     {
         $this->returnStatement = $returnStatement;
-    }
-
-    /**
-     * @return BaseParameterTemplate[]
-     */
-    public function getParameters()
-    {
-        return $this->parameters;
     }
 
     /**
@@ -184,8 +162,7 @@ class BaseMethodTemplate extends AbstractTemplate
     {
         $output = sprintf("    /**\n%s", $this->getDocBlockDocumentationFragment());
 
-        foreach($this->getParameters() as $param)
-        {
+        foreach ($this->getParameters() as $param) {
             $output = sprintf(
                 "%s     * %s\n",
                 $output,
@@ -197,12 +174,32 @@ class BaseMethodTemplate extends AbstractTemplate
     }
 
     /**
+     * @return BaseParameterTemplate[]
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * @return string
+     */
+    protected function buildReturnDocBlockStatement()
+    {
+        if (is_string($this->returnValueType)) {
+            return sprintf("     * @return %s\n", $this->returnValueType);
+        }
+
+        return '';
+    }
+
+    /**
      * @return string
      */
     protected function buildMethodDefinition()
     {
         return sprintf(
-            "    %s function %s(%s)\n    {\n%s    }\n\n",
+            "    %s function %s(%s) {\n%s    }\n\n",
             (string)$this->getScope(),
             $this->getName(),
             $this->buildMethodParameterDefinition(),
@@ -211,14 +208,29 @@ class BaseMethodTemplate extends AbstractTemplate
     }
 
     /**
+     * @return PHPScopeEnum
+     */
+    public function getScope()
+    {
+        return $this->scope;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
      * @return string
      */
     protected function buildMethodParameterDefinition()
     {
         $output = '';
-        $params = array();
-        foreach($this->getParameters() as $param)
-        {
+        $params = [];
+        foreach ($this->getParameters() as $param) {
             $params[] = $param->compileTemplate();
         }
 
@@ -231,8 +243,7 @@ class BaseMethodTemplate extends AbstractTemplate
     protected function buildMethodBody()
     {
         $output = '';
-        foreach($this->getBody() as $line)
-        {
+        foreach ($this->getBody() as $line) {
             $output = sprintf("%s        %s\n", $output, $line);
         }
 
@@ -240,14 +251,19 @@ class BaseMethodTemplate extends AbstractTemplate
     }
 
     /**
-     * @return string
+     * @return array
      */
-    protected function buildReturnDocBlockStatement()
+    public function getBody()
     {
-        if (is_string($this->returnValueType))
-            return sprintf("     * @return %s\n", $this->returnValueType);
+        return $this->body;
+    }
 
-        return '';
+    /**
+     * @param array $body
+     */
+    public function setBody(array $body)
+    {
+        $this->body = $body;
     }
 
     /**
@@ -255,8 +271,9 @@ class BaseMethodTemplate extends AbstractTemplate
      */
     protected function buildMethodReturnStatement()
     {
-        if (is_string($this->returnStatement))
+        if (is_string($this->returnStatement)) {
             return sprintf("        return %s;\n", $this->returnStatement);
+        }
 
         return '';
     }

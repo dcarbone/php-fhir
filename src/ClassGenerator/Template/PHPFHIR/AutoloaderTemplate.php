@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\ClassTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 
@@ -29,14 +30,23 @@ class AutoloaderTemplate extends AbstractPHPFHIRClassTemplate
     private $_classMap = array();
 
     /**
-     * Constructor
-     *
-     * @param string $outputPath
-     * @param string $outputNamespace
+     * AutoloaderTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public function __construct($outputPath, $outputNamespace)
+    public function __construct(Config $config)
     {
-        parent::__construct($outputPath, $outputNamespace, 'PHPFHIRAutoloader');
+        parent::__construct($config, 'PHPFHIRAutoloader');
+    }
+
+    /**
+     * @param ClassTemplate $classTemplate
+     */
+    public function addPHPFHIRClassEntry(ClassTemplate $classTemplate)
+    {
+        $this->addEntry(
+            $classTemplate->compileFullyQualifiedClassName(false),
+            $classTemplate->compileFullOutputPath($this->outputPath)
+        );
     }
 
     /**
@@ -56,13 +66,13 @@ class AutoloaderTemplate extends AbstractPHPFHIRClassTemplate
     }
 
     /**
-     * @param ClassTemplate $classTemplate
+     * @return bool
      */
-    public function addPHPFHIRClassEntry(ClassTemplate $classTemplate)
+    public function writeToFile()
     {
-        $this->addEntry(
-            $classTemplate->compileFullyQualifiedClassName(false),
-            $classTemplate->compileFullOutputPath($this->outputPath)
+        return (bool)file_put_contents(
+            $this->classPath,
+            $this->compileTemplate()
         );
     }
 
@@ -72,21 +82,10 @@ class AutoloaderTemplate extends AbstractPHPFHIRClassTemplate
     public function compileTemplate()
     {
         return sprintf(
-            include PHPFHIR_TEMPLATE_DIR.'/autoload_template.php',
+            include PHPFHIR_TEMPLATE_DIR . '/autoload_template.php',
             $this->outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment(),
             var_export($this->_classMap, true)
-        );
-    }
-
-    /**
-     * @return bool
-     */
-    public function writeToFile()
-    {
-        return (bool)file_put_contents(
-            $this->classPath,
-            $this->compileTemplate()
         );
     }
 }

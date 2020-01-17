@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ class XSDMapEntry
     /** @var array */
     protected $properties = [];
 
-    /** @var XSDMapEntry */
+    /** @var \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry */
     protected $extendedMapEntry = null;
 
     /**
@@ -45,11 +45,12 @@ class XSDMapEntry
      * @param string $namespace
      * @param string $className
      */
-    public function __construct(\SimpleXMLElement $sxe,
-                                $fhirElementName,
-                                $namespace,
-                                $className)
-    {
+    public function __construct(
+        \SimpleXMLElement $sxe,
+        $fhirElementName,
+        $namespace,
+        $className
+    ) {
         $this->sxe = $sxe;
         $this->fhirElementName = $fhirElementName;
         $this->namespace = $namespace;
@@ -91,7 +92,7 @@ class XSDMapEntry
     /**
      * @param string $name
      * @param string $type
-     * @return XSDMapEntry
+     * @return $this
      */
     public function addProperty($name, $type)
     {
@@ -108,20 +109,20 @@ class XSDMapEntry
     }
 
     /**
-     * @param XSDMapEntry $XSDMapEntry
-     * @return XSDMapEntry
+     * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry
+     */
+    public function getExtendedMapEntry()
+    {
+        return $this->extendedMapEntry;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap\XSDMapEntry $XSDMapEntry
+     * @return $this
      */
     public function setExtendedMapEntry(XSDMapEntry $XSDMapEntry)
     {
         $this->extendedMapEntry = $XSDMapEntry;
         return $this;
-    }
-
-    /**
-     * @return XSDMapEntry
-     */
-    public function getExtendedMapEntry()
-    {
-        return $this->extendedMapEntry;
     }
 }

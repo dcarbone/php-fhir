@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\FileUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -41,21 +42,18 @@ abstract class AbstractPHPFHIRClassTemplate extends AbstractTemplate
     protected $className;
 
     /**
-     * @param string $outputPath
-     * @param string $outputNamespace
+     * AbstractPHPFHIRClassTemplate constructor.
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param string $class
      */
-    public function __construct($outputPath, $outputNamespace, $class)
+    public function __construct(Config $config, $class)
     {
-        $this->outputPath = rtrim($outputPath, "\\/");
-        $this->outputNamespace = $outputNamespace;
+        $this->outputPath = rtrim($config->getOutputPath(), "\\/");
+        $this->outputNamespace = $config->getOutputNamespace();
 
-        if (NameUtils::isValidClassName($class))
-        {
+        if (NameUtils::isValidClassName($class)) {
             $this->class = $class;
-        }
-        else
-        {
+        } else {
             throw new \RuntimeException(
                 sprintf(
                     '%s::__construct - Specified invalid class name %s.',

@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Method;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
@@ -29,16 +30,18 @@ class SetterMethodTemplate extends BaseMethodTemplate
     /**
      * Constructor
      *
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param \DCarbone\PHPFHIR\ClassGenerator\Template\Property\BasePropertyTemplate $propertyTemplate
      */
-    public function __construct(BasePropertyTemplate $propertyTemplate)
+    public function __construct(Config $config, BasePropertyTemplate $propertyTemplate)
     {
-        if ($propertyTemplate->isCollection())
+        if ($propertyTemplate->isCollection()) {
             $name = sprintf('add%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
-        else
+        } else {
             $name = sprintf('set%s', NameUtils::getPropertyMethodName($propertyTemplate->getName()));
+        }
 
-        parent::__construct($name, new PHPScopeEnum(PHPScopeEnum::_PUBLIC));
+        parent::__construct($config, $name, new PHPScopeEnum(PHPScopeEnum::_PUBLIC));
 
         $this->setDocumentation($propertyTemplate->getDocumentation());
         $this->setReturnValueType('$this');

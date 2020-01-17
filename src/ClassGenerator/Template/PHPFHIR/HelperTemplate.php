@@ -20,18 +20,19 @@ use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\CopyrightUtils;
 
 /**
- * Class ResponseParserTemplate
+ * Class HelperTemplate
  * @package DCarbone\PHPFHIR\ClassGenerator\Template\PHPFHIR
  */
-class ResponseParserTemplate extends AbstractPHPFHIRClassTemplate
+class HelperTemplate extends AbstractPHPFHIRClassTemplate
 {
+
     /**
-     * ResponseParserTemplate constructor.
+     * HelperTemplate constructor.
      * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
     public function __construct(Config $config)
     {
-        parent::__construct($config, 'PHPFHIRResponseParser');
+        parent::__construct($config, 'PHPFHIRHelper');
     }
 
     /**
@@ -40,7 +41,7 @@ class ResponseParserTemplate extends AbstractPHPFHIRClassTemplate
     public function compileTemplate()
     {
         return sprintf(
-            include PHPFHIR_TEMPLATE_DIR . '/response_parser_template.php',
+            include PHPFHIR_TEMPLATE_DIR . '/helper_template.php',
             $this->outputNamespace,
             CopyrightUtils::getBasePHPFHIRCopyrightComment()
         );

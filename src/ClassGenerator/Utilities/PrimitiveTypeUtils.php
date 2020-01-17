@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,7 @@ abstract class PrimitiveTypeUtils
     public static function getSimpleTypeVariableType(PrimitivePropertyTypesEnum $type)
     {
         $strType = (string)$type;
-        switch($strType)
-        {
+        switch ($strType) {
             case PrimitivePropertyTypesEnum::BOOLEAN:
             case PrimitivePropertyTypesEnum::INTEGER:
             case PrimitivePropertyTypesEnum::STRING:
@@ -61,7 +60,7 @@ abstract class PrimitiveTypeUtils
             case PrimitivePropertyTypesEnum::CODE:
                 return 'string';
 
-            // TODO: At somepoint, would looooove to turn this value into a real DateTime object...
+            // TODO: At some point, would looooove to turn this value into a real DateTime object...
 //            case PrimitivePropertyTypesEnum::TIME:
 //            case PrimitivePropertyTypesEnum::INSTANT:
 //            case PrimitivePropertyTypesEnum::DATE:
@@ -69,7 +68,7 @@ abstract class PrimitiveTypeUtils
 //                return '\\DateTime';
 
             default:
-                throw new \RuntimeException('No variable type mapping exists for simple property "'.$strType.'"');
+                throw new \RuntimeException('No variable type mapping exists for simple property "' . $strType . '"');
         }
     }
 }

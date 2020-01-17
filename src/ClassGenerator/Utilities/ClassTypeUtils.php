@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +32,17 @@ abstract class ClassTypeUtils
      */
     public static function getSimpleClassType($input)
     {
-        if ($input instanceof \SimpleXMLElement)
+        if ($input instanceof \SimpleXMLElement) {
             $name = XMLUtils::getObjectNameFromElement($input);
-        else
+        } else {
             $name = $input;
+        }
 
-        if (is_string($name))
+        if (is_string($name)) {
             return new SimpleClassTypesEnum(ltrim(strrchr($name, '-'), "-"));
+        }
 
-        throw new \InvalidArgumentException('Unable to determine Simple Class Type for "'.(string)$input.'"');
+        throw new \InvalidArgumentException('Unable to determine Simple Class Type for "' . (string)$input . '"');
     }
 
     /**
@@ -50,20 +52,22 @@ abstract class ClassTypeUtils
     public static function getComplexClassType(\SimpleXMLElement $sxe)
     {
         $name = XMLUtils::getObjectNameFromElement($sxe);
-        if (false !== strpos($name, '.'))
+        if (false !== strpos($name, '.')) {
             return new ComplexClassTypesEnum(ComplexClassTypesEnum::COMPONENT);
+        }
 
         $baseName = XMLUtils::getBaseFHIRElementNameFromExtension($sxe);
 
-        if (null === $baseName)
+        if (null === $baseName) {
             $baseName = XMLUtils::getBaseFHIRElementNameFromRestriction($sxe);
+        }
 
-        if (null === $baseName)
+        if (null === $baseName) {
             return null;
+        }
 
         $baseType = new BaseObjectTypeEnum($baseName);
-        switch((string)$baseType)
-        {
+        switch ((string)$baseType) {
             case BaseObjectTypeEnum::BACKBONE_ELEMENT:
                 return new ComplexClassTypesEnum(ComplexClassTypesEnum::RESOURCE);
 

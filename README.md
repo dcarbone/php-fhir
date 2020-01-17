@@ -5,12 +5,41 @@ Tools for creating PHP classes from the HL7 FHIR Specification
 
 This library requires the use of [Composer](https://getcomposer.org/)
 
-Require entry:
-```json
-    "dcarbone/php-fhir": "0.5.*"
+# Quick start
+
+A convenient download and generation script is included in this repository. 
+The script will download current major versions of FHIR into the `input` folder and 
+generate classes for every version in the `output` folder.
+
+* Run `composer install`
+* Run `php ./bin/generate.php`
+
+```php
+Downloading DSTU1 from http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip
+Generating DSTU1
+Downloading DSTU2 from http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip
+Generating DSTU2
+Downloading STU3 from http://hl7.org/fhir/STU3/fhir-all-xsd.zip
+Generating STU3
+Downloading Build from http://build.fhir.org/fhir-all-xsd.zip
+Generating Build
+Done
 ```
 
-# Basic Workflow
+# Manual Class Generation
+
+## Include library in composer.json
+
+Require entry:
+```json
+{
+  "require": {
+    "dcarbone/php-fhir": "dev-master"  
+  }
+}
+```
+
+## Basic Workflow
 
 The first step is to determine the version of the FHIR spec your implementation supports.  Once done, download
 the appropriate class definition XSDs from [http://hl7.org/fhir/directory.html](http://hl7.org/fhir/directory.html).
@@ -37,7 +66,8 @@ require __DIR__.'/vendor/autoload.php';
 
 $xsdPath = 'path to wherever you un-zipped the xsd files';
 
-$generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($xsdPath);
+$config = new \DCarbone\PHPFHIR\ClassGenerator\Config(['xsdPath' => $xsdPath]);
+$generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($config);
 
 $generator->generate();
 ```
@@ -95,7 +125,7 @@ $sxe = $object->xmlSerialize(true);
 XML Serialization utilizes [SimpleXMLElement](http://php.net/manual/en/class.simplexmlelement.php).
 
 ## Custom XML Serialization
-In some cases, vendors may deviate from the FHIR spec and require some properties of a class to be 
+In some cases, vendors may deviate from the FHIR spec and require some properties of a class to be
 serialized as xml attributes instead of a child. The generator supports this through the following configuration.
 
 ```php
@@ -103,15 +133,16 @@ require __DIR__.'/vendor/autoload.php';
 
 $xsdPath = 'path to wherever you un-zipped the xsd files';
 
-\DCarbone\PHPFHIR\ClassGenerator\Generator\MethodGenerator::addXmlSerializationAttributeOverride('SomeFHIRModel', 'somePropertyName');
+$config = new \DCarbone\PHPFHIR\ClassGenerator\Config([
+    'xsdPath' => $xsdPath,
+    'xmlSerializationAttributeOverrides' => ['SomeFHIRModel' => 'somePropertyName']
+);
 
-$generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($xsdPath);
+$generator = new \DCarbone\PHPFHIR\ClassGenerator\Generator($config);
 
 $generator->generate();
 
 ```
-
-See the integration tests for a working example.
 
 ## Testing
 

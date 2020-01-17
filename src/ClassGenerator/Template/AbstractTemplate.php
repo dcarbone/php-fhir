@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,22 +40,18 @@ abstract class AbstractTemplate
      */
     public function setDocumentation($documentation)
     {
-        if (null !== $documentation)
-        {
-            if (is_string($documentation))
+        if (null !== $documentation) {
+            if (is_string($documentation)) {
                 $documentation = array($documentation);
+            }
 
-            if (is_array($documentation))
+            if (is_array($documentation)) {
                 $this->documentation = $documentation;
-            else
+            } else {
                 throw new \InvalidArgumentException('Documentation expected to be array, string, or null.');
+            }
         }
     }
-
-    /**
-     * @return string
-     */
-    abstract public function compileTemplate();
 
     /**
      * @see compileTemplate
@@ -67,6 +63,11 @@ abstract class AbstractTemplate
     }
 
     /**
+     * @return string
+     */
+    abstract public function compileTemplate();
+
+    /**
      * @param int $spaces
      * @return string
      */
@@ -74,10 +75,8 @@ abstract class AbstractTemplate
     {
         $output = '';
         $spaces = str_repeat(' ', $spaces);
-        if (isset($this->documentation))
-        {
-            foreach($this->documentation as $doc)
-            {
+        if (isset($this->documentation)) {
+            foreach ($this->documentation as $doc) {
                 $output = sprintf("%s%s* %s\n", $output, $spaces, $doc);
             }
         }

@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ComplexClassTypesEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 
@@ -26,23 +27,26 @@ use DCarbone\PHPFHIR\ClassGenerator\Enum\SimpleClassTypesEnum;
 abstract class NSUtils
 {
     /**
-     * @param string|null $outputNS
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @param string|null $classNS
      * @return string
      */
-    public static function generateRootNamespace($outputNS, $classNS)
+    public static function generateRootNamespace(Config $config, $classNS)
     {
-        $outputNS = (string)$outputNS;
+        $outputNS = (string)$config->getOutputNamespace();
         $classNS = (string)$classNS;
 
-        if ('' === $outputNS && '' === $classNS)
+        if ('' === $outputNS && '' === $classNS) {
             return '';
+        }
 
-        if ('' === $outputNS)
+        if ('' === $outputNS) {
             return $classNS;
+        }
 
-        if ('' === $classNS)
+        if ('' === $classNS) {
             return $outputNS;
+        }
 
         return sprintf('%s\\%s', $outputNS, $classNS);
     }
@@ -53,8 +57,7 @@ abstract class NSUtils
      */
     public static function getSimpleTypeNamespace(SimpleClassTypesEnum $type)
     {
-        switch((string)$type)
-        {
+        switch ((string)$type) {
             case SimpleClassTypesEnum::_LIST:
                 return 'FHIRList';
             case SimpleClassTypesEnum::PRIMITIVE:
@@ -72,8 +75,7 @@ abstract class NSUtils
      */
     public static function getComplexTypeNamespace($name, ComplexClassTypesEnum $type = null)
     {
-        switch((string)$type)
-        {
+        switch ((string)$type) {
             case ComplexClassTypesEnum::DOMAIN_RESOURCE:
                 return 'FHIRDomainResource';
 

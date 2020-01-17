@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Logger;
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 
 /**
  * Class FileUtils
@@ -25,34 +25,26 @@ use DCarbone\PHPFHIR\Logger;
 abstract class FileUtils
 {
     /**
-     * @param string $outputPath
      * @param string $namespace
-     * @param Logger $logger
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function createDirsFromNS($outputPath, $namespace, Logger $logger)
+    public static function createDirsFromNS($namespace, Config $config)
     {
-        if ('\\' === $namespace)
-        {
-            $logger->debug('Skipping dir creation for root namespace.');
+        if ('\\' === $namespace) {
+            $config->getLogger()->debug('Skipping dir creation for root namespace.');
             return;
         }
 
-        $path = rtrim(trim($outputPath), "/\\");
-        foreach(explode('\\', $namespace) as $dirName)
-        {
+        $path = rtrim(trim($config->getOutputPath()), "/\\");
+        foreach (explode('\\', $namespace) as $dirName) {
             $path = sprintf('%s/%s', $path, $dirName);
-            if (is_dir($path))
-            {
-                $logger->debug(sprintf('Directory at path "%s" already exists.', $path));
-            }
-            else
-            {
-                $logger->info(sprintf('Attempting to create directory at path "%s"...', $path));
-                $made = (bool)mkdir($path);
-                if (false === $made)
-                {
-                    $msg = 'Unable to create directory at path "'.$path.'"';
-                    $logger->critical($msg);
+            if (is_dir($path)) {
+                $config->getLogger()->debug(sprintf('Directory at path "%s" already exists.', $path));
+            } else {
+                $config->getLogger()->info(sprintf('Attempting to create directory at path "%s"...', $path));
+                if (!(bool)mkdir($path)) {
+                    $msg = 'Unable to create directory at path "' . $path . '"';
+                    $config->getLogger()->critical($msg);
                     throw new \RuntimeException($msg);
                 }
             }

@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Generator;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\ClassGenerator\Config;
 use DCarbone\PHPFHIR\ClassGenerator\Enum\ElementTypeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\ClassTypeUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NSUtils;
 use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
-use DCarbone\PHPFHIR\Logger;
 
 /**
  * Class XSDMapGenerator
@@ -30,50 +30,44 @@ use DCarbone\PHPFHIR\Logger;
 abstract class XSDMapGenerator
 {
     /**
-     * @param string $xsdPath
-     * @param string $outputNS
-     * @param Logger $logger
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @return \DCarbone\PHPFHIR\ClassGenerator\XSDMap
      */
-    public static function buildXSDMap($xsdPath, $outputNS, Logger $logger)
+    public static function buildXSDMap(Config $config)
     {
-        $logger->info('Creating in-memory representation of FHIR XSD\'s..');
+        $config->getLogger()->info('Creating in-memory representation of FHIR XSD\'s..');
 
         $xsdMap = new XSDMap();
 
-        $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $xsdPath);
+        $fhirBaseXSD = sprintf('%s/fhir-base.xsd', $config->getXSDPath());
 
-        if (!file_exists($fhirBaseXSD))
-        {
+        if (!file_exists($fhirBaseXSD)) {
             $msg = sprintf(
                 'Unable to locate "fhir-base.xsd" at expected path "%s".',
                 $fhirBaseXSD
             );
-            $logger->critical($msg);
+            $config->getLogger()->critical($msg);
             throw new \RuntimeException($msg);
         }
 
         // First get class references in fhir-base.xsd
-        self::parseClassesFromXSD($fhirBaseXSD, $xsdMap, $outputNS, $logger);
+        self::parseClassesFromXSD($fhirBaseXSD, $xsdMap, $config);
 
         // Then scoop up the rest
-        foreach(glob(sprintf('%s/*.xsd', $xsdPath), GLOB_NOSORT) as $xsdFile)
-        {
+        foreach (glob(sprintf('%s/*.xsd', $config->getXSDPath()), GLOB_NOSORT) as $xsdFile) {
             $basename = basename($xsdFile);
 
-            if (0 === strpos($basename, 'fhir-'))
-            {
-                $logger->debug(sprintf('Skipping "aggregate" file "%s"', $xsdFile));
+            if (0 === strpos($basename, 'fhir-')) {
+                $config->getLogger()->debug(sprintf('Skipping "aggregate" file "%s"', $xsdFile));
                 continue;
             }
 
-            if ('xml.xsd' === $basename)
-            {
-                $logger->debug(sprintf('Skipping file "%s"', $xsdFile));
+            if ('xml.xsd' === $basename) {
+                $config->getLogger()->debug(sprintf('Skipping file "%s"', $xsdFile));
                 continue;
             }
 
-            self::parseClassesFromXSD($xsdFile, $xsdMap, $outputNS, $logger);
+            self::parseClassesFromXSD($xsdFile, $xsdMap, $config);
         }
 
         return $xsdMap;
@@ -81,48 +75,48 @@ abstract class XSDMapGenerator
 
     /**
      * @param string $file
-     * @param XSDMap $xsdMap
-     * @param string $outputNS
-     * @param Logger $logger
+     * @param \DCarbone\PHPFHIR\ClassGenerator\XSDMap $xsdMap
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      */
-    public static function parseClassesFromXSD($file, XSDMap $xsdMap, $outputNS, Logger $logger)
+    public static function parseClassesFromXSD($file, XSDMap $xsdMap, Config $config)
     {
-        $logger->debug(sprintf('Parsing classes from file "%s"...', $file));
+        $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $file));
 
-        $sxe = self::constructSXEWithFilePath($file, $logger);
-        foreach($sxe->children('xs', true) as $child)
-        {
+        $sxe = self::constructSXEWithFilePath($file, $config);
+        foreach ($sxe->children('xs', true) as $child) {
             /** @var \SimpleXMLElement $child */
             $attributes = $child->attributes();
             $fhirElementName = (string)$attributes['name'];
 
-            if ('' === $fhirElementName)
-            {
+            if ('' === $fhirElementName) {
                 $attrArray = [];
-                foreach($attributes as $attribute)
-                {
+                foreach ($attributes as $attribute) {
                     /** @var \SimpleXMLElement $attribute */
                     $attrArray[] = sprintf('%s : %s', $attribute->getName(), (string)$attribute);
                 }
-                $logger->debug(sprintf('Unable to locate "name" attribute on element in file "%s" with attributes ["%s"]', $file, implode('", "', $attrArray)));
+                $config->getLogger()
+                       ->warning(sprintf(
+                           'Unable to locate "name" attribute on element in file "%s" with attributes ["%s"]',
+                           $file,
+                           implode('", "', $attrArray)
+                       ));
                 continue;
             }
 
-            if (ElementTypeEnum::COMPLEX_TYPE === strtolower($child->getName()))
-            {
+            if (ElementTypeEnum::COMPLEX_TYPE === strtolower($child->getName())) {
                 $type = ClassTypeUtils::getComplexClassType($child);
 
                 $xsdMap[$fhirElementName] = new XSDMap\XSDMapEntry(
                     $child,
                     $fhirElementName,
                     NSUtils::generateRootNamespace(
-                        $outputNS,
+                        $config,
                         NSUtils::getComplexTypeNamespace($fhirElementName, $type)
                     ),
                     NameUtils::getComplexTypeClassName($fhirElementName)
                 );
 
-                $logger->info(sprintf(
+                $config->getLogger()->info(sprintf(
                     'Located "%s" class "%s\\%s" in file "%s"',
                     $type,
                     $xsdMap[$fhirElementName]->getNamespace(),
@@ -135,12 +129,12 @@ abstract class XSDMapGenerator
 
     /**
      * @param string $filePath
-     * @param Logger $logger
+     * @param \DCarbone\PHPFHIR\ClassGenerator\Config $config
      * @return \SimpleXMLElement
      */
-    public static function constructSXEWithFilePath($filePath, Logger $logger)
+    public static function constructSXEWithFilePath($filePath, Config $config)
     {
-        $logger->debug(sprintf('Parsing classes from file "%s"...', $filePath));
+        $config->getLogger()->debug(sprintf('Parsing classes from file "%s"...', $filePath));
 
         $filename = basename($filePath);
 
@@ -149,29 +143,27 @@ abstract class XSDMapGenerator
         $sxe = new \SimpleXMLElement(file_get_contents($filePath), LIBXML_COMPACT | LIBXML_NSCLEAN);
         libxml_use_internal_errors(false);
 
-        if ($sxe instanceof \SimpleXMLElement)
-        {
+        if ($sxe instanceof \SimpleXMLElement) {
             $sxe->registerXPathNamespace('xs', 'http://www.w3.org/2001/XMLSchema');
             $sxe->registerXPathNamespace('', 'http://hl7.org/fhir');
             return $sxe;
         }
 
         $error = libxml_get_last_error();
-        if ($error)
-        {
+        if ($error) {
             $msg = sprintf(
                 'Error occurred while parsing file "%s": "%s"',
                 $filename,
                 $error->message
             );
-            $logger->critical($msg);
+            $config->getLogger()->critical($msg);
             throw new \RuntimeException($msg);
         }
 
         $msg = sprintf(
             'Unknown XML parsing error occurred while parsing "%s".',
             $filename);
-        $logger->critical($msg);
+        $config->getLogger()->critical($msg);
         throw new \RuntimeException($msg);
     }
 }

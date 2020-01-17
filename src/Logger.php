@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,15 +52,20 @@ class Logger extends AbstractLogger
     }
 
     /**
+     * @param string $level
+     * @param string $message
+     * @param array $context
+     */
+    public function log($level, $message, array $context = array())
+    {
+        $this->actualLogger->log($level, $message, $context);
+    }
+
+    /**
      * @param string $action
      */
     public function endBreak($action)
     {
         $this->log($this->breakLevel, substr(sprintf('%\'-5s End %s %1$-\'-75s', '-', $action), 0, 75));
-    }
-
-    public function log($level, $message, array $context = array())
-    {
-        $this->actualLogger->log($level, $message, $context);
     }
 }

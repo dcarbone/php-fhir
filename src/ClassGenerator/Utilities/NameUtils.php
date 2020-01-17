@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Utilities;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,19 +25,19 @@ abstract class NameUtils
     const VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
     const FUNCNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
     const CLASSNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
-    const NSNAME_REGEX = '{^([a-zA-Z][a-z0-9A-Z_]*\\\?)+$}S';
+    const NSNAME_REGEX = '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-zA-Z0-9_]$}';
 
     /** @var array */
-    public static $classNameSearch = array(
+    public static $classNameSearch = [
         '.',
         '-',
-    );
+    ];
 
     /** @var array */
-    public static $classNameReplace = array(
+    public static $classNameReplace = [
         '',
-        '_'
-    );
+        '_',
+    ];
 
     /**
      * @param string $name
@@ -81,13 +81,17 @@ abstract class NameUtils
      */
     public static function getSimpleTypeClassName($name)
     {
-        if (false !== ($pos = strpos($name, '-primitive')))
+        if (false !== ($pos = strpos($name, '-primitive'))) {
             $name = sprintf('%sPrimitive', substr($name, 0, $pos));
-        else if (false !== ($pos = strpos($name, '-list')))
-            $name = sprintf('%sList', substr($name, 0, $pos));
+        } else {
+            if (false !== ($pos = strpos($name, '-list'))) {
+                $name = sprintf('%sList', substr($name, 0, $pos));
+            }
+        }
 
-        if (preg_match('{^[a-z]}S', $name))
+        if (preg_match('{^[a-z]}S', $name)) {
             $name = ucfirst($name);
+        }
 
         return sprintf('FHIR%s', str_replace(self::$classNameSearch, self::$classNameReplace, $name));
     }

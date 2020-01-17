@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\ClassGenerator\Template\Property;
 
 /*
- * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2018 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 use DCarbone\PHPFHIR\ClassGenerator\Enum\PHPScopeEnum;
 use DCarbone\PHPFHIR\ClassGenerator\Template\AbstractTemplate;
 use DCarbone\PHPFHIR\ClassGenerator\Utilities\NameUtils;
-use DCarbone\PHPFHIR\ClassGenerator\XSDMap;
 
 /**
  * Class PropertyTemplate
@@ -62,7 +61,7 @@ class BasePropertyTemplate extends AbstractTemplate
     /** @var bool */
     protected $requireSetter;
 
-    protected $choiceElementNames = array();
+    protected $choiceElementNames = [];
 
     /**
      * Constructor
@@ -72,80 +71,14 @@ class BasePropertyTemplate extends AbstractTemplate
      */
     public function __construct(PHPScopeEnum $scope = null, $requiresGetter = true, $requiresSetter = true)
     {
-        if (null === $scope)
+        if (null === $scope) {
             $this->scope = new PHPScopeEnum(PHPScopeEnum::_PUBLIC);
-        else
+        } else {
             $this->scope = $scope;
+        }
 
         $this->requiresGetter = $requiresGetter;
         $this->requireSetter = $requiresSetter;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName($name)
-    {
-        if (NameUtils::isValidVariableName($name))
-            $this->name = $name;
-        else
-            throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
-    }
-
-    /**
-     * @return PHPScopeEnum
-     */
-    public function getScope()
-    {
-        return $this->scope;
-    }
-
-    /**
-     * @param PHPScopeEnum $scope
-     */
-    public function setScope(PHPScopeEnum $scope)
-    {
-        $this->scope = $scope;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isCollection()
-    {
-        return $this->collection;
-    }
-
-    /**
-     * @param boolean $collection
-     */
-    public function setCollection($collection)
-    {
-        $this->collection = $collection;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPHPType()
-    {
-        return $this->phpType;
-    }
-
-    /**
-     * @param string $phpType
-     */
-    public function setPHPType($phpType)
-    {
-        $this->phpType = $phpType;
     }
 
     /**
@@ -162,6 +95,55 @@ class BasePropertyTemplate extends AbstractTemplate
     public function setFHIRElementType($fhirElementType)
     {
         $this->fhirElementType = $fhirElementType;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isHTML()
+    {
+        return $this->html;
+    }
+
+    /**
+     * @param boolean $html
+     */
+    public function setHTML($html)
+    {
+        $this->html = $html;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function requiresGetter()
+    {
+        return $this->requiresGetter;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function requireSetter()
+    {
+        return $this->requireSetter;
+    }
+
+    /**
+     * @return string
+     */
+    public function compileTemplate()
+    {
+        return sprintf(
+            "    /**\n%s     * @var %s%s%s\n     */\n    %s %s = %s;\n\n",
+            $this->getDocBlockDocumentationFragment(),
+            $this->isPrimitive() || $this->isList() ? '' : '\\',
+            $this->getPHPType(),
+            ($this->isCollection() ? '[]' : ''),
+            (string)$this->getScope(),
+            NameUtils::getPropertyVariableName($this->getName()),
+            ($this->isCollection() ? '[]' : $this->determineDefaultValueOutput())
+        );
     }
 
     /**
@@ -197,68 +179,71 @@ class BasePropertyTemplate extends AbstractTemplate
     }
 
     /**
-     * @return boolean
+     * @return string
      */
-    public function isHTML()
+    public function getPHPType()
     {
-        return $this->html;
+        return $this->phpType;
     }
 
     /**
-     * @param boolean $html
+     * @param string $phpType
      */
-    public function setHTML($html)
+    public function setPHPType($phpType)
     {
-        $this->html = $html;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDefaultValue()
-    {
-        return $this->defaultValue;
-    }
-
-    /**
-     * @param mixed $defaultValue
-     */
-    public function setDefaultValue($defaultValue)
-    {
-        $this->defaultValue = $defaultValue;
+        $this->phpType = $phpType;
     }
 
     /**
      * @return boolean
      */
-    public function requiresGetter()
+    public function isCollection()
     {
-        return $this->requiresGetter;
+        return $this->collection;
     }
 
     /**
-     * @return boolean
+     * @param boolean $collection
      */
-    public function requireSetter()
+    public function setCollection($collection)
     {
-        return $this->requireSetter;
+        $this->collection = $collection;
+    }
+
+    /**
+     * @return PHPScopeEnum
+     */
+    public function getScope()
+    {
+        return $this->scope;
+    }
+
+    /**
+     * @param PHPScopeEnum $scope
+     */
+    public function setScope(PHPScopeEnum $scope)
+    {
+        $this->scope = $scope;
     }
 
     /**
      * @return string
      */
-    public function compileTemplate()
+    public function getName()
     {
-        return sprintf(
-            "    /**\n%s     * @var %s%s%s\n     */\n    %s %s = %s;\n\n",
-            $this->getDocBlockDocumentationFragment(),
-            $this->isPrimitive() || $this->isList() ? '' : '\\',
-            $this->getPHPType(),
-            ($this->isCollection() ? '[]' : ''),
-            (string)$this->getScope(),
-            NameUtils::getPropertyVariableName($this->getName()),
-            ($this->isCollection() ? 'array()' : $this->determineDefaultValueOutput())
-        );
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        if (NameUtils::isValidVariableName($name)) {
+            $this->name = $name;
+        } else {
+            throw new \InvalidArgumentException(sprintf('Specified property name "%s" is not valid.', $name));
+        }
     }
 
     /**
@@ -267,8 +252,7 @@ class BasePropertyTemplate extends AbstractTemplate
     protected function determineDefaultValueOutput()
     {
         $default = $this->getDefaultValue();
-        switch(gettype($default))
-        {
+        switch (gettype($default)) {
             case 'string':
                 return sprintf('\'%s\'', $default);
 
@@ -286,5 +270,21 @@ class BasePropertyTemplate extends AbstractTemplate
             default:
                 return 'null';
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultValue()
+    {
+        return $this->defaultValue;
+    }
+
+    /**
+     * @param mixed $defaultValue
+     */
+    public function setDefaultValue($defaultValue)
+    {
+        $this->defaultValue = $defaultValue;
     }
 }
