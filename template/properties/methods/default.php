@@ -38,7 +38,7 @@ foreach ($sortedProperties as $property) :
             ]
         );
         echo require_with(
-            __DIR__ . '/default/setter_primitive_value.php',
+            __DIR__ . '/default/getter_primitive_value.php',
             [
                 'type' => $type,
                 'property' => $property,

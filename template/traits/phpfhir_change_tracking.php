@@ -42,56 +42,45 @@ echo "\n\n";
 trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
 
 {
+    /** @var int
+    private $_valuesAdded = 0;
     /** @var int */
-    private $_setterCalls = 0;
-    /** @var int */
-    private $_fieldsDefined = 0;
-    /** @var int */
-    private $_fieldsZeroed = 0;
+    private $_valuesRemoved = 0;
 
     /**
-     * Tracks field changes on the containing type
      * @param mixed $original
      * @param mixed $new
      * @return void
      */
-    protected function _trackChange($original, $new) {
-        $this->_setterCalls++;
+    protected function _trackValueSet($original, $new) {
         if ($original === $new) {
             return;
         }
-        if (([] === $original && [] !== $new) || (null === $original && null !== $new)) {
-            $this->_fieldsDefined++;
+        if (null === $original && null !== $new) {
+            $this->_valuesAdded++;
+        } elseif (null !== $original && null === $new) {
+            $this->_valuesRemoved++;
         } else {
-            $this->_fieldsZeroed++;
+            $this->_valuesAdded++;
+            $this->_valuesRemoved++;
         }
     }
 
     /**
-     * The number of times a setter was called on the containing type
-     * @return int
+     * @return void
      */
-    public function _getSetterCallCount()
+    protected function _trackValueAdded()
     {
-        return $this->_setterCalls;
+        $this->_valuesAdded++;
     }
 
     /**
-     * Returns the total number of times any field was set to a non-empty value
-     * @return int
+     * @param int $count
+     * @return void
      */
-    public function _getFieldsDefined()
+    protected function _trackValuesRemoved($count)
     {
-        return $this->_fieldsDefined;
-    }
-
-    /**
-     * Returns the number of times any field was zeroed
-     * @return int
-     */
-    public function _getFieldsZeroed()
-    {
-        return $this->_fieldsZeroed;
+        $this->_removed += $count;
     }
 
     /**
@@ -100,6 +89,7 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
      */
     public function _isValued()
     {
-        return $this->_fieldsDefined > $this->_fieldZeroed;
+        return $this->_valuesAdded > $this->_valuesRemoved;
     }
 }
+<?php return ob_get_clean();

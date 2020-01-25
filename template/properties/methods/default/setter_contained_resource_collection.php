@@ -44,7 +44,10 @@ ob_start(); ?>
      */
     public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [])
     {
-        $this-><?php echo $propertyName; ?> = [];
+        if ([] !== $this-><?php echo $propertyName; ?>) {
+            $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));
+            $this-><?php echo $propertyName; ?> = [];
+        }
         if ([] === $<?php echo $propertyName; ?>) {
             return $this;
         }

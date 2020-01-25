@@ -43,15 +43,11 @@ ob_start();
      */
     public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null)
     {
-        if (null === $<?php echo $propertyName; ?>) {
-            $this-><?php echo $propertyName; ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
-            return $this;
+        if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
+            $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         }
-        if ($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>) {
-            $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
-            return $this;
-        }
-        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
+        <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
+        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
 <?php return ob_get_clean();
