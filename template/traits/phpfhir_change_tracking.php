@@ -42,14 +42,16 @@ echo "\n\n";
 trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
 
 {
-    /** @var int
+    /** @var int */
     private $_valuesAdded = 0;
     /** @var int */
     private $_valuesRemoved = 0;
 
     /**
-     * @param mixed $original
-     * @param mixed $new
+     * Used to track the setting of a given value, taking into consideration whether a value is being overwritten
+     *
+     * @param object|null $original
+     * @param object|null $new
      * @return void
      */
     protected function _trackValueSet($original, $new) {
@@ -67,6 +69,8 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
     }
 
     /**
+     * Used to record a value being added to a collection
+     *
      * @return void
      */
     protected function _trackValueAdded()
@@ -75,12 +79,14 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
     }
 
     /**
-     * @param int $count
+     * Used to record $n items being removed from a collection
+     *
+     * @param int $n
      * @return void
      */
-    protected function _trackValuesRemoved($count)
+    protected function _trackValuesRemoved($n)
     {
-        $this->_removed += $count;
+        $this->_valuesRemoved += $n;
     }
 
     /**
