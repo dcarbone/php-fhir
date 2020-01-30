@@ -64,7 +64,7 @@ ob_start(); ?>
                         get_class($v)
                     ));
                 }
-            } else if (is_array($v)) {
+            } elseif (is_array($v)) {
                 $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($v);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(

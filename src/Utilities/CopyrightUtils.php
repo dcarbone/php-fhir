@@ -17,6 +17,9 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DomainException;
+use LogicException;
+use RuntimeException;
 
 /**
  * Class CopyrightUtils
@@ -107,10 +110,12 @@ abstract class CopyrightUtils
 
                         $generated = trim(str_replace('Generated on', '', $generated));
                         if ('' === $generated) {
-                            throw new \DomainException(sprintf(
-                                'Unable to parse FHIR source generation date from line: %s',
-                                $line
-                            ));
+                            throw new DomainException(
+                                sprintf(
+                                    'Unable to parse FHIR source generation date from line: %s',
+                                    $line
+                                )
+                            );
                         } else {
                             self::$_fhirGenerationDate = $generated;
                         }
@@ -119,10 +124,12 @@ abstract class CopyrightUtils
                         if (0 === strpos($version, 'v')) {
                             self::$_fhirVersion = $version;
                         } else {
-                            throw new \LogicException(sprintf(
-                                'Unable to determine FHIR version from: %s',
-                                $line
-                            ));
+                            throw new LogicException(
+                                sprintf(
+                                    'Unable to determine FHIR version from: %s',
+                                    $line
+                                )
+                            );
                         }
                     }
                 } elseif ('<!--' === $line) {
@@ -138,7 +145,7 @@ abstract class CopyrightUtils
                 $fhirBase
             );
             $config->getLogger()->critical($msg);
-            throw new \RuntimeException($msg);
+            throw new RuntimeException($msg);
         }
 
         self::$_basePHPFHIRCopyrightComment = sprintf(
@@ -159,10 +166,12 @@ abstract class CopyrightUtils
     public static function getPHPFHIRCopyright()
     {
         if (!isset(self::$_compiledWith)) {
-            throw new \LogicException(sprintf(
-                'Cannot call %s before calling "compileCopyrights"',
-                __METHOD__
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot call %s before calling "compileCopyrights"',
+                    __METHOD__
+                )
+            );
         }
         return self::$_phpFHIRCopyright;
     }
@@ -173,10 +182,12 @@ abstract class CopyrightUtils
     public static function getFHIRCopyright()
     {
         if (!isset(self::$_compiledWith)) {
-            throw new \LogicException(sprintf(
-                'Cannot call %s before calling "compileCopyrights"',
-                __METHOD__
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot call %s before calling "compileCopyrights"',
+                    __METHOD__
+                )
+            );
         }
         return self::$_fhirCopyright;
     }
@@ -187,10 +198,12 @@ abstract class CopyrightUtils
     public static function getBasePHPFHIRCopyrightComment()
     {
         if (!isset(self::$_compiledWith)) {
-            throw new \LogicException(sprintf(
-                'Cannot call %s before calling "compileCopyrights"',
-                __METHOD__
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot call %s before calling "compileCopyrights"',
+                    __METHOD__
+                )
+            );
         }
         return self::$_basePHPFHIRCopyrightComment;
     }
@@ -201,10 +214,12 @@ abstract class CopyrightUtils
     public static function getFullPHPFHIRCopyrightComment()
     {
         if (!isset(self::$_compiledWith)) {
-            throw new \LogicException(sprintf(
-                'Cannot call %s before calling "compileCopyrights"',
-                __METHOD__
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot call %s before calling "compileCopyrights"',
+                    __METHOD__
+                )
+            );
         }
         return self::$_fullPHPFHIRCopyrightComment;
     }
@@ -215,10 +230,12 @@ abstract class CopyrightUtils
     public static function getStandardDate()
     {
         if (!isset(self::$_compiledWith)) {
-            throw new \LogicException(sprintf(
-                'Cannot call %s before calling "compileCopyrights"',
-                __METHOD__
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot call %s before calling "compileCopyrights"',
+                    __METHOD__
+                )
+            );
         }
         return self::$_standardDate;
     }
@@ -229,10 +246,12 @@ abstract class CopyrightUtils
     public static function getFHIRGenerationDate()
     {
         if (!isset(self::$_compiledWith)) {
-            throw new \LogicException(sprintf(
-                'Cannot call %s before calling "compileCopyrights"',
-                __METHOD__
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot call %s before calling "compileCopyrights"',
+                    __METHOD__
+                )
+            );
         }
         return self::$_fhirGenerationDate;
     }
@@ -244,10 +263,12 @@ abstract class CopyrightUtils
     public static function getFHIRVersion($trimmed)
     {
         if (!isset(self::$_compiledWith)) {
-            throw new \LogicException(sprintf(
-                'Cannot call %s before calling "compileCopyrights"',
-                __METHOD__
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot call %s before calling "compileCopyrights"',
+                    __METHOD__
+                )
+            );
         }
         return $trimmed ? trim(self::$_fhirVersion, 'v') : self::$_fhirVersion;
     }

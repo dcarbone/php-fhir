@@ -41,7 +41,7 @@ ob_start(); ?>
                     }
                     $this-><?php echo $setter; ?>(new $typeClass($data[self::<?php echo $propertyFieldConst; ?>]));
                 }
-            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
+            } elseif ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
             }
 <?php else : ?>
@@ -54,7 +54,7 @@ ob_start(); ?>
                         get_class($data[self::<?php echo $propertyFieldConst; ?>])
                     ));
                 }
-            } else if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
+            } elseif (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(

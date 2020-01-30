@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
+use SimpleXMLElement;
 
 /**
  * Class UnionElementTypeDecorator
@@ -38,7 +39,7 @@ abstract class UnionElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $union
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $union)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $union)
     {
         foreach ($union->attributes() as $attribute) {
             switch ($attribute->getName()) {

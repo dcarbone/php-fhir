@@ -18,8 +18,6 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /**
  * Class TypeImport
  * @package DCarbone\PHPFHIR\Definition

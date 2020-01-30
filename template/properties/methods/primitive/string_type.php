@@ -28,7 +28,7 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
-        } else if (is_string($value)) {
+        } elseif (is_string($value)) {
             $this->value = $value;
         } else {
             throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));

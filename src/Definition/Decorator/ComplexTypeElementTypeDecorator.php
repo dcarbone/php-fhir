@@ -24,6 +24,7 @@ use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use SimpleXMLElement;
 
 /**
  * Class ComplexTypeElementTypeDecorator
@@ -37,7 +38,7 @@ abstract class ComplexTypeElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $complexType
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $complexType)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $complexType)
     {
         // parse through attributes
         foreach ($complexType->attributes() as $attribute) {
@@ -71,7 +72,7 @@ abstract class ComplexTypeElementTypeDecorator
                     SimpleContentElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
                 case ElementNameEnum::CHOICE:
-                    ChoiceElementTypeDecorator::decorate($config, $types,  $type, $child);
+                    ChoiceElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
                 default:

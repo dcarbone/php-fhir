@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use SimpleXMLElement;
 
 /**
  * Class SimpleTypeElementPropertyDecorator
@@ -39,16 +40,16 @@ abstract class SimpleTypeElementPropertyDecorator
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @param \SimpleXMLElement $simpleType
      */
-    public static function decorate(VersionConfig $config,
-                                    Types $types,
-                                    Type $type,
-                                    Property $property,
-                                    \SimpleXMLElement $simpleType)
-    {
+    public static function decorate(
+        VersionConfig $config,
+        Types $types,
+        Type $type,
+        Property $property,
+        SimpleXMLElement $simpleType
+    ) {
         // parse through attributes
         foreach ($simpleType->attributes() as $attribute) {
             switch ($attribute->getName()) {
-
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $simpleType, $attribute);
             }
@@ -56,7 +57,6 @@ abstract class SimpleTypeElementPropertyDecorator
 
         foreach ($simpleType->children('xs', true) as $child) {
             switch ($child->getName()) {
-
                 default:
                     throw ExceptionUtils::createUnexpectedElementException($type, $simpleType, $child);
             }

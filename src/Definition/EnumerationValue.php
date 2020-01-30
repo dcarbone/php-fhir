@@ -18,6 +18,8 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use SimpleXMLElement;
+
 /**
  * Class EnumerationValue
  * @package DCarbone\PHPFHIR\Definition
@@ -36,7 +38,7 @@ class EnumerationValue
      * @param string $value
      * @param \SimpleXMLElement $sourceSXE
      */
-    public function __construct($value, \SimpleXMLElement $sourceSXE)
+    public function __construct($value, SimpleXMLElement $sourceSXE)
     {
         $this->value = $value;
         $this->sourceSXE = $sourceSXE;

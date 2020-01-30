@@ -24,6 +24,7 @@ use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use SimpleXMLElement;
 
 /**
  * Class ExtensionElementTypeDecorator
@@ -37,7 +38,7 @@ abstract class ExtensionElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $attribute
      */
-    protected static function parseBaseAttribute(Type $type, \SimpleXMLElement $attribute)
+    protected static function parseBaseAttribute(Type $type, SimpleXMLElement $attribute)
     {
         $parentName = (string)$attribute;
         if ($type->getFHIRName() === $parentName) {
@@ -52,7 +53,7 @@ abstract class ExtensionElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $extension
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $extension)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $extension)
     {
         foreach ($extension->attributes() as $attribute) {
             switch ($attribute->getName()) {

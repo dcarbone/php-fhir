@@ -18,11 +18,14 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use Countable;
+use Iterator;
+
 /**
  * Class Enumeration
  * @package DCarbone\PHPFHIR\Definition
  */
-class Enumeration implements \Iterator, \Countable
+class Enumeration implements Iterator, Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\EnumerationValue[] */
     private $values = [];

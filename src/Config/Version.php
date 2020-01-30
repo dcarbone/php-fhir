@@ -19,6 +19,8 @@ namespace DCarbone\PHPFHIR\Config;
  */
 
 use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DomainException;
+use InvalidArgumentException;
 
 /**
  * Class Version
@@ -50,7 +52,7 @@ class Version
         $this->name = $name;
 
         if (!isset($conf[self::KEY_URL])) {
-            throw new\DomainException(sprintf('Version %s is missing required config key ', self::KEY_URL));
+            throw newDomainException(sprintf('Version %s is missing required config key ', self::KEY_URL));
         }
         $this->setUrl($conf[self::KEY_URL]);
 
@@ -86,10 +88,12 @@ class Version
     public function setUrl($url)
     {
         if (!is_string($url)) {
-            throw new \InvalidArgumentException(sprintf(
-                '$url must be a string, %s seen.',
-                gettype($url)
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$url must be a string, %s seen.',
+                    gettype($url)
+                )
+            );
         }
         $this->url = $url;
         return $this;
@@ -115,10 +119,12 @@ class Version
             return $this;
         }
         if (!is_string($namespace)) {
-            throw new \InvalidArgumentException(sprintf(
-                '$namespace must be a string, %s seen.',
-                gettype($namespace)
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$namespace must be a string, %s seen.',
+                    gettype($namespace)
+                )
+            );
         }
         // handle no or empty namespace
         $namespace = trim((string)$namespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
@@ -128,11 +134,13 @@ class Version
         }
 
         if (false === NameUtils::isValidNSName($namespace)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Version "%s" namespace "%s" is not a valid PHP namespace.',
-                $this->name,
-                $this->namespace
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Version "%s" namespace "%s" is not a valid PHP namespace.',
+                    $this->name,
+                    $this->namespace
+                )
+            );
         }
 
         $this->namespace = $namespace;
@@ -154,10 +162,12 @@ class Version
     public function setTestEndpoint($testEndpoint)
     {
         if (!is_string($testEndpoint)) {
-            throw new \InvalidArgumentException(sprintf(
-                '$testEndpoint must be a string, %s seen.',
-                gettype($testEndpoint)
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$testEndpoint must be a string, %s seen.',
+                    gettype($testEndpoint)
+                )
+            );
         }
         $this->testEndpoint = $testEndpoint;
         return $this;

@@ -33,5 +33,5 @@ class AttributeNameEnum extends AbstractEnum
     const REF          = 'ref';
     const FIXED        = 'fixed';
     const MIXED        = 'mixed';
-    const _NAMESPACE    = 'namespace';
+    const _NAMESPACE   = 'namespace';
 }

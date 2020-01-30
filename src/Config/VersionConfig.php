@@ -75,7 +75,7 @@ class VersionConfig
     }
 
     /**
-     * @param boolean $leadingSlash
+     * @param bool $leadingSlash
      * @return string
      */
     public function getNamespace($leadingSlash)
@@ -100,7 +100,7 @@ class VersionConfig
     }
 
     /**
-     * @param boolean $leadingSlash
+     * @param bool $leadingSlash
      * @return string
      */
     public function getTestsNamespace($leadingSlash)

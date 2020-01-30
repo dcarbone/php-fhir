@@ -26,6 +26,7 @@ use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use SimpleXMLElement;
 
 /**
  * Class AttributeElementTypeDecorator
@@ -39,11 +40,12 @@ abstract class AttributeElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $attributeElement
      */
-    public static function decorate(VersionConfig $config,
-                                    Types $types,
-                                    Type $type,
-                                    \SimpleXMLElement $attributeElement)
-    {
+    public static function decorate(
+        VersionConfig $config,
+        Types $types,
+        Type $type,
+        SimpleXMLElement $attributeElement
+    ) {
         // create property object
         $property = new Property($type, $attributeElement, $type->getSourceFilename());
 
@@ -73,7 +75,7 @@ abstract class AttributeElementTypeDecorator
             switch ($child->getName()) {
                 case ElementNameEnum::SIMPLE_TYPE:
                     SimpleTypeElementPropertyDecorator::decorate($config, $types, $type, $property, $child);
-                     break;
+                    break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedElementException($type, $attributeElement, $child);

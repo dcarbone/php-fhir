@@ -20,6 +20,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Generator\TemplateBuilder;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
+use RuntimeException;
 
 /**
  * Class Builder
@@ -95,11 +96,13 @@ class Builder
             }
             $filepath = FileUtils::buildTypeFilePath($this->config, $type);
             if (!(bool)file_put_contents($filepath, $classDefinition)) {
-                throw new \RuntimeException(sprintf(
-                    'Unable to write Type %s class definition to file %s',
-                    $filepath,
-                    $type
-                ));
+                throw new RuntimeException(
+                    sprintf(
+                        'Unable to write Type %s class definition to file %s',
+                        $filepath,
+                        $type
+                    )
+                );
             }
         }
         $log->endBreak('FHIR Class Generation');
@@ -141,11 +144,13 @@ class Builder
             $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type);
             $filepath = FileUtils::buildTypeTestFilePath($this->config, $type);
             if (!(bool)file_put_contents($filepath, $classDefinition)) {
-                throw new \RuntimeException(sprintf(
-                    'Unable to write Type %s class definition to file %s',
-                    $filepath,
-                    $type
-                ));
+                throw new RuntimeException(
+                    sprintf(
+                        'Unable to write Type %s class definition to file %s',
+                        $filepath,
+                        $type
+                    )
+                );
             }
         }
 
@@ -192,10 +197,12 @@ class Builder
         $this->log->info(sprintf('Writing %s...', $filePath));
         $b = file_put_contents($filePath, $fileContents);
         if (false === $b) {
-            throw new \RuntimeException(sprintf(
-                'Unable to write "%s"',
-                $filePath
-            ));
+            throw new RuntimeException(
+                sprintf(
+                    'Unable to write "%s"',
+                    $filePath
+                )
+            );
         }
         $this->log->debug(sprintf('%d bytes written to file %s', $b, $filePath));
     }

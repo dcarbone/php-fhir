@@ -91,11 +91,42 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
 
     /**
      * Returns true if there are valued fields on the contained type
+     *
      * @return bool
      */
     public function _isValued()
     {
         return $this->_valuesAdded > $this->_valuesRemoved;
+    }
+
+    /**
+     * Returns the number of times any field has been set on this type
+     *
+     * @return int
+     */
+    public function _getValueAddedCount()
+    {
+        return $this->_valuesAdded;
+    }
+
+    /**
+     * Returns the number of times any field has been removed on this type
+     *
+     * @return int
+     */
+    public function _getValueRemovedCount()
+    {
+        return $this->_valuesRemoved;
+    }
+
+    /**
+     * Returns the current number of values defined on this type
+     *
+     * @return int
+     */
+    public function _getValueSetCount()
+    {
+        return $this->_valuesAdded - $this->_valuesRemoved;
     }
 }
 <?php return ob_get_clean();

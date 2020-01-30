@@ -19,7 +19,6 @@
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /**
  * Class TemplateBuilder

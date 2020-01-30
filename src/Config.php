@@ -19,9 +19,12 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Config\Version;
+use DomainException;
+use OutOfBoundsException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
 
 /**
  * Class Config
@@ -29,12 +32,12 @@ use Psr\Log\NullLogger;
  */
 class Config implements LoggerAwareInterface
 {
-    const KEY_SCHEMA_PATH  = 'schemaPath';
+    const KEY_SCHEMA_PATH = 'schemaPath';
     const KEY_CLASSES_PATH = 'classesPath';
-    const KEY_VERSIONS     = 'versions';
-    const KEY_SILENT       = 'silent';
-    const KEY_SKIP_TESTS   = 'skipTests';
-    const KEY_LIBXML_OPTS  = 'libxmlOpts';
+    const KEY_VERSIONS = 'versions';
+    const KEY_SILENT = 'silent';
+    const KEY_SKIP_TESTS = 'skipTests';
+    const KEY_LIBXML_OPTS = 'libxmlOpts';
 
     /** @var string */
     private $schemaPath;
@@ -61,13 +64,17 @@ class Config implements LoggerAwareInterface
     public function __construct(array $conf = [], LoggerInterface $logger = null)
     {
         if (!isset($conf[self::KEY_SCHEMA_PATH])) {
-            throw new \DomainException('Required configuration key "' . self::KEY_SCHEMA_PATH . '" missing');
+            throw new DomainException('Required configuration key "' . self::KEY_SCHEMA_PATH . '" missing');
         }
         if (!isset($conf[self::KEY_CLASSES_PATH])) {
-            throw new \DomainException('Required configuration key "' . self::KEY_CLASSES_PATH . '" missing');
+            throw new DomainException('Required configuration key "' . self::KEY_CLASSES_PATH . '" missing');
         }
-        if (!isset($conf[self::KEY_VERSIONS]) || !is_array($conf[self::KEY_VERSIONS]) || 0 == count($conf[self::KEY_VERSIONS])) {
-            throw new \DomainException('Configuration key "' . self::KEY_VERSIONS . '" must be an array with at least 1 configured version.');
+        if (!isset($conf[self::KEY_VERSIONS]) || !is_array($conf[self::KEY_VERSIONS]) || 0 == count(
+                $conf[self::KEY_VERSIONS]
+            )) {
+            throw new DomainException(
+                'Configuration key "' . self::KEY_VERSIONS . '" must be an array with at least 1 configured version.'
+            );
         }
         $this->setSchemaPath($conf[self::KEY_SCHEMA_PATH]);
         $this->setClassesPath($conf[self::KEY_CLASSES_PATH]);
@@ -168,10 +175,10 @@ class Config implements LoggerAwareInterface
     {
         // Bunch'o validation
         if (false === is_dir($schemaPath)) {
-            throw new \RuntimeException('Unable to locate XSD dir "' . $schemaPath . '"');
+            throw new RuntimeException('Unable to locate XSD dir "' . $schemaPath . '"');
         }
         if (false === is_readable($schemaPath)) {
-            throw new \RuntimeException('This process does not have read access to directory "' . $schemaPath . '"');
+            throw new RuntimeException('This process does not have read access to directory "' . $schemaPath . '"');
         }
         $this->schemaPath = rtrim($schemaPath, "/\\");
         return $this;
@@ -192,15 +199,23 @@ class Config implements LoggerAwareInterface
     public function setClassesPath($classesPath)
     {
         if (!is_dir($classesPath)) {
-            throw new \RuntimeException('Unable to locate output dir "' . $classesPath . '"');
+            throw new RuntimeException('Unable to locate output dir "' . $classesPath . '"');
         }
         if (!is_writable($classesPath)) {
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.',
-                $classesPath));
+            throw new RuntimeException(
+                sprintf(
+                    'Specified output path "%s" is not writable by this process.',
+                    $classesPath
+                )
+            );
         }
         if (!is_readable($classesPath)) {
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.',
-                $classesPath));
+            throw new RuntimeException(
+                sprintf(
+                    'Specified output path "%s" is not readable by this process.',
+                    $classesPath
+                )
+            );
         }
         $this->classesPath = $classesPath;
         return $this;
@@ -243,9 +258,11 @@ class Config implements LoggerAwareInterface
     public function getVersion($version)
     {
         if (!$this->hasVersion($version)) {
-            throw new \OutOfBoundsException(
-                'No version with name "' . $version . '" has been configured.  Available: ["' . implode('", "',
-                    array_keys($this->versions)) . '"]'
+            throw new OutOfBoundsException(
+                'No version with name "' . $version . '" has been configured.  Available: ["' . implode(
+                    '", "',
+                    array_keys($this->versions)
+                ) . '"]'
             );
         }
         return $this->versions[$version];

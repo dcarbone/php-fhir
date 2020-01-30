@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
+use RuntimeException;
 
 /**
  * Class FileUtils
@@ -25,9 +26,9 @@ use DCarbone\PHPFHIR\Definition\Type;
  */
 abstract class FileUtils
 {
-    const REGEX_SLASH_SEARCH = '{[\\\]}S';
+    const REGEX_SLASH_SEARCH         = '{[\\\]}S';
     const REGEX_SLASH_SEARCH_CLEANUP = '{[/]{2,}}S';
-    const REGEX_SLASH_REPLACE = '/';
+    const REGEX_SLASH_REPLACE        = '/';
 
     /**
      * @param string $namespace
@@ -65,7 +66,7 @@ abstract class FileUtils
                 if (!(bool)mkdir($path)) {
                     $msg = 'Unable to create directory at path "' . $path . '"';
                     $config->getLogger()->critical($msg);
-                    throw new \RuntimeException($msg);
+                    throw new RuntimeException($msg);
                 }
             }
         }

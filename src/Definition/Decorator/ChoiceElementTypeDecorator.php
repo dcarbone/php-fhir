@@ -24,6 +24,7 @@ use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use SimpleXMLElement;
 
 /**
  * Class ChoiceElementTypeDecorator
@@ -37,7 +38,7 @@ abstract class ChoiceElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $choice
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $choice)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $choice)
     {
         $minOccurs = null;
         $maxOccurs = null;

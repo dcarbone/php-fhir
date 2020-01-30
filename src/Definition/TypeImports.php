@@ -18,13 +18,15 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use Countable;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use Iterator;
 
 /**
  * Class TypeImports
  * @package DCarbone\PHPFHIR\Definition
  */
-class TypeImports implements \Iterator, \Countable
+class TypeImports implements Iterator, Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Type */
     private $type;
@@ -258,10 +260,12 @@ class TypeImports implements \Iterator, \Countable
             if (null === $propertyType) {
                 continue;
             }
-            if ($propertyType->getKind()->isOneOf([
-                    TypeKindEnum::RESOURCE_CONTAINER,
-                    TypeKindEnum::RESOURCE_INLINE,
-                ]) &&
+            if ($propertyType->getKind()->isOneOf(
+                    [
+                        TypeKindEnum::RESOURCE_CONTAINER,
+                        TypeKindEnum::RESOURCE_INLINE,
+                    ]
+                ) &&
                 $typeNS !== $configNS) {
                 $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
                 $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);

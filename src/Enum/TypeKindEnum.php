@@ -40,6 +40,7 @@ class TypeKindEnum extends AbstractEnum
     const RESOURCE           = 'Resource';
     const RESOURCE_CONTAINER = 'ResourceContainer';
     const RESOURCE_INLINE    = 'Resource.Inline';
+    const QUANTITY           = 'Quantity';
 
     /** @var array */
     private static $knownRoots = [
@@ -99,6 +100,14 @@ class TypeKindEnum extends AbstractEnum
     public function isElement()
     {
         return $this->is(self::ELEMENT);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isQuantity()
+    {
+        return $this->is(self::QUANTITY);
     }
 
     /**

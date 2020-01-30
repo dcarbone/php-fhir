@@ -56,7 +56,7 @@ class Logger extends AbstractLogger
      * @param string $message
      * @param array $context
      */
-    public function log($level, $message, array $context = array())
+    public function log($level, $message, array $context = [])
     {
         $this->actualLogger->log($level, $message, $context);
     }

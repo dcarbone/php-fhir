@@ -58,7 +58,7 @@ ob_start(); ?>
                 } else {
                     $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $value] + $ext));
                 }
-            } else if ([] !== $ext) {
+            } elseif ([] !== $ext) {
 <?php if ($property->isCollection()) : ?>
                 foreach($ext as $iext) {
                     $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($iext));

@@ -18,13 +18,16 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use Countable;
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use InvalidArgumentException;
+use SplFixedArray;
 
 /**
  * Class Properties
  * @package DCarbone\PHPFHIR\Definition\Type
  */
-class Properties implements \Countable
+class Properties implements Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private $properties = [];
@@ -89,10 +92,12 @@ class Properties implements \Countable
         $pname = $property->getName();
         $pref = $property->getRef();
         if (null === $pname && null === $pref) {
-            throw new \InvalidArgumentException(sprintf(
-                'Cannot add Property to Type "%s" as it has no $name or $ref defined',
-                $this->getType()->getFHIRName()
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cannot add Property to Type "%s" as it has no $name or $ref defined',
+                    $this->getType()->getFHIRName()
+                )
+            );
         }
         foreach ($this->properties as $current) {
             if ($property === $current) {
@@ -101,19 +106,23 @@ class Properties implements \Countable
             $cname = $current->getName();
             $cref = $current->getRef();
             if (null !== $pname && null !== $cname && $pname === $cname) {
-                $this->config->getLogger()->notice(sprintf(
-                    'Type "%s" already has Property "%s" (name), probably some duplicate definition nonsense. Keeping original.',
-                    $this->getType()->getFHIRName(),
-                    $property->getName()
-                ));
+                $this->config->getLogger()->notice(
+                    sprintf(
+                        'Type "%s" already has Property "%s" (name), probably some duplicate definition nonsense. Keeping original.',
+                        $this->getType()->getFHIRName(),
+                        $property->getName()
+                    )
+                );
                 $property = $current;
                 return $this;
             } elseif (null !== $pref && null !== $cref && $cref === $pref) {
-                $this->config->getLogger()->notice(sprintf(
-                    'Type "%s" already has Property "%s" (ref), probably some duplicate definition nonsense. Keeping original.',
-                    $this->getType()->getFHIRName(),
-                    $property->getRef()
-                ));
+                $this->config->getLogger()->notice(
+                    sprintf(
+                        'Type "%s" already has Property "%s" (ref), probably some duplicate definition nonsense. Keeping original.',
+                        $this->getType()->getFHIRName(),
+                        $property->getRef()
+                    )
+                );
                 $property = $current;
                 return $this;
             }
@@ -151,7 +160,7 @@ class Properties implements \Countable
      */
     public function getIterator()
     {
-        return \SplFixedArray::fromArray($this->properties, false);
+        return SplFixedArray::fromArray($this->properties, false);
     }
 
     /**
@@ -159,7 +168,7 @@ class Properties implements \Countable
      */
     public function getSortedIterator()
     {
-        return \SplFixedArray::fromArray($this->_getSortedProperties(), false);
+        return SplFixedArray::fromArray($this->_getSortedProperties(), false);
     }
 
     /**
@@ -168,7 +177,7 @@ class Properties implements \Countable
     public function getDirectIterator()
     {
         $this->_getSortedProperties();
-        return \SplFixedArray::fromArray($this->directProperties, false);
+        return SplFixedArray::fromArray($this->directProperties, false);
     }
 
     /**
@@ -177,7 +186,7 @@ class Properties implements \Countable
     public function getDirectSortedIterator()
     {
         $this->_getSortedProperties();
-        return \SplFixedArray::fromArray($this->directSortedProperties, false);
+        return SplFixedArray::fromArray($this->directSortedProperties, false);
     }
 
     /**

@@ -18,13 +18,16 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Builder\TypeBuilder;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Decorator\ComplexTypeElementTypeDecorator;
 use DCarbone\PHPFHIR\Definition\Decorator\ElementElementTypeDecorator;
 use DCarbone\PHPFHIR\Definition\Decorator\SimpleTypeElementTypeDecorator;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use DomainException;
+use RuntimeException;
+use SimpleXMLElement;
 
 /**
  * Class TypeExtractor
@@ -46,14 +49,14 @@ abstract class TypeExtractor
 
         libxml_clear_errors();
         libxml_use_internal_errors(true);
-        $sxe = new \SimpleXMLElement(
+        $sxe = new SimpleXMLElement(
             file_get_contents($filePath),
             LIBXML_NONET | LIBXML_COMPACT | LIBXML_NSCLEAN,
             false
         );
         libxml_use_internal_errors(false);
 
-        if ($sxe instanceof \SimpleXMLElement) {
+        if ($sxe instanceof SimpleXMLElement) {
             $sxe->registerXPathNamespace('xs', 'http://www.w3.org/2001/XMLSchema');
             $sxe->registerXPathNamespace('', 'http://hl7.org/fhir');
             return $sxe;
@@ -67,14 +70,15 @@ abstract class TypeExtractor
                 $error->message
             );
             $logger->critical($msg);
-            throw new \RuntimeException($msg);
+            throw new RuntimeException($msg);
         }
 
         $msg = sprintf(
             'Unknown XML parsing error occurred while parsing "%s".',
-            $filename);
+            $filename
+        );
         $logger->critical($msg);
-        throw new \RuntimeException($msg);
+        throw new RuntimeException($msg);
     }
 
     /**
@@ -108,12 +112,14 @@ abstract class TypeExtractor
 
             // if there was no attribute named "name", build some context then complain about it.
             if ('' === $fhirName) {
-                throw new \DomainException(sprintf(
-                    'Unable to locate "name" attribute on element "%s" in file "%s": %s',
-                    $childName,
-                    $basename,
-                    $child->saveXML()
-                ));
+                throw new DomainException(
+                    sprintf(
+                        'Unable to locate "name" attribute on element "%s" in file "%s": %s',
+                        $childName,
+                        $basename,
+                        $child->saveXML()
+                    )
+                );
             }
 
             // parse top level elements

@@ -23,8 +23,8 @@ use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
-use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use SimpleXMLElement;
 
 /**
  * Class AnyElementTypeDecorator
@@ -38,7 +38,7 @@ abstract class AnyElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $any
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $any)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $any)
     {
         $property = new Property($type, $any, $type->getSourceFilename());
 
@@ -65,7 +65,6 @@ abstract class AnyElementTypeDecorator
         // parse through child elements
         foreach ($any->children('xs', true) as $child) {
             switch ($child->getName()) {
-
                 default:
                     throw ExceptionUtils::createUnexpectedElementException($type, $any, $child);
             }

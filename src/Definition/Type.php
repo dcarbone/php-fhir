@@ -22,6 +22,10 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DomainException;
+use InvalidArgumentException;
+use LogicException;
+use SimpleXMLElement;
 
 /**
  * Class Type
@@ -29,7 +33,8 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
  */
 class Type
 {
-    use DocumentationTrait, SourceTrait;
+    use DocumentationTrait;
+    use SourceTrait;
 
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
     private $config;
@@ -99,13 +104,14 @@ class Type
      * @param \SimpleXMLElement|null $sourceSXE
      * @param string $sourceFilename
      */
-    public function __construct(VersionConfig $config,
-                                $fhirName,
-                                \SimpleXMLElement $sourceSXE = null,
-                                $sourceFilename = '')
-    {
+    public function __construct(
+        VersionConfig $config,
+        $fhirName,
+        SimpleXMLElement $sourceSXE = null,
+        $sourceFilename = ''
+    ) {
         if ('' === ($fhirName = trim($fhirName))) {
-            throw new \DomainException('$fhirName must be defined');
+            throw new DomainException('$fhirName must be defined');
         }
         $this->config = $config;
         $this->fhirName = $fhirName;
@@ -157,7 +163,9 @@ class Type
      */
     public function getConstName($withClass, $prefix = '')
     {
-        return ($withClass ? PHPFHIR_CLASSNAME_CONSTANTS . '::' : '') . strtoupper($prefix) . NameUtils::getConstName($this->getFHIRName());
+        return ($withClass ? PHPFHIR_CLASSNAME_CONSTANTS . '::' : '') . strtoupper($prefix) . NameUtils::getConstName(
+                $this->getFHIRName()
+            );
     }
 
     /**
@@ -193,12 +201,14 @@ class Type
     public function setKind(TypeKindEnum $kind)
     {
         if (isset($this->kind) && !$this->kind->equals($kind)) {
-            throw new \LogicException(sprintf(
-                'Cannot overwrite Type % s Kind from %s to %s',
-                $this->getFHIRName(),
-                $this->kind,
-                $kind
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot overwrite Type % s Kind from %s to %s',
+                    $this->getFHIRName(),
+                    $this->kind,
+                    $kind
+                )
+            );
         }
         $this->kind = $kind;
         return $this;
@@ -211,12 +221,14 @@ class Type
     public function setPrimitiveType(PrimitiveTypeEnum $primitiveType)
     {
         if (isset($this->primitiveType) && $this->primitiveType->equals($primitiveType)) {
-            throw new \LogicException(sprintf(
-                'Cannot overwrite Type "%s" PrimitiveType from "%s" to "%s"',
-                $this->getFHIRName(),
-                $this->primitiveType,
-                $primitiveType
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Cannot overwrite Type "%s" PrimitiveType from "%s" to "%s"',
+                    $this->getFHIRName(),
+                    $this->primitiveType,
+                    $primitiveType
+                )
+            );
         }
         $this->primitiveType = $primitiveType;
         return $this;
@@ -303,7 +315,7 @@ class Type
     }
 
     /**
-     * @param boolean $leadingSlash
+     * @param bool $leadingSlash
      * @return string
      */
     public function getFullyQualifiedTestClassName($leadingSlash)
@@ -465,10 +477,12 @@ class Type
     public function setMinLength($minLength)
     {
         if (!is_int($minLength)) {
-            throw new \InvalidArgumentException(sprintf(
-                '$minLength must be int, %s seen',
-                gettype($minLength)
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$minLength must be int, %s seen',
+                    gettype($minLength)
+                )
+            );
         }
         $this->minLength = $minLength;
         return $this;
@@ -489,10 +503,12 @@ class Type
     public function setMaxLength($maxLength)
     {
         if (!is_int($maxLength)) {
-            throw new \InvalidArgumentException(sprintf(
-                '$maxLength must be int, %s seen',
-                gettype($maxLength)
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$maxLength must be int, %s seen',
+                    gettype($maxLength)
+                )
+            );
         }
         $this->maxLength = $maxLength;
         return $this;

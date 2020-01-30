@@ -44,9 +44,12 @@ if ($property->isCollection()) : ?>
             $sxe->addChild(self::<?php echo $propertyConstName; ?>, (string)$v, $v->_getFHIRXMLNamespace());
 <?php elseif ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isPrimitive()) : ?>
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-<?php elseif ($propertyType->isValueContainer()) : /* TODO: improve so we don't double-print value element(s) */ ?>
-            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+<?php elseif ($propertyType->isValueContainer()) : ?>
+            if ('' !== ($vs = (string)$v) && 1 === $v->_getValueSetCount()) {
+                $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, $vs);
+            } else {
+                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+            }
 <?php else :?>
             $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
 <?php endif; ?>
