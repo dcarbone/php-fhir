@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $memberOf = $property->getMemberOf();
@@ -30,6 +32,6 @@ endif;
 
 ob_start(); ?>
     const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php if (null !== $propertyType && ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent())) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
+<?php if (null !== $propertyType && $propertyType->getKind()->is(TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
 <?php endif; ?>
 <?php return ob_get_clean();

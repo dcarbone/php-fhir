@@ -38,9 +38,6 @@ switch (true) :
     case $typeKind->isPrimitiveContainer():
         echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php', $requireArgs);
         break;
-    case ($type->isValueContainer() || $type->hasValueContainerParent()):
-        echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/value_container.php', $requireArgs);
-        break;
 
     default:
         echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php', $requireArgs);

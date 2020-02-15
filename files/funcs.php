@@ -51,3 +51,13 @@ function build_raw_type(VersionConfig $config)
     $rt->addDocumentationFragment(PHPFHIR_RAW_TYPE_DESCRIPTION);
     return $rt;
 }
+
+/**
+ * @param \DCarbone\PHPFHIR\Definition\Type $type
+ */
+function type_debug(Type $type)
+{
+    echo "\n\n\n";
+    var_dump($type->getConfig()->getVersion()->getName(), $type->getFHIRName());
+    echo "\n\n\n";
+}

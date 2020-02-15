@@ -48,9 +48,9 @@ foreach ($sortedProperties as $property) :
             __DIR__ . '/default_property_primitive_list.php',
                 ['property' => $property]
         );
-    elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
+    elseif ($propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
         echo require_with(
-            __DIR__ . '/default_property_value_container.php',
+            __DIR__ . '/default_property_primitive_container.php',
             ['property' => $property]
         );
     else :

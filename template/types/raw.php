@@ -60,7 +60,9 @@ echo require_with(
     /** @var string */
     private $_data = null;
     /** @var string */
-    private $_xmlns = 'http://hl7.org/fhir';
+    private $_elementName = null;
+    /** @var string */
+    private $_xmlns = '';
 
     /** @var array */
     private static $_validationRules = [];
@@ -72,6 +74,19 @@ echo require_with(
     public function __construct($data = null)
     {
         $this->_setData($data);
+    }
+
+    /**
+     * The name of the FHIR element this raw type represents
+     *
+     * @param string $elementName
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
+
+     */
+    public function _setElementName($elementName)
+    {
+        $this->_elementName = $elementName;
+        return $this;
     }
 
 <?php
@@ -92,19 +107,25 @@ echo require_with(
         return $this->_data;
     }
 
+    /**
+     * @param mixed $data
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
+
+     */
     public function _setData($data)
     {
         if (null === $data) {
-            return;
+            $this->_data = null;
+            return $this;
         }
         if (is_scalar($data) || (is_object($data) && method_exists($data, self::TO_STRING_FUNC))) {
             $this->_data = $data;
-        } else {
-            throw new \InvalidArgumentException(sprintf(
-                '$data must be one of: null, string, integer, double, boolean, or object implementing "__toString", saw "%s"',
-                gettype($data)
-            ));
+            return $this;
         }
+        throw new \InvalidArgumentException(sprintf(
+            '$data must be one of: null, string, integer, double, boolean, or object implementing "__toString", saw "%s"',
+            gettype($data)
+        ));
     }
 
 
@@ -146,7 +167,9 @@ echo require_with(
                 __METHOD__
             ));
         }
-        return new \SimpleXMLElement("<phpfhir_raw>{$this->_getData()}</phpfhir_raw>", $libxmlOpts, false);
+        $xmlns = '';
+
+        return new \SimpleXMLElement("<{$this->_getElementName()}>{$this->_getData()}</{$this->_getElementName()}>", $libxmlOpts, false);
     }
 
     /**

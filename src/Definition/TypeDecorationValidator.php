@@ -91,19 +91,6 @@ abstract class TypeDecorationValidator
             } else {
                 $seenClasses[$cname] = true;
             }
-
-            if ($type->isValueContainer()) {
-                $valueFound = false;
-                foreach ($type->getProperties()->getIterator() as $property) {
-                    if ($property->isValueProperty()) {
-                        $valueFound = true;
-                        break;
-                    }
-                }
-                if (!$valueFound) {
-                    throw ExceptionUtils::createValuePropertyNotFoundException($type);
-                }
-            }
         }
     }
 }

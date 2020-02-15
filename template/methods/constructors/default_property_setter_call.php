@@ -31,10 +31,10 @@ if ($propertyType->getKind()->isPrimitive() || $propertyType->hasPrimitiveParent
             __DIR__ . '/property_setter_primitive.php',
             ['property' => $property]
     );
-elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
+elseif ($propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
     echo require_with(
-            __DIR__ . '/property_setter_value_container.php',
-            ['property' => $property]
+        __DIR__ . '/property_setter_primitive_container.php',
+        ['property' => $property]
     );
 else :
     echo require_with(

@@ -29,6 +29,9 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
  */
 abstract class TypeDecorator
 {
+    /** @var array */
+    private static $_dstu1Primitives = ['ResourceType', 'xmlIdRef', 'ResourceNamesPlusBinary'];
+
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
@@ -250,7 +253,9 @@ abstract class TypeDecorator
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            if ($type->getKind()->isPrimitive()) {
+            if (in_array($type->getFHIRName(), self::$_dstu1Primitives, true)) {
+                $ptn = 'string';
+            } elseif ($type->getKind()->isPrimitive()) {
                 $ptn = $type->getFHIRName();
             } elseif ($type->hasPrimitiveParent()) {
                 $ptn = $type->getParentType()->getFHIRName();
@@ -341,37 +346,56 @@ abstract class TypeDecorator
         if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
         } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
+            // for all intents and purposes, a List type is a multiple choice primitive type
             self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
         } elseif (false !== strpos($fhirName, '.') && TypeKindEnum::RESOURCE_INLINE !== $fhirName) {
+            // This block indicates the type is only present as the child of a Resource.  Its name may (and in many
+            // cases does) conflict with a top level Element or Resource.  Because of this, they are treated differently
+            // and must be marked as such.
             self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
         } elseif ($types->getTypeByName("{$fhirName}-primitive")) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE_CONTAINER);
         } elseif (null !== ($rootType = $type->getRootType()) && $rootType !== $type) {
+            // this entire block is only hit when generating from DSTU1 sources.
+
+            // DSTU1 is weird.
+
             if (null === $rootType->getKind()) {
                 // ensure root type has kind
+                // this is due to the out-of-order loading that is made possible by looking at all xml files, rather
+                // than just fhir-all or something.
                 self::determineParsedTypeKind($config, $types, $rootType);
             }
+
+            // These are set to primitive through automagic
+            // TODO: maybe set to GENERIC?
+            if (in_array($fhirName, self::$_dstu1Primitives, true)) {
+                $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
+                return;
+            }
+
             $rootTypeKind = $rootType->getKind();
-            if ($rootTypeKind->isPrimitive()) {
-                self::setTypeKind($config, $types, $type, (string)TypeKindEnum::GENERIC);
-            } else {
-                $set = false;
-                if ($rootTypeKind->isElement() && [] !== ($parentTypes = $type->getParentTypes())) {
-                    foreach ($parentTypes as $parentType) {
-                        if ('Resource' === $parentType->getFHIRName()) {
-                            $set = true;
-                            self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE);
-                        }
+
+            // this final block is necessary as in DSTU1 all Resources extend Elements, so we cannot just use the upper-
+            // most parent to determine type as then they would all just be elements.
+            $set = false;
+            if ($rootTypeKind->isElement() && [] !== ($parentTypes = $type->getParentTypes())) {
+                foreach ($parentTypes as $parentType) {
+                    if ('Resource' === $parentType->getFHIRName()) {
+                        $set = true;
+                        self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE);
                     }
                 }
-                if (!$set) {
-                    self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
-                }
+            }
+
+            if (!$set) {
+                self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
             }
         } elseif (TypeKindEnum::isKnownRoot($fhirName)) {
             self::setTypeKind($config, $types, $type, $fhirName);
         } else {
-            self::setTypeKind($config, $types, $type, TypeKindEnum::GENERIC);
+            // this case is only applicable to the DSTU1 type "Binary"
+            self::setTypeKind($config, $types, $type, TypeKindEnum::RAW);
         }
     }
 
@@ -434,45 +458,6 @@ abstract class TypeDecorator
             if ($types->isContainedType($type)) {
                 $type->setContainedType(true);
             }
-        }
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     */
-    public static function setValueContainerFlag(VersionConfig $config, Types $types)
-    {
-        static $skip = [
-            TypeKindEnum::PRIMITIVE,
-            TypeKindEnum::RAW,
-            TypeKindEnum::QUANTITY,
-        ];
-
-        foreach ($types->getIterator() as $type) {
-            // TODO: handle valueString, valueQuantity, etc. types?
-
-            // skip primitive types and their child types
-            if ($type->getKind()->isOneOf($skip) || $type->hasPrimitiveParent()) {
-                continue;
-            }
-
-            $properties = $type->getProperties();
-
-            // only target types with a single field on them with the name "value"
-            if (1 !== count($properties) || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
-                continue;
-            }
-
-            $property = $properties->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
-            $propertyType = $property->getValueFHIRType();
-
-            // only target types where the "value" field is itself typed
-            if (null === $propertyType) {
-                continue;
-            }
-
-            $type->setValueContainer(true);
         }
     }
 

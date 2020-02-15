@@ -28,11 +28,8 @@ $fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassname = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
-$fhirName = $type->getFHIRName();
 $directProperties = $type->getProperties()->getDirectIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
-$isValueContainer = $type->isValueContainer();
-$hasValueContainerParent = $type->hasValueContainerParent();
 
 ob_start();
 
@@ -78,7 +75,7 @@ echo require_with(
 endif; ?>
 
     /** @var string */
-    private $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
+    private $_xmlns = '';
 
 <?php if (0 !== count($directProperties)) :
     foreach($directProperties as $property) :

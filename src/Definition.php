@@ -97,9 +97,6 @@ class Definition
         $log->info('Setting contained type flags');
         TypeDecorator::setContainedTypeFlag($this->config, $this->types);
 
-        $log->info('Setting value container flags');
-        TypeDecorator::setValueContainerFlag($this->config, $this->types);
-
         $log->info('Setting comment container flags');
         TypeDecorator::setCommentContainerFlag($this->config, $this->types);
 

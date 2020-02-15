@@ -90,8 +90,6 @@ class Type
     /** @var bool */
     private $containedType = false;
     /** @var bool */
-    private $valueContainer = false;
-    /** @var bool */
     private $commentContainer = false;
 
     /** @var \DCarbone\PHPFHIR\Definition\TypeImports */
@@ -453,6 +451,19 @@ class Type
     }
 
     /**
+     * @return bool
+     */
+    public function hasPrimitiveContainerParent()
+    {
+        foreach ($this->getParentTypes() as $parentType) {
+            if ($parentType->getKind()->isPrimitiveContainer()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * TODO: super hacky.
      *
      * @return bool
@@ -675,37 +686,6 @@ class Type
     }
 
     /**
-     * @return bool
-     */
-    public function isValueContainer()
-    {
-        return $this->valueContainer;
-    }
-
-    /**
-     * @param bool $valueContainer
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function setValueContainer($valueContainer)
-    {
-        $this->valueContainer = (bool)$valueContainer;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasValueContainerParent()
-    {
-        foreach ($this->getParentTypes() as $parent) {
-            if ($parent->isValueContainer()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * @return array
      */
     public function getDirectlyImplementedInterfaces()
@@ -722,10 +702,8 @@ class Type
             } else {
                 $interfaces[] = PHPFHIR_INTERFACE_TYPE;
             }
-        } else {
-            if ($this->isContainedType() && !$parentType->isContainedType()) {
-                $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
-            }
+        } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
+            $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
         }
 
         return $interfaces;

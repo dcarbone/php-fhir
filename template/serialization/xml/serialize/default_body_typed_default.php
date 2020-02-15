@@ -25,7 +25,7 @@ $propertyConstName = $property->getFieldConstantName();
 $getter = $property->getGetterName();
 
 ob_start();
-if ($property->isCollection()) : ?>
+if ($property->isCollection()) : // collection fields ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             foreach($vs as $v) {
                 if (null === $v) {
@@ -38,19 +38,13 @@ if ($property->isCollection()) : ?>
 <?php endif; ?>
             }
         }
-<?php else : ?>
+<?php else : // single fields ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
 <?php if ($propertyType->getKind()->isRaw()) : ?>
             $sxe->addChild(self::<?php echo $propertyConstName; ?>, (string)$v, $v->_getFHIRXMLNamespace());
 <?php elseif ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isPrimitive()) : ?>
             $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-<?php elseif ($propertyType->isValueContainer()) : ?>
-            if ('' !== ($vs = (string)$v) && 1 === $v->_getValueSetCount()) {
-                $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, $vs);
-            } else {
-                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
-            }
-<?php else :?>
+<?php else : ?>
             $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
 <?php endif; ?>
         }
