@@ -62,7 +62,6 @@ ob_start(); ?>
         <?php echo $parentType->getClassName(); ?>::xmlUnserialize($sxe, $type);
 <?php endif; ?>
         $xmlNamespaces = $sxe->getDocNamespaces(false, false);
-var_dump($xmlNamespaces);
         if ([] !== $xmlNamespaces) {
             $ns = trim((string)reset($xmlNamespaces));
             if ('' !== $ns) {
