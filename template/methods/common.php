@@ -44,7 +44,7 @@ ob_start(); ?>
      */
     public function _getFHIRXMLNamespace()
     {
-        return $this->_xmlns;
+        return !empty($this->_xmlns) ? $this->_xmlns : null;
     }
 <?php endif; ?>
 
@@ -67,7 +67,7 @@ ob_start(); ?>
     public function _getFHIRXMLElementDefinition()
     {
         $xmlns = $this->_getFHIRXMLNamespace();
-        if ('' !== $xmlns) {
+        if (!empty($xmlns)) {
             $xmlns = " xmlns=\"{$xmlns}\"";
         }
         return "<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>";
