@@ -44,7 +44,7 @@ ob_start(); ?>
      */
     public function _getFHIRXMLNamespace()
     {
-        return return $this->_xmlns;
+        return $this->_xmlns;
     }
 <?php endif; ?>
 
