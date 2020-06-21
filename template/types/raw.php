@@ -69,7 +69,7 @@ echo require_with(
 
     /**
      * <?php echo PHPFHIR_RAW_TYPE_NAME; ?> Constructor
-     * @param null|string|integer|float|boolean|object $data
+     * @param null|string|int|float|bool|object $data
      */
     public function __construct($data = null)
     {

@@ -25,5 +25,4 @@ ob_start(); ?>
             $type->setValue($v);
         }
         $type->_setElementName((string)$sxe->getName());
-exit(1);
 <?php return ob_get_clean();

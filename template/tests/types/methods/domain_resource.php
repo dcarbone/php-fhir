@@ -250,8 +250,11 @@ ob_start(); ?>
         }
         $entry = $bundle->getEntry()[0]->getResource();
         $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
+        $sfname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>-source.xml';
         file_put_contents($fname, $entry->xmlSerialize()->saveXML());
         $this->assertFileExists($fname);
+        file_put_contents($sfname, $xml);
+        $this->assertFileExists($sfname);
 
         $output = [];
         $code = -1;
@@ -274,7 +277,11 @@ ob_start(); ?>
         );
 
         unlink($fname);
-        $this->assertFileNotExists($fname);
+        if (method_exists($this, 'assertFileDoesNotExist')) {
+            $this->assertFileDoesNotExist($fname);
+        } else {
+            $this->assertFileNotExists($fname);
+        }
     }
 
     public function testFHIRValidationJSON()
@@ -327,7 +334,11 @@ ob_start(); ?>
         );
 
         unlink($fname);
-        $this->assertFileNotExists($fname);
+        if (method_exists($this, 'assertFileDoesNotExist')) {
+            $this->assertFileDoesNotExist($fname);
+        } else {
+            $this->assertFileNotExists($fname);
+        }
     }
 <?php
 return ob_get_clean();
