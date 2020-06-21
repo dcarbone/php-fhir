@@ -28,6 +28,8 @@ ob_start(); ?>
     {
         if (null === $sxe) {
             $sxe = new \SimpleXMLElement($this->_getFHIRXMLElementDefinition(), $libxmlOpts, false);
+        } else if (null !== $this->_xmlns && [] === $sxe->getNamespaces(false)) {
+            $sxe->addAttribute('xmlns:xmlns:', $this->_xmlns);
         }
 <?php if (null !== $parentType) : ?>
         parent::xmlSerialize($sxe);
