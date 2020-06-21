@@ -18,7 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
@@ -26,7 +26,7 @@ $typeKind = $type->getKind();
 $requireArgs = [
     'type'             => $type,
     'parentType'       => $parentType,
-    'sortedProperties' => $sortedProperties,
+    'properties' => $properties,
 ];
 
 ob_start();

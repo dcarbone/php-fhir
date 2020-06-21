@@ -102,7 +102,7 @@ echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
     [
             'type' => $type,
-            'sortedProperties' => $directProperties,
+            'properties' => $directProperties,
             'parentType' => $parentType,
     ]
 );
@@ -131,7 +131,7 @@ endif;
         [
                 'config' => $config,
                 'type' => $type,
-                'sortedProperties' => $directProperties,
+                'properties' => $directProperties,
         ]
     );
 endif; ?>

@@ -18,7 +18,7 @@
 
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
@@ -67,7 +67,7 @@ ob_start(); ?>
                 $this->_addFHIRComment($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS]);
             }
         }<?php endif; ?>
-<?php foreach ($sortedProperties as $property) :
+<?php foreach ($properties as $property) :
     if ($property->isOverloaded()) :
         continue;
     endif;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <phpunit
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/8.0/phpunit.xsd"
+        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/9.2/phpunit.xsd"
         bootstrap="./vendor/autoload.php"
         colors="true"
         stopOnFailure="true"
@@ -82,5 +82,6 @@
     </filter>
     <php>
         <env name="CACHE_DRIVER" value="array"/>
+        <ini name="memory_limit" value="2048M"/>
     </php>
 </phpunit>

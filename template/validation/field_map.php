@@ -18,7 +18,7 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$sortedProperties = $type->getProperties()->getSortedIterator();
+$properties = $type->getProperties()->getSortedIterator();
 
 ob_start(); ?>
     /**
@@ -26,7 +26,7 @@ ob_start(); ?>
 
      * @var array
      */
-    private static $_validationRules = [<?php foreach ($sortedProperties as $property) :
+    private static $_validationRules = [<?php foreach ($properties as $property) :
     $validationMap = $property->buildValidationMap();
     if ([] !== $validationMap) : ?>
 

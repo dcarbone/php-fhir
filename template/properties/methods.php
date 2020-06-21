@@ -20,7 +20,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
 $isPrimitiveType = $type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]);
 
@@ -37,7 +37,7 @@ else :
         [
             'config'           => $config,
             'type'             => $type,
-            'sortedProperties' => $sortedProperties,
+            'properties' => $properties,
         ]
     );
 endif;

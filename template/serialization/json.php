@@ -28,7 +28,7 @@ if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php',
         [
-            'type' => $type,
+            'type'     => $type,
             'typeKind' => $typeKind,
         ]
     );
@@ -36,15 +36,15 @@ elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESO
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/resource_container.php',
         [
-            'sortedProperties' => $directProperties,
+            'properties' => $directProperties,
         ]
     );
 else:
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php',
         [
-            'type' => $type,
-            'sortedProperties' => $directProperties,
+            'type'       => $type,
+            'properties' => $directProperties,
         ]
     );
 endif;

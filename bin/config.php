@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Generator default configuration file
  *
@@ -36,7 +37,7 @@ return [
     // Map of versions and configurations to generate
     // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
     // version, please see http://www.hl7.org/fhir/directory.cfml
-    'versions' => [
+    'versions'    => [
         'DSTU1' => [
             // Source URL
             'url'       => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',

@@ -465,6 +465,45 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
+    public static function setValueContainerFlag(VersionConfig $config, Types $types)
+    {
+        static $skip = [
+            TypeKindEnum::PRIMITIVE,
+            TypeKindEnum::RAW,
+            TypeKindEnum::QUANTITY,
+        ];
+
+        foreach ($types->getIterator() as $type) {
+            // TODO: handle valueString, valueQuantity, etc. types?
+
+            // skip primitive types and their child types
+            if ($type->getKind()->isOneOf($skip) || $type->hasPrimitiveParent()) {
+                continue;
+            }
+
+            $properties = $type->getProperties();
+
+            // only target types with a single field on them with the name "value"
+            if (1 !== count($properties) || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+                continue;
+            }
+
+            $property = $properties->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+            $propertyType = $property->getValueFHIRType();
+
+            // only target types where the "value" field is itself typed
+            if (null === $propertyType) {
+                continue;
+            }
+
+            $type->setValueContainer(true);
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
     public static function setCommentContainerFlag(VersionConfig $config, Types $types)
     {
         static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::RAW];

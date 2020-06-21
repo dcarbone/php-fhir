@@ -52,7 +52,7 @@ class Version
         $this->name = $name;
 
         if (!isset($conf[self::KEY_URL])) {
-            throw newDomainException(sprintf('Version %s is missing required config key ', self::KEY_URL));
+            throw new DomainException(sprintf('Version %s is missing required config key ', self::KEY_URL));
         }
         $this->setUrl($conf[self::KEY_URL]);
 

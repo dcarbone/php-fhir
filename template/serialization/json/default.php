@@ -19,7 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
 ob_start(); ?>
     /**
@@ -38,7 +38,7 @@ if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
             $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
         }
 <?php endif;
-foreach ($sortedProperties as $property) :
+foreach ($properties as $property) :
     if ($property->isOverloaded()) :
         continue;
     endif;
@@ -48,9 +48,9 @@ foreach ($sortedProperties as $property) :
             __DIR__ . '/default_property_primitive_list.php',
                 ['property' => $property]
         );
-    elseif ($propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
+    elseif ($propertyType->isValueContainer() || $propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
         echo require_with(
-            __DIR__ . '/default_property_primitive_container.php',
+            __DIR__ . '/default_property_value_primitive_container.php',
             ['property' => $property]
         );
     else :

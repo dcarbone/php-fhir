@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
 ob_start(); ?>
     /**
      * @return object|null
      */
     public function jsonSerialize()
-    {<?php foreach($sortedProperties as $property) : ?>
+    {<?php foreach($properties as $property) : ?>
 
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
             return $v;
