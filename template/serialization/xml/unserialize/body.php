@@ -31,7 +31,7 @@ foreach ($directProperties as $property) :
         );
     else :
         echo require_with(
-            __DIR__ . '/body_parse_raw.php',
+            __DIR__ . '/body_parse_primitive.php',
             [
                 'property' => $property,
             ]

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 $fqns = $type->getFullyQualifiedNamespace(true);
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 $namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
+$xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start();
 
@@ -149,8 +150,27 @@ echo require_with(
     ]
 );
 ?>
-        $type->_setData((string)$sxe);
+        $type->_setData($sxe);
         return $type;
+    }
+
+    /**
+     * @param \SimpleXMLElement $sxe
+     * @param \SimpleXMLElement $node
+     */
+    protected static function _addXMLChildren(\SimpleXMLElement $sxe, \SimpleXMLElement $node)
+    {
+        if ('' === trim($v = (string)$node)) {
+            $xml = $sxe->addChild($node->getName());
+        } else {
+            $xml = $sxe->addChild($node->getName(), $v);
+        }
+        foreach($node->children() as $child) {
+            self::_addXMLChildren($xml, $child);
+        }
+        foreach($node->attributes() as $k => $v) {
+            $xml->addAttribute($k, $v);
+        }
     }
 
      /**
@@ -160,16 +180,35 @@ echo require_with(
      */
     public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
-        if (null !== $sxe) {
-            throw new \LogicException(sprintf(
-                'Due to limitations with the PHP implementation of SimpleXML, the %s type cannot accept a pre-built SimpleXMLElement instance to %s',
-                '<?php echo PHPFHIR_RAW_TYPE_NAME; ?>',
-                __METHOD__
-            ));
-        }
-        $xmlns = '';
+        $data = $this->_getData();
+        if (null === $sxe) {
+            $xmlns = $this->_getFHIRXMLNamespace();
+            if (!empty($xmlns)) {
+                $xmlns = " xmlns=\"{$xmlns}\"";
+            }
+            if (null === $data) {
+                return new \SimpleXMLElement("<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>", $libxmlOpts, false);
+            }
+            if (is_scalar($data) || (is_object($data) && !($data instanceof \SimpleXMLElement))) {
+                if (is_bool($data)) {
+                    $strval = $data ? 'true' : 'false';
+                } else {
+                    $strval = (string)$data;
+                }
+                return new \SimpleXMLElement("<<?php echo $xmlName; ?>{$xmlns}>{$strval}</<?php echo $xmlName; ?>", $libxmlOpts, false);
+            }
 
-        return new \SimpleXMLElement("<{$this->_getElementName()}>{$this->_getData()}</{$this->_getElementName()}>", $libxmlOpts, false);
+            $xml = $data->saveXML();
+            $sxe = new \SimpleXMLElement(substr($xml, strpos($xml, "\n")), $libxmlOpts, false);
+        }
+
+        if ($data instanceof \SimpleXMLElement) {
+            foreach($data->children() as $child) {
+                static::_addXMLChildren($sxe, $child);
+            }
+        }
+
+        return $sxe;
     }
 
     /**
