@@ -28,27 +28,29 @@ $directProperties = $type->getProperties()->getDirectIterator();
 
 ob_start(); ?>
     /**
-     * @param \SimpleXMLElement|string|null $sxe
+     * @param null|string|\DOMElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @param null|int $libxmlOpts
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    public static function xmlUnserialize($element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
-        if (null === $sxe) {
+        if (null === $element) {
             return null;
         }
-        if (is_string($sxe)) {
+        if (is_string($element)) {
             libxml_use_internal_errors(true);
-            $sxe = new \SimpleXMLElement($sxe, $libxmlOpts, false);
-            if ($sxe === false) {
+            $dom = new \DOMDocument();
+            $dom->loadXML($element, $libxmlOpts);
+            if (false === $dom) {
                 throw new \DomainException(sprintf('<?php echo $typeClassName; ?>::xmlUnserialize - String provided is not parseable as XML: %s', implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))));
             }
             libxml_use_internal_errors(false);
+            $element = $dom->documentElement;
         }
-        if (!($sxe instanceof \SimpleXMLElement)) {
-            throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $sxe value must be null, \\SimpleXMLElement, or valid XML string, %s seen', gettype($sxe)));
+        if (!($element instanceof \DOMElement)) {
+            throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $node value must be null, \\DOMElement, or valid XML string, %s seen', gettype($element)));
         }
         if (null === $type) {
             $type = new <?php echo $typeClassName; ?>(null);
@@ -59,17 +61,7 @@ ob_start(); ?>
             ));
         }
 <?php if (null !== $parentType) : ?>
-        <?php echo $parentType->getClassName(); ?>::xmlUnserialize($sxe, $type);
+        <?php echo $parentType->getClassName(); ?>::xmlUnserialize($element, $type);
 <?php endif; ?>
-        $xmlNamespaces = $sxe->getNamespaces(false);
-        if ([] !== $xmlNamespaces) {
-            $ns = trim((string)reset($xmlNamespaces));
-            if ('' !== $ns) {
-                $type->_xmlns = $ns;
-            }
-        }
-<?php if (0 < count($directProperties)) : ?>
-        $attributes = $sxe->attributes();
-        $children = $sxe->children();
-<?php endif;
-return ob_get_clean();
+        $type->_xmlns = $element->namespaceURI;
+<?php return ob_get_clean();

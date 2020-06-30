@@ -16,25 +16,26 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$setter = $property->getSetterName();
+$propertyType = $property->getValueFHIRType();
+$propertyTypeClassName = $property->getMemberOf()->getImports()->getImportByType($propertyType);
 $propertyName = $property->getName();
 $propertyConst = $property->getFieldConstantName();
+$setter = $property->getSetterName();
 
-ob_start(); ?>
-            if (self::<?php echo $propertyConst; ?> === $n->nodeName) {
-                for ($ni = 0; $ni < $n->childNodes->length; $ni++) {
-                    $nn = $n->childNodes->item($ni);
-                    if (!($nn instanceof \DOMElement)) {
-                        continue;
-                    }
-                    $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($nn));
-<?php if ($property->isCollection()) : ?>
-                    continue;
-<?php else : ?>
-                    break;
-<?php endif; ?>
-                }
+ob_start();
+if (!$property->isCollection() && $propertyType->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
+        $n = $element->attributes->getNamedItem(self::<?php echo $propertyConst; ?>);
+        if (null !== $n) {
+            $pt = $type-><?php echo $property->getGetterName(); ?>();
+            if (null !== $pt) {
+                $pt->setValue($n->nodeValue);
+            } else {
+                $type-><?php echo $setter; ?>($n->nodeValue);
             }
-<?php return ob_get_clean();
+        }
+<?php endif;
+return ob_get_clean();

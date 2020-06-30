@@ -27,7 +27,45 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 ob_start(); ?>
 
+    /** @var array */
     private $_fetchedResources = [];
+
+    private static $_ignoreErrs = [
+        'Unable to provide support for code system',
+        ' minimum required =',
+        ' Unable to resolve resource',
+    ];
+
+    /**
+     * @var string $filename
+     * @return array
+     */
+    protected function _runFHIRValidationJAR($filename)
+    {
+        $output = [];
+        $code = -1;
+        $cmd = sprintf(
+            'java -jar %s %s -version <?php echo CopyrightUtils::getFHIRVersion(true); ?>',
+            PHPFHIR_FHIR_VALIDATION_JAR,
+            $filename
+        );
+
+        exec($cmd, $output, $code);
+
+        $onlyWarn = false;
+        if (0 !== $code) {
+            foreach($output as $line) {
+                foreach(self::$_ignoreErrs as $ignoreMe) {
+                    if (false !== strpos($line, $ignoreMe)) {
+                        $onlyWarn = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return [$code, $output, $onlyWarn];
+    }
 
     /**
      * @param string $format Either xml or json
@@ -102,23 +140,26 @@ ob_start(); ?>
         }
         $this->assertCount(1, $bundle->getEntry());
         $entry = $bundle->getEntry()[0]->getResource();
-        $xml2 = $entry->xmlSerialize()->saveXML();
+        $entryElement = $entry->xmlSerialize();
+        $entryXML = $entryElement->ownerDocument->saveXML($entryElement);
         try {
-            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($xml2);
+            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($entryXML);
         } catch (\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(
                     'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; XML: %s',
                     $e->getMessage(),
-                    $xml2
+                    $entryXML
                 ),
                 $e->getCode(),
                 $e
             );
         }
         $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
-        $this->assertEquals($entry->xmlSerialize()->saveXML(), $type->xmlSerialize()->saveXML());
-        // $this->assertXmlStringEqualsXmlString($xml, $bundle->xmlSerialize()->asXML());
+        $typeElement = $type->xmlSerialize();
+        $this->assertEquals($entryXML, $typeElement->ownerDocument->saveXML($typeElement));
+        $bundleElement = $bundle->xmlSerialize();
+        $this->assertXmlStringEqualsXmlString($xml, $bundleElement->ownerDocument->saveXML());
     }
 
     public function testJSON()
@@ -252,30 +293,13 @@ ob_start(); ?>
         $entry = $bundle->getEntry()[0]->getResource();
         $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
         $sfname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>-source.xml';
-        file_put_contents($fname, $entry->xmlSerialize()->saveXML());
+        $element = $entry->xmlSerialize();
+        file_put_contents($fname, $element->ownerDocument->saveXML($element));
         $this->assertFileExists($fname);
         file_put_contents($sfname, $xml);
         $this->assertFileExists($sfname);
 
-        $output = [];
-        $code = -1;
-        $cmd = sprintf(
-            'java -jar %s %s -version <?php echo CopyrightUtils::getFHIRVersion(true); ?>',
-            PHPFHIR_FHIR_VALIDATION_JAR,
-            $fname
-        );
-
-        exec($cmd, $output, $code);
-
-        $onlyWarn = false;
-        if (0 !== $code) {
-            foreach($output as $line) {
-                if (false !== strpos($line, 'Unable to provide support for code system')) {
-                    $onlyWarn = true;
-                    break;
-                }
-            }
-        }
+        list($code, $output, $onlyWarn) = $this->_runFHIRValidationJAR($fname);
 
         if ($onlyWarn) {
             $this->markTestSkipped(sprintf(
@@ -331,25 +355,7 @@ ob_start(); ?>
         file_put_contents($fname, json_encode($entry));
         $this->assertFileExists($fname);
 
-        $output = [];
-        $code = -1;
-        $cmd = sprintf(
-            'java -jar %s %s -version <?php echo CopyrightUtils::getFHIRVersion(true); ?>',
-            PHPFHIR_FHIR_VALIDATION_JAR,
-            $fname
-        );
-
-        exec($cmd, $output, $code);
-
-        $onlyWarn = false;
-        if (0 !== $code) {
-            foreach($output as $line) {
-                if (false !== strpos($line, 'Unable to provide support for code system')) {
-                    $onlyWarn = true;
-                    break;
-                }
-            }
-        }
+        list($code, $output, $onlyWarn) = $this->_runFHIRValidationJAR($fname);
 
         if ($onlyWarn) {
             $this->markTestSkipped(sprintf(

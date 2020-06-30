@@ -104,7 +104,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
         if (self::$_registered) {
             return self::$_registered;
         }
-        return self::$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
+        return self::$_registered = spl_autoload_register([__CLASS__, 'loadClass'], true);
     }
 
     /**
@@ -113,7 +113,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function unregister()
     {
         if (self::$_registered) {
-            if (spl_autoload_unregister(array(__CLASS__, 'loadClass'))) {
+            if (spl_autoload_unregister([__CLASS__, 'loadClass'])) {
                 self::$_registered = false;
                 return true;
             }
@@ -130,7 +130,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function loadClass($class)
     {
         if (isset(self::$_classMap[$class])) {
-            return (bool)require sprintf('%s/%s', self::ROOT_DIR, self::$_classMap[$class]);
+            return (bool)require self::ROOT_DIR . '/' . self::$_classMap[$class];
         }
         return null;
     }

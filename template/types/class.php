@@ -174,8 +174,17 @@ if (!$type->hasPrimitiveParent()) :
     public function __toString()
     {
 <?php if ($typeKind->isPrimitive()) :
-        if ($type->getPrimitiveType()->is(PrimitiveTypeEnum::BOOLEAN)) : ?>
+    $primitiveType = $type->getPrimitiveType();
+    if ($primitiveType->is(PrimitiveTypeEnum::BOOLEAN)) : ?>
         return $this->getValue() ? PHPFHIRConstants::STRING_TRUE : PHPFHIRConstants::STRING_FALSE;
+<?php elseif ($primitiveType->is(PrimitiveTypeEnum::DECIMAL)) : ?>
+        if (null !== ($v = $this->getValue())) {
+            if (isset($this->_decimals)) {
+                return number_format($v, $this->_decimals);
+            }
+            return (string)$v;
+        }
+        return '';
 <?php else : ?>
         return (string)$this->getValue();
 <?php endif; elseif ($typeKind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>

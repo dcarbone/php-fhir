@@ -20,18 +20,20 @@
 
 ob_start(); ?>
     /**
-     * @param null|\SimpleXMLElement $sxe
+     * @param null|\DOMElement $element
      * @param null|int $libxmlOpts
-     * @return \SimpleXMLElement
+     * @return \DOMElement
      */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    public function xmlSerialize(\DOMElement $element = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement($this->_getFHIRXMLElementDefinition(), $libxmlOpts, false);
-        } else if (null !== $this->_xmlns && [] === $sxe->getNamespaces(false)) {
-            $sxe->addAttribute('xmlns:xmlns:', $this->_xmlns);
+        if (null === $element) {
+            $dom = new \DOMDocument();
+            $dom->loadXML($this->_getFHIRXMLElementDefinition(), $libxmlOpts);
+            $element = $dom->documentElement;
+        } elseif (null !== $this->_xmlns && null === $element->namespaceURI) {
+            $element->setAttribute('xmlns', $this->_xmlns);
         }
 <?php if (null !== $parentType) : ?>
-        parent::xmlSerialize($sxe);
+        parent::xmlSerialize($element);
 <?php endif;
 return ob_get_clean();

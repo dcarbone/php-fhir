@@ -4,7 +4,17 @@
         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/9.2/phpunit.xsd"
         bootstrap="./vendor/autoload.php"
         colors="true"
+        stopOnFailure="true"
 >
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+    <php>
+        <env name="CACHE_DRIVER" value="array"/>
+        <ini name="memory_limit" value="2048M"/>
+    </php>
     <testsuites>
         <testsuite name="DSTU1-Primitives">
             <directory>./output/HL7/FHIR/DSTU1/PHPFHIRTests</directory>
@@ -74,13 +84,4 @@
             <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src</directory>
-        </whitelist>
-    </filter>
-    <php>
-        <env name="CACHE_DRIVER" value="array"/>
-        <ini name="memory_limit" value="2048M"/>
-    </php>
 </phpunit>

@@ -146,7 +146,7 @@ require 'path to PHPFHIRResponseParser.php';
 // build config
 $config = new \YourConfiguredNamespace\PHPFHIRResponseParserConfig([
     'registerAutoloader' => true, // use if you are not using Composer
-    'sxeArgs' => LIBXML_COMPACT | LIBXML_NSCLEAN // choose different SimpleXML arguments if you want, ymmv.
+    'sxeArgs' => LIBXML_COMPACT | LIBXML_NSCLEAN // choose different libxml arguments if you want, ymmv.
 ]);
 
 // build parser
@@ -166,14 +166,14 @@ $json = json_encode($object);
 ## XML Serialization
 
 ```php
-// To get an instance of \SimpleXMLElement...
-$sxe = $object->xmlSerialize();
+// To get an instance of \DOMElement...
+$element = $object->xmlSerialize();
 
 // to get as XML string...
-$xml = $sxe->saveXML();
+$xml = $element->ownerDocument->saveXML($element);
 ```
 
-XML Serialization utilizes [SimpleXMLElement](http://php.net/manual/en/class.simplexmlelement.php).
+XML Serialization utilizes [DOM](https://www.php.net/manual/en/book.dom.php).
 
 ## Testing
 

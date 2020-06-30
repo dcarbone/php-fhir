@@ -23,19 +23,21 @@ $directProperties = $type->getProperties()->getDirectIterator();
 
 ob_start(); ?>
     /**
-     * @param null|\SimpleXMLElement $sxe
+     * @param null|\DOMElement $element
      * @param null|int $libxmlOpts
-     * @return string|\SimpleXMLElement
+     * @return string|\DOMElement
      */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    public function xmlSerialize(\DOMElement $element = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
 <?php foreach($directProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
-            return $v->xmlSerialize($sxe, $libxmlOpts);
+            return $v->xmlSerialize($element, $libxmlOpts);
         }
 <?php endforeach; ?>
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement($this->_getFHIRXMLElementDefinition(), $libxmlOpts, false);
+        if (null === $element) {
+            $dom = new \DOMDocument();
+            $dom->loadXML($this->_getFHIRXMLElementDefinition(), $libxmlOpts);
+            $element = $dom->documentElement;
         }
 <?php
 return ob_get_clean();

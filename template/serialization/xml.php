@@ -86,6 +86,6 @@ else :
         );
     endif;
 endif; ?>
-        return $sxe;
+        return $element;
     }
 <?php return ob_get_clean();

@@ -119,7 +119,7 @@ echo require_with(
             $this->_data = null;
             return $this;
         }
-        if (is_scalar($data) || (is_object($data) && method_exists($data, self::TO_STRING_FUNC))) {
+        if (is_scalar($data) || (is_object($data) && (method_exists($data, self::TO_STRING_FUNC) || $data instanceof \DOMNode || $data instanceof \DOMText))) {
             $this->_data = $data;
             return $this;
         }
@@ -150,65 +150,63 @@ echo require_with(
     ]
 );
 ?>
-        $type->_setData($sxe);
+        $dom = new \DOMDocument();
+        $dom->loadXML($element->ownerDocument->saveXML($element), $libxmlOpts | LIBXML_NOXMLDECL);
+        $type->_setData($dom->documentElement);
         return $type;
     }
 
-    /**
-     * @param \SimpleXMLElement $sxe
-     * @param \SimpleXMLElement $node
-     */
-    protected static function _addXMLChildren(\SimpleXMLElement $sxe, \SimpleXMLElement $node)
-    {
-        if ('' === trim($v = (string)$node)) {
-            $xml = $sxe->addChild($node->getName());
-        } else {
-            $xml = $sxe->addChild($node->getName(), $v);
-        }
-        foreach($node->children() as $child) {
-            self::_addXMLChildren($xml, $child);
-        }
-        foreach($node->attributes() as $k => $v) {
-            $xml->addAttribute($k, $v);
-        }
-    }
-
      /**
-     * @param null|\SimpleXMLElement $sxe
+     * @param \DOMElement|string|null $element
      * @param null|int $libxmlOpts
-     * @return \SimpleXMLElement
+     * @return \DOMElement
      */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    public function xmlSerialize(\DOMElement $element = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
         $data = $this->_getData();
-        if (null === $sxe) {
-            $xmlns = $this->_getFHIRXMLNamespace();
+        $xmlns = $this->_getFHIRXMLNamespace();
+        if (null === $element) {
+            $dom = new \DOMDocument();
             if (!empty($xmlns)) {
                 $xmlns = " xmlns=\"{$xmlns}\"";
             }
             if (null === $data) {
-                return new \SimpleXMLElement("<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>", $libxmlOpts, false);
+                $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>", $libxmlOpts);
+                return $dom->documentElement;
             }
-            if (is_scalar($data) || (is_object($data) && !($data instanceof \SimpleXMLElement))) {
+            if (is_scalar($data) || (is_object($data) && !($data instanceof \DOMNode) && !($data instanceof \DOMText))) {
                 if (is_bool($data)) {
                     $strval = $data ? 'true' : 'false';
                 } else {
                     $strval = (string)$data;
                 }
-                return new \SimpleXMLElement("<<?php echo $xmlName; ?>{$xmlns}>{$strval}</<?php echo $xmlName; ?>", $libxmlOpts, false);
+                $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}>{$strval}</<?php echo $xmlName; ?>", $libxmlOpts);
+                return $dom->documentElement;
             }
-
-            $xml = $data->saveXML();
-            $sxe = new \SimpleXMLElement(substr($xml, strpos($xml, "\n")), $libxmlOpts, false);
+            return $dom->documentElement;
         }
 
-        if ($data instanceof \SimpleXMLElement) {
-            foreach($data->children() as $child) {
-                static::_addXMLChildren($sxe, $child);
+        if (!empty($xmlns)) {
+            $element->setAttribute('xmlns', $xmlns);
+        }
+
+        if ($data instanceof \DOMElement) {
+            if ($data->hasAttributes()) {
+                for ($i = 0; $i < $data->attributes->length; $i++) {
+                    $attr = $data->attributes->item($i);
+                    $element->setAttribute($attr->nodeName, $attr->nodeValue);
+                }
+            }
+            if ($data->hasChildNodes()) {
+                for ($i = 0; $i < $data->childNodes->length; $i++) {
+                    $n = $data->childNodes->item($i);
+                    $n = $element->ownerDocument->importNode($n, true);
+                    $element->appendChild($n);
+                }
             }
         }
 
-        return $sxe;
+        return $element;
     }
 
     /**

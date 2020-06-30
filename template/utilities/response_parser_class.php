@@ -127,9 +127,18 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      */
     protected function parseObjectSimpleXMLElementInput(\SimpleXMLElement $input)
     {
-        $elementName = $input->getName();
+        return self::parseObjectDOMDocumentInput(dom_import_simplexml($input));
+    }
+
+    /**
+     * @param \SimpleXMLElement $input
+     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     */
+    protected function parseObjectDOMDocumentInput(\DOMDocument $input)
+    {
+        $elementName = $input->documentElement->nodeName;
         $className = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
-        if (null === $className) {
+         if (null === $className) {
             throw new \UnexpectedValueException(sprintf(
                 'Unable to locate class for root XML element "%s". Input seen: %s',
                 $elementName,
@@ -165,11 +174,11 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     protected function parseStringXMLInput($input, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
         libxml_use_internal_errors(true);
-        $sxe = new \SimpleXMLElement($input, $libxmlOpts);
+        $sxe = new \DOMDocument::loadXML($input, $libxmlOpts);
         $err = libxml_get_last_error();
         libxml_use_internal_errors(false);
-        if ($sxe instanceof \SimpleXMLElement) {
-            return $this->parseObjectSimpleXMLElementInput($sxe);
+        if ($sxe instanceof \DOMDocument) {
+            return $this->parseObjectDOMDocumentInput($sxe);
         }
         throw new \DomainException(sprintf(
             'Unable to parse provided input as XML.  Error: %s; Input: %s',

@@ -32,6 +32,8 @@ endif;
 
 ob_start(); ?>
     const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php if (null !== $propertyType && $propertyType->getKind()->is(TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
-<?php endif; ?>
-<?php return ob_get_clean();
+<?php if (null !== $propertyType &&
+    ($propertyType->getKind()->is(TypeKindEnum::PRIMITIVE_CONTAINER) || $propertyType->isValueContainer())) :
+    ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
+<?php endif;
+return ob_get_clean();

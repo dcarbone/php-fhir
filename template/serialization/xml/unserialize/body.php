@@ -20,18 +20,41 @@
 
 $directProperties = $type->getProperties()->getDirectIterator();
 
-ob_start();
-foreach ($directProperties as $property) :
+ob_start(); ?>
+        for($i = 0; $i < $element->childNodes->length; $i++) {
+            $n = $element->childNodes->item($i);
+            if (!($n instanceof \DOMElement)) {
+                continue;
+            }
+<?php foreach ($directProperties as $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
-            __DIR__ . '/body_parse_typed.php',
+            __DIR__ . '/body_parse_node_typed.php',
             [
                 'property' => $property,
             ]
         );
     else :
         echo require_with(
-            __DIR__ . '/body_parse_primitive.php',
+            __DIR__ . '/body_parse_node_primitive.php',
+            [
+                'property' => $property,
+            ]
+        );
+    endif;
+endforeach; ?>
+        }
+<?php foreach ($directProperties as $property) :
+    if (null !== $property->getValueFHIRType()) :
+        echo require_with(
+            __DIR__ . '/body_parse_attr_typed.php',
+            [
+                'property' => $property,
+            ]
+        );
+    else :
+        echo require_with(
+            __DIR__ . '/body_parse_attr_primitive.php',
             [
                 'property' => $property,
             ]

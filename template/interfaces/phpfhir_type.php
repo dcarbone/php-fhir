@@ -92,19 +92,19 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     public function _isValued();
 
     /**
-     * @param \SimpleXMLElement|string|null $sxe
+     * @param \DOMElement|string|null $element
      * @param null|static $type
      * @param null|int $libxmlOpts
      * @return null|static
      */
-    public static function xmlUnserialize($sxe = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>);
+    public static function xmlUnserialize($element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>);
 
     /**
-     * @param null|\SimpleXMLElement $sxe
+     * @param \DOMElement|null $element
      * @param null|int $libxmlOpts
-     * @return string|\SimpleXMLElement
+     * @return string|\DOMElement
      */
-    public function xmlSerialize(\SimpleXMLElement $sxe = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>);
+    public function xmlSerialize(\DOMElement $element = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>);
 
     /**
      * @return string

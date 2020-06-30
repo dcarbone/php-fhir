@@ -32,7 +32,7 @@ return [
     'skipTests'   => false,
 
     // If you wish to specify alternative libxml opts, do so here.
-    'libxmlOpts'  => LIBXML_NONET | LIBXML_PARSEHUGE | LIBXML_COMPACT,
+    'libxmlOpts'  => LIBXML_NONET | LIBXML_PARSEHUGE | LIBXML_COMPACT | LIBXML_NOBLANKS,
 
     // Map of versions and configurations to generate
     // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific

@@ -19,16 +19,16 @@
   ],
   "require": {
     "php": ">=5.4.0",
-    "ext-simplexml": "*",
+    "ext-dom": "*",
     "ext-json": "*",
     "ext-libxml": "*",
     "myclabs/php-enum": "@stable",
     "psr/log": "@stable"
   },
   "require-dev": {
-    "ext-libxml": "*",
+    "ext-dom": "*",
     "ext-json": "*",
-    "ext-simplexml": "*",
+    "ext-libxml": "*",
     "ext-curl": "*",
     "myena/default-logger": "@stable",
     "phpunit/phpunit": "@stable"

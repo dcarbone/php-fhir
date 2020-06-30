@@ -17,12 +17,13 @@
  */
 
 ob_start(); ?>
-        if (isset($attributes->value)) {
-            $type->setValue((string)$attributes->value);
-        } elseif (isset($children->value)) {
-            $type->setValue((string)$children->value);
-        } elseif ('' !== ($v = (string)$sxe)) {
-            $type->setValue($v);
-        }
-        $type->_setElementName((string)$sxe->getName());
+            $valueAttr = $n->attributes->getNamedItem('value');
+            if (null !== $valueAttr) {
+                $type->setValue($valueAttr->nodeValue);
+            } elseif ($n->hasChildren()) {
+                $type->setValue($n->ownerDocument->saveXML($n));
+            } else {
+                $type->setValue($n->textContent);
+            }
+            $type->_setElementName($n->nodeName);
 <?php return ob_get_clean();

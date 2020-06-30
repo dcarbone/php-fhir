@@ -31,21 +31,19 @@ if ($property->isCollection()) : // collection fields ?>
                 if (null === $v) {
                     continue;
                 }
-<?php if ($propertyType->getKind()->isRaw()) : ?>
-                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, (string)$v, $v->_getFHIRXMLNamespace()));
-<?php else : ?>
-                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
-<?php endif; ?>
+                $telement = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
+                $element->appendChild($telement);
+                $v->xmlSerialize($telement);
             }
         }
 <?php else : // single fields ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-<?php if ($propertyType->getKind()->isRaw()) : ?>
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, (string)$v, $v->_getFHIRXMLNamespace()));
-<?php elseif ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isPrimitive()) : ?>
-            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
+<?php if ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isPrimitive()) : ?>
+            $element->setAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
 <?php else : ?>
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+            $telement = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
+            $element->appendChild($telement);
+            $v->xmlSerialize($telement);
 <?php endif; ?>
         }
 <?php endif;
