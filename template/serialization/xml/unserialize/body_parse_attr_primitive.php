@@ -16,7 +16,18 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
+
+$propType = $property->getValueFHIRType();
+
 ob_start(); ?>
+        $n = $element->attributes->getNamedItem('value');
+        if (null !== $n) {
             $type->setValue($n->nodeValue);
+<?php if (null !== $propType && $propType->getKind()->is(TypeKindEnum::RAW)) : ?>
             $type->_setElementName($n->nodeName);
+<?php endif; ?>
+        }
 <?php return ob_get_clean();

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -31,7 +29,7 @@ if ($propertyType->getKind()->isPrimitive() || $propertyType->hasPrimitiveParent
             __DIR__ . '/property_setter_primitive.php',
             ['property' => $property]
     );
-elseif ($propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
+elseif ($propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent() || $propertyType->isValueContainer()) :
     echo require_with(
         __DIR__ . '/property_setter_primitive_container.php',
         ['property' => $property]
