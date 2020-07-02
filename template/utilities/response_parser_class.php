@@ -131,7 +131,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     }
 
     /**
-     * @param \SimpleXMLElement $input
+     * @param \DOMDocument $input
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
     protected function parseObjectDOMDocumentInput(\DOMDocument $input)
@@ -145,7 +145,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
                 $this->getPrintableStringInput($input->saveXML())
             ));
         }
-        return $className::xmlUnserialize($input);
+        return $className::xmlUnserialize($input->documentElement);
     }
 
     /**
@@ -158,6 +158,8 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return $input;
         } elseif ($input instanceof \SimpleXMLElement) {
             return $this->parseObjectSimpleXMLElementInput($input);
+        } elseif ($input instanceof \DOMDocument) {
+            return $this->parseObjectDOMDocumentInput($input);
         }
         throw new \UnexpectedValueException(sprintf(
             'Unable parse provided input object of type "%s"',
@@ -174,11 +176,12 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     protected function parseStringXMLInput($input, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
         libxml_use_internal_errors(true);
-        $sxe = new \DOMDocument::loadXML($input, $libxmlOpts);
+        $dom = new \DOMDocument();
+        $dom->loadXML($input, $libxmlOpts);
         $err = libxml_get_last_error();
         libxml_use_internal_errors(false);
-        if ($sxe instanceof \DOMDocument) {
-            return $this->parseObjectDOMDocumentInput($sxe);
+        if ($dom instanceof \DOMDocument) {
+            return $this->parseObjectDOMDocumentInput($dom);
         }
         throw new \DomainException(sprintf(
             'Unable to parse provided input as XML.  Error: %s; Input: %s',

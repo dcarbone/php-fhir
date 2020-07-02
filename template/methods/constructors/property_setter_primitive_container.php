@@ -27,16 +27,8 @@ $setter = $property->getSetterName();
 
 ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>]) || isset($data[self::<?php echo $propertyFieldConstExt; ?>])) {
-            if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
-                $value = $data[self::<?php echo $propertyFieldConst; ?>];
-            } else {
-                $value = null;
-            }
-            if (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) {
-                $ext = $data[self::<?php echo $propertyFieldConstExt; ?>];
-            } else {
-                $ext = [];
-            }
+            $value = isset($data[self::<?php echo $propertyFieldConst; ?>]) ? $data[self::<?php echo $propertyFieldConst; ?>] : null;
+            $ext = (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) ? $ext = $data[self::<?php echo $propertyFieldConstExt; ?>] : $ext = [];
             if (null !== $value) {
                 if ($value instanceof <?php echo $propertyTypeClassName; ?>) {
                     $this-><?php echo $setter; ?>($value);

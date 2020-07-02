@@ -50,7 +50,7 @@ ob_start(); ?>
             $element = $dom->documentElement;
         }
         if (!($element instanceof \DOMElement)) {
-            throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $node value must be null, \\DOMElement, or valid XML string, %s seen', gettype($element)));
+            throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $node value must be null, \\DOMElement, or valid XML string, %s seen', is_object($element) ? get_class($element) : gettype($element)));
         }
         if (null === $type) {
             $type = new <?php echo $typeClassName; ?>(null);
