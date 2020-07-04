@@ -24,8 +24,6 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
-$directProperties = $type->getProperties()->getDirectIterator();
-
 ob_start(); ?>
     /**
      * @param null|string|\DOMElement $element
@@ -60,8 +58,5 @@ ob_start(); ?>
                 is_object($type) ? get_class($type) : gettype($type)
             ));
         }
-<?php if (null !== $parentType) : ?>
-        <?php echo $parentType->getClassName(); ?>::xmlUnserialize($element, $type);
-<?php endif; ?>
-        $type->_xmlns = $element->namespaceURI;
+        $type->_setFHIRXMLNamespace($element->namespaceURI);
 <?php return ob_get_clean();

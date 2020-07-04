@@ -348,6 +348,25 @@ class Type
     }
 
     /**
+     * @return \DCarbone\PHPFHIR\Definition\Property[]
+     */
+    public function getAllPropertiesIterator()
+    {
+        $properties = [];
+        foreach($this->properties->getDirectIterator() as $property) {
+            $properties[$property->getName()] = $property;
+        }
+        foreach($this->getParentTypes() as $parentType) {
+            foreach($parentType->properties->getDirectIterator() as $property) {
+                if (!isset($properties[$property->getName()])) {
+                    $properties[$property->getName()] = $property;
+                }
+            }
+        }
+        return \SplFixedArray::fromArray($properties, false);
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Definition\Type[]
      */
     public function getParentTypes()

@@ -32,7 +32,7 @@ if ($property->isCollection()) : ?>
                 $element->appendChild($e2);
                 $e3 = $element->ownerDocument->createElement($v->_getFHIRTypeName());
                 $e2->appendChild($e3);
-                $v->xmlSerialize($telement);
+                $v->xmlSerialize($e3);
             }
         }<?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {

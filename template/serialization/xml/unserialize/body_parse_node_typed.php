@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+/** @var int $i */
 
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
@@ -30,6 +31,7 @@ if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::
         __DIR__ . '/body_parse_typed_resource_container.php',
         [
             'property' => $property,
+            'i' => $i,
         ]
     );
 else :
@@ -37,6 +39,7 @@ else :
         __DIR__ . '/body_parse_typed_default.php',
         [
             'property' => $property,
+            'i' => $i,
         ]
     );
 endif;

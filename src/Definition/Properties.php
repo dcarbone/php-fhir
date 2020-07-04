@@ -32,15 +32,15 @@ class Properties implements Countable
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private $properties = [];
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $sortedProperties;
+    private $_sortedProperties;
 
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $directProperties;
+    private $_directProperties;
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $directSortedProperties;
+    private $_directSortedProperties;
 
     /** @var bool */
-    private $sorted = false;
+    private $cacheBuilt = false;
 
     /** @var */
     private $config;
@@ -128,7 +128,7 @@ class Properties implements Countable
             }
         }
         $this->properties[] = $property;
-        $this->sorted = false;
+        $this->cacheBuilt = false;
         return $this;
     }
 
@@ -168,7 +168,8 @@ class Properties implements Countable
      */
     public function getSortedIterator()
     {
-        return SplFixedArray::fromArray($this->_getSortedProperties(), false);
+        $this->_buildLocalCaches();
+        return SplFixedArray::fromArray($this->_sortedProperties, false);
     }
 
     /**
@@ -176,8 +177,8 @@ class Properties implements Countable
      */
     public function getDirectIterator()
     {
-        $this->_getSortedProperties();
-        return SplFixedArray::fromArray($this->directProperties, false);
+        $this->_buildLocalCaches();
+        return SplFixedArray::fromArray($this->_directProperties, false);
     }
 
     /**
@@ -185,8 +186,8 @@ class Properties implements Countable
      */
     public function getDirectSortedIterator()
     {
-        $this->_getSortedProperties();
-        return SplFixedArray::fromArray($this->directSortedProperties, false);
+        $this->_buildLocalCaches();
+        return SplFixedArray::fromArray($this->_directSortedProperties, false);
     }
 
     /**
@@ -197,33 +198,29 @@ class Properties implements Countable
         return count($this->properties);
     }
 
-    /**
-     * @return \DCarbone\PHPFHIR\Definition\Property[]
-     */
-    private function _getSortedProperties()
+    private function _buildLocalCaches()
     {
-        if (!$this->sorted) {
-            $this->sortedProperties = $this->properties;
-            $this->directProperties = [];
-            $this->directSortedProperties = [];
+        if (!$this->cacheBuilt) {
+            $this->_sortedProperties = $this->properties;
+            $this->_directProperties = [];
+            $this->_directSortedProperties = [];
             usort(
-                $this->sortedProperties,
+                $this->_sortedProperties,
                 function (Property $a, Property $b) {
                     return strnatcmp($a->getName(), $b->getName());
                 }
             );
             foreach ($this->properties as $property) {
                 if (!$property->isOverloaded()) {
-                    $this->directProperties[] = $property;
+                    $this->_directProperties[] = $property;
                 }
             }
-            foreach ($this->sortedProperties as $property) {
+            foreach ($this->_sortedProperties as $property) {
                 if (!$property->isOverloaded()) {
-                    $this->directSortedProperties[] = $property;
+                    $this->_directSortedProperties[] = $property;
                 }
             }
-            $this->sorted = true;
+            $this->cacheBuilt = true;
         }
-        return $this->sortedProperties;
     }
 }

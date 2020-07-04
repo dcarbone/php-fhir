@@ -30,8 +30,8 @@ ob_start(); ?>
             $dom = new \DOMDocument();
             $dom->loadXML($this->_getFHIRXMLElementDefinition(), $libxmlOpts);
             $element = $dom->documentElement;
-        } elseif (null !== $this->_xmlns && null === $element->namespaceURI) {
-            $element->setAttribute('xmlns', $this->_xmlns);
+        } elseif (null === $element->namespaceURI && '' !== ($xmlns = $this->_getFHIRXMLNamespace())) {
+            $element->setAttribute('xmlns', $xmlns);
         }
 <?php if (null !== $parentType) : ?>
         parent::xmlSerialize($element);

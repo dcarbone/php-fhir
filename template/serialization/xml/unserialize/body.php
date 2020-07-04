@@ -18,7 +18,7 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$directProperties = $type->getProperties()->getDirectIterator();
+$properties = $type->getAllPropertiesIterator();
 
 ob_start(); ?>
         for($i = 0; $i < $element->childNodes->length; $i++) {
@@ -26,12 +26,13 @@ ob_start(); ?>
             if (!($n instanceof \DOMElement)) {
                 continue;
             }
-<?php foreach ($directProperties as $property) :
+<?php foreach ($properties as $i => $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
             __DIR__ . '/body_parse_node_typed.php',
             [
                 'property' => $property,
+                'i' => $i,
             ]
         );
     else :
@@ -39,17 +40,20 @@ ob_start(); ?>
             __DIR__ . '/body_parse_node_primitive.php',
             [
                 'property' => $property,
+                'i' => $i,
             ]
         );
     endif;
 endforeach; ?>
+
         }
-<?php foreach ($directProperties as $property) :
+<?php foreach ($properties as $i => $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
             __DIR__ . '/body_parse_attr_typed.php',
             [
                 'property' => $property,
+                'i' => $i,
             ]
         );
     else :
@@ -57,6 +61,7 @@ endforeach; ?>
             __DIR__ . '/body_parse_attr_primitive.php',
             [
                 'property' => $property,
+                'i' => $i,
             ]
         );
     endif;

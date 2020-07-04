@@ -223,7 +223,7 @@ class TypeImports implements Iterator, Countable
         $typeNS = $this->type->getFullyQualifiedNamespace(false);
         $configNS = $this->type->getConfig()->getNamespace(false);
 
-        $sortedProperties = $this->type->getProperties()->getDirectIterator();
+        $sortedProperties = $this->type->getAllPropertiesIterator();
 
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
         // that may need to be imported to ensure function

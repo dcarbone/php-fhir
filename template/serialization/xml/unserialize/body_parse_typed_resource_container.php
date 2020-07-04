@@ -17,24 +17,18 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+/** @var int $i */
 
 $setter = $property->getSetterName();
 $propertyName = $property->getName();
 $propertyConst = $property->getFieldConstantName();
 
-ob_start(); ?>
-            if (self::<?php echo $propertyConst; ?> === $n->nodeName) {
+ob_start();
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propertyConst; ?> === $n->nodeName) {
                 for ($ni = 0; $ni < $n->childNodes->length; $ni++) {
                     $nn = $n->childNodes->item($ni);
-                    if (!($nn instanceof \DOMElement)) {
-                        continue;
+                    if ($nn instanceof \DOMElement) {
+                        $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($nn));
                     }
-                    $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($nn));
-<?php if ($property->isCollection()) : ?>
-                    continue;
-<?php else : ?>
-                    break;
-<?php endif; ?>
                 }
-            }
-<?php return ob_get_clean();
+            }<?php return ob_get_clean();

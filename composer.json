@@ -22,6 +22,7 @@
     "ext-dom": "*",
     "ext-json": "*",
     "ext-libxml": "*",
+    "ext-simplexml": "*",
     "myclabs/php-enum": "@stable",
     "psr/log": "@stable"
   },
@@ -30,6 +31,7 @@
     "ext-json": "*",
     "ext-libxml": "*",
     "ext-curl": "*",
+    "ext-simplexml": "*",
     "myena/default-logger": "@stable",
     "phpunit/phpunit": "@stable"
   },
