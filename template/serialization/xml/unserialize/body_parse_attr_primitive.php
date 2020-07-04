@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 $propType = $property->getValueFHIRType();
 
 ob_start(); ?>
-        $n = $element->attributes->getNamedItem('value');
+        $n = $element->attributes->getNamedItem(self::<?php echo $property->getFieldConstantName(); ?>);
         if (null !== $n) {
             $type->setValue($n->nodeValue);
 <?php if (null !== $propType && $propType->getKind()->is(TypeKindEnum::RAW)) : ?>

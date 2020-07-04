@@ -27,7 +27,7 @@ $propertyConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
 ob_start();
-if (!$property->isCollection() && $propertyType->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
+if ($propertyType->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
         $n = $element->attributes->getNamedItem(self::<?php echo $propertyConst; ?>);
         if (null !== $n) {
             $pt = $type-><?php echo $property->getGetterName(); ?>();

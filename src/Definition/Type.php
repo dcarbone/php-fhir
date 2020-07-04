@@ -353,11 +353,11 @@ class Type
     public function getAllPropertiesIterator()
     {
         $properties = [];
-        foreach($this->properties->getDirectIterator() as $property) {
+        foreach($this->getProperties()->getDirectIterator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach($this->getParentTypes() as $parentType) {
-            foreach($parentType->properties->getDirectIterator() as $property) {
+            foreach($parentType->getAllPropertiesIterator() as $property) {
                 if (!isset($properties[$property->getName()])) {
                     $properties[$property->getName()] = $property;
                 }

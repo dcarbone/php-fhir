@@ -17,8 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-
-$properties = $type->getAllPropertiesIterator();
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
 ob_start(); ?>
         for($i = 0; $i < $element->childNodes->length; $i++) {
