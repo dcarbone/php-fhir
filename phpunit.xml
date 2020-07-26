@@ -12,7 +12,6 @@
         </whitelist>
     </filter>
     <php>
-        <env name="CACHE_DRIVER" value="array"/>
         <ini name="memory_limit" value="2048M"/>
     </php>
     <testsuites>

@@ -19,7 +19,11 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
+$typeClassName = $type->getClassName();
 $primitiveType = $type->getPrimitiveType();
+if (null !== $parentType) {
+    $parentTypeKind = $parentType->getKind();
+}
 
 ob_start(); ?>
     /**
@@ -28,7 +32,26 @@ ob_start(); ?>
      */
     public function __construct($value = null)
     {
-        <?php if (null !== $parentType) : ?>parent::__construct($value);<?php else : ?>$this->setValue($value);<?php endif; ?>
+        <?php if (null !== $parentType) :
+            if ($parentTypeKind->isPrimitive() || $parentType->isValueContainer()) :
+                ?>parent::__construct($value);<?php else: ?>if (null === $value) {
+            parent::__construct();
+        } elseif (is_scalar($value)) {
+            parent::__construct();
+            $this->setValue($value);
+        } elseif (is_array($value)) {
+            parent::__construct($value);
+            if (isset($value['value'])) {
+                $this->setValue($value['value']);
+            }
+        } else {
+             throw new \InvalidArgumentException(sprintf(
+                '<?php echo $typeClassName; ?>::_construct - $data expected to be null, <?php echo $primitiveType->getPHPValueType(); ?>, or array, %s seen',
+                gettype($value)
+            ));
+        }<?php
+            endif;
+            else : ?>$this->setValue($value);<?php endif; ?>
 
     }
 <?php return ob_get_clean();

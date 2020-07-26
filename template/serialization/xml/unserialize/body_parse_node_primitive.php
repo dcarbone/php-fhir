@@ -19,19 +19,22 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+/** @var int $i */
 
 $propType = $property->getValueFHIRType();
+$propConst = $property->getFieldConstantName();
 
-ob_start(); ?>
-            $valueAttr = $n->attributes->getNamedItem('value');
-            if (null !== $valueAttr) {
-                $type->setValue($valueAttr->nodeValue);
-            } elseif ($n->hasChildNodes()) {
-                $type->setValue($n->ownerDocument->saveXML($n));
-            } else {
-                $type->setValue($n->textContent);
-            }
+ob_start();
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $n->nodeName) {
+                $valueAttr = $n->attributes->getNamedItem('value');
+                if (null !== $valueAttr) {
+                    $type->setValue($valueAttr->nodeValue);
+                } elseif ($n->hasChildNodes()) {
+                    $type->setValue($n->ownerDocument->saveXML($n));
+                } else {
+                    $type->setValue($n->textContent);
+                }
 <?php if (null !== $propType && $propType->getKind()->is(TypeKindEnum::RAW)) : ?>
-            $type->_setElementName($n->nodeName);
-<?php endif;
-return ob_get_clean();
+                $type->_setElementName($n->nodeName);
+<?php endif; ?>
+            }<?php return ob_get_clean();

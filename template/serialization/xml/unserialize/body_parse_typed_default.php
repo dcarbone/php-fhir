@@ -19,12 +19,12 @@
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 /** @var int $i */
 
-$propertyType = $property->getValueFHIRType();
-$propertyTypeClassName = $property->getMemberOf()->getImports()->getImportByType($propertyType);
-$propertyConst = $property->getFieldConstantName();
+$propType = $property->getValueFHIRType();
+$propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType);
+$propConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
 ob_start();
-if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propertyConst; ?> === $n->nodeName) {
-                $type-><?php echo $setter; ?>(<?php echo $propertyTypeClassName; ?>::xmlUnserialize($n));
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $n->nodeName) {
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n));
             }<?php return ob_get_clean();

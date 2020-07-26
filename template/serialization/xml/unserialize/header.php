@@ -58,5 +58,7 @@ ob_start(); ?>
                 is_object($type) ? get_class($type) : gettype($type)
             ));
         }
-        $type->_setFHIRXMLNamespace($element->namespaceURI);
+        if ('' === $type->_getFHIRXMLNamespace() && (null === $element->parentNode || $element->namespaceURI !== $element->parentNode->namespaceURI)) {
+            $type->_setFHIRXMLNamespace($element->namespaceURI);
+        }
 <?php return ob_get_clean();
