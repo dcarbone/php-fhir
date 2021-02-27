@@ -39,6 +39,7 @@ ob_start(); ?>
         ' Unknown Code System ',
         ' URL value ',
         ' None of the codes provided are in the value set ',
+        'and a code is required from this value set',
     ];
 
     /**

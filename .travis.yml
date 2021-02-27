@@ -1,15 +1,14 @@
 language: php
-dist: trusty
+dist: xenial
 
 php:
-  - 5.4
-  - 5.5
   - 5.6
   - 7.0
   - 7.1
   - 7.2
   - 7.3
   - 7.4
+  - 8.0
 
 before_install:
   - sudo apt-get update
@@ -22,4 +21,4 @@ install:
   - ./bin/generate.sh --forceDelete
 
 script:
-  - ./vendor/bin/phpunit -d memory_limit=4096M -d precision=14 -d serialize_precision=14 -c phpunit.xml
+  - ./vendor/bin/phpunit -d precision=14 -d serialize_precision=14 -c phpunit.xml

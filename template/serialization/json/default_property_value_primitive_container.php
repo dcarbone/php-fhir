@@ -26,36 +26,38 @@ $getter = $property->getGetterName();
 ob_start();
 if ($property->isCollection()) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-            $a[self::<?php echo $propertyFieldConst; ?>] = [];
-            $encs = [];
-            $encValued = false;
+            $vals = [];
+            $exts = [];
             foreach ($vs as $v) {
                 if (null === $v) {
                     continue;
                 }
-                $a[self::<?php echo $propertyFieldConst; ?>][] = $v->getValue();
-                $enc = $v->jsonSerialize();
-                $cnt = count($enc);
-                if (0 === $cnt || (1 === $cnt && (isset($enc[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]) || array_key_exists(<?php echo $propertyTypeClassname; ?>::FIELD_VALUE, $enc)))) {
-                    $encs[] = null;
-                } else {
-                    unset($enc[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
-                    $encs[] = $enc;
-                    $encValued = true;
+                $val = $v->getValue();
+                $ext = $v->jsonSerialize();
+                unset($ext[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
+                if (null !== $val) {
+                    $vals[] = $val;
+                }
+                if ([] !== $ext) {
+                    $exts[] = $ext;
                 }
             }
-            if ($encValued) {
-                $a[self::<?php echo $propertyFieldConstExt; ?>] = $encs;
+            if ([] !== $vals) {
+                $a[self::<?php echo $propertyFieldConst; ?>] = $vals;
+            }
+            if ([] !== $exts) {
+                $a[self::<?php echo $propertyFieldConstExt; ?>] = $exts;
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $a[self::<?php echo $propertyFieldConst; ?>] = $v->getValue();
-            $enc = $v->jsonSerialize();
-            $cnt = count($enc);
-            if (0 < $cnt && (1 !== $cnt || (1 === $cnt && !array_key_exists(<?php echo $propertyTypeClassname; ?>::FIELD_VALUE, $enc)))) {
-                unset($enc[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
-                $a[self::<?php echo $propertyFieldConstExt; ?>] = $enc;
+            if (null !== ($val = $v->getValue())) {
+                $a[self::<?php echo $propertyFieldConst; ?>] = $val;
+            }
+            $ext = $v->jsonSerialize();
+            unset($ext[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
+            if ([] !== $ext) {
+                $a[self::<?php echo $propertyFieldConstExt; ?>] = $ext;
             }
         }
 <?php endif;
