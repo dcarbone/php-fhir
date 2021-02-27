@@ -73,6 +73,10 @@ class Builder
      */
     public function buildFHIRClasses()
     {
+        set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
+            throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
+        });
+
         $log = $this->config->getLogger();
 
         $this->beforeGeneration();
@@ -104,6 +108,8 @@ class Builder
             }
         }
         $log->endBreak('FHIR Class Generation');
+
+        restore_error_handler();
     }
 
     /**

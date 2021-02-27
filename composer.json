@@ -26,9 +26,6 @@
     "psr/log": "@stable"
   },
   "require-dev": {
-    "ext-libxml": "*",
-    "ext-json": "*",
-    "ext-simplexml": "*",
     "ext-curl": "*",
     "myena/default-logger": "@stable",
     "phpunit/phpunit": "@stable"
@@ -45,8 +42,7 @@
   "autoload": {
     "files": [
       "files/constants.php",
-      "files/funcs.php",
-      "files/errors.php"
+      "files/funcs.php"
     ],
     "psr-4": {
       "DCarbone\\PHPFHIR\\": "src/"
@@ -58,7 +54,6 @@
     }
   },
   "suggest": {
-    "myena/default-logger": "Simple PSR-compliant logger",
     "ext-zip": "To enable unzipping of downloaded source files"
   }
 }
