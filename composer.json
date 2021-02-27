@@ -22,11 +22,11 @@
     "ext-dom": "*",
     "ext-json": "*",
     "ext-libxml": "*",
-    "ext-simplexml": "*",
     "myclabs/php-enum": "@stable",
     "psr/log": "@stable"
   },
   "require-dev": {
+    "ext-curl": "*",
     "myena/default-logger": "@stable",
     "phpunit/phpunit": "@stable"
   },
@@ -42,8 +42,7 @@
   "autoload": {
     "files": [
       "files/constants.php",
-      "files/funcs.php",
-      "files/errors.php"
+      "files/funcs.php"
     ],
     "psr-4": {
       "DCarbone\\PHPFHIR\\": "src/"
