@@ -20,6 +20,9 @@
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
+    /** @var int */
+    private $_decimals;
+
     /**
      * @param null|float|string $value
      * @return static
@@ -29,6 +32,9 @@ ob_start(); ?>
         if (null === $value) {
             $this->value = null;
         } elseif (is_scalar($value)) {
+            if (is_string($value)) {
+                $this->_decimals = strlen(strstr($value, '.')) - 1;
+            }
             $this->value = floatval($value);
         } else {
             throw new \InvalidArgumentException(sprintf('<?php echo $type->getFHIRName(); ?> value must be null, float, or numeric string, %s seen.', gettype($value)));
