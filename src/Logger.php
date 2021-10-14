@@ -20,52 +20,107 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-/**
- * Class Logger
- * @package DCarbone\PHPFHIR
- */
-class Logger extends AbstractLogger
-{
-    /** @var LoggerInterface */
-    protected $actualLogger;
-
-    /** @var string */
-    protected $breakLevel;
-
+// if the user is running php version 8.0 or greater, the psr/log interface implementation
+// has a stricter definition, and we must be able to support that while maintaining backwards
+// compatibility
+if (80000 <= PHP_VERSION_ID) {
     /**
-     * Logger constructor.
-     * @param LoggerInterface $actualLogger
-     * @param string $breakLevel
+     * Class Logger
+     * @package DCarbone\PHPFHIR
      */
-    public function __construct(LoggerInterface $actualLogger, $breakLevel = LogLevel::WARNING)
+    class Logger extends AbstractLogger
     {
-        $this->actualLogger = $actualLogger;
-        $this->breakLevel = $breakLevel;
+        /** @var LoggerInterface */
+        protected $actualLogger;
+
+        /** @var string */
+        protected $breakLevel;
+
+        /**
+         * Logger constructor.
+         * @param LoggerInterface $actualLogger
+         * @param string $breakLevel
+         */
+        public function __construct(LoggerInterface $actualLogger, $breakLevel = LogLevel::WARNING)
+        {
+            $this->actualLogger = $actualLogger;
+            $this->breakLevel = $breakLevel;
+        }
+
+        /**
+         * @param string|\Stringable $action
+         */
+        public function startBreak(string|\Stringable $action)
+        {
+            $this->log($this->breakLevel, substr(sprintf('%\'-5s Start %s %1$-\'-75s', '-', $action), 0, 75));
+        }
+
+        /**
+         * @param string $level
+         * @param string|\Stringable $message
+         * @param array $context
+         */
+        public function log($level, string|\Stringable $message, array $context = array()): void
+        {
+            $this->actualLogger->log($level, $message, $context);
+        }
+
+        /**
+         * @param string|\Stringable $action
+         */
+        public function endBreak(string|\Stringable $action)
+        {
+            $this->log($this->breakLevel, substr(sprintf('%\'-5s End %s %1$-\'-75s', '-', $action), 0, 75));
+        }
     }
-
+} else {
     /**
-     * @param string $action
+     * Class Logger
+     * @package DCarbone\PHPFHIR
      */
-    public function startBreak($action)
+    class Logger extends AbstractLogger
     {
-        $this->log($this->breakLevel, substr(sprintf('%\'-5s Start %s %1$-\'-75s', '-', $action), 0, 75));
-    }
+        /** @var LoggerInterface */
+        protected $actualLogger;
 
-    /**
-     * @param string $level
-     * @param string $message
-     * @param array $context
-     */
-    public function log($level, $message, array $context = array())
-    {
-        $this->actualLogger->log($level, $message, $context);
-    }
+        /** @var string */
+        protected $breakLevel;
 
-    /**
-     * @param string $action
-     */
-    public function endBreak($action)
-    {
-        $this->log($this->breakLevel, substr(sprintf('%\'-5s End %s %1$-\'-75s', '-', $action), 0, 75));
+        /**
+         * Logger constructor.
+         * @param LoggerInterface $actualLogger
+         * @param string $breakLevel
+         */
+        public function __construct(LoggerInterface $actualLogger, $breakLevel = LogLevel::WARNING)
+        {
+            $this->actualLogger = $actualLogger;
+            $this->breakLevel = $breakLevel;
+        }
+
+        /**
+         * @param string $action
+         */
+        public function startBreak($action)
+        {
+            $this->log($this->breakLevel, substr(sprintf('%\'-5s Start %s %1$-\'-75s', '-', $action), 0, 75));
+        }
+
+        /**
+         * @param string $level
+         * @param string $message
+         * @param array $context
+         */
+        public function log($level, $message, array $context = array())
+        {
+            $this->actualLogger->log($level, $message, $context);
+        }
+
+        /**
+         * @param string $action
+         */
+        public function endBreak($action)
+        {
+            $this->log($this->breakLevel, substr(sprintf('%\'-5s End %s %1$-\'-75s', '-', $action), 0, 75));
+        }
     }
 }
