@@ -27,7 +27,7 @@
   },
   "require-dev": {
     "ext-curl": "*",
-    "phpunit/phpunit": "^8.5"
+    "phpunit/phpunit": "^5.7 || ^8.5"
   },
   "replace": {
     "php-fhir/parser": "*",
