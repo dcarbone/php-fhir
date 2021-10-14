@@ -12,13 +12,13 @@ jobs:
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-      - name: Generate code
-        run: ./bin/generate.sh --forceDelete --useExisting
       - uses: php-actions/composer@v6
         with:
           php_version: 5.6
           php_extensions: libxml simplexml json
           version: 2
+      - name: Generate code
+        run: ./bin/generate.sh --forceDelete --useExisting
       - uses: php-actions/phpunit@v3
         with:
           version: 5.7
