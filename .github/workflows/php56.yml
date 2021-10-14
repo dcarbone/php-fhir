@@ -1,10 +1,11 @@
 name: CI
 
-
 on: [push]
 
+
+
 jobs:
-  test-56:
+  test:
     runs-on: ubuntu-18.04
     steps:
       - uses: shivammathur/setup-php@v2
@@ -28,5 +29,4 @@ jobs:
         with:
           version: 5.7
           php_version: 5.6
-          memory_limit: 4G
-          configuration: phpunit.xml
+          configuration: phpunit.dstu1.xml
