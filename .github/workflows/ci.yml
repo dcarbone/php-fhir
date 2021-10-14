@@ -17,6 +17,8 @@ jobs:
           php_version: 5.6
           php_extensions: libxml simplexml json zip
           version: 2
+      - name: Print version
+        run: php -v
       - name: Generate code
         run: ./bin/generate.sh --useExisting
       - uses: php-actions/phpunit@v3
