@@ -12,6 +12,8 @@ jobs:
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - name: Generate code
+        run: ./bin/generate.sh --forceDelete --useExisting
       - uses: php-actions/composer@v6
         with:
           php_version: 5.6
@@ -22,4 +24,4 @@ jobs:
           version: 5.7
           php_version: 5.6
           memory_limit: 4G
-          configuraton: phpunit.xml
+          configuration: phpunit.xml
