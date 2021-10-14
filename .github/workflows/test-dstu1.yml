@@ -25,7 +25,7 @@ jobs:
       - uses: php-actions/phpunit@v3
         with:
           version: 5.7
-          configuration: phpunit/dstu1.xml
+          configuration: ./phpunit/dstu1.xml
   dstu1-php70:
     runs-on: ubuntu-20.04
     steps:
@@ -48,4 +48,4 @@ jobs:
       - uses: php-actions/phpunit@v3
         with:
           php_version: 7.0
-          configuration: phpunit/dstu1.xml
+          configuration: ./phpunit/dstu1.xml
