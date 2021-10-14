@@ -5,8 +5,8 @@ on: [push]
 
 
 jobs:
-  test:
-    runs-on: ubuntu-18.04
+  dstu1-php56:
+    runs-on: ubuntu-20.04
     steps:
       - uses: shivammathur/setup-php@v2
         with:
@@ -29,4 +29,28 @@ jobs:
         with:
           version: 5.7
           php_version: 5.6
-          configuration: phpunit.dstu1.xml
+          configuration: phpunit/dstu1.xml
+  dstu1-php70:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.0
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - uses: php-actions/composer@v6
+        with:
+          php_version: 7.0
+          php_extensions: libxml simplexml json zip
+          version: 2
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          php_version: 7.0
+          configuration: phpunit/dstu1.xml
