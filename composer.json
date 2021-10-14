@@ -18,17 +18,16 @@
     "php-fhir"
   ],
   "require": {
-    "php": ">=5.4.0",
-    "ext-dom": "*",
+    "php": "^5.4.0 || ^7.0 || ^8.0",
+    "ext-simplexml": "*",
     "ext-json": "*",
     "ext-libxml": "*",
-    "myclabs/php-enum": "@stable",
-    "psr/log": "@stable"
+    "myclabs/php-enum": "^1.6 || ^1.7 || ^1.8",
+    "psr/log": "^1.1 || ^3.0.0"
   },
   "require-dev": {
     "ext-curl": "*",
-    "myena/default-logger": "@stable",
-    "phpunit/phpunit": "@stable"
+    "phpunit/phpunit": "^8.5"
   },
   "replace": {
     "php-fhir/parser": "*",

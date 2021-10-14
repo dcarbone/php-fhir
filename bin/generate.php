@@ -30,7 +30,6 @@ require __DIR__ . '/../vendor/autoload.php';
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
-use MyENA\DefaultANSILogger;
 
 // ----- constants
 
@@ -324,20 +323,10 @@ if (!is_readable($config_file)) {
     exit(1);
 }
 
-// logger setup
-if (class_exists('\\MyENA\\DefaultANSILogger')) {
-    $logger = new DefaultANSILogger();
-    $log_level = strtolower($log_level);
-    if (LOG_WARN === $log_level) {
-        $log_level = LOG_WARNING;
-    }
-    $logger->setLogLevel($log_level);
-} else {
-    $logger = null;
-}
+// TODO: re-enable logger
 
 // build configuration
-$config = new Config(require $config_file, $logger);
+$config = new Config(require $config_file, null);
 
 // test provided versions are defined
 if (null === $versions_to_generate) {
@@ -364,12 +353,12 @@ echo sprintf(
     implode(', ', $versions_to_generate)
 );
 
-foreach ($versions_to_generate as $i => $version) {
-    $buildConfig = new Config\VersionConfig($config, $config->getVersion($version));
+foreach ($versions_to_generate as $version) {
+    $build_config = new Config\VersionConfig($config, $config->getVersion($version));
 
-    $url = $buildConfig->getUrl();
+    $url = $build_config->getUrl();
 
-    $namespace = $buildConfig->getNamespace(true);
+    $namespace = $build_config->getNamespace(true);
     $version = trim($version);
     $schema_dir = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version;
 
@@ -471,10 +460,10 @@ foreach ($versions_to_generate as $i => $version) {
         PHP_EOL
     );
 
-    $definition = new Definition($buildConfig);
+    $definition = new Definition($build_config);
     $definition->buildDefinition();
 
-    $builder = new Builder($buildConfig, $definition);
+    $builder = new Builder($build_config, $definition);
     if ($only_library) {
         $builder->buildFHIRClasses();
     } elseif ($only_tests) {
