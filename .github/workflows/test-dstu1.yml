@@ -22,6 +22,7 @@ jobs:
         with:
           version: 5.7
           configuration: ./phpunit/dstu1.xml
+
   dstu1-php70:
     runs-on: ubuntu-20.04
     steps:
@@ -40,4 +41,144 @@ jobs:
       - uses: php-actions/phpunit@v3
         with:
           php_version: 7.0
+          configuration: ./phpunit/dstu1.xml
+
+  dstu1-php71:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.1
+          extensions: libxml simplexml json zip
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v6
+        with:
+          php_version: 7.1
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          php_version: 7.1
+          configuration: ./phpunit/dstu1.xml
+
+  dstu1-php71:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.1
+          extensions: libxml simplexml json zip
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v6
+        with:
+          php_version: 7.1
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          php_version: 7.1
+          configuration: ./phpunit/dstu1.xml
+
+  dstu1-php72:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          extensions: libxml simplexml json zip
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v6
+        with:
+          php_version: 7.2
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          php_version: 7.2
+          configuration: ./phpunit/dstu1.xml
+
+  dstu1-php73:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.3
+          extensions: libxml simplexml json zip
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v6
+        with:
+          php_version: 7.3
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          php_version: 7.3
+          configuration: ./phpunit/dstu1.xml
+
+  dstu1-php74:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          extensions: libxml simplexml json zip
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v6
+        with:
+          php_version: 7.4
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          php_version: 7.4
+          configuration: ./phpunit/dstu1.xml
+
+  dstu1-php81:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: libxml simplexml json zip
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v6
+        with:
+          php_version: 8.1
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          php_version: 8.1
+          configuration: ./phpunit/dstu1.xml
+
+  dstu1-php82:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: libxml simplexml json zip
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v6
+        with:
+          php_version: 8.2
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          php_version: 8.2
           configuration: ./phpunit/dstu1.xml
