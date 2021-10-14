@@ -15,10 +15,10 @@ jobs:
       - uses: php-actions/composer@v6
         with:
           php_version: 5.6
-          php_extensions: libxml simplexml json
+          php_extensions: libxml simplexml json zip
           version: 2
       - name: Generate code
-        run: ./bin/generate.sh --forceDelete --useExisting
+        run: ./bin/generate.sh --useExisting
       - uses: php-actions/phpunit@v3
         with:
           version: 5.7
