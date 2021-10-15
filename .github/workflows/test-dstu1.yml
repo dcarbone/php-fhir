@@ -12,8 +12,6 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
-        with:
-          php_version: 5.6
       - name: Print version
         run: php -v
       - name: Generate code
@@ -32,15 +30,13 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
-        with:
-          php_version: 7.0
       - name: Print version
         run: php -v
       - name: Generate code
         run: ./bin/generate.sh --useExisting
       - uses: php-actions/phpunit@v3
         with:
-          php_version: 7.0
+          version: 6.5
           configuration: ./phpunit/dstu1.xml
 
   dstu1-php71:
@@ -52,15 +48,13 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
-        with:
-          php_version: 7.1
       - name: Print version
         run: php -v
       - name: Generate code
         run: ./bin/generate.sh --useExisting
       - uses: php-actions/phpunit@v3
         with:
-          php_version: 7.1
+          version: 7.5
           configuration: ./phpunit/dstu1.xml
 
   dstu1-php72:
@@ -72,8 +66,6 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
-        with:
-          php_version: 7.2
       - name: Print version
         run: php -v
       - name: Generate code
@@ -92,15 +84,13 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
-        with:
-          php_version: 7.3
       - name: Print version
         run: php -v
       - name: Generate code
         run: ./bin/generate.sh --useExisting
       - uses: php-actions/phpunit@v3
         with:
-          php_version: 7.3
+          version: 9
           configuration: ./phpunit/dstu1.xml
 
   dstu1-php74:
@@ -108,19 +98,34 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
-        with:
-          php_version: 7.4
       - name: Print version
         run: php -v
       - name: Generate code
         run: ./bin/generate.sh --useExisting
       - uses: php-actions/phpunit@v3
         with:
-          php_version: 7.4
+          version: 9
+          configuration: ./phpunit/dstu1.xml
+
+  dstu1-php80:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          extensions: libxml simplexml json zip
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v6
+      - name: Print version
+        run: php -v
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
+      - uses: php-actions/phpunit@v3
+        with:
+          version: 9
           configuration: ./phpunit/dstu1.xml
 
   dstu1-php81:
@@ -132,15 +137,13 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
-        with:
-          php_version: 8.1
       - name: Print version
         run: php -v
       - name: Generate code
         run: ./bin/generate.sh --useExisting
       - uses: php-actions/phpunit@v3
         with:
-          php_version: 8.1
+          version: 9
           configuration: ./phpunit/dstu1.xml
 
   dstu1-php82:
@@ -148,17 +151,14 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
-        with:
-          php_version: 8.2
       - name: Print version
         run: php -v
       - name: Generate code
         run: ./bin/generate.sh --useExisting
       - uses: php-actions/phpunit@v3
         with:
-          php_version: 8.2
+          version: 9
           configuration: ./phpunit/dstu1.xml
