@@ -12,6 +12,8 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 5.6
       - name: Print version
         run: php -v
       - name: Generate code
@@ -30,6 +32,8 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 7.0
       - name: Print version
         run: php -v
       - name: Generate code
@@ -48,6 +52,8 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 7.1
       - name: Print version
         run: php -v
       - name: Generate code
@@ -66,6 +72,8 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 7.2
       - name: Print version
         run: php -v
       - name: Generate code
@@ -84,6 +92,8 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 7.3
       - name: Print version
         run: php -v
       - name: Generate code
@@ -98,9 +108,12 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
+          php-version: 7.4
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 7.4
       - name: Print version
         run: php -v
       - name: Generate code
@@ -119,6 +132,8 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 8.0
       - name: Print version
         run: php -v
       - name: Generate code
@@ -137,6 +152,8 @@ jobs:
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 8.1
       - name: Print version
         run: php -v
       - name: Generate code
@@ -151,9 +168,12 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
+          php-version: 8.2
           extensions: libxml simplexml json zip
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_version: 8.2
       - name: Print version
         run: php -v
       - name: Generate code
