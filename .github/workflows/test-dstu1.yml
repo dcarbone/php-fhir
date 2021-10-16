@@ -41,7 +41,7 @@ jobs:
           $content = Get-Content -Path 'composer.json' | ConvertFrom-Json
           $content.{require-dev}.{phpunit/phpunit} = "^${{ matrix.phpunit-version }}"
           $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
-          shell: pwsh
+        shell: pwsh
       - name: Install Composer deps
         run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
       - name: Run tests
