@@ -22,12 +22,12 @@
     "ext-simplexml": "*",
     "ext-json": "*",
     "ext-libxml": "*",
-    "myclabs/php-enum": "^1.6 || ^1.7 || ^1.8",
-    "psr/log": "^1.1 || ^3.0.0"
+    "myclabs/php-enum": "@stable",
+    "psr/log": "@stable"
   },
   "require-dev": {
     "ext-curl": "*",
-    "phpunit/phpunit": "^5.7 || ^6.5  || ^8.5"
+    "phpunit/phpunit": "@stable"
   },
   "replace": {
     "php-fhir/parser": "*",
