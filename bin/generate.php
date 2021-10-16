@@ -82,9 +82,11 @@ function missing_config_text($return)
         (false === $config_location_env ? 'Not Defined' : $config_location_env),
         PHP_EOL
     );
-    $out .= sprintf('   - "--config" flag: %s%s',
+    $out .= sprintf(
+        '   - "--config" flag: %s%s',
         ('' === $config_location_arg ? 'Not Defined' : $config_location_arg),
-        PHP_EOL);
+        PHP_EOL
+    );
     $out .= sprintf('   - Default: %s%s', $config_location_def, PHP_EOL);
     $out .= PHP_EOL;
     $out .= 'Please do one of the following:' . PHP_EOL;
@@ -117,7 +119,7 @@ function exit_with_help($err = false)
 {
     global $config_location_def;
     $env_var = ENV_GENERATE_CONFIG_FILE;
-    $out = sprintf(<<<STRING
+    $out = <<<STRING
 
 PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
 
@@ -153,8 +155,7 @@ Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
         3. Place "config.php" in dir {$config_location_def}
 
 
-STRING
-    );
+STRING;
 
     echo $out;
     if ($err) {
@@ -319,7 +320,10 @@ if (!file_exists($config_file)) {
 }
 
 if (!is_readable($config_file)) {
-    echo "Specified config file \"{$config_file}\" is not readable by this process, please check permissions and try again\n";
+    echo sprintf(
+        "Specified config file \"%s\" is not readable by this process, please check permissions and try again\n",
+        $config_file
+    );
     exit(1);
 }
 
@@ -424,7 +428,7 @@ foreach ($versions_to_generate as $version) {
         if (class_exists('\\ZipArchive', true)) {
             echo "ext-zip found\n";
 
-            $zip = new \ZipArchive;
+            $zip = new \ZipArchive();
 
             if (true !== ($res = $zip->open($schema_dir . '.zip'))) {
                 echo "Unable to open file {$schema_dir}.zip.  ZipArchive err: {$res}\n";

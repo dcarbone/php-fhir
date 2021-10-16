@@ -4,4 +4,4 @@
 /*.iml
 /.idea
 /.svn
-/.phpunit.result.cache
+/.*.cache

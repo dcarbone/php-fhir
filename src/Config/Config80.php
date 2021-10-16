@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR;
 
@@ -18,8 +18,20 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-if (80000 <= PHP_VERSION_ID) {
-    require __DIR__ . '/Config/Config80.php';
-} else {
-    require __DIR__ . '/Config/Config56.php';
+use DCarbone\PHPFHIR\Config\AbstractConfig;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Class Config
+ * @package DCarbone\PHPFHIR
+ */
+class Config extends AbstractConfig
+{
+    /**
+     * @param \Psr\Log\LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->_log = new Logger($logger);
+    }
 }

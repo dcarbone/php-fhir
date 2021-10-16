@@ -1,0 +1,53 @@
+name: CI
+
+on: [push]
+
+jobs:
+  run:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
+        fhir-version: ["DSTU1", "DSTU2", "STU3", "R4"]
+        include:
+          - php-version: "5.6"
+            phpunit-version: "5"
+          - php-version: "7.0"
+            phpunit-version: "6"
+          - php-version: "7.1"
+            phpunit-version: "7"
+          - php-version: "7.2"
+            phpunit-version: "8"
+          - php-version: "7.3"
+            phpunit-version: "9"
+          - php-version: "7.4"
+            phpunit-version: "9"
+          - php-version: "8.0"
+            phpunit-version: "9"
+          - php-version: "8.1"
+            phpunit-version: "9"
+    name: ${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: libxml simplexmlo json zip
+          # https://github.com/mheap/phpunit-github-actions-printer/blob/master/.github/workflows/ci.yml#L32
+      - name: Set PHPUnit Version
+        run: |
+          $content = Get-Content -Path 'composer.json' | ConvertFrom-Json
+          $content.{require-dev}.{phpunit/phpunit} = "^${{ matrix.phpunit-version }}"
+          $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
+        shell: pwsh
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}
+      - name: Install Composer deps
+        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting --versions ${{ matrix.fhir-version }}
+      - name: Run tests
+        run: ./vendor/bin/phpunit -c phpunit/${{ matrix.fhir-version }}.xml
