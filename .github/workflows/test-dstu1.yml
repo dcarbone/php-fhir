@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2"]
+        php-version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
         include:
           - php-version: "5.6"
             phpunit-version: "5"
@@ -25,8 +25,6 @@ jobs:
           - php-version: "8.0"
             phpunit-version: "9"
           - php-version: "8.1"
-            phpunit-version: "9"
-          - php-version: "8.2"
             phpunit-version: "9"
     name: DSTU1 - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
     steps:
