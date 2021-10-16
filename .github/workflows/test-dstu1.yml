@@ -28,7 +28,7 @@ jobs:
             phpunit-version: "9"
           - php-version: "8.2"
             phpunit-version: "9"
-    name: DSTU1 tests on PHP ${{ matrix.php-version }} (PHPUnit ${{ matrix.phpunit-version }}
+    name: DSTU1 - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
     steps:
       - uses: actions/checkout@v2
       - uses: shivammathur/setup-php@v2
@@ -42,7 +42,13 @@ jobs:
           $content.{require-dev}.{phpunit/phpunit} = "^${{ matrix.phpunit-version }}"
           $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
         shell: pwsh
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}
       - name: Install Composer deps
         run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+      - name: Generate code
+        run: ./bin/generate.sh --useExisting
       - name: Run tests
         run: ./vendor/bin/phpunit -c phpunit/dstu1.xml
