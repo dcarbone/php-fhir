@@ -23,6 +23,7 @@
             <directory>../output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement</directory>
             <directory>../output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement/FHIRBackboneElement</directory>
             <directory>../output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement/FHIRBackboneElement/FHIRResource</directory>
+
             <exclude>../output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement</exclude>
             <exclude>../output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement/FHIRBackboneElement</exclude>
             <exclude>../output/HL7/FHIR/DSTU1/PHPFHIRTests/FHIRElement/FHIRBackboneElement/FHIRResource</exclude>

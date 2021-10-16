@@ -9,6 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         php-version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
+        fhir-version: ["DSTU1", "DSTU2", "STU3", "R4"]
         include:
           - php-version: "5.6"
             phpunit-version: "5"
@@ -26,7 +27,7 @@ jobs:
             phpunit-version: "9"
           - php-version: "8.1"
             phpunit-version: "9"
-    name: DSTU1 - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
+    name: ${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
     steps:
       - uses: actions/checkout@v2
       - uses: shivammathur/setup-php@v2
@@ -47,6 +48,6 @@ jobs:
       - name: Install Composer deps
         run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
       - name: Generate code
-        run: ./bin/generate.sh --useExisting
+        run: ./bin/generate.sh --useExisting --versions ${{ matrix.fhir-version }}
       - name: Run tests
-        run: ./vendor/bin/phpunit -c phpunit/dstu1.xml
+        run: ./vendor/bin/phpunit -c phpunit/${{ matrix.fhir-version }}.xml
