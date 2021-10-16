@@ -89,7 +89,11 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @return string|null
      */
     public static function getTypeClass($typeName) {
-        return (is_string($typeName) && isset(self::$_typeMap[$typeName])) ? self::$_typeMap[$typeName] : null;
+        if (is_string($typeName) && isset(self::$_typeMap[$typeName])) {
+            return self::$_typeMap[$typeName];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -115,7 +119,11 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      */
     public static function getContainedTypeClassName($typeName)
     {
-        return (is_string($typeName) && isset(self::$_containableTypes[$typeName])) ? self::$_containableTypes[$typeName] : null;
+        if (is_string($typeName) && isset(self::$_containableTypes[$typeName])) {
+            return self::$_containableTypes[$typeName];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -128,7 +136,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
         $tt = gettype($type);
         if ('object' === $tt) {
             if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
-                return in_array('\\'.get_class($type), self::$_containableTypes, true);
+                return in_array('\\' . get_class($type), self::$_containableTypes, true);
             }
             if ($type instanceof \DOMNode) {
                 return isset(self::$_containableTypes[$type->nodeName]);
@@ -140,7 +148,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
             ));
         }
         if ('string' === $tt) {
-            return isset(self::$_containableTypes[$type]) || in_array('\\'.ltrim($type, '\\'), self::$_containableTypes, true);
+            return isset(self::$_containableTypes[$type]) || in_array('\\' . ltrim($type, '\\'), self::$_containableTypes, true);
         }
         if ('array' === $tt) {
             if (isset($type[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
@@ -176,7 +184,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      */
     public static function getContainedTypeFromArray($data)
     {
-        if (null === $data) {
+        if (null === $data || [] === $data) {
             return null;
         }
         if (!is_array($data)) {
@@ -185,10 +193,10 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
                 gettype($data)
             ));
         }
-        if ([] === $data) {
-            return null;
+        $resourceType = null;
+        if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
+            $resourceType = $data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE];
         }
-        $resourceType = isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]) ? $data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE] : null;
         if (null === $resourceType) {
             throw new \DomainException(sprintf(
                 'Unable to determine contained Resource type from input (missing "%s" key).  Keys: ["%s"]',

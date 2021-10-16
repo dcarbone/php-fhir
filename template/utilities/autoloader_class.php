@@ -130,7 +130,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function loadClass($class)
     {
         if (isset(self::$_classMap[$class])) {
-            return (bool)require self::ROOT_DIR . '/' . self::$_classMap[$class];
+            return (bool)require self::ROOT_DIR . DIRECTORY_SEPARATOR . self::$_classMap[$class];
         }
         return null;
     }
