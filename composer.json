@@ -18,16 +18,16 @@
     "php-fhir"
   ],
   "require": {
-    "php": "^5.4.0 || ^7.0 || ^8.0",
+    "php": ">=5.4",
     "ext-simplexml": "*",
     "ext-json": "*",
     "ext-libxml": "*",
-    "myclabs/php-enum": "^1.6 || ^1.7 || ^1.8",
-    "psr/log": "^1.1 || ^3.0.0"
+    "myclabs/php-enum": "@stable",
+    "psr/log": "@stable"
   },
   "require-dev": {
     "ext-curl": "*",
-    "phpunit/phpunit": "^8.5"
+    "phpunit/phpunit": "@stable"
   },
   "replace": {
     "php-fhir/parser": "*",
@@ -51,6 +51,9 @@
     "psr-4": {
       "HL7\\": "output/HL7"
     }
+  },
+  "config": {
+    "platform-check": false
   },
   "suggest": {
     "ext-zip": "To enable unzipping of downloaded source files"
