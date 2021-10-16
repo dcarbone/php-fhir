@@ -1,7 +1,7 @@
 # php-fhir
 Tools for creating PHP classes from the HL7 FHIR Specification
 
-[![Build Status](https://travis-ci.org/dcarbone/php-fhir.svg?branch=master)](https://travis-ci.org/dcarbone/php-fhir)
+![Unit Tests](https://github.com/dcarbone/php-fhir/actions/workflows/unit-tests/badge.svg)
 
 # Installation
 
