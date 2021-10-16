@@ -1,8 +1,6 @@
 # php-fhir
 Tools for creating PHP classes from the HL7 FHIR Specification
 
-![Unit Tests](https://github.com/dcarbone/php-fhir/actions/workflows/unit-tests/badge.svg)
-
 # Installation
 
 This library requires the use of [Composer](https://getcomposer.org/)
