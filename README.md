@@ -158,14 +158,14 @@ $json = json_encode($object);
 ## XML Serialization
 
 ```php
-// To get an instance of \DOMElement...
-$element = $object->xmlSerialize();
+// To get an instance of \SimpleXMLElement...
+$sxe = $object->xmlSerialize();
 
 // to get as XML string...
-$xml = $element->ownerDocument->saveXML($element);
+$xml = $sxe->saveXML();
 ```
 
-XML Serialization utilizes [DOM](https://www.php.net/manual/en/book.dom.php).
+XML Serialization utilizes [SimpleXMLElement](http://php.net/manual/en/class.simplexmlelement.php).
 
 ## Testing
 
