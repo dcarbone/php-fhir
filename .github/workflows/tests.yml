@@ -52,7 +52,7 @@ jobs:
       - name: Set Paratest Version
         run: |
           $content = Get-Content -Path 'composer.json' | ConvertFrom-Json
-          $content.{require-dev}.{branium/paratest} = "^${{ matrix.paratest-version }}"
+          $content.{require-dev}.{brianium/paratest} = "^${{ matrix.paratest-version }}"
           $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
         shell: pwsh
       - name: Cache Composer deps
