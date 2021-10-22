@@ -42,7 +42,7 @@ jobs:
           distribution: 'zulu'
           java-version: 17
       - name: Install FHIR validator
-        run: wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/5.5.8/validator_cli.jar -O ./bin/
+        run: wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/5.5.8/validator_cli.jar -O ./bin/validator_cli.jar
       - uses: actions/checkout@v2
       - uses: shivammathur/setup-php@v2
         with:
