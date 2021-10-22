@@ -278,12 +278,13 @@ class Type
     }
 
     /**
+     * @param $testType
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedTestNamespace($leadingSlash)
+    public function getFullyQualifiedTestNamespace($testType, $leadingSlash)
     {
-        $ns = $this->getConfig()->getTestsNamespace(false);
+        $ns = $this->getConfig()->getTestsNamespace($testType, false);
         $typeNS = $this->getTypeNamespace();
         if ('' !== $typeNS) {
             $ns = "{$ns}\\{$typeNS}";
@@ -315,12 +316,13 @@ class Type
     }
 
     /**
+     * @param $testType
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedTestClassName($leadingSlash)
+    public function getFullyQualifiedTestClassName($testType, $leadingSlash)
     {
-        $ns = $this->getFullyQualifiedTestNamespace(false);
+        $ns = $this->getFullyQualifiedTestNamespace($testType, false);
         if ('' === $ns) {
             $cn = $this->getTestClassName();
         } else {

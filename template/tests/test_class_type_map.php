@@ -21,7 +21,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 $rootNS = $config->getNamespace(false);
-$testNS = $config->getTestsNamespace(false);
+$testNS = $config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, false);
 
 ob_start();
 echo "<?php\n\n"; ?>

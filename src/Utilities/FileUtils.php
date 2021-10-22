@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPFHIR\Utilities;
+<?php
+
+namespace DCarbone\PHPFHIR\Utilities;
 
 /*
  * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -29,21 +31,6 @@ abstract class FileUtils
     const REGEX_SLASH_SEARCH         = '{[\\\]}S';
     const REGEX_SLASH_SEARCH_CLEANUP = '{[/]{2,}}S';
     const REGEX_SLASH_REPLACE        = '/';
-
-    /**
-     * @param string $namespace
-     * @return string
-     */
-    public static function buildFileHeader($namespace)
-    {
-        $out = "<?php\n\n";
-        $namespace = trim($namespace, " \t\n\r\0\x0b\\/");
-        if ('' !== $namespace) {
-            $out .= "namespace {$namespace};\n\n";
-        }
-        $out .= CopyrightUtils::getFullPHPFHIRCopyrightComment();
-        return $out . "\n\n";
-    }
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -100,13 +87,14 @@ abstract class FileUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param string $testType
      * @return string
      */
-    public static function buildTypeTestFilePath(VersionConfig $config, Type $type)
+    public static function buildTypeTestFilePath(VersionConfig $config, Type $type, $testType)
     {
         return static::mkdirRecurse(
                 $config,
-                self::cleanupPath($type->getFullyQualifiedTestNamespace(false))
+                self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
             ) . "/{$type->getTestClassName()}.php";
     }
 
@@ -114,19 +102,20 @@ abstract class FileUtils
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param bool $gt8
+     * @param string $testType
      * @return string
      */
-    public static function buildPHPUnitVersionedTestFilePath(VersionConfig $config, Type $type, $gt8)
+    public static function buildPHPUnitVersionedTestFilePath(VersionConfig $config, Type $type, $gt8, $testType)
     {
         if ($gt8) {
             return static::mkdirRecurse(
                     $config,
-                    self::cleanupPath($type->getFullyQualifiedTestNamespace(false))
+                    self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
                 ) . "/{$type->getTestClassName()}_phpunit_gte_8.php";
         }
         return static::mkdirRecurse(
                 $config,
-                self::cleanupPath($type->getFullyQualifiedTestNamespace(false))
+                self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
             ) . "/{$type->getTestClassName()}_phpunit_lt_8.php";
     }
 

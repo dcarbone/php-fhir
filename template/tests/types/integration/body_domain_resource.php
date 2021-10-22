@@ -40,6 +40,9 @@ ob_start(); ?>
         ' URL value ',
         ' None of the codes provided are in the value set ',
         'and a code is required from this value set',
+        'fhir_comments',
+        'None of the codings provided are in the value set',
+        ' is not valid in the value set ',
     ];
 
     /**

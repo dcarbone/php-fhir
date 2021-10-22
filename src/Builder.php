@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Generator\TemplateBuilder;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
@@ -127,10 +128,11 @@ class Builder
         $types = $definition->getTypes();
 
         $log->startBreak('Test Class Generation');
+
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
-                $this->config->getTestsNamespace(true),
+                $this->config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, true),
                 PHPFHIR_TEST_CLASSNAME_CONSTANTS
             ),
             TemplateBuilder::generateConstantsTestClass($this->config, $types)
@@ -139,26 +141,36 @@ class Builder
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
-                $this->config->getTestsNamespace(true),
+                $this->config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, true),
                 PHPFHIR_TEST_CLASSNAME_TYPEMAP
             ),
             TemplateBuilder::generateTypeMapTestClass($this->config, $types)
         );
 
-        foreach ($types->getIterator() as $type) {
-            $log->debug("Generated test class for type {$type}...");
-            $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type);
-            $filepath = FileUtils::buildTypeTestFilePath($this->config, $type);
-            if (!(bool)file_put_contents($filepath, $classDefinition)) {
-                throw new RuntimeException(
-                    sprintf(
-                        'Unable to write Type %s class definition to file %s',
-                        $filepath,
-                        $type
-                    )
-                );
+        $testTypes = [PHPFHIR_TEST_TYPE_UNIT];
+        if (null !== $this->config->getTestEndpoint()) {
+            $testTypes[] = PHPFHIR_TEST_TYPE_INTEGRATION;
+        }
+        foreach ($testTypes as $testType) {
+            foreach ($types->getIterator() as $type) {
+                if (PHPFHIR_TEST_TYPE_INTEGRATION === $testType && !$type->isDomainResource()) {
+                    continue;
+                }
+                $log->debug("Generated ${testType} test class for type {$type}...");
+                $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type, $testType);
+                $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
+                if (!(bool)file_put_contents($filepath, $classDefinition)) {
+                    throw new RuntimeException(
+                        sprintf(
+                            'Unable to write Type %s class definition to file %s',
+                            $filepath,
+                            $type
+                        )
+                    );
+                }
             }
         }
+
 
         $log->endBreak('Test Class Generation');
     }

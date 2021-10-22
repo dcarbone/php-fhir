@@ -25,12 +25,12 @@ use Psr\Log\NullLogger;
 
 abstract class AbstractConfig implements LoggerAwareInterface
 {
-    const KEY_SCHEMA_PATH  = 'schemaPath';
+    const KEY_SCHEMA_PATH = 'schemaPath';
     const KEY_CLASSES_PATH = 'classesPath';
-    const KEY_VERSIONS     = 'versions';
-    const KEY_SILENT       = 'silent';
-    const KEY_SKIP_TESTS   = 'skipTests';
-    const KEY_LIBXML_OPTS  = 'libxmlOpts';
+    const KEY_VERSIONS = 'versions';
+    const KEY_SILENT = 'silent';
+    const KEY_SKIP_TESTS = 'skipTests';
+    const KEY_LIBXML_OPTS = 'libxmlOpts';
 
     /** @var \DCarbone\PHPFHIR\Logger */
     protected $_log;
@@ -63,8 +63,12 @@ abstract class AbstractConfig implements LoggerAwareInterface
         if (!isset($conf[self::KEY_CLASSES_PATH])) {
             throw new \DomainException('Required configuration key "' . self::KEY_CLASSES_PATH . '" missing');
         }
-        if (!isset($conf[self::KEY_VERSIONS]) || !is_array($conf[self::KEY_VERSIONS]) || 0 == count($conf[self::KEY_VERSIONS])) {
-            throw new \DomainException('Configuration key "' . self::KEY_VERSIONS . '" must be an array with at least 1 configured version.');
+        if (!isset($conf[self::KEY_VERSIONS]) || !is_array($conf[self::KEY_VERSIONS]) || 0 == count(
+                $conf[self::KEY_VERSIONS]
+            )) {
+            throw new \DomainException(
+                'Configuration key "' . self::KEY_VERSIONS . '" must be an array with at least 1 configured version.'
+            );
         }
         $this->setSchemaPath($conf[self::KEY_SCHEMA_PATH]);
         $this->setClassesPath($conf[self::KEY_CLASSES_PATH]);
@@ -184,12 +188,20 @@ abstract class AbstractConfig implements LoggerAwareInterface
             throw new \RuntimeException('Unable to locate output dir "' . $classesPath . '"');
         }
         if (!is_writable($classesPath)) {
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not writable by this process.',
-                                                $classesPath));
+            throw new \RuntimeException(
+                sprintf(
+                    'Specified output path "%s" is not writable by this process.',
+                    $classesPath
+                )
+            );
         }
         if (!is_readable($classesPath)) {
-            throw new \RuntimeException(sprintf('Specified output path "%s" is not readable by this process.',
-                                                $classesPath));
+            throw new \RuntimeException(
+                sprintf(
+                    'Specified output path "%s" is not readable by this process.',
+                    $classesPath
+                )
+            );
         }
         $this->classesPath = $classesPath;
         return $this;
@@ -233,8 +245,10 @@ abstract class AbstractConfig implements LoggerAwareInterface
     {
         if (!$this->hasVersion($version)) {
             throw new \OutOfBoundsException(
-                'No version with name "' . $version . '" has been configured.  Available: ["' . implode('", "',
-                                                                                                        array_keys($this->versions)) . '"]'
+                'No version with name "' . $version . '" has been configured.  Available: ["' . implode(
+                    '", "',
+                    array_keys($this->versions)
+                ) . '"]'
             );
         }
         return $this->versions[$version];

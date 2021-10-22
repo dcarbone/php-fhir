@@ -86,7 +86,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return $this->parseObjectInput($input);
         } else {
             throw new \InvalidArgumentException(sprintf(
-                '%s::parse - $input must be XML or JSON encoded string, array, or instanceof \\SimpleXMLElement, %s seen.',
+                '%s::parse - $input must be XML or JSON encoded string, array, or an object of type \\DOMElement or \\SimpleXMLElement, %s seen.',
                 get_class($this),
                 $inputType
             ));

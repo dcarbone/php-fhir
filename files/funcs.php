@@ -16,48 +16,24 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /**
- * @param string $_requiredFile
+ * @param string $requiredFile
  * @param array $vars
  * @return mixed
  */
-function require_with($_requiredFile, array $vars)
+function require_with($requiredFile, array $vars)
 {
     $num = extract($vars, EXTR_OVERWRITE);
     if ($num !== count($vars)) {
-        throw new \RuntimeException(sprintf(
-            'Expected "%d" variables to be extracted but only "%d" were successful.  Keys: ["%s"]',
-            count($vars),
-            $num,
-            implode('", "', array_keys($vars))
-        ));
+        throw new \RuntimeException(
+            sprintf(
+                'Expected "%d" variables to be extracted but only "%d" were successful.  Keys: ["%s"]',
+                count($vars),
+                $num,
+                implode('", "', array_keys($vars))
+            )
+        );
     }
     unset($vars, $num);
-    return require $_requiredFile;
-}
-
-/**
- * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
- * @return \DCarbone\PHPFHIR\Definition\Type
- */
-function build_raw_type(VersionConfig $config)
-{
-    $rt = new Type($config, PHPFHIR_RAW_TYPE_NAME);
-    $rt->setKind(new TypeKindEnum(TypeKindEnum::RAW));
-    $rt->addDocumentationFragment(PHPFHIR_RAW_TYPE_DESCRIPTION);
-    return $rt;
-}
-
-/**
- * @param \DCarbone\PHPFHIR\Definition\Type $type
- */
-function type_debug(Type $type)
-{
-    echo "\n\n\n";
-    var_dump($type->getConfig()->getVersion()->getName(), $type->getFHIRName());
-    echo "\n\n\n";
+    return require $requiredFile;
 }

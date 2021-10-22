@@ -15,16 +15,15 @@
         <ini name="memory_limit" value="2048M"/>
     </php>
     <testsuites>
-        <testsuite name="R4">
+        <testsuite name="R4-Static">
             <file>../output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
             <file>../output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-
-            <directory>../output/HL7/FHIR/R4/PHPFHIRTests</directory>
-            <directory>../output/HL7/FHIR/R4/PHPFHIRTests/FHIRElement</directory>
-            <directory>../output/HL7/FHIR/R4/PHPFHIRTests/FHIRResource</directory>
-
-            <exclude>../output/HL7/FHIR/R4/PHPFHIRTests/FHIRElement</exclude>
-            <exclude>../output/HL7/FHIR/R4/PHPFHIRTests/FHIRResource</exclude>
+        </testsuite>
+        <testsuite name="R4-Unit">
+            <directory>../output/HL7/FHIR/R4/PHPFHIRTests/Unit</directory>
+        </testsuite>
+        <testsuite name="R4-Integration">
+            <directory>../output/HL7/FHIR/R4/PHPFHIRTests/Integration</directory>
         </testsuite>
     </testsuites>
 </phpunit>

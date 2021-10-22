@@ -182,10 +182,11 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param string $testType
      * @return string
      */
-    public static function generateTypeTestClass(VersionConfig $config, Types $types, Type $type)
+    public static function generateTypeTestClass(VersionConfig $config, Types $types, Type $type, $testType)
     {
-        return require PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/test_class.php';
+        return require PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/' . $testType . '/class.php';
     }
 }

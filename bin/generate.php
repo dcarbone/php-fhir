@@ -128,7 +128,7 @@ Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
 - Links: 
     Source:         https://github.com/dcarbone/php-fhir
     Generated:      https://github.com/dcarbone/php-fhir-generated
-    FHIR:           http://hl7.org/fhir
+    FHIR:           https://hl7.org/fhir
 
 - Flags:
     --help:         Print this help text 
@@ -447,7 +447,7 @@ foreach ($versions_to_generate as $version) {
             exec($cmd, $output, $code);
             if (0 !== $code) {
                 echo "unzip failed with code {$code}\noutput:\n";
-                foreach($output as $line) {
+                foreach ($output as $line) {
                     echo "-----> {$line}\n";
                 }
                 exit(1);

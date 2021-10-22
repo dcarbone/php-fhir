@@ -24,7 +24,8 @@
     "ext-libxml": "*",
     "ext-dom": "*",
     "myclabs/php-enum": "@stable",
-    "psr/log": "@stable"
+    "psr/log": "@stable",
+    "brianium/paratest": "@stable"
   },
   "require-dev": {
     "ext-curl": "*",

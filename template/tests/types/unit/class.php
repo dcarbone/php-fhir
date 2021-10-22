@@ -15,62 +15,34 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var string $testType */
 
 $typeKind = $type->getKind();
-
-$bundleType = null;
-// only bother to locate bundle type if there is a configured test endpoint
-if (null !== $config->getTestEndpoint() && $type->isDomainResource()) :
-    // TODO: find a more efficient way to do this...
-    foreach ($types->getIterator() as $bt) :
-        if ($bt->getFHIRName() === 'Bundle') :
-            $bundleType = $bt;
-            break;
-        endif;
-    endforeach;
-    if (null === $bundleType) :
-        throw ExceptionUtils::createBundleTypeNotFoundException($type);
-    endif;
-endif;
 
 ob_start();
 
 echo require_with(
-    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/class_header.php',
+    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/' . $testType . '/header.php',
     [
         'config'     => $config,
         'type'       => $type,
-        'bundleType' => $bundleType,
     ]
 );
 
 echo require_with(
-    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/default_body.php',
+    PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/' . $testType . '/body_base.php',
     [
         'config' => $config,
         'type'   => $type,
     ]
 );
 
-if (null !== $config->getTestEndpoint() && $type->isDomainResource()) :
-    echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods/domain_resource.php',
-        [
-            'config'     => $config,
-            'type'       => $type,
-            'bundleType' => $bundleType,
-        ]
-    );
-endif;
-
 if ($typeKind->isPrimitive()) :
     echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/methods/primitive.php',
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/' . $testType . '/body_primitive.php',
         [
             'config' => $config,
             'type' => $type,

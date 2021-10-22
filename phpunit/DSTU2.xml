@@ -15,16 +15,15 @@
         <ini name="memory_limit" value="2048M"/>
     </php>
     <testsuites>
-        <testsuite name="DSTU2">
+        <testsuite name="DSTU2-Static">
             <file>../output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
             <file>../output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-            
-            <directory>../output/HL7/FHIR/DSTU2/PHPFHIRTests</directory>
-            <directory>../output/HL7/FHIR/DSTU2/PHPFHIRTests/FHIRElement</directory>
-            <directory>../output/HL7/FHIR/DSTU2/PHPFHIRTests/FHIRResource</directory>
-            
-            <exclude>../output/HL7/FHIR/DSTU2/PHPFHIRTests/FHIRElement</exclude>
-            <exclude>../output/HL7/FHIR/DSTU2/PHPFHIRTests/FHIRResource</exclude>
+        </testsuite>
+        <testsuite name="DSTU2-Unit">
+            <directory>../output/HL7/FHIR/DSTU2/PHPFHIRTests/Unit</directory>
+        </testsuite>
+        <testsuite name="DSTU2-Integration">
+            <directory>../output/HL7/FHIR/DSTU2/PHPFHIRTests/Integration</directory>
         </testsuite>
     </testsuites>
 </phpunit>

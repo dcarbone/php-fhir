@@ -100,16 +100,30 @@ class VersionConfig
     }
 
     /**
+     * @param $testType
      * @param bool $leadingSlash
      * @return string
      */
-    public function getTestsNamespace($leadingSlash)
+    public function getTestsNamespace($testType, $leadingSlash)
     {
         $ns = $this->getNamespace(false);
+        switch ($testType) {
+            case PHPFHIR_TEST_TYPE_BASE:
+                $rem = PHPFHIR_TESTS_NAMESPACE_BASE;
+                break;
+            case PHPFHIR_TEST_TYPE_UNIT:
+                $rem = PHPFHIR_TESTS_NAMESPACE_UNIT;
+                break;
+            case PHPFHIR_TEST_TYPE_INTEGRATION:
+                $rem = PHPFHIR_TESTS_NAMESPACE_INTEGRATION;
+                break;
+            default:
+                throw new \InvalidArgumentException(sprintf('Unknown value for $testType: %s', $testType));
+        }
         if ('' === $ns) {
-            $ns = PHPFHIR_TESTS_NAMESPACE;
+            $ns = $rem;
         } else {
-            $ns .= '\\' . PHPFHIR_TESTS_NAMESPACE;
+            $ns .= '\\' . $rem;
         }
         return $leadingSlash ? "\\{$ns}" : $ns;
     }

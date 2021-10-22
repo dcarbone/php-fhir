@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2019-2021 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ ob_start();
 
 echo "<?php\n\n";
 
-$testNS = $type->getFullyQualifiedTestNamespace(false);
+$testNS = $type->getFullyQualifiedTestNamespace(PHPFHIR_TEST_TYPE_INTEGRATION, false);
 $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
 $typeClassname = $type->getClassName();
@@ -36,10 +36,8 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 echo "use PHPUnit\\Framework\\TestCase;\n";
 echo "use {$type->getFullyQualifiedClassName(false)};\n";
-if (null !== $config->getTestEndpoint() && $type->isDomainResource()) :
-    echo "use PHPUnit\\Framework\\AssertionFailedError;\n";
-    echo "use {$bundleType->getFullyQualifiedClassName(false)};\n";
-endif;
+echo "use PHPUnit\\Framework\\AssertionFailedError;\n";
+echo "use {$bundleType->getFullyQualifiedClassName(false)};\n";
 ?>
 
 /**
