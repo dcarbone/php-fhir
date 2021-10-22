@@ -24,12 +24,12 @@
     "ext-libxml": "*",
     "ext-dom": "*",
     "myclabs/php-enum": "@stable",
-    "psr/log": "@stable",
-    "brianium/paratest": "@stable"
+    "psr/log": "@stable"
   },
   "require-dev": {
     "ext-curl": "*",
-    "phpunit/phpunit": "@stable"
+    "phpunit/phpunit": "@stable",
+    "brianium/paratest": "@stable"
   },
   "replace": {
     "php-fhir/parser": "*",
