@@ -61,7 +61,7 @@ $config = new \DCarbone\PHPFHIR\Config([
     'schemaPath'  => __DIR__ . '/../input',
 
     // The path to place generated type class files
-    'classesPath' => '__DIR__ . '/../output',
+    'classesPath' => __DIR__ . '/../output',
 
     // If true, will use a noop null logger
     'silent'      => false,
