@@ -98,11 +98,15 @@ $config = new \DCarbone\PHPFHIR\Config([
     ],
 ]);
 
-// next, build definition class
-$definition = new \DCarbone\PHPFHIR\Definition($config);
+// next, you will need to create a VersionConfig per version of FHIR you wish to generate code for
+$build_config = new \DCarbone\PHPFHIR\Config\VersionConfig($config, $config->getVersion('R4'));
+
+// next, build definition instance
+$definition = new \DCarbone\PHPFHIR\Definition($build_config);
 $definition->buildDefinition();
 
-$builder = new \DCarbone\PHPFHIR\Builder($config, $definition);
+// finally, construct builder and generate some code :)
+$builder = new \DCarbone\PHPFHIR\Builder($build_config, $definition);
 $builder->build();
 ```
 
