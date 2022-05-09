@@ -43,13 +43,13 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
 
 {
     /** @var array */
-    private $_fhirComments = [];
+    private array $_fhirComments = [];
 
     /**
      * Arbitrary comments of a hopefully useful nature
      * @return array
      */
-    public function _getFHIRComments()
+    public function _getFHIRComments(): array
     {
         return $this->_fhirComments;
     }
@@ -59,7 +59,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
      * @param array $fhirComments
      * @return static
      */
-    public function _setFHIRComments(array $fhirComments)
+    public function _setFHIRComments(array $fhirComments): object
     {
         $this->_fhirComments = $fhirComments;
         return $this;
@@ -70,16 +70,10 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
      * @param string $fhirComment
      * @return static
      */
-    public function _addFHIRComment($fhirComment)
+    public function _addFHIRComment(string $fhirComment): object
     {
-        if (is_string($fhirComment)) {
-            $this->_fhirComments[] = $fhirComment;
-            return $this;
-        }
-        throw new \InvalidArgumentException(sprintf(
-            '$fhirComment must be a string, %s seen.',
-            gettype($fhirComment)
-        ));
+        $this->_fhirComments[] = $fhirComment;
+        return $this;
     }
 }
 <?php

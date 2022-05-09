@@ -25,30 +25,30 @@ use Psr\Log\NullLogger;
 
 abstract class AbstractConfig implements LoggerAwareInterface
 {
-    const KEY_SCHEMA_PATH = 'schemaPath';
-    const KEY_CLASSES_PATH = 'classesPath';
-    const KEY_VERSIONS = 'versions';
-    const KEY_SILENT = 'silent';
-    const KEY_SKIP_TESTS = 'skipTests';
-    const KEY_LIBXML_OPTS = 'libxmlOpts';
+    public const KEY_SCHEMA_PATH = 'schemaPath';
+    public const KEY_CLASSES_PATH = 'classesPath';
+    public const KEY_VERSIONS = 'versions';
+    public const KEY_SILENT = 'silent';
+    public const KEY_SKIP_TESTS = 'skipTests';
+    public const KEY_LIBXML_OPTS = 'libxmlOpts';
 
     /** @var \DCarbone\PHPFHIR\Logger */
-    protected $_log;
+    protected Logger $_log;
 
     /** @var string */
-    private $schemaPath;
+    private string $schemaPath;
 
     /** @var string */
-    private $classesPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
+    private string $classesPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
     /** @var \DCarbone\PHPFHIR\Config\Version[] */
-    private $versions = [];
+    private array $versions = [];
 
     /** @var bool */
-    private $silent = false;
+    private bool $silent = false;
     /** @var bool */
-    private $skipTests = false;
+    private bool $skipTests = false;
     /** @var int|null */
-    private $libxmlOpts;
+    private ?int $libxmlOpts;
 
     /**
      * Config constructor.

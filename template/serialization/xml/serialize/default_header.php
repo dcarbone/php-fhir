@@ -17,6 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
 ob_start(); ?>
     /**

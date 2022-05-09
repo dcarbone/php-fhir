@@ -84,16 +84,16 @@ if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
 {
-    const ROOT_DIR = __DIR__;
-
-    /** @var bool */
-    private static $_registered = false;
+    private const _ROOT_DIR = __DIR__;
 
     /** @var array */
-    private static $_classMap = [
+    private const _CLASS_MAP = [
 <?php foreach ($types->getNamespaceSortedIterator() as $type) : ?>
         '<?php echo $type->getFullyQualifiedClassName(false); ?>' => '<?php echo FileUtils::buildAutoloaderRelativeFilepath($config, $type); ?>',
 <?php endforeach; ?>    ];
+
+    /** @var bool */
+    private static $_registered = false;
 
     /**
      * @return bool
@@ -129,8 +129,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      */
     public static function loadClass($class)
     {
-        if (isset(self::$_classMap[$class])) {
-            return (bool)require self::ROOT_DIR . DIRECTORY_SEPARATOR . self::$_classMap[$class];
+        if (isset(self::_CLASS_MAP[$class])) {
+            return (bool)require self::_ROOT_DIR . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];
         }
         return null;
     }

@@ -48,20 +48,20 @@ interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>
      * Arbitrary comments of a hopefully useful nature
      * @return array
      */
-    public function _getFHIRComments();
+    public function _getFHIRComments(): array;
 
     /**
      * Set internal fhir_comments list, overwriting any previous value(s)
      * @param array $fhirComments
      * @return static
      */
-    public function _setFHIRComments(array $fhirComments);
+    public function _setFHIRComments(array $fhirComments): object;
 
     /**
      * Append comment string to internal fhir_comments list
      * @param string $fhirComment
      * @return static
      */
-    public function _addFHIRComment($fhirComment);
+    public function _addFHIRComment(string $fhirComment): object;
 }
 <?php return ob_get_clean();

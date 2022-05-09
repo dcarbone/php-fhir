@@ -46,47 +46,47 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
 {
     // FHIR source
-    const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(false); ?>';
-    const SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
+    public const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(false); ?>';
+    public const SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
 
     // PHPFHIR
-    const CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+    public const CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
 
     // Common
-    const JSON_FIELD_RESOURCE_TYPE = 'resourceType';
-    const JSON_FIELD_FHIR_COMMENTS = 'fhir_comments';
-    const STRING_TRUE = 'true';
-    const STRING_FALSE = 'false';
+    public const JSON_FIELD_RESOURCE_TYPE = 'resourceType';
+    public const JSON_FIELD_FHIR_COMMENTS = 'fhir_comments';
+    public const STRING_TRUE = 'true';
+    public const STRING_FALSE = 'false';
 
     // Date and time formats
-    const DATE_FORMAT_YEAR = 'Y';
-    const DATE_FORMAT_YEAR_MONTH = 'Y-m';
-    const DATE_FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
-    const DATE_FORMAT_YEAR_MONTH_DAY_TIME = 'Y-m-d\\TH:i:s\\.uP';
-    const DATE_FORMAT_INSTANT = 'Y-m-d\\TH:i:s\\.uP';
-    const TIME_FORMAT = 'H:i:s';
+    public const DATE_FORMAT_YEAR = 'Y';
+    public const DATE_FORMAT_YEAR_MONTH = 'Y-m';
+    public const DATE_FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
+    public const DATE_FORMAT_YEAR_MONTH_DAY_TIME = 'Y-m-d\\TH:i:s\\.uP';
+    public const DATE_FORMAT_INSTANT = 'Y-m-d\\TH:i:s\\.uP';
+    public const TIME_FORMAT = 'H:i:s';
 
-    const INT_MAX = 2147483648;
-    const INT_MIN = -2147483648;
+    public const INT_MAX = 2147483648;
+    public const INT_MIN = -2147483648;
 
-    const UNLIMITED = -1;
+    public const UNLIMITED = -1;
 
     // Validation
-    const <?php echo PHPFHIR_VALIDATION_ENUM_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_ENUM); ?>;
-    const <?php echo PHPFHIR_VALIDATION_MIN_LENGTH_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_LENGTH); ?>;
-    const <?php echo PHPFHIR_VALIDATION_MAX_LENGTH_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MAX_LENGTH); ?>;
-    const <?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_PATTERN); ?>;
-    const <?php echo PHPFHIR_VALIDATION_MIN_OCCURS_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_OCCURS); ?>;
-    const <?php echo PHPFHIR_VALIDATION_MAX_OCCURS_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MAX_OCCURS); ?>;
+    public const <?php echo PHPFHIR_VALIDATION_ENUM_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_ENUM); ?>;
+    public const <?php echo PHPFHIR_VALIDATION_MIN_LENGTH_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_LENGTH); ?>;
+    public const <?php echo PHPFHIR_VALIDATION_MAX_LENGTH_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MAX_LENGTH); ?>;
+    public const <?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_PATTERN); ?>;
+    public const <?php echo PHPFHIR_VALIDATION_MIN_OCCURS_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MIN_OCCURS); ?>;
+    public const <?php echo PHPFHIR_VALIDATION_MAX_OCCURS_NAME; ?> = 0x<?php echo dechex(PHPFHIR_VALIDATION_MAX_OCCURS); ?>;
 
     // Type names
 <?php foreach($types->getSortedIterator() as $type) : ?>
-    const <?php echo $type->getTypeNameConst(false); ?> = '<?php echo $type->getFHIRName(); ?>';
+    public const <?php echo $type->getTypeNameConst(false); ?> = '<?php echo $type->getFHIRName(); ?>';
 <?php endforeach;?>
 
     // Type classes
 <?php foreach($types->getSortedIterator() as $type) : ?>
-    const <?php echo $type->getClassNameConst(false); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
+    public const <?php echo $type->getClassNameConst(false); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
 <?php endforeach;
 echo "}\n";
 return ob_get_clean();

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
