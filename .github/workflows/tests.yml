@@ -1,6 +1,17 @@
 name: Tests
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/tests.yml'
+      - '**.php'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.php'
 
 jobs:
   run:
@@ -8,24 +19,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
+        php-version: ["7.4", "8.0", "8.1"]
         fhir-version: ["DSTU1", "DSTU2", "STU3", "R4"]
         include:
-          - php-version: "5.6"
-            phpunit-version: "5"
-            paratest-version: "0.15.0"
-          - php-version: "7.0"
-            phpunit-version: "6"
-            paratest-version: "1.1.0"
-          - php-version: "7.1"
-            phpunit-version: "7"
-            paratest-version: "4.0.0"
-          - php-version: "7.2"
-            phpunit-version: "8"
-            paratest-version: "4.0.0"
-          - php-version: "7.3"
-            phpunit-version: "9"
-            paratest-version: "6"
           - php-version: "7.4"
             phpunit-version: "9"
             paratest-version: "6"
