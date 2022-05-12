@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Builder;
 
@@ -38,10 +38,10 @@ abstract class TypeBuilder
      */
     private static function buildDefaultType(
         VersionConfig $config,
-        $fhirName,
+        string $fhirName,
         SimpleXMLElement $sxe,
-        $sourceFilename
-    ) {
+        string $sourceFilename
+    ): Type {
         return new Type($config, $fhirName, $sxe, $sourceFilename);
     }
 
@@ -54,10 +54,10 @@ abstract class TypeBuilder
      */
     private static function buildPrimitiveType(
         VersionConfig $config,
-        $fhirName,
+        string $fhirName,
         SimpleXMLElement $sxe,
-        $sourceFilename
-    ) {
+        string $sourceFilename
+    ): Type {
         $type = self::buildDefaultType($config, $fhirName, $sxe, $sourceFilename);
         $value = new Property($type, $sxe, $sourceFilename);
         $value->setName(PHPFHIR_VALUE_PROPERTY_NAME);
@@ -72,7 +72,7 @@ abstract class TypeBuilder
      * @param string $sourceFilename
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public static function build(VersionConfig $config, $fhirName, SimpleXMLElement $sxe, $sourceFilename)
+    public static function build(VersionConfig $config, string $fhirName, SimpleXMLElement $sxe, string $sourceFilename): Type
     {
         if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX) || false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
             return self::buildPrimitiveType($config, $fhirName, $sxe, $sourceFilename);

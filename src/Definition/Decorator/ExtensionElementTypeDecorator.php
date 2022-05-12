@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -38,7 +38,7 @@ abstract class ExtensionElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $attribute
      */
-    protected static function parseBaseAttribute(Type $type, SimpleXMLElement $attribute)
+    protected static function parseBaseAttribute(Type $type, SimpleXMLElement $attribute): void
     {
         $parentName = (string)$attribute;
         if ($type->getFHIRName() === $parentName) {
@@ -53,7 +53,7 @@ abstract class ExtensionElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $extension
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $extension)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $extension): void
     {
         foreach ($extension->attributes() as $attribute) {
             switch ($attribute->getName()) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
@@ -25,18 +25,18 @@ trait SourceTrait
      *
      * @var null|\SimpleXMLElement
      */
-    protected $sourceSXE;
+    protected ?\SimpleXMLElement $sourceSXE;
 
     /**
      * Name of file in definition this type was parsed from
      * @var string
      */
-    protected $sourceFilename;
+    protected string $sourceFilename;
 
     /**
      * @return null|\SimpleXMLElement
      */
-    public function getSourceSXE()
+    public function getSourceSXE(): ?\SimpleXMLElement
     {
         return $this->sourceSXE;
     }
@@ -44,7 +44,7 @@ trait SourceTrait
     /**
      * @return string
      */
-    public function getSourceFilename()
+    public function getSourceFilename(): string
     {
         return $this->sourceFilename;
     }
@@ -52,7 +52,7 @@ trait SourceTrait
     /**
      * @return string
      */
-    public function getSourceFileBasename()
+    public function getSourceFileBasename(): string
     {
         return basename($this->getSourceFilename());
     }

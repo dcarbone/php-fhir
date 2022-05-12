@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -45,7 +45,7 @@ abstract class AttributeElementTypeDecorator
         Types $types,
         Type $type,
         SimpleXMLElement $attributeElement
-    ) {
+    ): void {
         // create property object
         $property = new Property($type, $attributeElement, $type->getSourceFilename());
 

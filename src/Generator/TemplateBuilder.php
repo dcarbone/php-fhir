@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPFHIR\Generator;
+<?php declare(strict_types=1);
+
+namespace DCarbone\PHPFHIR\Generator;
 
 /*
  * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -31,7 +33,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRTypeInterface(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRTypeInterface(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_type.php';
     }
@@ -41,7 +43,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRCommentContainerInterface(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRCommentContainerInterface(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_comment_container.php';
     }
@@ -51,7 +53,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRCommentContainerTrait(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRCommentContainerTrait(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_comment_container.php';
     }
@@ -61,7 +63,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRValidationAssertionsTrait(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRValidationAssertionsTrait(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_validation_assertions.php';
     }
@@ -71,7 +73,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRChangeTrackingTrait(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRChangeTrackingTrait(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_change_tracking.php';
     }
@@ -81,7 +83,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRContainedTypeInterface(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRContainedTypeInterface(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_INTERFACES_DIR . '/phpfhir_contained_type.php';
     }
@@ -91,7 +93,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRResponseParserConfigClass(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRResponseParserConfigClass(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/response_parser_config_class.php';
     }
@@ -101,7 +103,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generatePHPFHIRResponseParserClass(VersionConfig $config, Types $types)
+    public static function generatePHPFHIRResponseParserClass(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/response_parser_class.php';
     }
@@ -112,7 +114,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function generateTypeClass(VersionConfig $config, Types $types, Type $type)
+    public static function generateTypeClass(VersionConfig $config, Types $types, Type $type): string
     {
         return require PHPFHIR_TEMPLATE_TYPES_DIR . '/class.php';
     }
@@ -123,7 +125,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function generateRawTypeClass(VersionConfig $config, Types $types, Type $type)
+    public static function generateRawTypeClass(VersionConfig $config, Types $types, Type $type): string
     {
         return require PHPFHIR_TEMPLATE_TYPES_DIR . '/raw.php';
     }
@@ -133,7 +135,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generateConstants(VersionConfig $config, Types $types)
+    public static function generateConstants(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/constants.php';
     }
@@ -143,7 +145,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generateTypeMapClass(VersionConfig $config, Types $types)
+    public static function generateTypeMapClass(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/typemap_class.php';
     }
@@ -153,7 +155,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generateAutoloaderClass(VersionConfig $config, Types $types)
+    public static function generateAutoloaderClass(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_UTILITIES_DIR . '/autoloader_class.php';
     }
@@ -163,7 +165,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generateConstantsTestClass(VersionConfig $config, Types $types)
+    public static function generateConstantsTestClass(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_TESTS_DIR . '/test_class_constants.php';
     }
@@ -173,7 +175,7 @@ abstract class TemplateBuilder
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @return string
      */
-    public static function generateTypeMapTestClass(VersionConfig $config, Types $types)
+    public static function generateTypeMapTestClass(VersionConfig $config, Types $types): string
     {
         return require PHPFHIR_TEMPLATE_TESTS_DIR . '/test_class_type_map.php';
     }
@@ -185,7 +187,7 @@ abstract class TemplateBuilder
      * @param string $testType
      * @return string
      */
-    public static function generateTypeTestClass(VersionConfig $config, Types $types, Type $type, $testType)
+    public static function generateTypeTestClass(VersionConfig $config, Types $types, Type $type, string $testType): string
     {
         return require PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/' . $testType . '/class.php';
     }

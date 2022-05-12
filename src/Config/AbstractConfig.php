@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Config;
 
@@ -73,9 +73,9 @@ abstract class AbstractConfig implements LoggerAwareInterface
         $this->setSchemaPath($conf[self::KEY_SCHEMA_PATH]);
         $this->setClassesPath($conf[self::KEY_CLASSES_PATH]);
         $this->setVersions($conf[self::KEY_VERSIONS]);
-        $this->setSilent(isset($conf[self::KEY_SILENT]) ? (bool)$conf[self::KEY_SILENT] : false);
-        $this->setSkipTests(isset($conf[self::KEY_SKIP_TESTS]) ? $conf[self::KEY_SKIP_TESTS] : false);
-        $this->setLibxmlOpts(isset($conf[self::KEY_LIBXML_OPTS]) ? $conf[self::KEY_LIBXML_OPTS] : null);
+        $this->setSilent(isset($conf[self::KEY_SILENT]) && (bool)$conf[self::KEY_SILENT]);
+        $this->setSkipTests($conf[self::KEY_SKIP_TESTS] ?? false);
+        $this->setLibxmlOpts($conf[self::KEY_LIBXML_OPTS] ?? null);
         if ($logger && !$this->isSilent()) {
             $this->_log = new Logger($logger);
         } else {
@@ -86,7 +86,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
     /**
      * @return bool
      */
-    public function isSilent()
+    public function isSilent(): bool
     {
         return $this->silent;
     }
@@ -95,7 +95,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
      * @param bool $silent
      * @return static
      */
-    public function setSilent($silent)
+    public function setSilent(bool $silent): AbstractConfig
     {
         $this->silent = $silent;
         return $this;
@@ -104,7 +104,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
     /**
      * @return bool
      */
-    public function isSkipTests()
+    public function isSkipTests(): bool
     {
         return $this->skipTests;
     }
@@ -113,16 +113,16 @@ abstract class AbstractConfig implements LoggerAwareInterface
      * @param bool $skipTests
      * @return static
      */
-    public function setSkipTests($skipTests)
+    public function setSkipTests(bool $skipTests): AbstractConfig
     {
-        $this->skipTests = (bool)$skipTests;
+        $this->skipTests = $skipTests;
         return $this;
     }
 
     /**
      * @return int|null
      */
-    public function getLibxmlOpts()
+    public function getLibxmlOpts(): ?int
     {
         return $this->libxmlOpts;
     }
@@ -131,7 +131,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
      * @param int|null $libxmlOpts
      * @return static
      */
-    public function setLibxmlOpts($libxmlOpts)
+    public function setLibxmlOpts(?int $libxmlOpts): AbstractConfig
     {
         $this->libxmlOpts = $libxmlOpts;
         return $this;
@@ -140,7 +140,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
     /**
      * @return \DCarbone\PHPFHIR\Logger
      */
-    public function getLogger()
+    public function getLogger(): Logger
     {
         return $this->_log;
     }
@@ -148,7 +148,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
     /**
      * @return string
      */
-    public function getSchemaPath()
+    public function getSchemaPath(): string
     {
         return $this->schemaPath;
     }
@@ -157,7 +157,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
      * @param string $schemaPath
      * @return $this
      */
-    public function setSchemaPath($schemaPath)
+    public function setSchemaPath(string $schemaPath): AbstractConfig
     {
         // Bunch'o validation
         if (false === is_dir($schemaPath)) {
@@ -173,7 +173,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
     /**
      * @return string
      */
-    public function getClassesPath()
+    public function getClassesPath(): string
     {
         return $this->classesPath;
     }
@@ -182,7 +182,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
      * @param string $classesPath
      * @return $this
      */
-    public function setClassesPath($classesPath)
+    public function setClassesPath(string $classesPath): AbstractConfig
     {
         if (!is_dir($classesPath)) {
             throw new \RuntimeException('Unable to locate output dir "' . $classesPath . '"');
@@ -211,7 +211,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
      * @param array $versions
      * @return $this
      */
-    public function setVersions(array $versions)
+    public function setVersions(array $versions): AbstractConfig
     {
         $this->versions = [];
         foreach ($versions as $name => $version) {
@@ -223,7 +223,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
     /**
      * @return \DCarbone\PHPFHIR\Config\Version[]
      */
-    public function getVersions()
+    public function getVersions(): array
     {
         return $this->versions;
     }
@@ -232,7 +232,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
      * @param string $version
      * @return bool
      */
-    public function hasVersion($version)
+    public function hasVersion(string $version): bool
     {
         return isset($this->versions[$version]);
     }
@@ -241,7 +241,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
      * @param string $version
      * @return \DCarbone\PHPFHIR\Config\Version
      */
-    public function getVersion($version)
+    public function getVersion(string $version): Version
     {
         if (!$this->hasVersion($version)) {
             throw new \OutOfBoundsException(
@@ -257,7 +257,7 @@ abstract class AbstractConfig implements LoggerAwareInterface
     /**
      * @return array
      */
-    public function listVersions()
+    public function listVersions(): array
     {
         return array_keys($this->versions);
     }

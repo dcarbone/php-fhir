@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
@@ -30,13 +30,13 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 abstract class TypeDecorator
 {
     /** @var array */
-    private static $_dstu1Primitives = ['ResourceType', 'xmlIdRef', 'ResourceNamesPlusBinary'];
+    private const DSTU1_PRIMITIVES = ['ResourceType', 'xmlIdRef', 'ResourceNamesPlusBinary'];
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findComponentOfTypes(VersionConfig $config, Types $types)
+    public static function findComponentOfTypes(VersionConfig $config, Types $types): void
     {
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
@@ -63,7 +63,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findRestrictionBaseTypes(VersionConfig $config, Types $types)
+    public static function findRestrictionBaseTypes(VersionConfig $config, Types $types): void
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
@@ -117,7 +117,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findParentTypes(VersionConfig $config, Types $types)
+    public static function findParentTypes(VersionConfig $config, Types $types): void
     {
         // These are here to enable backwards compatibility with dstu1 and 2
         static $knownDecimal = ['score'];
@@ -172,7 +172,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findPropertyTypes(VersionConfig $config, Types $types)
+    public static function findPropertyTypes(VersionConfig $config, Types $types): void
     {
         $log = $config->getLogger();
 
@@ -249,11 +249,11 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function determinePrimitiveTypes(VersionConfig $config, Types $types)
+    public static function determinePrimitiveTypes(VersionConfig $config, Types $types): void
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            if (in_array($type->getFHIRName(), self::$_dstu1Primitives, true)) {
+            if (in_array($type->getFHIRName(), self::DSTU1_PRIMITIVES, true)) {
                 $ptn = 'string';
             } elseif ($type->getKind()->isPrimitive()) {
                 $ptn = $type->getFHIRName();
@@ -279,7 +279,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function ensureValueOnPrimitiveChildTypes(VersionConfig $config, Types $types)
+    public static function ensureValueOnPrimitiveChildTypes(VersionConfig $config, Types $types): void
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
@@ -307,7 +307,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param string $kindName
      */
-    private static function setTypeKind(VersionConfig $config, Types $types, Type $type, $kindName)
+    private static function setTypeKind(VersionConfig $config, Types $types, Type $type, string $kindName): void
     {
         $kind = new TypeKindEnum($kindName);
         $type->setKind($kind);
@@ -325,7 +325,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      */
-    private static function determineParsedTypeKind(VersionConfig $config, Types $types, Type $type)
+    private static function determineParsedTypeKind(VersionConfig $config, Types $types, Type $type): void
     {
         $logger = $config->getLogger();
         $fhirName = $type->getFHIRName();
@@ -369,7 +369,7 @@ abstract class TypeDecorator
 
             // These are set to primitive through automagic
             // TODO: maybe set to GENERIC?
-            if (in_array($fhirName, self::$_dstu1Primitives, true)) {
+            if (in_array($fhirName, self::DSTU1_PRIMITIVES, true)) {
                 $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
                 return;
             }
@@ -406,7 +406,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function determineParsedTypeKinds(VersionConfig $config, Types $types)
+    public static function determineParsedTypeKinds(VersionConfig $config, Types $types): void
     {
         foreach ($types->getIterator() as $type) {
             self::determineParsedTypeKind($config, $types, $type);
@@ -417,7 +417,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function findOverloadedProperties(VersionConfig $config, Types $types)
+    public static function findOverloadedProperties(VersionConfig $config, Types $types): void
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
@@ -452,7 +452,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function setContainedTypeFlag(VersionConfig $config, Types $types)
+    public static function setContainedTypeFlag(VersionConfig $config, Types $types): void
     {
         foreach ($types->getIterator() as $type) {
             if ($types->isContainedType($type)) {
@@ -465,7 +465,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function setValueContainerFlag(VersionConfig $config, Types $types)
+    public static function setValueContainerFlag(VersionConfig $config, Types $types): void
     {
         static $skip = [
             TypeKindEnum::PRIMITIVE,
@@ -504,7 +504,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function setCommentContainerFlag(VersionConfig $config, Types $types)
+    public static function setCommentContainerFlag(VersionConfig $config, Types $types): void
     {
         static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::RAW];
         foreach ($types->getIterator() as $type) {
@@ -518,7 +518,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function setMissingPropertyNames(VersionConfig $config, Types $types)
+    public static function setMissingPropertyNames(VersionConfig $config, Types $types): void
     {
         $log = $config->getLogger();
         foreach ($types->getIterator() as $type) {
@@ -552,7 +552,7 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function parseUnionMemberTypes(VersionConfig $config, Types $types)
+    public static function parseUnionMemberTypes(VersionConfig $config, Types $types): void
     {
         $log = $config->getLogger();
         foreach ($types->getIterator() as $type) {

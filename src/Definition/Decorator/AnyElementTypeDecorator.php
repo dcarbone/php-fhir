@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -38,7 +38,7 @@ abstract class AnyElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $any
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $any)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $any): void
     {
         $property = new Property($type, $any, $type->getSourceFilename());
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -38,7 +38,7 @@ abstract class AnnotationElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $annotation
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $annotation)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $annotation): void
     {
         // parse through attributes
         foreach ($annotation->attributes() as $attribute) {

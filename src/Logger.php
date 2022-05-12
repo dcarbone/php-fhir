@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR;
 
@@ -24,5 +24,5 @@ namespace DCarbone\PHPFHIR;
 if (80000 <= PHP_VERSION_ID) {
     require __DIR__ . '/Logger/Logger80.php';
 } else {
-    require __DIR__ . '/Logger/Logger56.php';
+    require __DIR__ . '/Logger/Logger74.php';
 }

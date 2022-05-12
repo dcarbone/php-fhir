@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -38,7 +38,7 @@ abstract class ChoiceElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $choice
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $choice)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $choice): void
     {
         $minOccurs = null;
         $maxOccurs = null;

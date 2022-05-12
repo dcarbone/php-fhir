@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -47,10 +47,10 @@ abstract class ChoiceElementElementPropertyDecorator
         Types $types,
         Type $type,
         SimpleXMLElement $element,
-        $minOccurs,
-        $maxOccurs,
+        ?int $minOccurs,
+        ?int $maxOccurs,
         SimpleXMLElement $annotationElement = null
-    ) {
+    ): void {
         $properties = $type->getProperties();
         $property = new Property($type, $element, $type->getSourceFilename());
 

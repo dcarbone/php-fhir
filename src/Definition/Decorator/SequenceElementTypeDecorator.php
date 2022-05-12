@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -37,7 +37,7 @@ abstract class SequenceElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $sequence
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $sequence)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $sequence): void
     {
         // parse through attributes
         foreach ($sequence->attributes() as $attribute) {

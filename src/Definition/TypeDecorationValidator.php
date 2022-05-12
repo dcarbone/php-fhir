@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
@@ -32,7 +32,7 @@ abstract class TypeDecorationValidator
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
-    public static function validateDecoration(VersionConfig $config, Types $types)
+    public static function validateDecoration(VersionConfig $config, Types $types): void
     {
         $seenClasses = [];
         foreach ($types->getIterator() as $type) {

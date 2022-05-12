@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPFHIR\Utilities;
+<?php declare(strict_types=1);
+
+namespace DCarbone\PHPFHIR\Utilities;
 
 /*
  * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -17,9 +19,6 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DomainException;
-use LogicException;
-use RuntimeException;
 
 /**
  * Class CopyrightUtils
@@ -27,27 +26,27 @@ use RuntimeException;
  */
 abstract class CopyrightUtils
 {
-    private static $_compiledWith;
+    private static VersionConfig $_compiledWith;
 
     /** @var array */
-    private static $_phpFHIRCopyright;
+    private static array $_phpFHIRCopyright;
 
     /** @var array */
-    private static $_fhirCopyright;
+    private static array $_fhirCopyright;
 
     /** @var string */
-    private static $_basePHPFHIRCopyrightComment;
+    private static string $_basePHPFHIRCopyrightComment;
 
     /** @var string */
-    private static $_fullPHPFHIRCopyrightComment;
+    private static string $_fullPHPFHIRCopyrightComment;
 
     /** @var string */
-    private static $_standardDate;
+    private static string $_standardDate;
 
     /** @var string */
-    private static $_fhirGenerationDate;
+    private static string $_fhirGenerationDate;
     /** @var string */
-    private static $_fhirVersion;
+    private static string $_fhirVersion;
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -110,7 +109,7 @@ abstract class CopyrightUtils
 
                         $generated = trim(str_replace('Generated on', '', $generated));
                         if ('' === $generated) {
-                            throw new DomainException(
+                            throw new \DomainException(
                                 sprintf(
                                     'Unable to parse FHIR source generation date from line: %s',
                                     $line
@@ -124,7 +123,7 @@ abstract class CopyrightUtils
                         if (0 === strpos($version, 'v')) {
                             self::$_fhirVersion = $version;
                         } else {
-                            throw new LogicException(
+                            throw new \LogicException(
                                 sprintf(
                                     'Unable to determine FHIR version from: %s',
                                     $line
@@ -145,7 +144,7 @@ abstract class CopyrightUtils
                 $fhirBase
             );
             $config->getLogger()->critical($msg);
-            throw new RuntimeException($msg);
+            throw new \RuntimeException($msg);
         }
 
         self::$_basePHPFHIRCopyrightComment = sprintf(
@@ -163,10 +162,10 @@ abstract class CopyrightUtils
     /**
      * @return array
      */
-    public static function getPHPFHIRCopyright()
+    public static function getPHPFHIRCopyright(): array
     {
         if (!isset(self::$_compiledWith)) {
-            throw new LogicException(
+            throw new \LogicException(
                 sprintf(
                     'Cannot call %s before calling "compileCopyrights"',
                     __METHOD__
@@ -179,10 +178,10 @@ abstract class CopyrightUtils
     /**
      * @return array
      */
-    public static function getFHIRCopyright()
+    public static function getFHIRCopyright(): array
     {
         if (!isset(self::$_compiledWith)) {
-            throw new LogicException(
+            throw new \LogicException(
                 sprintf(
                     'Cannot call %s before calling "compileCopyrights"',
                     __METHOD__
@@ -195,10 +194,10 @@ abstract class CopyrightUtils
     /**
      * @return string
      */
-    public static function getBasePHPFHIRCopyrightComment()
+    public static function getBasePHPFHIRCopyrightComment(): string
     {
         if (!isset(self::$_compiledWith)) {
-            throw new LogicException(
+            throw new \LogicException(
                 sprintf(
                     'Cannot call %s before calling "compileCopyrights"',
                     __METHOD__
@@ -211,10 +210,10 @@ abstract class CopyrightUtils
     /**
      * @return string
      */
-    public static function getFullPHPFHIRCopyrightComment()
+    public static function getFullPHPFHIRCopyrightComment(): string
     {
         if (!isset(self::$_compiledWith)) {
-            throw new LogicException(
+            throw new \LogicException(
                 sprintf(
                     'Cannot call %s before calling "compileCopyrights"',
                     __METHOD__
@@ -227,10 +226,10 @@ abstract class CopyrightUtils
     /**
      * @return string
      */
-    public static function getStandardDate()
+    public static function getStandardDate(): string
     {
         if (!isset(self::$_compiledWith)) {
-            throw new LogicException(
+            throw new \LogicException(
                 sprintf(
                     'Cannot call %s before calling "compileCopyrights"',
                     __METHOD__
@@ -243,10 +242,10 @@ abstract class CopyrightUtils
     /**
      * @return string
      */
-    public static function getFHIRGenerationDate()
+    public static function getFHIRGenerationDate(): string
     {
         if (!isset(self::$_compiledWith)) {
-            throw new LogicException(
+            throw new \LogicException(
                 sprintf(
                     'Cannot call %s before calling "compileCopyrights"',
                     __METHOD__
@@ -260,10 +259,10 @@ abstract class CopyrightUtils
      * @param bool $trimmed
      * @return string
      */
-    public static function getFHIRVersion($trimmed)
+    public static function getFHIRVersion(bool $trimmed): string
     {
         if (!isset(self::$_compiledWith)) {
-            throw new LogicException(
+            throw new \LogicException(
                 sprintf(
                     'Cannot call %s before calling "compileCopyrights"',
                     __METHOD__

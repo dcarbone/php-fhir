@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -43,7 +43,7 @@ abstract class ComplexContentElementTypeDecorator
         Types $types,
         Type $type,
         SimpleXMLElement $complexContent
-    ) {
+    ): void {
         // parse through attributes
         foreach ($complexContent->attributes() as $attribute) {
             switch ($attribute->getName()) {

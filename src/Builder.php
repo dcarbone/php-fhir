@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPFHIR;
+<?php declare(strict_types=1);
+
+namespace DCarbone\PHPFHIR;
 
 /*
  * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -17,7 +19,6 @@
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Generator\TemplateBuilder;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
@@ -30,16 +31,16 @@ use RuntimeException;
 class Builder
 {
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
-    protected $config;
+    protected VersionConfig $config;
 
     /** @var \DCarbone\PHPFHIR\Definition */
-    protected $definition;
+    protected Definition $definition;
 
     /** @var \DCarbone\PHPFHIR\Logger */
-    private $log;
+    private Logger $log;
 
     /** @var bool */
-    private $preGenerationCompleted = false;
+    private bool $preGenerationCompleted = false;
 
     /**
      * Generator constructor.
@@ -57,7 +58,7 @@ class Builder
     /**
      * @return \DCarbone\PHPFHIR\Definition
      */
-    public function getDefinition()
+    public function getDefinition(): Definition
     {
         $log = $this->config->getLogger();
 
@@ -72,8 +73,9 @@ class Builder
 
     /**
      * Generate FHIR classes only.
+     * @throws \ErrorException
      */
-    public function buildFHIRClasses()
+    public function buildFHIRClasses(): void
     {
         set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
             throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
@@ -118,7 +120,7 @@ class Builder
     /**
      * Generate Test classes only.  Tests will not pass if FHIR classes have not been built.
      */
-    public function buildTestClasses()
+    public function buildTestClasses(): void
     {
         $log = $this->config->getLogger();
 
@@ -177,8 +179,9 @@ class Builder
 
     /**
      * Generate FHIR object classes based on XSD
+     * @throws \ErrorException
      */
-    public function build()
+    public function build(): void
     {
         $this->beforeGeneration();
 
@@ -194,7 +197,7 @@ class Builder
     /**
      * Commands to run prior to class generation
      */
-    protected function beforeGeneration()
+    protected function beforeGeneration(): void
     {
         // Initialize some classes and things.
         if (!$this->preGenerationCompleted) {
@@ -210,7 +213,7 @@ class Builder
      * @param string $filePath
      * @param string $fileContents
      */
-    private function writeClassFile($filePath, $fileContents)
+    private function writeClassFile(string $filePath, string $fileContents): void
     {
         $this->log->info(sprintf('Writing %s...', $filePath));
         $b = file_put_contents($filePath, $fileContents);
@@ -228,7 +231,7 @@ class Builder
     /**
      * Commands to run after class generation
      */
-    protected function staticClassGeneration()
+    protected function staticClassGeneration(): void
     {
         $types = $this->definition->getTypes();
 

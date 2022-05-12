@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
@@ -25,17 +25,17 @@ namespace DCarbone\PHPFHIR\Definition;
 class TypeImport
 {
     /** @var string */
-    private $classname;
+    private string $classname;
     /** @var string */
-    private $namespace;
+    private string $namespace;
     /** @var string */
-    private $fqcn;
+    private string $fqcn;
     /** @var bool */
-    private $aliased;
+    private bool $aliased;
     /** @var string */
-    private $aliasName;
+    private string $aliasName;
     /** @var bool */
-    private $requiresImport;
+    private bool $requiresImport;
 
     /**
      * TypeImport constructor.
@@ -45,7 +45,7 @@ class TypeImport
      * @param string $aliasName
      * @param bool $requiresImport
      */
-    public function __construct($classname, $namespace, $aliased, $aliasName, $requiresImport)
+    public function __construct(string $classname, string $namespace, bool $aliased, string $aliasName, bool $requiresImport)
     {
         $this->classname = $classname;
         $this->namespace = $namespace;
@@ -58,7 +58,7 @@ class TypeImport
     /**
      * @return string
      */
-    public function getClassname()
+    public function getClassname(): string
     {
         return $this->classname;
     }
@@ -66,7 +66,7 @@ class TypeImport
     /**
      * @return string
      */
-    public function getNamespace()
+    public function getNamespace(): string
     {
         return $this->namespace;
     }
@@ -74,7 +74,7 @@ class TypeImport
     /**
      * @return bool
      */
-    public function isAliased()
+    public function isAliased(): bool
     {
         return $this->aliased;
     }
@@ -82,7 +82,7 @@ class TypeImport
     /**
      * @return string
      */
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return $this->aliasName;
     }
@@ -90,7 +90,7 @@ class TypeImport
     /**
      * @return string
      */
-    public function getImportedName()
+    public function getImportedName(): string
     {
         if ($this->isAliased()) {
             return $this->getAliasName();
@@ -102,7 +102,7 @@ class TypeImport
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedNamespace($leadingSlash)
+    public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
         return $leadingSlash ? "\\{$this->namespace}" : $this->namespace;
     }
@@ -111,7 +111,7 @@ class TypeImport
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedClassname($leadingSlash)
+    public function getFullyQualifiedClassname(bool $leadingSlash): string
     {
         return $leadingSlash ? "\\{$this->fqcn}" : $this->fqcn;
     }
@@ -119,7 +119,7 @@ class TypeImport
     /**
      * @return bool
      */
-    public function isRequiresImport()
+    public function isRequiresImport(): bool
     {
         return $this->requiresImport;
     }
@@ -127,7 +127,7 @@ class TypeImport
     /**
      * @return string
      */
-    public function getUseStatement()
+    public function getUseStatement(): string
     {
         $use = "use {$this->getFullyQualifiedClassname(false)}";
         if ($this->isAliased()) {

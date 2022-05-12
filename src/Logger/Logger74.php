@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR;
 
@@ -29,17 +29,17 @@ use Psr\Log\LogLevel;
 class Logger extends AbstractLogger
 {
     /** @var LoggerInterface */
-    protected $actualLogger;
+    protected LoggerInterface $actualLogger;
 
     /** @var string */
-    protected $breakLevel;
+    protected string $breakLevel;
 
     /**
      * Logger constructor.
      * @param LoggerInterface $actualLogger
      * @param string $breakLevel
      */
-    public function __construct(LoggerInterface $actualLogger, $breakLevel = LogLevel::WARNING)
+    public function __construct(LoggerInterface $actualLogger, string $breakLevel = LogLevel::WARNING)
     {
         $this->actualLogger = $actualLogger;
         $this->breakLevel = $breakLevel;
@@ -48,7 +48,7 @@ class Logger extends AbstractLogger
     /**
      * @param string $action
      */
-    public function startBreak($action)
+    public function startBreak(string $action): void
     {
         $this->log($this->breakLevel, substr(sprintf('%\'-5s Start %s %1$-\'-75s', '-', $action), 0, 75));
     }
@@ -66,7 +66,7 @@ class Logger extends AbstractLogger
     /**
      * @param string $action
      */
-    public function endBreak($action)
+    public function endBreak(string $action): void
     {
         $this->log($this->breakLevel, substr(sprintf('%\'-5s End %s %1$-\'-75s', '-', $action), 0, 75));
     }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR;
 
@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\TypeDecorationValidator;
 use DCarbone\PHPFHIR\Definition\TypeDecorator;
 use DCarbone\PHPFHIR\Definition\TypeExtractor;
+use DCarbone\PHPFHIR\Definition\Types;
 
 /**
  * Class Definition
@@ -30,10 +31,10 @@ use DCarbone\PHPFHIR\Definition\TypeExtractor;
 class Definition
 {
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
-    private $config;
+    private VersionConfig $config;
 
-    /** @var \DCarbone\PHPFHIR\Definition\Types */
-    private $types = null;
+    /** @var \DCarbone\PHPFHIR\Definition\Types|null */
+    private ?Types $types = null;
 
     /**
      * Definition constructor.
@@ -54,7 +55,7 @@ class Definition
         ];
     }
 
-    public function buildDefinition()
+    public function buildDefinition(): void
     {
         $log = $this->config->getLogger();
 
@@ -113,7 +114,7 @@ class Definition
     /**
      * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
-    public function getConfig()
+    public function getConfig(): VersionConfig
     {
         return $this->config;
     }
@@ -121,7 +122,7 @@ class Definition
     /**
      * @return \DCarbone\PHPFHIR\Definition\Types|null
      */
-    public function getTypes()
+    public function getTypes(): ?Types
     {
         return $this->types;
     }
@@ -129,7 +130,7 @@ class Definition
     /**
      * @return bool
      */
-    public function isDefined()
+    public function isDefined(): bool
     {
         return null !== $this->getTypes();
     }

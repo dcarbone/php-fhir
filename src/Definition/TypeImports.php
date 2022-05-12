@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
@@ -29,12 +29,12 @@ use Iterator;
 class TypeImports implements Iterator, Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Type */
-    private $type;
+    private Type $type;
 
     /** @var \DCarbone\PHPFHIR\Definition\TypeImport[] */
-    private $imports = [];
+    private array $imports = [];
     /** @var bool */
-    private $parsed = false;
+    private bool $parsed = false;
 
     /**
      * TypeImports constructor.
@@ -48,7 +48,7 @@ class TypeImports implements Iterator, Countable
     /**
      * @return \DCarbone\PHPFHIR\Definition\TypeImport[]
      */
-    public function getImportMap()
+    public function getImportMap(): array
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -60,7 +60,7 @@ class TypeImports implements Iterator, Countable
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Definition\TypeImport|null
      */
-    public function getImportByType(Type $type)
+    public function getImportByType(Type $type): ?TypeImport
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -79,7 +79,7 @@ class TypeImports implements Iterator, Countable
      * @param string $namespace
      * @return \DCarbone\PHPFHIR\Definition\TypeImport|null
      */
-    public function getImportByClassAndNamespace($classname, $namespace)
+    public function getImportByClassAndNamespace(string $classname, string $namespace): ?TypeImport
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -96,18 +96,18 @@ class TypeImports implements Iterator, Countable
      * @param string $aliasName
      * @return \DCarbone\PHPFHIR\Definition\TypeImport|null
      */
-    public function getImportByAlias($aliasName)
+    public function getImportByAlias(string $aliasName): ?TypeImport
     {
         if (!$this->parsed) {
             $this->buildImports();
         }
-        return isset($this->imports[$aliasName]) ? $this->imports[$aliasName] : null;
+        return $this->imports[$aliasName] ?? null;
     }
 
     /**
      * @return \DCarbone\PHPFHIR\Definition\TypeImport
      */
-    public function current()
+    public function current(): TypeImport
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -115,7 +115,7 @@ class TypeImports implements Iterator, Countable
         return current($this->imports);
     }
 
-    public function next()
+    public function next(): void
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -126,7 +126,7 @@ class TypeImports implements Iterator, Countable
     /**
      * @return string|null
      */
-    public function key()
+    public function key(): ?string
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -137,7 +137,7 @@ class TypeImports implements Iterator, Countable
     /**
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -145,7 +145,7 @@ class TypeImports implements Iterator, Countable
         return null !== key($this->imports);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -156,7 +156,7 @@ class TypeImports implements Iterator, Countable
     /**
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         if (!$this->parsed) {
             $this->buildImports();
@@ -171,7 +171,7 @@ class TypeImports implements Iterator, Countable
      * @param string $namespace
      * @return string
      */
-    private function findNextAliasName($classname, $namespace)
+    private function findNextAliasName(string $classname, string $namespace): string
     {
         $i = 1;
         $aliasName = "{$classname}{$i}";
@@ -185,7 +185,7 @@ class TypeImports implements Iterator, Countable
      * @param string $classname
      * @param string $namespace
      */
-    private function addImport($classname, $namespace)
+    private function addImport(string $classname, string $namespace): void
     {
         $requiresImport = $namespace !== $this->type->getFullyQualifiedNamespace(false);
         if (isset($this->imports[$classname])) {
@@ -212,7 +212,7 @@ class TypeImports implements Iterator, Countable
         $this->imports[$classname] = new TypeImport($classname, $namespace, false, '', $requiresImport);
     }
 
-    private function buildImports()
+    private function buildImports(): void
     {
         // immediately set to true so we don't recurse ourselves to death.
         $this->parsed = true;

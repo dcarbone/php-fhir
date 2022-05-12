@@ -21,7 +21,7 @@
  * @param array $vars
  * @return mixed
  */
-function require_with($requiredFile, array $vars)
+function require_with(string $requiredFile, array $vars)
 {
     $num = extract($vars, EXTR_OVERWRITE);
     if ($num !== count($vars)) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Enum;
 
@@ -25,25 +25,25 @@ namespace DCarbone\PHPFHIR\Enum;
 class TypeKindEnum extends AbstractEnum
 {
     // this represents an actual value: string, int, etc.
-    const PRIMITIVE = 'primitive';
+    public const PRIMITIVE = 'primitive';
 
     // these represent types that exist to wrap a primitive
-    const PRIMITIVE_CONTAINER = 'primitive_container';
+    public const PRIMITIVE_CONTAINER = 'primitive_container';
 
     // primitive type with limited possible value set
-    const _LIST = 'list';
+    public const _LIST = 'list';
 
     // complex types
-    const EXTENSION          = 'Extension';
-    const ELEMENT            = 'Element';
-    const BACKBONE_ELEMENT   = 'BackboneElement';
-    const RESOURCE           = 'Resource';
-    const RESOURCE_CONTAINER = 'ResourceContainer';
-    const RESOURCE_INLINE    = 'Resource.Inline';
-    const QUANTITY           = 'Quantity';
+    public const EXTENSION          = 'Extension';
+    public const ELEMENT            = 'Element';
+    public const BACKBONE_ELEMENT   = 'BackboneElement';
+    public const RESOURCE           = 'Resource';
+    public const RESOURCE_CONTAINER = 'ResourceContainer';
+    public const RESOURCE_INLINE    = 'Resource.Inline';
+    public const QUANTITY           = 'Quantity';
 
     /** @var array */
-    private static $knownRoots = [
+    private const KNOWN_ROOTS = [
         self::EXTENSION,
         self::ELEMENT,
         self::BACKBONE_ELEMENT,
@@ -65,15 +65,15 @@ class TypeKindEnum extends AbstractEnum
      * @param $fhirName
      * @return bool
      */
-    public static function isKnownRoot($fhirName)
+    public static function isKnownRoot($fhirName): bool
     {
-        return in_array($fhirName, self::$knownRoots, true);
+        return in_array($fhirName, self::KNOWN_ROOTS, true);
     }
 
     /**
      * @return bool
      */
-    public function isPrimitive()
+    public function isPrimitive(): bool
     {
         return $this->is(TypeKindEnum::PRIMITIVE);
     }
@@ -81,7 +81,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isPrimitiveContainer()
+    public function isPrimitiveContainer(): bool
     {
         return $this->is(TypeKindEnum::PRIMITIVE_CONTAINER);
     }
@@ -89,7 +89,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isList()
+    public function isList(): bool
     {
         return $this->is(self::_LIST);
     }
@@ -97,7 +97,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isElement()
+    public function isElement(): bool
     {
         return $this->is(self::ELEMENT);
     }
@@ -105,7 +105,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isQuantity()
+    public function isQuantity(): bool
     {
         return $this->is(self::QUANTITY);
     }
@@ -113,7 +113,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isResource()
+    public function isResource(): bool
     {
         return $this->is(self::RESOURCE);
     }
@@ -121,7 +121,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isResourceContainer()
+    public function isResourceContainer(): bool
     {
         return $this->is(self::RESOURCE_CONTAINER);
     }
@@ -129,7 +129,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isInlineResource()
+    public function isInlineResource(): bool
     {
         return $this->is(self::RESOURCE_INLINE);
     }
@@ -137,7 +137,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isGeneric()
+    public function isGeneric(): bool
     {
         return $this->is(self::GENERIC);
     }
@@ -145,7 +145,7 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isRaw()
+    public function isRaw(): bool
     {
         return $this->is(self::RAW);
     }

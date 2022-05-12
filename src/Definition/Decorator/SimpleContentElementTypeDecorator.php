@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -37,7 +37,7 @@ abstract class SimpleContentElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $simpleContent
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $simpleContent)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $simpleContent): void
     {
         foreach ($simpleContent->attributes() as $attribute) {
             switch ($attribute->getName()) {

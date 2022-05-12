@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Utilities;
 
@@ -37,7 +37,7 @@ abstract class FileUtils
      * @param string $pathSuffix
      * @return string
      */
-    public static function mkdirRecurse(VersionConfig $config, $pathSuffix)
+    public static function mkdirRecurse(VersionConfig $config, string $pathSuffix): string
     {
         $path = $config->getClassesPath();
         foreach (explode('/', str_replace('\\', '/', $pathSuffix)) as $dir) {
@@ -66,7 +66,7 @@ abstract class FileUtils
      * @param string $filename
      * @return string
      */
-    public static function buildGenericFilePath(VersionConfig $config, $namespace, $filename)
+    public static function buildGenericFilePath(VersionConfig $config, string $namespace, string $filename): string
     {
         return self::mkdirRecurse($config, self::cleanupPath($namespace)) . "/{$filename}.php";
     }
@@ -76,7 +76,7 @@ abstract class FileUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildTypeFilePath(VersionConfig $config, Type $type)
+    public static function buildTypeFilePath(VersionConfig $config, Type $type): string
     {
         return static::mkdirRecurse(
                 $config,
@@ -90,7 +90,7 @@ abstract class FileUtils
      * @param string $testType
      * @return string
      */
-    public static function buildTypeTestFilePath(VersionConfig $config, Type $type, $testType)
+    public static function buildTypeTestFilePath(VersionConfig $config, Type $type,string  $testType): string
     {
         return static::mkdirRecurse(
                 $config,
@@ -105,7 +105,7 @@ abstract class FileUtils
      * @param string $testType
      * @return string
      */
-    public static function buildPHPUnitVersionedTestFilePath(VersionConfig $config, Type $type, $gt8, $testType)
+    public static function buildPHPUnitVersionedTestFilePath(VersionConfig $config, Type $type, bool $gt8, string $testType): string
     {
         if ($gt8) {
             return static::mkdirRecurse(
@@ -124,7 +124,7 @@ abstract class FileUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function buildAutoloaderRelativeFilepath(VersionConfig $config, Type $type)
+    public static function buildAutoloaderRelativeFilepath(VersionConfig $config, Type $type): string
     {
         return ltrim(
                 str_replace(
@@ -146,7 +146,7 @@ abstract class FileUtils
      * @param string $namespace
      * @return string
      */
-    protected static function cleanupPath($namespace)
+    protected static function cleanupPath(string $namespace): string
     {
         $namespace = rtrim($namespace, '\\/');
         return preg_replace(

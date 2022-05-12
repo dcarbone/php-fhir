@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Enum;
 
@@ -24,7 +24,7 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 class PropertyUseEnum extends AbstractEnum
 {
-    const PROHIBITED = 'prohibited';
-    const OPTIONAL   = 'optional';
-    const REQUIRED   = 'required';
+    public const PROHIBITED = 'prohibited';
+    public const OPTIONAL   = 'optional';
+    public const REQUIRED   = 'required';
 }

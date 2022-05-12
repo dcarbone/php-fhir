@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -39,7 +39,7 @@ abstract class RestrictionElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $restriction
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $restriction)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $restriction): void
     {
         foreach ($restriction->attributes() as $attribute) {
             switch ($attribute->getName()) {

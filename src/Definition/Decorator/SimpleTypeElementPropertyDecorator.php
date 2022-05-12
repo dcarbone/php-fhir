@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -46,7 +46,7 @@ abstract class SimpleTypeElementPropertyDecorator
         Type $type,
         Property $property,
         SimpleXMLElement $simpleType
-    ) {
+    ): void {
         // parse through attributes
         foreach ($simpleType->attributes() as $attribute) {
             switch ($attribute->getName()) {

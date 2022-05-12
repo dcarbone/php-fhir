@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Utilities;
 
@@ -18,14 +18,9 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use BadMethodCallException;
 use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DomainException;
-use RuntimeException;
-use SimpleXMLElement;
-use UnexpectedValueException;
 
 /**
  * Class ExceptionUtils
@@ -37,9 +32,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createPrimitiveValuePropertyNotFound(Type $type)
+    public static function createPrimitiveValuePropertyNotFound(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Unable to locate Primitive Type Property "value" for Primitive Container Type "%s"',
                 $type->getFHIRName()
@@ -51,9 +46,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createUnknownTypeKindException(Type $type)
+    public static function createUnknownTypeKindException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" has no TypeKind defined',
                 $type->getFHIRName()
@@ -65,9 +60,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createUnknownPrimitiveTypeException(Type $type)
+    public static function createUnknownPrimitiveTypeException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Primitive Type "%s" has unknown PrimitiveTypeEnum "%s" specified',
                 $type->getFHIRName(),
@@ -80,9 +75,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $typeEnum
      * @return \DomainException
      */
-    public static function createUnknownPrimitiveTypeEnumException(PrimitiveTypeEnum $typeEnum)
+    public static function createUnknownPrimitiveTypeEnumException(PrimitiveTypeEnum $typeEnum): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Unknown PrimitiveTypeEnum value: %s',
                 null === $typeEnum ? 'NULL' : (string)$typeEnum
@@ -94,9 +89,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createUndefinedListRestrictionBaseException(Type $type)
+    public static function createUndefinedListRestrictionBaseException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'List type "%s" has undefined Restriction Base Type',
                 $type->getFHIRName()
@@ -109,9 +104,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \UnexpectedValueException
      */
-    public static function createContainedTypeFlagMismatchException($expected, Type $type)
+    public static function createContainedTypeFlagMismatchException(bool $expected, Type $type): \UnexpectedValueException
     {
-        return new UnexpectedValueException(
+        return new \UnexpectedValueException(
             sprintf(
                 'Type "%s" has a conflicting "contained" type flag.  Expected: %s; Actual: %s',
                 $type->getFHIRName(),
@@ -125,9 +120,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \UnexpectedValueException
      */
-    public static function createDuplicateClassException(Type $type)
+    public static function createDuplicateClassException(Type $type): \UnexpectedValueException
     {
-        return new UnexpectedValueException(
+        return new \UnexpectedValueException(
             sprintf(
                 'Type "%s" has the fully qualified name "%s", but this was already seen from another type',
                 $type->getFHIRName(),
@@ -140,9 +135,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createValuePropertyNotFoundException(Type $type)
+    public static function createValuePropertyNotFoundException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" is marked as being a value property container, but no property with name "value" was found',
                 $type->getFHIRName()
@@ -155,9 +150,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return \DomainException
      */
-    public static function createPropertyMissingNameException(Type $type, Property $property)
+    public static function createPropertyMissingNameException(Type $type, Property $property): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" has Property without a name. Source File: %s;  XML: %s',
                 $type->getFHIRName(),
@@ -171,9 +166,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createInvalidTypeClassNameException(Type $type)
+    public static function createInvalidTypeClassNameException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" has invalid class name "%s"',
                 $type->getFHIRName(),
@@ -186,9 +181,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createInvalidTypeNamespaceException(Type $type)
+    public static function createInvalidTypeNamespaceException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" has invalid namespace "%s"',
                 $type->getFHIRName(),
@@ -202,9 +197,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $parentType
      * @return \DomainException
      */
-    public static function createRootTypeCannotHaveParentException(Type $type, Type $parentType)
+    public static function createRootTypeCannotHaveParentException(Type $type, Type $parentType): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" is marked as a "root" type, but has a parent: %s',
                 $type->getFHIRName(),
@@ -217,9 +212,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createNonRootTypeMustHaveParentException(Type $type)
+    public static function createNonRootTypeMustHaveParentException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" is marked as non-root, but does not have a parent type associated with it',
                 $type->getFHIRName()
@@ -232,9 +227,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return \DomainException
      */
-    public static function createUnknownPropertyTypeException(Type $type, Property $property)
+    public static function createUnknownPropertyTypeException(Type $type, Property $property): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Unable to locate Type "%s" for Property "%s" on Type "%s"',
                 $property->getValueFHIRTypeName(),
@@ -248,11 +243,11 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createComponentParentTypeNotFoundException(Type $type)
+    public static function createComponentParentTypeNotFoundException(Type $type): \DomainException
     {
         $s = explode('.', $type->getFHIRName());
         $n = $s[0];
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" is a component of undefined type "%s"',
                 $type->getFHIRName(),
@@ -266,9 +261,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return \DomainException
      */
-    public static function createPropertyHasNoNameException(Type $type, Property $property)
+    public static function createPropertyHasNoNameException(Type $type, Property $property): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Type "%s" has property without name: %s',
                 $type->getFHIRName(),
@@ -281,9 +276,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createTypeParentNotFoundException(Type $type)
+    public static function createTypeParentNotFoundException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Unable to locate parent type "%s" for type "%s" from file "%s"',
                 $type->getParentTypeName(),
@@ -297,9 +292,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DomainException
      */
-    public static function createTypeRestrictionBaseNotFoundException(Type $type)
+    public static function createTypeRestrictionBaseNotFoundException(Type $type): \DomainException
     {
-        return new DomainException(
+        return new \DomainException(
             sprintf(
                 'Unable to locate restriction base type "%s" for type "%s" from file "%s"',
                 $type->getRestrictionBaseFHIRName(),
@@ -314,9 +309,9 @@ abstract class ExceptionUtils
      * @param string $sourceFile
      * @return \UnexpectedValueException
      */
-    public static function createUnexpectedRootElementException(SimpleXMLElement $element, $sourceFile)
+    public static function createUnexpectedRootElementException(\SimpleXMLElement $element, string $sourceFile): \UnexpectedValueException
     {
-        return new UnexpectedValueException(
+        return new \UnexpectedValueException(
             sprintf(
                 'Unexpected root element "%s" in file "%s": %s',
                 $element->getName(),
@@ -334,10 +329,10 @@ abstract class ExceptionUtils
      */
     public static function createUnexpectedAttributeException(
         Type $type,
-        SimpleXMLElement $parentElement,
-        SimpleXMLElement $attribute
-    ) {
-        return new UnexpectedValueException(
+        \SimpleXMLElement $parentElement,
+        \SimpleXMLElement $attribute
+    ): \UnexpectedValueException {
+        return new \UnexpectedValueException(
             sprintf(
                 'Unexpected attribute "%s" on element "%s" in type "%s" defined in file "%s": %s',
                 $attribute->getName(),
@@ -357,10 +352,10 @@ abstract class ExceptionUtils
      */
     public static function createUnexpectedElementException(
         Type $type,
-        SimpleXMLElement $parentElement,
-        SimpleXMLElement $element
-    ) {
-        return new UnexpectedValueException(
+        \SimpleXMLElement $parentElement,
+        \SimpleXMLElement $element
+    ): \UnexpectedValueException {
+        return new \UnexpectedValueException(
             sprintf(
                 'Unexpected element "%s" under element "%s" found in type "%s" defined in file "%s": %s',
                 $element->getName(),
@@ -375,15 +370,15 @@ abstract class ExceptionUtils
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
-     * @param $attributeName
+     * @param string $attributeName
      * @return \DomainException
      */
     public static function createExpectedTypeElementAttributeNotFoundException(
         Type $type,
-        SimpleXMLElement $element,
-        $attributeName
-    ) {
-        return new DomainException(
+        \SimpleXMLElement $element,
+        string $attributeName
+    ): \DomainException {
+        return new \DomainException(
             sprintf(
                 'Expected attribute "%s" not found on element "%s" for type "%s" in file "%s": %s',
                 $attributeName,
@@ -403,10 +398,10 @@ abstract class ExceptionUtils
      */
     public static function createExpectedPropertyElementAttributeNotFoundException(
         Property $property,
-        SimpleXMLElement $element,
+        \SimpleXMLElement $element,
         $attributeName
-    ) {
-        return new DomainException(
+    ): \DomainException {
+        return new \DomainException(
             sprintf(
                 'Expected attribute "%s" not found on element "%s" for property "%s" in file "%s": %s',
                 $attributeName,
@@ -427,11 +422,11 @@ abstract class ExceptionUtils
      */
     public static function createTypeSetterMethodNotFoundException(
         Type $type,
-        SimpleXMLElement $parentElement,
-        SimpleXMLElement $source,
-        $setterMethod
-    ) {
-        return new BadMethodCallException(
+        \SimpleXMLElement $parentElement,
+        \SimpleXMLElement $source,
+        string $setterMethod
+    ): \BadMethodCallException {
+        return new \BadMethodCallException(
             sprintf(
                 'Type "%s" from file "%s" missing setter "%s" for "%s" in parent "%s": %s',
                 $type->getFHIRName(),
@@ -449,9 +444,9 @@ abstract class ExceptionUtils
      * @param string $parentName
      * @return \UnexpectedValueException
      */
-    public static function createExtendingSelfException(Type $type, $parentName)
+    public static function createExtendingSelfException(Type $type, string $parentName): \UnexpectedValueException
     {
-        return new UnexpectedValueException(
+        return new \UnexpectedValueException(
             sprintf(
                 'Type "%s" in file "%s" has an "extension" element with a "base" attribute value of "%s", indicating it should extend itself?',
                 $type->getFHIRName(),
@@ -470,11 +465,11 @@ abstract class ExceptionUtils
      */
     public static function createPropertySetterMethodNotFoundException(
         Property $property,
-        SimpleXMLElement $parentElement,
-        SimpleXMLElement $source,
+        \SimpleXMLElement $parentElement,
+        \SimpleXMLElement $source,
         $setterMethod
-    ) {
-        return new BadMethodCallException(
+    ): \BadMethodCallException {
+        return new \BadMethodCallException(
             sprintf(
                 'Property "%s" from file "%s" missing setter "%s" for "%s" in parent "%s": %s',
                 $property->getName(),
@@ -491,9 +486,9 @@ abstract class ExceptionUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \RuntimeException
      */
-    public static function createBundleTypeNotFoundException(Type $type)
+    public static function createBundleTypeNotFoundException(Type $type): \RuntimeException
     {
-        return new RuntimeException(
+        return new \RuntimeException(
             sprintf(
                 'Unable to locate "Bundle" Resource type when generating test class for Type "%s"',
                 $type->getFHIRName()

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
@@ -31,14 +31,14 @@ class EnumerationValue
     /** @var mixed */
     private $value;
     /** @var \SimpleXMLElement */
-    private $sourceSXE;
+    private \SimpleXMLElement $sourceSXE;
 
     /**
      * Enumeration constructor.
      * @param string $value
      * @param \SimpleXMLElement $sourceSXE
      */
-    public function __construct($value, SimpleXMLElement $sourceSXE)
+    public function __construct(string $value, SimpleXMLElement $sourceSXE)
     {
         $this->value = $value;
         $this->sourceSXE = $sourceSXE;
@@ -55,7 +55,7 @@ class EnumerationValue
     /**
      * @return \SimpleXMLElement
      */
-    public function getSourceSXE()
+    public function getSourceSXE(): \SimpleXMLElement
     {
         return $this->sourceSXE;
     }

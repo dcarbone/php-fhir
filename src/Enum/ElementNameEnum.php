@@ -1,4 +1,6 @@
-<?php namespace DCarbone\PHPFHIR\Enum;
+<?php declare(strict_types=1);
+
+namespace DCarbone\PHPFHIR\Enum;
 
 /*
  * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -22,30 +24,30 @@
  */
 class ElementNameEnum extends AbstractEnum
 {
-    const _INCLUDE = 'include';
-    const IMPORT   = 'import';
+    public const _INCLUDE = 'include';
+    public const IMPORT   = 'import';
 
-    const COMPLEX_TYPE    = 'complexType';
-    const COMPLEX_CONTENT = 'complexContent';
+    public const COMPLEX_TYPE    = 'complexType';
+    public const COMPLEX_CONTENT = 'complexContent';
 
-    const SIMPLE_TYPE    = 'simpleType';
-    const SIMPLE_CONTENT = 'simpleContent';
+    public const SIMPLE_TYPE    = 'simpleType';
+    public const SIMPLE_CONTENT = 'simpleContent';
 
-    const ANNOTATION    = 'annotation';
-    const DOCUMENTATION = 'documentation';
-    const RESTRICTION   = 'restriction';
-    const EXTENSION     = 'extension';
+    public const ANNOTATION    = 'annotation';
+    public const DOCUMENTATION = 'documentation';
+    public const RESTRICTION   = 'restriction';
+    public const EXTENSION     = 'extension';
 
-    const ATTRIBUTE   = 'attribute';
-    const SEQUENCE    = 'sequence';
-    const UNION       = 'union';
-    const ELEMENT     = 'element';
-    const CHOICE      = 'choice';
-    const ENUMERATION = 'enumeration';
+    public const ATTRIBUTE   = 'attribute';
+    public const SEQUENCE    = 'sequence';
+    public const UNION       = 'union';
+    public const ELEMENT     = 'element';
+    public const CHOICE      = 'choice';
+    public const ENUMERATION = 'enumeration';
 
-    const  MIN_LENGTH = 'minLength';
-    const  MAX_LENGTH = 'maxLength';
-    const  PATTERN    = 'pattern';
+    public const MIN_LENGTH = 'minLength';
+    public const MAX_LENGTH = 'maxLength';
+    public const PATTERN    = 'pattern';
 
-    const ANY = 'any';
+    public const ANY = 'any';
 }

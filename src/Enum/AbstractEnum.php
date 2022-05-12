@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Enum;
 
@@ -30,7 +30,7 @@ abstract class AbstractEnum extends Enum
      * @param mixed $enumValue
      * @return bool
      */
-    public function is($enumValue)
+    public function is($enumValue): bool
     {
         if (is_scalar($enumValue)) {
             return $enumValue === $this->getValue();
@@ -42,7 +42,7 @@ abstract class AbstractEnum extends Enum
      * @param array $enumValues
      * @return bool
      */
-    public function isOneOf(array $enumValues)
+    public function isOneOf(array $enumValues): bool
     {
         foreach ($enumValues as $kind) {
             if ($this->is($kind)) {

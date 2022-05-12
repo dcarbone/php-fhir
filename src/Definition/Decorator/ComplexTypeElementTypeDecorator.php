@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
@@ -38,7 +38,7 @@ abstract class ComplexTypeElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $complexType
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $complexType)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $complexType): void
     {
         // parse through attributes
         foreach ($complexType->attributes() as $attribute) {
