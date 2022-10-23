@@ -154,17 +154,20 @@ ob_start(); ?>
         }
 <?php if ($bundleEntryProperty->isCollection()) : ?>
         $this->assertCount(1, $entry);
+        $resource = $entry[0]->getResource();
+<?php else: ?>
+        $resource = $entry->getResource();
 <?php endif; ?>
-        $entryElement = $entry->xmlSerialize();
-        $entryXML = $entryElement->ownerDocument->saveXML($entryElement);
+        $resourceElement = $resource->xmlSerialize();
+        $resourceXML = $resourceElement->ownerDocument->saveXML($resourceElement);
         try {
-            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($entryXML);
+            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($resourceXML);
         } catch (\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(
                     'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; XML: %s',
                     $e->getMessage(),
-                    $entryXML
+                    $resourceXML
                 ),
                 $e->getCode(),
                 $e
@@ -172,7 +175,7 @@ ob_start(); ?>
         }
         $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
         $typeElement = $type->xmlSerialize();
-        $this->assertEquals($entryXML, $typeElement->ownerDocument->saveXML($typeElement));
+        $this->assertEquals($resourceXML, $typeElement->ownerDocument->saveXML($typeElement));
         $bundleElement = $bundle->xmlSerialize();
         $this->assertXmlStringEqualsXmlString($sourceXML, $bundleElement->ownerDocument->saveXML());
     }
