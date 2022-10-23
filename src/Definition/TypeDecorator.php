@@ -258,17 +258,19 @@ abstract class TypeDecorator
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             if (in_array($type->getFHIRName(), self::DSTU1_PRIMITIVES, true)) {
-                $ptn = 'string';
+                $ptn = PrimitiveTypeEnum::STRING;
                 $logger->debug(sprintf('(DSTU1 suppport) Type "%s" determined to be DSTU1 primitive', $type->getFHIRName()));
-            } elseif ($type->getKind()->isPrimitive()) {
-                $ptn = $type->getFHIRName();
-                $logger->debug(sprintf('Type "%s" determined to be a primitive itself', $type->getFHIRName()));
             } elseif ($type->hasPrimitiveParent()) {
                 $ptn = $type->getParentType()->getFHIRName();
                 $logger->debug(sprintf('Type "%s" determined to have a primitive parent', $type->getFHIRName()));
+            } elseif ($type->getKind()->isPrimitive()) {
+                $ptn = $type->getFHIRName();
+                $logger->debug(sprintf('Type "%s" determined to be a primitive itself', $type->getFHIRName()));
             } else {
+                $logger->debug(sprintf('Type "%s" determined to not be a primitive', $type->getFHIRName()));
                 continue;
             }
+
             $logger->debug(sprintf('Setting assumed primitive Type "%s" kind to "%s"', $type->getFHIRName(), $ptn));
             $ptn = str_replace('-primitive', '', $ptn);
             $pt = new PrimitiveTypeEnum($ptn);
