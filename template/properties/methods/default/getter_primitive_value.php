@@ -27,7 +27,8 @@ ob_start(); ?>
      * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
 
      */
-    public function getValue()
+    public function getValue(): ?<?php echo $primitiveType->getPHPValueType(); ?>
+
     {
         return $this->value;
     }

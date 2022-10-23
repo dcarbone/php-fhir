@@ -43,21 +43,21 @@ if ($property->isCollection()) : ?>
                 }
             }
             if ([] !== $vals) {
-                $a[self::<?php echo $propertyFieldConst; ?>] = $vals;
+                $out->{self::<?php echo $propertyFieldConst; ?>} = $vals;
             }
             if ([] !== $exts) {
-                $a[self::<?php echo $propertyFieldConstExt; ?>] = $exts;
+                $out->{self::<?php echo $propertyFieldConstExt; ?>} = $exts;
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             if (null !== ($val = $v->getValue())) {
-                $a[self::<?php echo $propertyFieldConst; ?>] = $val;
+                $out->{self::<?php echo $propertyFieldConst; ?>} = $val;
             }
             $ext = $v->jsonSerialize();
             unset($ext[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
             if ([] !== $ext) {
-                $a[self::<?php echo $propertyFieldConstExt; ?>] = $ext;
+                $out->{self::<?php echo $propertyFieldConstExt; ?>} = $ext;
             }
         }
 <?php endif;

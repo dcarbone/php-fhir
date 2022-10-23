@@ -26,15 +26,15 @@ $isCollection = $property->isCollection();
 $propType = $property->getValueFHIRType();
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
-if (null !== ($propType = $property->getValueFHIRType())) :
-    if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+if (null !== $propType ) {
+    if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
         $typeDef = $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE;
-    else :
+    } else {
         $typeDef = $propType->getFullyQualifiedClassName(true);
-    endif;
-else :
+    }
+} else {
     $typeDef = $property->getMemberOf()->getPrimitiveType()->getPHPValueType();
-endif;
+}
 
 ob_start(); ?>
     /**<?php if ('' !== $documentation) : ?>
@@ -45,6 +45,6 @@ ob_start(); ?>
      * @var null|<?php echo $typeDef . ($isCollection ? '[]' : ''); ?>
 
      */
-    protected $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
+    protected ?<?php echo $property->getPHPTypeHint() ?> $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
 
 <?php return ob_get_clean();

@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use InvalidArgumentException;
 use SimpleXMLElement;
@@ -90,18 +91,18 @@ class Property
     public function __debugInfo()
     {
         return [
-            'name'         => $this->getName(),
-            'ref'          => $this->getRef(),
+            'name' => $this->getName(),
+            'ref' => $this->getRef(),
             'fhirTypeName' => $this->getValueFHIRTypeName(),
-            'sourceSXE'    => $this->getSourceSXE(),
-            'minOccurs'    => $this->getMinOccurs(),
-            'maxOccurs'    => $this->getMaxOccurs(),
-            'pattern'      => $this->getPattern(),
-            'rawPHPValue'  => $this->getRawPHPValue(),
-            'fhirType'     => (string)$this->getValueFHIRType(),
-            'use'          => (string)$this->getUse(),
-            'fixed'        => (string)$this->getFixed(),
-            'namespace'    => (string)$this->getNamespace(),
+            'sourceSXE' => $this->getSourceSXE(),
+            'minOccurs' => $this->getMinOccurs(),
+            'maxOccurs' => $this->getMaxOccurs(),
+            'pattern' => $this->getPattern(),
+            'rawPHPValue' => $this->getRawPHPValue(),
+            'fhirType' => (string)$this->getValueFHIRType(),
+            'use' => (string)$this->getUse(),
+            'fixed' => (string)$this->getFixed(),
+            'namespace' => (string)$this->getNamespace(),
         ];
     }
 
@@ -454,6 +455,27 @@ class Property
     public function isOverloaded(): bool
     {
         return $this->overloaded;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPHPTypeHint(): string
+    {
+        $t = $this->getValueFHIRType();
+
+        // if this is a primitive type
+        if (null === $t) {
+            return $this->getMemberOf()->getPrimitiveType()->getPHPValueType();
+        }
+
+        // if this is an "inlined" type
+        if ($t->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
+            return PHPFHIR_INTERFACE_CONTAINED_TYPE;
+        }
+
+        // all other cases...
+        return $t->getClassName();
     }
 
     /**

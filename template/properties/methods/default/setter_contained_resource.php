@@ -40,7 +40,7 @@ ob_start(); ?>
 
      * @return static
      */
-    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?> = null)
+    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?> = null): object
     {
         <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;

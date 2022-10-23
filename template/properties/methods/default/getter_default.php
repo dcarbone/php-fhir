@@ -24,9 +24,14 @@ use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
 $propertyName = $property->getName();
 $propertyType = $property->getValueFHIRType();
-$propertyTypeKind = $propertyType->getKind();
 $propertyTypeClassName = $propertyType->getClassName();
 $isCollection = $property->isCollection();
+
+if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
+    $typeDef = $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE;
+} else {
+    $typeDef = $propertyType->getFullyQualifiedClassName(true);
+}
 
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
@@ -36,14 +41,11 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @return null|<?php if ($propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
-    echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; else :
-    echo $propertyType->getFullyQualifiedClassName(true);
-endif;
-echo $isCollection ? '[]' : ''; ?>
+     * @return null|<?php echo $typeDef.($isCollection ? '[]' : ''); ?>
 
      */
-    public function get<?php echo ucfirst($propertyName); ?>()
+    public function get<?php echo ucfirst($propertyName); ?>(): ?<?php echo $property->getPHPTypeHint(); ?>
+
     {
         return $this-><?php echo $propertyName; ?>;
     }

@@ -22,7 +22,7 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function _getResourceType()
+    public function _getResourceType(): string
     {
         return static::FHIR_TYPE_NAME;
     }

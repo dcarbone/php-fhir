@@ -23,19 +23,19 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 ob_start(); ?>
     /**
-     * @return array
+     * @return \stdClass
      */
     public function jsonSerialize()
     {
 <?php if (null !== $type->getParentType()) : ?>
-        $a = parent::jsonSerialize();
+        $out = parent::jsonSerialize();
 <?php else : ?>
-        $a = [];
+        $out = new \stdClass();
 <?php endif;
 
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
+            $out->{PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS} = $vs;
         }
 <?php endif;
 foreach ($properties as $property) :
@@ -59,9 +59,14 @@ foreach ($properties as $property) :
 endforeach;
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
+            $out->{PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS} = $vs;
         }
 <?php endif; ?>
-        return <?php if ($type->isContainedType()) : ?>[<?php  echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => $this->_getResourceType()] + <?php endif; ?>$a;
+
+<?php if ($type->isContainedType()) : ?>
+        $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE} = $this->_getResourceType();
+
+<?php endif; ?>
+        return $out;
     }
 <?php return ob_get_clean();

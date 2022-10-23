@@ -24,7 +24,7 @@ ob_start(); ?>
      * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
      * @return static
      */
-    public function setValue($value)
+    public function setValue($value): object
     {
         if (null === $value) {
             $this->value = null;

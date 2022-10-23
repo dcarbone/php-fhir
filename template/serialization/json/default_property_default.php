@@ -24,17 +24,17 @@ $getter = $property->getGetterName();
 ob_start();
 if ($property->isCollection()) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-            $a[self::<?php echo $propertyFieldConst; ?>] = [];
+            $out->{self::<?php echo $propertyFieldConst; ?>} = [];
             foreach($vs as $v) {
                 if (null === $v) {
                     continue;
                 }
-                $a[self::<?php echo $propertyFieldConst; ?>][] = $v;
+                $out->{self::<?php echo $propertyFieldConst; ?>}[] = $v;
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $a[self::<?php echo $propertyFieldConst; ?>] = $v;
+            $out->{self::<?php echo $propertyFieldConst; ?>} = $v;
         }
 <?php endif;
 return ob_get_clean();
