@@ -67,7 +67,6 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 {
     /**
      * This array represents every type known to this lib
-     * @var array
      */
     private const TYPE_MAP = [
 <?php foreach ($types->getSortedIterator() as $type) : ?>
@@ -76,7 +75,6 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 
     /**
      * This is the list of resource types that are allowed to be contained within a <?php echo $containerType->getFHIRName(); ?> type
-     * @var array
      */
     private const CONTAINABLE_TYPES = [
 <?php foreach($innerTypes as $innerType) : ?>
@@ -163,7 +161,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param \DOMNode $node Parent element containing inline resource
      * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
-    public static function getContainedTypeFromXML(\DOMNode $node)
+    public static function getContainedTypeFromXML(\DOMNode $node): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+
     {
         $typeName = $node->nodeName;
         $className = self::getContainedTypeClassName($typeName);
@@ -178,7 +177,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param array|null $data
      * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
-    public static function getContainedTypeFromArray($data)
+    public static function getContainedTypeFromArray(?array $data): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+
     {
         if (null === $data || [] === $data) {
             return null;
@@ -212,7 +212,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param string $typeName
      * @return \UnexpectedValueException
      */
-    private static function createdInvalidContainedTypeException($typeName) {
+    private static function createdInvalidContainedTypeException(string $typeName): \UnexpectedValueException
+    {
         return new \UnexpectedValueException(sprintf(
             'Type "%s" is not among the list of types allowed within a <?php echo $containerType->getFHIRName(); ?>',
             $typeName

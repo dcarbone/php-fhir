@@ -84,8 +84,6 @@ if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
 {
-    private const _ROOT_DIR = __DIR__;
-
     /** @var array */
     private const _CLASS_MAP = [
 <?php foreach ($types->getNamespaceSortedIterator() as $type) : ?>
@@ -93,7 +91,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 <?php endforeach; ?>    ];
 
     /** @var bool */
-    private static $_registered = false;
+    private static bool $_registered = false;
 
     /**
      * @return bool
@@ -130,7 +128,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function loadClass(string $class): ?bool
     {
         if (isset(self::_CLASS_MAP[$class])) {
-            return (bool)require self::_ROOT_DIR . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];
+            return (bool)require __DIR__ . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];
         }
         return null;
     }
