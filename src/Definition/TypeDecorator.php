@@ -259,14 +259,17 @@ abstract class TypeDecorator
         foreach ($types->getIterator() as $type) {
             if (in_array($type->getFHIRName(), self::DSTU1_PRIMITIVES, true)) {
                 $ptn = 'string';
+                $logger->debug(sprintf('(DSTU1 suppport) Type "%s" determined to be DSTU1 primitive', $type->getFHIRName()));
             } elseif ($type->getKind()->isPrimitive()) {
                 $ptn = $type->getFHIRName();
+                $logger->debug(sprintf('Type "%s" determined to be a primitive itself', $type->getFHIRName()));
             } elseif ($type->hasPrimitiveParent()) {
                 $ptn = $type->getParentType()->getFHIRName();
+                $logger->debug(sprintf('Type "%s" determined to have a primitive parent', $type->getFHIRName()));
             } else {
                 continue;
             }
-            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), $ptn));
+            $logger->debug(sprintf('Setting assumed primitive Type "%s" kind to "%s"', $type->getFHIRName(), $ptn));
             $ptn = str_replace('-primitive', '', $ptn);
             $pt = new PrimitiveTypeEnum($ptn);
             $type->setPrimitiveType($pt);
@@ -393,7 +396,7 @@ abstract class TypeDecorator
                 foreach ($parentTypes as $parentType) {
                     if ('Resource' === $parentType->getFHIRName()) {
                         $set = true;
-                        $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::RESOURCE));
+                        $logger->debug(sprintf('(DSTU1 support) Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::RESOURCE));
                         self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE);
                         break;
                     }
@@ -401,15 +404,15 @@ abstract class TypeDecorator
             }
 
             if (!$set) {
-                $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), $rootTypeKind));
+                $logger->debug(sprintf('Setting Type "%s" kind to root type kind "%s"', $type->getFHIRName(), $rootTypeKind));
                 self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
             }
         } elseif (TypeKindEnum::isKnownRoot($fhirName)) {
-            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), $fhirName));
+            $logger->debug(sprintf('Setting known root Type "%s" kind to "%s"', $type->getFHIRName(), $fhirName));
             self::setTypeKind($config, $types, $type, $fhirName);
         } else {
             // this case is only applicable to the DSTU1 type "Binary"
-            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::RAW));
+            $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKindEnum::RAW));
             self::setTypeKind($config, $types, $type, TypeKindEnum::RAW);
         }
     }
