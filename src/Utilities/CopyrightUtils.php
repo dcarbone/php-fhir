@@ -94,9 +94,6 @@ abstract class CopyrightUtils
         if ($fh) {
             $inComment = false;
             while ($line = fgets($fh)) {
-                // needed as sometimes their comment generation breaks...
-                $line = str_replace(['/*', '*/'], '', $line);
-
                 $line = rtrim($line);
 
                 if ('-->' === $line) {
@@ -104,6 +101,9 @@ abstract class CopyrightUtils
                 }
 
                 if ($inComment) {
+                    // needed as sometimes their comment generation breaks...
+                    $line = str_replace(['/*', '*/'], '', $line);
+
                     $line = html_entity_decode($line);
                     self::$_fhirCopyright[] = $line;
                     $line = ltrim($line);
