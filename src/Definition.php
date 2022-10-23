@@ -88,10 +88,10 @@ class Definition
         TypeDecorator::ensureValueOnPrimitiveChildTypes($this->config, $this->types);
 
         $log->info('Finding overloaded properties in child types');
-        TypeDecorator::findOverloadedProperties($this->config, $this->types);
+        TypePropertyDecorator::findOverloadedProperties($this->config, $this->types);
 
         $log->info('Manually setting some property names');
-        TypeDecorator::setMissingPropertyNames($this->config, $this->types);
+        TypePropertyDecorator::setMissingPropertyNames($this->config, $this->types);
 
         $log->info('Parsing union memberOf Types');
         TypeDecorator::parseUnionMemberTypes($this->config, $this->types);

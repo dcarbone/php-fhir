@@ -124,4 +124,73 @@ abstract class TypePropertyDecorator
             }
         }
     }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function findOverloadedProperties(VersionConfig $config, Types $types): void
+    {
+        $logger = $config->getLogger();
+        foreach ($types->getIterator() as $type) {
+            if (!$type->hasParent()) {
+                continue;
+            }
+            $parent = $type->getParentType();
+            while (null !== $parent) {
+                foreach ($type->getProperties()->getIterator() as $property) {
+                    $propertyName = $property->getName();
+                    foreach ($parent->getProperties()->getIterator() as $parentProperty) {
+                        if ($propertyName === $parentProperty->getName()) {
+                            $logger->debug(
+                                sprintf(
+                                    'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
+                                    $property,
+                                    $type,
+                                    $parent
+                                )
+                            );
+                            $property->setOverloaded(true);
+                            continue 2;
+                        }
+                    }
+                }
+                $parent = $parent->getParentType();
+            }
+        }
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     */
+    public static function setMissingPropertyNames(VersionConfig $config, Types $types): void
+    {
+        $log = $config->getLogger();
+        foreach ($types->getIterator() as $type) {
+            foreach ($type->getProperties()->getIterator() as $property) {
+                $propName = $property->getName();
+                if ('' === $propName || null === $propName) {
+                    $ref = $property->getRef();
+                    if (null !== $ref && '' !== $ref) {
+                        $newName = $ref;
+                        if (0 === strpos($ref, 'xhtml:')) {
+                            $split = explode(':', $ref, 2);
+                            if (2 === count($split) && '' !== $split[1]) {
+                                $newName = $split[1];
+                            }
+                        }
+                        $log->warning(
+                            sprintf(
+                                'Setting Type "%s" Property name to "%s"',
+                                $type,
+                                $newName
+                            )
+                        );
+                        $property->setName($newName);
+                    }
+                }
+            }
+        }
+    }
 }
