@@ -26,19 +26,31 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 $typeKind = $type->getKind();
 
 $bundleType = null;
+$bundleEntryProperty = null;
 // only bother to locate bundle type if there is a configured test endpoint
-if ($type->isDomainResource()) :
+if ($type->isDomainResource()) {
     // TODO: find a more efficient way to do this...
-    foreach ($types->getIterator() as $bt) :
-        if ($bt->getFHIRName() === 'Bundle') :
+    foreach ($types->getIterator() as $bt) {
+        if ($bt->getFHIRName() === 'Bundle') {
             $bundleType = $bt;
             break;
-        endif;
-    endforeach;
-    if (null === $bundleType) :
+        }
+    }
+    if (null === $bundleType) {
         throw ExceptionUtils::createBundleTypeNotFoundException($type);
-    endif;
-endif;
+    }
+
+    foreach($bundleType->getAllPropertiesIterator() as $prop) {
+        if ($prop->getName() === 'entry') {
+            $bundleEntryProperty = $prop;
+            break;
+        }
+    }
+
+    if (null === $bundleEntryProperty) {
+        throw ExceptionUtils::createBundleEntryPropertyNotFoundException($type);
+    }
+}
 
 ob_start();
 
@@ -58,6 +70,7 @@ if ($type->isDomainResource()) :
             'config'     => $config,
             'type'       => $type,
             'bundleType' => $bundleType,
+            'bundleEntryProperty' => $bundleEntryProperty,
         ]
     );
 endif;

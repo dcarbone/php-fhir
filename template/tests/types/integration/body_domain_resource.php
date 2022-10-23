@@ -23,16 +23,17 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $bundleType */
+/** @var \DCarbone\PHPFHIR\Definition\Property $bundleEntryProperty */
 
 // TODO: precompile list of ID's to test with?
 
 ob_start(); ?>
 
     /** @var array */
-    private $_fetchedResources = [];
+    private array $_fetchedResources = [];
 
     /** @var array */
-    private static $_ignoreErrs = [
+    private const IGNORE_ERRS = [
         'Unable to provide support for code system',
         ' minimum required =',
         ' Unable to resolve resource',
@@ -50,7 +51,7 @@ ob_start(); ?>
      * @var string $filename
      * @return array
      */
-    protected function _runFHIRValidationJAR($filename)
+    protected function _runFHIRValidationJAR($filename): array
     {
         $output = [];
         $code = -1;
@@ -65,7 +66,7 @@ ob_start(); ?>
         $onlyWarn = false;
         if (0 !== $code) {
             foreach($output as $line) {
-                foreach(self::$_ignoreErrs as $ignoreMe) {
+                foreach(self::IGNORE_ERRS as $ignoreMe) {
                     if (false !== strpos($line, $ignoreMe)) {
                         $onlyWarn = true;
                         break;
@@ -81,7 +82,7 @@ ob_start(); ?>
      * @param string $format Either xml or json
      * @return string
      */
-    protected function fetchResource($format)
+    protected function fetchResource(string $format): string
     {
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
@@ -96,11 +97,7 @@ ob_start(); ?>
         $err = curl_error($ch);
         curl_close($ch);
         $this->assertEmpty($err, sprintf('curl error seen: %s', $err));
-        if (method_exists($this, 'assertIsString')) {
-            $this->assertIsString($res);
-        } else {
-            $this->assertInternalType('string', $res);
-        }
+        $this->assertIsString($res);
         $this->_fetchedResources[$format] = $res;
         $fname = sprintf('%s/<?php echo $type->getFHIRName(); ?>-<?php echo CopyrightUtils::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, $format);
         file_put_contents($fname, $res);
@@ -112,7 +109,7 @@ ob_start(); ?>
      * @param bool $asArray
      * @return mixed
      */
-    protected function decodeJSON($sourceJSON, $asArray)
+    protected function decodeJSON(string $sourceJSON, bool $asArray)
     {
         $this->assertJson($sourceJSON);
         $decoded = json_decode($sourceJSON, $asArray);
@@ -126,7 +123,7 @@ ob_start(); ?>
         return $decoded;
     }
 
-    public function testXML()
+    public function testXML(): void
     {
         $sourceXML = $this->fetchResource('xml');
         try {
@@ -143,15 +140,21 @@ ob_start(); ?>
             );
         }
         $this->assertInstanceOf('<?php echo $bundleType->getFullyQualifiedClassName(true); ?>', $bundle);
-        if (0 === count($bundle->getEntry())) {
+        $entry = $bundle->getEntry();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        if (0 === count($entry)) {
+<?php else : ?>
+        if (null === $entry) {
+<?php endif; ?>
             $this->markTestSkipped(sprintf(
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any "<?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
                 $sourceXML
             ));
             return;
         }
-        $this->assertCount(1, $bundle->getEntry());
-        $entry = $bundle->getEntry()[0]->getResource();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        $this->assertCount(1, $entry);
+<?php endif; ?>
         $entryElement = $entry->xmlSerialize();
         $entryXML = $entryElement->ownerDocument->saveXML($entryElement);
         try {
@@ -174,7 +177,7 @@ ob_start(); ?>
         $this->assertXmlStringEqualsXmlString($sourceXML, $bundleElement->ownerDocument->saveXML());
     }
 
-    public function testJSON()
+    public function testJSON(): void
     {
         $sourceJSON = $this->fetchResource('json');
         $decoded = $this->decodeJSON($sourceJSON, true);
@@ -191,7 +194,12 @@ ob_start(); ?>
                 $e
             );
         }
-        if (0 === count($bundle->getEntry())) {
+        $entry = $bundle->getEntry();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        if (0 === count($entry)) {
+<?php else : ?>
+        if (null === $entry) {
+<?php endif; ?>
             $this->markTestSkipped(sprintf(
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
@@ -216,7 +224,7 @@ ob_start(); ?>
         }
     }
 
-    public function testValidationXML()
+    public function testValidationXML(): void
     {
         $sourceXML = $this->fetchResource('xml');
         try {
@@ -232,7 +240,12 @@ ob_start(); ?>
                 $e
             );
         }
-        if (0 === count($bundle->getEntry())) {
+        $entry = $bundle->getEntry();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        if (0 === count($entry)) {
+<?php else : ?>
+        if (null === $entry) {
+<?php endif; ?>
             $this->markTestSkipped(sprintf(
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned XML: %s)',
                 $sourceXML
@@ -247,7 +260,7 @@ ob_start(); ?>
         }
     }
 
-    public function testValidationJSON()
+    public function testValidationJSON(): void
     {
         $sourceJSON = $this->fetchResource('json');
         $decoded = $this->decodeJSON($sourceJSON, true);
@@ -264,7 +277,12 @@ ob_start(); ?>
                 $e
             );
         }
-        if (0 === count($bundle->getEntry())) {
+        $entry = $bundle->getEntry();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        if (0 === count($entry)) {
+<?php else : ?>
+        if (null === $entry) {
+<?php endif; ?>
             $this->markTestSkipped(sprintf(
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
@@ -279,7 +297,7 @@ ob_start(); ?>
         }
     }
 
-    public function testFHIRValidationXML()
+    public function testFHIRValidationXML(): void
     {
         $sourceXML = $this->fetchResource('xml');
         try {
@@ -295,14 +313,18 @@ ob_start(); ?>
                 $e
             );
         }
-        if (0 === count($bundle->getEntry())) {
+        $entry = $bundle->getEntry();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        if (0 === count($entry)) {
+<?php else : ?>
+        if (null === $entry) {
+<?php endif; ?>
             $this->markTestSkipped(sprintf(
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
                 $sourceXML
             ));
             return;
         }
-        $entry = $bundle->getEntry()[0]->getResource();
         $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
         file_put_contents($fname, $bundle->xmlSerialize()->ownerDocument->saveXML());
         $this->assertFileExists($fname);
@@ -344,14 +366,18 @@ ob_start(); ?>
                 $e
             );
         }
-        if (0 === count($bundle->getEntry())) {
+        $entry = $bundle->getEntry();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        if (0 === count($entry)) {
+<?php else : ?>
+        if (null === $entry) {
+<?php endif; ?>
             $this->markTestSkipped(sprintf(
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
             ));
             return;
         }
-        $entry = $bundle->getEntry()[0]->getResource();
         $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
         file_put_contents($fname, json_encode($bundle));
         $this->assertFileExists($fname);

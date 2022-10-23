@@ -40,7 +40,7 @@ ob_start();
 
      * @return static
      */
-    public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null): object
+    public function <?php echo $methodName; ?>(?<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null): object
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);

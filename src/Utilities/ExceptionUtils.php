@@ -328,10 +328,11 @@ abstract class ExceptionUtils
      * @return \UnexpectedValueException
      */
     public static function createUnexpectedAttributeException(
-        Type $type,
+        Type              $type,
         \SimpleXMLElement $parentElement,
         \SimpleXMLElement $attribute
-    ): \UnexpectedValueException {
+    ): \UnexpectedValueException
+    {
         return new \UnexpectedValueException(
             sprintf(
                 'Unexpected attribute "%s" on element "%s" in type "%s" defined in file "%s": %s',
@@ -351,10 +352,11 @@ abstract class ExceptionUtils
      * @return \UnexpectedValueException
      */
     public static function createUnexpectedElementException(
-        Type $type,
+        Type              $type,
         \SimpleXMLElement $parentElement,
         \SimpleXMLElement $element
-    ): \UnexpectedValueException {
+    ): \UnexpectedValueException
+    {
         return new \UnexpectedValueException(
             sprintf(
                 'Unexpected element "%s" under element "%s" found in type "%s" defined in file "%s": %s',
@@ -374,10 +376,11 @@ abstract class ExceptionUtils
      * @return \DomainException
      */
     public static function createExpectedTypeElementAttributeNotFoundException(
-        Type $type,
+        Type              $type,
         \SimpleXMLElement $element,
-        string $attributeName
-    ): \DomainException {
+        string            $attributeName
+    ): \DomainException
+    {
         return new \DomainException(
             sprintf(
                 'Expected attribute "%s" not found on element "%s" for type "%s" in file "%s": %s',
@@ -397,10 +400,11 @@ abstract class ExceptionUtils
      * @return \DomainException
      */
     public static function createExpectedPropertyElementAttributeNotFoundException(
-        Property $property,
+        Property          $property,
         \SimpleXMLElement $element,
-        $attributeName
-    ): \DomainException {
+                          $attributeName
+    ): \DomainException
+    {
         return new \DomainException(
             sprintf(
                 'Expected attribute "%s" not found on element "%s" for property "%s" in file "%s": %s',
@@ -421,11 +425,12 @@ abstract class ExceptionUtils
      * @return \BadMethodCallException
      */
     public static function createTypeSetterMethodNotFoundException(
-        Type $type,
+        Type              $type,
         \SimpleXMLElement $parentElement,
         \SimpleXMLElement $source,
-        string $setterMethod
-    ): \BadMethodCallException {
+        string            $setterMethod
+    ): \BadMethodCallException
+    {
         return new \BadMethodCallException(
             sprintf(
                 'Type "%s" from file "%s" missing setter "%s" for "%s" in parent "%s": %s',
@@ -464,11 +469,12 @@ abstract class ExceptionUtils
      * @return \BadMethodCallException
      */
     public static function createPropertySetterMethodNotFoundException(
-        Property $property,
+        Property          $property,
         \SimpleXMLElement $parentElement,
         \SimpleXMLElement $source,
-        $setterMethod
-    ): \BadMethodCallException {
+                          $setterMethod
+    ): \BadMethodCallException
+    {
         return new \BadMethodCallException(
             sprintf(
                 'Property "%s" from file "%s" missing setter "%s" for "%s" in parent "%s": %s',
@@ -491,6 +497,20 @@ abstract class ExceptionUtils
         return new \RuntimeException(
             sprintf(
                 'Unable to locate "Bundle" Resource type when generating test class for Type "%s"',
+                $type->getFHIRName()
+            )
+        );
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return \RuntimeException
+     */
+    public static function createBundleEntryPropertyNotFoundException(Type $type): \RuntimeException
+    {
+        return new \RuntimeException(
+            sprintf(
+                'Unable to locate BundleEntry property on Bundle type class when generating test class for Type "%s"',
                 $type->getFHIRName()
             )
         );
