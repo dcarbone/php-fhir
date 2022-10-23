@@ -94,6 +94,9 @@ abstract class CopyrightUtils
         if ($fh) {
             $inComment = false;
             while ($line = fgets($fh)) {
+                // needed as sometimes their comment generation breaks...
+                $line = str_replace(['/*', '*/'], '', $line);
+
                 $line = rtrim($line);
 
                 if ('-->' === $line) {
@@ -104,8 +107,8 @@ abstract class CopyrightUtils
                     $line = html_entity_decode($line);
                     self::$_fhirCopyright[] = $line;
                     $line = ltrim($line);
-                    if (0 === strpos($line, 'Generated')) {
-                        list($generated, $version) = explode('for FHIR', $line);
+                    if (0 === strpos($line, 'Generated on ')) {
+                        [$generated, $version] = explode('for FHIR', $line);
 
                         $generated = trim(str_replace('Generated on', '', $generated));
                         if ('' === $generated) {
