@@ -171,80 +171,102 @@ abstract class TypeDecorator
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @return void
+     */
+    public static function findPropertyType(VersionConfig $config, Types $types, Type $type, Property $property): void
+    {
+        $log = $config->getLogger();
+        $typeKind = $type->getKind();
+
+        // handle primitive and list value properties
+        if ($property->isValueProperty()) {
+            if ($typeKind->isPrimitive()) {
+                $primitiveType = $type->getPrimitiveType();
+                $log->debug(sprintf('Type "%s" is primitive of kind "%s", setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $primitiveType, $property->getName(), $primitiveType->getPHPValueType()));
+
+                $property->setRawPHPValue($primitiveType->getPHPValueType());
+                return;
+            }
+
+            if ($typeKind->isList()) {
+                $parentPHPValueType = $type->getParentType()->getPrimitiveType()->getPHPValueType();
+                $log->debug(sprintf('Type "%s" is list, setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $property->getName(), $parentPHPValueType));
+                $property->setRawPHPValue($parentPHPValueType);
+                return;
+            }
+        }
+
+        // everything else
+
+        $valueFHIRTypeName = $property->getValueFHIRTypeName();
+
+        if (null === $valueFHIRTypeName) {
+            $log->warning(sprintf('Type "%s" property "%s" did not have "type" attribute', $type->getFHIRName(), $property->getName()));
+            $prn = $property->getRef();
+            if (null !== $prn) {
+                $log->debug(sprintf('Type "%s" property "%s" has ref attribute value "%s", using that', $type->getFHIRName(), $property->getName(), $prn));
+                $valueFHIRTypeName = $prn;
+            }
+        }
+
+        // final check for value type name being null
+        if (null === $valueFHIRTypeName) {
+            throw ExceptionUtils::createUnknownPropertyTypeException($type, $property);
+        }
+
+        $pt = $types->getTypeByName($valueFHIRTypeName);
+        if (null === $pt) {
+            if (PHPFHIR_XHTML_DIV === $property->getRef()) {
+                // TODO: come up with "raw" type for things like this?
+                // TODO: XML/HTML values in particular need their own specific type
+                $property->setValueFHIRType($types->getTypeByName(PHPFHIR_RAW_TYPE_NAME));
+                $log->warning(
+                    sprintf(
+                        'Type "%s" Property "%s" has Ref "%s", setting Type to "%s"',
+                        $type->getFHIRName(),
+                        $property->getName(),
+                        $property->getRef(),
+                        PHPFHIR_RAW_TYPE_NAME
+                    )
+                );
+                return;
+            }
+
+            if (0 === strpos($valueFHIRTypeName, 'xs:')) {
+                $pt = $types->getTypeByName(substr($valueFHIRTypeName, 3) . '-primitive');
+            } elseif (null !== ($refName = $property->getRef())) {
+                $pt = $types->getTypeByName($refName);
+            }
+        }
+
+        // if property type is null at this point, needs fixin'
+        if (null === $pt) {
+            throw ExceptionUtils::createUnknownPropertyTypeException($type, $property);
+        }
+
+        $property->setValueFHIRType($pt);
+
+        $log->info(
+            sprintf(
+                'Type "%s" Property "%s" has Value Type "%s"',
+                $type->getFHIRName(),
+                $property->getName(),
+                $pt->getFHIRName()
+            )
+        );
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
      */
     public static function findPropertyTypes(VersionConfig $config, Types $types): void
     {
-        $log = $config->getLogger();
-
         foreach ($types->getIterator() as $type) {
-            $typeKind = $type->getKind();
             foreach ($type->getProperties()->getIterator() as $property) {
-                // handle "value" property on primitive types explicitly
-                if ($property->isValueProperty()) {
-                    if ($typeKind->isPrimitive()) {
-                        $primitiveType = $type->getPrimitiveType();
-                        $log->info(
-                            sprintf(
-                                'Type "%s" Property "%s" as raw PHP value of "%s"',
-                                $type->getFHIRName(),
-                                $property->getName(),
-                                (string)$primitiveType
-                            )
-                        );
-                        $property->setRawPHPValue($primitiveType->getPHPValueType());
-                        continue; // move on to next property
-                    } elseif ($typeKind->isList()) {
-                        $property->setRawPHPValue($type->getParentType()->getPrimitiveType()->getPHPValueType());
-                        continue;
-                    }
-                }
-
-                // everything else
-
-                $valueFHIRTypeName = $property->getValueFHIRTypeName();
-                if (null === $valueFHIRTypeName) {
-                    var_dump($property->getName(), $property->getRef(), (string)$property->getSourceSXE()->asXML());
-                    exit;
-                }
-
-                $pt = $types->getTypeByName($valueFHIRTypeName);
-                if (null === $pt) {
-                    if (PHPFHIR_XHTML_DIV === $property->getRef()) {
-                        // TODO: come up with "raw" type for things like this?
-                        // TODO: XML/HTML values in particular need their own specific type
-                        $property->setValueFHIRType($types->getTypeByName(PHPFHIR_RAW_TYPE_NAME));
-                        $log->warning(
-                            sprintf(
-                                'Type "%s" Property "%s" has Ref "%s", setting Type to "%s"',
-                                $type->getFHIRName(),
-                                $property->getName(),
-                                $property->getRef(),
-                                PHPFHIR_RAW_TYPE_NAME
-                            )
-                        );
-                        continue; // move on to next property
-                    }
-
-                    if (0 === strpos($valueFHIRTypeName, 'xs:')) {
-                        $pt = $types->getTypeByName(substr($valueFHIRTypeName, 3) . '-primitive');
-                    } elseif (null !== ($refName = $property->getRef())) {
-                        $pt = $types->getTypeByName($refName);
-                    }
-                    if (null === $pt) {
-                        throw ExceptionUtils::createUnknownPropertyTypeException($type, $property);
-                    }
-                }
-
-                $property->setValueFHIRType($pt);
-
-                $log->info(
-                    sprintf(
-                        'Type "%s" Property "%s" has Value Type "%s"',
-                        $type->getFHIRName(),
-                        $property->getName(),
-                        $pt->getFHIRName()
-                    )
-                );
+                self::findPropertyType($config, $types, $type, $property);
             }
         }
     }
