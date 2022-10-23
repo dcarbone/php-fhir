@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
+
 /**
  * Download and generation script for all major FHIR versions
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +31,12 @@ require __DIR__ . '/../vendor/autoload.php';
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
+use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
 
 // ----- constants
 
@@ -44,14 +51,6 @@ const FLAG_ONLY_TESTS = '--onlyTests';
 const FLAG_VERSIONS = '--versions';
 const FLAG_LOG_LEVEL = '--logLevel';
 
-// ----- Log Levels
-
-const LOG_DEBUG = 'debug';
-const LOG_INFO = 'info';
-const LOG_WARN = 'warn';
-const LOG_WARNING = 'warning';
-const LOG_ERROR = 'error';
-
 // ----- cli and config opts
 
 $print_help = false;
@@ -64,7 +63,7 @@ $only_library = false;
 $only_tests = false;
 $versions_to_generate = null;
 $use_existing = false;
-$log_level = LOG_WARNING;
+$log_level = LogLevel::WARNING;
 
 // ----- functions
 
@@ -72,7 +71,7 @@ $log_level = LOG_WARNING;
  * @param bool $return
  * @return string
  */
-function missing_config_text($return)
+function missing_config_text(bool $return): string
 {
     global $config_location_env, $config_location_arg, $config_location_def;
     $out = 'Unable to locate generate script configuration file.  I looked in the following locations:' . PHP_EOL;
@@ -115,7 +114,7 @@ STRING;
 /**
  * @param bool $err
  */
-function exit_with_help($err = false)
+function exit_with_help(bool $err = false): void
 {
     global $config_location_def;
     $env_var = ENV_GENERATE_CONFIG_FILE;
@@ -123,7 +122,7 @@ function exit_with_help($err = false)
 
 PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
 
-Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
 
 - Links: 
     Source:         https://github.com/dcarbone/php-fhir
@@ -171,7 +170,7 @@ STRING;
  *
  * @return bool
  */
-function ask($q)
+function ask(string $q): bool
 {
     global $ins, $null;
     echo "{$q} [enter \"yes\" or \"no\"]: ";
@@ -191,7 +190,7 @@ function ask($q)
 /**
  * @param string $dir
  */
-function nuke_dir($dir)
+function nuke_dir(string $dir): void
 {
     echo "Executing \"rm -rf {$dir}\" ...\n";
     shell_exec('rm -rf ' . $dir);
@@ -207,7 +206,7 @@ function nuke_dir($dir)
  * @param string $dir
  * @return bool
  */
-function is_dir_empty($dir)
+function is_dir_empty(string $dir): bool
 {
     $res = glob($dir, GLOB_NOSORT);
     foreach ($res as $r) {
@@ -327,10 +326,22 @@ if (!is_readable($config_file)) {
     exit(1);
 }
 
-// TODO: re-enable logger
+if (class_exists('\\Monolog\\Logger')) {
+    $formatter = new LineFormatter(LineFormatter::SIMPLE_FORMAT);
+    $handler = new StreamHandler('php://stdout', $log_level);
+    $handler->setFormatter($formatter);
+    $processor = new PsrLogMessageProcessor(\DateTimeInterface::W3C);
+    $logger = new Logger(
+        'php-fhir',
+        [$handler],
+        [$processor]
+    );
+} else {
+    $logger = new NullLogger();
+}
 
 // build configuration
-$config = new Config(require $config_file, null);
+$config = new Config(require $config_file, $logger);
 
 // test provided versions are defined
 if (null === $versions_to_generate) {

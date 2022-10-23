@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use SimpleXMLElement;
 
 /**
  * Class ChoiceElementTypeDecorator
@@ -38,17 +37,17 @@ abstract class ChoiceElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $choice
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $choice): void
+    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $choice): void
     {
         $minOccurs = null;
         $maxOccurs = null;
         foreach ($choice->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::MIN_OCCURS:
-                    $minOccurs = (string)$attribute;
+                    $minOccurs = intval((string)$attribute);
                     break;
                 case AttributeNameEnum::MAX_OCCURS:
-                    $maxOccurs = (string)$attribute;
+                    $maxOccurs = intval((string)$attribute);
                     break;
 
                 default:

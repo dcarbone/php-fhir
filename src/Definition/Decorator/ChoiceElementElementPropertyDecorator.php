@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DomainException;
-use SimpleXMLElement;
 
 /**
  * Class ChoiceElementElementPropertyDecorator
@@ -46,10 +44,10 @@ abstract class ChoiceElementElementPropertyDecorator
         VersionConfig $config,
         Types $types,
         Type $type,
-        SimpleXMLElement $element,
+        \SimpleXMLElement $element,
         ?int $minOccurs,
         ?int $maxOccurs,
-        SimpleXMLElement $annotationElement = null
+        \SimpleXMLElement $annotationElement = null
     ): void {
         $properties = $type->getProperties();
         $property = new Property($type, $element, $type->getSourceFilename());
@@ -71,7 +69,7 @@ abstract class ChoiceElementElementPropertyDecorator
         }
 
         foreach ($element->attributes() as $attribute) {
-            switch ($attribute->getName()) {
+            switch ($atrrName = $attribute->getName()) {
                 case AttributeNameEnum::REF:
                     $property->setRef((string)$attribute);
                     break;
@@ -82,10 +80,8 @@ abstract class ChoiceElementElementPropertyDecorator
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
                 case AttributeNameEnum::MIN_OCCURS:
-                    $property->setMinOccurs(intval((string)$attribute));
-                    break;
                 case AttributeNameEnum::MAX_OCCURS:
-                    $property->setMaxOccurs(intval((string)$attribute));
+                    $property->{"set${atrrName}"}(intval((string)$attribute));
                     break;
 
                 default:
@@ -95,7 +91,7 @@ abstract class ChoiceElementElementPropertyDecorator
 
         if (null === $property->getName()) {
             if ('' === ($ref = $property->getRef())) {
-                throw new DomainException(
+                throw new \DomainException(
                     sprintf(
                         'Unable to determine Property name for Type "%s" in file "%s": %s',
                         $type->getFHIRName(),

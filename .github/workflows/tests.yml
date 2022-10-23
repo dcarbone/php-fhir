@@ -66,15 +66,20 @@ jobs:
         with:
           path: ./output/tmp
           key: ${{ matrix.fhir-version }}
+
       - name: Install Composer deps
         run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+
       - name: Generate code
         run: ./bin/generate.sh --useExisting --versions ${{ matrix.fhir-version }}
+
       - uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
           java-version: 17
+
       - name: Install FHIR validator
         run: wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/5.5.8/validator_cli.jar -O ./bin/validator_cli.jar
+
       - name: Run tests
         run: ./vendor/bin/paratest -c phpunit/${{ matrix.fhir-version }}.xml

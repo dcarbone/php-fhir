@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,11 @@ class AttributeNameEnum extends AbstractEnum
     public const BASE         = 'base';
     public const MEMBER_TYPES = 'memberTypes';
     public const TYPE         = 'type';
-    public const _USE         = 'use';
+    public const USE          = 'use';
     public const MIN_OCCURS   = 'minOccurs';
     public const MAX_OCCURS   = 'maxOccurs';
     public const REF          = 'ref';
     public const FIXED        = 'fixed';
     public const MIXED        = 'mixed';
-    public const _NAMESPACE   = 'namespace';
+    public const NAMESPACE    = 'namespace';
 }

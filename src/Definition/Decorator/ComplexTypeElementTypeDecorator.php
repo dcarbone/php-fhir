@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ abstract class ComplexTypeElementTypeDecorator
                 case AttributeNameEnum::NAME:
                     continue 2;
                 case AttributeNameEnum::MIXED:
-                    $type->setMixed((string)$attribute);
+                    $type->setMixed(boolval((string)$attribute));
                     break;
 
                 default:

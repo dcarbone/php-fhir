@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -202,6 +202,10 @@ abstract class TypeDecorator
                 // everything else
 
                 $valueFHIRTypeName = $property->getValueFHIRTypeName();
+                if (null === $valueFHIRTypeName) {
+                    var_dump($property->getName(), $property->getRef(), (string)$property->getSourceSXE()->asXML());
+                    exit;
+                }
 
                 $pt = $types->getTypeByName($valueFHIRTypeName);
                 if (null === $pt) {
@@ -262,6 +266,7 @@ abstract class TypeDecorator
             } else {
                 continue;
             }
+            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), $ptn));
             $ptn = str_replace('-primitive', '', $ptn);
             $pt = new PrimitiveTypeEnum($ptn);
             $type->setPrimitiveType($pt);
@@ -344,16 +349,20 @@ abstract class TypeDecorator
         }
 
         if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
+            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE));
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
         } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
             // for all intents and purposes, a List type is a multiple choice primitive type
+            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::_LIST));
             self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
         } elseif (false !== strpos($fhirName, '.') && TypeKindEnum::RESOURCE_INLINE !== $fhirName) {
             // This block indicates the type is only present as the child of a Resource.  Its name may (and in many
             // cases does) conflict with a top level Element or Resource.  Because of this, they are treated differently
             // and must be marked as such.
+            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::RESOURCE_COMPONENT));
             self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
-        } elseif ($types->getTypeByName("{$fhirName}-primitive")) {
+        } elseif (null !== $types->getTypeByName("{$fhirName}-primitive")) {
+            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE_CONTAINER));
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE_CONTAINER);
         } elseif (null !== ($rootType = $type->getRootType()) && $rootType !== $type) {
             // this entire block is only hit when generating from DSTU1 sources.
@@ -370,6 +379,7 @@ abstract class TypeDecorator
             // These are set to primitive through automagic
             // TODO: maybe set to GENERIC?
             if (in_array($fhirName, self::DSTU1_PRIMITIVES, true)) {
+                $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE));
                 $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
                 return;
             }
@@ -383,18 +393,23 @@ abstract class TypeDecorator
                 foreach ($parentTypes as $parentType) {
                     if ('Resource' === $parentType->getFHIRName()) {
                         $set = true;
+                        $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::RESOURCE));
                         self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE);
+                        break;
                     }
                 }
             }
 
             if (!$set) {
+                $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), $rootTypeKind));
                 self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
             }
         } elseif (TypeKindEnum::isKnownRoot($fhirName)) {
+            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), $fhirName));
             self::setTypeKind($config, $types, $type, $fhirName);
         } else {
             // this case is only applicable to the DSTU1 type "Binary"
+            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::RAW));
             self::setTypeKind($config, $types, $type, TypeKindEnum::RAW);
         }
     }

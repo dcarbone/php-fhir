@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,9 +186,9 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\TypeKindEnum
+     * @return \DCarbone\PHPFHIR\Enum\TypeKindEnum|null
      */
-    public function getKind(): TypeKindEnum
+    public function getKind(): ?TypeKindEnum
     {
         return $this->kind;
     }
@@ -620,9 +620,9 @@ class Type
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRestrictionBaseFHIRName(): string
+    public function getRestrictionBaseFHIRName(): ?string
     {
         return $this->restrictionBaseFHIRName;
     }

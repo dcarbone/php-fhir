@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,11 +108,15 @@ class ElementElementTypeDecorator
             switch ($attrName = $attribute->getName()) {
                 case AttributeNameEnum::REF:
                 case AttributeNameEnum::NAME:
+                    $property->{"set${attrName}"}((string)$attribute);
+                    break;
+
                 case AttributeNameEnum::MIN_OCCURS:
                 case AttributeNameEnum::MAX_OCCURS:
-                    $property->{"set{$attrName}"}((string)$attribute);
+                    $property->{"set${attrName}"}(intval((string)$attribute));
                     break;
-                case AttributeNameEnum::TYPE:
+
+                    case AttributeNameEnum::TYPE:
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
 
