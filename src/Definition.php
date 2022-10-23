@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\TypeDecorationValidator;
 use DCarbone\PHPFHIR\Definition\TypeDecorator;
 use DCarbone\PHPFHIR\Definition\TypeExtractor;
+use DCarbone\PHPFHIR\Definition\TypePropertyDecorator;
 use DCarbone\PHPFHIR\Definition\Types;
 
 /**
@@ -81,7 +82,7 @@ class Definition
         TypeDecorator::determinePrimitiveTypes($this->config, $this->types);
 
         $log->info('Finding property types');
-        TypeDecorator::findPropertyTypes($this->config, $this->types);
+        TypePropertyDecorator::findPropertyTypes($this->config, $this->types);
 
         $log->info('Ensuring primitive type children have "value" property');
         TypeDecorator::ensureValueOnPrimitiveChildTypes($this->config, $this->types);
