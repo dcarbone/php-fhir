@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 $namespace = $config->getNamespace(false);
-$nsPrefix = null !== $namespace ? "{$namespace}\\" : '';
+$nsPrefix = "{$namespace}\\";
 
 ob_start();
 
@@ -99,7 +99,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      * @return bool
      * @throws \Exception
      */
-    public static function register()
+    public static function register(): bool
     {
         if (self::$_registered) {
             return self::$_registered;
@@ -110,7 +110,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     /**
      * @return bool
      */
-    public static function unregister()
+    public static function unregister(): bool
     {
         if (self::$_registered) {
             if (spl_autoload_unregister([__CLASS__, 'loadClass'])) {
@@ -127,7 +127,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      * @param string $class
      * @return bool|null
      */
-    public static function loadClass($class)
+    public static function loadClass(string $class): ?bool
     {
         if (isset(self::_CLASS_MAP[$class])) {
             return (bool)require self::_ROOT_DIR . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];

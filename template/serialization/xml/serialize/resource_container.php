@@ -25,9 +25,9 @@ ob_start(); ?>
     /**
      * @param null|\DOMElement $element
      * @param null|int $libxmlOpts
-     * @return string|\DOMElement
+     * @return \DOMElement
      */
-    public function xmlSerialize(\DOMElement $element = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
     {
 <?php foreach($directProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {

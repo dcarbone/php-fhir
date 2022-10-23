@@ -84,7 +84,8 @@ echo require_with(
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function _setElementName($elementName)
+    public function _setElementName(string $elementName): <?php $type->getClassName(); ?>
+
     {
         $this->_elementName = $elementName;
         return $this;
@@ -113,7 +114,8 @@ echo require_with(
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function _setData($data)
+    public function _setData($data): <?php echo $type->getClassName(); ?>
+
     {
         if (null === $data) {
             $this->_data = null;
@@ -161,7 +163,7 @@ echo require_with(
      * @param null|int $libxmlOpts
      * @return \DOMElement
      */
-    public function xmlSerialize(\DOMElement $element = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
     {
         $data = $this->_getData();
         $xmlns = $this->_getFHIRXMLNamespace();
@@ -220,7 +222,7 @@ echo require_with(
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return strval($this->_getData());
     }

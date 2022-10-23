@@ -171,7 +171,7 @@ if (!$type->hasPrimitiveParent()) :
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
 <?php if ($typeKind->isPrimitive()) :
     $primitiveType = $type->getPrimitiveType();
