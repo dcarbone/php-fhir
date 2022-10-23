@@ -24,7 +24,6 @@ use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 $propertyName = $property->getName();
 $propertyType = $property->getValueFHIRType();
 $propertyTypeClassName = $type->getImports()->getImportByType($propertyType);
-$propertyPrimitiveTypeKind = $propertyType->getPrimitiveType();
 $isCollection = $property->isCollection();
 
 $methodName = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
