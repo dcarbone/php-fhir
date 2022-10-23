@@ -58,15 +58,15 @@ echo require_with(
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
     const TO_STRING_FUNC = '__toString';
 
+    /** @var null|string */
+    private ?string $_data = null;
+    /** @var null|string */
+    private ?string $_elementName = null;
     /** @var string */
-    private $_data = null;
-    /** @var string */
-    private $_elementName = null;
-    /** @var string */
-    private $_xmlns = '';
+    private string $_xmlns = '';
 
     /** @var array */
-    private static $_validationRules = [];
+    private static array $_validationRules = [];
 
     /**
      * <?php echo PHPFHIR_RAW_TYPE_NAME; ?> Constructor
@@ -84,7 +84,7 @@ echo require_with(
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function _setElementName(string $elementName): <?php $type->getClassName(); ?>
+    public function _setElementName(string $elementName): <?php echo $type->getClassName(); ?>
 
     {
         $this->_elementName = $elementName;
@@ -102,9 +102,9 @@ echo require_with(
 ?>
 
     /**
-     * @return null|string|integer|float|boolean|object
+     * @return null|string
      */
-    public function _getData()
+    public function _getData(): ?string
     {
         return $this->_data;
     }
@@ -121,7 +121,7 @@ echo require_with(
             $this->_data = null;
             return $this;
         }
-        if (is_scalar($data) || (is_object($data) && (method_exists($data, self::TO_STRING_FUNC) || $data instanceof \DOMNode || $data instanceof \DOMText))) {
+        if (is_scalar($data) || (is_object($data) && (method_exists($data, self::TO_STRING_FUNC) || $data instanceof \DOMNode))) {
             $this->_data = $data;
             return $this;
         }
