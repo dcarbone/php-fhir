@@ -30,7 +30,7 @@ ob_start(); ?>
      *
      * @return array
      */
-    public function _getValidationRules()
+    public function _getValidationRules(): array
     {
         return self::$_validationRules;
     }
@@ -41,7 +41,7 @@ ob_start(); ?>
      *
      * @return array
      */
-    public function _getValidationErrors()
+    public function _getValidationErrors(): array
     {
 <?php if (null !== $type->getParentType()) : ?>
         $errs = parent::_getValidationErrors();

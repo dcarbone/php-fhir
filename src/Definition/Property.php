@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
@@ -466,7 +467,7 @@ class Property
 
         // if this is a primitive type
         if (null === $t) {
-            return $this->getMemberOf()->getPrimitiveType()->getPHPValueType();
+            return $this->getMemberOf()->getPrimitiveType()->getPHPValueTypeHint();
         }
 
         // if this is an "inlined" type

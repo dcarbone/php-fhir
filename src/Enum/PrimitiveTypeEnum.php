@@ -26,7 +26,7 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
  */
 class PrimitiveTypeEnum extends AbstractEnum
 {
-    public const STRING  = 'string';
+    public const STRING = 'string';
     public const BOOLEAN = 'boolean';
     public const INTEGER = 'integer';
     public const DECIMAL = 'decimal';
@@ -35,21 +35,21 @@ class PrimitiveTypeEnum extends AbstractEnum
     public const NEGATIVE_INTEGER = 'negativeInt';
     public const UNSIGNED_INTEGER = 'unsignedInt';
 
-    public const DATE     = 'date';
+    public const DATE = 'date';
     public const DATETIME = 'dateTime';
-    public const TIME     = 'time';
-    public const INSTANT  = 'instant';
+    public const TIME = 'time';
+    public const INSTANT = 'instant';
 
-    public const CODE      = 'code';
-    public const OID       = 'oid';
+    public const CODE = 'code';
+    public const OID = 'oid';
     public const CANONICAL = 'canonical';
-    public const URI       = 'uri';
-    public const URL       = 'url';
-    public const ID        = 'id';
-    public const UUID      = 'uuid';
+    public const URI = 'uri';
+    public const URL = 'url';
+    public const ID = 'id';
+    public const UUID = 'uuid';
 
-    public const BASE_64_BINARY   = 'base64Binary';
-    public const MARKDOWN         = 'markdown';
+    public const BASE_64_BINARY = 'base64Binary';
+    public const MARKDOWN = 'markdown';
     public const SAMPLE_DATA_TYPE = 'SampledDataDataType';
 
     /**
@@ -89,6 +89,25 @@ class PrimitiveTypeEnum extends AbstractEnum
 
             default:
                 throw ExceptionUtils::createUnknownPrimitiveTypeEnumException($this);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getPHPValueTypeHint(): string
+    {
+        $pvt = $this->getPHPValueType();
+        switch ($pvt) {
+            case PrimitiveTypeEnum::BOOLEAN:
+                return 'bool';
+            case 'double':
+                return 'float';
+            case 'integer':
+                return 'int';
+
+            default:
+                return $pvt;
         }
     }
 }
