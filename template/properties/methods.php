@@ -22,8 +22,6 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
-$isPrimitiveType = $type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]);
-
 ob_start();
 
 if ($type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :

@@ -36,11 +36,11 @@ ob_start();
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
+     * @param null|<?php echo $propertyType->getProperties()->getProperty('value')->getPHPTypeHint(); ?>|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $methodName; ?>(?<?php echo $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null): object
+    public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null): object
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);

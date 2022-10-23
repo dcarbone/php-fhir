@@ -687,7 +687,7 @@ class Type
      */
     public function setContainedType(bool $containedType): Type
     {
-        $this->containedType = (bool)$containedType;
+        $this->containedType = $containedType;
         return $this;
     }
 
@@ -705,7 +705,7 @@ class Type
      */
     public function setValueContainer(bool $valueContainer): Type
     {
-        $this->valueContainer = (bool)$valueContainer;
+        $this->valueContainer = $valueContainer;
         return $this;
     }
 
