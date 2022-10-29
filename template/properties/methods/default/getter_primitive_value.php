@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
+
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -24,10 +27,10 @@ $primitiveType = $type->getPrimitiveType();
 ob_start(); ?>
 
     /**
-     * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
+     * @return <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true); ?>
 
      */
-    public function getValue(): ?<?php echo $primitiveType->getPHPValueTypeHint(); ?>
+    public function getValue(): <?php echo TypeHintUtils::primitivePHPValueTypeHint($config, $primitiveType, true); ?>
 
     {
         return $this->value;

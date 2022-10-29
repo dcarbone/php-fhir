@@ -44,10 +44,10 @@ abstract class ChoiceElementTypeDecorator
         foreach ($choice->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::MIN_OCCURS:
-                    $minOccurs = intval((string)$attribute);
+                    $minOccurs = (string)$attribute;
                     break;
                 case AttributeNameEnum::MAX_OCCURS:
-                    $maxOccurs = intval((string)$attribute);
+                    $maxOccurs = (string)$attribute;
                     break;
 
                 default:

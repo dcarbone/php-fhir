@@ -37,11 +37,11 @@ ob_start();
 echo require_with(
     PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
     [
+        'config' => $config,
         'fqns' => $fqns,
         'skipImports' => false,
         'type' => $type,
         'types' => $types,
-        'config' => $config,
     ]
 );
 
@@ -56,7 +56,16 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => $parentType]); ?>
+<?php
+echo require_with(
+    PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php',
+    [
+        'config' => $config,
+        'type' => $type,
+        'parentType' => $parentType
+    ]
+);
+?>
 
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;<?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
@@ -68,7 +77,8 @@ echo require_with(
         echo require_with(
             PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
             [
-                    'property' => $property,
+                'config' => $config,
+                'property' => $property,
             ]
         );
     endforeach;
@@ -82,8 +92,8 @@ endif; ?>
         echo require_with(
             PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
             [
-                    'config' => $config,
-                    'property' => $property,
+                'config' => $config,
+                'property' => $property,
             ]
         );
     endforeach;
@@ -92,6 +102,7 @@ endif;
 echo require_with(
     PHPFHIR_TEMPLATE_VALIDATION_DIR . '/field_map.php',
     [
+        'config' => $config,
         'type' => $type,
     ]
 );
@@ -101,15 +112,17 @@ echo "\n";
 echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
     [
-            'type' => $type,
-            'properties' => $directProperties,
-            'parentType' => $parentType,
+        'config' => $config,
+        'type' => $type,
+        'properties' => $directProperties,
+        'parentType' => $parentType,
     ]
 );
 
 echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
     [
+        'config' => $config,
         'type' => $type,
         'parentType' => $type->getParentType(),
     ]
@@ -119,6 +132,7 @@ if ($type->isContainedType()) :
     echo require_with(
         PHPFHIR_TEMPLATE_METHODS_DIR . '/contained_type.php',
         [
+            'config' => $config,
             'type' => $type,
         ]
     );
@@ -129,9 +143,9 @@ endif;
     echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php',
         [
-                'config' => $config,
-                'type' => $type,
-                'properties' => $directProperties,
+            'config' => $config,
+            'type' => $type,
+            'properties' => $directProperties,
         ]
     );
 endif; ?>
@@ -139,7 +153,8 @@ endif; ?>
 <?php echo require_with(
         PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods.php',
     [
-            'type' => $type,
+        'config' => $config,
+        'type' => $type,
     ]
 ); ?>
 
@@ -159,6 +174,7 @@ if (0 < count($directProperties)) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
         [
+            'config' => $config,
             'type' => $type,
         ]
     );

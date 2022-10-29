@@ -331,16 +331,6 @@ class Type
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function addProperty(Property $property): Type
-    {
-        $this->properties->addProperty($property);
-        return $this;
-    }
-
-    /**
      * @return \DCarbone\PHPFHIR\Definition\Properties
      */
     public function getProperties(): Properties

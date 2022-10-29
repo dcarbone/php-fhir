@@ -105,18 +105,22 @@ class ElementElementTypeDecorator
 
         // parse through attributes
         foreach ($element->attributes() as $attribute) {
-            switch ($attrName = $attribute->getName()) {
+            switch ($attribute->getName()) {
                 case AttributeNameEnum::REF:
+                    $property->setRef((string)$attribute);
+                    break;
                 case AttributeNameEnum::NAME:
-                    $property->{"set${attrName}"}((string)$attribute);
+                    $property->setName((string)$attribute);
                     break;
 
                 case AttributeNameEnum::MIN_OCCURS:
+                    $property->setMinOccurs(intval((string)$attribute));
+                    break;
                 case AttributeNameEnum::MAX_OCCURS:
-                    $property->{"set${attrName}"}(intval((string)$attribute));
+                    $property->setMaxOccurs((string)$attribute);
                     break;
 
-                    case AttributeNameEnum::TYPE:
+                case AttributeNameEnum::TYPE:
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
 
@@ -140,6 +144,6 @@ class ElementElementTypeDecorator
             }
         }
 
-        $type->addProperty($property);
+        $type->getProperties()->addProperty($property);
     }
 }

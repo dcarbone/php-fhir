@@ -17,6 +17,8 @@
  */
 
 /**
+ * require_with is used to ensure a clean context per required template file.
+ *
  * @param string $requiredFile
  * @param array $vars
  * @return mixed
@@ -34,6 +36,14 @@ function require_with(string $requiredFile, array $vars)
             )
         );
     }
+    if (!isset($config) || !($config instanceof \DCarbone\PHPFHIR\Config\VersionConfig)) {
+        throw new \LogicException(sprintf(
+            'Refusing to require "%s" as you didn\'t provide \'config\' => $config(%s)',
+            $requiredFile,
+            \DCarbone\PHPFHIR\Config\VersionConfig::class,
+        ));
+    }
+    // unset vars defined by this func
     unset($vars, $num);
     return require $requiredFile;
 }

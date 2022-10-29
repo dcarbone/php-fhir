@@ -213,7 +213,7 @@ class Property
         if (is_string($maxOccurs) && 'unbounded' === strtolower($maxOccurs)) {
             $this->maxOccurs = PHPFHIR_UNLIMITED;
         } else {
-            $this->maxOccurs = (int)$maxOccurs;
+            $this->maxOccurs = intval($maxOccurs);
         }
         return $this;
     }
@@ -261,7 +261,8 @@ class Property
      */
     public function isCollection(): bool
     {
-        return PHPFHIR_UNLIMITED === ($o = $this->getMaxOccurs()) || 1 < $o;
+        $maxOccurs = $this->getMaxOccurs();
+        return PHPFHIR_UNLIMITED === $maxOccurs || 1 < $maxOccurs;
     }
 
     /**
@@ -456,27 +457,6 @@ class Property
     public function isOverloaded(): bool
     {
         return $this->overloaded;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPHPTypeHint(): string
-    {
-        $t = $this->getValueFHIRType();
-
-        // if this is a primitive type
-        if (null === $t) {
-            return $this->getMemberOf()->getPrimitiveType()->getPHPValueTypeHint();
-        }
-
-        // if this is an "inlined" type
-        if ($t->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
-            return PHPFHIR_INTERFACE_CONTAINED_TYPE;
-        }
-
-        // all other cases...
-        return $t->getClassName();
     }
 
     /**

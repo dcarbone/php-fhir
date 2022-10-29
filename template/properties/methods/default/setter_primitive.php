@@ -17,7 +17,9 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -36,7 +38,7 @@ ob_start();
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $propertyType->getProperties()->getProperty('value')->getPHPTypeHint(); ?>|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::propertyTypeDoc($config, $property, true); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */

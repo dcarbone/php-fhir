@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $configf */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $propertyTypeClassName = $property->getValueFHIRType()->getClassName();

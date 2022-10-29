@@ -16,25 +16,14 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $isCollection = $property->isCollection();
-$propType = $property->getValueFHIRType();
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
-
-if (null !== $propType ) {
-    if ($propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
-        $typeDef = $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE;
-    } else {
-        $typeDef = $propType->getFullyQualifiedClassName(true);
-    }
-} else {
-    $typeDef = $property->getMemberOf()->getPrimitiveType()->getPHPValueType();
-}
 
 ob_start(); ?>
     /**<?php if ('' !== $documentation) : ?>
@@ -42,9 +31,9 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @var null|<?php echo $typeDef . ($isCollection ? '[]' : ''); ?>
+     * @var <?php echo TypeHintUtils::propertyTypeDoc($config, $property, true); ?>
 
      */
-    protected ?<?php echo $property->getPHPTypeHint() ?> $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
+    protected <?php echo TypeHintUtils::propertyTypeHint($config, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
 
 <?php return ob_get_clean();

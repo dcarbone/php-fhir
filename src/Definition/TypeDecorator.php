@@ -464,7 +464,7 @@ abstract class TypeDecorator
                             )
                         );
                         foreach ($utype->getProperties()->getIterator() as $property) {
-                            $type->addProperty(clone $property);
+                            $type->getProperties()->addProperty(clone $property);
                         }
                     } else {
                         $log->info(

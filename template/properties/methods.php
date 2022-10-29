@@ -27,7 +27,10 @@ ob_start();
 if ($type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
     echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/primitive.php',
-        ['type' => $type]
+        [
+            'config' => $config,
+            'type' => $type
+        ]
     );
 else :
     echo require_with(

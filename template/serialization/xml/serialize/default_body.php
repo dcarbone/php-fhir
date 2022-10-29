@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $directProperties */
@@ -26,11 +27,17 @@ foreach ($directProperties as $property) :
         echo require_with(
             __DIR__ . '/default_body_typed.php',
             [
+                'config' => $config,
                 'property' => $property,
             ]
         );
     elseif (null === $parentType) :
-        echo require_with(__DIR__ . '/default_body_untyped.php', []);
+        echo require_with(
+            __DIR__ . '/default_body_untyped.php',
+            [
+                'config' => $config,
+            ]
+        );
     endif;
 endforeach;
 return ob_get_clean();

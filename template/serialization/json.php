@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $directProperties = $type->getProperties()->getDirectIterator();
@@ -28,6 +29,7 @@ if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php',
         [
+            'config' => $config,
             'type'     => $type,
             'typeKind' => $typeKind,
         ]
@@ -36,6 +38,7 @@ elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESO
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/resource_container.php',
         [
+            'config' => $config,
             'properties' => $directProperties,
         ]
     );
@@ -43,6 +46,7 @@ else:
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php',
         [
+            'config' => $config,
             'type'       => $type,
             'properties' => $directProperties,
         ]

@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
@@ -46,15 +47,27 @@ foreach ($properties as $property) :
     if ($propertyType->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
         echo require_with(
             __DIR__ . '/default_property_primitive_list.php',
-                ['property' => $property]
+                [
+                    'config' => $config,
+                    'property' => $property
+                ]
         );
     elseif ($propertyType->isValueContainer() || $propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
         echo require_with(
             __DIR__ . '/default_property_value_primitive_container.php',
-            ['property' => $property]
+            [
+                'config' => $config,
+                'property' => $property
+            ]
         );
     else :
-        echo require_with(__DIR__ . '/default_property_default.php', ['property' => $property]);
+        echo require_with(
+                __DIR__ . '/default_property_default.php',
+                [
+                    'config' => $config,
+                    'property' => $property
+                ]
+        );
     endif;
 endforeach;
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>

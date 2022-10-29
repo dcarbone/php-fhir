@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
@@ -37,11 +37,11 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::propertyTypeDoc($config, $property, true); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(?<?php echo $propertyType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER]) ? PHPFHIR_INTERFACE_CONTAINED_TYPE : $propertyTypeClassName; ?> $<?php echo $propertyName; ?> = null): object
+    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo TypeHintUtils::propertyTypeHint($config, $property, true); ?> $<?php echo $propertyName; ?> = null): object
     {
         <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;

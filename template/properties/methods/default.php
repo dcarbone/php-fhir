@@ -33,6 +33,7 @@ foreach ($properties as $property) :
         echo require_with(
             __DIR__ . '/default/getter_primitive_value.php',
             [
+                'config'   => $config,
                 'type'     => $type,
                 'property' => $property,
             ]
@@ -40,6 +41,7 @@ foreach ($properties as $property) :
         echo require_with(
             __DIR__ . '/default/getter_primitive_value.php',
             [
+                'config'   => $config,
                 'type' => $type,
                 'property' => $property,
             ]
@@ -50,6 +52,7 @@ foreach ($properties as $property) :
     $propertyType = $property->getValueFHIRType();
     $propertyTypeKind = $propertyType->getKind();
     $requireArgs = [
+        'config'   => $config,
         'type'     => $type,
         'property' => $property,
     ];
@@ -72,12 +75,12 @@ foreach ($properties as $property) :
     elseif ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
         echo require_with(
             __DIR__ . '/default/setter_contained_resource.php',
-            $requireArgs + ['config' => $config]
+            $requireArgs
         );
     else :
         echo require_with(
             __DIR__ . '/default/setter_default.php',
-            $requireArgs + ['config' => $config]
+            $requireArgs
         );
     endif;
     if ($property->isCollection()) :
@@ -85,12 +88,12 @@ foreach ($properties as $property) :
         if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
             echo require_with(
                 __DIR__ . '/default/setter_contained_resource_collection.php',
-                $requireArgs + ['config' => $config]
+                $requireArgs
             );
         else :
             echo require_with(
                 __DIR__ . '/default/setter_collection.php',
-                $requireArgs + ['config' => $config]
+                $requireArgs
             );
         endif;
     endif;

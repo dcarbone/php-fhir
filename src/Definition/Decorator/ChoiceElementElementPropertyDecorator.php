@@ -36,8 +36,8 @@ abstract class ChoiceElementElementPropertyDecorator
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
-     * @param int|null $minOccurs
-     * @param int|null $maxOccurs
+     * @param string|null $minOccurs
+     * @param string|null $maxOccurs
      * @param \SimpleXMLElement|null $annotationElement
      */
     public static function decorate(
@@ -45,17 +45,16 @@ abstract class ChoiceElementElementPropertyDecorator
         Types $types,
         Type $type,
         \SimpleXMLElement $element,
-        ?int $minOccurs,
-        ?int $maxOccurs,
+        ?string $minOccurs,
+        ?string $maxOccurs,
         \SimpleXMLElement $annotationElement = null
     ): void {
-        $properties = $type->getProperties();
         $property = new Property($type, $element, $type->getSourceFilename());
 
-        if (is_int($minOccurs)) {
-            $property->setMinOccurs($minOccurs);
+        if (null !== $minOccurs) {
+            $property->setMinOccurs(intval($minOccurs));
         }
-        if (is_int($maxOccurs)) {
+        if (null !== $maxOccurs) {
             $property->setMaxOccurs($maxOccurs);
         }
         if (null !== $annotationElement) {
@@ -69,7 +68,7 @@ abstract class ChoiceElementElementPropertyDecorator
         }
 
         foreach ($element->attributes() as $attribute) {
-            switch ($atrrName = $attribute->getName()) {
+            switch ($attribute->getName()) {
                 case AttributeNameEnum::REF:
                     $property->setRef((string)$attribute);
                     break;
@@ -80,8 +79,10 @@ abstract class ChoiceElementElementPropertyDecorator
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
                 case AttributeNameEnum::MIN_OCCURS:
+                    $property->setMinOccurs(intval((string)$attribute));
+                    break;
                 case AttributeNameEnum::MAX_OCCURS:
-                    $property->{"set${atrrName}"}(intval((string)$attribute));
+                    $property->setMaxOccurs((string)$attribute);
                     break;
 
                 default:
@@ -117,6 +118,6 @@ abstract class ChoiceElementElementPropertyDecorator
             }
         }
 
-        $properties->addProperty($property);
+        $type->getProperties()->addProperty($property);
     }
 }

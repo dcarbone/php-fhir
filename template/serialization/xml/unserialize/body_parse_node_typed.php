@@ -18,18 +18,23 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 /** @var int $i */
 
 $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 
+$requireArgs = [
+    'config' => $config,
+];
+
 ob_start();
 
 if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
     echo require_with(
         __DIR__ . '/body_parse_typed_resource_container.php',
-        [
+        $requireArgs + [
             'property' => $property,
             'i' => $i,
         ]
@@ -37,7 +42,7 @@ if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::
 else :
     echo require_with(
         __DIR__ . '/body_parse_typed_default.php',
-        [
+        $requireArgs + [
             'property' => $property,
             'i' => $i,
         ]

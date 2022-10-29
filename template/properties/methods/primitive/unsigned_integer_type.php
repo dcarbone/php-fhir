@@ -18,12 +18,15 @@
 
 // TODO: use big numbers library here..
 
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
+
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
     /**
-     * @param null|integer|float|string
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, 'int', 'float', 'string'); ?> $value
      * @return static
      */
     public function setValue($value): object

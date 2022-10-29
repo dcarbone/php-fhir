@@ -18,14 +18,16 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
 $typeKind = $type->getKind();
 $requireArgs = [
-    'type'             => $type,
-    'parentType'       => $parentType,
+    'config' => $config,
+    'type' => $type,
+    'parentType' => $parentType,
     'properties' => $properties,
 ];
 

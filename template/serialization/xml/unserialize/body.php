@@ -16,8 +16,13 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
+
+$requireArgs = [
+    'config' => $config,
+];
 
 ob_start(); ?>
         for($i = 0; $i < $element->childNodes->length; $i++) {
@@ -29,7 +34,7 @@ ob_start(); ?>
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
             __DIR__ . '/body_parse_node_typed.php',
-            [
+            $requireArgs + [
                 'property' => $property,
                 'i' => $i,
             ]
@@ -37,7 +42,7 @@ ob_start(); ?>
     else :
         echo require_with(
             __DIR__ . '/body_parse_node_primitive.php',
-            [
+            $requireArgs + [
                 'property' => $property,
                 'i' => $i,
             ]
@@ -50,7 +55,7 @@ endforeach; ?>
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
             __DIR__ . '/body_parse_attr_typed.php',
-            [
+            $requireArgs + [
                 'property' => $property,
                 'i' => $i,
             ]
@@ -58,7 +63,7 @@ endforeach; ?>
     else :
         echo require_with(
             __DIR__ . '/body_parse_attr_primitive.php',
-            [
+            $requireArgs + [
                 'property' => $property,
                 'i' => $i,
             ]

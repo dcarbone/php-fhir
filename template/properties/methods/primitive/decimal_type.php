@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
+
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
@@ -24,7 +27,7 @@ ob_start(); ?>
     private $_decimals;
 
     /**
-     * @param null|float|string $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, 'string'); ?> $value
      * @return static
      */
     public function setValue($value): object

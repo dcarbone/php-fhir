@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
@@ -38,9 +39,9 @@ ob_start(); ?>
     }
 
     /**
-     * @return null|\DateTime|false
+     * @return null|\DateTimeInterface
      */
-    public function _getDateTime()
+    public function _getDateTime(): ?\DateTimeInterface
     {
         $v = $this->getValue();
         if (null === $v) {
@@ -50,9 +51,13 @@ ob_start(); ?>
             throw new \DomainException(sprintf(
                 'Cannot convert "%s" to \\DateTime as it does not conform to "%s"',
                 $value,
-                self::$_fieldValidation[self::FIELD_VALUE][PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?>]
+                self::$_validationRules[self::FIELD_VALUE][PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?>]
             ));
         }
-        return \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_INSTANT, $v);
+        $dt = \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_INSTANT, $value);
+        if (!($dt instanceof \DateTime)) {
+            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, PHPFHIRConstants::DATE_FORMAT_INSTANT));
+        }
+        return $dt;
     }
 <?php return ob_get_clean();

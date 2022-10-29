@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $propertyTypeKind = $property->getValueFHIRType()->getKind();
@@ -27,6 +28,7 @@ if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::
     echo require_with(
         __DIR__ . '/default_body_typed_resource_container.php',
         [
+            'config' => $config,
             'property' => $property,
         ]
     );
@@ -34,6 +36,7 @@ else :
     echo require_with(
         __DIR__ . '/default_body_typed_default.php',
         [
+            'config' => $config,
             'property' => $property,
         ]
     );

@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
@@ -64,16 +65,18 @@ ob_start(); ?>
         echo require_with(
                 PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/resource_container_property_setter_call.php',
                 [
-                        'type' => $type,
-                        'property' => $property,
+                    'config' => $config,
+                    'type' => $type,
+                    'property' => $property,
                 ]
         );
     else :
         echo require_with(
                 PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
                 [
-                        'type' => $type,
-                        'property' => $property
+                    'config' => $config,
+                    'type' => $type,
+                    'property' => $property
                 ]
         );
     endif;

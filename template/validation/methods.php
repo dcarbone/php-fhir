@@ -16,10 +16,15 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $typeNameConst = $type->getTypeNameConst(true);
 $typeKind = $type->getKind();
+
+$requireArgs = [
+    'config' => $config
+];
 
 // TODO: this is a quick and lazy initial implementation.  Should improve this later...
 
@@ -55,32 +60,24 @@ ob_start(); ?>
         if ($property->isCollection()) :
             echo require_with(
                 PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/collection_typed.php',
-                [
-                    'property' => $property
-                ]
+                $requireArgs + ['property' => $property]
             );
         else :
             echo require_with(
                 PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/primitive.php',
-                [
-                    'property' => $property
-                ]
+                $requireArgs + ['property' => $property]
             );
         endif;
     else :
         if ($property->isCollection()) :
             echo require_with(
                 PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/collection_typed.php',
-                [
-                        'property' => $property
-                ]
+                $requireArgs + ['property' => $property]
             );
         else :
             echo require_with(
-                    PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/typed.php',
-                [
-                    'property' => $property
-                ]
+                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/typed.php',
+                $requireArgs + ['property' => $property]
             );
         endif;
     endif;

@@ -50,8 +50,10 @@ abstract class AnyElementTypeDecorator
                     $property->setNamespace((string)$attribute);
                     break;
                 case AttributeNameEnum::MIN_OCCURS:
+                    $property->setMinOccurs(intval((string)$attribute));
+                    break;
                 case AttributeNameEnum::MAX_OCCURS:
-                    $property->{"set${attrName}"}(intval((string)$attribute));
+                    $property->setMaxOccurs((string)$attribute);
                     break;
 
                 default:

@@ -16,28 +16,34 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $propertyType = $property->getValueFHIRType();
 $fieldConstantName = $property->getFieldConstantName();
 
+$requireArgs = [
+    'config' => $config,
+    'property' => $property
+];
+
 ob_start();
 
 if ($propertyType->getKind()->isPrimitive() || $propertyType->hasPrimitiveParent()) :
     echo require_with(
-            __DIR__ . '/property_setter_primitive.php',
-            ['property' => $property]
+        __DIR__ . '/property_setter_primitive.php',
+        $requireArgs
     );
 elseif ($propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent() || $propertyType->isValueContainer()) :
     echo require_with(
         __DIR__ . '/property_setter_primitive_container.php',
-        ['property' => $property]
+        $requireArgs
     );
 else :
     echo require_with(
-            __DIR__ . '/property_setter_default.php',
-        ['property' => $property]
+        __DIR__ . '/property_setter_default.php',
+        $requireArgs
     );
 endif;
 

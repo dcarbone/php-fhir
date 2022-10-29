@@ -33,11 +33,11 @@ ob_start();
 echo require_with(
     PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
     [
+        'config' => $config,
         'fqns' => $fqns,
         'skipImports' => false,
         'type' => $type,
         'types' => $types,
-        'config' => $config,
     ]
 );
 
@@ -52,7 +52,7 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => null]); ?>
+<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['config' => $config, 'type' => $type, 'parentType' => null]); ?>
 
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
@@ -95,6 +95,7 @@ echo require_with(
 echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
     [
+        'config' => $config,
         'type' => $type,
         'parentType' => $type->getParentType(),
     ]
@@ -135,7 +136,8 @@ echo require_with(
 <?php echo require_with(
         PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods.php',
     [
-            'type' => $type,
+        'config' => $config,
+        'type' => $type,
     ]
 ); ?>
 

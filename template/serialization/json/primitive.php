@@ -17,13 +17,15 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 
 ob_start(); ?>
     /**
-     * @return null|<?php echo $type->getPrimitiveType()->getPHPValueType(); ?>
+     * @return <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $type->getPrimitiveType(), true, false); ?>
 
      */
     public function jsonSerialize()

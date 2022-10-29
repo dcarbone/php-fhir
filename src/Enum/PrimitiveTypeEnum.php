@@ -97,17 +97,16 @@ class PrimitiveTypeEnum extends AbstractEnum
      */
     public function getPHPValueTypeHint(): string
     {
-        $pvt = $this->getPHPValueType();
-        switch ($pvt) {
+        $hint = $this->getPHPValueType();
+        switch ($hint) {
             case PrimitiveTypeEnum::BOOLEAN:
                 return 'bool';
             case 'double':
                 return 'float';
             case 'integer':
                 return 'int';
-
             default:
-                return $pvt;
+                return $hint;
         }
     }
 }
