@@ -16,13 +16,15 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
+
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
     /**
-     * @param null|string $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, '\\DateTimeInterface'); ?> $value
      * @return static
      */
     public function setValue($value): object
@@ -35,7 +37,11 @@ ob_start(); ?>
             $this->value = $value;
             return $this;
         }
-        throw new \InvalidArgumentException(sprintf('Value must be null, string of proper format, or instance of \\DateTime, %s seen.', gettype($value)));
+        if ($value instanceof \DateTimeInterface) {
+            $this->value = $value->format(PHPFHIRConstants::DATE_FORMAT_INSTANT);
+            return $this;
+        }
+        throw new \InvalidArgumentException(sprintf('Value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
     }
 
     /**
@@ -43,8 +49,8 @@ ob_start(); ?>
      */
     public function _getDateTime(): ?\DateTimeInterface
     {
-        $v = $this->getValue();
-        if (null === $v) {
+        $value = $this->getValue();
+        if (null === $value) {
             return null;
         }
         if ([] !== $this->_getValidationErrors()) {

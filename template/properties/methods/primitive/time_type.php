@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, '\\DateTimeInterface'); ?> $value
      * @return static
      */
     public function setValue($value): object
@@ -37,7 +37,11 @@ ob_start(); ?>
             $this->value = $value;
             return $this;
         }
-        throw new \InvalidArgumentException(sprintf('$value must be null or string, %s seen.', gettype($value)));
+        if ($value instanceof \DateTimeInterface) {
+            $this->value = $value->format(PHPFHIRConstants::TIME_FORMAT);
+            return $this;
+        }
+        throw new \InvalidArgumentException(sprintf('$value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
     }
 
     /**

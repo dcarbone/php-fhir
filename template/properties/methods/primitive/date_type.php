@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, '\\DateTimeInterface'); ?> $value
      * @return static
      */
     public function setValue($value): object
@@ -37,7 +37,11 @@ ob_start(); ?>
             $this->value = $value;
             return $this;
         }
-        throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen.', gettype($value)));
+        if ($value instanceof \DateTimeInterface) {
+            $this->value = $value->format(PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH_DAY);
+            return $this;
+        }
+        throw new \InvalidArgumentException(sprintf('Value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
     }
 
     /**
@@ -56,7 +60,6 @@ ob_start(); ?>
                 self::$_validationRules[self::FIELD_VALUE][PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?>]
             ));
         }
-        $dt = null;
         switch(strlen($value)) {
             case 4:
                 $dt = \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_YEAR, $value);
