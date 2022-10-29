@@ -111,6 +111,17 @@ abstract class TypeHintUtils
      */
     public static function typeTypeHint(VersionConfig $config, Type $type, bool $nullable): string
     {
+        $tk = $type->getKind();
+
+        // if this is an inline resource
+        if ($tk->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
+            return sprintf(
+                '%s%s',
+                $nullable ? '?' : '',
+                PHPFHIR_INTERFACE_CONTAINED_TYPE
+            );
+        }
+
         // if we land here, use the value type's class
         return sprintf(
             '%s%s',
