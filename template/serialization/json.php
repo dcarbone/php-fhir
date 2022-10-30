@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $directProperties = $type->getProperties()->getDirectIterator();
@@ -28,6 +29,7 @@ if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php',
         [
+            'config' => $config,
             'type'     => $type,
             'typeKind' => $typeKind,
         ]
@@ -36,6 +38,7 @@ elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESO
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/resource_container.php',
         [
+            'config' => $config,
             'properties' => $directProperties,
         ]
     );
@@ -43,6 +46,7 @@ else:
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php',
         [
+            'config' => $config,
             'type'       => $type,
             'properties' => $directProperties,
         ]

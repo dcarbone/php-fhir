@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use SimpleXMLElement;
 
 /**
  * Class AttributeElementTypeDecorator
@@ -44,8 +43,8 @@ abstract class AttributeElementTypeDecorator
         VersionConfig $config,
         Types $types,
         Type $type,
-        SimpleXMLElement $attributeElement
-    ) {
+        \SimpleXMLElement $attributeElement
+    ): void {
         // create property object
         $property = new Property($type, $attributeElement, $type->getSourceFilename());
 
@@ -58,7 +57,7 @@ abstract class AttributeElementTypeDecorator
                 case AttributeNameEnum::TYPE:
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
-                case AttributeNameEnum::_USE:
+                case AttributeNameEnum::USE:
                     $property->setUse(new PropertyUseEnum((string)$attribute));
                     break;
                 case AttributeNameEnum::FIXED:
@@ -83,6 +82,6 @@ abstract class AttributeElementTypeDecorator
         }
 
         // add property to type
-        $type->addProperty($property);
+        $type->getProperties()->addProperty($property);
     }
 }

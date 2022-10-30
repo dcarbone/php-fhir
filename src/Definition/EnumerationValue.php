@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,14 @@ class EnumerationValue
     /** @var mixed */
     private $value;
     /** @var \SimpleXMLElement */
-    private $sourceSXE;
+    private \SimpleXMLElement $sourceSXE;
 
     /**
      * Enumeration constructor.
      * @param string $value
      * @param \SimpleXMLElement $sourceSXE
      */
-    public function __construct($value, SimpleXMLElement $sourceSXE)
+    public function __construct(string $value, SimpleXMLElement $sourceSXE)
     {
         $this->value = $value;
         $this->sourceSXE = $sourceSXE;
@@ -55,7 +55,7 @@ class EnumerationValue
     /**
      * @return \SimpleXMLElement
      */
-    public function getSourceSXE()
+    public function getSourceSXE(): \SimpleXMLElement
     {
         return $this->sourceSXE;
     }

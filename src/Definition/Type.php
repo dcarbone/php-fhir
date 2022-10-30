@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DomainException;
-use InvalidArgumentException;
 use LogicException;
 use SimpleXMLElement;
 
@@ -37,65 +36,65 @@ class Type
     use SourceTrait;
 
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
-    private $config;
+    private VersionConfig $config;
 
     /**
      * The raw name of the FHIR element this type was created from
      * @var string
      */
-    private $fhirName;
+    private string $fhirName;
 
-    /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum */
-    private $kind = null;
+    /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum|null */
+    private ?TypeKindEnum $kind = null;
 
     /** @var string */
-    private $className;
+    private string $className;
 
     /** @var \DCarbone\PHPFHIR\Definition\Properties */
-    private $properties;
+    private Properties $properties;
 
     /** @var null|string */
-    private $parentTypeName = null;
+    private ?string $parentTypeName = null;
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
-    private $parentType = null;
+    private ?Type $parentType = null;
 
     /** @var int */
-    private $minLength = 0;
+    private int $minLength = 0;
     /** @var int */
-    private $maxLength = PHPFHIR_UNLIMITED;
+    private int $maxLength = PHPFHIR_UNLIMITED;
     /** @var null|string */
-    private $pattern = null;
+    private ?string $pattern = null;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
-    private $componentOfType = null;
+    private ?Type $componentOfType = null;
 
     /** @var \DCarbone\PHPFHIR\Definition\Enumeration */
-    private $enumeration;
+    private Enumeration $enumeration;
 
     /** @var array */
-    private $unionOf = [];
+    private array $unionOf = [];
 
     /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum */
-    private $primitiveType;
+    private PrimitiveTypeEnum $primitiveType;
 
     /** @var null|string */
-    private $restrictionBaseFHIRName = null;
+    private ?string $restrictionBaseFHIRName = null;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
-    private $restrictionBaseFHIRType = null;
+    private ?Type $restrictionBaseFHIRType = null;
 
     /** @var bool */ // TODO: what the hell is this...?
-    private $mixed = false;
+    private bool $mixed = false;
 
     /** @var bool */
-    private $containedType = false;
+    private bool $containedType = false;
     /** @var bool */
-    private $valueContainer = false;
+    private bool $valueContainer = false;
     /** @var bool */
-    private $commentContainer = false;
+    private bool $commentContainer = false;
 
     /** @var \DCarbone\PHPFHIR\Definition\TypeImports */
-    private $imports;
+    private TypeImports $imports;
 
     /**
      * Type constructor.
@@ -106,9 +105,9 @@ class Type
      */
     public function __construct(
         VersionConfig $config,
-        $fhirName,
+        string $fhirName,
         SimpleXMLElement $sourceSXE = null,
-        $sourceFilename = ''
+        string $sourceFilename = ''
     ) {
         if ('' === ($fhirName = trim($fhirName))) {
             throw new DomainException('$fhirName must be defined');
@@ -118,7 +117,7 @@ class Type
         $this->sourceSXE = $sourceSXE;
         $this->sourceFilename = $sourceFilename;
         $this->properties = new Properties($config, $this);
-        $this->enumeration = new Enumeration($this);
+        $this->enumeration = new Enumeration();
         $this->imports = new TypeImports($this);
     }
 
@@ -135,7 +134,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
-    public function getConfig()
+    public function getConfig(): VersionConfig
     {
         return $this->config;
     }
@@ -143,7 +142,7 @@ class Type
     /**
      * @return string
      */
-    public function getFHIRName()
+    public function getFHIRName(): string
     {
         return $this->fhirName;
     }
@@ -151,7 +150,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\TypeImports
      */
-    public function getImports()
+    public function getImports(): TypeImports
     {
         return $this->imports;
     }
@@ -161,7 +160,7 @@ class Type
      * @param string $prefix
      * @return string
      */
-    public function getConstName($withClass, $prefix = '')
+    public function getConstName(bool $withClass, string $prefix = ''): string
     {
         return ($withClass ? PHPFHIR_CLASSNAME_CONSTANTS . '::' : '') . strtoupper($prefix) . NameUtils::getConstName(
                 $this->getFHIRName()
@@ -172,7 +171,7 @@ class Type
      * @param bool $withClass
      * @return string
      */
-    public function getTypeNameConst($withClass)
+    public function getTypeNameConst(bool $withClass): string
     {
         return $this->getConstName($withClass, 'TYPE_NAME_');
     }
@@ -181,15 +180,15 @@ class Type
      * @param bool $withClass
      * @return string
      */
-    public function getClassNameConst($withClass)
+    public function getClassNameConst(bool $withClass): string
     {
         return $this->getConstName($withClass, 'TYPE_CLASS_');
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\TypeKindEnum
+     * @return \DCarbone\PHPFHIR\Enum\TypeKindEnum|null
      */
-    public function getKind()
+    public function getKind(): ?TypeKindEnum
     {
         return $this->kind;
     }
@@ -198,7 +197,7 @@ class Type
      * @param \DCarbone\PHPFHIR\Enum\TypeKindEnum $kind
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setKind(TypeKindEnum $kind)
+    public function setKind(TypeKindEnum $kind): Type
     {
         if (isset($this->kind) && !$this->kind->equals($kind)) {
             throw new LogicException(
@@ -218,7 +217,7 @@ class Type
      * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setPrimitiveType(PrimitiveTypeEnum $primitiveType)
+    public function setPrimitiveType(PrimitiveTypeEnum $primitiveType): Type
     {
         if (isset($this->primitiveType) && $this->primitiveType->equals($primitiveType)) {
             throw new LogicException(
@@ -237,7 +236,7 @@ class Type
     /**
      * @return string
      */
-    public function getTypeNamespace()
+    public function getTypeNamespace(): string
     {
         if ($this->isRootType()) {
             return '';
@@ -255,7 +254,7 @@ class Type
     /**
      * @return string
      */
-    public function getClassName()
+    public function getClassName(): string
     {
         if (!isset($this->className)) {
             $this->className = NameUtils::getTypeClassName($this->getFHIRName());
@@ -267,7 +266,7 @@ class Type
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedNamespace($leadingSlash)
+    public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
         $ns = $this->getConfig()->getNamespace(false);
         $typeNS = $this->getTypeNamespace();
@@ -282,7 +281,7 @@ class Type
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedTestNamespace($testType, $leadingSlash)
+    public function getFullyQualifiedTestNamespace($testType, bool $leadingSlash): string
     {
         $ns = $this->getConfig()->getTestsNamespace($testType, false);
         $typeNS = $this->getTypeNamespace();
@@ -296,7 +295,7 @@ class Type
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedClassName($leadingSlash)
+    public function getFullyQualifiedClassName(bool $leadingSlash): string
     {
         $cn = $this->getFullyQualifiedNamespace(false);
         if ('' === $cn) {
@@ -310,7 +309,7 @@ class Type
     /**
      * @return string
      */
-    public function getTestClassName()
+    public function getTestClassName(): string
     {
         return "{$this->getClassName()}Test";
     }
@@ -320,7 +319,7 @@ class Type
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedTestClassName($testType, $leadingSlash)
+    public function getFullyQualifiedTestClassName($testType, bool $leadingSlash): string
     {
         $ns = $this->getFullyQualifiedTestNamespace($testType, false);
         if ('' === $ns) {
@@ -332,19 +331,9 @@ class Type
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
-     * @return \DCarbone\PHPFHIR\Definition\Type
-     */
-    public function addProperty(Property $property)
-    {
-        $this->properties->addProperty($property);
-        return $this;
-    }
-
-    /**
      * @return \DCarbone\PHPFHIR\Definition\Properties
      */
-    public function getProperties()
+    public function getProperties(): Properties
     {
         return $this->properties;
     }
@@ -352,7 +341,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getAllPropertiesIterator()
+    public function getAllPropertiesIterator(): iterable
     {
         $properties = [];
         foreach($this->getProperties()->getDirectIterator() as $property) {
@@ -371,7 +360,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type[]
      */
-    public function getParentTypes()
+    public function getParentTypes(): array
     {
         $parents = [];
         $p = $this->getParentType();
@@ -385,7 +374,7 @@ class Type
     /**
      * @return bool
      */
-    public function isRootType()
+    public function isRootType(): bool
     {
         return null === $this->getParentType();
     }
@@ -393,7 +382,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function getRootType()
+    public function getRootType(): Type
     {
         if ($this->isRootType()) {
             return $this;
@@ -405,7 +394,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getParentType()
+    public function getParentType(): ?Type
     {
         return $this->parentType;
     }
@@ -414,7 +403,7 @@ class Type
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setParentType(Type $type)
+    public function setParentType(Type $type): Type
     {
         $this->parentType = $type;
         $this->setParentTypeName($type->getFHIRName());
@@ -424,7 +413,7 @@ class Type
     /**
      * @return null|string
      */
-    public function getParentTypeName()
+    public function getParentTypeName(): ?string
     {
         return $this->parentTypeName;
     }
@@ -433,7 +422,7 @@ class Type
      * @param string|null $parentTypeName
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setParentTypeName($parentTypeName)
+    public function setParentTypeName(?string $parentTypeName): Type
     {
         $this->parentTypeName = $parentTypeName;
         return $this;
@@ -442,7 +431,7 @@ class Type
     /**
      * @return bool
      */
-    public function hasParent()
+    public function hasParent(): bool
     {
         return null !== $this->getParentTypeName() || null !== $this->getParentType();
     }
@@ -450,7 +439,7 @@ class Type
     /**
      * @return bool
      */
-    public function hasResourceParent()
+    public function hasResourceParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
             if ($parentType->getKind()->isResource()) {
@@ -463,7 +452,7 @@ class Type
     /**
      * @return bool
      */
-    public function hasPrimitiveParent()
+    public function hasPrimitiveParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
             if ($parentType->getKind()->isPrimitive()) {
@@ -476,7 +465,7 @@ class Type
     /**
      * @return bool
      */
-    public function hasPrimitiveContainerParent()
+    public function hasPrimitiveContainerParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
             if ($parentType->getKind()->isPrimitiveContainer()) {
@@ -491,7 +480,7 @@ class Type
      *
      * @return bool
      */
-    public function isDomainResource()
+    public function isDomainResource(): bool
     {
         return false !== strpos($this->getFullyQualifiedNamespace(false), 'DomainResource');
     }
@@ -499,7 +488,7 @@ class Type
     /**
      * @return int
      */
-    public function getMinLength()
+    public function getMinLength(): int
     {
         return $this->minLength;
     }
@@ -508,16 +497,8 @@ class Type
      * @param int $minLength
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setMinLength($minLength)
+    public function setMinLength(int $minLength): Type
     {
-        if (!is_int($minLength)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$minLength must be int, %s seen',
-                    gettype($minLength)
-                )
-            );
-        }
         $this->minLength = $minLength;
         return $this;
     }
@@ -525,7 +506,7 @@ class Type
     /**
      * @return int
      */
-    public function getMaxLength()
+    public function getMaxLength(): int
     {
         return $this->maxLength;
     }
@@ -534,16 +515,8 @@ class Type
      * @param int $maxLength
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setMaxLength($maxLength)
+    public function setMaxLength(int $maxLength): Type
     {
-        if (!is_int($maxLength)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$maxLength must be int, %s seen',
-                    gettype($maxLength)
-                )
-            );
-        }
         $this->maxLength = $maxLength;
         return $this;
     }
@@ -551,7 +524,7 @@ class Type
     /**
      * @return string|null
      */
-    public function getPattern()
+    public function getPattern(): ?string
     {
         return $this->pattern;
     }
@@ -560,7 +533,7 @@ class Type
      * @param string|null $pattern
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setPattern($pattern)
+    public function setPattern(?string $pattern): Type
     {
         $this->pattern = $pattern;
         return $this;
@@ -569,7 +542,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getComponentOfType()
+    public function getComponentOfType(): ?Type
     {
         return $this->componentOfType;
     }
@@ -578,7 +551,7 @@ class Type
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setComponentOfType(Type $type)
+    public function setComponentOfType(Type $type): Type
     {
         $this->componentOfType = $type;
         return $this;
@@ -587,7 +560,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Enumeration
      */
-    public function getEnumeration()
+    public function getEnumeration(): Enumeration
     {
         return $this->enumeration;
     }
@@ -596,7 +569,7 @@ class Type
      * @param mixed $enumValue
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function addEnumerationValue(EnumerationValue $enumValue)
+    public function addEnumerationValue(EnumerationValue $enumValue): Type
     {
         $this->enumeration->addValue($enumValue);
         return $this;
@@ -605,7 +578,7 @@ class Type
     /**
      * @return bool
      */
-    public function isEnumerated()
+    public function isEnumerated(): bool
     {
         return 0 !== count($this->getEnumeration());
     }
@@ -613,7 +586,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum
      */
-    public function getPrimitiveType()
+    public function getPrimitiveType(): PrimitiveTypeEnum
     {
         return $this->primitiveType;
     }
@@ -621,7 +594,7 @@ class Type
     /**
      * @return array
      */
-    public function getUnionOf()
+    public function getUnionOf(): array
     {
         return $this->unionOf;
     }
@@ -630,16 +603,16 @@ class Type
      * @param array $unionOf
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setUnionOf(array $unionOf)
+    public function setUnionOf(array $unionOf): Type
     {
         $this->unionOf = $unionOf;
         return $this;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRestrictionBaseFHIRName()
+    public function getRestrictionBaseFHIRName(): ?string
     {
         return $this->restrictionBaseFHIRName;
     }
@@ -648,7 +621,7 @@ class Type
      * @param string $restrictionBaseFHIRName
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setRestrictionBaseFHIRName($restrictionBaseFHIRName)
+    public function setRestrictionBaseFHIRName(string $restrictionBaseFHIRName): Type
     {
         $this->restrictionBaseFHIRName = $restrictionBaseFHIRName;
         return $this;
@@ -657,7 +630,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getRestrictionBaseFHIRType()
+    public function getRestrictionBaseFHIRType(): ?Type
     {
         return $this->restrictionBaseFHIRType;
     }
@@ -666,7 +639,7 @@ class Type
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setRestrictionBaseFHIRType(Type $type)
+    public function setRestrictionBaseFHIRType(Type $type): Type
     {
         $this->restrictionBaseFHIRType = $type;
         return $this;
@@ -675,7 +648,7 @@ class Type
     /**
      * @return bool
      */
-    public function isMixed()
+    public function isMixed(): bool
     {
         return $this->mixed;
     }
@@ -684,16 +657,16 @@ class Type
      * @param bool $mixed
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setMixed($mixed)
+    public function setMixed(bool $mixed): Type
     {
-        $this->mixed = (bool)$mixed;
+        $this->mixed = $mixed;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function isContainedType()
+    public function isContainedType(): bool
     {
         return $this->containedType;
     }
@@ -702,16 +675,16 @@ class Type
      * @param bool $containedType
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setContainedType($containedType)
+    public function setContainedType(bool $containedType): Type
     {
-        $this->containedType = (bool)$containedType;
+        $this->containedType = $containedType;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function isValueContainer()
+    public function isValueContainer(): bool
     {
         return $this->valueContainer;
     }
@@ -720,16 +693,16 @@ class Type
      * @param bool $valueContainer
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setValueContainer($valueContainer)
+    public function setValueContainer(bool $valueContainer): Type
     {
-        $this->valueContainer = (bool)$valueContainer;
+        $this->valueContainer = $valueContainer;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function hasValueContainerParent()
+    public function hasValueContainerParent(): bool
     {
         foreach ($this->getParentTypes() as $parent) {
             if ($parent->isValueContainer()) {
@@ -742,7 +715,7 @@ class Type
     /**
      * @return array
      */
-    public function getDirectlyImplementedInterfaces()
+    public function getDirectlyImplementedInterfaces(): array
     {
         $interfaces = [];
         $parentType = $this->getParentType();
@@ -766,7 +739,7 @@ class Type
     /**
      * @return array
      */
-    public function getDirectlyUsedTraits()
+    public function getDirectlyUsedTraits(): array
     {
         $traits = [];
         $parentType = $this->getParentType();
@@ -784,7 +757,7 @@ class Type
     /**
      * @return bool
      */
-    public function hasCommentContainerParent()
+    public function hasCommentContainerParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
             if ($parentType->isCommentContainer()) {
@@ -798,7 +771,7 @@ class Type
      * @param bool $commentContainer
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setCommentContainer($commentContainer)
+    public function setCommentContainer(bool $commentContainer): Type
     {
         $this->commentContainer = (bool)$commentContainer;
         return $this;
@@ -807,7 +780,7 @@ class Type
     /**
      * @return bool
      */
-    public function isCommentContainer()
+    public function isCommentContainer(): bool
     {
         return $this->commentContainer;
     }

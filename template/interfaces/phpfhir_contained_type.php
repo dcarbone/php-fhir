@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,6 @@ interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHP
      * The return from this method is used only when json serializing this type
      * @return string
      */
-    public function _getResourceType();
+    public function _getResourceType(): string;
 }
 <?php return ob_get_clean();

@@ -1,7 +1,9 @@
-<?php namespace DCarbone\PHPFHIR\Enum;
+<?php declare(strict_types=1);
+
+namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,36 +26,36 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
  */
 class PrimitiveTypeEnum extends AbstractEnum
 {
-    const STRING  = 'string';
-    const BOOLEAN = 'boolean';
-    const INTEGER = 'integer';
-    const DECIMAL = 'decimal';
+    public const STRING = 'string';
+    public const BOOLEAN = 'boolean';
+    public const INTEGER = 'integer';
+    public const DECIMAL = 'decimal';
 
-    const POSITIVE_INTEGER = 'positiveInt';
-    const NEGATIVE_INTEGER = 'negativeInt';
-    const UNSIGNED_INTEGER = 'unsignedInt';
+    public const POSITIVE_INTEGER = 'positiveInt';
+    public const NEGATIVE_INTEGER = 'negativeInt';
+    public const UNSIGNED_INTEGER = 'unsignedInt';
 
-    const DATE     = 'date';
-    const DATETIME = 'dateTime';
-    const TIME     = 'time';
-    const INSTANT  = 'instant';
+    public const DATE = 'date';
+    public const DATETIME = 'dateTime';
+    public const TIME = 'time';
+    public const INSTANT = 'instant';
 
-    const CODE      = 'code';
-    const OID       = 'oid';
-    const CANONICAL = 'canonical';
-    const URI       = 'uri';
-    const URL       = 'url';
-    const ID        = 'id';
-    const UUID      = 'uuid';
+    public const CODE = 'code';
+    public const OID = 'oid';
+    public const CANONICAL = 'canonical';
+    public const URI = 'uri';
+    public const URL = 'url';
+    public const ID = 'id';
+    public const UUID = 'uuid';
 
-    const BASE_64_BINARY   = 'base64Binary';
-    const MARKDOWN         = 'markdown';
-    const SAMPLE_DATA_TYPE = 'SampledDataDataType';
+    public const BASE_64_BINARY = 'base64Binary';
+    public const MARKDOWN = 'markdown';
+    public const SAMPLE_DATA_TYPE = 'SampledDataDataType';
 
     /**
      * @return string
      */
-    public function getPHPValueType()
+    public function getPHPValueType(): string
     {
         switch ($v = $this->getValue()) {
             case PrimitiveTypeEnum::STRING:
@@ -87,6 +89,24 @@ class PrimitiveTypeEnum extends AbstractEnum
 
             default:
                 throw ExceptionUtils::createUnknownPrimitiveTypeEnumException($this);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getPHPValueTypeHint(): string
+    {
+        $hint = $this->getPHPValueType();
+        switch ($hint) {
+            case PrimitiveTypeEnum::BOOLEAN:
+                return 'bool';
+            case 'double':
+                return 'float';
+            case 'integer':
+                return 'int';
+            default:
+                return $hint;
         }
     }
 }

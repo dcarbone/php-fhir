@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
+
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
@@ -28,7 +31,7 @@ if (null !== $parentType) {
 ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?> $value
      */
     public function __construct($value = null)
     {

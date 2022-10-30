@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,18 +67,16 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 {
     /**
      * This array represents every type known to this lib
-     * @var array
      */
-    private static $_typeMap = [
+    private const TYPE_MAP = [
 <?php foreach ($types->getSortedIterator() as $type) : ?>
         <?php echo $type->getTypeNameConst(true); ?> => <?php echo $type->getClassNameConst(true); ?>,
 <?php endforeach; ?>    ];
 
     /**
      * This is the list of resource types that are allowed to be contained within a <?php echo $containerType->getFHIRName(); ?> type
-     * @var array
      */
-    private static $_containableTypes = [
+    private const CONTAINABLE_TYPES = [
 <?php foreach($innerTypes as $innerType) : ?>
         <?php echo $innerType->getTypeNameConst(true); ?> => <?php echo $innerType->getClassNameConst(true); ?>,
 <?php endforeach; ?>    ];
@@ -88,28 +86,27 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param string $typeName
      * @return string|null
      */
-    public static function getTypeClass($typeName) {
-        if (is_string($typeName) && isset(self::$_typeMap[$typeName])) {
-            return self::$_typeMap[$typeName];
-        } else {
-            return null;
-        }
+    public static function getTypeClass(string $typeName): ?string
+    {
+        return self::TYPE_MAP[$typeName] ?? null;
     }
 
     /**
      * Returns the full internal class map
      * @return array
      */
-    public static function getMap() {
-        return self::$_typeMap;
+    public static function getMap(): array
+    {
+        return self::TYPE_MAP;
     }
 
     /**
      * Returns the full list of containable resource types
      * @return array
      */
-    public static function getContainableTypes() {
-        return self::$_containableTypes;
+    public static function getContainableTypes(): array
+    {
+        return self::CONTAINABLE_TYPES;
     }
 
     /**
@@ -117,13 +114,9 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 
      * @return string|null Name of class as string or null if type is not contained in map
      */
-    public static function getContainedTypeClassName($typeName)
+    public static function getContainedTypeClassName(string $typeName): ?string
     {
-        if (is_string($typeName) && isset(self::$_containableTypes[$typeName])) {
-            return self::$_containableTypes[$typeName];
-        } else {
-            return null;
-        }
+        return self::CONTAINABLE_TYPES[$typeName] ?? null;
     }
 
     /**
@@ -132,14 +125,15 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public static function isContainableResource($type) {
+    public static function isContainableResource($type): bool
+    {
         $tt = gettype($type);
         if ('object' === $tt) {
             if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
-                return in_array('\\' . get_class($type), self::$_containableTypes, true);
+                return in_array('\\' . get_class($type), self::CONTAINABLE_TYPES, true);
             }
             if ($type instanceof \DOMNode) {
-                return isset(self::$_containableTypes[$type->nodeName]);
+                return isset(self::CONTAINABLE_TYPES[$type->nodeName]);
             }
             throw new \InvalidArgumentException(sprintf(
                 'Expected "$type" to be instance of "<?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_TYPE; ?>" or "%s", saw "%s"',
@@ -148,11 +142,11 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
             ));
         }
         if ('string' === $tt) {
-            return isset(self::$_containableTypes[$type]) || in_array('\\' . ltrim($type, '\\'), self::$_containableTypes, true);
+            return isset(self::CONTAINABLE_TYPES[$type]) || in_array('\\' . ltrim($type, '\\'), self::CONTAINABLE_TYPES, true);
         }
         if ('array' === $tt) {
             if (isset($type[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-                return isset(self::$_containableTypes[$type[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]]);
+                return isset(self::CONTAINABLE_TYPES[$type[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]]);
             }
             return false;
         }
@@ -167,7 +161,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param \DOMNode $node Parent element containing inline resource
      * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
-    public static function getContainedTypeFromXML(\DOMNode $node)
+    public static function getContainedTypeFromXML(\DOMNode $node): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+
     {
         $typeName = $node->nodeName;
         $className = self::getContainedTypeClassName($typeName);
@@ -182,7 +177,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param array|null $data
      * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
-    public static function getContainedTypeFromArray($data)
+    public static function getContainedTypeFromArray(?array $data): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+
     {
         if (null === $data || [] === $data) {
             return null;
@@ -216,7 +212,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param string $typeName
      * @return \UnexpectedValueException
      */
-    private static function createdInvalidContainedTypeException($typeName) {
+    private static function createdInvalidContainedTypeException(string $typeName): \UnexpectedValueException
+    {
         return new \UnexpectedValueException(sprintf(
             'Type "%s" is not among the list of types allowed within a <?php echo $containerType->getFHIRName(); ?>',
             $typeName

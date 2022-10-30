@@ -1,7 +1,9 @@
-<?php namespace DCarbone\PHPFHIR\Utilities;
+<?php declare(strict_types=1);
+
+namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,19 +27,19 @@ use DCarbone\PHPFHIR\Definition\Type;
 abstract class NameUtils
 {
     /** @var array */
-    public static $classNameSearch = [
+    public static array $classNameSearch = [
         '.',
         '-',
     ];
 
     /** @var array */
-    public static $classNameReplace = [
+    public static array $classNameReplace = [
         '',
         '_',
     ];
 
     /** @var array */
-    private static $upper = [
+    private const _UPPER = [
         'A',
         'B',
         'C',
@@ -66,7 +68,7 @@ abstract class NameUtils
         'Z',
     ];
     /** @var array */
-    private static $lower = [
+    private const _LOWER = [
         'a',
         'b',
         'c',
@@ -95,21 +97,21 @@ abstract class NameUtils
         'z',
     ];
     /** @var array */
-    private static $nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    private const _NUMS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     /** @var array */
-    private static $constPunctuationMap = [
+    private const _PUNCTUATION_MAP = [
         '.' => '_DOT_',
         '-' => '_HYPHEN_',
     ];
 
     /** @var array */
-    private static $constNameMap = [];
+    private static array $constNameMap = [];
 
     /**
      * @param string $name
      * @return bool
      */
-    public static function isValidVariableName($name)
+    public static function isValidVariableName(string $name): bool
     {
         return (bool)preg_match(PHPFHIR_VARIABLE_NAME_REGEX, $name);
     }
@@ -118,7 +120,7 @@ abstract class NameUtils
      * @param string $name
      * @return bool
      */
-    public static function isValidFunctionName($name)
+    public static function isValidFunctionName(string $name): bool
     {
         return (bool)preg_match(PHPFHIR_FUNCTION_NAME_REGEX, $name);
     }
@@ -127,25 +129,25 @@ abstract class NameUtils
      * @param string $name
      * @return bool
      */
-    public static function isValidClassName($name)
+    public static function isValidClassName(string $name): bool
     {
         return (bool)preg_match(PHPFHIR_CLASSNAME_REGEX, $name);
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      * @return bool
      */
-    public static function isValidNSName($name)
+    public static function isValidNSName(?string $name): bool
     {
-        return null === $name || '' === $name || (bool)preg_match(PHPFHIR_NAMESPACE_REGEX, $name);
+        return null === $name || '' === $name || preg_match(PHPFHIR_NAMESPACE_REGEX, $name);
     }
 
     /**
      * @param string $name
      * @return string
      */
-    public static function getTypeClassName($name)
+    public static function getTypeClassName(string $name): string
     {
         if (false !== ($pos = strpos($name, '-primitive'))) {
             $name = sprintf('%sPrimitive', substr($name, 0, $pos));
@@ -164,7 +166,7 @@ abstract class NameUtils
      * @param string $name
      * @return string
      */
-    public static function getConstName($name)
+    public static function getConstName(string $name): string
     {
         if (isset(self::$constNameMap[$name])) {
             return self::$constNameMap[$name];
@@ -173,7 +175,7 @@ abstract class NameUtils
         $constName = '';
         $lastUpper = false;
         foreach (str_split($name) as $chr) {
-            if (in_array($chr, self::$upper, true) || in_array($chr, self::$nums, true)) {
+            if (in_array($chr, self::_UPPER, true) || in_array($chr, self::_NUMS, true)) {
                 if ('' !== $constName && !$lastUpper && '_' !== substr(
                         $constName,
                         -1
@@ -182,14 +184,14 @@ abstract class NameUtils
                 }
                 $constName .= $chr;
                 $lastUpper = true;
-            } elseif (in_array($chr, self::$lower, true)) {
+            } elseif (in_array($chr, self::_LOWER, true)) {
                 $constName .= strtoupper($chr);
                 $lastUpper = false;
-            } elseif (in_array($chr, self::$nums, true)) {
+            } elseif (in_array($chr, self::_NUMS, true)) {
                 $constName .= $chr;
                 $lastUpper = false;
-            } elseif (isset(self::$constPunctuationMap[$chr])) {
-                $constName .= self::$constPunctuationMap[$chr];
+            } elseif (isset(self::_PUNCTUATION_MAP[$chr])) {
+                $constName .= self::_PUNCTUATION_MAP[$chr];
                 $lastUpper = false;
             } else {
                 $constName .= '_';
@@ -203,7 +205,7 @@ abstract class NameUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function getTypeXMLElementName(Type $type)
+    public static function getTypeXMLElementName(Type $type): string
     {
         return str_replace(self::$classNameSearch, self::$classNameReplace, $type->getFHIRName());
     }
@@ -212,7 +214,7 @@ abstract class NameUtils
      * @param string $propName
      * @return string
      */
-    public static function getPropertyMethodName($propName)
+    public static function getPropertyMethodName(string $propName): string
     {
         return ucfirst($propName);
     }
@@ -221,7 +223,7 @@ abstract class NameUtils
      * @param string $propName
      * @return string
      */
-    public static function getPropertyVariableName($propName)
+    public static function getPropertyVariableName(string $propName): string
     {
         return sprintf('$%s', $propName);
     }

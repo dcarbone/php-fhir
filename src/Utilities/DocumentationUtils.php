@@ -1,7 +1,9 @@
-<?php namespace DCarbone\PHPFHIR\Utilities;
+<?php declare(strict_types=1);
+
+namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +32,7 @@ abstract class DocumentationUtils
      * @param bool $trailingNewline
      * @return string
      */
-    public static function compilePropertyDocumentation(Property $property, $spaces, $trailingNewline)
+    public static function compilePropertyDocumentation(Property $property, int $spaces, bool $trailingNewline): string
     {
         $propValueType = $property->getValueFHIRType();
 

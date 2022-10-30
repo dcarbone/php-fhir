@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ abstract class AbstractEnum extends Enum
      * @param mixed $enumValue
      * @return bool
      */
-    public function is($enumValue)
+    public function is($enumValue): bool
     {
         if (is_scalar($enumValue)) {
             return $enumValue === $this->getValue();
@@ -42,7 +42,7 @@ abstract class AbstractEnum extends Enum
      * @param array $enumValues
      * @return bool
      */
-    public function isOneOf(array $enumValues)
+    public function isOneOf(array $enumValues): bool
     {
         foreach ($enumValues as $kind) {
             if ($this->is($kind)) {

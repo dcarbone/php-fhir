@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,15 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $propertyName = $property->getName();
 $propertyType = $property->getValueFHIRType();
 $propertyTypeClassName = $type->getImports()->getImportByType($propertyType);
-$propertyPrimitiveTypeKind = $propertyType->getPrimitiveType();
 $isCollection = $property->isCollection();
 
 $methodName = ($isCollection ? 'add' : 'set') . ucfirst($propertyName);
@@ -37,11 +38,11 @@ ob_start();
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $propertyType->getFullyQualifiedClassName(true); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::propertyTypeDoc($config, $property, true); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null)
+    public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null): object
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);

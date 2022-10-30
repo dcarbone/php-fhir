@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,15 +47,15 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSe
     const KEY_LIBXML_OPTS         = 'libxmlOpts';
 
     /** @var array */
-    private static $_keysWithDefaults = [
+    private static array $_keysWithDefaults = [
         self::KEY_REGISTER_AUTOLOADER => false,
         self::KEY_LIBXML_OPTS => <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>,
     ];
 
     /** @var bool */
-    private $registerAutoloader;
+    private bool $registerAutoloader;
     /** @var int */
-    private $libxmlOpts;
+    private int $libxmlOpts;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> Constructor
@@ -76,7 +76,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSe
      * @param bool $registerAutoloader
      * @return void
      */
-    public function setRegisterAutoloader($registerAutoloader)
+    public function setRegisterAutoloader($registerAutoloader): void
     {
         $this->registerAutoloader = (bool)$registerAutoloader;
     }
@@ -84,7 +84,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSe
     /**
      * @return bool
      */
-    public function getRegisterAutoloader()
+    public function getRegisterAutoloader(): bool
     {
         return $this->registerAutoloader;
     }
@@ -92,29 +92,29 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSe
     /**
      * @param int $libxmlOpts
      */
-    public function setLibxmlOpts($libxmlOpts)
+    public function setLibxmlOpts(int $libxmlOpts): void
     {
-        $this->libxmlOpts = (int)$libxmlOpts;
+        $this->libxmlOpts = $libxmlOpts;
     }
 
     /**
      * @return int
      */
-    public function getLibxmlOpts()
+    public function getLibxmlOpts(): int
     {
         return $this->libxmlOpts;
     }
 
     /**
-     * @return array
+     * @return \stdClass
      */
     public function jsonSerialize()
     {
-        $a = [];
+        $out= new \stdClass();
         foreach(self::$_keysWithDefaults as $k => $_) {
-            $a[$k] = $this->{'get'.$k}();
+            $out->{$k} = $this->{'get'.$k}();
         }
-        return $a;
+        return $out;
     }
 }
 <?php return ob_get_clean();

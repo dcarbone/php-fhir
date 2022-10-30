@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,18 @@ trait SourceTrait
      *
      * @var null|\SimpleXMLElement
      */
-    protected $sourceSXE;
+    protected ?\SimpleXMLElement $sourceSXE;
 
     /**
      * Name of file in definition this type was parsed from
      * @var string
      */
-    protected $sourceFilename;
+    protected string $sourceFilename;
 
     /**
      * @return null|\SimpleXMLElement
      */
-    public function getSourceSXE()
+    public function getSourceSXE(): ?\SimpleXMLElement
     {
         return $this->sourceSXE;
     }
@@ -44,7 +44,7 @@ trait SourceTrait
     /**
      * @return string
      */
-    public function getSourceFilename()
+    public function getSourceFilename(): string
     {
         return $this->sourceFilename;
     }
@@ -52,7 +52,7 @@ trait SourceTrait
     /**
      * @return string
      */
-    public function getSourceFileBasename()
+    public function getSourceFileBasename(): string
     {
         return basename($this->getSourceFilename());
     }

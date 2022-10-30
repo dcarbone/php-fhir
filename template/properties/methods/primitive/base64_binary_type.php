@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,18 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
+
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
     /**
-     * @param null|<?php echo $primitiveType->getPHPValueType(); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?> $value
      * @return static
      */
-    public function setValue($value)
+    public function setValue($value): object
     {
         if (null === $value) {
             $this->value = null;

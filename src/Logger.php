@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,5 +24,5 @@ namespace DCarbone\PHPFHIR;
 if (80000 <= PHP_VERSION_ID) {
     require __DIR__ . '/Logger/Logger80.php';
 } else {
-    require __DIR__ . '/Logger/Logger56.php';
+    require __DIR__ . '/Logger/Logger74.php';
 }

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
-use SimpleXMLElement;
 
 /**
  * Class AnnotationElementTypeDecorator
@@ -38,7 +37,7 @@ abstract class AnnotationElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $annotation
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $annotation)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $annotation): void
     {
         // parse through attributes
         foreach ($annotation->attributes() as $attribute) {

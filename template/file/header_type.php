@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ $namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
 ob_start();
 
 // build php opener
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $namespace) {
     echo "namespace {$namespace};\n\n";

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,9 @@ abstract class TypeExtractor
      * @param string $filePath
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @return \SimpleXMLElement
+     * @throws \Exception
      */
-    protected static function constructSXEWithFilePath($filePath, VersionConfig $config)
+    protected static function constructSXEWithFilePath(string $filePath, VersionConfig $config): \SimpleXMLElement
     {
         $logger = $config->getLogger();
         $logger->debug(sprintf('Parsing classes from file "%s"...', $filePath));
@@ -54,9 +55,10 @@ abstract class TypeExtractor
             LIBXML_NONET | LIBXML_COMPACT | LIBXML_NSCLEAN,
             false
         );
+        $error = libxml_get_last_error();
         libxml_use_internal_errors(false);
 
-        if ($sxe instanceof SimpleXMLElement) {
+        if (false === $error) {
             $sxe->registerXPathNamespace('xs', 'http://www.w3.org/2001/XMLSchema');
             $sxe->registerXPathNamespace('', 'http://hl7.org/fhir');
             return $sxe;
@@ -85,10 +87,11 @@ abstract class TypeExtractor
      * Extract Type definitions present in XSD file
      *
      * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param string $sourceFile
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param string $sourceFile
+     * @throws \Exception
      */
-    protected static function extractTypesFromXSD(VersionConfig $config, Types $types, $sourceFile)
+    protected static function extractTypesFromXSD(VersionConfig $config, Types $types, string $sourceFile): void
     {
         $basename = basename($sourceFile);
         $logger = $config->getLogger();
@@ -184,8 +187,9 @@ abstract class TypeExtractor
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @return \DCarbone\PHPFHIR\Definition\Types
+     * @throws \Exception
      */
-    public static function parseTypes(VersionConfig $config)
+    public static function parseTypes(VersionConfig $config): Types
     {
         $types = new Types($config);
         $logger = $config->getLogger();

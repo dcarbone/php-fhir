@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,15 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
-$isPrimitiveType = $type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]);
-
 ob_start();
 
 if ($type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
     echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods/primitive.php',
-        ['type' => $type]
+        [
+            'config' => $config,
+            'type' => $type
+        ]
     );
 else :
     echo require_with(

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 class PropertyUseEnum extends AbstractEnum
 {
-    const PROHIBITED = 'prohibited';
-    const OPTIONAL   = 'optional';
-    const REQUIRED   = 'required';
+    public const PROHIBITED = 'prohibited';
+    public const OPTIONAL   = 'optional';
+    public const REQUIRED   = 'required';
 }

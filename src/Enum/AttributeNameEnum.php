@@ -1,7 +1,9 @@
-<?php namespace DCarbone\PHPFHIR\Enum;
+<?php declare(strict_types=1);
+
+namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +24,16 @@
  */
 class AttributeNameEnum extends AbstractEnum
 {
-    const NAME         = 'name';
-    const VALUE        = 'value';
-    const BASE         = 'base';
-    const MEMBER_TYPES = 'memberTypes';
-    const TYPE         = 'type';
-    const _USE         = 'use';
-    const MIN_OCCURS   = 'minOccurs';
-    const MAX_OCCURS   = 'maxOccurs';
-    const REF          = 'ref';
-    const FIXED        = 'fixed';
-    const MIXED        = 'mixed';
-    const _NAMESPACE   = 'namespace';
+    public const NAME         = 'name';
+    public const VALUE        = 'value';
+    public const BASE         = 'base';
+    public const MEMBER_TYPES = 'memberTypes';
+    public const TYPE         = 'type';
+    public const USE          = 'use';
+    public const MIN_OCCURS   = 'minOccurs';
+    public const MAX_OCCURS   = 'maxOccurs';
+    public const REF          = 'ref';
+    public const FIXED        = 'fixed';
+    public const MIXED        = 'mixed';
+    public const NAMESPACE    = 'namespace';
 }

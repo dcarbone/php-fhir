@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ ob_start(); ?>
 
      * @var array
      */
-    private static $_validationRules = [<?php foreach ($properties as $property) :
+    private static array $_validationRules = [<?php foreach ($properties as $property) :
     $validationMap = $property->buildValidationMap();
     if ([] !== $validationMap) : ?>
 

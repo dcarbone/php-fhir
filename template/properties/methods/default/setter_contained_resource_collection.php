@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ ob_start(); ?>
 
      * @return static
      */
-    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [])
+    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = []): object
     {
         if ([] !== $this-><?php echo $propertyName; ?>) {
             $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));

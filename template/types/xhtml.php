@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,11 @@ ob_start();
 echo require_with(
     PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
     [
+        'config' => $config,
         'fqns' => $fqns,
         'skipImports' => false,
         'type' => $type,
         'types' => $types,
-        'config' => $config,
     ]
 );
 
@@ -52,25 +52,24 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['type' => $type, 'parentType' => null]); ?>
+<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['config' => $config, 'type' => $type, 'parentType' => null]); ?>
 
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
-    const TO_STRING_FUNC = '__toString';
 
+    /** @var null|\DOMNode */
+    private ?\DOMNode $_data = null;
+    /** @var null|string */
+    private ?string $_elementName = null;
     /** @var string */
-    private $_data = null;
-    /** @var string */
-    private $_elementName = null;
-    /** @var string */
-    private $_xmlns = '';
+    private string $_xmlns = '';
 
     /** @var array */
-    private static $_validationRules = [];
+    private static array $_validationRules = [];
 
     /**
-     * <?php echo PHPFHIR_RAW_TYPE_NAME; ?> Constructor
-     * @param null|string|int|float|bool|object $data
+     * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
+     * @param null|string|\SimpleXMLElement|\DOMNode $data
      */
     public function __construct($data = null)
     {
@@ -84,7 +83,8 @@ echo require_with(
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function _setElementName($elementName)
+    public function _setElementName(string $elementName): <?php echo $type->getClassName(); ?>
+
     {
         $this->_elementName = $elementName;
         return $this;
@@ -94,6 +94,7 @@ echo require_with(
 echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
     [
+        'config' => $config,
         'type' => $type,
         'parentType' => $type->getParentType(),
     ]
@@ -101,30 +102,51 @@ echo require_with(
 ?>
 
     /**
-     * @return null|string|integer|float|boolean|object
+     * @return null|\DOMNode
      */
-    public function _getData()
+    public function _getData(): ?\DOMNode
     {
         return $this->_data;
     }
 
     /**
-     * @param mixed $data
+     * @param null|string|\SimpleXMLElement|\DOMNode $data
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public function _setData($data)
+    public function _setData($data): <?php echo $type->getClassName(); ?>
+
     {
         if (null === $data) {
             $this->_data = null;
             return $this;
         }
-        if (is_scalar($data) || (is_object($data) && (method_exists($data, self::TO_STRING_FUNC) || $data instanceof \DOMNode || $data instanceof \DOMText))) {
-            $this->_data = $data;
+        if (is_string($data)) {
+            $dom = new \DOMDocument();
+            $dom->loadHTML($data);
+            $this->_data = $dom->documentElement;
+            return $this;
+        }
+        if ($data instanceof \SimpleXMLElement) {
+            $dom = new \DOMDocument();
+            $dom->appendChild($dom->importNode(dom_import_simplexml($data), true));
+            $this->_data = $dom->documentElement;
+            return $this;
+        }
+        if ($data instanceof \DOMDocument) {
+            $dom = new \DOMDocument();
+            $dom->appendChild($dom->importNode($data->documentElement, true));
+            $this->_data = $dom->documentElement;
+            return $this;
+        }
+        if ($data instanceof \DOMNode) {
+            $dom = new \DOMDocument();
+            $dom->appendChild($dom->importNode($data, true));
+            $this->_data = $dom->documentElement;
             return $this;
         }
         throw new \InvalidArgumentException(sprintf(
-            '$data must be one of: null, string, integer, double, boolean, or object implementing "__toString", saw "%s"',
+            '$data must be one of: null, valid XHTML string, or instance of \\SimpleXMLElement or \\DOMNode, saw "%s"',
             gettype($data)
         ));
     }
@@ -133,7 +155,8 @@ echo require_with(
 <?php echo require_with(
         PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods.php',
     [
-            'type' => $type,
+        'config' => $config,
+        'type' => $type,
     ]
 ); ?>
 
@@ -150,18 +173,16 @@ echo require_with(
     ]
 );
 ?>
-        $dom = new \DOMDocument();
-        $dom->loadXML($element->ownerDocument->saveXML($element), $libxmlOpts | LIBXML_NOXMLDECL);
-        $type->_setData($dom->documentElement);
+        $type->_setData($element);
         return $type;
     }
 
      /**
-     * @param \DOMElement|string|null $element
+     * @param \DOMElement|null $element
      * @param null|int $libxmlOpts
      * @return \DOMElement
      */
-    public function xmlSerialize(\DOMElement $element = null, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
     {
         $data = $this->_getData();
         $xmlns = $this->_getFHIRXMLNamespace();
@@ -171,58 +192,43 @@ echo require_with(
                 $xmlns = " xmlns=\"{$xmlns}\"";
             }
             if (null === $data) {
-                $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>", $libxmlOpts);
+                $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>", $libxmlOpts);
                 return $dom->documentElement;
             }
-            if (is_scalar($data) || (is_object($data) && !($data instanceof \DOMNode) && !($data instanceof \DOMText))) {
-                if (is_bool($data)) {
-                    $strval = $data ? 'true' : 'false';
-                } else {
-                    $strval = (string)$data;
-                }
-                $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}>{$strval}</<?php echo $xmlName; ?>", $libxmlOpts);
-                return $dom->documentElement;
-            }
+            $dom->appendChild($dom->importNode($data, true));
             return $dom->documentElement;
         }
-
+        if (null === $data) {
+            return $element;
+        }
         if (!empty($xmlns)) {
             $element->setAttribute('xmlns', $xmlns);
         }
-
-        if ($data instanceof \DOMElement) {
-            if ($data->hasAttributes()) {
-                for ($i = 0; $i < $data->attributes->length; $i++) {
-                    $attr = $data->attributes->item($i);
-                    $element->setAttribute($attr->nodeName, $attr->nodeValue);
-                }
-            }
-            if ($data->hasChildNodes()) {
-                for ($i = 0; $i < $data->childNodes->length; $i++) {
-                    $n = $data->childNodes->item($i);
-                    $n = $element->ownerDocument->importNode($n, true);
-                    $element->appendChild($n);
-                }
-            }
-        }
-
+        $element->appendChild($element->ownerDocument->importNode($data, true));
         return $element;
     }
 
     /**
-     * @return null|string|integer|float|boolean|object
+     * @return mixed
      */
     public function jsonSerialize()
     {
-        return $this->_getData();
+        $data = $this->_getData();
+        if (null === $data) {
+            return null;
+        }
+        return $data->ownerDocument->saveXML($data);
     }
 
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return strval($this->_getData());
+        $data = $this->_getData();
+        if (null === $data) {
+            return '';
+        }
+        return $data->ownerDocument->saveXML($data);
     }
-
 }<?php return ob_get_clean();

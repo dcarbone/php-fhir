@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DomainException;
-use SimpleXMLElement;
 
 /**
  * Class ChoiceElementElementPropertyDecorator
@@ -38,26 +36,25 @@ abstract class ChoiceElementElementPropertyDecorator
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
-     * @param int|null $minOccurs
-     * @param int|null $maxOccurs
+     * @param string|null $minOccurs
+     * @param string|null $maxOccurs
      * @param \SimpleXMLElement|null $annotationElement
      */
     public static function decorate(
         VersionConfig $config,
         Types $types,
         Type $type,
-        SimpleXMLElement $element,
-        $minOccurs,
-        $maxOccurs,
-        SimpleXMLElement $annotationElement = null
-    ) {
-        $properties = $type->getProperties();
+        \SimpleXMLElement $element,
+        ?string $minOccurs,
+        ?string $maxOccurs,
+        \SimpleXMLElement $annotationElement = null
+    ): void {
         $property = new Property($type, $element, $type->getSourceFilename());
 
-        if (is_int($minOccurs)) {
-            $property->setMinOccurs($minOccurs);
+        if (null !== $minOccurs) {
+            $property->setMinOccurs(intval($minOccurs));
         }
-        if (is_int($maxOccurs)) {
+        if (null !== $maxOccurs) {
             $property->setMaxOccurs($maxOccurs);
         }
         if (null !== $annotationElement) {
@@ -85,7 +82,7 @@ abstract class ChoiceElementElementPropertyDecorator
                     $property->setMinOccurs(intval((string)$attribute));
                     break;
                 case AttributeNameEnum::MAX_OCCURS:
-                    $property->setMaxOccurs(intval((string)$attribute));
+                    $property->setMaxOccurs((string)$attribute);
                     break;
 
                 default:
@@ -95,7 +92,7 @@ abstract class ChoiceElementElementPropertyDecorator
 
         if (null === $property->getName()) {
             if ('' === ($ref = $property->getRef())) {
-                throw new DomainException(
+                throw new \DomainException(
                     sprintf(
                         'Unable to determine Property name for Type "%s" in file "%s": %s',
                         $type->getFHIRName(),
@@ -121,6 +118,6 @@ abstract class ChoiceElementElementPropertyDecorator
             }
         }
 
-        $properties->addProperty($property);
+        $type->getProperties()->addProperty($property);
     }
 }

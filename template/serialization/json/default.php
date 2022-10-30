@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,25 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
 ob_start(); ?>
     /**
-     * @return array
+     * @return \stdClass
      */
     public function jsonSerialize()
     {
 <?php if (null !== $type->getParentType()) : ?>
-        $a = parent::jsonSerialize();
+        $out = parent::jsonSerialize();
 <?php else : ?>
-        $a = [];
+        $out = new \stdClass();
 <?php endif;
 
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
+            $out->{PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS} = $vs;
         }
 <?php endif;
 foreach ($properties as $property) :
@@ -46,22 +47,39 @@ foreach ($properties as $property) :
     if ($propertyType->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
         echo require_with(
             __DIR__ . '/default_property_primitive_list.php',
-                ['property' => $property]
+                [
+                    'config' => $config,
+                    'property' => $property
+                ]
         );
     elseif ($propertyType->isValueContainer() || $propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
         echo require_with(
             __DIR__ . '/default_property_value_primitive_container.php',
-            ['property' => $property]
+            [
+                'config' => $config,
+                'property' => $property
+            ]
         );
     else :
-        echo require_with(__DIR__ . '/default_property_default.php', ['property' => $property]);
+        echo require_with(
+                __DIR__ . '/default_property_default.php',
+                [
+                    'config' => $config,
+                    'property' => $property
+                ]
+        );
     endif;
 endforeach;
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
+            $out->{PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS} = $vs;
         }
 <?php endif; ?>
-        return <?php if ($type->isContainedType()) : ?>[<?php  echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => $this->_getResourceType()] + <?php endif; ?>$a;
+
+<?php if ($type->isContainedType()) : ?>
+        $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE} = $this->_getResourceType();
+
+<?php endif; ?>
+        return $out;
     }
 <?php return ob_get_clean();

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,23 +30,23 @@ use SplFixedArray;
 class Properties implements Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $properties = [];
+    private array $properties = [];
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $_sortedProperties;
+    private array $_sortedProperties;
 
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $_directProperties;
+    private array $_directProperties;
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $_directSortedProperties;
+    private array $_directSortedProperties;
 
     /** @var bool */
-    private $cacheBuilt = false;
+    private bool $cacheBuilt = false;
 
-    /** @var */
-    private $config;
+    /** @var \DCarbone\PHPFHIR\Config\VersionConfig*/
+    private VersionConfig $config;
 
     /** @var \DCarbone\PHPFHIR\Definition\Type */
-    private $type;
+    private Type $type;
 
     /**
      * Properties constructor.
@@ -70,7 +70,7 @@ class Properties implements Countable
     /**
      * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
-    public function getConfig()
+    public function getConfig(): VersionConfig
     {
         return $this->config;
     }
@@ -78,7 +78,7 @@ class Properties implements Countable
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function getType()
+    public function getType(): Type
     {
         return $this->type;
     }
@@ -87,7 +87,7 @@ class Properties implements Countable
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return \DCarbone\PHPFHIR\Definition\Properties
      */
-    public function addProperty(Property &$property)
+    public function addProperty(Property &$property): Properties
     {
         $pname = $property->getName();
         $pref = $property->getRef();
@@ -136,7 +136,7 @@ class Properties implements Countable
      * @param string $name
      * @return \DCarbone\PHPFHIR\Definition\Property|null
      */
-    public function getProperty($name)
+    public function getProperty(string $name): ?Property
     {
         foreach ($this->properties as $property) {
             if ($property->getName() === $name) {
@@ -150,7 +150,7 @@ class Properties implements Countable
      * @param string $name
      * @return bool
      */
-    public function hasProperty($name)
+    public function hasProperty(string $name): bool
     {
         return null !== $this->getProperty($name);
     }
@@ -158,7 +158,7 @@ class Properties implements Countable
     /**
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getIterator()
+    public function getIterator(): iterable
     {
         return SplFixedArray::fromArray($this->properties, false);
     }
@@ -166,7 +166,7 @@ class Properties implements Countable
     /**
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getSortedIterator()
+    public function getSortedIterator(): iterable
     {
         $this->_buildLocalCaches();
         return SplFixedArray::fromArray($this->_sortedProperties, false);
@@ -175,7 +175,7 @@ class Properties implements Countable
     /**
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getDirectIterator()
+    public function getDirectIterator(): iterable
     {
         $this->_buildLocalCaches();
         return SplFixedArray::fromArray($this->_directProperties, false);
@@ -184,7 +184,7 @@ class Properties implements Countable
     /**
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getDirectSortedIterator()
+    public function getDirectSortedIterator(): iterable
     {
         $this->_buildLocalCaches();
         return SplFixedArray::fromArray($this->_directSortedProperties, false);
@@ -193,12 +193,12 @@ class Properties implements Countable
     /**
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return count($this->properties);
     }
 
-    private function _buildLocalCaches()
+    private function _buildLocalCaches(): void
     {
         if (!$this->cacheBuilt) {
             $this->_sortedProperties = $this->properties;

@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
@@ -64,16 +65,18 @@ ob_start(); ?>
         echo require_with(
                 PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/resource_container_property_setter_call.php',
                 [
-                        'type' => $type,
-                        'property' => $property,
+                    'config' => $config,
+                    'type' => $type,
+                    'property' => $property,
                 ]
         );
     else :
         echo require_with(
                 PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
                 [
-                        'type' => $type,
-                        'property' => $property
+                    'config' => $config,
+                    'type' => $type,
+                    'property' => $property
                 ]
         );
     endif;

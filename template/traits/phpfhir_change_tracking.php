@@ -1,6 +1,7 @@
-<?php
+<?php declare(strict_types=1);
+
 /*
- * Copyright 2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,9 +44,9 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
 
 {
     /** @var int */
-    private $_valuesAdded = 0;
+    private int $_valuesAdded = 0;
     /** @var int */
-    private $_valuesRemoved = 0;
+    private int $_valuesRemoved = 0;
 
     /**
      * Used to track the setting of a given value, taking into consideration whether a value is being overwritten
@@ -54,7 +55,7 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
      * @param object|null $new
      * @return void
      */
-    protected function _trackValueSet($original, $new) {
+    protected function _trackValueSet(?object $original, ?object $new): void {
         if ($original === $new) {
             return;
         }
@@ -73,7 +74,7 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
      *
      * @return void
      */
-    protected function _trackValueAdded()
+    protected function _trackValueAdded(): void
     {
         $this->_valuesAdded++;
     }
@@ -84,7 +85,7 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
      * @param int $n
      * @return void
      */
-    protected function _trackValuesRemoved($n)
+    protected function _trackValuesRemoved(int $n): void
     {
         $this->_valuesRemoved += $n;
     }
@@ -94,7 +95,7 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
      *
      * @return bool
      */
-    public function _isValued()
+    public function _isValued(): bool
     {
         return $this->_valuesAdded > $this->_valuesRemoved;
     }
@@ -104,7 +105,7 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
      *
      * @return int
      */
-    public function _getValueAddedCount()
+    public function _getValueAddedCount(): int
     {
         return $this->_valuesAdded;
     }
@@ -114,7 +115,7 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
      *
      * @return int
      */
-    public function _getValueRemovedCount()
+    public function _getValueRemovedCount(): int
     {
         return $this->_valuesRemoved;
     }
@@ -124,7 +125,7 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
      *
      * @return int
      */
-    public function _getValueSetCount()
+    public function _getValueSetCount(): int
     {
         return $this->_valuesAdded - $this->_valuesRemoved;
     }

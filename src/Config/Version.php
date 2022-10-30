@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Config;
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,26 +28,26 @@ use InvalidArgumentException;
  */
 class Version
 {
-    const KEY_URL           = 'url';
-    const KEY_NAMESPACE     = 'namespace';
-    const KEY_TEST_ENDPOINT = 'testEndpoint';
+    public const KEY_URL           = 'url';
+    public const KEY_NAMESPACE     = 'namespace';
+    public const KEY_TEST_ENDPOINT = 'testEndpoint';
 
     /** @var string */
-    private $name;
+    private string $name;
 
     /** @var string */
-    private $url;
+    private string $url;
     /** @var string */
-    private $namespace;
+    private string $namespace;
     /** @var string */
-    private $testEndpoint;
+    private string $testEndpoint;
 
     /**
      * Version constructor.
      * @param string $name
      * @param array $conf
      */
-    public function __construct($name, array $conf = [])
+    public function __construct(string $name, array $conf = [])
     {
         $this->name = $name;
 
@@ -68,7 +68,7 @@ class Version
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -76,7 +76,7 @@ class Version
     /**
      * @return string
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
@@ -85,16 +85,8 @@ class Version
      * @param string $url
      * @return \DCarbone\PHPFHIR\Config\Version
      */
-    public function setUrl($url)
+    public function setUrl(string $url): Version
     {
-        if (!is_string($url)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$url must be a string, %s seen.',
-                    gettype($url)
-                )
-            );
-        }
         $this->url = $url;
         return $this;
     }
@@ -103,28 +95,20 @@ class Version
      * @param bool $leadingSlash
      * @return string
      */
-    public function getNamespace($leadingSlash)
+    public function getNamespace(bool $leadingSlash): string
     {
         return $leadingSlash ? "\\{$this->namespace}" : $this->namespace;
     }
 
     /**
-     * @param string $namespace
+     * @param string|null $namespace
      * @return \DCarbone\PHPFHIR\Config\Version
      */
-    public function setNamespace($namespace)
+    public function setNamespace(?string $namespace): Version
     {
         if (null === $namespace) {
             $this->namespace = '';
             return $this;
-        }
-        if (!is_string($namespace)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$namespace must be a string, %s seen.',
-                    gettype($namespace)
-                )
-            );
         }
         // handle no or empty namespace
         $namespace = trim((string)$namespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
@@ -150,25 +134,17 @@ class Version
     /**
      * @return string|null
      */
-    public function getTestEndpoint()
+    public function getTestEndpoint(): ?string
     {
-        return isset($this->testEndpoint) ? $this->testEndpoint : null;
+        return $this->testEndpoint ?? null;
     }
 
     /**
      * @param string $testEndpoint
      * @return \DCarbone\PHPFHIR\Config\Version
      */
-    public function setTestEndpoint($testEndpoint)
+    public function setTestEndpoint(string $testEndpoint): Version
     {
-        if (!is_string($testEndpoint)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$testEndpoint must be a string, %s seen.',
-                    gettype($testEndpoint)
-                )
-            );
-        }
         $this->testEndpoint = $testEndpoint;
         return $this;
     }

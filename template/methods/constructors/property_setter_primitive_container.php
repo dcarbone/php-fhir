@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $configf */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $propertyTypeClassName = $property->getValueFHIRType()->getClassName();
@@ -27,8 +28,8 @@ $setter = $property->getSetterName();
 
 ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>]) || isset($data[self::<?php echo $propertyFieldConstExt; ?>])) {
-            $value = isset($data[self::<?php echo $propertyFieldConst; ?>]) ? $data[self::<?php echo $propertyFieldConst; ?>] : null;
-            $ext = (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) ? $ext = $data[self::<?php echo $propertyFieldConstExt; ?>] : $ext = [];
+            $value = $data[self::<?php echo $propertyFieldConst; ?>] ?? null;
+            $ext = (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) ? $data[self::<?php echo $propertyFieldConstExt; ?>] : [];
             if (null !== $value) {
                 if ($value instanceof <?php echo $propertyTypeClassName; ?>) {
                     $this-><?php echo $setter; ?>($value);

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\TypeDecorationValidator;
 use DCarbone\PHPFHIR\Definition\TypeDecorator;
 use DCarbone\PHPFHIR\Definition\TypeExtractor;
+use DCarbone\PHPFHIR\Definition\TypePropertyDecorator;
+use DCarbone\PHPFHIR\Definition\Types;
 
 /**
  * Class Definition
@@ -30,10 +32,10 @@ use DCarbone\PHPFHIR\Definition\TypeExtractor;
 class Definition
 {
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
-    private $config;
+    private VersionConfig $config;
 
-    /** @var \DCarbone\PHPFHIR\Definition\Types */
-    private $types = null;
+    /** @var \DCarbone\PHPFHIR\Definition\Types|null */
+    private ?Types $types = null;
 
     /**
      * Definition constructor.
@@ -54,7 +56,7 @@ class Definition
         ];
     }
 
-    public function buildDefinition()
+    public function buildDefinition(): void
     {
         $log = $this->config->getLogger();
 
@@ -80,16 +82,16 @@ class Definition
         TypeDecorator::determinePrimitiveTypes($this->config, $this->types);
 
         $log->info('Finding property types');
-        TypeDecorator::findPropertyTypes($this->config, $this->types);
+        TypePropertyDecorator::findPropertyTypes($this->config, $this->types);
 
         $log->info('Ensuring primitive type children have "value" property');
         TypeDecorator::ensureValueOnPrimitiveChildTypes($this->config, $this->types);
 
         $log->info('Finding overloaded properties in child types');
-        TypeDecorator::findOverloadedProperties($this->config, $this->types);
+        TypePropertyDecorator::findOverloadedProperties($this->config, $this->types);
 
         $log->info('Manually setting some property names');
-        TypeDecorator::setMissingPropertyNames($this->config, $this->types);
+        TypePropertyDecorator::setMissingPropertyNames($this->config, $this->types);
 
         $log->info('Parsing union memberOf Types');
         TypeDecorator::parseUnionMemberTypes($this->config, $this->types);
@@ -113,7 +115,7 @@ class Definition
     /**
      * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
-    public function getConfig()
+    public function getConfig(): VersionConfig
     {
         return $this->config;
     }
@@ -121,7 +123,7 @@ class Definition
     /**
      * @return \DCarbone\PHPFHIR\Definition\Types|null
      */
-    public function getTypes()
+    public function getTypes(): ?Types
     {
         return $this->types;
     }
@@ -129,7 +131,7 @@ class Definition
     /**
      * @return bool
      */
-    public function isDefined()
+    public function isDefined(): bool
     {
         return null !== $this->getTypes();
     }

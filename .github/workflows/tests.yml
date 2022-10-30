@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/tests.yml'
+      - '.github/workflows/tests.yml'
       - '**.php'
   pull_request:
     branches:
@@ -33,48 +33,69 @@ jobs:
             paratest-version: "6"
     name: ${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v3.1.0
+
+      - uses: shivammathur/setup-php@v2.22.0
         with:
           php-version: ${{ matrix.php-version }}
           extensions: libxml simplexml json zip
           # https://github.com/mheap/phpunit-github-actions-printer/blob/master/.github/workflows/ci.yml#L32
+
       - name: Set PHPUnit Version
+        shell: pwsh
         run: |
           $content = Get-Content -Path 'composer.json' | ConvertFrom-Json
           $content.{require-dev}.{phpunit/phpunit} = "^${{ matrix.phpunit-version }}"
           $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
-        shell: pwsh
+
       - name: Set Paratest Version
+        shell: pwsh
         run: |
           $content = Get-Content -Path 'composer.json' | ConvertFrom-Json
           $content.{require-dev}.{brianium/paratest} = "^${{ matrix.paratest-version }}"
           $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
-        shell: pwsh
+
       - name: Cache Composer deps
         uses: actions/cache@v2
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}
+
       - name: Cache downloaded FHIR sources
         uses: actions/cache@v2
         with:
           path: ./input
           key: ${{ matrix.fhir-version }}
-      - name: Cache downloaded test FHIR resources
-        uses: actions/cache@v2
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - uses: actions/cache@v3.0.11
         with:
-          path: ./output/tmp
-          key: ${{ matrix.fhir-version }}
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
       - name: Install Composer deps
-        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+        run: |
+          composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+
       - name: Generate code
-        run: ./bin/generate.sh --useExisting --versions ${{ matrix.fhir-version }}
-      - uses: actions/setup-java@v2
+        run: |
+          ./bin/generate.sh --useExisting --versions ${{ matrix.fhir-version }}
+
+      - uses: actions/setup-java@v3.6.0
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 18
+
       - name: Install FHIR validator
-        run: wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/5.5.8/validator_cli.jar -O ./bin/validator_cli.jar
+        run: |
+          wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/5.6.75/validator_cli.jar -O ./bin/validator_cli.jar
+
       - name: Run tests
-        run: ./vendor/bin/paratest -c phpunit/${{ matrix.fhir-version }}.xml
+        run: |
+          ./vendor/bin/paratest -c phpunit/${{ matrix.fhir-version }}.xml

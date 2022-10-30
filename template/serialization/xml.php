@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ if (0 < count($properties)) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body.php',
         [
+            'config' => $config,
             'type' => $type,
             'properties' => $properties,
         ]
@@ -62,8 +63,8 @@ if ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/resource_container.php',
             [
-                    'config' => $config,
-                    'type' => $type,
+                'config' => $config,
+                'type' => $type,
             ]
     );
 else :
@@ -72,8 +73,8 @@ else :
     echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/default_header.php',
         [
-                'config' => $config,
-                'parentType' => $parentType,
+            'config' => $config,
+            'parentType' => $parentType,
         ]
     );
 
@@ -82,6 +83,7 @@ else :
         echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/default_body.php',
             [
+                'config' => $config,
                 'type' => $type,
                 'parentType' => $parentType,
                 'directProperties' => $directProperties,

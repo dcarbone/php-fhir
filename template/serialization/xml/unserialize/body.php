@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,16 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
+$requireArgs = [
+    'config' => $config,
+];
+
 ob_start(); ?>
-        for($i = 0; $i < $element->childNodes->length; $i++) {
+        for ($i = 0; $i < $element->childNodes->length; $i++) {
             $n = $element->childNodes->item($i);
             if (!($n instanceof \DOMElement)) {
                 continue;
@@ -29,7 +34,7 @@ ob_start(); ?>
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
             __DIR__ . '/body_parse_node_typed.php',
-            [
+            $requireArgs + [
                 'property' => $property,
                 'i' => $i,
             ]
@@ -37,7 +42,7 @@ ob_start(); ?>
     else :
         echo require_with(
             __DIR__ . '/body_parse_node_primitive.php',
-            [
+            $requireArgs + [
                 'property' => $property,
                 'i' => $i,
             ]
@@ -50,7 +55,7 @@ endforeach; ?>
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
             __DIR__ . '/body_parse_attr_typed.php',
-            [
+            $requireArgs + [
                 'property' => $property,
                 'i' => $i,
             ]
@@ -58,7 +63,7 @@ endforeach; ?>
     else :
         echo require_with(
             __DIR__ . '/body_parse_attr_primitive.php',
-            [
+            $requireArgs + [
                 'property' => $property,
                 'i' => $i,
             ]

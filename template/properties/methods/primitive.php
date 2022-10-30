@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,22 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
-
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
+
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $primitiveType = $type->getPrimitiveType();
 
 ob_start(); ?>
     /**
-     * @return null|<?php echo $primitiveType->getPHPValueType(); ?>
+     * @return <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?>
 
      */
-    public function getValue()
+    public function getValue(): <?php echo TypeHintUtils::primitivePHPValueTypeHint($config, $primitiveType, true); ?>
+
     {
         return $this->value;
     }
@@ -93,6 +96,13 @@ switch ($primitiveType->getValue()) {
         throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
 }
 
-echo require_with($typeFile, ['type' => $type, 'primitiveType' => $primitiveType]);
+echo require_with(
+    $typeFile,
+    [
+        'config' => $config,
+        'type' => $type,
+        'primitiveType' => $primitiveType
+    ]
+);
 
 return ob_get_clean();

@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,16 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
 $typeKind = $type->getKind();
 $requireArgs = [
-    'type'             => $type,
-    'parentType'       => $parentType,
+    'config' => $config,
+    'type' => $type,
+    'parentType' => $parentType,
     'properties' => $properties,
 ];
 

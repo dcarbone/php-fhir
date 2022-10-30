@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 $namespace = $config->getNamespace(false);
-$nsPrefix = null !== $namespace ? "{$namespace}\\" : '';
+$nsPrefix = "{$namespace}\\";
 
 ob_start();
 
@@ -84,22 +84,20 @@ if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
 {
-    const ROOT_DIR = __DIR__;
-
-    /** @var bool */
-    private static $_registered = false;
-
     /** @var array */
-    private static $_classMap = [
+    private const _CLASS_MAP = [
 <?php foreach ($types->getNamespaceSortedIterator() as $type) : ?>
         '<?php echo $type->getFullyQualifiedClassName(false); ?>' => '<?php echo FileUtils::buildAutoloaderRelativeFilepath($config, $type); ?>',
 <?php endforeach; ?>    ];
+
+    /** @var bool */
+    private static bool $_registered = false;
 
     /**
      * @return bool
      * @throws \Exception
      */
-    public static function register()
+    public static function register(): bool
     {
         if (self::$_registered) {
             return self::$_registered;
@@ -110,7 +108,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     /**
      * @return bool
      */
-    public static function unregister()
+    public static function unregister(): bool
     {
         if (self::$_registered) {
             if (spl_autoload_unregister([__CLASS__, 'loadClass'])) {
@@ -127,10 +125,10 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      * @param string $class
      * @return bool|null
      */
-    public static function loadClass($class)
+    public static function loadClass(string $class): ?bool
     {
-        if (isset(self::$_classMap[$class])) {
-            return (bool)require self::ROOT_DIR . DIRECTORY_SEPARATOR . self::$_classMap[$class];
+        if (isset(self::_CLASS_MAP[$class])) {
+            return (bool)require __DIR__ . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];
         }
         return null;
     }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@
  */
 
 /**
+ * require_with is used to ensure a clean context per required template file.
+ *
  * @param string $requiredFile
  * @param array $vars
  * @return mixed
  */
-function require_with($requiredFile, array $vars)
+function require_with(string $requiredFile, array $vars)
 {
     $num = extract($vars, EXTR_OVERWRITE);
     if ($num !== count($vars)) {
@@ -34,6 +36,14 @@ function require_with($requiredFile, array $vars)
             )
         );
     }
+    if (!isset($config) || !($config instanceof \DCarbone\PHPFHIR\Config\VersionConfig)) {
+        throw new \LogicException(sprintf(
+            'Refusing to require "%s" as you didn\'t provide \'config\' => $config(%s)',
+            $requiredFile,
+            \DCarbone\PHPFHIR\Config\VersionConfig::class,
+        ));
+    }
+    // unset vars defined by this func
     unset($vars, $num);
     return require $requiredFile;
 }

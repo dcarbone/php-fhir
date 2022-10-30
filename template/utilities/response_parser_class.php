@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,13 +46,13 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
 {
     /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> $config */
-    private $config;
+    private <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> $config;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> Constructor
-     * @param \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> $config
+     * @param \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>|null $config
      */
-    public function __construct(<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> $config = null)
+    public function __construct(?<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> $config = null)
     {
         if (null === $config) {
             $config = new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>;
@@ -64,16 +64,18 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>
 
      */
-    public function getConfig()
+    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>
+
     {
         return $this->config;
     }
 
     /**
-     * @param array|string|\SimpleXMLElement $input
+     * @param array|string|\SimpleXMLElement|\DOMDocument $input
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    public function parse($input)
+    public function parse($input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
     {
         $inputType = gettype($input);
         if ('NULL' === $inputType) {
@@ -97,7 +99,8 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param array $input
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    protected function parseArrayInput(array $input)
+    protected function parseArrayInput(array $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
     {
         if ([] === $input) {
             return null;
@@ -122,10 +125,21 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     }
 
     /**
+     * @param \stdClass $input
+     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     */
+    protected function parseObjectStdClassInput(\stdClass $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
+    {
+        return self::parseArrayInput((array)$input);
+    }
+
+    /**
      * @param \SimpleXMLElement $input
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    protected function parseObjectSimpleXMLElementInput(\SimpleXMLElement $input)
+    protected function parseObjectSimpleXMLElementInput(\SimpleXMLElement $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
     {
         return self::parseObjectDOMDocumentInput(dom_import_simplexml($input));
     }
@@ -134,7 +148,8 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param \DOMDocument $input
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    protected function parseObjectDOMDocumentInput(\DOMDocument $input)
+    protected function parseObjectDOMDocumentInput(\DOMDocument $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
     {
         $elementName = $input->documentElement->nodeName;
         $className = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
@@ -152,10 +167,13 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param object $input
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    protected function parseObjectInput($input)
+    protected function parseObjectInput(object $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
     {
         if ($input instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
             return $input;
+        } elseif ($input instanceof \stdClass) {
+            return $this->parseObjectStdClassInput($input);
         } elseif ($input instanceof \SimpleXMLElement) {
             return $this->parseObjectSimpleXMLElementInput($input);
         } elseif ($input instanceof \DOMDocument) {
@@ -165,7 +183,6 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             'Unable parse provided input object of type "%s"',
             get_class($input)
         ));
-        // TODO: implement \stdClass handling?
     }
 
     /**
@@ -173,14 +190,15 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param null|int $libxmlOpts
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    protected function parseStringXMLInput($input, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
+    protected function parseStringXMLInput(string $input, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
     {
         libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
         $dom->loadXML($input, $libxmlOpts);
         $err = libxml_get_last_error();
         libxml_use_internal_errors(false);
-        if ($dom instanceof \DOMDocument) {
+        if (false === $err) {
             return $this->parseObjectDOMDocumentInput($dom);
         }
         throw new \DomainException(sprintf(
@@ -194,19 +212,15 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param string $input
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    protected function parseStringJSONInput($input)
+    protected function parseStringJSONInput(string $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
     {
         $decoded = json_decode($input, true);
         $err = json_last_error();
         if (JSON_ERROR_NONE !== $err) {
-            if (function_exists('php_last_error_msg')) {
-                $reason = json_last_error_msg();
-            } else {
-                $reason = $err;
-            }
             throw new \DomainException(sprintf(
                 'Unable to parse provided input as JSON.  Error: %s; Input: %s',
-                $reason,
+                json_last_error_msg(),
                $this->getPrintableStringInput($input)
             ));
         }
@@ -218,7 +232,8 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param string $input
      * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
      */
-    protected function parseStringInput($input)
+    protected function parseStringInput(string $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
     {
         $input = trim($input);
         if ('' === $input) {
@@ -241,7 +256,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param string $input
      * @return string
      */
-    protected function getPrintableStringInput($input)
+    protected function getPrintableStringInput(string $input): string
     {
         return strlen($input) > 100 ? substr($input, 0, 100) . '[...]' : $input;
     }

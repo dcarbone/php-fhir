@@ -1,6 +1,7 @@
-<?php
+<?php declare(strict_types=1);
+
 /*
- * Copyright 2019-2021 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2019-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
 $typeClassname = $type->getClassName();
 
-echo "namespace {$testNS};\n";
+echo "namespace {$testNS};\n\n";
 
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
@@ -37,13 +38,13 @@ echo "use PHPUnit\\Framework\\TestCase;\n";
 echo "use {$type->getFullyQualifiedClassName(false)};\n";
 ?>
 
-    /**
-    * Class <?php echo $testClassname; ?>
+/**
+ * Class <?php echo $testClassname; ?>
 
-    * @package \<?php echo $testNS; ?>
+ * @package \<?php echo $testNS; ?>
 
-    */
-    class <?php echo $testClassname; ?> extends TestCase
-    {
+ */
+class <?php echo $testClassname; ?> extends TestCase
+{
 <?php
 return ob_get_clean();

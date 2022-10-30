@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ namespace DCarbone\PHPFHIR\Definition;
 trait DocumentationTrait
 {
     /** @var null|array */
-    private $documentation = [];
+    private array $documentation = [];
 
     /**
      * @param string|array $documentation
      * @return \DCarbone\PHPFHIR\Definition\Type|\DCarbone\PHPFHIR\Definition\Property
      */
-    public function addDocumentationFragment($documentation)
+    public function addDocumentationFragment($documentation): object
     {
         if (null === $documentation) {
             return $this;
@@ -70,7 +70,7 @@ trait DocumentationTrait
     /**
      * @return array
      */
-    public function getDocumentation()
+    public function getDocumentation(): array
     {
         return $this->documentation;
     }
@@ -78,7 +78,7 @@ trait DocumentationTrait
     /**
      * @return string
      */
-    public function getDocumentationString()
+    public function getDocumentationString(): string
     {
         return implode("\n", $this->getDocumentation());
     }
@@ -88,7 +88,7 @@ trait DocumentationTrait
      * @param bool $trailingNewline
      * @return string
      */
-    public function getDocBlockDocumentationFragment($spaces, $trailingNewline)
+    public function getDocBlockDocumentationFragment(int $spaces, bool $trailingNewline): string
     {
         if (!isset($this->documentation) || [] === $this->documentation) {
             return '';

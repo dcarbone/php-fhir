@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ if ($property->isCollection()) : ?>
                 }
                 $val = $v->getValue();
                 $ext = $v->jsonSerialize();
-                unset($ext[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
+                unset($ext->{<?php echo $propertyTypeClassname; ?>::FIELD_VALUE});
                 if (null !== $val) {
                     $vals[] = $val;
                 }
@@ -43,21 +43,21 @@ if ($property->isCollection()) : ?>
                 }
             }
             if ([] !== $vals) {
-                $a[self::<?php echo $propertyFieldConst; ?>] = $vals;
+                $out->{self::<?php echo $propertyFieldConst; ?>} = $vals;
             }
-            if ([] !== $exts) {
-                $a[self::<?php echo $propertyFieldConstExt; ?>] = $exts;
+            if (count((array)$ext) > 0) {
+                $out->{self::<?php echo $propertyFieldConstExt; ?>} = $exts;
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             if (null !== ($val = $v->getValue())) {
-                $a[self::<?php echo $propertyFieldConst; ?>] = $val;
+                $out->{self::<?php echo $propertyFieldConst; ?>} = $val;
             }
             $ext = $v->jsonSerialize();
-            unset($ext[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
-            if ([] !== $ext) {
-                $a[self::<?php echo $propertyFieldConstExt; ?>] = $ext;
+            unset($ext->{<?php echo $propertyTypeClassname; ?>::FIELD_VALUE});
+            if (count((array)$ext) > 0) {
+                $out->{self::<?php echo $propertyFieldConstExt; ?>} = $ext;
             }
         }
 <?php endif;

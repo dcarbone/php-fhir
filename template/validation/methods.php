@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,15 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $typeNameConst = $type->getTypeNameConst(true);
 $typeKind = $type->getKind();
+
+$requireArgs = [
+    'config' => $config
+];
 
 // TODO: this is a quick and lazy initial implementation.  Should improve this later...
 
@@ -30,7 +35,7 @@ ob_start(); ?>
      *
      * @return array
      */
-    public function _getValidationRules()
+    public function _getValidationRules(): array
     {
         return self::$_validationRules;
     }
@@ -41,7 +46,7 @@ ob_start(); ?>
      *
      * @return array
      */
-    public function _getValidationErrors()
+    public function _getValidationErrors(): array
     {
 <?php if (null !== $type->getParentType()) : ?>
         $errs = parent::_getValidationErrors();
@@ -55,32 +60,24 @@ ob_start(); ?>
         if ($property->isCollection()) :
             echo require_with(
                 PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/collection_typed.php',
-                [
-                    'property' => $property
-                ]
+                $requireArgs + ['property' => $property]
             );
         else :
             echo require_with(
                 PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/primitive.php',
-                [
-                    'property' => $property
-                ]
+                $requireArgs + ['property' => $property]
             );
         endif;
     else :
         if ($property->isCollection()) :
             echo require_with(
                 PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/collection_typed.php',
-                [
-                        'property' => $property
-                ]
+                $requireArgs + ['property' => $property]
             );
         else :
             echo require_with(
-                    PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/typed.php',
-                [
-                    'property' => $property
-                ]
+                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/typed.php',
+                $requireArgs + ['property' => $property]
             );
         endif;
     endif;

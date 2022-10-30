@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Config;
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Config;
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Logger;
 
 /**
  * Class VersionConfig
@@ -27,9 +28,9 @@ use DCarbone\PHPFHIR\Config;
 class VersionConfig
 {
     /** @var \DCarbone\PHPFHIR\Config */
-    private $config;
+    private Config $config;
     /** @var \DCarbone\PHPFHIR\Config\Version */
-    private $version;
+    private Version $version;
 
     /**
      * BuildConfig constructor.
@@ -45,7 +46,7 @@ class VersionConfig
     /**
      * @return \DCarbone\PHPFHIR\Logger
      */
-    public function getLogger()
+    public function getLogger(): Logger
     {
         return $this->config->getLogger();
     }
@@ -53,7 +54,7 @@ class VersionConfig
     /**
      * @return string
      */
-    public function getSchemaPath()
+    public function getSchemaPath(): string
     {
         return "{$this->config->getSchemaPath()}/{$this->version->getName()}";
     }
@@ -61,7 +62,7 @@ class VersionConfig
     /**
      * @return string
      */
-    public function getClassesPath()
+    public function getClassesPath(): string
     {
         return $this->config->getClassesPath();
     }
@@ -69,7 +70,7 @@ class VersionConfig
     /**
      * @return string
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->version->getUrl();
     }
@@ -78,7 +79,7 @@ class VersionConfig
      * @param bool $leadingSlash
      * @return string
      */
-    public function getNamespace($leadingSlash)
+    public function getNamespace(bool $leadingSlash): string
     {
         return $this->version->getNamespace($leadingSlash);
     }
@@ -86,7 +87,7 @@ class VersionConfig
     /**
      * @return bool
      */
-    public function isSkipTests()
+    public function isSkipTests(): bool
     {
         return $this->config->isSkipTests();
     }
@@ -94,7 +95,7 @@ class VersionConfig
     /**
      * @return int|null
      */
-    public function getLibxmlOpts()
+    public function getLibxmlOpts(): ?int
     {
         return $this->config->getLibxmlOpts();
     }
@@ -104,7 +105,7 @@ class VersionConfig
      * @param bool $leadingSlash
      * @return string
      */
-    public function getTestsNamespace($testType, $leadingSlash)
+    public function getTestsNamespace($testType, bool $leadingSlash): string
     {
         $ns = $this->getNamespace(false);
         switch ($testType) {
@@ -131,7 +132,7 @@ class VersionConfig
     /**
      * @return string|null
      */
-    public function getTestEndpoint()
+    public function getTestEndpoint(): ?string
     {
         return $this->version->getTestEndpoint();
     }
@@ -139,7 +140,7 @@ class VersionConfig
     /**
      * @return \DCarbone\PHPFHIR\Config
      */
-    public function getConfig()
+    public function getConfig(): Config
     {
         return $this->config;
     }
@@ -147,7 +148,7 @@ class VersionConfig
     /**
      * @return \DCarbone\PHPFHIR\Config\Version
      */
-    public function getVersion()
+    public function getVersion(): Version
     {
         return $this->version;
     }

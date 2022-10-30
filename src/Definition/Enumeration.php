@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,34 +18,20 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use Countable;
-use Iterator;
-
 /**
  * Class Enumeration
  * @package DCarbone\PHPFHIR\Definition
  */
-class Enumeration implements Iterator, Countable
+class Enumeration implements \Iterator, \Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\EnumerationValue[] */
-    private $values = [];
-    /** @var \DCarbone\PHPFHIR\Definition\Type */
-    private $type;
-
-    /**
-     * Enumeration constructor.
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     */
-    public function __construct(Type $type)
-    {
-        $this->type = $type;
-    }
+    private array $values = [];
 
     /**
      * @param \DCarbone\PHPFHIR\Definition\EnumerationValue $value
      * @return \DCarbone\PHPFHIR\Definition\Enumeration
      */
-    public function addValue(EnumerationValue $value)
+    public function addValue(EnumerationValue $value): Enumeration
     {
         $eval = $value->getValue();
         foreach ($this->values as $cval) {
@@ -61,7 +47,7 @@ class Enumeration implements Iterator, Countable
      * @param mixed $rawValue
      * @return bool
      */
-    public function hasRawValue($rawValue)
+    public function hasRawValue($rawValue): bool
     {
         foreach ($this->values as $value) {
             if ($value->getValue() === $rawValue) {
@@ -75,7 +61,7 @@ class Enumeration implements Iterator, Countable
      * @param \DCarbone\PHPFHIR\Definition\EnumerationValue $value
      * @return bool
      */
-    public function hasValue(EnumerationValue $value)
+    public function hasValue(EnumerationValue $value): bool
     {
         return in_array($value, $this->values, true);
     }
@@ -88,7 +74,7 @@ class Enumeration implements Iterator, Countable
         return current($this->values);
     }
 
-    public function next()
+    public function next(): void
     {
         next($this->values);
     }
@@ -96,7 +82,7 @@ class Enumeration implements Iterator, Countable
     /**
      * @return int|null
      */
-    public function key()
+    public function key(): ?int
     {
         return key($this->values);
     }
@@ -104,12 +90,12 @@ class Enumeration implements Iterator, Countable
     /**
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         return null !== key($this->values);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         reset($this->values);
     }
@@ -117,7 +103,7 @@ class Enumeration implements Iterator, Countable
     /**
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return count($this->values);
     }

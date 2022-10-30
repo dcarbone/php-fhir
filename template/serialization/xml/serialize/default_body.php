@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $directProperties */
@@ -26,11 +27,17 @@ foreach ($directProperties as $property) :
         echo require_with(
             __DIR__ . '/default_body_typed.php',
             [
+                'config' => $config,
                 'property' => $property,
             ]
         );
     elseif (null === $parentType) :
-        echo require_with(__DIR__ . '/default_body_untyped.php', []);
+        echo require_with(
+            __DIR__ . '/default_body_untyped.php',
+            [
+                'config' => $config,
+            ]
+        );
     endif;
 endforeach;
 return ob_get_clean();

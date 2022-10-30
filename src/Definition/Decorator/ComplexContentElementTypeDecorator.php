@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ abstract class ComplexContentElementTypeDecorator
         Types $types,
         Type $type,
         SimpleXMLElement $complexContent
-    ) {
+    ): void {
         // parse through attributes
         foreach ($complexContent->attributes() as $attribute) {
             switch ($attribute->getName()) {
