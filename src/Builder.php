@@ -96,7 +96,7 @@ class Builder
             $log->debug("Generating class for type {$type}...");
 
             // TODO: eventually merge "raw" into typical workflow?
-            if (PHPFHIR_RAW_TYPE_NAME === $type->getFHIRName()) {
+            if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
                 $classDefinition = TemplateBuilder::generateRawTypeClass($this->config, $types, $type);
             } else {
                 $classDefinition = TemplateBuilder::generateTypeClass($this->config, $types, $type);

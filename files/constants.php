@@ -37,8 +37,8 @@ define('PHPFHIR_LIST_SUFFIX', '-list');
 define('PHPFHIR_XHTML_DIV', 'xhtml:div');
 
 // raw type
-define('PHPFHIR_RAW_TYPE_NAME', 'raw');
-define('PHPFHIR_RAW_TYPE_DESCRIPTION', 'Raw type used in special cases');
+define('PHPFHIR_XHTML_TYPE_NAME', 'XHTML');
+define('PHPFHIR_XHTML_TYPE_DESCRIPTION', 'XHTML type used in special cases');
 
 // FHIR XML NS
 define('PHPFHIR_FHIR_XMLNS', 'http://hl7.org/fhir');

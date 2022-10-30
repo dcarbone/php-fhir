@@ -127,7 +127,7 @@ abstract class TemplateBuilder
      */
     public static function generateRawTypeClass(VersionConfig $config, Types $types, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR . '/raw.php';
+        return require PHPFHIR_TEMPLATE_TYPES_DIR . '/xhtml.php';
     }
 
     /**

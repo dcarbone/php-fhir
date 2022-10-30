@@ -56,10 +56,9 @@ echo require_with(
 
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
-    const TO_STRING_FUNC = '__toString';
 
-    /** @var null|string */
-    private ?string $_data = null;
+    /** @var null|\DOMNode */
+    private ?\DOMNode $_data = null;
     /** @var null|string */
     private ?string $_elementName = null;
     /** @var string */
@@ -69,8 +68,8 @@ echo require_with(
     private static array $_validationRules = [];
 
     /**
-     * <?php echo PHPFHIR_RAW_TYPE_NAME; ?> Constructor
-     * @param null|string|int|float|bool|object $data
+     * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
+     * @param null|string|\SimpleXMLElement|\DOMNode $data
      */
     public function __construct($data = null)
     {
@@ -103,15 +102,15 @@ echo require_with(
 ?>
 
     /**
-     * @return null|string
+     * @return null|\DOMNode
      */
-    public function _getData(): ?string
+    public function _getData(): ?\DOMNode
     {
         return $this->_data;
     }
 
     /**
-     * @param mixed $data
+     * @param null|string|\SimpleXMLElement|\DOMNode $data
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
@@ -122,12 +121,30 @@ echo require_with(
             $this->_data = null;
             return $this;
         }
-        if (is_scalar($data) || (is_object($data) && (method_exists($data, self::TO_STRING_FUNC) || $data instanceof \DOMNode))) {
-            $this->_data = $data;
+        if (is_string($data)) {
+            $dom = new \DOMDocument();
+            $dom->loadHTML($data);
+            $this->_data = $dom->documentElement;
+            return $this;
+        }
+        if ($data instanceof \SimpleXMLElement) {
+            $this->_data = dom_import_simplexml($data);
+            return $this;
+        }
+        if ($data instanceof \DOMDocument) {
+            $dom = new \DOMDocument();
+            $dom->importNode($data->documentElement, true);
+            $this->_data = $dom->documentElement;
+            return $this;
+        }
+        if ($data instanceof \DOMNode) {
+            $dom = new \DOMDocument();
+            $dom->importNode($data, true);
+            $this->_data = $dom->documentElement;
             return $this;
         }
         throw new \InvalidArgumentException(sprintf(
-            '$data must be one of: null, string, integer, double, boolean, or object implementing "__toString", saw "%s"',
+            '$data must be one of: null, valid XHTML string, or instance of \\SimpleXMLElement or \\DOMNode, saw "%s"',
             gettype($data)
         ));
     }
@@ -154,14 +171,12 @@ echo require_with(
     ]
 );
 ?>
-        $dom = new \DOMDocument();
-        $dom->loadXML($element->ownerDocument->saveXML($element), $libxmlOpts | LIBXML_NOXMLDECL);
-        $type->_setData($dom->documentElement);
+        $type->_setData($element);
         return $type;
     }
 
      /**
-     * @param \DOMElement|string|null $element
+     * @param \DOMElement|null $element
      * @param null|int $libxmlOpts
      * @return \DOMElement
      */
@@ -175,46 +190,36 @@ echo require_with(
                 $xmlns = " xmlns=\"{$xmlns}\"";
             }
             if (null === $data) {
-                $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>", $libxmlOpts);
+                $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>", $libxmlOpts);
                 return $dom->documentElement;
             }
-            if (is_scalar($data) || (is_object($data) && !($data instanceof \DOMNode) && !($data instanceof \DOMText))) {
-                if (is_bool($data)) {
-                    $strval = $data ? 'true' : 'false';
-                } else {
-                    $strval = (string)$data;
-                }
-                $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}>{$strval}</<?php echo $xmlName; ?>", $libxmlOpts);
-                return $dom->documentElement;
-            }
+            $dom->importNode($data, true);
             return $dom->documentElement;
         }
-
+        if (null === $data) {
+            return $element;
+        }
         if (!empty($xmlns)) {
             $element->setAttribute('xmlns', $xmlns);
         }
-
-        if ($data instanceof \DOMElement) {
-            if ($data->hasAttributes()) {
-                for ($i = 0; $i < $data->attributes->length; $i++) {
-                    $attr = $data->attributes->item($i);
-                    $element->setAttribute($attr->nodeName, $attr->nodeValue);
-                }
-            }
-            if ($data->hasChildNodes()) {
-                for ($i = 0; $i < $data->childNodes->length; $i++) {
-                    $n = $data->childNodes->item($i);
-                    $n = $element->ownerDocument->importNode($n, true);
-                    $element->appendChild($n);
-                }
+        if ($data->hasAttributes()) {
+            for ($i = 0; $i < $data->attributes->length; $i++) {
+                $attr = $data->attributes->item($i);
+                $element->setAttribute($attr->nodeName, $attr->nodeValue);
             }
         }
-
+        if ($data->hasChildNodes()) {
+            for ($i = 0; $i < $data->childNodes->length; $i++) {
+                $n = $data->childNodes->item($i);
+                $n = $element->ownerDocument->importNode($n, true);
+                $element->appendChild($n);
+            }
+        }
         return $element;
     }
 
     /**
-     * @return null|string|integer|float|boolean|object
+     * @return mixed
      */
     public function jsonSerialize()
     {

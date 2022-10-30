@@ -53,13 +53,10 @@ class TypeKindEnum extends AbstractEnum
     ];
 
     // this indicates a type that is an immediate child of a resource and not used elsewhere
-    const RESOURCE_COMPONENT = 'resource_component';
-
-    // the generic type is applied to anything that is not a child of a known root or a known root itself.
-    const GENERIC = 'generic';
+    public const RESOURCE_COMPONENT = 'resource_component';
 
     // treated a bit different
-    const RAW = 'raw';
+    public const PHPFHIR_XHTML = 'phpfhir_xhtml';
 
     /**
      * @param $fhirName
@@ -137,16 +134,8 @@ class TypeKindEnum extends AbstractEnum
     /**
      * @return bool
      */
-    public function isGeneric(): bool
+    public function isPHPFHIRXHTML(): bool
     {
-        return $this->is(self::GENERIC);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRaw(): bool
-    {
-        return $this->is(self::RAW);
+        return $this->is(self::PHPFHIR_XHTML);
     }
 }

@@ -354,8 +354,8 @@ abstract class TypeDecorator
         }
 
         // this is a catchall that may bomb if we encounter new stuff
-        $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKindEnum::RAW));
-        self::setTypeKind($config, $types, $type, TypeKindEnum::RAW);
+        $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKindEnum::PHPFHIR_XHTML));
+        self::setTypeKind($config, $types, $type, TypeKindEnum::PHPFHIR_XHTML);
     }
 
     /**
@@ -393,7 +393,7 @@ abstract class TypeDecorator
     {
         static $skip = [
             TypeKindEnum::PRIMITIVE,
-            TypeKindEnum::RAW,
+            TypeKindEnum::PHPFHIR_XHTML,
             TypeKindEnum::QUANTITY,
         ];
 
@@ -430,7 +430,7 @@ abstract class TypeDecorator
      */
     public static function setCommentContainerFlag(VersionConfig $config, Types $types): void
     {
-        static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::RAW];
+        static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::PHPFHIR_XHTML];
         foreach ($types->getIterator() as $type) {
             $type->setCommentContainer(
                 !$type->hasPrimitiveParent() && !$type->getKind()->isOneOf($skip)

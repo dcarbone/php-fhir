@@ -34,7 +34,7 @@ if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php e
                 } else {
                     $type->setValue($n->textContent);
                 }
-<?php if (null !== $propType && $propType->getKind()->is(TypeKindEnum::RAW)) : ?>
+<?php if (null !== $propType && $propType->getKind()->is(TypeKindEnum::PHPFHIR_XHTML)) : ?>
                 $type->_setElementName($n->nodeName);
 <?php endif; ?>
             }<?php return ob_get_clean();

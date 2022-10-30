@@ -73,16 +73,14 @@ abstract class TypePropertyDecorator
         $pt = $types->getTypeByName($valueFHIRTypeName);
         if (null === $pt) {
             if (PHPFHIR_XHTML_DIV === $property->getRef()) {
-                // TODO: come up with "raw" type for things like this?
-                // TODO: XML/HTML values in particular need their own specific type
-                $property->setValueFHIRType($types->getTypeByName(PHPFHIR_RAW_TYPE_NAME));
+                $property->setValueFHIRType($types->getTypeByName(PHPFHIR_XHTML_TYPE_NAME));
                 $log->warning(
                     sprintf(
                         'Type "%s" Property "%s" has Ref "%s", setting Type to "%s"',
                         $type->getFHIRName(),
                         $property->getName(),
                         $property->getRef(),
-                        PHPFHIR_RAW_TYPE_NAME
+                        PHPFHIR_XHTML_TYPE_NAME
                     )
                 );
                 return;

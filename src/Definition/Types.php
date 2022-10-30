@@ -48,9 +48,9 @@ class Types implements Countable
     public function __construct(VersionConfig $config)
     {
         $this->config = $config;
-        $rt = new Type($config, PHPFHIR_RAW_TYPE_NAME);
-        $rt->setKind(new TypeKindEnum(TypeKindEnum::RAW));
-        $rt->addDocumentationFragment(PHPFHIR_RAW_TYPE_DESCRIPTION);
+        $rt = new Type($config, PHPFHIR_XHTML_TYPE_NAME);
+        $rt->setKind(new TypeKindEnum(TypeKindEnum::PHPFHIR_XHTML));
+        $rt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
         $this->addType($rt);
     }
 
