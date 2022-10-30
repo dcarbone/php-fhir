@@ -122,7 +122,8 @@ $config = new \DCarbone\PHPFHIR\Config([
 ]);
 
 // next, build definition class
-$definition = new \DCarbone\PHPFHIR\Definition($config);
+$version_config = new \DCarbone\PHPFHIR\Config\VersionConfig($config, $config->getVersion('R4'));
+$definition = new \DCarbone\PHPFHIR\Definition($version_config);
 $definition->buildDefinition();
 
 $builder = new \DCarbone\PHPFHIR\Builder($config, $definition);
