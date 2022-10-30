@@ -31,7 +31,7 @@ $namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
 ob_start();
 
 // build php opener
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $namespace) {
     echo "namespace {$namespace};\n\n";

@@ -30,7 +30,7 @@ $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
 $typeClassname = $type->getClassName();
 
-echo "namespace {$testNS};\n";
+echo "namespace {$testNS};\n\n";
 
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
