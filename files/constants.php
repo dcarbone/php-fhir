@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -92,17 +92,17 @@ define('PHPFHIR_TRAIT_VALIDATION_ASSERTIONS', 'PHPFHIRValidationAssertionsTrait'
 define('PHPFHIR_TRAIT_CHANGE_TRACKING', 'PHPFHIRChangeTrackingTrait');
 
 // validation constants
-define('PHPFHIR_VALIDATION_ENUM', 0x1);
+define('PHPFHIR_VALIDATION_ENUM', 'enum');
 define('PHPFHIR_VALIDATION_ENUM_NAME', 'VALIDATE_ENUM');
-define('PHPFHIR_VALIDATION_MIN_LENGTH', 0x2);
+define('PHPFHIR_VALIDATION_MIN_LENGTH', 'min_length');
 define('PHPFHIR_VALIDATION_MIN_LENGTH_NAME', 'VALIDATE_MIN_LENGTH');
-define('PHPFHIR_VALIDATION_MAX_LENGTH', 0x4);
+define('PHPFHIR_VALIDATION_MAX_LENGTH', 'max_length');
 define('PHPFHIR_VALIDATION_MAX_LENGTH_NAME', 'VALIDATE_MAX_LENGTH');
-define('PHPFHIR_VALIDATION_PATTERN', 0x8);
+define('PHPFHIR_VALIDATION_PATTERN', 'pattern');
 define('PHPFHIR_VALIDATION_PATTERN_NAME', 'VALIDATE_PATTERN');
-define('PHPFHIR_VALIDATION_MIN_OCCURS', 0x10);
+define('PHPFHIR_VALIDATION_MIN_OCCURS', 'min_occurs');
 define('PHPFHIR_VALIDATION_MIN_OCCURS_NAME', 'VALIDATE_MIN_OCCURS');
-define('PHPFHIR_VALIDATION_MAX_OCCURS', 0x20);
+define('PHPFHIR_VALIDATION_MAX_OCCURS', 'max_occurs');
 define('PHPFHIR_VALIDATION_MAX_OCCURS_NAME', 'VALIDATE_MAX_OCCURS');
 
 // static test type, namespace, and class values.
