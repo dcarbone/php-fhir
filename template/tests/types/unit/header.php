@@ -38,13 +38,13 @@ echo "use PHPUnit\\Framework\\TestCase;\n";
 echo "use {$type->getFullyQualifiedClassName(false)};\n";
 ?>
 
-    /**
-    * Class <?php echo $testClassname; ?>
+/**
+ * Class <?php echo $testClassname; ?>
 
-    * @package \<?php echo $testNS; ?>
+ * @package \<?php echo $testNS; ?>
 
-    */
-    class <?php echo $testClassname; ?> extends TestCase
-    {
+ */
+class <?php echo $testClassname; ?> extends TestCase
+{
 <?php
 return ob_get_clean();

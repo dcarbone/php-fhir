@@ -34,7 +34,7 @@ if ($property->isCollection()) : ?>
                 }
                 $val = $v->getValue();
                 $ext = $v->jsonSerialize();
-                unset($ext[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
+                unset($ext->{<?php echo $propertyTypeClassname; ?>::FIELD_VALUE});
                 if (null !== $val) {
                     $vals[] = $val;
                 }
@@ -45,7 +45,7 @@ if ($property->isCollection()) : ?>
             if ([] !== $vals) {
                 $out->{self::<?php echo $propertyFieldConst; ?>} = $vals;
             }
-            if ([] !== $exts) {
+            if (count((array)$ext) > 0) {
                 $out->{self::<?php echo $propertyFieldConstExt; ?>} = $exts;
             }
         }
@@ -55,8 +55,8 @@ if ($property->isCollection()) : ?>
                 $out->{self::<?php echo $propertyFieldConst; ?>} = $val;
             }
             $ext = $v->jsonSerialize();
-            unset($ext[<?php echo $propertyTypeClassname; ?>::FIELD_VALUE]);
-            if ([] !== $ext) {
+            unset($ext->{<?php echo $propertyTypeClassname; ?>::FIELD_VALUE});
+            if (count((array)$ext) > 0) {
                 $out->{self::<?php echo $propertyFieldConstExt; ?>} = $ext;
             }
         }

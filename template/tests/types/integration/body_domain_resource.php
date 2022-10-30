@@ -51,7 +51,7 @@ ob_start(); ?>
      * @var string $filename
      * @return array
      */
-    protected function _runFHIRValidationJAR($filename): array
+    protected function _runFHIRValidationJAR(string $filename): array
     {
         $output = [];
         $code = -1;
@@ -328,11 +328,16 @@ ob_start(); ?>
             ));
             return;
         }
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        $resource = $entry[0]->getResource();
+<?php else: ?>
+        $resource = $entry->getResource();
+<?php endif; ?>
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
         file_put_contents($fname, $bundle->xmlSerialize()->ownerDocument->saveXML());
         $this->assertFileExists($fname);
 
-        list($code, $output, $onlyWarn) = $this->_runFHIRValidationJAR($fname);
+        [$code, $output, $onlyWarn] = $this->_runFHIRValidationJAR($fname);
 
         if ($onlyWarn) {
             $this->markTestSkipped(sprintf(
@@ -381,11 +386,16 @@ ob_start(); ?>
             ));
             return;
         }
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $entry->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        $resource = $entry[0]->getResource();
+<?php else: ?>
+        $resource = $entry->getResource();
+<?php endif; ?>
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
         file_put_contents($fname, json_encode($bundle));
         $this->assertFileExists($fname);
 
-        list($code, $output, $onlyWarn) = $this->_runFHIRValidationJAR($fname);
+        [$code, $output, $onlyWarn] = $this->_runFHIRValidationJAR($fname);
 
         if ($onlyWarn) {
             $this->markTestSkipped(sprintf(
