@@ -128,18 +128,20 @@ echo require_with(
             return $this;
         }
         if ($data instanceof \SimpleXMLElement) {
-            $this->_data = dom_import_simplexml($data);
+            $dom = new \DOMDocument();
+            $dom->appendChild($dom->importNode(dom_import_simplexml($data), true));
+            $this->_data = $dom->documentElement;
             return $this;
         }
         if ($data instanceof \DOMDocument) {
             $dom = new \DOMDocument();
-            $dom->importNode($data->documentElement, true);
+            $dom->appendChild($dom->importNode($data->documentElement, true));
             $this->_data = $dom->documentElement;
             return $this;
         }
         if ($data instanceof \DOMNode) {
             $dom = new \DOMDocument();
-            $dom->importNode($data, true);
+            $dom->appendChild($dom->importNode($data, true));
             $this->_data = $dom->documentElement;
             return $this;
         }
@@ -193,7 +195,7 @@ echo require_with(
                 $dom->loadXML("<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>", $libxmlOpts);
                 return $dom->documentElement;
             }
-            $dom->importNode($data, true);
+            $dom->appendChild($dom->importNode($data, true));
             return $dom->documentElement;
         }
         if (null === $data) {
@@ -202,19 +204,7 @@ echo require_with(
         if (!empty($xmlns)) {
             $element->setAttribute('xmlns', $xmlns);
         }
-        if ($data->hasAttributes()) {
-            for ($i = 0; $i < $data->attributes->length; $i++) {
-                $attr = $data->attributes->item($i);
-                $element->setAttribute($attr->nodeName, $attr->nodeValue);
-            }
-        }
-        if ($data->hasChildNodes()) {
-            for ($i = 0; $i < $data->childNodes->length; $i++) {
-                $n = $data->childNodes->item($i);
-                $n = $element->ownerDocument->importNode($n, true);
-                $element->appendChild($n);
-            }
-        }
+        $element->appendChild($element->ownerDocument->importNode($data, true));
         return $element;
     }
 
@@ -223,7 +213,11 @@ echo require_with(
      */
     public function jsonSerialize()
     {
-        return $this->_getData();
+        $data = $this->_getData();
+        if (null === $data) {
+            return null;
+        }
+        return $data->ownerDocument->saveXML($data);
     }
 
     /**
@@ -231,7 +225,10 @@ echo require_with(
      */
     public function __toString(): string
     {
-        return strval($this->_getData());
+        $data = $this->_getData();
+        if (null === $data) {
+            return '';
+        }
+        return $data->ownerDocument->saveXML($data);
     }
-
 }<?php return ob_get_clean();

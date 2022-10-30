@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/tests.yml'
+      - '.github/workflows/tests.yml'
       - '**.php'
   pull_request:
     branches:
