@@ -2,17 +2,28 @@ name: Tests
 
 on:
   workflow_dispatch:
+
   push:
     branches:
       - master
     paths:
-      - '.github/workflows/tests.yml'
+      - '.github/workflows/tests.yaml'
       - '**.php'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit/**.xml'
+      - 'phpunit.xml'
+
   pull_request:
     branches:
       - master
     paths:
+      - '.github/workflows/tests.yaml'
       - '**.php'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit/**.xml'
+      - 'phpunit.xml'
 
 jobs:
   run:
