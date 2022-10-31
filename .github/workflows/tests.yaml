@@ -3,13 +3,13 @@ name: Tests
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - '.github/workflows/tests.yml'
       - '**.php'
   pull_request:
     branches:
-      - main
+      - master
     paths:
       - '**.php'
 
