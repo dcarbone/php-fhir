@@ -67,18 +67,6 @@ jobs:
           $content.{require-dev}.{brianium/paratest} = "^${{ matrix.paratest-version }}"
           $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
 
-      - name: Cache Composer deps
-        uses: actions/cache@v2
-        with:
-          path: /tmp/composer-cache
-          key: ${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}
-
-      - name: Cache downloaded FHIR sources
-        uses: actions/cache@v2
-        with:
-          path: ./input
-          key: ${{ matrix.fhir-version }}
-
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
@@ -87,9 +75,13 @@ jobs:
       - uses: actions/cache@v3.0.11
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
+          key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}"
+
+      - name: Cache downloaded FHIR sources
+        uses: actions/cache@v2
+        with:
+          path: ./input
+          key: "fhir-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}"
 
       - name: Install Composer deps
         run: |
@@ -97,7 +89,7 @@ jobs:
 
       - name: Generate code
         run: |
-          ./bin/generate.sh --useExisting --versions ${{ matrix.fhir-version }}
+          ./bin/generate.sh --useExisting --versions '${{ matrix.fhir-version }}'
 
       - uses: actions/setup-java@v3.6.0
         with:
@@ -110,4 +102,4 @@ jobs:
 
       - name: Run tests
         run: |
-          ./vendor/bin/paratest -c phpunit/${{ matrix.fhir-version }}.xml
+          ./vendor/bin/paratest -c 'phpunit/${{ matrix.fhir-version }}.xml'
