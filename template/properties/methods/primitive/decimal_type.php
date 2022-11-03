@@ -36,7 +36,12 @@ ob_start(); ?>
             $this->value = null;
         } elseif (is_scalar($value)) {
             if (is_string($value)) {
-                $this->_decimals = strlen(strstr($value, '.')) - 1;
+                $dec = strstr($value, '.');
+                if (false === $dec) {
+                    $this->_decimals = 1;
+                } else {
+                    $this->_decimals = strlen($dec) - 1;
+                }
             }
             $this->value = floatval($value);
         } else {
