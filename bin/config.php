@@ -55,7 +55,7 @@ return [
             'testEndpoint' => 'http://hapi.fhir.org/baseDstu3',
         ],
         'R4'    => [
-            'url'          => 'http://www.hl7.org/fhir/fhir-all-xsd.zip',
+            'url'          => 'http://www.hl7.org/fhir/R4/fhir-all-xsd.zip',
             'namespace'    => '\\HL7\\FHIR\\R4',
             'testEndpoint' => 'http://hapi.fhir.org/baseR4',
         ],
