@@ -26,7 +26,7 @@ ob_start(); ?>
     /**
      * @return \stdClass
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
 <?php if (null !== $type->getParentType()) : ?>
         $out = parent::jsonSerialize();

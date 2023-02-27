@@ -28,7 +28,7 @@ ob_start(); ?>
      * @return <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $type->getPrimitiveType(), true, false); ?>
 
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
 <?php if ($typeKind->is(TypeKindEnum::PRIMITIVE) && false !== strpos($type->getFHIRName(), 'unsigned')) : ?>
         return intval($this->getValue(), 10);
