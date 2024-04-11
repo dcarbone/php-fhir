@@ -127,7 +127,7 @@ $definition = new \DCarbone\PHPFHIR\Definition($version_config);
 $definition->buildDefinition();
 
 $builder = new \DCarbone\PHPFHIR\Builder($config, $definition);
-$builder->build();
+$builder->render();
 ```
 
 Using the above code will generate class files under the included [output](./output) directory, under the namespace

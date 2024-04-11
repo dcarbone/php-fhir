@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
@@ -33,17 +33,11 @@ $requireArgs = [
 
 ob_start();
 
-switch (true) :
-    case ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]) || $type->hasPrimitiveParent()):
-        echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive.php', $requireArgs);
-        break;
-    case $typeKind->isPrimitiveContainer():
-        echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php', $requireArgs);
-        break;
-
-    default:
-        echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default.php', $requireArgs);
-endswitch;
+echo match ($typeKind) {
+    TypeKind::PRIMITIVE, TypeKind::_LIST => require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive.php', $requireArgs),
+    TypeKind::PRIMITIVE_CONTAINER => require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive_container.php', $requireArgs),
+    default => require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR  . DIRECTORY_SEPARATOR . 'default.php', $requireArgs),
+};
 
 echo "\n";
 

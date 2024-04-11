@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,8 +96,10 @@ abstract class NameUtils
         'y',
         'z',
     ];
+
     /** @var array */
     private const _NUMS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
     /** @var array */
     private const _PUNCTUATION_MAP = [
         '.' => '_DOT_',
@@ -176,10 +178,7 @@ abstract class NameUtils
         $lastUpper = false;
         foreach (str_split($name) as $chr) {
             if (in_array($chr, self::_UPPER, true) || in_array($chr, self::_NUMS, true)) {
-                if ('' !== $constName && !$lastUpper && '_' !== substr(
-                        $constName,
-                        -1
-                    )) { // really simplistic abbreviation detection...
+                if ('' !== $constName && !$lastUpper && !str_ends_with($constName, '_')) { // really simplistic abbreviation detection...
                     $constName .= '_';
                 }
                 $constName .= $chr;

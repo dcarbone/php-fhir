@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
+use DCarbone\PHPFHIR\Enum\PrimitiveType;
 
 /**
  * Class ExceptionUtils
@@ -67,20 +67,6 @@ abstract class ExceptionUtils
                 'Primitive Type "%s" has unknown PrimitiveTypeEnum "%s" specified',
                 $type->getFHIRName(),
                 null === ($t = $type->getPrimitiveType()) ? 'NULL' : $t
-            )
-        );
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $typeEnum
-     * @return \DomainException
-     */
-    public static function createUnknownPrimitiveTypeEnumException(PrimitiveTypeEnum $typeEnum): \DomainException
-    {
-        return new \DomainException(
-            sprintf(
-                'Unknown PrimitiveTypeEnum value: %s',
-                null === $typeEnum ? 'NULL' : (string)$typeEnum
             )
         );
     }

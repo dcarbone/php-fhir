@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
@@ -44,17 +44,17 @@ foreach ($properties as $property) :
         continue;
     endif;
     $propertyType = $property->getValueFHIRType();
-    if ($propertyType->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+    if ($propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
         echo require_with(
-            __DIR__ . '/default_property_primitive_list.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default_property_primitive_list.php',
                 [
                     'config' => $config,
                     'property' => $property
                 ]
         );
-    elseif ($propertyType->isValueContainer() || $propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
+    elseif ($propertyType->isValueContainer() || $propertyType->getKind() === TypeKind::PRIMITIVE_CONTAINER || $propertyType->hasPrimitiveContainerParent()) :
         echo require_with(
-            __DIR__ . '/default_property_value_primitive_container.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default_property_value_primitive_container.php',
             [
                 'config' => $config,
                 'property' => $property
@@ -62,7 +62,7 @@ foreach ($properties as $property) :
         );
     else :
         echo require_with(
-                __DIR__ . '/default_property_default.php',
+                __DIR__ . DIRECTORY_SEPARATOR . 'default_property_default.php',
                 [
                     'config' => $config,
                     'property' => $property

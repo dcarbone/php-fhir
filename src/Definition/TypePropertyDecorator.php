@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 abstract class TypePropertyDecorator
@@ -37,14 +38,14 @@ abstract class TypePropertyDecorator
 
         // handle primitive and list value properties
         if ($property->isValueProperty()) {
-            if ($typeKind->isPrimitive()) {
+            if ($typeKind === TypeKind::PRIMITIVE) {
                 $primitiveType = $type->getPrimitiveType();
-                $log->debug(sprintf('Type "%s" is primitive of kind "%s", setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $primitiveType, $property->getName(), $primitiveType->getPHPValueType()));
+                $log->debug(sprintf('Type "%s" is primitive of kind "%s", setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $primitiveType->value, $property->getName(), $primitiveType->getPHPValueType()));
                 $property->setRawPHPValue($primitiveType->getPHPValueType());
                 return;
             }
 
-            if ($typeKind->isList()) {
+            if ($typeKind === TypeKind::_LIST) {
                 $parentPHPValueType = $type->getParentType()->getPrimitiveType()->getPHPValueType();
                 $log->debug(sprintf('Type "%s" is list, setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $property->getName(), $parentPHPValueType));
                 $property->setRawPHPValue($parentPHPValueType);
@@ -86,7 +87,7 @@ abstract class TypePropertyDecorator
                 return;
             }
 
-            if (0 === strpos($valueFHIRTypeName, 'xs:')) {
+            if (str_starts_with($valueFHIRTypeName, 'xs:')) {
                 $pt = $types->getTypeByName(substr($valueFHIRTypeName, 3) . '-primitive');
             } elseif (null !== ($refName = $property->getRef())) {
                 $pt = $types->getTypeByName($refName);
@@ -172,7 +173,7 @@ abstract class TypePropertyDecorator
                     $ref = $property->getRef();
                     if (null !== $ref && '' !== $ref) {
                         $newName = $ref;
-                        if (0 === strpos($ref, 'xhtml:')) {
+                        if (str_starts_with($ref, 'xhtml:')) {
                             $split = explode(':', $ref, 2);
                             if (2 === count($split) && '' !== $split[1]) {
                                 $newName = $split[1];

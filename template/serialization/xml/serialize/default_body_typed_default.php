@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -38,7 +38,7 @@ if ($property->isCollection()) : // collection fields ?>
         }
 <?php else : // single fields ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-<?php if ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isPrimitive()) : ?>
+<?php if ($propertyType->hasPrimitiveParent() || $propertyType->getKind() === TypeKind::PRIMITIVE) : ?>
             $element->setAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
 <?php else : ?>
             $telement = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);

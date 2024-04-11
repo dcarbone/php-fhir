@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR\Definition;
 use ArrayIterator;
 use Countable;
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /**
  * Class Types
@@ -49,7 +49,7 @@ class Types implements Countable
     {
         $this->config = $config;
         $rt = new Type($config, PHPFHIR_XHTML_TYPE_NAME);
-        $rt->setKind(new TypeKindEnum(TypeKindEnum::PHPFHIR_XHTML));
+        $rt->setKind(TypeKind::PHPFHIR_XHTML);
         $rt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
         $this->addType($rt);
     }
@@ -186,7 +186,7 @@ class Types implements Countable
     {
         if (!isset($this->containerType)) {
             foreach ($this->types as $type) {
-                if ($type->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
+                if ($type->getKind()->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
                     $this->containerType = $type;
                 }
             }
@@ -201,15 +201,15 @@ class Types implements Countable
     public function isContainedType(Type $type): bool
     {
         static $ignoredTypes = [
-            TypeKindEnum::RESOURCE_INLINE,
-            TypeKindEnum::RESOURCE_CONTAINER,
-            TypeKindEnum::_LIST,
-            TypeKindEnum::PRIMITIVE,
-            TypeKindEnum::PRIMITIVE_CONTAINER,
+            TypeKind::RESOURCE_INLINE,
+            TypeKind::RESOURCE_CONTAINER,
+            TypeKind::_LIST,
+            TypeKind::PRIMITIVE,
+            TypeKind::PRIMITIVE_CONTAINER,
         ];
 
         // only bother with actual Resource types.
-        if ($type->getKind()->isOneOf($ignoredTypes)) {
+        if ($type->getKind()->isOneOf(...$ignoredTypes)) {
             return false;
         }
         $container = $this->getContainerType();

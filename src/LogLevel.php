@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,19 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\AbstractConfig;
-use Psr\Log\LoggerInterface;
+use DCarbone\PHPFHIR\Enum\EnumCompat;
+use Psr\Log\LogLevel as PLogLevel;
 
-/**
- * Class Config
- * @package DCarbone\PHPFHIR
- */
-class Config extends AbstractConfig
+enum LogLevel: string
 {
-    /**
-     * @param \Psr\Log\LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->_log = new Logger($logger);
-    }
+    use EnumCompat;
+
+    case EMERGENCY = PLogLevel::EMERGENCY;
+    case ALERT = PLogLevel::ALERT;
+    case CRITICAL = PLogLevel::CRITICAL;
+    case ERROR = PLogLevel::ERROR;
+    case WARNING = PLogLevel::WARNING;
+    case NOTICE = PLogLevel::NOTICE;
+    case INFO = PLogLevel::INFO;
+    case DEBUG = PLogLevel::DEBUG;
 }

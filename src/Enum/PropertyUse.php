@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,37 +18,31 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
-use MyCLabs\Enum\Enum;
-
 /**
- * Class AbstractEnum
+ * Class PropertyUseEnum
  * @package DCarbone\PHPFHIR\Enum
  */
-abstract class AbstractEnum extends Enum
+enum PropertyUse: string
 {
-    /**
-     * @param mixed $enumValue
-     * @return bool
-     */
-    public function is($enumValue): bool
-    {
-        if (is_scalar($enumValue)) {
-            return $enumValue === $this->getValue();
-        }
-        return $this->equals($enumValue);
-    }
+    use EnumCompat;
+    
+    case PROHIBITED = 'prohibited';
+    case OPTIONAL   = 'optional';
+    case REQUIRED   = 'required';
 
     /**
-     * @param array $enumValues
+     * @param \DCarbone\PHPFHIR\Enum\PropertyUse|string ...$other
      * @return bool
      */
-    public function isOneOf(array $enumValues): bool
+    public function isOneOf(PropertyUse|string ...$other): bool
     {
-        foreach ($enumValues as $kind) {
-            if ($this->is($kind)) {
+        $vals = self::values();
+        foreach ($other as $name) {
+            if ($this === $name || in_array($name, $vals, true)) {
                 return true;
             }
         }
+
         return false;
     }
 }

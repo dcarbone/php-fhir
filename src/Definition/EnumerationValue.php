@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ class EnumerationValue
 {
     use DocumentationTrait;
 
-    /** @var mixed */
-    private $value;
+    /** @var mixed mixed */
+    private mixed $value;
     /** @var \SimpleXMLElement */
     private \SimpleXMLElement $sourceSXE;
 
@@ -47,7 +47,7 @@ class EnumerationValue
     /**
      * @return mixed
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }

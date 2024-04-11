@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
-use DCarbone\PHPFHIR\Enum\ElementNameEnum;
+use DCarbone\PHPFHIR\Enum\AttributeName;
+use DCarbone\PHPFHIR\Enum\ElementName;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use SimpleXMLElement;
 
@@ -45,9 +45,9 @@ class ElementElementTypeDecorator
     {
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeNameEnum::NAME:
+                case AttributeName::NAME->value:
                     break;
-                case AttributeNameEnum::TYPE:
+                case AttributeName::TYPE->value:
                     /*
                      * This is to support weird shit like this:
                      *
@@ -68,7 +68,7 @@ class ElementElementTypeDecorator
                         // if the "type" value is exactly equivalent to the "name" value, just assume
                         // weirdness and move on.
                         break;
-                    } elseif (0 === strpos($v, 'xs:')) {
+                    } elseif (str_starts_with($v, 'xs:')) {
                         break;
                     }
                     $type->setParentTypeName($v);
@@ -81,7 +81,7 @@ class ElementElementTypeDecorator
 
         foreach ($element->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementNameEnum::ANNOTATION:
+                case ElementName::ANNOTATION->value:
                     AnnotationElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
@@ -99,28 +99,28 @@ class ElementElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $element)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $element): void
     {
         $property = new Property($type, $element, $type->getSourceFilename());
 
         // parse through attributes
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeNameEnum::REF:
+                case AttributeName::REF->value:
                     $property->setRef((string)$attribute);
                     break;
-                case AttributeNameEnum::NAME:
+                case AttributeName::NAME->value:
                     $property->setName((string)$attribute);
                     break;
 
-                case AttributeNameEnum::MIN_OCCURS:
+                case AttributeName::MIN_OCCURS->value:
                     $property->setMinOccurs(intval((string)$attribute));
                     break;
-                case AttributeNameEnum::MAX_OCCURS:
+                case AttributeName::MAX_OCCURS->value:
                     $property->setMaxOccurs((string)$attribute);
                     break;
 
-                case AttributeNameEnum::TYPE:
+                case AttributeName::TYPE->value:
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
 
@@ -132,10 +132,10 @@ class ElementElementTypeDecorator
         // parse through child elements
         foreach ($element->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementNameEnum::ANNOTATION:
+                case ElementName::ANNOTATION->value:
                     AnnotationElementPropertyTypeDecorator::decorate($config, $types, $type, $property, $child);
                     break;
-                case ElementNameEnum::COMPLEX_TYPE:
+                case ElementName::COMPLEX_TYPE->value:
                     ComplexTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

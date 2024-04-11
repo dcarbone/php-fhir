@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ ob_start(); ?>
 <?php foreach ($properties as $i => $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
-            __DIR__ . '/body_parse_node_typed.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed.php',
             $requireArgs + [
                 'property' => $property,
                 'i' => $i,
@@ -41,7 +41,7 @@ ob_start(); ?>
         );
     else :
         echo require_with(
-            __DIR__ . '/body_parse_node_primitive.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_primitive.php',
             $requireArgs + [
                 'property' => $property,
                 'i' => $i,
@@ -54,7 +54,7 @@ endforeach; ?>
 <?php foreach ($properties as $i => $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
-            __DIR__ . '/body_parse_attr_typed.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_attr_typed.php',
             $requireArgs + [
                 'property' => $property,
                 'i' => $i,
@@ -62,7 +62,7 @@ endforeach; ?>
         );
     else :
         echo require_with(
-            __DIR__ . '/body_parse_attr_primitive.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_attr_primitive.php',
             $requireArgs + [
                 'property' => $property,
                 'i' => $i,

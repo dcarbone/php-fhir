@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
@@ -31,9 +31,9 @@ $requireArgs = [
 
 ob_start();
 
-if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+if ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
     echo require_with(
-        __DIR__ . '/body_parse_typed_resource_container.php',
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_typed_resource_container.php',
         $requireArgs + [
             'property' => $property,
             'i' => $i,
@@ -41,7 +41,7 @@ if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::
     );
 else :
     echo require_with(
-        __DIR__ . '/body_parse_typed_default.php',
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_typed_default.php',
         $requireArgs + [
             'property' => $property,
             'i' => $i,

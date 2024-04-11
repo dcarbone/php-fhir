@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ namespace DCarbone\PHPFHIR\Definition\Decorator;
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
-use DCarbone\PHPFHIR\Enum\ElementNameEnum;
+use DCarbone\PHPFHIR\Enum\AttributeName;
+use DCarbone\PHPFHIR\Enum\ElementName;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 use SimpleXMLElement;
@@ -43,7 +43,7 @@ abstract class RestrictionElementTypeDecorator
     {
         foreach ($restriction->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeNameEnum::BASE:
+                case AttributeName::BASE->value:
                     $type->setRestrictionBaseFHIRName((string)$attribute);
                     break;
 
@@ -54,23 +54,23 @@ abstract class RestrictionElementTypeDecorator
 
         foreach ($restriction->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementNameEnum::SIMPLE_TYPE:
+                case ElementName::SIMPLE_TYPE->value:
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementNameEnum::PATTERN:
+                case ElementName::PATTERN->value:
                     TypeBuilderUtils::setTypeStringFromElementAttribute($type, $child, 'setPattern');
                     break;
-                case ElementNameEnum::MIN_LENGTH:
-                case ElementNameEnum::MAX_LENGTH:
+                case ElementName::MIN_LENGTH->value:
+                case ElementName::MAX_LENGTH->value:
                     TypeBuilderUtils::setTypeIntegerFromElementAttribute($type, $child, 'set' . $child->getName());
                     break;
-                case ElementNameEnum::ENUMERATION:
+                case ElementName::ENUMERATION->value:
                     TypeBuilderUtils::addTypeEnumeratedValue($type, $restriction, $child);
                     break;
-                case ElementNameEnum::SEQUENCE:
+                case ElementName::SEQUENCE->value:
                     SequenceElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementNameEnum::ATTRIBUTE:
+                case ElementName::ATTRIBUTE->value:
                     AttributeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

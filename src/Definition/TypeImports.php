@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use Countable;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use Iterator;
 
 /**
@@ -260,12 +260,7 @@ class TypeImports implements Iterator, Countable
             if (null === $propertyType) {
                 continue;
             }
-            if ($propertyType->getKind()->isOneOf(
-                    [
-                        TypeKindEnum::RESOURCE_CONTAINER,
-                        TypeKindEnum::RESOURCE_INLINE,
-                    ]
-                ) &&
+            if ($propertyType->getKind()->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE) &&
                 $typeNS !== $configNS) {
                 $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
                 $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);

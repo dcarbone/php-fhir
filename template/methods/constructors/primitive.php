@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
@@ -36,7 +37,7 @@ ob_start(); ?>
     public function __construct($value = null)
     {
         <?php if (null !== $parentType) :
-            if ($parentTypeKind->isPrimitive() || $parentType->isValueContainer()) :
+            if ($parentTypeKind === TypeKind::PRIMITIVE || $parentType->isValueContainer()) :
                 ?>parent::__construct($value);<?php else: ?>if (null === $value) {
             parent::__construct();
         } elseif (is_scalar($value)) {

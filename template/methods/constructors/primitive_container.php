@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ ob_start(); ?>
         continue;
     endif;
     echo require_with(
-            PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
+            PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
             [
                 'config' => $config,
                 'type' => $type,

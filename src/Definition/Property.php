@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\PropertyUse;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use InvalidArgumentException;
 use SimpleXMLElement;
@@ -57,8 +57,8 @@ class Property
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private ?Type $valueFHIRType = null;
 
-    /** @var \DCarbone\PHPFHIR\Enum\PropertyUseEnum */
-    private PropertyUseEnum $use;
+    /** @var \DCarbone\PHPFHIR\Enum\PropertyUse */
+    private PropertyUse $use;
 
     /** @var string|null */
     private ?string $ref = null;
@@ -83,7 +83,7 @@ class Property
         $this->memberOf = $memberOf;
         $this->sourceSXE = $sxe;
         $this->sourceFilename = $sourceFilename;
-        $this->use = new PropertyUseEnum(PropertyUseEnum::OPTIONAL);
+        $this->use = PropertyUse::OPTIONAL;
     }
 
     /**
@@ -101,7 +101,7 @@ class Property
             'pattern' => $this->getPattern(),
             'rawPHPValue' => $this->getRawPHPValue(),
             'fhirType' => (string)$this->getValueFHIRType(),
-            'use' => (string)$this->getUse(),
+            'use' => $this->getUse()->value,
             'fixed' => (string)$this->getFixed(),
             'namespace' => (string)$this->getNamespace(),
         ];
@@ -208,7 +208,7 @@ class Property
      * @param int|string $maxOccurs
      * @return \DCarbone\PHPFHIR\Definition\Property
      */
-    public function setMaxOccurs($maxOccurs): Property
+    public function setMaxOccurs(int|string $maxOccurs): Property
     {
         if (is_string($maxOccurs) && 'unbounded' === strtolower($maxOccurs)) {
             $this->maxOccurs = PHPFHIR_UNLIMITED;
@@ -282,18 +282,18 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\PropertyUseEnum
+     * @return \DCarbone\PHPFHIR\Enum\PropertyUse
      */
-    public function getUse(): PropertyUseEnum
+    public function getUse(): PropertyUse
     {
         return $this->use;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\PropertyUseEnum $use
+     * @param \DCarbone\PHPFHIR\Enum\PropertyUse $use
      * @return \DCarbone\PHPFHIR\Definition\Property
      */
-    public function setUse(PropertyUseEnum $use): Property
+    public function setUse(PropertyUse $use): Property
     {
         $this->use = $use;
         return $this;

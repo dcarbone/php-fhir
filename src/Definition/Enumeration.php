@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class Enumeration implements \Iterator, \Countable
      * @param mixed $rawValue
      * @return bool
      */
-    public function hasRawValue($rawValue): bool
+    public function hasRawValue(mixed $rawValue): bool
     {
         foreach ($this->values as $value) {
             if ($value->getValue() === $rawValue) {
@@ -69,7 +69,7 @@ class Enumeration implements \Iterator, \Countable
     /**
      * @return \DCarbone\PHPFHIR\Definition\EnumerationValue|false
      */
-    public function current()
+    public function current(): bool|EnumerationValue
     {
         return current($this->values);
     }

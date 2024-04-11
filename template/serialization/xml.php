@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
+/** @var \DCarbone\PHPFHIR\Enum\TypeKind $typeKind */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
@@ -32,7 +32,7 @@ $properties = $type->getAllPropertiesIterator();
 ob_start();
 // unserialize portion
 echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/header.php',
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
     [
         'config' => $config,
         'type' => $type,
@@ -44,7 +44,7 @@ echo require_with(
 
 if (0 < count($properties)) :
     echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body.php',
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'body.php',
         [
             'config' => $config,
             'type' => $type,
@@ -59,9 +59,9 @@ endif;
 <?php
 // serialize portion
 // ResourceContainer and Resource.Inline types have their own special xml serialization mechanism
-if ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+if ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
     echo require_with(
-            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/resource_container.php',
+            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'resource_container.php',
             [
                 'config' => $config,
                 'type' => $type,
@@ -71,7 +71,7 @@ else :
     // everything else shares a common header
     // header is always output as it is what creates the simplexml instance
     echo require_with(
-            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/default_header.php',
+            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'default_header.php',
         [
             'config' => $config,
             'parentType' => $parentType,
@@ -81,7 +81,7 @@ else :
     $properties = $type->getProperties()->getDirectIterator();
     if (0 < count($directProperties)) :
         echo require_with(
-            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/default_body.php',
+            PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'default_body.php',
             [
                 'config' => $config,
                 'type' => $type,

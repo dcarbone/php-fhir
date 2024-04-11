@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,24 +59,24 @@ ob_start(); ?>
     if (null === $propertyType) :
         if ($property->isCollection()) :
             echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/collection_typed.php',
+                PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
                 $requireArgs + ['property' => $property]
             );
         else :
             echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/primitive.php',
+                PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
                 $requireArgs + ['property' => $property]
             );
         endif;
     else :
         if ($property->isCollection()) :
             echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/collection_typed.php',
+                PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
                 $requireArgs + ['property' => $property]
             );
         else :
             echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods/typed.php',
+                PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'typed.php',
                 $requireArgs + ['property' => $property]
             );
         endif;

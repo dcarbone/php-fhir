@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ abstract class FileUtils
      */
     public static function buildGenericFilePath(VersionConfig $config, string $namespace, string $filename): string
     {
-        return self::mkdirRecurse($config, self::cleanupPath($namespace)) . "/{$filename}.php";
+        return self::mkdirRecurse($config, self::cleanupPath($namespace)) . DIRECTORY_SEPARATOR."{$filename}.php";
     }
 
     /**
@@ -96,27 +96,6 @@ abstract class FileUtils
                 $config,
                 self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
             ) . "/{$type->getTestClassName()}.php";
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param bool $gt8
-     * @param string $testType
-     * @return string
-     */
-    public static function buildPHPUnitVersionedTestFilePath(VersionConfig $config, Type $type, bool $gt8, string $testType): string
-    {
-        if ($gt8) {
-            return static::mkdirRecurse(
-                    $config,
-                    self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
-                ) . "/{$type->getTestClassName()}_phpunit_gte_8.php";
-        }
-        return static::mkdirRecurse(
-                $config,
-                self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
-            ) . "/{$type->getTestClassName()}_phpunit_lt_8.php";
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Decorator\ComplexTypeElementTypeDecorator;
 use DCarbone\PHPFHIR\Definition\Decorator\ElementElementTypeDecorator;
 use DCarbone\PHPFHIR\Definition\Decorator\SimpleTypeElementTypeDecorator;
-use DCarbone\PHPFHIR\Enum\ElementNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementName;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DomainException;
 use RuntimeException;
@@ -105,7 +105,7 @@ abstract class TypeExtractor
             $childName = $child->getName();
 
             // skip these root level elements
-            if (ElementNameEnum::_INCLUDE === $childName || ElementNameEnum::IMPORT === $childName || ElementNameEnum::ANNOTATION === $childName) {
+            if (ElementName::_INCLUDE->value === $childName || ElementName::IMPORT->value === $childName || ElementName::ANNOTATION->value === $childName) {
                 continue;
             }
 
@@ -127,7 +127,7 @@ abstract class TypeExtractor
 
             // parse top level elements
             switch ($childName) {
-                case ElementNameEnum::SIMPLE_TYPE:
+                case ElementName::SIMPLE_TYPE->value:
                     $logger->debug(sprintf('Parsing "%s" from SimpleType', $fhirName));
                     // build type
                     $type = TypeBuilder::build($config, $fhirName, $child, $sourceFile);
@@ -139,7 +139,7 @@ abstract class TypeExtractor
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
-                case ElementNameEnum::COMPLEX_TYPE:
+                case ElementName::COMPLEX_TYPE->value:
                     $logger->debug(sprintf('Parsing "%s" from ComplexType', $fhirName));
                     // build type
                     $type = TypeBuilder::build($config, $fhirName, $child, $sourceFile);
@@ -151,7 +151,7 @@ abstract class TypeExtractor
                     ComplexTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
-                case ElementNameEnum::ELEMENT:
+                case ElementName::ELEMENT->value:
                     /* TODO: this is producing some oddities as the result of things like this:
                      * src: R4 bundle.xsd
                      * <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://hl7.org/fhir" xmlns:xhtml="http://www.w3.org/1999/xhtml" targetNamespace="http://hl7.org/fhir" elementFormDefault="qualified" version="1.0">
@@ -197,10 +197,10 @@ abstract class TypeExtractor
         // first, parse all .xsd files without the "fhir-" prefix
         foreach (glob(sprintf('%s/*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
             $basename = basename($xsdFile);
-            if (0 === strpos($basename, PHPFHIR_SKIP_FHIR_XSD_PREFIX)) {
+            if (str_starts_with($basename, PHPFHIR_SKIP_FHIR_XSD_PREFIX)) {
                 continue;
             }
-            if (0 === strpos($basename, PHPFHIR_SKIP_ATOM_XSD_PREFIX)) {
+            if (str_starts_with($basename, PHPFHIR_SKIP_ATOM_XSD_PREFIX)) {
                 continue;
             }
             if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename || PHPFHIR_SKIP_TOMBSTONE_XSD === $basename) {
@@ -221,7 +221,7 @@ abstract class TypeExtractor
                 $logger->debug(sprintf('Skipping file "%s"', $xsdFile));
                 continue;
             }
-            if (0 === strpos($basename, PHPFHIR_SKIP_ATOM_XSD_PREFIX)) {
+            if (str_starts_with($basename, PHPFHIR_SKIP_ATOM_XSD_PREFIX)) {
                 continue;
             }
             static::extractTypesFromXSD($config, $types, $xsdFile);

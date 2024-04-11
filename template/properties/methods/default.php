@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
-$isPrimitiveType = $type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]);
+$isPrimitiveType = $type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST);
 
 ob_start();
 foreach ($properties as $property) :
@@ -31,7 +31,7 @@ foreach ($properties as $property) :
     endif;
     if ($isPrimitiveType && $property->isValueProperty()) :
         echo require_with(
-            __DIR__ . '/default/getter_primitive_value.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'getter_primitive_value.php',
             [
                 'config'   => $config,
                 'type'     => $type,
@@ -39,7 +39,7 @@ foreach ($properties as $property) :
             ]
         );
         echo require_with(
-            __DIR__ . '/default/getter_primitive_value.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'getter_primitive_value.php',
             [
                 'config'   => $config,
                 'type' => $type,
@@ -58,7 +58,7 @@ foreach ($properties as $property) :
     ];
 
     echo require_with(
-        __DIR__ . '/default/getter_default.php',
+        __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'getter_default.php',
         [
             'config'   => $config,
             'property' => $property,
@@ -67,32 +67,32 @@ foreach ($properties as $property) :
 
     echo "\n";
 
-    if ($propertyTypeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) :
+    if ($propertyTypeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST, TypeKind::PRIMITIVE_CONTAINER)) :
         echo require_with(
-            __DIR__ . '/default/setter_primitive.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'setter_primitive.php',
             $requireArgs
         );
-    elseif ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+    elseif ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
         echo require_with(
-            __DIR__ . '/default/setter_contained_resource.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'setter_contained_resource.php',
             $requireArgs
         );
     else :
         echo require_with(
-            __DIR__ . '/default/setter_default.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'setter_default.php',
             $requireArgs
         );
     endif;
     if ($property->isCollection()) :
         echo "\n";
-        if ($propertyTypeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+        if ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
             echo require_with(
-                __DIR__ . '/default/setter_contained_resource_collection.php',
+                __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'setter_contained_resource_collection.php',
                 $requireArgs
             );
         else :
             echo require_with(
-                __DIR__ . '/default/setter_collection.php',
+                __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'setter_collection.php',
                 $requireArgs
             );
         endif;

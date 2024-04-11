@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -26,7 +26,7 @@ ob_start(); ?>
         $n = $element->attributes->getNamedItem(self::<?php echo $property->getFieldConstantName(); ?>);
         if (null !== $n) {
             $type->setValue($n->nodeValue);
-<?php if (null !== $propType && $propType->getKind()->is(TypeKindEnum::PHPFHIR_XHTML)) : ?>
+<?php if (null !== $propType && $propType->getKind() === TypeKind::PHPFHIR_XHTML) : ?>
             $type->_setElementName($n->nodeName);
 <?php endif; ?>
         }

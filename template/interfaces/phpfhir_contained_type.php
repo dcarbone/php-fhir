@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 $namespace = $config->getNamespace(false);
@@ -28,8 +28,8 @@ $containerType = $types->getContainerType();
 if (null === $containerType) {
     throw new \RuntimeException(sprintf(
         'Unable to locate either "%s" or "%s" type',
-        TypeKindEnum::RESOURCE_CONTAINER,
-        TypeKindEnum::RESOURCE_INLINE
+        TypeKind::RESOURCE_CONTAINER->value,
+        TypeKind::RESOURCE_INLINE->value
     ));
 }
 

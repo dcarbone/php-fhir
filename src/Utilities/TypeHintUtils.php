@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ namespace DCarbone\PHPFHIR\Utilities;
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 abstract class TypeHintUtils
 {
@@ -41,11 +41,11 @@ abstract class TypeHintUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
      * @param bool $nullable
      * @return string
      */
-    public static function primitivePHPValueTypeHint(VersionConfig $config, PrimitiveTypeEnum $primitiveType, bool $nullable): string
+    public static function primitivePHPValueTypeHint(VersionConfig $config, PrimitiveType $primitiveType, bool $nullable): string
     {
         // this assumes the property's value type is a primiive.
         // it will bomb if not.
@@ -58,12 +58,13 @@ abstract class TypeHintUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
      * @param bool $nullable
+     * @param bool $asCollection
      * @param string ...$additionalTypes
      * @return string
      */
-    public static function primitivePHPValueTypeDoc(VersionConfig $config, PrimitiveTypeEnum $primitiveType, bool $nullable, bool $asCollection, string...$additionalTypes): string
+    public static function primitivePHPValueTypeDoc(VersionConfig $config, PrimitiveType $primitiveType, bool $nullable, bool $asCollection, string...$additionalTypes): string
     {
         // if nullable, add to list of additional types
         if ($nullable) {
@@ -114,7 +115,7 @@ abstract class TypeHintUtils
         $tk = $type->getKind();
 
         // if this is an inline resource
-        if ($tk->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
+        if ($tk->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
             return sprintf(
                 '%s%s',
                 $nullable ? '?' : '',
@@ -153,7 +154,7 @@ abstract class TypeHintUtils
         $tk = $type->getKind();
 
         // if this is an inline resource
-        if ($tk->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) {
+        if ($tk->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
             return sprintf(
                 '%s%s%s%s',
                 $a,
@@ -165,7 +166,7 @@ abstract class TypeHintUtils
 
         // if this is a primitive container type, then we must accept an instance of the primitive type itself
         // and the raw php value, thus we must hint for both
-        if ($tk->isPrimitiveContainer()) {
+        if ($tk === TypeKind::PRIMITIVE_CONTAINER) {
             return sprintf(
                 '%s%s%s|%s%s',
                 $a,

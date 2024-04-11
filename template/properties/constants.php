@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -33,7 +33,7 @@ endif;
 ob_start(); ?>
     const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
 <?php if (null !== $propertyType &&
-    ($propertyType->getKind()->is(TypeKindEnum::PRIMITIVE_CONTAINER) || $propertyType->isValueContainer())) :
+    ($propertyType->getKind() === TypeKind::PRIMITIVE_CONTAINER || $propertyType->isValueContainer())) :
     ?>    const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
 <?php endif;
 return ob_get_clean();

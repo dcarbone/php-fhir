@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
-/**
- * Class PropertyUseEnum
- * @package DCarbone\PHPFHIR\Enum
- */
-class PropertyUseEnum extends AbstractEnum
+trait EnumCompat
 {
-    public const PROHIBITED = 'prohibited';
-    public const OPTIONAL   = 'optional';
-    public const REQUIRED   = 'required';
+    /**
+     * @return string[]
+     */
+    public function values(): array
+    {
+        return array_column(self::cases(), 'values');
+    }
 }

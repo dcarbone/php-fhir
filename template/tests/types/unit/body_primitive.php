@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
+use DCarbone\PHPFHIR\Enum\PrimitiveType;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
@@ -25,31 +25,14 @@ use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 $primitiveType = $type->getPrimitiveType();
 
 // TODO: more different types of strvals...
-switch ($primitiveType->getValue()) {
-    case PrimitiveTypeEnum::INTEGER:
-    case PrimitiveTypeEnum::POSITIVE_INTEGER:
-        $strVal = '10';
-        break;
-
-    case PrimitiveTypeEnum::NEGATIVE_INTEGER:
-        $strVal = '-10';
-        break;
-
-    case PrimitiveTypeEnum::DECIMAL:
-        $strVal = '10.5';
-        break;
-
-    case PrimitiveTypeEnum::UNSIGNED_INTEGER:
-        $strVal = (string)PHP_INT_MAX;
-        break;
-
-    case PrimitiveTypeEnum::BOOLEAN:
-        $strVal = 'true';
-        break;
-
-    default:
-        $strVal = 'randomstring';
-}
+$strVal = match ($primitiveType) {
+    PrimitiveType::INTEGER, PrimitiveType::POSITIVE_INTEGER => '10',
+    PrimitiveType::NEGATIVE_INTEGER => '-10',
+    PrimitiveType::DECIMAL => '10.5',
+    PrimitiveType::UNSIGNED_INTEGER => (string)PHP_INT_MAX,
+    PrimitiveType::BOOLEAN => 'true',
+    default => 'randomstring',
+};
 
 ob_start(); ?>
 

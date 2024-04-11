@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ ob_start();
 
 // build file header
 echo require_with(
-    PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
+    PHPFHIR_TEMPLATE_FILE_DIR . DIRECTORY_SEPARATOR . 'header_type.php',
     [
         'config' => $config,
         'fqns' => $fqns,
@@ -52,7 +52,7 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php', ['config' => $config, 'type' => $type, 'parentType' => null]); ?>
+<?php echo require_with(PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'definition.php', ['config' => $config, 'type' => $type, 'parentType' => null]); ?>
 
     // name of FHIR type this class describes
     const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
@@ -92,7 +92,7 @@ echo require_with(
 
 <?php
 echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    PHPFHIR_TEMPLATE_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
     [
         'config' => $config,
         'type' => $type,
@@ -153,7 +153,7 @@ echo require_with(
 
 
 <?php echo require_with(
-        PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods.php',
+        PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
     [
         'config' => $config,
         'type' => $type,
@@ -163,7 +163,7 @@ echo require_with(
 <?php
 // unserialize portion
 echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/header.php',
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
     [
         'config' => $config,
         'type' => $type,

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
@@ -30,7 +30,7 @@ ob_start(); ?>
      * <?php echo $typeClassName; ?> Constructor
      * @param null|array $data
      */
-    public function __construct($data = null)
+    public function __construct(?array $data = null)
     {
         if (null === $data || [] === $data) {
             return;
@@ -61,9 +61,9 @@ ob_start(); ?>
     if ($property->isOverloaded()) :
         continue;
     endif;
-    if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf([TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER])) :
+    if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/resource_container_property_setter_call.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'resource_container_property_setter_call.php',
                 [
                     'config' => $config,
                     'type' => $type,
@@ -72,7 +72,7 @@ ob_start(); ?>
         );
     else :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
+                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
                 [
                     'config' => $config,
                     'type' => $type,

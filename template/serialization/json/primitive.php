@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
+/** @var \DCarbone\PHPFHIR\Enum\TypeKind $typeKind */
 
 ob_start(); ?>
     /**
@@ -30,7 +30,7 @@ ob_start(); ?>
      */
     public function jsonSerialize()
     {
-<?php if ($typeKind->is(TypeKindEnum::PRIMITIVE) && false !== strpos($type->getFHIRName(), 'unsigned')) : ?>
+<?php if ($typeKind === TypeKind::PRIMITIVE && str_contains($type->getFHIRName(), 'unsigned')) : ?>
         return intval($this->getValue(), 10);
 <?php else : ?>
         return $this->getValue();

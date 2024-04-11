@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
@@ -25,18 +25,18 @@ $directProperties = $type->getProperties()->getDirectIterator();
 $typeKind = $type->getKind();
 
 ob_start();
-if ($typeKind->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :
+if ($typeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
     echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/primitive.php',
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'primitive.php',
         [
             'config' => $config,
             'type'     => $type,
             'typeKind' => $typeKind,
         ]
     );
-elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE])) :
+elseif ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
     echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/resource_container.php',
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'resource_container.php',
         [
             'config' => $config,
             'properties' => $directProperties,
@@ -44,7 +44,7 @@ elseif ($typeKind->isOneOf([TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESO
     );
 else:
     echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json/default.php',
+        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'default.php',
         [
             'config' => $config,
             'type'       => $type,

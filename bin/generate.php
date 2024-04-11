@@ -21,16 +21,26 @@
 
 namespace PHPFHIRCLI;
 
-// --- autoload setup
-
 date_default_timezone_set('UTC');
-require __DIR__ . '/../vendor/autoload.php';
+
+// --- autoload setup
+const AUTOLOAD_CLASS_FILEPATH = __DIR__ . '/../vendor/autoload.php';
+
+// ensure composer autoload class exists.
+if (!file_exists(AUTOLOAD_CLASS_FILEPATH)) {
+    echo sprintf("Unable to locate composer autoload file expected at path: %s\n\n", AUTOLOAD_CLASS_FILEPATH);
+    echo "Please run \"composer install\" from the root of the project directory\n\n";
+    exit(1);
+}
+
+require AUTOLOAD_CLASS_FILEPATH;
 
 // --- use statements
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Definition;
+use JetBrains\PhpStorm\NoReturn;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -114,7 +124,7 @@ STRING;
 /**
  * @param bool $err
  */
-function exit_with_help(bool $err = false): void
+#[NoReturn] function exit_with_help(bool $err = false): void
 {
     global $config_location_def;
     $env_var = ENV_GENERATE_CONFIG_FILE;
@@ -122,7 +132,7 @@ function exit_with_help(bool $err = false): void
 
 PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
 
-Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
 
 - Links: 
     Source:         https://github.com/dcarbone/php-fhir
@@ -178,7 +188,7 @@ function ask(string $q): bool
         foreach ($ins as $in) {
             $resp = stream_get_line($in, 25, "\n");
             if (is_string($resp)) {
-                return substr(strtolower($resp), 0, 1) === 'y';
+                return str_starts_with(strtolower($resp), 'y');
             }
             return false;
         }
@@ -210,7 +220,7 @@ function is_dir_empty(string $dir): bool
 {
     $res = glob($dir, GLOB_NOSORT);
     foreach ($res as $r) {
-        if (0 === strpos($r, '.')) {
+        if (str_starts_with($r, '.')) {
             continue;
         }
         return false;
@@ -230,7 +240,7 @@ if ($argc > 1) {
         } else {
             $next = trim($argv[$i + 1]);
         }
-        if (false !== strpos($arg, '=')) {
+        if (str_contains($arg, '=')) {
             list($arg, $next) = explode('=', $arg, 2);
             $found_equal = true;
         }
@@ -326,6 +336,7 @@ if (!is_readable($config_file)) {
     exit(1);
 }
 
+// determine if monolog is present, otherwise use null logger
 if (class_exists('\\Monolog\\Logger')) {
     $formatter = new LineFormatter(LineFormatter::SIMPLE_FORMAT);
     $handler = new StreamHandler('php://stdout', $log_level);
@@ -436,7 +447,7 @@ foreach ($versions_to_generate as $version) {
     }
 
     if ($unzip) {
-        if (class_exists('\\ZipArchive', true)) {
+        if (class_exists('\\ZipArchive')) {
             echo "ext-zip found\n";
 
             $zip = new \ZipArchive();
@@ -480,11 +491,11 @@ foreach ($versions_to_generate as $version) {
 
     $builder = new Builder($build_config, $definition);
     if ($only_library) {
-        $builder->buildFHIRClasses();
+        $builder->renderFHIRClasses();
     } elseif ($only_tests) {
-        $builder->buildTestClasses();
+        $builder->renderTestClasses();
     } else {
-        $builder->build();
+        $builder->render();
     }
 }
 

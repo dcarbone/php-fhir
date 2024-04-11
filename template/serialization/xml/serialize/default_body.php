@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ ob_start();
 foreach ($directProperties as $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
-            __DIR__ . '/default_body_typed.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default_body_typed.php',
             [
                 'config' => $config,
                 'property' => $property,
@@ -33,7 +33,7 @@ foreach ($directProperties as $property) :
         );
     elseif (null === $parentType) :
         echo require_with(
-            __DIR__ . '/default_body_untyped.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'default_body_untyped.php',
             [
                 'config' => $config,
             ]
