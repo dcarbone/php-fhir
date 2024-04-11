@@ -49,7 +49,7 @@ configure and execute the generator.
 | PHPFHIR Version | PHP Versions | FHIR Versions                    |
 |-----------------|--------------|----------------------------------|
 | v2              | 5.4-7.4      | DSTU1, DSTU2, STU3, R4 (<v4.3.0) |
-| v3              | 7.4-8.1      | DSTU1, DSTU2, STU3, R4           |
+| v3              | 8.1+         | DSTU1, DSTU2, STU3, R4           |
 
 # Basic Usage
 
