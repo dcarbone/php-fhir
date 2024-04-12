@@ -37,12 +37,15 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo TypeHintUtils::typeTypeDoc($config, $propertyType, true, false); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::propertySetterTypeDoc($config, $property, false); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo TypeHintUtils::typeTypeHint($config, $propertyType, true); ?> $<?php echo $propertyName; ?> = null): object
+    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo TypeHintUtils::typeSetterTypeHint($config, $propertyType); ?> $<?php echo $propertyName; ?> = null): self
     {
+        if (null === $<?php echo $propertyName; ?>) {
+            $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>();
+        }
         <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;

@@ -38,13 +38,13 @@ ob_start();
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo TypeHintUtils::propertyTypeDoc($config, $property, true); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::propertySetterTypeDoc($config, $property, false); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null): object
+    public function <?php echo $methodName; ?>(<?php echo TypeHintUtils::typeSetterTypeHint($config, $propertyType, true); ?> $<?php echo $propertyName; ?> = null): self
     {
-        if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
+        if (!($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         }
         <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);

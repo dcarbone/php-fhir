@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
@@ -40,7 +39,7 @@ ob_start(); ?>
 
      * @return static
      */
-    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = []): object
+    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = []): self
     {
         if ([] !== $this-><?php echo $propertyName; ?>) {
             $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));

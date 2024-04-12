@@ -31,7 +31,7 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @var <?php echo TypeHintUtils::propertyTypeDoc($config, $property, true); ?>
+     * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($config, $property, true); ?>
 
      */
     protected <?php echo TypeHintUtils::propertyTypeHint($config, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;

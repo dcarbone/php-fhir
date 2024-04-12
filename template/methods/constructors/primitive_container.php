@@ -37,7 +37,7 @@ $typeImports = $type->getImports();
 ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::propertyTypeDoc($config, $valueProperty, true, 'array'); ?> $data
+     * @param <?php echo TypeHintUtils::propertyGetterTypeDoc($config, $valueProperty, true); ?> $data
      */
     public function __construct($data = null)
     {

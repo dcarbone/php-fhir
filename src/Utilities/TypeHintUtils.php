@@ -27,19 +27,6 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 abstract class TypeHintUtils
 {
     /**
-     * @param array $additionalTypes
-     * @return string
-     */
-    protected static function buildAdditionalTypes(array $additionalTypes): string
-    {
-        $additionalTypes = array_unique(array_map('trim', $additionalTypes));
-        if ([] === $additionalTypes) {
-            return '';
-        }
-        return sprintf('%s|', implode('|', $additionalTypes));
-    }
-
-    /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
      * @param bool $nullable
@@ -59,22 +46,13 @@ abstract class TypeHintUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
-     * @param bool $nullable
      * @param bool $asCollection
-     * @param string ...$additionalTypes
      * @return string
      */
-    public static function primitivePHPValueTypeDoc(VersionConfig $config, PrimitiveType $primitiveType, bool $nullable, bool $asCollection, string...$additionalTypes): string
+    public static function primitivePHPValueTypeDoc(VersionConfig $config, PrimitiveType $primitiveType, bool $asCollection): string
     {
-        // if nullable, add to list of additional types
-        if ($nullable) {
-            array_unshift($additionalTypes, 'null');
-        }
-        $a = self::buildAdditionalTypes($additionalTypes);
-
         return sprintf(
-            '%s%s%s',
-            $a,
+            '%s%s',
             $primitiveType->getPHPValueTypeHint(),
             $asCollection ? '[]' : ''
         );
@@ -94,14 +72,12 @@ abstract class TypeHintUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Property $property
-     * @param bool $nullable
      * @param bool $asCollection
-     * @param string ...$additoinalTypes
      * @return string
      */
-    public static function primitiveValuePropertyTypeDoc(VersionConfig $config, Property $property, bool $nullable, bool $asCollection, string...$additoinalTypes): string
+    public static function primitiveValuePropertyTypeDoc(VersionConfig $config, Property $property, bool $asCollection): string
     {
-        return self::primitivePHPValueTypeDoc($config, $property->getMemberOf()->getPrimitiveType(), $nullable, $asCollection);
+        return self::primitivePHPValueTypeDoc($config, $property->getMemberOf()->getPrimitiveType(), $asCollection);
     }
 
     /**
@@ -134,55 +110,73 @@ abstract class TypeHintUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param bool $nullable
-     * @param bool $asCollection
-     * @param string ...$additionalTypes
      * @return string
      */
-    public static function typeTypeDoc(VersionConfig $config, Type $type, bool $nullable, bool $asCollection, string...$additionalTypes): string
+    public static function typeSetterTypeHint(VersionConfig $config, Type $type): string
+    {
+        $tk = $type->getKind();
+        $types = ['null'];
+
+        if ($tk === TypeKind::PRIMITIVE_CONTAINER) {
+            $pt = $type->getProperties()->getProperty('value')->getValueFHIRType();
+            array_push(
+                $types,
+                $pt->getPrimitiveType()->getPHPValueTypeHint(),
+                $pt->getClassName(),
+                $type->getClassName(),
+            );
+        } else if ($tk === TypeKind::PRIMITIVE) {
+            array_push(
+                $types,
+                $type->getprimitiveType()->getPHPValueTypeHint(),
+                $type->getClassName(),
+            );
+        } else {
+            $types[] = $type->getClassName();
+        }
+
+        return implode('|', $types);
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param bool $nullable
+     * @param bool $asCollection
+     * @return string
+     */
+    public static function typeTypeDoc(VersionConfig $config, Type $type, bool $nullable, bool $asCollection): string
     {
         // if nullable, add to list of additional types
-        if ($nullable) {
-            array_unshift($additionalTypes, 'null');
-        }
-        $a = self::buildAdditionalTypes($additionalTypes);
-
-        // whether type is hinted as a collection
-        $c = $asCollection ? '[]' : '';
+        $types = [];
 
         // fetch type's kind
         $tk = $type->getKind();
 
         // if this is an inline resource
         if ($tk->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
-            return sprintf(
-                '%s%s%s%s',
-                $a,
+            array_push(
+                $types,
                 sprintf('\\%s\\', trim($config->getNamespace(true), '\\')),
                 PHPFHIR_INTERFACE_CONTAINED_TYPE,
-                $c
             );
+        } else {
+            $types[] = $type->getFullyQualifiedClassName(true);
         }
 
-        // if this is a primitive container type, then we must accept an instance of the primitive type itself
-        // and the raw php value, thus we must hint for both
-        if ($tk === TypeKind::PRIMITIVE_CONTAINER) {
-            return sprintf(
-                '%s%s%s|%s%s',
-                $a,
-                self::propertyTypeDoc($config, $type->getProperties()->getProperty('value'), false),
-                $c,
-                $type->getFullyQualifiedClassName(true),
-                $c
-            );
+        // if this type is a collection, add [] to end of each element
+        if ($asCollection) {
+            $types = array_map(function (string $n): string {
+                return sprintf('%s[]', $n);
+            }, $types);
         }
 
-        return sprintf(
-            '%s%s%s',
-            $a,
-            $type->getFullyQualifiedClassName(true),
-            $c
-        );
+        // if this type is nullable, prepend list with 'null'
+        if ($nullable) {
+            array_unshift($types, 'null');
+        }
+
+        return implode('|', $types);
     }
 
     /**
@@ -214,17 +208,55 @@ abstract class TypeHintUtils
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @param bool $nullable
-     * @param string ...$additionalTypes
      * @return string
      */
-    public static function propertyTypeDoc(VersionConfig $config, Property $property, bool $nullable, string...$additionalTypes): string
+    public static function propertyGetterTypeDoc(VersionConfig $config, Property $property, bool $nullable): string
     {
         // determine if this property contains a FHIR type or a raw php type
         $t = $property->getValueFHIRType();
         if (null === $t) {
-            return self::primitiveValuePropertyTypeDoc($config, $property, $nullable, $property->isCollection(), ...$additionalTypes);
+            return self::primitiveValuePropertyTypeDoc($config, $property, $nullable, $property->isCollection());
         }
 
-        return self::typeTypeDoc($config, $t, $nullable, $property->isCollection(), ...$additionalTypes);
+        return self::typeTypeDoc($config, $t, $nullable, $property->isCollection());
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param bool $asCollection
+     * @return string
+     */
+    public static function propertySetterTypeDoc(VersionConfig $config, Property $property, bool $asCollection): string
+    {
+        // determine if this property contains a FHIR type or a raw php type
+        $pt = $property->getValueFHIRType();
+        if (null === $pt) {
+            return self::primitiveValuePropertyTypeDoc($config, $property, $asCollection);
+        }
+
+        $tk = $pt->getKind();
+
+        $types = ['null'];
+
+        if ($tk === TypeKind::PRIMITIVE_CONTAINER) {
+            $ptp = $pt->getProperties()->getProperty('value')->getValueFHIRType();
+            array_push(
+                $types,
+                $ptp->getPrimitiveType()->getPHPValueTypeHint(),
+                self::typeTypeDoc($config, $ptp, false, $asCollection),
+                self::typeTypeDoc($config, $pt, false, $asCollection),
+            );
+        } else if ($tk === TypeKind::PRIMITIVE) {
+            array_push(
+                $types,
+                $pt->getPrimitiveType()->getPHPValueTypeHint(),
+                self::typeTypeDoc($config, $pt, false, $asCollection),
+            );
+        } else {
+            $types[] = self::typeTypeDoc($config, $pt, false, $asCollection);
+        }
+
+        return implode('|', $types);
     }
 }

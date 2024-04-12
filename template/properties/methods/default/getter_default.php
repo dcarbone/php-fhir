@@ -32,7 +32,7 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @return <?php echo TypeHintUtils::propertyTypeDoc($config, $property, true); ?>
+     * @return <?php echo TypeHintUtils::propertyGetterTypeDoc($config, $property, true); ?>
 
      */
     public function get<?php echo ucfirst($propertyName); ?>(): <?php echo TypeHintUtils::propertyTypeHint($config, $property, true); ?>
