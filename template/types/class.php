@@ -84,9 +84,6 @@ echo require_with(
     endforeach;
 endif; ?>
 
-    /** @var string */
-    private $_xmlns = '';
-
 <?php if (0 !== count($directProperties)) :
     foreach($directProperties as $property) :
         echo require_with(

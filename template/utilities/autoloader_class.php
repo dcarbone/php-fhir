@@ -59,6 +59,9 @@ if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; 
 if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_CHANGE_TRACKING; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>.php';
 }
+if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XMLNS; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XMLNS; ?>.php';
+}
 
 // common classes
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {

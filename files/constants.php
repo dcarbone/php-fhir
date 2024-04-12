@@ -90,6 +90,7 @@ const PHPFHIR_INTERFACE_COMMENT_CONTAINER = 'PHPFHIRCommentContainerInterface';
 const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'PHPFHIRCommentContainerTrait';
 const PHPFHIR_TRAIT_VALIDATION_ASSERTIONS = 'PHPFHIRValidationAssertionsTrait';
 const PHPFHIR_TRAIT_CHANGE_TRACKING = 'PHPFHIRChangeTrackingTrait';
+const PHPFHIR_TRAIT_XMLNS = 'PHPFHIRXmlNamespaceTrait';
 
 // validation constants
 const PHPFHIR_VALIDATION_ENUM = 'enum';

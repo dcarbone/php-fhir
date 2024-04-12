@@ -749,6 +749,10 @@ class Type
             }
             $traits[] = PHPFHIR_TRAIT_VALIDATION_ASSERTIONS;
             $traits[] = PHPFHIR_TRAIT_CHANGE_TRACKING;
+
+            if ($this->getKind() !== TypeKind::PRIMITIVE) {
+                $traits[] = PHPFHIR_TRAIT_XMLNS;
+            }
         }
 
         return $traits;

@@ -35,7 +35,7 @@ abstract class Templates
      */
     public static function renderPHPFHIRTypeInterface(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_INTERFACES_DIR .DIRECTORY_SEPARATOR. 'phpfhir_type.php';
+        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . DIRECTORY_SEPARATOR . 'phpfhir_type.php';
     }
 
     /**
@@ -45,7 +45,7 @@ abstract class Templates
      */
     public static function renderPHPFHIRCommentContainerInterface(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . DIRECTORY_SEPARATOR.'phpfhir_comment_container.php';
+        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . DIRECTORY_SEPARATOR .'phpfhir_comment_container.php';
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class Templates
      */
     public static function renderPHPFHIRCommentContainerTrait(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_TRAITS_DIR .DIRECTORY_SEPARATOR. 'phpfhir_comment_container.php';
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . DIRECTORY_SEPARATOR . 'phpfhir_comment_container.php';
     }
 
     /**
@@ -65,7 +65,7 @@ abstract class Templates
      */
     public static function renderPHPFHIRValidationAssertionsTrait(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_TRAITS_DIR . DIRECTORY_SEPARATOR.'phpfhir_validation_assertions.php';
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . DIRECTORY_SEPARATOR .'phpfhir_validation_assertions.php';
     }
 
     /**
@@ -75,7 +75,12 @@ abstract class Templates
      */
     public static function renderPHPFHIRChangeTrackingTrait(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_TRAITS_DIR .DIRECTORY_SEPARATOR. 'phpfhir_change_tracking.php';
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . DIRECTORY_SEPARATOR . 'phpfhir_change_tracking.php';
+    }
+    
+    public static function renderPHPFHIRXMLNamespaceTrait(VersionConfig $config, Types $types): string
+    {
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . DIRECTORY_SEPARATOR . 'phpfhir_xml_namespace.php';
     }
 
     /**
@@ -85,7 +90,7 @@ abstract class Templates
      */
     public static function renderPHPFHIRContainedTypeInterface(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_INTERFACES_DIR .DIRECTORY_SEPARATOR. 'phpfhir_contained_type.php';
+        return require PHPFHIR_TEMPLATE_INTERFACES_DIR . DIRECTORY_SEPARATOR . 'phpfhir_contained_type.php';
     }
 
     /**
@@ -95,7 +100,7 @@ abstract class Templates
      */
     public static function renderPHPFHIRResponseParserConfigClass(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . DIRECTORY_SEPARATOR.'response_parser_config_class.php';
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . DIRECTORY_SEPARATOR .'response_parser_config_class.php';
     }
 
     /**
@@ -105,7 +110,7 @@ abstract class Templates
      */
     public static function renderPHPFHIRResponseParserClass(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . DIRECTORY_SEPARATOR.'response_parser_class.php';
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . DIRECTORY_SEPARATOR .'response_parser_class.php';
     }
 
     /**
@@ -116,7 +121,7 @@ abstract class Templates
      */
     public static function renderTypeClass(VersionConfig $config, Types $types, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR .DIRECTORY_SEPARATOR. 'class.php';
+        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'class.php';
     }
 
     /**
@@ -127,7 +132,7 @@ abstract class Templates
      */
     public static function renderRawTypeClass(VersionConfig $config, Types $types, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR .DIRECTORY_SEPARATOR . 'xhtml.php';
+        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'xhtml.php';
     }
 
     /**
@@ -137,7 +142,7 @@ abstract class Templates
      */
     public static function renderConstants(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . DIRECTORY_SEPARATOR.'constants.php';
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . DIRECTORY_SEPARATOR .'constants.php';
     }
 
     /**
@@ -147,7 +152,7 @@ abstract class Templates
      */
     public static function renderTypeMapClass(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_UTILITIES_DIR .DIRECTORY_SEPARATOR. 'typemap_class.php';
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . DIRECTORY_SEPARATOR . 'typemap_class.php';
     }
 
     /**
@@ -157,7 +162,7 @@ abstract class Templates
      */
     public static function renderAutoloaderClass(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_UTILITIES_DIR .DIRECTORY_SEPARATOR. 'autoloader_class.php';
+        return require PHPFHIR_TEMPLATE_UTILITIES_DIR . DIRECTORY_SEPARATOR . 'autoloader_class.php';
     }
 
     /**
@@ -167,7 +172,7 @@ abstract class Templates
      */
     public static function renderConstantsTestClass(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_TESTS_DIR . DIRECTORY_SEPARATOR. 'test_class_constants.php';
+        return require PHPFHIR_TEMPLATE_TESTS_DIR . DIRECTORY_SEPARATOR . 'test_class_constants.php';
     }
 
     /**
@@ -177,7 +182,7 @@ abstract class Templates
      */
     public static function renderTypeMapTestClass(VersionConfig $config, Types $types): string
     {
-        return require PHPFHIR_TEMPLATE_TESTS_DIR . DIRECTORY_SEPARATOR. 'test_class_type_map.php';
+        return require PHPFHIR_TEMPLATE_TESTS_DIR . DIRECTORY_SEPARATOR . 'test_class_type_map.php';
     }
 
     /**

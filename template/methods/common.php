@@ -22,12 +22,10 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 /** @var null|bool $skipTypeName */
 /** @var null|bool $skipGetXMLNamespace */
-/** @var null|bool $skipGetXMLDefinition */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 $skipTypeName = isset($skipTypeName) && $skipTypeName;
 $skipGetXMLNamespace = isset($skipGetXMLNamespace) && $skipGetXMLNamespace;
-$skipGetXMLDefinition = isset($skipGetXMLDefinition) && $skipGetXMLDefinition;
 
 ob_start(); ?>
     /**
@@ -37,29 +35,6 @@ ob_start(); ?>
     {
         return self::FHIR_TYPE_NAME;
     }
-<?php if (null === $parentType) : ?><?php if (!$skipGetXMLNamespace) : ?>
-
-    /**
-     * @return string
-     */
-    public function _getFHIRXMLNamespace(): string
-    {
-        return $this->_xmlns;
-    }
-<?php endif; ?>
-
-<?php if (!$skipGetXMLDefinition) : ?>    /**
-     * @param null|string $xmlNamespace
-     * @return static
-     */
-    public function _setFHIRXMLNamespace(string $xmlNamespace): object
-    {
-        $this->_xmlns = trim((string)$xmlNamespace);
-        return $this;
-    }
-<?php endif; ?>
-
-<?php endif; ?>
 
     /**
      * @return string

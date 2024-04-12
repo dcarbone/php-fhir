@@ -62,7 +62,7 @@ echo require_with(
     /** @var null|string */
     private ?string $_elementName = null;
     /** @var string */
-    private string $_xmlns = '';
+    protected string $_xmlns = '';
 
     /** @var array */
     private static array $_validationRules = [];

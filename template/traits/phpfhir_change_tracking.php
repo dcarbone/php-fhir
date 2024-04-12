@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2022-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 $rootNS = $config->getNamespace(false);
 
 ob_start();
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $rootNS) :
     echo "namespace {$rootNS};\n\n";

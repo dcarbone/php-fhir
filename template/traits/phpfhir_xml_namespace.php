@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,49 +33,36 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
-/**
- * Trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; if ('' !== $rootNS) : ?>
+    /**
+    * Trait <?php echo PHPFHIR_TRAIT_XMLNS; if ('' !== $rootNS) : ?>
 
- * @package \<?php echo $rootNS; ?>
+    * @package \<?php echo $rootNS; ?>
 <?php endif; ?>
 
- */
-trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
+    */
+    trait <?php echo PHPFHIR_TRAIT_XMLNS; ?>
 
 {
-    /** @var array */
-    private array $_fhirComments = [];
+    /** @var string */
+    protected string $_xmlns = '';
 
     /**
-     * Arbitrary comments of a hopefully useful nature
-     * @return array
+     * @param null|string $xmlNamespace
+     * @return self
      */
-    public function _getFHIRComments(): array
+    public function _setFHIRXMLNamespace(null|string $xmlNamespace): self
     {
-        return $this->_fhirComments;
-    }
-
-    /**
-     * Set internal fhir_comments list, overwriting any previous value(s)
-     * @param array $fhirComments
-     * @return static
-     */
-    public function _setFHIRComments(array $fhirComments): self
-    {
-        $this->_fhirComments = $fhirComments;
+        $this->_xmlns = trim((string)$xmlNamespace);
         return $this;
     }
 
     /**
-     * Append comment string to internal fhir_comments list
-     * @param string $fhirComment
-     * @return static
+     * @return string
      */
-    public function _addFHIRComment(string $fhirComment): self
+    public function _getFHIRXMLNamespace(): string
     {
-        $this->_fhirComments[] = $fhirComment;
-        return $this;
+        return $this->_xmlns;
     }
 }
-<?php
-return ob_get_clean();
+
+<?php return ob_get_clean();

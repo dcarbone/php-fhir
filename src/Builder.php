@@ -317,6 +317,15 @@ class Builder
             FileUtils::buildGenericFilePath(
                 $this->config,
                 $this->config->getNamespace(true),
+                PHPFHIR_TRAIT_XMLNS
+            ),
+            Templates::renderPHPFHIRXMLNamespaceTrait($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
                 PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG
             ),
             Templates::renderPHPFHIRResponseParserConfigClass($this->config, $types)
