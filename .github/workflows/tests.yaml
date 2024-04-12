@@ -35,14 +35,14 @@ jobs:
         fhir-version: ['DSTU1', 'DSTU2', 'STU3', 'R4']
         include:
           - php-version: '8.1'
-            phpunit-version: '^10.5'
-            paratest-version: '^6'
+            phpunit-version: '10.5'
+            paratest-version: '7'
           - php-version: '8.2'
-            phpunit-version: '^11.1'
-            paratest-version: '^7'
+            phpunit-version: '11.1'
+            paratest-version: '7'
           - php-version: '8.3'
-            phpunit-version: '^11.1'
-            paratest-version: '^7'
+            phpunit-version: '11.1'
+            paratest-version: '7'
     name: ${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
     steps:
       - uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
       - name: 'Set Composer Dep Versions'
         run: |
           tmpf="$(mktemp)"
-          jq -rcM '."require-dev"."phpunit/phpunit" = "${{ matrix.phpunit-version }}" | ."require-dev"."brianium/paratest" = "${{ matrix.paratest-version }}"' composer.json > "${tmpf}"
+          jq -rcM '."require-dev"."phpunit/phpunit" = "^${{ matrix.phpunit-version }}" | ."require-dev"."brianium/paratest" = "^${{ matrix.paratest-version }}"' composer.json > "${tmpf}"
           mv "${tmpf}" composer.json
 
       - name: 'Get Composer Cache Directory'
