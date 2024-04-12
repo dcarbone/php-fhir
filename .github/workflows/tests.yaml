@@ -53,7 +53,7 @@ jobs:
           extensions: libxml simplexml json zip
           # https://github.com/mheap/phpunit-github-actions-printer/blob/master/.github/workflows/ci.yml#L32
 
-      - uses: dcarbone/install-jq@v2
+      - uses: dcarbone/install-jq-action@v2
         with:
           force: true
 
