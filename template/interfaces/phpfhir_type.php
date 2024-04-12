@@ -97,14 +97,14 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
      * @param null|int $libxmlOpts
      * @return null|static
      */
-    public static function xmlUnserialize($element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): ?self;
+    public static function xmlUnserialize(null|string|\DOMElement $element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): ?self;
 
     /**
      * @param \DOMElement|null $element
      * @param null|int $libxmlOpts
      * @return string|\DOMElement
      */
-    public function xmlSerialize(?\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>) -> string|\DOMElement;
+    public function xmlSerialize(null|\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): string|\DOMElement;
 
     /**
      * @return string
