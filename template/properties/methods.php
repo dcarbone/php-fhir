@@ -34,7 +34,7 @@ if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
     );
 else :
     echo require_with(
-        PHPFHIR_TEMPLATE_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'methods/default.php',
+        PHPFHIR_TEMPLATE_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'default.php',
         [
             'config'           => $config,
             'type'             => $type,

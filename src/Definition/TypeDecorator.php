@@ -177,7 +177,7 @@ abstract class TypeDecorator
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             if (in_array($type->getFHIRName(), self::DSTU1_PRIMITIVES, true)) {
-                $ptn = PrimitiveType::STRING;
+                $ptn = PrimitiveType::STRING->value;
                 $logger->debug(sprintf('(DSTU1 suppport) Type "%s" determined to be DSTU1 primitive', $type->getFHIRName()));
             } elseif ($type->hasPrimitiveParent()) {
                 $ptn = $type->getParentType()->getFHIRName();
@@ -348,8 +348,8 @@ abstract class TypeDecorator
             }
 
             if (!$set) {
-                $logger->debug(sprintf('Setting Type "%s" kind to root type kind "%s"', $type->getFHIRName(), $rootTypeKind));
-                self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
+                $logger->debug(sprintf('Setting Type "%s" kind to root type kind "%s"', $type->getFHIRName(), $rootTypeKind->value));
+                self::setTypeKind($config, $types, $type, $rootTypeKind->value);
             }
 
             return;

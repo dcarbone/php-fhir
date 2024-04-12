@@ -23,8 +23,6 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType */
 /** @var string $typeClassName */
 
-$primitiveTypeString = (string)$primitiveType;
-
 ob_start(); ?>
     /**
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, 'string'); ?> $value
