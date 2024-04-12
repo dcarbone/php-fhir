@@ -30,8 +30,8 @@ class Logger extends AbstractLogger
     /** @var LoggerInterface */
     protected LoggerInterface $actualLogger;
 
-    /** @var string */
-    protected string $breakLevel;
+    /** @var LogLevel */
+    protected LogLevel $breakLevel;
 
     /**
      * Logger constructor.
@@ -41,6 +41,10 @@ class Logger extends AbstractLogger
     public function __construct(LoggerInterface $actualLogger, string|LogLevel $breakLevel = LogLevel::WARNING)
     {
         $this->actualLogger = $actualLogger;
+
+        if (is_string($breakLevel)) {
+            $breakLevel = LogLevel::from($breakLevel);
+        }
         $this->breakLevel = $breakLevel;
     }
 
@@ -49,7 +53,7 @@ class Logger extends AbstractLogger
      */
     public function startBreak(string|\Stringable $action): void
     {
-        $this->log($this->breakLevel, substr(sprintf('%\'-5s Start %s %1$-\'-75s', '-', $action), 0, 75));
+        $this->log($this->breakLevel->value, substr(sprintf('%\'-5s Start %s %1$-\'-75s', '-', $action), 0, 75));
     }
 
     /**
@@ -67,6 +71,6 @@ class Logger extends AbstractLogger
      */
     public function endBreak(string|\Stringable $action): void
     {
-        $this->log($this->breakLevel, substr(sprintf('%\'-5s End %s %1$-\'-75s', '-', $action), 0, 75));
+        $this->log($this->breakLevel->value, substr(sprintf('%\'-5s End %s %1$-\'-75s', '-', $action), 0, 75));
     }
 }
