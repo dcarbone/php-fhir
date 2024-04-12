@@ -6,8 +6,9 @@
   "homepage": "https://github.com/dcarbone/php-fhir",
   "authors": [
     {
-      "name": "Daniel Paul Carbone",
-      "email": "daniel.p.carbone@gmail.com"
+      "name": "Daniel Carbone",
+      "email": "daniel.p.carbone@gmail.com",
+      "homepage": "https://github.com/dcarbone"
     }
   ],
   "keywords": [
