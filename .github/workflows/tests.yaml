@@ -60,7 +60,7 @@ jobs:
       - name: 'Set Composer Dep Versions'
         run: |
           tmpf="$(mktemp)"
-          jq -rcM '."require-dev" ."require-dev"."phpunit/phpunit" = "${{ matrix.phpunit-version }}" | ."require-dev"."branium/paratest" = "${{ matrix.paratest-version }}"' composer.json > "${tmpf}"
+          jq -rcM '."require-dev"."phpunit/phpunit" = "${{ matrix.phpunit-version }}" | ."require-dev"."branium/paratest" = "${{ matrix.paratest-version }}"' composer.json > "${tmpf}"
           mv "${tmpf}" composer.json
 
       - name: 'Get Composer Cache Directory'
