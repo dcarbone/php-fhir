@@ -21,7 +21,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$directProperties = $type->getProperties()->getDirectIterator();
+$localProperties = $type->getProperties()->localPropertiesIterator();
 $typeKind = $type->getKind();
 
 ob_start();
@@ -39,7 +39,7 @@ elseif ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLI
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'resource_container.php',
         [
             'config' => $config,
-            'properties' => $directProperties,
+            'properties' => $localProperties,
         ]
     );
 else:
@@ -48,7 +48,7 @@ else:
         [
             'config' => $config,
             'type'       => $type,
-            'properties' => $directProperties,
+            'properties' => $localProperties,
         ]
     );
 endif;

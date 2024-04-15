@@ -35,7 +35,7 @@ class Properties implements Countable
     private array $_sortedProperties;
 
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private array $_directProperties;
+    private array $_localProperties;
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private array $_directSortedProperties;
 
@@ -156,35 +156,43 @@ class Properties implements Countable
     }
 
     /**
+     * Returns an iterator containing all properties, including those inherited from parent types
+     *
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getIterator(): iterable
+    public function allPropertiesIterator(): iterable
     {
         return SplFixedArray::fromArray($this->properties, false);
     }
 
     /**
+     * Returns an iterator contanining all properties, including those inherited from parent types, sorted ascending by name
+     *
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getSortedIterator(): iterable
+    public function allSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
         return SplFixedArray::fromArray($this->_sortedProperties, false);
     }
 
     /**
+     * Returns an iterator containing only properties local to this type
+     *
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getDirectIterator(): iterable
+    public function localPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
-        return SplFixedArray::fromArray($this->_directProperties, false);
+        return SplFixedArray::fromArray($this->_localProperties, false);
     }
 
     /**
+     * Returns an iterator containing only properties local to this type, sorted ascending by name
+     *
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
-    public function getDirectSortedIterator(): iterable
+    public function localSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
         return SplFixedArray::fromArray($this->_directSortedProperties, false);
@@ -202,7 +210,7 @@ class Properties implements Countable
     {
         if (!$this->cacheBuilt) {
             $this->_sortedProperties = $this->properties;
-            $this->_directProperties = [];
+            $this->_localProperties = [];
             $this->_directSortedProperties = [];
             usort(
                 $this->_sortedProperties,
@@ -212,7 +220,7 @@ class Properties implements Countable
             );
             foreach ($this->properties as $property) {
                 if (!$property->isOverloaded()) {
-                    $this->_directProperties[] = $property;
+                    $this->_localProperties[] = $property;
                 }
             }
             foreach ($this->_sortedProperties as $property) {

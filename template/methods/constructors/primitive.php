@@ -25,37 +25,51 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 $typeClassName = $type->getClassName();
 $primitiveType = $type->getPrimitiveType();
-if (null !== $parentType) {
-    $parentTypeKind = $parentType->getKind();
-}
+$valueProperty = $type->getProperties()->getProperty('value');
 
-ob_start(); ?>
+if (null !== $parentType) {
+    // if this is a primitive that inherits from a parent primitive, there is no reason to define a constructor here.
+    if ($parentType->getKind() === TypeKind::PRIMITIVE || $parentType->isValueContainer()) {
+        return;
+    }
+    
+    // otherwise, assume this is a primitive type who's parent has properties other than just "value"
+    ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?>|array $value
      */
-    public function __construct($value = null)
+    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($config, $valueProperty, true); ?>|array $value = null)
     {
-        <?php if (null !== $parentType) :
-            if ($parentTypeKind === TypeKind::PRIMITIVE || $parentType->isValueContainer()) :
-                ?>parent::__construct($value);<?php else: ?>if (null === $value) {
+        if (null === $value) {
             parent::__construct();
         } elseif (is_scalar($value)) {
             parent::__construct();
             $this->setValue($value);
         } elseif (is_array($value)) {
             parent::__construct($value);
-            if (isset($value['value'])) {
-                $this->setValue($value['value']);
+            if (isset($value[self::FIELD_VALUE])) {
+                $this->setValue($value[self::FIELD_VALUE]);
             }
         } else {
              throw new \InvalidArgumentException(sprintf(
-                '<?php echo $typeClassName; ?>::_construct - $data expected to be null, <?php echo $primitiveType->getPHPValueType(); ?>, or array, %s seen',
+                '<?php echo $typeClassName; ?>::__construct - $data expected to be null, <?php echo $primitiveType->getPHPValueType(); ?>, or array, %s seen',
                 gettype($value)
             ));
-        }<?php
-            endif;
-            else : ?>$this->setValue($value);<?php endif; ?>
+        }
+    }
+<?php
+    return ob_get_clean();
+}
 
+// in all other cases, just set value and move on.
+ob_start(); ?>
+    /**
+     * <?php echo $type->getClassName(); ?> Constructor
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?> $value
+     */
+    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($config, $valueProperty, true); ?> $value = null)
+    {
+        $this->setValue($value);
     }
 <?php return ob_get_clean();

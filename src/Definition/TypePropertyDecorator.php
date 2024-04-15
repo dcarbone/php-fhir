@@ -118,7 +118,7 @@ abstract class TypePropertyDecorator
     public static function findPropertyTypes(VersionConfig $config, Types $types): void
     {
         foreach ($types->getIterator() as $type) {
-            foreach ($type->getProperties()->getIterator() as $property) {
+            foreach ($type->getProperties()->allPropertiesIterator() as $property) {
                 self::findPropertyType($config, $types, $type, $property);
             }
         }
@@ -137,9 +137,9 @@ abstract class TypePropertyDecorator
             }
             $parent = $type->getParentType();
             while (null !== $parent) {
-                foreach ($type->getProperties()->getIterator() as $property) {
+                foreach ($type->getProperties()->allPropertiesIterator() as $property) {
                     $propertyName = $property->getName();
-                    foreach ($parent->getProperties()->getIterator() as $parentProperty) {
+                    foreach ($parent->getProperties()->allPropertiesIterator() as $parentProperty) {
                         if ($propertyName === $parentProperty->getName()) {
                             $logger->debug(
                                 sprintf(
@@ -167,7 +167,7 @@ abstract class TypePropertyDecorator
     {
         $log = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            foreach ($type->getProperties()->getIterator() as $property) {
+            foreach ($type->getProperties()->allPropertiesIterator() as $property) {
                 $propName = $property->getName();
                 if ('' === $propName || null === $propName) {
                     $ref = $property->getRef();

@@ -19,10 +19,10 @@
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $directProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $localProperties */
 
 ob_start();
-foreach ($directProperties as $property) :
+foreach ($localProperties as $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'default_body_typed.php',

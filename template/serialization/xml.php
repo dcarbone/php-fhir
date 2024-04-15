@@ -26,7 +26,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var string $typeClassName */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
-$directProperties = $type->getProperties()->getDirectIterator();
+$localProperties = $type->getProperties()->localPropertiesIterator();
 $properties = $type->getAllPropertiesIterator();
 
 ob_start();
@@ -78,15 +78,14 @@ else :
         ]
     );
 
-    $properties = $type->getProperties()->getDirectIterator();
-    if (0 < count($directProperties)) :
+    if (0 < count($localProperties)) :
         echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'default_body.php',
             [
                 'config' => $config,
                 'type' => $type,
                 'parentType' => $parentType,
-                'directProperties' => $directProperties,
+                'localProperties' => $localProperties,
             ]
         );
     endif;

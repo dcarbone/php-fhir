@@ -28,7 +28,7 @@ $fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassname = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
-$directProperties = $type->getProperties()->getDirectIterator();
+$localProperties = $type->getProperties()->localPropertiesIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 
 ob_start();
@@ -72,8 +72,8 @@ echo require_with(
 
 <?php endif; ?>
 
-<?php if (0 !== count($directProperties)) :
-    foreach($directProperties as $property) :
+<?php if (0 !== count($localProperties)) :
+    foreach($localProperties as $property) :
         echo require_with(
             PHPFHIR_TEMPLATE_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'constants.php',
             [
@@ -84,8 +84,8 @@ echo require_with(
     endforeach;
 endif; ?>
 
-<?php if (0 !== count($directProperties)) :
-    foreach($directProperties as $property) :
+<?php if (0 !== count($localProperties)) :
+    foreach($localProperties as $property) :
         echo require_with(
             PHPFHIR_TEMPLATE_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'declaration.php',
             [
@@ -111,7 +111,7 @@ echo require_with(
     [
         'config' => $config,
         'type' => $type,
-        'properties' => $directProperties,
+        'properties' => $localProperties,
         'parentType' => $parentType,
     ]
 );
@@ -135,14 +135,14 @@ if ($type->isContainedType()) :
     );
 endif;
 
- if (0 < count($directProperties)) :
+ if (0 < count($localProperties)) :
     echo "\n";
     echo require_with(
         PHPFHIR_TEMPLATE_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods.php',
         [
             'config' => $config,
             'type' => $type,
-            'properties' => $directProperties,
+            'properties' => $localProperties,
         ]
     );
 endif; ?>
@@ -166,7 +166,7 @@ endif; ?>
     ]
 );
 
-if (0 < count($directProperties)) :
+if (0 < count($localProperties)) :
     echo "\n";
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json.php',

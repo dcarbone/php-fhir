@@ -216,7 +216,7 @@ class Types implements Countable
         if (null === $container) {
             return false;
         }
-        foreach ($container->getProperties()->getIterator() as $property) {
+        foreach ($container->getProperties()->allPropertiesIterator() as $property) {
             if (($ptype = $property->getValueFHIRType()) && $ptype->getFHIRName() === $type->getFHIRName()) {
                 return true;
             }

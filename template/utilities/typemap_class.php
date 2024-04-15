@@ -35,7 +35,7 @@ if (null === $containerType) {
 
 /** @var \DCarbone\PHPFHIR\Definition\Type[] $innerTypes */
 $innerTypes = [];
-foreach ($containerType->getProperties()->getIterator() as $property) {
+foreach ($containerType->getProperties()->allPropertiesIterator() as $property) {
     if ($ptype = $property->getValueFHIRType()) {
         $innerTypes[$ptype->getFHIRName()] = $ptype;
     }

@@ -19,7 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$directProperties = $type->getProperties()->getDirectIterator();
+$localProperties = $type->getProperties()->localPropertiesIterator();
 
 ob_start(); ?>
     /**
@@ -29,7 +29,7 @@ ob_start(); ?>
      */
     public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
     {
-<?php foreach($directProperties as $property) : ?>
+<?php foreach($localProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
             return $v->xmlSerialize($element, $libxmlOpts);
         }

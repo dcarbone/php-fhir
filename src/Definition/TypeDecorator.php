@@ -465,7 +465,7 @@ abstract class TypeDecorator
                                 $utype->getFHIRName()
                             )
                         );
-                        foreach ($utype->getProperties()->getIterator() as $property) {
+                        foreach ($utype->getProperties()->allPropertiesIterator() as $property) {
                             $type->getProperties()->addProperty(clone $property);
                         }
                     } else {

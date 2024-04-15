@@ -344,7 +344,7 @@ class Type
     public function getAllPropertiesIterator(): iterable
     {
         $properties = [];
-        foreach($this->getProperties()->getDirectIterator() as $property) {
+        foreach($this->getProperties()->localPropertiesIterator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach($this->getParentTypes() as $parentType) {
@@ -726,7 +726,7 @@ class Type
             }
             if ($this->isContainedType()) {
                 $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
-            } else {
+            } else if ($this->getKind() !== TypeKind::PRIMITIVE) {
                 $interfaces[] = PHPFHIR_INTERFACE_TYPE;
             }
         } elseif ($this->isContainedType() && !$parentType->isContainedType()) {

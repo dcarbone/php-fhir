@@ -38,7 +38,7 @@ abstract class TypeHintUtils
         // it will bomb if not.
         return sprintf(
             '%s%s',
-            $nullable ? '?' : '',
+            $nullable ? 'null|' : '',
             $primitiveType->getPHPValueTypeHint()
         );
     }
@@ -46,16 +46,26 @@ abstract class TypeHintUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
+     * @param bool $nullable
      * @param bool $asCollection
      * @return string
      */
-    public static function primitivePHPValueTypeDoc(VersionConfig $config, PrimitiveType $primitiveType, bool $asCollection): string
+    public static function primitivePHPValueTypeDoc(VersionConfig $config, PrimitiveType $primitiveType, bool $nullable, bool $asCollection): string
     {
-        return sprintf(
-            '%s%s',
-            $primitiveType->getPHPValueTypeHint(),
-            $asCollection ? '[]' : ''
-        );
+        $base = $primitiveType->getPHPValueTypeHint();
+
+        // if this value is an array of values...
+        if ($asCollection) {
+            return sprintf('%s[]]', $base);
+        }
+
+        // if this value is nullable...
+        if ($nullable) {
+            return sprintf('null|%s', $base);
+        }
+
+        // all other cases
+        return $base;
     }
 
     /**
@@ -72,12 +82,13 @@ abstract class TypeHintUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param bool $nullable
      * @param bool $asCollection
      * @return string
      */
-    public static function primitiveValuePropertyTypeDoc(VersionConfig $config, Property $property, bool $asCollection): string
+    public static function primitiveValuePropertyTypeDoc(VersionConfig $config, Property $property, bool $nullable, bool $asCollection): string
     {
-        return self::primitivePHPValueTypeDoc($config, $property->getMemberOf()->getPrimitiveType(), $asCollection);
+        return self::primitivePHPValueTypeDoc($config, $property->getMemberOf()->getPrimitiveType(), $nullable, $asCollection);
     }
 
     /**
@@ -232,7 +243,7 @@ abstract class TypeHintUtils
         // determine if this property contains a FHIR type or a raw php type
         $pt = $property->getValueFHIRType();
         if (null === $pt) {
-            return self::primitiveValuePropertyTypeDoc($config, $property, $asCollection);
+            return self::primitiveValuePropertyTypeDoc($config, $property, !$asCollection, $asCollection);
         }
 
         $tk = $pt->getKind();

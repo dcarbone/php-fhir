@@ -26,9 +26,9 @@ $memberOfKind = $memberOf->getKind();
 $propertyType = $property->getValueFHIRType();
 
 // for children of primitive types, they do not need their own "value" constant as the parent has it
-if ($memberOf->hasPrimitiveParent()) :
+if ($memberOf->hasPrimitiveParent()) {
     return '';
-endif;
+}
 
 ob_start(); ?>
     const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';

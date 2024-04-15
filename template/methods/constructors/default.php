@@ -41,7 +41,7 @@ ob_start(); ?>
             return;
 <?php else : ?>
             throw new \InvalidArgumentException(sprintf(
-                '<?php echo $typeClassName; ?>::_construct - $data expected to be null or array, %s seen',
+                '<?php echo $typeClassName; ?>::__construct - $data expected to be null or array, %s seen',
                 gettype($data)
             ));
 <?php endif; ?>
