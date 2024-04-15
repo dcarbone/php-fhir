@@ -26,23 +26,23 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, 'int', 'float', 'string'); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      * @return static
      */
-    public function setValue($value): object
+    public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value): self
     {
         if (null === $value) {
             $this->value = null;
             return $this;
         }
-        if (is_float($value) || is_string($value)) {
-            $value = intval($value, 10);
+        if (is_float($value)) {
+            $value = intval($value);
         }
         if (is_int($value)) {
             if (0 > $value) {
                 throw new \OutOfBoundsException(sprintf('Value must be >= 0, %d seen.', $value));
             }
-            $value = strval($value);
+            $value = (string)$value;
         }
         if (!is_string($value) || !ctype_digit($value)) {
             throw new \InvalidArgumentException(sprintf('Value must be null, positive integer, or string representation of positive integer, "%s" seen.', gettype($value)));

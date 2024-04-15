@@ -24,17 +24,15 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      * @return static
      */
-    public function setValue($value): object
+    public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value): self
     {
         if (null === $value) {
             $this->value = null;
-        } elseif (is_string($value)) {
-            $this->value = $value;
         } else {
-            throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));
+            $this->value = $value;
         }
         return $this;
     }

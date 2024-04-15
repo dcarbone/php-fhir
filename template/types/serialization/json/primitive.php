@@ -25,7 +25,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /**
-     * @return <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $type->getPrimitiveType(), true, false); ?>
+     * @return <?php echo TypeHintUtils::primitivePHPReturnValueTypeDoc($config, $type->getPrimitiveType(), true, false); ?>
 
      */
     public function jsonSerialize(): mixed

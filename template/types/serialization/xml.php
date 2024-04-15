@@ -71,7 +71,7 @@ else :
     // everything else shares a common header
     // header is always output as it is what creates the simplexml instance
     echo require_with(
-            PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'default_header.php',
+            PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'header.php',
         [
             'config' => $config,
             'parentType' => $parentType,
@@ -80,7 +80,7 @@ else :
 
     if (0 < count($localProperties)) :
         echo require_with(
-            PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'default_body.php',
+            PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'body.php',
             [
                 'config' => $config,
                 'type' => $type,

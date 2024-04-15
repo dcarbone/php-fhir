@@ -29,34 +29,28 @@ if (null === $valueProperty) {
     throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
 }
 
-$valuePrimitiveType = $valueProperty->getValueFHIRType();
-$valuePrimitiveTypeKind = $valuePrimitiveType->getPrimitiveType();
+$valuePropertyType = $valueProperty->getValueFHIRType();
+$valuePropertyPrimitiveType = $valuePropertyType->getPrimitiveType();
 
 $typeImports = $type->getImports();
 
 ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::propertyGetterTypeDoc($config, $valueProperty, true); ?> $data
+     * @param <?php echo TypeHintUtils::typeSetterTypeHint($config, $valuePropertyType); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
      */
-    public function __construct($data = null)
+    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty); ?>|array $data = null)
     {
         if (null === $data) {
             return;
         }
-        if ($data instanceof <?php echo $typeImports->getImportByType($valuePrimitiveType); ?>) {
+        if ($data instanceof <?php echo $typeImports->getImportByType($valuePropertyType); ?>) {
             $this->setValue($data);
             return;
         }
         if (is_scalar($data)) {
-            $this->setValue(new <?php echo $typeImports->getImportByType($valuePrimitiveType); ?>($data));
+            $this->setValue(new <?php echo $typeImports->getImportByType($valuePropertyType); ?>($data));
             return;
-        }
-        if (!is_array($data)) {
-            throw new \InvalidArgumentException(sprintf(
-                '$data must be null, <?php echo $valuePrimitiveTypeKind->getPHPValueType(); ?>, instance of <?php echo $valuePrimitiveType->getFullyQualifiedClassName(true); ?>, or array.  %s seen.',
-                gettype($data)
-            ));
         }<?php if ($parentType) : ?>
 
         parent::__construct($data);

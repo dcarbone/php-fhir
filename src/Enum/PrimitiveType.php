@@ -52,7 +52,7 @@ enum PrimitiveType:string
     /**
      * @return string
      */
-    public function getPHPValueType(): string
+    public function getPHPValueTypes(): string
     {
         // leaving as switch for readability purposes.
         switch ($this) {
@@ -93,14 +93,54 @@ enum PrimitiveType:string
     /**
      * @return string
      */
-    public function getPHPValueTypeHint(): string
+    public function getPHPReturnValueTypeHint(): string
     {
-        return match ($hint = $this->getPHPValueType()) {
+        return match ($hint = $this->getPHPValueTypes()) {
             'boolean' => 'bool',
             'double' => 'float',
             'integer' => 'int',
             default => $hint,
         };
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPHPReceiveValueTypeHints(): array
+    {
+        $hintTypes = [$this->getPHPReturnValueTypeHint()];
+
+        // make sure 'string' is second item list.
+        if (!in_array('string', $hintTypes, true)) {
+            array_unshift($hintTypes, 'string');
+        }
+
+        switch ($this) {
+            // Date types may always accept a \DateTimeInterface instance
+            case PrimitiveType::DATE:
+            case PrimitiveType::DATETIME:
+            case PrimitiveType::INSTANT:
+            case PrimitiveType::TIME:
+                $hintTypes[] = '\\DateTimeInterface';
+                break;
+
+            // floats may stem from integers
+            case PrimitiveType::DECIMAL:
+                $hintTypes[] = 'int';
+                break;
+
+            // integers may stem from floats
+            case PrimitiveType::INTEGER:
+                $hintTypes[] = 'float';
+                break;
+
+            // unsigned integers may stem from integers or floats
+            case PrimitiveType::UNSIGNED_INTEGER:
+                array_push($hintTypes, 'int', 'float');
+                break;
+        }
+
+        return $hintTypes;
     }
 
     /**

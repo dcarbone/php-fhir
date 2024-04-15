@@ -30,7 +30,7 @@ ob_start(); ?>
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize($element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function xmlUnserialize(null|string|\DOMElement $element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if (null === $element) {

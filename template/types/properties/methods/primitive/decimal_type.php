@@ -24,28 +24,25 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /** @var int */
-    private $_decimals;
+    private int $_decimals;
 
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, 'string'); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      * @return static
      */
-    public function setValue($value): object
+    public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value): self
     {
         if (null === $value) {
             $this->value = null;
-        } elseif (is_scalar($value)) {
-            if (is_string($value)) {
-                $dec = strstr($value, '.');
-                if (false === $dec) {
-                    $this->_decimals = 1;
-                } else {
-                    $this->_decimals = strlen($dec) - 1;
-                }
+        } else {
+            $str = (string)$value;
+            $dec = strstr($str, '.');
+            if (false === $dec) {
+                $this->_decimals = 1;
+            } else {
+                $this->_decimals = strlen($dec) - 1;
             }
             $this->value = floatval($value);
-        } else {
-            throw new \InvalidArgumentException(sprintf('<?php echo $type->getFHIRName(); ?> value must be null, float, or numeric string, %s seen.', gettype($value)));
         }
         return $this;
     }

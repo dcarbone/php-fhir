@@ -37,7 +37,7 @@ if (null !== $parentType) {
     ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?>|array $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?>|array $value
      */
     public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($config, $valueProperty, true); ?>|array $value = null)
     {
@@ -53,7 +53,7 @@ if (null !== $parentType) {
             }
         } else {
              throw new \InvalidArgumentException(sprintf(
-                '<?php echo $typeClassName; ?>::__construct - $data expected to be null, <?php echo $primitiveType->getPHPValueType(); ?>, or array, %s seen',
+                '<?php echo $typeClassName; ?>::__construct - $data expected to be null, <?php echo $primitiveType->getPHPValueTypes(); ?>, or array, %s seen',
                 gettype($value)
             ));
         }
@@ -66,9 +66,9 @@ if (null !== $parentType) {
 ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      */
-    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($config, $valueProperty, true); ?> $value = null)
+    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value = null)
     {
         $this->setValue($value);
     }

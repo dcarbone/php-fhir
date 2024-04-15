@@ -40,13 +40,13 @@ abstract class TypePropertyDecorator
         if ($property->isValueProperty()) {
             if ($typeKind === TypeKind::PRIMITIVE) {
                 $primitiveType = $type->getPrimitiveType();
-                $log->debug(sprintf('Type "%s" is primitive of kind "%s", setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $primitiveType->value, $property->getName(), $primitiveType->getPHPValueType()));
-                $property->setRawPHPValue($primitiveType->getPHPValueType());
+                $log->debug(sprintf('Type "%s" is primitive of kind "%s", setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $primitiveType->value, $property->getName(), $primitiveType->getPHPValueTypes()));
+                $property->setRawPHPValue($primitiveType->getPHPValueTypes());
                 return;
             }
 
             if ($typeKind === TypeKind::LIST) {
-                $parentPHPValueType = $type->getParentType()->getPrimitiveType()->getPHPValueType();
+                $parentPHPValueType = $type->getParentType()->getPrimitiveType()->getPHPValueTypes();
                 $log->debug(sprintf('Type "%s" is list, setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $property->getName(), $parentPHPValueType));
                 $property->setRawPHPValue($parentPHPValueType);
                 return;

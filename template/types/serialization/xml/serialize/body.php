@@ -25,7 +25,7 @@ ob_start();
 foreach ($localProperties as $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
-            __DIR__ . DIRECTORY_SEPARATOR . 'default_body_typed.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'body_typed.php',
             [
                 'config' => $config,
                 'property' => $property,
@@ -33,7 +33,7 @@ foreach ($localProperties as $property) :
         );
     elseif (null === $parentType) :
         echo require_with(
-            __DIR__ . DIRECTORY_SEPARATOR . 'default_body_untyped.php',
+            __DIR__ . DIRECTORY_SEPARATOR . 'body_untyped.php',
             [
                 'config' => $config,
             ]

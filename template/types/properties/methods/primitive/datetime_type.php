@@ -24,10 +24,10 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, '\\DateTimeInterface'); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      * @return static
      */
-    public function setValue($value): object
+    public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value): self
     {
         if (null === $value) {
             $this->value = null;
@@ -47,18 +47,11 @@ ob_start(); ?>
     /**
      * @return null|\DateTimeInterface
      */
-    public function _getDateTime(): ?\DateTimeInterface
+    public function _getDateTime(): null|\DateTimeInterface
     {
         $value = $this->getValue();
         if (null === $value) {
             return null;
-        }
-        if ([] !== $this->_getValidationErrors()) {
-            throw new \DomainException(sprintf(
-                'Cannot convert "%s" to \\DateTime as it does not conform to "%s"',
-                $value,
-                self::$_validationRules[self::FIELD_VALUE][PHPFHIRConstants::<?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?>]
-            ));
         }
         switch(strlen($value)) {
             case 4:

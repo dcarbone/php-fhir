@@ -26,7 +26,7 @@ $propertyTypeKind = $property->getValueFHIRType()->getKind();
 ob_start();
 if ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
     echo require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'default_body_typed_resource_container.php',
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_typed_resource_container.php',
         [
             'config' => $config,
             'property' => $property,
@@ -34,7 +34,7 @@ if ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_
     );
 else :
     echo require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'default_body_typed_default.php',
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_typed_default.php',
         [
             'config' => $config,
             'property' => $property,

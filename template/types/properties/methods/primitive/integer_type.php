@@ -25,10 +25,10 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeDoc($config, $primitiveType, true, false, 'string'); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      * @return static
      */
-    public function setValue($value): object
+    public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value): self
     {
         if (null === $value) {
             $this->value = null;
@@ -45,9 +45,6 @@ ob_start(); ?>
                 }
                 $value = $neg * intval($value, 10);
             }
-        }
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException(sprintf('Value must be null, integer, or string containing only numbers, %s seen.', $value));
         }
         $this->value = $value;
         return $this;

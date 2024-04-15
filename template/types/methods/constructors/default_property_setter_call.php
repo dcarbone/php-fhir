@@ -32,7 +32,7 @@ $requireArgs = [
 
 ob_start();
 
-if ($propertyType->getKind() === TypeKind::PRIMITIVE || $propertyType->hasPrimitiveParent()) :
+if ($propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST) || $propertyType->hasPrimitiveParent()) :
     echo require_with(
         __DIR__ . DIRECTORY_SEPARATOR . 'property_setter_primitive.php',
         $requireArgs

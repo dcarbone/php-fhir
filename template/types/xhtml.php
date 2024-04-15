@@ -65,7 +65,7 @@ echo require_with(
     protected string $_xmlns = '';
 
     /** @var array */
-    private static array $_validationRules = [];
+    private const _VALIDATION_RULES = [];
 
     /**
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
