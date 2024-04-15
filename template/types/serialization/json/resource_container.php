@@ -22,7 +22,7 @@ ob_start(); ?>
     /**
      * @return null|object
      */
-    public function jsonSerialize(): : mixed
+    public function jsonSerialize(): mixed
     {<?php foreach($properties as $property) : ?>
 
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
