@@ -43,11 +43,6 @@ echo "\n\n";
  */
 interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     /**
-     * @param array|null $data
-     */
-    public function __construct(?array $data = null);
-
-    /**
      * Returns the FHIR name represented by this Type
      * @return string
      */

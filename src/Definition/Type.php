@@ -726,7 +726,7 @@ class Type
             }
             if ($this->isContainedType()) {
                 $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
-            } else if ($this->getKind() !== TypeKind::PRIMITIVE) {
+            } else {
                 $interfaces[] = PHPFHIR_INTERFACE_TYPE;
             }
         } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
@@ -749,10 +749,7 @@ class Type
             }
             $traits[] = PHPFHIR_TRAIT_VALIDATION_ASSERTIONS;
             $traits[] = PHPFHIR_TRAIT_CHANGE_TRACKING;
-
-            if ($this->getKind() !== TypeKind::PRIMITIVE) {
-                $traits[] = PHPFHIR_TRAIT_XMLNS;
-            }
+            $traits[] = PHPFHIR_TRAIT_XMLNS;
         }
 
         return $traits;

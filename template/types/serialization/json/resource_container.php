@@ -20,9 +20,9 @@
 
 ob_start(); ?>
     /**
-     * @return object|null
+     * @return null|object
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): null|object
     {<?php foreach($properties as $property) : ?>
 
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
