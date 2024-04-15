@@ -24,7 +24,7 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum PropertyUse: string
 {
-    use EnumCompat;
+    use ValuesTrait;
     
     case PROHIBITED = 'prohibited';
     case OPTIONAL   = 'optional';

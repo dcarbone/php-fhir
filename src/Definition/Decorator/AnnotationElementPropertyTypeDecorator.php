@@ -56,12 +56,7 @@ abstract class AnnotationElementPropertyTypeDecorator
         foreach ($annotation->children('xs', true) as $child) {
             switch ($child->getName()) {
                 case ElementName::DOCUMENTATION->value:
-                    TypeBuilderUtils::setPropertyStringFromElementValue(
-                        $property,
-                        $annotation,
-                        $child,
-                        'addDocumentationFragment'
-                    );
+                    $property->addDocumentationFragment((string)$child);
                     break;
                 case ElementName::COMPLEX_CONTENT->value:
                     ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);

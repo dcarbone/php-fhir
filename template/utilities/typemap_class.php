@@ -69,7 +69,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * This array represents every type known to this lib
      */
     private const TYPE_MAP = [
-<?php foreach ($types->getSortedIterator() as $type) : ?>
+<?php foreach ($types->getNameSortedIterator() as $type) : ?>
         <?php echo $type->getTypeNameConst(true); ?> => <?php echo $type->getClassNameConst(true); ?>,
 <?php endforeach; ?>    ];
 

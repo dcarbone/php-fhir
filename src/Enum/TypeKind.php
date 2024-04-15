@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum TypeKind: string
 {
-    use EnumCompat;
+    use ValuesTrait;
 
     // this represents an actual value: string, int, etc.
     case PRIMITIVE = 'primitive';

@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
-trait EnumCompat
+trait ValuesTrait
 {
     /**
      * @return string[]

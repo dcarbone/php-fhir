@@ -77,12 +77,12 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     public const <?php echo PHPFHIR_VALIDATION_MAX_OCCURS_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_MAX_OCCURS; ?>';
 
     // Type names
-<?php foreach($types->getSortedIterator() as $type) : ?>
+<?php foreach($types->getNameSortedIterator() as $type) : ?>
     public const <?php echo $type->getTypeNameConst(false); ?> = '<?php echo $type->getFHIRName(); ?>';
 <?php endforeach;?>
 
     // Type classes
-<?php foreach($types->getSortedIterator() as $type) : ?>
+<?php foreach($types->getNameSortedIterator() as $type) : ?>
     public const <?php echo $type->getClassNameConst(false); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
 <?php endforeach;
 echo "}\n";

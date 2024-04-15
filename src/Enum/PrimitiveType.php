@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR\Enum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 enum PrimitiveType:string
 {
-    use EnumCompat;
+    use ValuesTrait;
 
     case STRING = 'string';
     case BOOLEAN = 'boolean';

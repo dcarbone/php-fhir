@@ -18,12 +18,12 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\EnumCompat;
+use DCarbone\PHPFHIR\Enum\ValuesTrait;
 use Psr\Log\LogLevel as PLogLevel;
 
 enum LogLevel: string
 {
-    use EnumCompat;
+    use ValuesTrait;
 
     case EMERGENCY = PLogLevel::EMERGENCY;
     case ALERT = PLogLevel::ALERT;

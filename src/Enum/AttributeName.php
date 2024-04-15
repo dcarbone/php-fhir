@@ -24,7 +24,7 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum AttributeName : string
 {
-    use EnumCompat;
+    use ValuesTrait;
 
     case NAME         = 'name';
     case VALUE        = 'value';

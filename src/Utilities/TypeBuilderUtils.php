@@ -170,7 +170,7 @@ abstract class TypeBuilderUtils
                 )
             );
         }
-        self::callTypeSetter($type, $parentElement, $attribute, $setterMethod, intval($int, 10));
+        self::callTypeSetter($type, $parentElement, $attribute, $setterMethod, intval($int));
     }
 
     /**
@@ -195,21 +195,15 @@ abstract class TypeBuilderUtils
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
-     * @param \SimpleXMLElement $enum
+     * @param \SimpleXMLElement $enumElement
      */
-    public static function addTypeEnumeratedValue(Type $type, \SimpleXMLElement $parentElement, \SimpleXMLElement $enum): void
+    public static function addTypeEnumeratedValue(Type $type, \SimpleXMLElement $parentElement, \SimpleXMLElement $enumElement): void
     {
-        $value = $enum->attributes()->value;
+        $value = $enumElement->attributes()->value;
         if (null === $value) {
-            throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $enum, 'value');
+            throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $enumElement, 'value');
         }
-        self::callTypeSetter(
-            $type,
-            $parentElement,
-            $enum,
-            'addEnumerationValue',
-            new EnumerationValue((string)$value, $enum)
-        );
+        $type->addEnumerationValue(new EnumerationValue((string)$value, $enumElement));
     }
 
     /**

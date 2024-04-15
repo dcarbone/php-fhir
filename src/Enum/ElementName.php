@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum ElementName : string
 {
-    use EnumCompat;
+    use ValuesTrait;
 
     case _INCLUDE = 'include';
     case IMPORT   = 'import';

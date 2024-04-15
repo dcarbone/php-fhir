@@ -41,6 +41,14 @@ class Types implements Countable
      */
     private Type $containerType;
 
+    private const _CONTAINED_IGNORED_TYPES = [
+        TypeKind::RESOURCE_INLINE,
+        TypeKind::RESOURCE_CONTAINER,
+        TypeKind::_LIST,
+        TypeKind::PRIMITIVE,
+        TypeKind::PRIMITIVE_CONTAINER,
+    ];
+
     /**
      * FHIRTypes constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -150,7 +158,7 @@ class Types implements Countable
      *
      * @return \DCarbone\PHPFHIR\Definition\Type[]
      */
-    public function getSortedIterator(): iterable
+    public function getNameSortedIterator(): iterable
     {
         $tmp = $this->types;
         usort(
@@ -200,16 +208,8 @@ class Types implements Countable
      */
     public function isContainedType(Type $type): bool
     {
-        static $ignoredTypes = [
-            TypeKind::RESOURCE_INLINE,
-            TypeKind::RESOURCE_CONTAINER,
-            TypeKind::_LIST,
-            TypeKind::PRIMITIVE,
-            TypeKind::PRIMITIVE_CONTAINER,
-        ];
-
         // only bother with actual Resource types.
-        if ($type->getKind()->isOneOf(...$ignoredTypes)) {
+        if ($type->getKind()->isOneOf(...self::_CONTAINED_IGNORED_TYPES)) {
             return false;
         }
         $container = $this->getContainerType();
