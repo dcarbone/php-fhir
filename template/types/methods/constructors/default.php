@@ -63,7 +63,7 @@ ob_start(); ?>
     endif;
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'resource_container_property_setter_call.php',
+                PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'resource_container_property_setter_call.php',
                 [
                     'config' => $config,
                     'type' => $type,
@@ -72,7 +72,7 @@ ob_start(); ?>
         );
     else :
         echo require_with(
-                PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
+                PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
                 [
                     'config' => $config,
                     'type' => $type,

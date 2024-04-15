@@ -19,26 +19,28 @@
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
-
-$typeKind = $type->getKind();
-$requireArgs = [
-    'config' => $config,
-    'type' => $type,
-    'parentType' => $parentType,
-    'properties' => $properties,
-];
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
 ob_start();
 
-echo match ($typeKind) {
-    TypeKind::PRIMITIVE, TypeKind::_LIST => require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive.php', $requireArgs),
-    TypeKind::PRIMITIVE_CONTAINER => require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive_container.php', $requireArgs),
-    default => require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR  . DIRECTORY_SEPARATOR . 'default.php', $requireArgs),
-};
-
-echo "\n";
+if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
+    echo require_with(
+        PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
+        [
+            'config' => $config,
+            'type' => $type
+        ]
+    );
+else :
+    echo require_with(
+        PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'default.php',
+        [
+            'config'           => $config,
+            'type'             => $type,
+            'properties' => $properties,
+        ]
+    );
+endif;
 
 return ob_get_clean();

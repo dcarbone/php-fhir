@@ -59,24 +59,24 @@ ob_start(); ?>
     if (null === $propertyType) :
         if ($property->isCollection()) :
             echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
+                PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
                 $requireArgs + ['property' => $property]
             );
         else :
             echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
+                PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
                 $requireArgs + ['property' => $property]
             );
         endif;
     else :
         if ($property->isCollection()) :
             echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
+                PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
                 $requireArgs + ['property' => $property]
             );
         else :
             echo require_with(
-                PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'typed.php',
+                PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'typed.php',
                 $requireArgs + ['property' => $property]
             );
         endif;

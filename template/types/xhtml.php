@@ -92,7 +92,7 @@ echo require_with(
 
 <?php
 echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
+    PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
     [
         'config' => $config,
         'type' => $type,
@@ -153,7 +153,7 @@ echo require_with(
 
 
 <?php echo require_with(
-        PHPFHIR_TEMPLATE_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
+        PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
     [
         'config' => $config,
         'type' => $type,
@@ -163,7 +163,7 @@ echo require_with(
 <?php
 // unserialize portion
 echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
     [
         'config' => $config,
         'type' => $type,

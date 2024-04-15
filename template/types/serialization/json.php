@@ -27,7 +27,7 @@ $typeKind = $type->getKind();
 ob_start();
 if ($typeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
     echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'primitive.php',
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'primitive.php',
         [
             'config' => $config,
             'type'     => $type,
@@ -36,7 +36,7 @@ if ($typeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
     );
 elseif ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
     echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'resource_container.php',
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'resource_container.php',
         [
             'config' => $config,
             'properties' => $localProperties,
@@ -44,7 +44,7 @@ elseif ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLI
     );
 else:
     echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'default.php',
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'default.php',
         [
             'config' => $config,
             'type'       => $type,
