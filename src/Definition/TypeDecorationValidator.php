@@ -67,7 +67,7 @@ abstract class TypeDecorationValidator
                 }
             }
 
-            if ($typeKind === TypeKind::_LIST) {
+            if ($typeKind === TypeKind::LIST) {
                 $rbType = $type->getRestrictionBaseFHIRType();
                 if (null === $rbType) {
                     throw ExceptionUtils::createUndefinedListRestrictionBaseException($type);

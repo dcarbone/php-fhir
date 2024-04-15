@@ -28,7 +28,7 @@ enum TypeKind: string
     case PRIMITIVE_CONTAINER = 'primitive_container';
 
     // primitive type with limited possible value set
-    case _LIST = 'list';
+    case LIST = 'list';
 
     // complex types
     case EXTENSION          = 'Extension';

@@ -136,7 +136,7 @@ abstract class TypeHintUtils
                 $pt->getClassName(),
                 $type->getClassName(),
             );
-        } else if ($tk === TypeKind::PRIMITIVE) {
+        } else if ($tk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
             array_push(
                 $types,
                 $type->getprimitiveType()->getPHPValueTypeHint(),
@@ -258,7 +258,7 @@ abstract class TypeHintUtils
                 self::typeTypeDoc($config, $ptp, false, $asCollection),
                 self::typeTypeDoc($config, $pt, false, $asCollection),
             );
-        } else if ($tk === TypeKind::PRIMITIVE) {
+        } else if ($tk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
             array_push(
                 $types,
                 $pt->getPrimitiveType()->getPHPValueTypeHint(),

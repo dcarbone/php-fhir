@@ -25,7 +25,7 @@ $localProperties = $type->getProperties()->localPropertiesIterator();
 $typeKind = $type->getKind();
 
 ob_start();
-if ($typeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
+if ($typeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
     echo require_with(
         PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'primitive.php',
         [

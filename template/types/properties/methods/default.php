@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
-$isPrimitiveType = $type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST);
+$isPrimitiveType = $type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST);
 
 ob_start();
 foreach ($properties as $property) {
@@ -67,7 +67,7 @@ foreach ($properties as $property) {
 
     echo "\n";
 
-    if ($propertyTypeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST, TypeKind::PRIMITIVE_CONTAINER)) {
+    if ($propertyTypeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'setter_primitive.php',
             $requireArgs

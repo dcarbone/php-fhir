@@ -307,8 +307,8 @@ abstract class TypeDecorator
         // check if type is list...
         if (str_contains($fhirName, PHPFHIR_LIST_SUFFIX)) {
             // for all intents and purposes, a List type is a multiple choice primitive type
-            $logger->debug(sprintf('Type "%s" has list suffix, setting kind to "%s"', $type->getFHIRName(), TypeKind::_LIST->value));
-            self::setTypeKind($config, $types, $type, TypeKind::_LIST);
+            $logger->debug(sprintf('Type "%s" has list suffix, setting kind to "%s"', $type->getFHIRName(), TypeKind::LIST->value));
+            self::setTypeKind($config, $types, $type, TypeKind::LIST);
             return;
         }
 

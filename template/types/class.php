@@ -200,7 +200,7 @@ if (!$type->hasPrimitiveParent()) :
         return '';
 <?php else : ?>
         return (string)$this->getValue();
-<?php endif; elseif ($typeKind->isOneOf(TypeKind::_LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
+<?php endif; elseif ($typeKind->isOneOf(TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
         return (string)$this->getValue();
 <?php else : ?>
         return self::FHIR_TYPE_NAME;

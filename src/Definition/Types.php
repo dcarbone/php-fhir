@@ -44,7 +44,7 @@ class Types implements Countable
     private const _CONTAINED_IGNORED_TYPES = [
         TypeKind::RESOURCE_INLINE,
         TypeKind::RESOURCE_CONTAINER,
-        TypeKind::_LIST,
+        TypeKind::LIST,
         TypeKind::PRIMITIVE,
         TypeKind::PRIMITIVE_CONTAINER,
     ];

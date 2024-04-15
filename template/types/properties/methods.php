@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 
 ob_start();
 
-if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
+if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
     echo require_with(
         PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
         [

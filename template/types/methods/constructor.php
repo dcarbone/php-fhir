@@ -34,7 +34,7 @@ $requireArgs = [
 ob_start();
 
 echo match ($typeKind) {
-    TypeKind::PRIMITIVE, TypeKind::_LIST => require_with(PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive.php', $requireArgs),
+    TypeKind::PRIMITIVE, TypeKind::LIST => require_with(PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive.php', $requireArgs),
     TypeKind::PRIMITIVE_CONTAINER => require_with(PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive_container.php', $requireArgs),
     default => require_with(PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR  . DIRECTORY_SEPARATOR . 'default.php', $requireArgs),
 };

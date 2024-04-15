@@ -45,7 +45,7 @@ abstract class TypePropertyDecorator
                 return;
             }
 
-            if ($typeKind === TypeKind::_LIST) {
+            if ($typeKind === TypeKind::LIST) {
                 $parentPHPValueType = $type->getParentType()->getPrimitiveType()->getPHPValueType();
                 $log->debug(sprintf('Type "%s" is list, setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $property->getName(), $parentPHPValueType));
                 $property->setRawPHPValue($parentPHPValueType);

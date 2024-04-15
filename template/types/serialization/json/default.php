@@ -44,7 +44,7 @@ foreach ($properties as $property) :
         continue;
     endif;
     $propertyType = $property->getValueFHIRType();
-    if ($propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::_LIST)) :
+    if ($propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'default_property_primitive_list.php',
                 [
