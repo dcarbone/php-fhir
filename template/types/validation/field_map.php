@@ -26,7 +26,7 @@ ob_start(); ?>
 
      * @var array
      */
-    private static array $_validationRules = [<?php foreach ($properties as $property) :
+    private const _VALIDATION_RULES = [<?php foreach ($properties as $property) :
     $validationMap = $property->buildValidationMap();
     if ([] !== $validationMap) : ?>
 
