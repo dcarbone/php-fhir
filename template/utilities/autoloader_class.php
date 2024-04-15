@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,9 @@ if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; 
 }
 if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_CHANGE_TRACKING; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>.php';
+}
+if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XMLNS; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XMLNS; ?>.php';
 }
 
 // common classes

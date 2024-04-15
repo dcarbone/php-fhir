@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Config;
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ class Version
             return $this;
         }
         // handle no or empty namespace
-        $namespace = trim((string)$namespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
+        $namespace = trim($namespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
         if ('' === $namespace) {
             $this->namespace = '';
             return $this;

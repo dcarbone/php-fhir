@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,13 +55,13 @@ interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>
      * @param array $fhirComments
      * @return static
      */
-    public function _setFHIRComments(array $fhirComments): object;
+    public function _setFHIRComments(array $fhirComments): self;
 
     /**
      * Append comment string to internal fhir_comments list
      * @param string $fhirComment
      * @return static
      */
-    public function _addFHIRComment(string $fhirComment): object;
+    public function _addFHIRComment(string $fhirComment): self;
 }
 <?php return ob_get_clean();

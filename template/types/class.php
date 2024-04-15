@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
@@ -28,14 +28,14 @@ $fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassname = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
-$directProperties = $type->getProperties()->getDirectIterator();
+$localProperties = $type->getProperties()->localPropertiesIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 
 ob_start();
 
 // build file header
 echo require_with(
-    PHPFHIR_TEMPLATE_FILE_DIR . '/header_type.php',
+    PHPFHIR_TEMPLATE_FILE_DIR . DIRECTORY_SEPARATOR . 'header_type.php',
     [
         'config' => $config,
         'fqns' => $fqns,
@@ -58,7 +58,7 @@ echo require_with(
  */
 <?php
 echo require_with(
-    PHPFHIR_TEMPLATE_TYPES_DIR . '/definition.php',
+    PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'definition.php',
     [
         'config' => $config,
         'type' => $type,
@@ -72,10 +72,10 @@ echo require_with(
 
 <?php endif; ?>
 
-<?php if (0 !== count($directProperties)) :
-    foreach($directProperties as $property) :
+<?php if (0 !== count($localProperties)) :
+    foreach($localProperties as $property) :
         echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/constants.php',
+            PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'constants.php',
             [
                 'config' => $config,
                 'property' => $property,
@@ -84,13 +84,10 @@ echo require_with(
     endforeach;
 endif; ?>
 
-    /** @var string */
-    private $_xmlns = '';
-
-<?php if (0 !== count($directProperties)) :
-    foreach($directProperties as $property) :
+<?php if (0 !== count($localProperties)) :
+    foreach($localProperties as $property) :
         echo require_with(
-            PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/declaration.php',
+            PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'declaration.php',
             [
                 'config' => $config,
                 'property' => $property,
@@ -100,7 +97,7 @@ endif; ?>
 endif;
 
 echo require_with(
-    PHPFHIR_TEMPLATE_VALIDATION_DIR . '/field_map.php',
+    PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'field_map.php',
     [
         'config' => $config,
         'type' => $type,
@@ -110,17 +107,17 @@ echo require_with(
 echo "\n";
 
 echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
+    PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
     [
         'config' => $config,
         'type' => $type,
-        'properties' => $directProperties,
+        'properties' => $localProperties,
         'parentType' => $parentType,
     ]
 );
 
 echo require_with(
-    PHPFHIR_TEMPLATE_METHODS_DIR . '/common.php',
+    PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
     [
         'config' => $config,
         'type' => $type,
@@ -130,7 +127,7 @@ echo require_with(
 
 if ($type->isContainedType()) :
     echo require_with(
-        PHPFHIR_TEMPLATE_METHODS_DIR . '/contained_type.php',
+        PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'contained_type.php',
         [
             'config' => $config,
             'type' => $type,
@@ -138,20 +135,20 @@ if ($type->isContainedType()) :
     );
 endif;
 
- if (0 < count($directProperties)) :
+ if (0 < count($localProperties)) :
     echo "\n";
     echo require_with(
-        PHPFHIR_TEMPLATE_PROPERTIES_DIR . '/methods.php',
+        PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods.php',
         [
             'config' => $config,
             'type' => $type,
-            'properties' => $directProperties,
+            'properties' => $localProperties,
         ]
     );
 endif; ?>
 
 <?php echo require_with(
-        PHPFHIR_TEMPLATE_VALIDATION_DIR . '/methods.php',
+        PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
     [
         'config' => $config,
         'type' => $type,
@@ -159,7 +156,7 @@ endif; ?>
 ); ?>
 
 <?php echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml.php',
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml.php',
     [
         'config' => $config,
         'type'     => $type,
@@ -169,10 +166,10 @@ endif; ?>
     ]
 );
 
-if (0 < count($directProperties)) :
+if (0 < count($localProperties)) :
     echo "\n";
     echo require_with(
-        PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/json.php',
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json.php',
         [
             'config' => $config,
             'type' => $type,
@@ -189,11 +186,11 @@ if (!$type->hasPrimitiveParent()) :
      */
     public function __toString(): string
     {
-<?php if ($typeKind->isPrimitive()) :
+<?php if ($typeKind === TypeKind::PRIMITIVE) :
     $primitiveType = $type->getPrimitiveType();
-    if ($primitiveType->is(PrimitiveTypeEnum::BOOLEAN)) : ?>
+    if ($primitiveType === PrimitiveType::BOOLEAN) : ?>
         return $this->getValue() ? PHPFHIRConstants::STRING_TRUE : PHPFHIRConstants::STRING_FALSE;
-<?php elseif ($primitiveType->is(PrimitiveTypeEnum::DECIMAL)) : ?>
+<?php elseif ($primitiveType === PrimitiveType::DECIMAL) : ?>
         if (null !== ($v = $this->getValue())) {
             if (isset($this->_decimals)) {
                 return number_format($v, $this->_decimals);
@@ -203,7 +200,7 @@ if (!$type->hasPrimitiveParent()) :
         return '';
 <?php else : ?>
         return (string)$this->getValue();
-<?php endif; elseif ($typeKind->isOneOf([TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
+<?php endif; elseif ($typeKind->isOneOf(TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
         return (string)$this->getValue();
 <?php else : ?>
         return self::FHIR_TYPE_NAME;

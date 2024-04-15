@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Builder;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ abstract class TypeBuilder
      */
     public static function build(VersionConfig $config, string $fhirName, SimpleXMLElement $sxe, string $sourceFilename): Type
     {
-        if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX) || false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
+        if (str_contains($fhirName, PHPFHIR_PRIMITIVE_SUFFIX) || str_contains($fhirName, PHPFHIR_LIST_SUFFIX)) {
             return self::buildPrimitiveType($config, $fhirName, $sxe, $sourceFilename);
         }
         return self::buildDefaultType($config, $fhirName, $sxe, $sourceFilename);

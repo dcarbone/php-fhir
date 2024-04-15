@@ -41,7 +41,7 @@ use PHPUnit\Framework\TestCase;
  */
 class <?php echo PHPFHIR_TEST_CLASSNAME_CONSTANTS; ?> extends TestCase
 {
-<?php foreach($types->getSortedIterator() as $type) : ?>
+<?php foreach($types->getNameSortedIterator() as $type) : ?>
     public function testTypeConstantsDefined<?php echo str_replace('\\', '_', $type->getFullyQualifiedClassName(false)); ?>()
     {
         $this->assertEquals('<?php echo $type->getFHIRName(); ?>', <?php echo $type->getTypeNameConst(true); ?>);

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,6 @@ echo "\n\n";
  */
 interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
     /**
-     * @param array|null $data
-     */
-    public function __construct(?array $data = null);
-
-    /**
      * Returns the FHIR name represented by this Type
      * @return string
      */
@@ -64,7 +59,7 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
      * @param string $xmlNamespace
      * @return static
      */
-    public function _setFHIRXMLNamespace(string $xmlNamespace): object;
+    public function _setFHIRXMLNamespace(string $xmlNamespace): self;
 
     /**
      * Returns the base xml element definition for this type
@@ -97,14 +92,14 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
      * @param null|int $libxmlOpts
      * @return null|static
      */
-    public static function xmlUnserialize($element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): ?object;
+    public static function xmlUnserialize(null|string|\DOMElement $element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): ?self;
 
     /**
      * @param \DOMElement|null $element
      * @param null|int $libxmlOpts
      * @return string|\DOMElement
      */
-    public function xmlSerialize(?\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>);
+    public function xmlSerialize(null|\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): string|\DOMElement;
 
     /**
      * @return string

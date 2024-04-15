@@ -4,7 +4,7 @@
  * Generator default configuration file
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

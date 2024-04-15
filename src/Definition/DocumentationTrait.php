@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,14 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 trait DocumentationTrait
 {
-    /** @var null|array */
+    /** @var array */
     private array $documentation = [];
 
     /**
-     * @param string|array $documentation
+     * @param null|string|array $documentation
      * @return \DCarbone\PHPFHIR\Definition\Type|\DCarbone\PHPFHIR\Definition\Property
      */
-    public function addDocumentationFragment($documentation): object
+    public function addDocumentationFragment(null|string|array $documentation): Type|Property
     {
         if (null === $documentation) {
             return $this;
@@ -95,7 +95,7 @@ trait DocumentationTrait
         }
         $pieces = [];
         $spaces = str_repeat(' ', $spaces);
-        foreach ($this->documentation as $i => $doc) {
+        foreach ($this->documentation as $doc) {
             $pieces[] = str_replace('@', '\\@', "{$spaces}* {$doc}");
         }
         return implode("\n", $pieces) . ($trailingNewline ? "\n" : '');

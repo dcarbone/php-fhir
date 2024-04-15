@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
-use DCarbone\PHPFHIR\Enum\ElementNameEnum;
-use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
+use DCarbone\PHPFHIR\Enum\AttributeName;
+use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\PropertyUse;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -51,16 +51,16 @@ abstract class AttributeElementTypeDecorator
         // parse through attributes
         foreach ($attributeElement->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeNameEnum::NAME:
+                case AttributeName::NAME->value:
                     $property->setName((string)$attribute);
                     break;
-                case AttributeNameEnum::TYPE:
+                case AttributeName::TYPE->value:
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
-                case AttributeNameEnum::USE:
-                    $property->setUse(new PropertyUseEnum((string)$attribute));
+                case AttributeName::USE->value:
+                    $property->setUse(PropertyUse::from((string)$attribute));
                     break;
-                case AttributeNameEnum::FIXED:
+                case AttributeName::FIXED->value:
                     $property->setFixed((string)$attribute);
                     break;
 
@@ -72,7 +72,7 @@ abstract class AttributeElementTypeDecorator
         // parse through child elements
         foreach ($attributeElement->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementNameEnum::SIMPLE_TYPE:
+                case ElementName::SIMPLE_TYPE->value:
                     SimpleTypeElementPropertyDecorator::decorate($config, $types, $type, $property, $child);
                     break;
 

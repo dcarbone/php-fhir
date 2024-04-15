@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ abstract class CopyrightUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
-    public static function compileCopyrights(VersionConfig $config)
+    public static function compileCopyrights(VersionConfig $config): void
     {
         if (isset(self::$_compiledWith) && self::$_compiledWith === $config) {
             return;
@@ -107,7 +107,7 @@ abstract class CopyrightUtils
                     $line = html_entity_decode($line);
                     self::$_fhirCopyright[] = $line;
                     $line = ltrim($line);
-                    if (0 === strpos($line, 'Generated on ')) {
+                    if (str_starts_with($line, 'Generated on ')) {
                         [$generated, $version] = explode('for FHIR', $line);
 
                         $generated = trim(str_replace('Generated on', '', $generated));
@@ -123,7 +123,7 @@ abstract class CopyrightUtils
                         }
 
                         $version = trim($version);
-                        if (0 === strpos($version, 'v')) {
+                        if (str_starts_with($version, 'v')) {
                             self::$_fhirVersion = $version;
                         } else {
                             throw new \LogicException(

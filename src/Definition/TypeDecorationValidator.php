@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
@@ -60,14 +61,13 @@ abstract class TypeDecorationValidator
                 throw ExceptionUtils::createUnknownTypeKindException($type);
             }
 
-            if ($typeKind->isPrimitive()) {
-                $primitiveType = $type->getPrimitiveType();
-                if (null === $primitiveType) {
+            if ($typeKind === TypeKind::PRIMITIVE) {
+                if (null ===  $type->getPrimitiveType()) {
                     throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
                 }
             }
 
-            if ($typeKind->isList()) {
+            if ($typeKind === TypeKind::LIST) {
                 $rbType = $type->getRestrictionBaseFHIRType();
                 if (null === $rbType) {
                     throw ExceptionUtils::createUndefinedListRestrictionBaseException($type);
@@ -78,7 +78,7 @@ abstract class TypeDecorationValidator
                 throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($type), $type);
             }
 
-            foreach ($type->getProperties()->getIterator() as $property) {
+            foreach ($type->getProperties()->allPropertiesIterator() as $property) {
                 $name = $property->getName();
                 if (null === $name || '' === $name) {
                     throw ExceptionUtils::createPropertyMissingNameException($type, $property);

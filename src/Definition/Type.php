@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DomainException;
 use LogicException;
@@ -44,8 +44,8 @@ class Type
      */
     private string $fhirName;
 
-    /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum|null */
-    private ?TypeKindEnum $kind = null;
+    /** @var \DCarbone\PHPFHIR\Enum\TypeKind|null */
+    private ?TypeKind $kind = null;
 
     /** @var string */
     private string $className;
@@ -74,8 +74,8 @@ class Type
     /** @var array */
     private array $unionOf = [];
 
-    /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum */
-    private PrimitiveTypeEnum $primitiveType;
+    /** @var \DCarbone\PHPFHIR\Enum\PrimitiveType */
+    private PrimitiveType $primitiveType;
 
     /** @var null|string */
     private ?string $restrictionBaseFHIRName = null;
@@ -186,26 +186,26 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\TypeKindEnum|null
+     * @return \DCarbone\PHPFHIR\Enum\TypeKind|null
      */
-    public function getKind(): ?TypeKindEnum
+    public function getKind(): ?TypeKind
     {
         return $this->kind;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\TypeKindEnum $kind
+     * @param \DCarbone\PHPFHIR\Enum\TypeKind $kind
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setKind(TypeKindEnum $kind): Type
+    public function setKind(TypeKind $kind): Type
     {
-        if (isset($this->kind) && !$this->kind->equals($kind)) {
+        if (isset($this->kind) && $this->kind !== $kind) {
             throw new LogicException(
                 sprintf(
                     'Cannot overwrite Type % s Kind from %s to %s',
                     $this->getFHIRName(),
-                    $this->kind,
-                    $kind
+                    $this->kind->value,
+                    $kind->value
                 )
             );
         }
@@ -214,18 +214,18 @@ class Type
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setPrimitiveType(PrimitiveTypeEnum $primitiveType): Type
+    public function setPrimitiveType(PrimitiveType $primitiveType): Type
     {
-        if (isset($this->primitiveType) && $this->primitiveType->equals($primitiveType)) {
+        if (isset($this->primitiveType) && $this->primitiveType === $primitiveType) {
             throw new LogicException(
                 sprintf(
                     'Cannot overwrite Type "%s" PrimitiveType from "%s" to "%s"',
                     $this->getFHIRName(),
-                    $this->primitiveType,
-                    $primitiveType
+                    $this->primitiveType->value,
+                    $primitiveType->value
                 )
             );
         }
@@ -344,7 +344,7 @@ class Type
     public function getAllPropertiesIterator(): iterable
     {
         $properties = [];
-        foreach($this->getProperties()->getDirectIterator() as $property) {
+        foreach($this->getProperties()->localPropertiesIterator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach($this->getParentTypes() as $parentType) {
@@ -442,7 +442,7 @@ class Type
     public function hasResourceParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind()->isResource()) {
+            if ($parentType->getKind() === TypeKind::RESOURCE) {
                 return true;
             }
         }
@@ -455,7 +455,7 @@ class Type
     public function hasPrimitiveParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind()->isPrimitive()) {
+            if ($parentType->getKind() === TypeKind::PRIMITIVE) {
                 return true;
             }
         }
@@ -468,7 +468,7 @@ class Type
     public function hasPrimitiveContainerParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind()->isPrimitiveContainer()) {
+            if ($parentType->getKind() === TypeKind::PRIMITIVE_CONTAINER) {
                 return true;
             }
         }
@@ -482,7 +482,7 @@ class Type
      */
     public function isDomainResource(): bool
     {
-        return false !== strpos($this->getFullyQualifiedNamespace(false), 'DomainResource');
+        return str_contains($this->getFullyQualifiedNamespace(false), 'DomainResource');
     }
 
     /**
@@ -584,9 +584,9 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum
+     * @return \DCarbone\PHPFHIR\Enum\PrimitiveType
      */
-    public function getPrimitiveType(): PrimitiveTypeEnum
+    public function getPrimitiveType(): PrimitiveType
     {
         return $this->primitiveType;
     }
@@ -749,6 +749,7 @@ class Type
             }
             $traits[] = PHPFHIR_TRAIT_VALIDATION_ASSERTIONS;
             $traits[] = PHPFHIR_TRAIT_CHANGE_TRACKING;
+            $traits[] = PHPFHIR_TRAIT_XMLNS;
         }
 
         return $traits;

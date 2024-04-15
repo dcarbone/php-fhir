@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Definition;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 abstract class TypePropertyDecorator
@@ -37,15 +38,15 @@ abstract class TypePropertyDecorator
 
         // handle primitive and list value properties
         if ($property->isValueProperty()) {
-            if ($typeKind->isPrimitive()) {
+            if ($typeKind === TypeKind::PRIMITIVE) {
                 $primitiveType = $type->getPrimitiveType();
-                $log->debug(sprintf('Type "%s" is primitive of kind "%s", setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $primitiveType, $property->getName(), $primitiveType->getPHPValueType()));
-                $property->setRawPHPValue($primitiveType->getPHPValueType());
+                $log->debug(sprintf('Type "%s" is primitive of kind "%s", setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $primitiveType->value, $property->getName(), $primitiveType->getPHPValueTypes()));
+                $property->setRawPHPValue($primitiveType->getPHPValueTypes());
                 return;
             }
 
-            if ($typeKind->isList()) {
-                $parentPHPValueType = $type->getParentType()->getPrimitiveType()->getPHPValueType();
+            if ($typeKind === TypeKind::LIST) {
+                $parentPHPValueType = $type->getParentType()->getPrimitiveType()->getPHPValueTypes();
                 $log->debug(sprintf('Type "%s" is list, setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $property->getName(), $parentPHPValueType));
                 $property->setRawPHPValue($parentPHPValueType);
                 return;
@@ -86,7 +87,7 @@ abstract class TypePropertyDecorator
                 return;
             }
 
-            if (0 === strpos($valueFHIRTypeName, 'xs:')) {
+            if (str_starts_with($valueFHIRTypeName, 'xs:')) {
                 $pt = $types->getTypeByName(substr($valueFHIRTypeName, 3) . '-primitive');
             } elseif (null !== ($refName = $property->getRef())) {
                 $pt = $types->getTypeByName($refName);
@@ -117,7 +118,7 @@ abstract class TypePropertyDecorator
     public static function findPropertyTypes(VersionConfig $config, Types $types): void
     {
         foreach ($types->getIterator() as $type) {
-            foreach ($type->getProperties()->getIterator() as $property) {
+            foreach ($type->getProperties()->allPropertiesIterator() as $property) {
                 self::findPropertyType($config, $types, $type, $property);
             }
         }
@@ -136,9 +137,9 @@ abstract class TypePropertyDecorator
             }
             $parent = $type->getParentType();
             while (null !== $parent) {
-                foreach ($type->getProperties()->getIterator() as $property) {
+                foreach ($type->getProperties()->allPropertiesIterator() as $property) {
                     $propertyName = $property->getName();
-                    foreach ($parent->getProperties()->getIterator() as $parentProperty) {
+                    foreach ($parent->getProperties()->allPropertiesIterator() as $parentProperty) {
                         if ($propertyName === $parentProperty->getName()) {
                             $logger->debug(
                                 sprintf(
@@ -166,13 +167,13 @@ abstract class TypePropertyDecorator
     {
         $log = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            foreach ($type->getProperties()->getIterator() as $property) {
+            foreach ($type->getProperties()->allPropertiesIterator() as $property) {
                 $propName = $property->getName();
                 if ('' === $propName || null === $propName) {
                     $ref = $property->getRef();
                     if (null !== $ref && '' !== $ref) {
                         $newName = $ref;
-                        if (0 === strpos($ref, 'xhtml:')) {
+                        if (str_starts_with($ref, 'xhtml:')) {
                             $split = explode(':', $ref, 2);
                             if (2 === count($split) && '' !== $split[1]) {
                                 $newName = $split[1];

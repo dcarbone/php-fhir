@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\AttributeName;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -46,13 +46,13 @@ abstract class AnyElementTypeDecorator
         // parse through attributes
         foreach ($any->attributes() as $attribute) {
             switch ($attrName = $attribute->getName()) {
-                case AttributeNameEnum::NAMESPACE:
+                case AttributeName::NAMESPACE->value:
                     $property->setNamespace((string)$attribute);
                     break;
-                case AttributeNameEnum::MIN_OCCURS:
+                case AttributeName::MIN_OCCURS->value:
                     $property->setMinOccurs(intval((string)$attribute));
                     break;
-                case AttributeNameEnum::MAX_OCCURS:
+                case AttributeName::MAX_OCCURS->value:
                     $property->setMaxOccurs((string)$attribute);
                     break;
 

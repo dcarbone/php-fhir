@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 $rootNS = $config->getNamespace(false);
 
 ob_start();
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $rootNS) :
     echo "namespace {$rootNS};\n\n";
@@ -60,7 +60,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
      * @param array $fhirComments
      * @return static
      */
-    public function _setFHIRComments(array $fhirComments): object
+    public function _setFHIRComments(array $fhirComments): self
     {
         $this->_fhirComments = $fhirComments;
         return $this;
@@ -71,7 +71,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
      * @param string $fhirComment
      * @return static
      */
-    public function _addFHIRComment(string $fhirComment): object
+    public function _addFHIRComment(string $fhirComment): self
     {
         $this->_fhirComments[] = $fhirComment;
         return $this;

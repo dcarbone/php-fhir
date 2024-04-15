@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $typeClassname = $type->getClassName();
-$properties = $type->getProperties();
-$directProperties = $properties->getDirectSortedIterator();
+$allProperties = $type->getProperties();
+$localProperties = $allProperties->localSortedPropertiesIterator();
 
 ob_start();
 ?>

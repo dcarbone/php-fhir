@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ abstract class TypeBuilderUtils
         \SimpleXMLElement $parentElement,
         \SimpleXMLElement $source,
         string $setterMethod,
-        $value
+        mixed $value
     ): void {
         if (!method_exists($type, $setterMethod)) {
             throw ExceptionUtils::createTypeSetterMethodNotFoundException(
@@ -170,7 +170,7 @@ abstract class TypeBuilderUtils
                 )
             );
         }
-        self::callTypeSetter($type, $parentElement, $attribute, $setterMethod, intval($int, 10));
+        self::callTypeSetter($type, $parentElement, $attribute, $setterMethod, intval($int));
     }
 
     /**
@@ -195,21 +195,15 @@ abstract class TypeBuilderUtils
     /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
-     * @param \SimpleXMLElement $enum
+     * @param \SimpleXMLElement $enumElement
      */
-    public static function addTypeEnumeratedValue(Type $type, \SimpleXMLElement $parentElement, \SimpleXMLElement $enum): void
+    public static function addTypeEnumeratedValue(Type $type, \SimpleXMLElement $parentElement, \SimpleXMLElement $enumElement): void
     {
-        $value = $enum->attributes()->value;
+        $value = $enumElement->attributes()->value;
         if (null === $value) {
-            throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $enum, 'value');
+            throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $enumElement, 'value');
         }
-        self::callTypeSetter(
-            $type,
-            $parentElement,
-            $enum,
-            'addEnumerationValue',
-            new EnumerationValue((string)$value, $enum)
-        );
+        $type->addEnumerationValue(new EnumerationValue((string)$value, $enumElement));
     }
 
     /**
@@ -224,7 +218,7 @@ abstract class TypeBuilderUtils
         \SimpleXMLElement $parentElement,
         \SimpleXMLElement $source,
         string $setterMethod,
-        $value
+        mixed $value
     ): void {
         if (!method_exists($property, $setterMethod)) {
             throw ExceptionUtils::createPropertySetterMethodNotFoundException(

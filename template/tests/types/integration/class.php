@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ ob_start();
 
 if ($type->isDomainResource()) :
     echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/' . $testType . '/header_domain_resource.php',
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR . 'header_domain_resource.php',
         [
             'config'     => $config,
             'type'       => $type,
@@ -65,7 +65,7 @@ if ($type->isDomainResource()) :
     );
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . '/' . $testType . '/body_domain_resource.php',
+        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR . 'body_domain_resource.php',
         [
             'config'     => $config,
             'type'       => $type,

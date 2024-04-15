@@ -16,7 +16,7 @@ on:
 
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - '.github/workflows/tests.yaml'
       - '**.php'
@@ -31,75 +31,71 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["7.4", "8.0", "8.1"]
-        fhir-version: ["DSTU1", "DSTU2", "STU3", "R4"]
+        php-version: [ '8.1', '8.2', '8.3' ]
+        fhir-version: ['DSTU1', 'DSTU2', 'STU3', 'R4']
         include:
-          - php-version: "7.4"
-            phpunit-version: "9"
-            paratest-version: "6"
-          - php-version: "8.0"
-            phpunit-version: "9"
-            paratest-version: "6"
-          - php-version: "8.1"
-            phpunit-version: "9"
-            paratest-version: "6"
+          - php-version: '8.1'
+            phpunit-version: '10.5'
+            paratest-version: '7'
+          - php-version: '8.2'
+            phpunit-version: '11.1'
+            paratest-version: '7'
+          - php-version: '8.3'
+            phpunit-version: '11.1'
+            paratest-version: '7'
     name: ${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v4
 
-      - uses: shivammathur/setup-php@2.22.0
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           extensions: libxml simplexml json zip
           # https://github.com/mheap/phpunit-github-actions-printer/blob/master/.github/workflows/ci.yml#L32
 
-      - name: Set PHPUnit Version
-        shell: pwsh
-        run: |
-          $content = Get-Content -Path 'composer.json' | ConvertFrom-Json
-          $content.{require-dev}.{phpunit/phpunit} = "^${{ matrix.phpunit-version }}"
-          $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
+      - uses: dcarbone/install-jq-action@v2
+        with:
+          force: true
 
-      - name: Set Paratest Version
-        shell: pwsh
+      - name: 'Set Composer Dep Versions'
         run: |
-          $content = Get-Content -Path 'composer.json' | ConvertFrom-Json
-          $content.{require-dev}.{brianium/paratest} = "^${{ matrix.paratest-version }}"
-          $content | ConvertTo-Json  | Set-Content -Path 'composer.json'
+          tmpf="$(mktemp)"
+          jq -rcM '."require-dev"."phpunit/phpunit" = "^${{ matrix.phpunit-version }}" | ."require-dev"."brianium/paratest" = "^${{ matrix.paratest-version }}"' composer.json > "${tmpf}"
+          mv "${tmpf}" composer.json
 
-      - name: Get Composer Cache Directory
+      - name: 'Get Composer Cache Directory'
         id: composer-cache
         run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v3.0.11
+      - uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}"
 
-      - name: Cache downloaded FHIR sources
-        uses: actions/cache@v2
+      - name: 'Cache downloaded FHIR sources'
+        uses: actions/cache@v4
         with:
           path: ./input
           key: "fhir-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}"
 
-      - name: Install Composer deps
+      - name: 'Install Composer deps'
         run: |
           composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
 
-      - name: Generate code
+      - name: 'Generate code'
         run: |
           ./bin/generate.sh --useExisting --versions '${{ matrix.fhir-version }}'
 
-      - uses: actions/setup-java@v3.6.0
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: 18
 
-      - name: Install FHIR validator
+      - name: 'Install FHIR validator'
         run: |
-          wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/5.6.75/validator_cli.jar -O ./bin/validator_cli.jar
+          wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/6.3.4/validator_cli.jar -O ./bin/validator_cli.jar
 
-      - name: Run tests
+      - name: 'Run tests'
         run: |
           ./vendor/bin/paratest -c 'phpunit/${{ matrix.fhir-version }}.xml'
