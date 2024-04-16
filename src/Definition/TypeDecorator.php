@@ -213,7 +213,7 @@ abstract class TypeDecorator
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             if (!$type->hasPrimitiveParent() ||
-                null !== $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+                null !== $type->getLocalProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
                 continue;
             }
             $logger->warning(
@@ -226,7 +226,7 @@ abstract class TypeDecorator
             );
             $property = new Property($type, $type->getSourceSXE(), $type->getSourceFilename());
             $property->setName(PHPFHIR_VALUE_PROPERTY_NAME);
-            $type->getProperties()->addProperty($property);
+            $type->getLocalProperties()->addProperty($property);
         }
     }
 
@@ -262,6 +262,8 @@ abstract class TypeDecorator
         $fhirName = $type->getFHIRName();
         $rootType = $type->getRootType();
 
+        $versionName = $config->getVersion()->getName();
+
         // there are a few specialty types kinds that are set during the parsing process, most notably for
         // html value types and primitive value types
         if (null !== $type->getKind()) {
@@ -276,8 +278,15 @@ abstract class TypeDecorator
         }
 
         // check if this is a known root and determine kind immediately
-        if (TypeKind::isKnownRoot($fhirName)) {
+        if (TypeKind::isRootTypeName($versionName, $fhirName)) {
             $logger->debug(sprintf('Type "%s" is a known root, setting kind to "%s"', $type->getFHIRName(), $fhirName));
+            self::setTypeKind($config, $types, $type, $fhirName);
+            return;
+        }
+
+        // if this is the "container" type for this FHIR version
+        if (TypeKind::isContainerTypeName($versionName, $fhirName)) {
+            $logger->debug(sprintf('Type "%s" is a container type, setting kind to "%s"', $type->getFHIRName(), $fhirName));
             self::setTypeKind($config, $types, $type, $fhirName);
             return;
         }
@@ -328,33 +337,6 @@ abstract class TypeDecorator
             return;
         }
 
-        // next, attempt to determine kind by looking at this type's root type, asuming it is not a root type itself.
-        if ($rootType !== $type) {
-
-            $rootTypeKind = $rootType->getKind();
-
-            // this final block is necessary as in DSTU1 all Resources extend Elements, so we cannot just use the upper-
-            // most parent to determine type as then they would all just be elements.
-            $set = false;
-            if ($rootTypeKind === TypeKind::ELEMENT && [] !== ($parentTypes = $type->getParentTypes())) {
-                foreach ($parentTypes as $parentType) {
-                    if ('Resource' === $parentType->getFHIRName()) {
-                        $set = true;
-                        $logger->debug(sprintf('(DSTU1 support) Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKind::RESOURCE->value));
-                        self::setTypeKind($config, $types, $type, TypeKind::RESOURCE);
-                        break;
-                    }
-                }
-            }
-
-            if (!$set) {
-                $logger->debug(sprintf('Setting Type "%s" kind to root type kind "%s"', $type->getFHIRName(), $rootTypeKind->value));
-                self::setTypeKind($config, $types, $type, $rootTypeKind->value);
-            }
-
-            return;
-        }
-
         // this is a catchall that may bomb if we encounter new stuff
         $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKind::PHPFHIR_XHTML->value));
         self::setTypeKind($config, $types, $type, TypeKind::PHPFHIR_XHTML);
@@ -380,8 +362,10 @@ abstract class TypeDecorator
      */
     public static function setContainedTypeFlag(VersionConfig $config, Types $types): void
     {
+        $versionName = $config->getVersion()->getName();
+
         foreach ($types->getIterator() as $type) {
-            if ($types->isContainedType($type)) {
+            if ($types->isContainedType($versionName, $type)) {
                 $type->setContainedType(true);
             }
         }
@@ -407,7 +391,7 @@ abstract class TypeDecorator
                 continue;
             }
 
-            $properties = $type->getProperties();
+            $properties = $type->getLocalProperties();
 
             // only target types with a single field on them with the name "value"
             if (1 !== count($properties) || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
@@ -465,8 +449,8 @@ abstract class TypeDecorator
                                 $utype->getFHIRName()
                             )
                         );
-                        foreach ($utype->getProperties()->allPropertiesIterator() as $property) {
-                            $type->getProperties()->addProperty(clone $property);
+                        foreach ($utype->getLocalProperties()->allPropertiesIterator() as $property) {
+                            $type->getLocalProperties()->addProperty(clone $property);
                         }
                     } else {
                         $log->info(

@@ -51,7 +51,7 @@ class Type
     private string $className;
 
     /** @var \DCarbone\PHPFHIR\Definition\Properties */
-    private Properties $properties;
+    private Properties $localProperties;
 
     /** @var null|string */
     private ?string $parentTypeName = null;
@@ -116,7 +116,7 @@ class Type
         $this->fhirName = $fhirName;
         $this->sourceSXE = $sourceSXE;
         $this->sourceFilename = $sourceFilename;
-        $this->properties = new Properties($config, $this);
+        $this->localProperties = new Properties($config, $this);
         $this->enumeration = new Enumeration();
         $this->imports = new TypeImports($this);
     }
@@ -333,9 +333,19 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Properties
      */
-    public function getProperties(): Properties
+    public function getLocalProperties(): Properties
     {
-        return $this->properties;
+        return $this->localProperties;
+    }
+
+    /**
+     * Returns true if this type has any locally defined properties.
+     *
+     * @return bool
+     */
+    public function hasLocalProperties(): bool
+    {
+        return count($this->localProperties) > 0;
     }
 
     /**
@@ -344,7 +354,7 @@ class Type
     public function getAllPropertiesIterator(): iterable
     {
         $properties = [];
-        foreach($this->getProperties()->localPropertiesIterator() as $property) {
+        foreach($this->getLocalProperties()->localPropertiesIterator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach($this->getParentTypes() as $parentType) {
@@ -400,6 +410,24 @@ class Type
     }
 
     /**
+     * Returns true if there is any parent of this type that has local properties.
+     *
+     * @return bool
+     */
+    public function hasParentWithLocalProperties(): bool
+    {
+        $parent = $this->getParentType();
+        $localsFound = false;
+
+        while (null !== $parent && false === $localsFound) {
+            $localsFound = $parent->hasLocalProperties();
+            $parent = $parent->getParentType();
+        }
+
+        return $localsFound;
+    }
+
+    /**
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
@@ -434,19 +462,6 @@ class Type
     public function hasParent(): bool
     {
         return null !== $this->getParentTypeName() || null !== $this->getParentType();
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasResourceParent(): bool
-    {
-        foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind() === TypeKind::RESOURCE) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

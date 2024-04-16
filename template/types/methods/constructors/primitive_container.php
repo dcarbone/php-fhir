@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
-$valueProperty = $type->getProperties()->getProperty('value');
+$valueProperty = $type->getLocalProperties()->getProperty('value');
 if (null === $valueProperty) {
     throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
 }

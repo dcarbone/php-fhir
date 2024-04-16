@@ -35,6 +35,8 @@ abstract class TypeDecorationValidator
      */
     public static function validateDecoration(VersionConfig $config, Types $types): void
     {
+        $versionName = $config->getVersion()->getName();
+
         $seenClasses = [];
         foreach ($types->getIterator() as $type) {
             $typeKind = $type->getKind();
@@ -74,11 +76,11 @@ abstract class TypeDecorationValidator
                 }
             }
 
-            if ($types->isContainedType($type) !== $type->isContainedType()) {
-                throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($type), $type);
+            if ($types->isContainedType($versionName, $type) !== $type->isContainedType()) {
+                throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($versionName, $type), $type);
             }
 
-            foreach ($type->getProperties()->allPropertiesIterator() as $property) {
+            foreach ($type->getLocalProperties()->allPropertiesIterator() as $property) {
                 $name = $property->getName();
                 if (null === $name || '' === $name) {
                     throw ExceptionUtils::createPropertyMissingNameException($type, $property);

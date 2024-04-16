@@ -59,6 +59,7 @@ switch ($primitiveType) {
 
     // int types
     case PrimitiveType::INTEGER:
+    case PrimitiveType::INTEGER64:
     case PrimitiveType::POSITIVE_INTEGER:
     case PrimitiveType::NEGATIVE_INTEGER:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'integer_type.php';

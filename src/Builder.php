@@ -158,7 +158,7 @@ class Builder
                 if (PHPFHIR_TEST_TYPE_INTEGRATION === $testType && !$type->isDomainResource()) {
                     continue;
                 }
-                $log->debug("Generated ${testType} test class for type {$type}...");
+                $log->debug("Generated {$testType} test class for type {$type}...");
                 $classDefinition = Templates::renderTypeTestClass($this->config, $types, $type, $testType);
                 $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
                 if (!(bool)file_put_contents($filepath, $classDefinition)) {

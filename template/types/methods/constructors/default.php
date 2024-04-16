@@ -45,7 +45,7 @@ ob_start(); ?>
                 gettype($data)
             ));
 <?php endif; ?>
-        }<?php if ($parentType) : // add parent constructor call ?>
+        }<?php if ($type->hasParentWithLocalProperties()) : // add parent constructor call ?>
 
         parent::__construct($data);<?php endif; ?><?php if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : // only parse comments if parent isn't already doing it. ?>
 

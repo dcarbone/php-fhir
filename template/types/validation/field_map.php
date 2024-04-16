@@ -18,7 +18,7 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$properties = $type->getProperties()->allSortedPropertiesIterator();
+$properties = $type->getLocalProperties()->allSortedPropertiesIterator();
 
 ob_start(); ?>
     /**

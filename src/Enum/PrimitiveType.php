@@ -17,8 +17,6 @@ namespace DCarbone\PHPFHIR\Enum;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 enum PrimitiveType:string
 {
     use ValuesTrait;
@@ -26,6 +24,7 @@ enum PrimitiveType:string
     case STRING = 'string';
     case BOOLEAN = 'boolean';
     case INTEGER = 'integer';
+    case INTEGER64 = 'integer64';
     case DECIMAL = 'decimal';
 
     case POSITIVE_INTEGER = 'positiveInt';
@@ -66,6 +65,7 @@ enum PrimitiveType:string
 
             case PrimitiveType::POSITIVE_INTEGER:
             case PrimitiveType::NEGATIVE_INTEGER:
+            case PrimitiveType::INTEGER64:
                 return 'integer';
 
             case PrimitiveType::DATE:
@@ -131,6 +131,7 @@ enum PrimitiveType:string
 
             // integers may stem from floats
             case PrimitiveType::INTEGER:
+            case PrimitiveType::INTEGER64:
                 $hintTypes[] = 'float';
                 break;
 

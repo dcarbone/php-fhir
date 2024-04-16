@@ -25,7 +25,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 $typeClassName = $type->getClassName();
 $primitiveType = $type->getPrimitiveType();
-$valueProperty = $type->getProperties()->getProperty('value');
+$valueProperty = $type->getLocalProperties()->getProperty('value');
 
 if (null !== $parentType) {
     // if this is a primitive that inherits from a parent primitive, there is no reason to define a constructor here.

@@ -144,6 +144,6 @@ class ElementElementTypeDecorator
             }
         }
 
-        $type->getProperties()->addProperty($property);
+        $type->getLocalProperties()->addProperty($property);
     }
 }

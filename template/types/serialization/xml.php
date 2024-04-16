@@ -25,11 +25,30 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
+$versionName = $config->getVersion()->getName();
 $xmlName = NameUtils::getTypeXMLElementName($type);
-$localProperties = $type->getProperties()->localPropertiesIterator();
+$localProperties = $type->getLocalProperties()->localPropertiesIterator();
 $properties = $type->getAllPropertiesIterator();
 
 ob_start();
+
+if (!$typeKind->isRoot($versionName)) : ?>
+    /**
+     * @return string
+     */
+    public function _getFHIRXMLElementDefinition(): string
+    {
+        $xmlns = $this->_getFHIRXMLNamespace();
+        if ('' !==  $xmlns) {
+            $xmlns = " xmlns=\"{$xmlns}\"";
+        }
+        return "<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>";
+    }
+
+<?php
+
+endif;
+
 // unserialize portion
 echo require_with(
         PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
@@ -74,6 +93,7 @@ else :
             PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'header.php',
         [
             'config' => $config,
+            'type' => $type,
             'parentType' => $parentType,
         ]
     );

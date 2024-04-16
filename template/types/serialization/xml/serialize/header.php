@@ -17,6 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
 ob_start(); ?>
@@ -24,6 +25,7 @@ ob_start(); ?>
      * @param null|\DOMElement $element
      * @param null|int $libxmlOpts
      * @return \DOMElement
+     * @throws \DOMException
      */
     public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
     {
@@ -34,7 +36,7 @@ ob_start(); ?>
         } elseif (null === $element->namespaceURI && '' !== ($xmlns = $this->_getFHIRXMLNamespace())) {
             $element->setAttribute('xmlns', $xmlns);
         }
-<?php if (null !== $parentType) : ?>
+<?php if ($type->hasParentWithLocalProperties()) : ?>
         parent::xmlSerialize($element);
 <?php endif;
 return ob_get_clean();

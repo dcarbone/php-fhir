@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 $namespace = $config->getNamespace(false);
 
-$containerType = $types->getContainerType();
+$containerType = $types->getContainerType($config->getVersion()->getName());
 if (null === $containerType) {
     throw new \RuntimeException(sprintf(
         'Unable to locate either "%s" or "%s" type',

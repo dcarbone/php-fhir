@@ -31,6 +31,7 @@ enum TypeKind: string
     case LIST = 'list';
 
     // complex types
+    case BASE = 'Base';
     case EXTENSION          = 'Extension';
     case ELEMENT            = 'Element';
     case BACKBONE_ELEMENT   = 'BackboneElement';
@@ -45,23 +46,83 @@ enum TypeKind: string
     // treated a bit different
     case PHPFHIR_XHTML = 'phpfhir_xhtml';
 
-    private const KNOWN_ROOTS = [
-        self::EXTENSION,
-        self::ELEMENT,
-        self::BACKBONE_ELEMENT,
-        self::RESOURCE,
-        self::RESOURCE_CONTAINER,
-        self::RESOURCE_INLINE,
+    private const VERSION_ROOT_KIND_MAP = [
+        // DSTU1 has everything stem from "Element", lots of weird logic around this.
+        'DSTU1' => [
+            self::ELEMENT,
+            self::RESOURCE_INLINE,
+        ],
+
+        'DSTU2' => [
+            self::ELEMENT,
+            self::RESOURCE,
+        ],
+        'STU3' => [
+            self::ELEMENT,
+            self::RESOURCE,
+        ],
+        'R4' => [
+            self::ELEMENT,
+            self::RESOURCE,
+        ],
+
+        'R5' => [
+            self::BASE,
+        ],
+    ];
+
+    private const VERSION_CONTAINER_KIND_MAP = [
+        'DSTU1' => self::RESOURCE_INLINE,
+        'DSTU2' => self::RESOURCE_CONTAINER,
+        'STU3' => self::RESOURCE_CONTAINER,
+        'R4' => self::RESOURCE_CONTAINER,
+        'R5' => self::RESOURCE_CONTAINER,
     ];
 
     /**
+     * Returns the list of known "root" types for the given FHIR spec version
+     *
+     * @param string $version
+     * @return \DCarbone\PHPFHIR\Enum\TypeKind[]
+     */
+    public static function versionRootTypes(string $version): array
+    {
+        return self::VERSION_ROOT_KIND_MAP[$version];
+    }
+
+    /**
+     * Returns the TypeKind for the provided FHIR version
+     *
+     * @param string $version
+     * @return \DCarbone\PHPFHIR\Enum\TypeKind
+     */
+    public static function versionContainerType(string $version): TypeKind
+    {
+        return self::VERSION_CONTAINER_KIND_MAP[$version];
+    }
+
+    /**
+     * Returns true if the provided FHIR type name is a "root" type from which other types extend.
+     *
+     * @param string $version
      * @param string $fhirName
      * @return bool
      */
-    public static function isKnownRoot(string $fhirName): bool
+    public static function isRootTypeName(string $version, string $fhirName): bool
     {
-        $rootStrings = array_map(function (TypeKind $tk): string { return $tk->value; }, self::KNOWN_ROOTS);
-        return in_array($fhirName, $rootStrings, true);
+        return in_array($fhirName, self::_rootTypesStrings($version), true);
+    }
+
+    /**
+     * Returns true if the provided FHIR type name is the "container" type for the provided version.
+     *
+     * @param string $version
+     * @param string $fhirName
+     * @return bool
+     */
+    public static function isContainerTypeName(string $version, string $fhirName): bool
+    {
+        return self::_containerTypeString($version) === $fhirName;
     }
 
     /**
@@ -78,5 +139,37 @@ enum TypeKind: string
         }
 
         return false;
+    }
+
+    /**
+     * Returns true if this is a "root" kind.
+     *
+     * @param string $version
+     * @return bool
+     */
+    public function isRoot(string $version): bool
+    {
+        return in_array($this, self::VERSION_ROOT_KIND_MAP[$version], true);
+    }
+
+    /**
+     * Returns true if this kind is the "container" kind for the provided FHIR version.
+     *
+     * @param string $version
+     * @return bool
+     */
+    public function isContainer(string $version): bool
+    {
+        return $this === self::VERSION_CONTAINER_KIND_MAP[$version];
+    }
+
+    private static function _rootTypesStrings(string $version): array
+    {
+        return array_map(function (TypeKind $tk): string { return $tk->value; }, self::VERSION_ROOT_KIND_MAP[$version]);
+    }
+
+    private static function _containerTypeString(string $version): string
+    {
+        return self::VERSION_CONTAINER_KIND_MAP[$version]->value;
     }
 }

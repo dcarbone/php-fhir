@@ -270,7 +270,7 @@ class TypeImports implements Iterator, Countable
             } else {
 
                 if ($ptk === TypeKind::PRIMITIVE_CONTAINER) {
-                    $primType = $propertyType->getProperties()->getProperty('value')->getValueFHIRType();
+                    $primType = $propertyType->getLocalProperties()->getProperty('value')->getValueFHIRType();
                     $this->addImport($primType->getClassName(), $primType->getFullyQualifiedNamespace(false));
                 }
 

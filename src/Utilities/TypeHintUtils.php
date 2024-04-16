@@ -115,7 +115,7 @@ abstract class TypeHintUtils
         if ($tk->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
             return sprintf(
                 '%s%s',
-                $nullable ? '?' : '',
+                $nullable ? 'null|' : '',
                 PHPFHIR_INTERFACE_CONTAINED_TYPE
             );
         }
@@ -123,7 +123,7 @@ abstract class TypeHintUtils
         // if we land here, use the value type's class
         return sprintf(
             '%s%s',
-            $nullable ? '?' : ':',
+            $nullable ? 'null|' : ':',
             $type->getClassName()
         );
     }
@@ -139,7 +139,7 @@ abstract class TypeHintUtils
         $types = ['null'];
 
         if ($tk === TypeKind::PRIMITIVE_CONTAINER) {
-            $pt = $type->getProperties()->getProperty('value')->getValueFHIRType();
+            $pt = $type->getLocalProperties()->getProperty('value')->getValueFHIRType();
             $types = array_merge($types, $pt->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
                 $types,
@@ -206,7 +206,7 @@ abstract class TypeHintUtils
     {
         // if this proprety is a collection, the type hint must be a potentially nullable array
         if ($property->isCollection()) {
-            return sprintf('%sarray', $nullable ? '?' : '');
+            return sprintf('%sarray', $nullable ? 'null|' : '');
         }
 
         // first, check to see if there is a FHIR type for this property value
@@ -257,7 +257,7 @@ abstract class TypeHintUtils
         $hintTypes = ['null'];
 
         if ($ptk === TypeKind::PRIMITIVE_CONTAINER) {
-            $ptp = $pt->getProperties()->getProperty('value')->getValueFHIRType();
+            $ptp = $pt->getLocalProperties()->getProperty('value')->getValueFHIRType();
             $hintTypes = array_merge($hintTypes, $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
                 $hintTypes,

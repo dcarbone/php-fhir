@@ -118,6 +118,6 @@ abstract class ChoiceElementElementPropertyDecorator
             }
         }
 
-        $type->getProperties()->addProperty($property);
+        $type->getLocalProperties()->addProperty($property);
     }
 }
