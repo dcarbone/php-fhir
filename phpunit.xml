@@ -52,5 +52,16 @@
         <testsuite name="R4-Integration">
             <directory>./output/HL7/FHIR/R4/PHPFHIRTests/Integration</directory>
         </testsuite>
+
+        <testsuite name="R5-Static">
+            <file>./output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
+            <file>./output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+        </testsuite>
+        <testsuite name="R5-Unit">
+            <directory>./output/HL7/FHIR/R5/PHPFHIRTests/Unit</directory>
+        </testsuite>
+        <testsuite name="R5-Integration">
+            <directory>./output/HL7/FHIR/R5/PHPFHIRTests/Integration</directory>
+        </testsuite>
     </testsuites>
 </phpunit>
