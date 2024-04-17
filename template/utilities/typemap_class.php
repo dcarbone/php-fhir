@@ -86,7 +86,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param string $typeName
      * @return string|null
      */
-    public static function getTypeClass(string $typeName): ?string
+    public static function getTypeClass(string $typeName): null|string
     {
         return self::TYPE_MAP[$typeName] ?? null;
     }
@@ -114,47 +114,33 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 
      * @return string|null Name of class as string or null if type is not contained in map
      */
-    public static function getContainedTypeClassName(string $typeName): ?string
+    public static function getContainedTypeClassName(string $typeName): null|string
     {
         return self::CONTAINABLE_TYPES[$typeName] ?? null;
     }
 
     /**
      * Will attempt to determine if the provided value is or describes a containable resource type
-     * @param object|string|array $type
+     * @param string|array|\DOMNode|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public static function isContainableResource($type): bool
+    public static function isContainableResource(string|array|\DOMNode|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool
     {
         $tt = gettype($type);
         if ('object' === $tt) {
             if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
                 return in_array('\\' . get_class($type), self::CONTAINABLE_TYPES, true);
             }
-            if ($type instanceof \DOMNode) {
-                return isset(self::CONTAINABLE_TYPES[$type->nodeName]);
-            }
-            throw new \InvalidArgumentException(sprintf(
-                'Expected "$type" to be instance of "<?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_TYPE; ?>" or "%s", saw "%s"',
-                '\\DOMNode',
-                get_class($type)
-            ));
+            return isset(self::CONTAINABLE_TYPES[$type->nodeName]);
         }
         if ('string' === $tt) {
             return isset(self::CONTAINABLE_TYPES[$type]) || in_array('\\' . ltrim($type, '\\'), self::CONTAINABLE_TYPES, true);
         }
-        if ('array' === $tt) {
-            if (isset($type[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-                return isset(self::CONTAINABLE_TYPES[$type[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]]);
-            }
-            return false;
+        if (isset($type[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
+            return isset(self::CONTAINABLE_TYPES[$type[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]]);
         }
-
-        throw new \InvalidArgumentException(sprintf(
-            'Unable to process input of type "%s"',
-            gettype($type)
-        ));
+        return false;
     }
 
     /**
@@ -177,7 +163,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param array|null $data
      * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
-    public static function getContainedTypeFromArray(?array $data): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+    public static function getContainedTypeFromArray(null|array $data): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 
     {
         if (null === $data || [] === $data) {
