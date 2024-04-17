@@ -77,6 +77,9 @@ endforeach; ?>
     public function testIsContainableResourceWithTypeName()
     {
 <?php foreach($types->getNameSortedIterator() as $type) :
+    if ($type->isAbstract()) {
+        continue;
+    }
     // TODO(@dcarbone): don't do this.
     if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
         continue;
@@ -92,6 +95,9 @@ endforeach; ?>
     public function testIsContainableResourceWithInstance()
     {
 <?php foreach($types->getNameSortedIterator() as $type) :
+    if ($type->isAbstract()) {
+        continue;
+    }
     // TODO(@dcarbone): don't do this.
     if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
         continue;
