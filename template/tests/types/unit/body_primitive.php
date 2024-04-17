@@ -26,7 +26,7 @@ $primitiveType = $type->getPrimitiveType();
 
 // TODO: more different types of strvals...
 $strVal = match ($primitiveType) {
-    PrimitiveType::INTEGER, PrimitiveType::POSITIVE_INTEGER => '10',
+    PrimitiveType::INTEGER, PrimitiveType::POSITIVE_INTEGER, PrimitiveType::INTEGER64 => '10',
     PrimitiveType::NEGATIVE_INTEGER => '-10',
     PrimitiveType::DECIMAL => '10.5',
     PrimitiveType::UNSIGNED_INTEGER => (string)PHP_INT_MAX,
