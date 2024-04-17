@@ -30,7 +30,7 @@ ob_start(); ?>
      * <?php echo $typeClassName; ?> Constructor
      * @param null|array $data
      */
-    public function __construct(?array $data = null)
+    public function __construct(null|array $data = null)
     {
         if (null === $data || [] === $data) {
             return;

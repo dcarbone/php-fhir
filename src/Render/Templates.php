@@ -121,7 +121,7 @@ abstract class Templates
      */
     public static function renderTypeClass(VersionConfig $config, Types $types, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'class.php';
+        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_default.php';
     }
 
     /**
@@ -130,9 +130,9 @@ abstract class Templates
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function renderRawTypeClass(VersionConfig $config, Types $types, Type $type): string
+    public static function renderXhtmlTypeClass(VersionConfig $config, Types $types, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'xhtml.php';
+        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_xhtml.php';
     }
 
     /**
@@ -194,6 +194,6 @@ abstract class Templates
      */
     public static function renderTypeTestClass(VersionConfig $config, Types $types, Type $type, string $testType): string
     {
-        return require PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR .'class.php';
+        return require PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR .'class_default.php';
     }
 }

@@ -95,14 +95,14 @@ class Builder
         foreach ($types->getIterator() as $type) {
             $log->debug("Generating class for type {$type}...");
 
-            // TODO: eventually merge "raw" into typical workflow?
+            // TODO(@dcarbone): revisit with template system refactor
             if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
-                $classDefinition = Templates::renderRawTypeClass($this->config, $types, $type);
+                $classDefinition = Templates::renderXhtmlTypeClass($this->config, $types, $type);
             } else {
                 $classDefinition = Templates::renderTypeClass($this->config, $types, $type);
             }
             $filepath = FileUtils::buildTypeFilePath($this->config, $type);
-            if (!(bool)file_put_contents($filepath, $classDefinition)) {
+            if (!file_put_contents($filepath, $classDefinition)) {
                 throw new RuntimeException(
                     sprintf(
                         'Unable to write Type %s class definition to file %s',
@@ -170,7 +170,7 @@ class Builder
                 $log->debug("Generated {$testType} test class for type {$type}...");
                 $classDefinition = Templates::renderTypeTestClass($this->config, $types, $type, $testType);
                 $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
-                if (!(bool)file_put_contents($filepath, $classDefinition)) {
+                if (false === file_put_contents($filepath, $classDefinition)) {
                     throw new RuntimeException(
                         sprintf(
                             'Unable to write Type %s class definition to file %s',

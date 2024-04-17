@@ -16,16 +16,22 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKind;
+
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
+
+$typeKind = $type->getKind();
 
 ob_start(); ?>
     /**
      * @param null|\DOMElement $element
      * @param null|int $libxmlOpts
-     * @return \DOMElement
-     * @throws \DOMException
+     * @return \DOMElement<?php if ($typeKind !== TypeKind::PRIMITIVE) : ?>
+
+     * @throws \DOMException<?php endif; ?>
+
      */
     public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
     {

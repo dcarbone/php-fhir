@@ -49,10 +49,14 @@ class Types implements Countable
     public function __construct(VersionConfig $config)
     {
         $this->config = $config;
-        $rt = new Type($config, PHPFHIR_XHTML_TYPE_NAME);
-        $rt->setKind(TypeKind::PHPFHIR_XHTML);
-        $rt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
-        $this->addType($rt);
+
+        // construct and add "XHTML" type
+        // TODO(dcarbone): this sucks.
+        $xt = new Type($config, PHPFHIR_XHTML_TYPE_NAME);
+        $xt->setKind(TypeKind::PHPFHIR_XHTML);
+        $xt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
+
+        $this->addType($xt);
     }
 
     /**

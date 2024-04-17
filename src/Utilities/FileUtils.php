@@ -50,7 +50,7 @@ abstract class FileUtils
                 $config->getLogger()->debug(sprintf('Directory at path "%s" already exists.', $path));
             } else {
                 $config->getLogger()->info(sprintf('Attempting to create directory at path "%s"...', $path));
-                if (!(bool)mkdir($path)) {
+                if (!mkdir($path)) {
                     $msg = 'Unable to create directory at path "' . $path . '"';
                     $config->getLogger()->critical($msg);
                     throw new RuntimeException($msg);

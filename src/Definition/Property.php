@@ -447,7 +447,7 @@ class Property
      */
     public function setOverloaded(bool $overloaded): Property
     {
-        $this->overloaded = (bool)$overloaded;
+        $this->overloaded = $overloaded;
         return $this;
     }
 
