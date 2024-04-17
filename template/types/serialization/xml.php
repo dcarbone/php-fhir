@@ -32,7 +32,7 @@ $properties = $type->getAllPropertiesIterator();
 
 ob_start();
 
-if (!$typeKind->isRoot($versionName)) : ?>
+if (!$type->isAbstract()) : ?>
     /**
      * @return string
      */

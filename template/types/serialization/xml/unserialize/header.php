@@ -50,7 +50,7 @@ ob_start(); ?>
         if (!($element instanceof \DOMElement)) {
             throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $node value must be null, \\DOMElement, or valid XML string, %s seen', is_object($element) ? get_class($element) : gettype($element)));
         }
-<?php if ($typeKind->isRoot($versionName)) : // root types may not be instantiated directly ?>
+<?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
             throw new \RuntimeException('<?php echo $typeClassName; ?>::xmlUnserialize: Cannot unserialize directly into root type');
         } else if (!($type instanceof <?php echo $typeClassName; ?>)) {

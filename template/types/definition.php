@@ -20,7 +20,6 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
-$isRoot = $type->getKind()->isRoot($config->getVersion()->getName());
 $interfaces = $type->getDirectlyImplementedInterfaces();
 $traits = $type->getDirectlyUsedTraits();
 
