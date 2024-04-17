@@ -311,7 +311,7 @@ class Type
      */
     public function getTestClassName(): string
     {
-        return "{$this->getClassName()}Test";
+        return sprintf('%sTest', $this->getClassName());
     }
 
     /**
@@ -799,6 +799,18 @@ class Type
     public function isCommentContainer(): bool
     {
         return $this->commentContainer;
+    }
+
+    /**
+     * Returns true if this class should be defined as abstract
+     *
+     * TODO(@dcarbone): this is a quick hack, find better implementation...
+     *
+     * @return bool
+     */
+    public function isAbstract(): bool
+    {
+        return $this->getFHIRName() === 'Base';
     }
 
     /**

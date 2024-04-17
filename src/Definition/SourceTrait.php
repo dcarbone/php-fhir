@@ -25,7 +25,7 @@ trait SourceTrait
      *
      * @var null|\SimpleXMLElement
      */
-    protected ?\SimpleXMLElement $sourceSXE;
+    protected null|\SimpleXMLElement $sourceSXE;
 
     /**
      * Name of file in definition this type was parsed from
@@ -36,7 +36,7 @@ trait SourceTrait
     /**
      * @return null|\SimpleXMLElement
      */
-    public function getSourceSXE(): ?\SimpleXMLElement
+    public function getSourceSXE(): null|\SimpleXMLElement
     {
         return $this->sourceSXE;
     }

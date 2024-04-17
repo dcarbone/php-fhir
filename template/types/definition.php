@@ -25,7 +25,7 @@ $interfaces = $type->getDirectlyImplementedInterfaces();
 $traits = $type->getDirectlyUsedTraits();
 
 ob_start(); ?>
-<?php if ($isRoot) : ?>abstract <?php endif; ?>class <?php echo $type->getClassName(); ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName(); endif; ?>
+<?php if ($type->isAbstract()) : ?>abstract <?php endif; ?>class <?php echo $type->getClassName(); ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName(); endif; ?>
 <?php if ([] !== $interfaces) : ?> implements <?php echo implode(', ', $interfaces); endif; ?>
 
 {<?php if ([] !== $traits) : ?>

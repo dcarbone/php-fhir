@@ -433,7 +433,7 @@ class Property
 
         if ($memberOf->isEnumerated()) {
             $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
-            foreach ($memberOf->getEnumeration() as $enum) {
+            foreach ($memberOf->getEnumeration()->getIterator() as $enum) {
                 $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
             }
         }

@@ -204,7 +204,7 @@ class Builder
             $this->log->startBreak('Prerender');
             $this->log->info('Compiling Copyrights...');
             CopyrightUtils::compileCopyrights($this->config);
-            $this->log->endBreak('Prerender Class Initialization');
+            $this->log->endBreak('Prerender');
             $this->preGenerationCompleted = true;
         }
     }
@@ -232,6 +232,7 @@ class Builder
     {
         $types = $this->definition->getTypes();
 
+        // Constants class
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -241,6 +242,7 @@ class Builder
             Templates::renderConstants($this->config, $types)
         );
 
+        // TypeMap class
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -250,6 +252,7 @@ class Builder
             Templates::renderTypeMapClass($this->config, $types)
         );
 
+        // Autoloader class
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -259,6 +262,7 @@ class Builder
             Templates::renderAutoloaderClass($this->config, $types)
         );
 
+        // FHIRType interface
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -268,6 +272,7 @@ class Builder
             Templates::renderPHPFHIRTypeInterface($this->config, $types)
         );
 
+        // ContainedType interface
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -277,6 +282,7 @@ class Builder
             Templates::renderPHPFHIRContainedTypeInterface($this->config, $types)
         );
 
+        // CommentContainer interface
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -286,6 +292,7 @@ class Builder
             Templates::renderPHPFHIRCommentContainerInterface($this->config, $types)
         );
 
+        // CommentContainer trait
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -295,6 +302,7 @@ class Builder
             Templates::renderPHPFHIRCommentContainerTrait($this->config, $types)
         );
 
+        // ValidationAssertions trait
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -304,6 +312,7 @@ class Builder
             Templates::renderPHPFHIRValidationAssertionsTrait($this->config, $types)
         );
 
+        // ChangeTracking trait
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -313,6 +322,7 @@ class Builder
             Templates::renderPHPFHIRChangeTrackingTrait($this->config, $types)
         );
 
+        // XMLNS trait
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -322,6 +332,7 @@ class Builder
             Templates::renderPHPFHIRXMLNamespaceTrait($this->config, $types)
         );
 
+        // ResponseParser config class
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
@@ -331,6 +342,7 @@ class Builder
             Templates::renderPHPFHIRResponseParserConfigClass($this->config, $types)
         );
 
+        // ResponseParser class
         $this->writeClassFile(
             FileUtils::buildGenericFilePath(
                 $this->config,
