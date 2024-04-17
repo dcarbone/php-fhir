@@ -153,11 +153,20 @@ class Builder
         if (null !== $this->config->getTestEndpoint()) {
             $testTypes[] = PHPFHIR_TEST_TYPE_INTEGRATION;
         }
-        foreach ($testTypes as $testType) {
-            foreach ($types->getIterator() as $type) {
+        foreach ($types->getIterator() as $type) {
+
+            // skip "abstract" types
+            if ($type->isAbstract()) {
+                continue;
+            }
+
+            foreach ($testTypes as $testType) {
+                // skip domain resources
+                // TODO(@dcarbone): why did you do this.
                 if (PHPFHIR_TEST_TYPE_INTEGRATION === $testType && !$type->isDomainResource()) {
                     continue;
                 }
+
                 $log->debug("Generated {$testType} test class for type {$type}...");
                 $classDefinition = Templates::renderTypeTestClass($this->config, $types, $type, $testType);
                 $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
