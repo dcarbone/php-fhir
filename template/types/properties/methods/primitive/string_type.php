@@ -27,7 +27,7 @@ ob_start(); ?>
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      * @return static
      */
-    public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value): self
+    public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type, true); ?> $value): self
     {
         if (null === $value) {
             $this->value = null;

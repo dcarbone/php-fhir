@@ -133,10 +133,10 @@ abstract class TypeHintUtils
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return string
      */
-    public static function typeSetterTypeHint(VersionConfig $config, Type $type): string
+    public static function typeSetterTypeHint(VersionConfig $config, Type $type, bool $nullable): string
     {
         $tk = $type->getKind();
-        $types = ['null'];
+        $types = $nullable ? ['null'] : [];
 
         if ($tk === TypeKind::PRIMITIVE_CONTAINER) {
             $pt = $type->getLocalProperties()->getProperty('value')->getValueFHIRType();
@@ -279,12 +279,12 @@ abstract class TypeHintUtils
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @return string
      */
-    public static function propertySetterTypeHint(VersionConfig $config, Property $property): string
+    public static function propertySetterTypeHint(VersionConfig $config, Property $property, bool $nullable): string
     {
         $pt = $property->getValueFHIRType();
         $ptk = $pt->getKind();
 
-        $hint = self::typeSetterTypeHint($config, $pt);
+        $hint = self::typeSetterTypeHint($config, $pt, $nullable);
 
         if ($ptk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
             return sprintf('%s|%s', $hint, $pt->getClassName());

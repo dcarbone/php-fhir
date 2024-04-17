@@ -68,7 +68,7 @@ ob_start(); ?>
      * <?php echo $type->getClassName(); ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      */
-    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value = null)
+    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type, true); ?> $value = null)
     {
         $this->setValue($value);
     }

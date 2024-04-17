@@ -42,14 +42,9 @@ ob_start();
 
      * @return static
      */
-    public function <?php echo $methodName; ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property); ?> $<?php echo $property; ?> = null): self
+    public function <?php echo $methodName; ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null): self
     {
-        if (null === $<?php echo $propertyName; ?>) {
-            $this-><?php echo $propertyName; ?> = null;
-            $this->_trackValuesRemoved(1);
-            return $this;
-        }
-        if (!($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
+        if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         }
         <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);

@@ -37,9 +37,9 @@ $typeImports = $type->getImports();
 ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::typeSetterTypeHint($config, $valuePropertyType); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
+     * @param <?php echo TypeHintUtils::typeSetterTypeHint($config, $valuePropertyType, true); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
      */
-    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty); ?>|array $data = null)
+    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, true); ?>|array $data = null)
     {
         if (null === $data) {
             return;

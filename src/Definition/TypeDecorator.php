@@ -337,9 +337,16 @@ abstract class TypeDecorator
             return;
         }
 
-        // this is a catchall that may bomb if we encounter new stuff
-        $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKind::PHPFHIR_XHTML->value));
-        self::setTypeKind($config, $types, $type, TypeKind::PHPFHIR_XHTML);
+        // special block for xhtml type
+        if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
+            $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKind::PHPFHIR_XHTML->value));
+            self::setTypeKind($config, $types, $type, TypeKind::PHPFHIR_XHTML);
+            return;
+        }
+
+        // otherwise, set kind to that of its parent
+        $logger->debug(sprintf('Setting Type "%s" kind to it parent ("%s")', $type->getFHIRName(), $rootType->getKind()->value));
+        self::setTypeKind($config, $types, $type, $rootType->getKind());
     }
 
     /**

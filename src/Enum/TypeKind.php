@@ -34,6 +34,7 @@ enum TypeKind: string
     case BASE = 'Base';
     case EXTENSION          = 'Extension';
     case ELEMENT            = 'Element';
+    case BINARY             = 'Binary';
     case BACKBONE_ELEMENT   = 'BackboneElement';
     case RESOURCE           = 'Resource';
     case RESOURCE_CONTAINER = 'ResourceContainer';
@@ -49,6 +50,7 @@ enum TypeKind: string
     private const VERSION_ROOT_KIND_MAP = [
         // DSTU1 has everything stem from "Element", lots of weird logic around this.
         'DSTU1' => [
+            self::BINARY,
             self::ELEMENT,
             self::RESOURCE_INLINE,
         ],
@@ -139,17 +141,6 @@ enum TypeKind: string
         }
 
         return false;
-    }
-
-    /**
-     * Returns true if this is a "root" kind.
-     *
-     * @param string $version
-     * @return bool
-     */
-    public function isRoot(string $version): bool
-    {
-        return in_array($this, self::VERSION_ROOT_KIND_MAP[$version], true);
     }
 
     /**

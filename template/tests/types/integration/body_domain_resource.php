@@ -67,7 +67,7 @@ ob_start(); ?>
         if (0 !== $code) {
             foreach($output as $line) {
                 foreach(self::IGNORE_ERRS as $ignoreMe) {
-                    if (false !== strpos($line, $ignoreMe)) {
+                    if (str_contains($line, $ignoreMe)) {
                         $onlyWarn = true;
                         break;
                     }
@@ -109,7 +109,7 @@ ob_start(); ?>
      * @param bool $asArray
      * @return mixed
      */
-    protected function decodeJSON(string $sourceJSON, bool $asArray)
+    protected function decodeJSON(string $sourceJSON, bool $asArray): mixed
     {
         $this->assertJson($sourceJSON);
         $decoded = json_decode($sourceJSON, $asArray);
@@ -150,7 +150,6 @@ ob_start(); ?>
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any "<?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
                 $sourceXML
             ));
-            return;
         }
 <?php if ($bundleEntryProperty->isCollection()) : ?>
         $this->assertCount(1, $entry);
@@ -207,7 +206,6 @@ ob_start(); ?>
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
             ));
-            return;
         }
 
         $reEncoded = json_encode($bundle);
@@ -253,7 +251,6 @@ ob_start(); ?>
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned XML: %s)',
                 $sourceXML
             ));
-            return;
         }
         $errs = $bundle->_getValidationErrors();
         try {
@@ -290,7 +287,6 @@ ob_start(); ?>
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
             ));
-            return;
         }
         $errs = $bundle->_getValidationErrors();
         try {
@@ -326,7 +322,6 @@ ob_start(); ?>
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
                 $sourceXML
             ));
-            return;
         }
 <?php if ($bundleEntryProperty->isCollection()) : ?>
         $resource = $entry[0]->getResource();
@@ -384,7 +379,6 @@ ob_start(); ?>
                 'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
             ));
-            return;
         }
 <?php if ($bundleEntryProperty->isCollection()) : ?>
         $resource = $entry[0]->getResource();
