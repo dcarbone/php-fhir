@@ -87,7 +87,7 @@ class Builder
 
         $definition = $this->getDefinition();
 
-        $this->renderStaticClasses();
+        $this->renderPhpFhirTypes();
 
         $types = $definition->getTypes();
 
@@ -200,7 +200,7 @@ class Builder
             $this->renderTestClasses();
         }
 
-        $this->renderStaticClasses();
+        $this->renderPhpFhirTypes();
     }
 
     /**
@@ -237,7 +237,7 @@ class Builder
         $this->log->debug(sprintf('%d bytes written to file %s', $b, $filePath));
     }
 
-    protected function renderStaticClasses(): void
+    protected function renderPhpFhirTypes(): void
     {
         $types = $this->definition->getTypes();
 
@@ -278,7 +278,17 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_INTERFACE_TYPE
             ),
-            Templates::renderPHPFHIRTypeInterface($this->config, $types)
+            Templates::renderPhpFhirTypeInterface($this->config, $types)
+        );
+
+        // XmlSerialize interface
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                PHPFHIR_INTERFACE_XML_SERIALIZABLE
+            ),
+            Templates::renderPhpFhirXmlSerializableInterface($this->config, $types)
         );
 
         // ContainedType interface
@@ -288,7 +298,7 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_INTERFACE_CONTAINED_TYPE
             ),
-            Templates::renderPHPFHIRContainedTypeInterface($this->config, $types)
+            Templates::renderPhpFhirContainedTypeInterface($this->config, $types)
         );
 
         // CommentContainer interface
@@ -298,7 +308,7 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_INTERFACE_COMMENT_CONTAINER
             ),
-            Templates::renderPHPFHIRCommentContainerInterface($this->config, $types)
+            Templates::renderPhpFhirCommentContainerInterface($this->config, $types)
         );
 
         // CommentContainer trait
@@ -308,7 +318,7 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_TRAIT_COMMENT_CONTAINER
             ),
-            Templates::renderPHPFHIRCommentContainerTrait($this->config, $types)
+            Templates::renderPhpFhirCommentContainerTrait($this->config, $types)
         );
 
         // ValidationAssertions trait
@@ -318,7 +328,7 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_TRAIT_VALIDATION_ASSERTIONS
             ),
-            Templates::renderPHPFHIRValidationAssertionsTrait($this->config, $types)
+            Templates::renderPhpFhirValidationAssertionsTrait($this->config, $types)
         );
 
         // ChangeTracking trait
@@ -328,7 +338,7 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_TRAIT_CHANGE_TRACKING
             ),
-            Templates::renderPHPFHIRChangeTrackingTrait($this->config, $types)
+            Templates::renderPhpFhirChangeTrackingTrait($this->config, $types)
         );
 
         // XMLNS trait
@@ -338,7 +348,7 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_TRAIT_XMLNS
             ),
-            Templates::renderPHPFHIRXMLNamespaceTrait($this->config, $types)
+            Templates::renderPhpFhirXhtmlNamespaceTrait($this->config, $types)
         );
 
         // ResponseParser config class
@@ -348,7 +358,7 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG
             ),
-            Templates::renderPHPFHIRResponseParserConfigClass($this->config, $types)
+            Templates::renderPhpFhirResponseParserConfigClass($this->config, $types)
         );
 
         // ResponseParser class
@@ -358,7 +368,7 @@ class Builder
                 $this->config->getNamespace(true),
                 PHPFHIR_CLASSNAME_RESPONSE_PARSER
             ),
-            Templates::renderPHPFHIRResponseParserClass($this->config, $types)
+            Templates::renderPhpFhirResponseParserClass($this->config, $types)
         );
     }
 }

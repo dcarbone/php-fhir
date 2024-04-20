@@ -41,31 +41,14 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
+interface <?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
+{
     /**
      * Returns the FHIR name represented by this Type
      * @return string
      */
     public function _getFHIRTypeName(): string;
-
-    /**
-     * Returns the xml namespace to use for this type when serializing to XML, if applicable.
-     * @return string
-     */
-    public function _getFHIRXMLNamespace(): string;
-
-    /**
-     * Set the XML Namespace to be output when serializing this type to XML
-     * @param string $xmlNamespace
-     * @return static
-     */
-    public function _setFHIRXMLNamespace(string $xmlNamespace): self;
-
-    /**
-     * Returns the base xml element definition for this type
-     * @return string
-     */
-    public function _getFHIRXMLElementDefinition(): string;
 
     /**
      * Must return an associative array in structure ["field" => ["rule" => {constraint}]] to be used during validation
@@ -85,21 +68,6 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable {
      * @return bool
      */
     public function _isValued(): bool;
-
-    /**
-     * @param \DOMElement|string|null $element
-     * @param null|static $type
-     * @param null|int $libxmlOpts
-     * @return null|static
-     */
-    public static function xmlUnserialize(null|string|\DOMElement $element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): ?self;
-
-    /**
-     * @param \DOMElement|null $element
-     * @param null|int $libxmlOpts
-     * @return string|\DOMElement
-     */
-    public function xmlSerialize(null|\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): string|\DOMElement;
 
     /**
      * @return string

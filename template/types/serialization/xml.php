@@ -32,23 +32,6 @@ $properties = $type->getAllPropertiesIterator();
 
 ob_start();
 
-if (!$type->isAbstract()) : ?>
-    /**
-     * @return string
-     */
-    public function _getFHIRXMLElementDefinition(): string
-    {
-        $xmlns = $this->_getFHIRXMLNamespace();
-        if ('' !==  $xmlns) {
-            $xmlns = " xmlns=\"{$xmlns}\"";
-        }
-        return "<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>";
-    }
-
-<?php
-
-endif;
-
 // unserialize portion
 echo require_with(
         PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
@@ -78,7 +61,7 @@ endif;
 <?php
 // serialize portion
 // ResourceContainer and Resource.Inline types have their own special xml serialization mechanism
-if ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
+if ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) {
     echo require_with(
             PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'resource_container.php',
             [
@@ -86,7 +69,7 @@ if ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE))
                 'type' => $type,
             ]
     );
-else :
+} else {
     // everything else shares a common header
     // header is always output as it is what creates the simplexml instance
     echo require_with(
@@ -98,7 +81,7 @@ else :
         ]
     );
 
-    if (0 < count($localProperties)) :
+    if (0 < count($localProperties)) {
         echo require_with(
             PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'body.php',
             [
@@ -108,8 +91,8 @@ else :
                 'localProperties' => $localProperties,
             ]
         );
-    endif;
-endif; ?>
+    }
+} ?>
         return $element;
     }
 <?php return ob_get_clean();

@@ -751,6 +751,11 @@ class Type
         $interfaces = [];
         $parentType = $this->getParentType();
 
+        if (!$this->isAbstract()) {
+            // always add xml serializable interface to all non-abstract types
+            $interfaces[] = PHPFHIR_INTERFACE_XML_SERIALIZABLE;
+        }
+
         if (null === $parentType) {
             if ($this->isCommentContainer()) {
                 $interfaces[] = PHPFHIR_INTERFACE_COMMENT_CONTAINER;
@@ -846,6 +851,23 @@ class Type
     public function isAbstract(): bool
     {
         return $this->getFHIRName() === 'Base';
+    }
+
+    /**
+     * Returns true if this type has a concrete parent
+     *
+     * @return bool
+     */
+    public function hasConcreteParent(): bool
+    {
+        $p = $this->getParentType();
+        while ($p !== null) {
+            if (!$p->isAbstract()) {
+                return true;
+            }
+            $p = $p->getParentType();
+        }
+        return false;
     }
 
     /**

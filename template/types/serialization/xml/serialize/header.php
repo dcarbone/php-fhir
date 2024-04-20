@@ -17,12 +17,14 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
 $typeKind = $type->getKind();
+$xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start(); ?>
     /**
@@ -37,10 +39,8 @@ ob_start(); ?>
     {
         if (null === $element) {
             $dom = new \DOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition(), $libxmlOpts);
+            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
             $element = $dom->documentElement;
-        } elseif (null === $element->namespaceURI && '' !== ($xmlns = $this->_getFHIRXMLNamespace())) {
-            $element->setAttribute('xmlns', $xmlns);
         }
 <?php if ($type->hasParentWithLocalProperties()) : ?>
         parent::xmlSerialize($element);

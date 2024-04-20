@@ -34,7 +34,8 @@ if ($property->isCollection()) : ?>
                 $e2->appendChild($e3);
                 $v->xmlSerialize($e3);
             }
-        }<?php else : ?>
+        }
+<?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
             $e2 = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
             $element->appendChild($e2);

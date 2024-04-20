@@ -187,7 +187,7 @@ class TypeImports implements Iterator, Countable
      */
     private function addImport(string $classname, string $namespace): void
     {
-        $requiresImport = $namespace !== $this->type->getFullyQualifiedNamespace(false);
+        $requiresImport = !str_starts_with($classname, '\\') && $namespace !== $this->type->getFullyQualifiedNamespace(false);
         if (isset($this->imports[$classname])) {
             // if we have already seen this type, move on.
             if ($this->imports[$classname]->getNamespace() === $namespace) {

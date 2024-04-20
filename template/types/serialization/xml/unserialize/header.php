@@ -32,8 +32,7 @@ ob_start(); ?>
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\DOMElement $element = null, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
-
+    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): null|self
     {
         if (null === $element) {
             return null;
@@ -46,9 +45,6 @@ ob_start(); ?>
             }
             libxml_use_internal_errors(false);
             $element = $dom->documentElement;
-        }
-        if (!($element instanceof \DOMElement)) {
-            throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $node value must be null, \\DOMElement, or valid XML string, %s seen', is_object($element) ? get_class($element) : gettype($element)));
         }
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {

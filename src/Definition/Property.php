@@ -398,7 +398,7 @@ class Property
      */
     public function getGetterName(): string
     {
-        return 'get' . ucfirst($this->getName());
+        return sprintf('get%s', ucfirst($this->getName()));
     }
 
     /**

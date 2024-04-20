@@ -52,39 +52,106 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $type->getClassName(); ?>
+class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE ?>, \JsonSerializable
 {
-    use <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>;
+    use <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>,
+        <?php echo PHPFHIR_TRAIT_XMLNS; ?>;
 
-    /** @var null|string */
-    private null|string $_data = null;
+    /** @var null|\DOMNode */
+    private null|\DOMNode $_node = null;
 
     /**
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
-     * @param null|string $data
+     * @param null|string|\DOMNode $node
      */
-    public function __construct(null|string $data = null)
+    public function __construct(null|string|\DOMNode $node = null)
     {
-        $this->setData($data);
+        $this->setNode($node);
     }
 
     /**
-     * @return null|string
+     * @return null|\DOMNode
      */
-    public function getData(): null|string
+    public function getNode(): null|\DOMNode
     {
-        return $this->_data;
+        return $this->_node;
     }
 
     /**
-     * @param null|string $data
+     * @param null|string|\DOMNode $node
      * @return static
      */
-    public function setData(null|string $data): self
+    public function setNode(null|string|\DOMNode $node): self
     {
-        $this->_trackValueSet($this->_data, $data);
-        $this->_data = $data;
+        if (null === $node) {
+            $newNode = null;
+        } else if (is_string($node)) {
+            $dom = new \DOMDocument();
+            $dom->loadHTML($node);
+            $newNode = $dom->documentElement;
+        } else if ($node instanceof \DOMDocument) {
+            $dom = new \DOMDocument();
+            $dom->appendChild($dom->importNode($node->documentElement, true));
+            $newNode = $dom->documentElement;
+        } else {
+            $dom = new \DOMDocument();
+            $dom->appendChild($dom->importNode($node, true));
+            $newNode = $dom->documentElement;
+        }
+        $this->_trackValueSet($this->_node, $newNode);
+        $this->_node = $newNode;
         return $this;
+    }
+
+<?php
+// unserialize portion
+echo require_with(
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
+    [
+        'config' => $config,
+        'type' => $type,
+        'typeKind' => $type->getKind(),
+        'parentType' => null,
+        'typeClassName' => $type->getClassName()
+    ]
+);
+?>
+        $type->setNode($element);
+        return $type;
+    }
+
+    /**
+     * @param \DOMElement|null $element
+     * @param null|int $libxmlOpts
+     * @return \DOMElement
+     */
+    public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
+    {
+        if (null === $element) {
+            $dom = new \DOMDocument();
+            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
+            $element = $dom->documentElement;
+        }
+        $node = $this->getNode();
+        if (null === $node) {
+            return $element;
+        }
+        for ($i = 0; $i < $node->childNodes->length; $i++) {
+            $element->appendChild($element->ownerDocument->importNode($node->childNodes->item($i)));
+        }
+        return $element;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function jsonSerialize(): mixed
+    {
+        $node = $this->getNode();
+        if (null === $node) {
+            return null;
+        }
+        return $node->ownerDocument->saveXML($node);
     }
 
     /**
@@ -92,6 +159,6 @@ class <?php echo $type->getClassName(); ?>
      */
     public function __toString(): string
     {
-        return $this->_data ?? '';
+        return $this->jsonSerialize() ?? '';
     }
 }<?php return ob_get_clean();

@@ -31,22 +31,31 @@ $requireArgs = [
 
 ob_start();
 
-if ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
-    echo require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_typed_resource_container.php',
+echo match ($propertyTypeKind) {
+    TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE => require_with(
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed_resource_container.php',
         $requireArgs + [
             'property' => $property,
             'i' => $i,
         ]
-    );
-else :
-    echo require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_typed_default.php',
+    ),
+
+    TypeKind::PHPFHIR_XHTML => require_with(
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed_xhtml.php',
         $requireArgs + [
             'property' => $property,
             'i' => $i,
         ]
-    );
-endif;
+    ),
+
+    default => require_with(
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed_default.php',
+        $requireArgs + [
+            'property' => $property,
+            'i' => $i,
+        ]
+    )
+};
+
 
 return ob_get_clean();
