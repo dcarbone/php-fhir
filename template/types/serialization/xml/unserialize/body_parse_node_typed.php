@@ -40,13 +40,13 @@ echo match ($propertyTypeKind) {
         ]
     ),
 
-    TypeKind::PHPFHIR_XHTML => require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed_xhtml.php',
-        $requireArgs + [
-            'property' => $property,
-            'i' => $i,
-        ]
-    ),
+//    TypeKind::PHPFHIR_XHTML => require_with(
+//        __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed_xhtml.php',
+//        $requireArgs + [
+//            'property' => $property,
+//            'i' => $i,
+//        ]
+//    ),
 
     default => require_with(
         __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed_default.php',
