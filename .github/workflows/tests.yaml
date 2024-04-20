@@ -32,7 +32,7 @@ jobs:
       fail-fast: false
       matrix:
         php-version: [ '8.1', '8.2', '8.3' ]
-        fhir-version: ['DSTU1', 'DSTU2', 'STU3', 'R4']
+        fhir-version: [ 'DSTU1', 'DSTU2', 'STU3', 'R4', 'R5' ]
         include:
           - php-version: '8.1'
             phpunit-version: '10.5'

@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 $namespace = $config->getNamespace(false);
 
-$containerType = $types->getContainerType();
+$containerType = $types->getContainerType($config->getVersion()->getName());
 if (null === $containerType) {
     throw new \RuntimeException(sprintf(
         'Unable to locate either "%s" or "%s" type',
@@ -54,7 +54,9 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?> {
+interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>, <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE ?>
+
+{
     /**
      * The return from this method is used only when json serializing this type
      * @return string

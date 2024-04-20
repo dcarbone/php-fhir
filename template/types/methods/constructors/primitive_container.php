@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
-$valueProperty = $type->getProperties()->getProperty('value');
+$valueProperty = $type->getLocalProperties()->getProperty('value');
 if (null === $valueProperty) {
     throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
 }
@@ -37,19 +37,15 @@ $typeImports = $type->getImports();
 ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::typeSetterTypeHint($config, $valuePropertyType); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
+     * @param <?php echo TypeHintUtils::typeSetterTypeHint($config, $valuePropertyType, true); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
      */
-    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty); ?>|array $data = null)
+    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, true); ?>|array $data = null)
     {
         if (null === $data) {
             return;
         }
-        if ($data instanceof <?php echo $typeImports->getImportByType($valuePropertyType); ?>) {
+        if (is_scalar($data) || $data instanceof <?php echo $typeImports->getImportByType($valuePropertyType); ?>) {
             $this->setValue($data);
-            return;
-        }
-        if (is_scalar($data)) {
-            $this->setValue(new <?php echo $typeImports->getImportByType($valuePropertyType); ?>($data));
             return;
         }<?php if ($parentType) : ?>
 

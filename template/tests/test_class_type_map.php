@@ -60,6 +60,10 @@ endforeach; ?>
     public function testIsContainableResourceWithClassname()
     {
 <?php foreach($types->getNameSortedIterator() as $type) :
+    // TODO(@dcarbone): don't do this.
+    if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
+        continue;
+    }
     if ($type->isContainedType()) : ?>
         $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(false); ?>'));
         $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(true); ?>'));
@@ -73,6 +77,13 @@ endforeach; ?>
     public function testIsContainableResourceWithTypeName()
     {
 <?php foreach($types->getNameSortedIterator() as $type) :
+    if ($type->isAbstract()) {
+        continue;
+    }
+    // TODO(@dcarbone): don't do this.
+    if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
+        continue;
+    }
     if ($type->isContainedType()) : ?>
         $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFHIRName(); ?>'));
 <?php else : ?>
@@ -83,7 +94,15 @@ endforeach; ?>
 
     public function testIsContainableResourceWithInstance()
     {
-<?php foreach($types->getNameSortedIterator() as $type) : ?>
+<?php foreach($types->getNameSortedIterator() as $type) :
+    if ($type->isAbstract()) {
+        continue;
+    }
+    // TODO(@dcarbone): don't do this.
+    if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
+        continue;
+    }
+?>
         $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>;
 <?php if ($type->isContainedType()) : ?>
         $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource($type));

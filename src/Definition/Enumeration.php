@@ -22,7 +22,7 @@ namespace DCarbone\PHPFHIR\Definition;
  * Class Enumeration
  * @package DCarbone\PHPFHIR\Definition
  */
-class Enumeration implements \Iterator, \Countable
+class Enumeration implements \Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\EnumerationValue[] */
     private array $values = [];
@@ -67,37 +67,11 @@ class Enumeration implements \Iterator, \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Definition\EnumerationValue|false
+     * @return \DCarbone\PHPFHIR\Definition\EnumerationValue[]
      */
-    public function current(): bool|EnumerationValue
+    public function getIterator(): iterable
     {
-        return current($this->values);
-    }
-
-    public function next(): void
-    {
-        next($this->values);
-    }
-
-    /**
-     * @return int|null
-     */
-    public function key(): ?int
-    {
-        return key($this->values);
-    }
-
-    /**
-     * @return bool
-     */
-    public function valid(): bool
-    {
-        return null !== key($this->values);
-    }
-
-    public function rewind(): void
-    {
-        reset($this->values);
+        return \SplFixedArray::fromArray($this->values);
     }
 
     /**

@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
@@ -24,29 +25,28 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
 $typeClassName = $type->getClassName();
+$valueProperty = null;
+if ($type->isValueContainer()) {
+    $valueProperty = $type->getLocalProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+}
 
 ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|array $data
+     * @param null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, false); endif; ?> $data
+
      */
-    public function __construct(?array $data = null)
+    public function __construct(null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, false); endif; ?> $data = null)
     {
-        if (null === $data || [] === $data) {
+        if (null === $data|| [] === $data) {
             return;
         }
-        if (!is_array($data)) {
 <?php if ($type->isValueContainer()) : ?>
+        if (!is_array($data)) {
             $this->setValue($data);
             return;
-<?php else : ?>
-            throw new \InvalidArgumentException(sprintf(
-                '<?php echo $typeClassName; ?>::__construct - $data expected to be null or array, %s seen',
-                gettype($data)
-            ));
-<?php endif; ?>
-        }<?php if ($parentType) : // add parent constructor call ?>
-
+        }
+<?php endif; if ($type->hasParentWithLocalProperties()) : // add parent constructor call ?>
         parent::__construct($data);<?php endif; ?><?php if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : // only parse comments if parent isn't already doing it. ?>
 
         if (isset($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {

@@ -22,6 +22,8 @@
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
+$versionName = $config->getVersion()->getName();
+
 ob_start(); ?>
     /**
      * @param null|string|\DOMElement $element
@@ -30,8 +32,7 @@ ob_start(); ?>
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\DOMElement $element = null, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
-
+    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): null|self
     {
         if (null === $element) {
             return null;
@@ -45,17 +46,25 @@ ob_start(); ?>
             libxml_use_internal_errors(false);
             $element = $dom->documentElement;
         }
-        if (!($element instanceof \DOMElement)) {
-            throw new \InvalidArgumentException(sprintf('<?php echo $typeClassName?>::xmlUnserialize - $node value must be null, \\DOMElement, or valid XML string, %s seen', is_object($element) ? get_class($element) : gettype($element)));
-        }
+<?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
-            $type = new <?php echo $typeClassName; ?>(null);
-        } elseif (!is_object($type) || !($type instanceof <?php echo $typeClassName; ?>)) {
+            throw new \RuntimeException('<?php echo $typeClassName; ?>::xmlUnserialize: Cannot unserialize directly into root type');
+        } else if (!($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
-                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
-                is_object($type) ? get_class($type) : gettype($type)
+                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be child instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
+                get_class($type)
             ));
         }
+<?php else : ?>
+        if (null === $type) {
+            $type = new <?php echo $typeClassName; ?>(null);
+        } else if (!($type instanceof <?php echo $typeClassName; ?>)) {
+            throw new \RuntimeException(sprintf(
+                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
+                get_class($type)
+            ));
+        }
+<?php endif; ?>
         if ('' === $type->_getFHIRXMLNamespace() && (null === $element->parentNode || $element->namespaceURI !== $element->parentNode->namespaceURI)) {
             $type->_setFHIRXMLNamespace($element->namespaceURI);
         }

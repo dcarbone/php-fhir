@@ -41,7 +41,7 @@ ob_start(); ?>
 
      * @return static
      */
-    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo TypeHintUtils::typeSetterTypeHint($config, $propertyType); ?> $<?php echo $propertyName; ?> = null): self
+    public function <?php echo $isCollection ? 'add' : 'set'; ?><?php echo ucfirst($propertyName); ?>(<?php echo TypeHintUtils::typeSetterTypeHint($config, $propertyType, true); ?> $<?php echo $propertyName; ?> = null): self
     {
         if (null === $<?php echo $propertyName; ?>) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>();

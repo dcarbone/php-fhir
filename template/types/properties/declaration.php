@@ -35,5 +35,4 @@ ob_start(); ?>
 
      */
     protected <?php echo TypeHintUtils::propertyTypeHint($config, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
-
 <?php return ob_get_clean();

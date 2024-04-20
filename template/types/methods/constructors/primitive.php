@@ -25,7 +25,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 $typeClassName = $type->getClassName();
 $primitiveType = $type->getPrimitiveType();
-$valueProperty = $type->getProperties()->getProperty('value');
+$valueProperty = $type->getLocalProperties()->getProperty('value');
 
 if (null !== $parentType) {
     // if this is a primitive that inherits from a parent primitive, there is no reason to define a constructor here.
@@ -68,7 +68,7 @@ ob_start(); ?>
      * <?php echo $type->getClassName(); ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      */
-    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type); ?> $value = null)
+    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($config, $type, true); ?> $value = null)
     {
         $this->setValue($value);
     }

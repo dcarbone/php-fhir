@@ -398,7 +398,7 @@ class Property
      */
     public function getGetterName(): string
     {
-        return 'get' . ucfirst($this->getName());
+        return sprintf('get%s', ucfirst($this->getName()));
     }
 
     /**
@@ -433,7 +433,7 @@ class Property
 
         if ($memberOf->isEnumerated()) {
             $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
-            foreach ($memberOf->getEnumeration() as $enum) {
+            foreach ($memberOf->getEnumeration()->getIterator() as $enum) {
                 $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
             }
         }
@@ -447,7 +447,7 @@ class Property
      */
     public function setOverloaded(bool $overloaded): Property
     {
-        $this->overloaded = (bool)$overloaded;
+        $this->overloaded = $overloaded;
         return $this;
     }
 

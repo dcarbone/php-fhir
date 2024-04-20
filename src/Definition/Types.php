@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use ArrayIterator;
 use Countable;
+use DCarbone\PHPFHIR\Config\Version;
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
@@ -41,14 +42,6 @@ class Types implements Countable
      */
     private Type $containerType;
 
-    private const _CONTAINED_IGNORED_TYPES = [
-        TypeKind::RESOURCE_INLINE,
-        TypeKind::RESOURCE_CONTAINER,
-        TypeKind::LIST,
-        TypeKind::PRIMITIVE,
-        TypeKind::PRIMITIVE_CONTAINER,
-    ];
-
     /**
      * FHIRTypes constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -56,10 +49,14 @@ class Types implements Countable
     public function __construct(VersionConfig $config)
     {
         $this->config = $config;
-        $rt = new Type($config, PHPFHIR_XHTML_TYPE_NAME);
-        $rt->setKind(TypeKind::PHPFHIR_XHTML);
-        $rt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
-        $this->addType($rt);
+
+        // construct and add "XHTML" type
+        // TODO(dcarbone): this sucks.
+        $xt = new Type($config, PHPFHIR_XHTML_TYPE_NAME);
+        $xt->setKind(TypeKind::PHPFHIR_XHTML);
+        $xt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
+
+        $this->addType($xt);
     }
 
     /**
@@ -188,14 +185,20 @@ class Types implements Countable
     }
 
     /**
+     * Returns the "container" type used by this particular FHIR spec version.
+     *
+     * Should be either "Resource.Inline" or "ResourceContainer" types.
+     *
+     * @param string $version
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getContainerType(): ?Type
+    public function getContainerType(string $version): ?Type
     {
         if (!isset($this->containerType)) {
             foreach ($this->types as $type) {
-                if ($type->getKind()->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
+                if ($type->getKind()->isContainer($version)) {
                     $this->containerType = $type;
+                    break;
                 }
             }
         }
@@ -203,20 +206,21 @@ class Types implements Countable
     }
 
     /**
+     * @param string $version
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @return bool
      */
-    public function isContainedType(Type $type): bool
+    public function isContainedType(string $version, Type $type): bool
     {
         // only bother with actual Resource types.
-        if ($type->getKind()->isOneOf(...self::_CONTAINED_IGNORED_TYPES)) {
+        if ($type->getKind()->isContainer($version)) {
             return false;
         }
-        $container = $this->getContainerType();
+        $container = $this->getContainerType($version);
         if (null === $container) {
             return false;
         }
-        foreach ($container->getProperties()->allPropertiesIterator() as $property) {
+        foreach ($container->getLocalProperties()->allPropertiesIterator() as $property) {
             if (($ptype = $property->getValueFHIRType()) && $ptype->getFHIRName() === $type->getFHIRName()) {
                 return true;
             }

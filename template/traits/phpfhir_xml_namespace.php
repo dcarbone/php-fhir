@@ -63,6 +63,18 @@ echo "\n\n";
     {
         return $this->_xmlns;
     }
+
+    /**
+     * @return string
+     */
+    public function _getFHIRXMLElementDefinition(string $elementName): string
+    {
+        $xmlns = $this->_getFHIRXMLNamespace();
+        if ('' !==  $xmlns) {
+            $xmlns = sprintf(' xmlns="%s"', $xmlns);
+        }
+        return sprintf('<%1$s%2$s></%1$s>', $elementName, $xmlns);
+    }
 }
 
 <?php return ob_get_clean();

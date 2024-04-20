@@ -20,7 +20,7 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $typeClassname = $type->getClassName();
-$allProperties = $type->getProperties();
+$allProperties = $type->getLocalProperties();
 $localProperties = $allProperties->localSortedPropertiesIterator();
 
 ob_start();

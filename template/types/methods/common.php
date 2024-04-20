@@ -35,16 +35,4 @@ ob_start(); ?>
     {
         return self::FHIR_TYPE_NAME;
     }
-
-    /**
-     * @return string
-     */
-    public function _getFHIRXMLElementDefinition(): string
-    {
-        $xmlns = $this->_getFHIRXMLNamespace();
-        if ('' !==  $xmlns) {
-            $xmlns = " xmlns=\"{$xmlns}\"";
-        }
-        return "<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>";
-    }
 <?php return ob_get_clean();

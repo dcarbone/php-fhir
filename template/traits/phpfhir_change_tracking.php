@@ -51,11 +51,11 @@ trait <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>
     /**
      * Used to track the setting of a given value, taking into consideration whether a value is being overwritten
      *
-     * @param object|null $original
-     * @param object|null $new
+     * @param mixed $original
+     * @param mixed $new
      * @return void
      */
-    protected function _trackValueSet(?object $original, ?object $new): void {
+    protected function _trackValueSet(mixed $original, mixed $new): void {
         if ($original === $new) {
             return;
         }

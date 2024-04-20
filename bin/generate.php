@@ -412,10 +412,30 @@ foreach ($versions_to_generate as $version) {
     }
 
     if ($download) {
-        echo 'Downloading ' . $version . ' from ' . $url . PHP_EOL;
-        // Download/extract ZIP file
-        if (!copy($url, $zip_file_name)) {
-            echo "Unable to download.\n";
+        // Download zip file...
+        echo sprintf('Downloading %s from %s%s', $version, $url, PHP_EOL);
+        $fh = fopen($zip_file_name, 'w');
+        $ch = curl_init($url);
+        curl_setopt_array(
+            $ch,
+            [
+                CURLOPT_USERAGENT => 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0',
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HEADER => 0,
+                CURLOPT_FILE => $fh,
+            ]
+        );
+        $resp = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
+        fclose($fh);
+        if ('' !== $err) {
+            echo sprintf('Error downloading from %s: %s%s', $version, $err, PHP_EOL);
+            exit(1);
+        }
+        if ($code !== 200) {
+            echo sprintf('Error downlodaing from %s: %d (%s)%s', $version, $code, $resp, PHP_EOL);
             exit(1);
         }
     }

@@ -16,10 +16,12 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$localProperties = $type->getProperties()->localPropertiesIterator();
+$localProperties = $type->getLocalProperties()->localPropertiesIterator();
 
 ob_start(); ?>
     /**
@@ -27,16 +29,16 @@ ob_start(); ?>
      * @param null|int $libxmlOpts
      * @return \DOMElement
      */
-    public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
+    public function xmlSerialize(null|\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
     {
 <?php foreach($localProperties as $property) : ?>
-        if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
+        if (null !== ($v = $this->get<?php echo $property->getGetterName(); ?>())) {
             return $v->xmlSerialize($element, $libxmlOpts);
         }
 <?php endforeach; ?>
         if (null === $element) {
             $dom = new \DOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition(), $libxmlOpts);
+            $dom->loadXML($this->_getFHIRXMLElementDefinition(<?php echo NameUtils::getTypeXMLElementName($type); ?>), $libxmlOpts);
             $element = $dom->documentElement;
         }
 <?php

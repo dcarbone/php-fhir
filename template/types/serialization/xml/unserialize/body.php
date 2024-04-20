@@ -30,8 +30,8 @@ ob_start(); ?>
             if (!($n instanceof \DOMElement)) {
                 continue;
             }
-<?php foreach ($properties as $i => $property) :
-    if (null !== $property->getValueFHIRType()) :
+<?php foreach ($properties as $i => $property) {
+    if (null !== $property->getValueFHIRType()) {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed.php',
             $requireArgs + [
@@ -39,7 +39,7 @@ ob_start(); ?>
                 'i' => $i,
             ]
         );
-    else :
+    } else {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_primitive.php',
             $requireArgs + [
@@ -47,12 +47,12 @@ ob_start(); ?>
                 'i' => $i,
             ]
         );
-    endif;
-endforeach; ?>
+    }
+}; ?>
 
         }
-<?php foreach ($properties as $i => $property) :
-    if (null !== $property->getValueFHIRType()) :
+<?php foreach ($properties as $i => $property) {
+    if (null !== $property->getValueFHIRType()) {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_attr_typed.php',
             $requireArgs + [
@@ -60,7 +60,7 @@ endforeach; ?>
                 'i' => $i,
             ]
         );
-    else :
+    } else {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_attr_primitive.php',
             $requireArgs + [
@@ -68,6 +68,6 @@ endforeach; ?>
                 'i' => $i,
             ]
         );
-    endif;
-endforeach;
+    }
+}
 return ob_get_clean();

@@ -66,7 +66,7 @@ abstract class ExceptionUtils
             sprintf(
                 'Primitive Type "%s" has unknown PrimitiveTypeEnum "%s" specified',
                 $type->getFHIRName(),
-                null === ($t = $type->getPrimitiveType()) ? 'NULL' : $t
+                null === ($t = $type->getPrimitiveType()->value) ? 'NULL' : $t
             )
         );
     }

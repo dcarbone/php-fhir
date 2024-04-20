@@ -16,25 +16,33 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
+
+$typeKind = $type->getKind();
+$xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start(); ?>
     /**
      * @param null|\DOMElement $element
      * @param null|int $libxmlOpts
-     * @return \DOMElement
+     * @return \DOMElement<?php if ($typeKind !== TypeKind::PRIMITIVE) : ?>
+
+     * @throws \DOMException<?php endif; ?>
+
      */
     public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
     {
         if (null === $element) {
             $dom = new \DOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition(), $libxmlOpts);
+            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
             $element = $dom->documentElement;
-        } elseif (null === $element->namespaceURI && '' !== ($xmlns = $this->_getFHIRXMLNamespace())) {
-            $element->setAttribute('xmlns', $xmlns);
         }
-<?php if (null !== $parentType) : ?>
+<?php if ($type->hasParentWithLocalProperties()) : ?>
         parent::xmlSerialize($element);
 <?php endif;
 return ob_get_clean();

@@ -45,28 +45,28 @@ class Type
     private string $fhirName;
 
     /** @var \DCarbone\PHPFHIR\Enum\TypeKind|null */
-    private ?TypeKind $kind = null;
+    private null|TypeKind $kind = null;
 
     /** @var string */
     private string $className;
 
     /** @var \DCarbone\PHPFHIR\Definition\Properties */
-    private Properties $properties;
+    private Properties $localProperties;
 
     /** @var null|string */
-    private ?string $parentTypeName = null;
+    private null|string $parentTypeName = null;
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
-    private ?Type $parentType = null;
+    private null|Type $parentType = null;
 
     /** @var int */
     private int $minLength = 0;
     /** @var int */
     private int $maxLength = PHPFHIR_UNLIMITED;
     /** @var null|string */
-    private ?string $pattern = null;
+    private null|string $pattern = null;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
-    private ?Type $componentOfType = null;
+    private null|Type $componentOfType = null;
 
     /** @var \DCarbone\PHPFHIR\Definition\Enumeration */
     private Enumeration $enumeration;
@@ -78,10 +78,10 @@ class Type
     private PrimitiveType $primitiveType;
 
     /** @var null|string */
-    private ?string $restrictionBaseFHIRName = null;
+    private null|string $restrictionBaseFHIRName = null;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
-    private ?Type $restrictionBaseFHIRType = null;
+    private null|Type $restrictionBaseFHIRType = null;
 
     /** @var bool */ // TODO: what the hell is this...?
     private bool $mixed = false;
@@ -116,7 +116,7 @@ class Type
         $this->fhirName = $fhirName;
         $this->sourceSXE = $sourceSXE;
         $this->sourceFilename = $sourceFilename;
-        $this->properties = new Properties($config, $this);
+        $this->localProperties = new Properties($config, $this);
         $this->enumeration = new Enumeration();
         $this->imports = new TypeImports($this);
     }
@@ -156,15 +156,19 @@ class Type
     }
 
     /**
-     * @param bool $withClass
+     * @param bool $withConstClass
      * @param string $prefix
      * @return string
      */
-    public function getConstName(bool $withClass, string $prefix = ''): string
+    public function getConstName(bool $withConstClass, string $prefix = ''): string
     {
-        return ($withClass ? PHPFHIR_CLASSNAME_CONSTANTS . '::' : '') . strtoupper($prefix) . NameUtils::getConstName(
-                $this->getFHIRName()
-            );
+        if ($withConstClass) {
+            $cn = sprintf('%s::', PHPFHIR_CLASSNAME_CONSTANTS);
+        } else {
+            $cn = '';
+        }
+
+        return sprintf('%s%s%s', $cn, strtoupper($prefix), NameUtils::getConstName($this->getFHIRName()));
     }
 
     /**
@@ -188,7 +192,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Enum\TypeKind|null
      */
-    public function getKind(): ?TypeKind
+    public function getKind(): null|TypeKind
     {
         return $this->kind;
     }
@@ -271,9 +275,12 @@ class Type
         $ns = $this->getConfig()->getNamespace(false);
         $typeNS = $this->getTypeNamespace();
         if ('' !== $typeNS) {
-            $ns = "{$ns}\\{$typeNS}";
+            $ns = sprintf('%s\\%s', $ns, $typeNS);
         }
-        return $leadingSlash ? "\\{$ns}" : $ns;
+        return match ($leadingSlash) {
+            true => sprintf('\\%s', $ns),
+            false => $ns,
+        };
     }
 
     /**
@@ -286,9 +293,12 @@ class Type
         $ns = $this->getConfig()->getTestsNamespace($testType, false);
         $typeNS = $this->getTypeNamespace();
         if ('' !== $typeNS) {
-            $ns = "{$ns}\\{$typeNS}";
+            $ns = sprintf('%s\\%s', $ns, $typeNS);
         }
-        return $leadingSlash ? "\\{$ns}" : $ns;
+        return match ($leadingSlash) {
+            true => sprintf('\\%s', $ns),
+            false => $ns,
+        };
     }
 
     /**
@@ -301,9 +311,12 @@ class Type
         if ('' === $cn) {
             $cn = $this->getClassName();
         } else {
-            $cn .= "\\{$this->getClassName()}";
+            $cn = sprintf('%s\\%s', $cn, $this->getClassName());
         }
-        return $leadingSlash ? "\\{$cn}" : $cn;
+        return match ($leadingSlash) {
+            true => sprintf('\\%s', $cn),
+            false => $cn,
+        };
     }
 
     /**
@@ -311,7 +324,7 @@ class Type
      */
     public function getTestClassName(): string
     {
-        return "{$this->getClassName()}Test";
+        return sprintf('%sTest', $this->getClassName());
     }
 
     /**
@@ -321,21 +334,34 @@ class Type
      */
     public function getFullyQualifiedTestClassName($testType, bool $leadingSlash): string
     {
-        $ns = $this->getFullyQualifiedTestNamespace($testType, false);
-        if ('' === $ns) {
+        $cn = $this->getFullyQualifiedTestNamespace($testType, false);
+        if ('' === $cn) {
             $cn = $this->getTestClassName();
         } else {
-            $cn = "{$ns}\\{$this->getTestClassName()}";
+            $cn = sprintf('%s\\%s', $cn, $this->getTestClassName());
         }
-        return $leadingSlash ? "\\{$cn}" : $ns;
+        return match ($leadingSlash) {
+            true => sprintf('\\%s', $cn),
+            false => $cn,
+        };
     }
 
     /**
      * @return \DCarbone\PHPFHIR\Definition\Properties
      */
-    public function getProperties(): Properties
+    public function getLocalProperties(): Properties
     {
-        return $this->properties;
+        return $this->localProperties;
+    }
+
+    /**
+     * Returns true if this type has any locally defined properties.
+     *
+     * @return bool
+     */
+    public function hasLocalProperties(): bool
+    {
+        return count($this->localProperties) > 0;
     }
 
     /**
@@ -344,7 +370,7 @@ class Type
     public function getAllPropertiesIterator(): iterable
     {
         $properties = [];
-        foreach($this->getProperties()->localPropertiesIterator() as $property) {
+        foreach($this->getLocalProperties()->localPropertiesIterator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach($this->getParentTypes() as $parentType) {
@@ -394,9 +420,27 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getParentType(): ?Type
+    public function getParentType(): null|Type
     {
         return $this->parentType;
+    }
+
+    /**
+     * Returns true if there is any parent of this type that has local properties.
+     *
+     * @return bool
+     */
+    public function hasParentWithLocalProperties(): bool
+    {
+        $parent = $this->getParentType();
+        $localsFound = false;
+
+        while (null !== $parent && false === $localsFound) {
+            $localsFound = $parent->hasLocalProperties();
+            $parent = $parent->getParentType();
+        }
+
+        return $localsFound;
     }
 
     /**
@@ -413,7 +457,7 @@ class Type
     /**
      * @return null|string
      */
-    public function getParentTypeName(): ?string
+    public function getParentTypeName(): null|string
     {
         return $this->parentTypeName;
     }
@@ -422,7 +466,7 @@ class Type
      * @param string|null $parentTypeName
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setParentTypeName(?string $parentTypeName): Type
+    public function setParentTypeName(null|string $parentTypeName): Type
     {
         $this->parentTypeName = $parentTypeName;
         return $this;
@@ -434,19 +478,6 @@ class Type
     public function hasParent(): bool
     {
         return null !== $this->getParentTypeName() || null !== $this->getParentType();
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasResourceParent(): bool
-    {
-        foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind() === TypeKind::RESOURCE) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -524,7 +555,7 @@ class Type
     /**
      * @return string|null
      */
-    public function getPattern(): ?string
+    public function getPattern(): null|string
     {
         return $this->pattern;
     }
@@ -533,7 +564,7 @@ class Type
      * @param string|null $pattern
      * @return \DCarbone\PHPFHIR\Definition\Type
      */
-    public function setPattern(?string $pattern): Type
+    public function setPattern(null|string $pattern): Type
     {
         $this->pattern = $pattern;
         return $this;
@@ -542,7 +573,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getComponentOfType(): ?Type
+    public function getComponentOfType(): null|Type
     {
         return $this->componentOfType;
     }
@@ -612,7 +643,7 @@ class Type
     /**
      * @return string|null
      */
-    public function getRestrictionBaseFHIRName(): ?string
+    public function getRestrictionBaseFHIRName(): null|string
     {
         return $this->restrictionBaseFHIRName;
     }
@@ -630,7 +661,7 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getRestrictionBaseFHIRType(): ?Type
+    public function getRestrictionBaseFHIRType(): null|Type
     {
         return $this->restrictionBaseFHIRType;
     }
@@ -720,6 +751,11 @@ class Type
         $interfaces = [];
         $parentType = $this->getParentType();
 
+        if (!$this->isAbstract()) {
+            // always add xml serializable interface to all non-abstract types
+            $interfaces[] = PHPFHIR_INTERFACE_XML_SERIALIZABLE;
+        }
+
         if (null === $parentType) {
             if ($this->isCommentContainer()) {
                 $interfaces[] = PHPFHIR_INTERFACE_COMMENT_CONTAINER;
@@ -733,6 +769,11 @@ class Type
             $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
         }
 
+        // if this is not abstract and has no concrete parent, add the \JsonSerializable interface
+        if (!$this->isAbstract() && !$this->hasConcreteParent()) {
+            $interfaces[] = '\\JsonSerializable';
+        }
+
         return $interfaces;
     }
 
@@ -743,13 +784,32 @@ class Type
     {
         $traits = [];
         $parentType = $this->getParentType();
+
         if (null === $parentType) {
+            // if this type has no parent(s), try to add all traits
+
             if ($this->isCommentContainer()) {
                 $traits[] = PHPFHIR_TRAIT_COMMENT_CONTAINER;
             }
-            $traits[] = PHPFHIR_TRAIT_VALIDATION_ASSERTIONS;
-            $traits[] = PHPFHIR_TRAIT_CHANGE_TRACKING;
-            $traits[] = PHPFHIR_TRAIT_XMLNS;
+
+            // these must only be added if the type has local properties
+            if ($this->hasLocalProperties()) {
+                array_push(
+                    $traits,
+                    PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
+                    PHPFHIR_TRAIT_CHANGE_TRACKING,
+                    PHPFHIR_TRAIT_XMLNS,
+                );
+            }
+        } else if (!$parentType->hasLocalProperties()) {
+            // if this type _does_ have a parent, only add these traits if the parent does not have local properties
+
+            array_push(
+                $traits,
+                PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
+                PHPFHIR_TRAIT_CHANGE_TRACKING,
+                PHPFHIR_TRAIT_XMLNS,
+            );
         }
 
         return $traits;
@@ -774,7 +834,7 @@ class Type
      */
     public function setCommentContainer(bool $commentContainer): Type
     {
-        $this->commentContainer = (bool)$commentContainer;
+        $this->commentContainer = $commentContainer;
         return $this;
     }
 
@@ -784,6 +844,35 @@ class Type
     public function isCommentContainer(): bool
     {
         return $this->commentContainer;
+    }
+
+    /**
+     * Returns true if this class should be defined as abstract
+     *
+     * TODO(@dcarbone): this is a quick hack, find better implementation...
+     *
+     * @return bool
+     */
+    public function isAbstract(): bool
+    {
+        return $this->getFHIRName() === 'Base';
+    }
+
+    /**
+     * Returns true if this type has a concrete parent
+     *
+     * @return bool
+     */
+    public function hasConcreteParent(): bool
+    {
+        $p = $this->getParentType();
+        while ($p !== null) {
+            if (!$p->isAbstract()) {
+                return true;
+            }
+            $p = $p->getParentType();
+        }
+        return false;
     }
 
     /**

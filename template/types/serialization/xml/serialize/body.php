@@ -22,8 +22,8 @@
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $localProperties */
 
 ob_start();
-foreach ($localProperties as $property) :
-    if (null !== $property->getValueFHIRType()) :
+foreach ($localProperties as $property) {
+    if (null !== $property->getValueFHIRType()) {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'body_typed.php',
             [
@@ -31,13 +31,13 @@ foreach ($localProperties as $property) :
                 'property' => $property,
             ]
         );
-    elseif (null === $parentType) :
+    } elseif (null === $parentType) {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'body_untyped.php',
             [
                 'config' => $config,
             ]
         );
-    endif;
-endforeach;
+    }
+}
 return ob_get_clean();

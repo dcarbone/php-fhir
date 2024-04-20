@@ -28,7 +28,7 @@ $fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassname = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
-$localProperties = $type->getProperties()->localPropertiesIterator();
+$localProperties = $type->getLocalProperties()->localPropertiesIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 
 ob_start();
@@ -68,12 +68,14 @@ echo require_with(
 ?>
 
     // name of FHIR type this class describes
-    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;<?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
+<?php
 
-<?php endif; ?>
+if (0 !== count($localProperties)) {
 
-<?php if (0 !== count($localProperties)) :
-    foreach($localProperties as $property) :
+    echo "\n";
+
+    foreach ($localProperties as $property) {
         echo require_with(
             PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'constants.php',
             [
@@ -81,11 +83,11 @@ echo require_with(
                 'property' => $property,
             ]
         );
-    endforeach;
-endif; ?>
+    }
 
-<?php if (0 !== count($localProperties)) :
-    foreach($localProperties as $property) :
+    echo "\n";
+
+    foreach ($localProperties as $property) {
         echo require_with(
             PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'declaration.php',
             [
@@ -93,28 +95,32 @@ endif; ?>
                 'property' => $property,
             ]
         );
-    endforeach;
-endif;
+    }
 
-echo require_with(
-    PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'field_map.php',
-    [
-        'config' => $config,
-        'type' => $type,
-    ]
-);
+    echo "\n";
+
+    echo require_with(
+        PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'field_map.php',
+        [
+            'config' => $config,
+            'type' => $type,
+        ]
+    );
+
+    echo "\n";
+
+    echo require_with(
+        PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
+        [
+            'config' => $config,
+            'type' => $type,
+            'properties' => $localProperties,
+            'parentType' => $parentType,
+        ]
+    );
+}
 
 echo "\n";
-
-echo require_with(
-    PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
-    [
-        'config' => $config,
-        'type' => $type,
-        'properties' => $localProperties,
-        'parentType' => $parentType,
-    ]
-);
 
 echo require_with(
     PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
@@ -125,7 +131,9 @@ echo require_with(
     ]
 );
 
-if ($type->isContainedType()) :
+if ($type->isContainedType()) {
+    echo "\n";
+
     echo require_with(
         PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'contained_type.php',
         [
@@ -133,10 +141,11 @@ if ($type->isContainedType()) :
             'type' => $type,
         ]
     );
-endif;
+}
 
- if (0 < count($localProperties)) :
+if (0 < count($localProperties)) {
     echo "\n";
+
     echo require_with(
         PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods.php',
         [
@@ -145,29 +154,32 @@ endif;
             'properties' => $localProperties,
         ]
     );
-endif; ?>
-
-<?php echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
-    [
-        'config' => $config,
-        'type' => $type,
-    ]
-); ?>
-
-<?php echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml.php',
-    [
-        'config' => $config,
-        'type'     => $type,
-        'typeKind' => $typeKind,
-        'parentType' => $parentType,
-        'typeClassName' => $typeClassname,
-    ]
-);
-
-if (0 < count($localProperties)) :
+    
     echo "\n";
+    
+    echo require_with(
+        PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
+        [
+            'config' => $config,
+            'type' => $type,
+        ]
+    );
+
+    echo "\n";
+
+    echo require_with(
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml.php',
+        [
+            'config' => $config,
+            'type'     => $type,
+            'typeKind' => $typeKind,
+            'parentType' => $parentType,
+            'typeClassName' => $typeClassname,
+        ]
+    );
+
+    echo "\n";
+
     echo require_with(
         PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json.php',
         [
@@ -175,11 +187,9 @@ if (0 < count($localProperties)) :
             'type' => $type,
         ]
     );
-    echo "\n";
-endif;
+}
 
-if (!$type->hasPrimitiveParent()) :
-?>
+if (!$type->hasPrimitiveParent()) : ?>
 
     /**
      * @return string

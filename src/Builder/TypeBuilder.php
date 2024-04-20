@@ -61,7 +61,7 @@ abstract class TypeBuilder
         $type = self::buildDefaultType($config, $fhirName, $sxe, $sourceFilename);
         $value = new Property($type, $sxe, $sourceFilename);
         $value->setName(PHPFHIR_VALUE_PROPERTY_NAME);
-        $type->getProperties()->addProperty($value);
+        $type->getLocalProperties()->addProperty($value);
         return $type;
     }
 
