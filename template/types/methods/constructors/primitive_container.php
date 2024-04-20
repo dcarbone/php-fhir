@@ -44,12 +44,8 @@ ob_start(); ?>
         if (null === $data) {
             return;
         }
-        if ($data instanceof <?php echo $typeImports->getImportByType($valuePropertyType); ?>) {
+        if (is_scalar($data) || $data instanceof <?php echo $typeImports->getImportByType($valuePropertyType); ?>) {
             $this->setValue($data);
-            return;
-        }
-        if (is_scalar($data)) {
-            $this->setValue(new <?php echo $typeImports->getImportByType($valuePropertyType); ?>($data));
             return;
         }<?php if ($parentType) : ?>
 
