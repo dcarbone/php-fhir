@@ -769,6 +769,11 @@ class Type
             $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
         }
 
+        // if this is not abstract and has no concrete parent, add the \JsonSerializable interface
+        if (!$this->isAbstract() && !$this->hasConcreteParent()) {
+            $interfaces[] = '\\JsonSerializable';
+        }
+
         return $interfaces;
     }
 
