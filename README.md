@@ -70,8 +70,8 @@ group into PHP classes, complete with markup and type hinting.
 There are 2 important things to note with this section:
 
 1. Your exact implementation will probably vary, don't hesitate to ask if you need some help
-2. The class generation should be run ONCE per FHIR version.  Once the classes
-have been generated they should only ever be re-generated if your server switches to a new FHIR spec
+2. The class generation should be run ONCE per FHIR version.  Once the classes have been generated they should only 
+   ever be re-generated if your server switches to a new FHIR spec
 
 ### Generation Example
 
