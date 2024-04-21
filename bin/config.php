@@ -36,7 +36,7 @@ return [
 
     // Map of versions and configurations to generate
     // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
-    // version, please see https://www.hl7.org/fhir/directory.cfml
+    // version, please see https://www.hl7.org/fhir/directory.html
     'versions'    => [
         'DSTU1' => [
             // Source URL
