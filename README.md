@@ -39,9 +39,11 @@ generate classes for every version in the `output` folder.
 If you wish to use the generator as part of a project, you can include it as a composer
 dependency:
 
-`composer require dcarbone/php-fhir`
+```shell
+composer require dcarbone/php-fhir
+```
 
-From there, you can reference the [Example](#example) block for a quick example on how to
+From there, you can reference the [Example](#generation-example) block for a quick example on how to
 configure and execute the generator.
 
 # Version Table
@@ -98,31 +100,35 @@ $config = new \DCarbone\PHPFHIR\Config([
     'versions'    => [
         'DSTU1' => [
             // Source URL
-            'url'       => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
+            'url'       => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
             // Namespace to prefix the generated classes with
             'namespace' => '\\HL7\\FHIR\\DSTU1',
         ],
         'DSTU2' => [
-            'url'       => 'http://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
-            'namespace' => '\\HL7\\FHIR\\DSTU2',
+            'url'          => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
+            'namespace'    => '\\HL7\\FHIR\\DSTU2',
+            'testEndpoint' => 'https://hapi.fhir.org/baseDstu2',
         ],
         'STU3'  => [
-            'url'       => 'http://hl7.org/fhir/STU3/definitions.xml.zip',
-            'namespace' => '\\HL7\\FHIR\\STU3',
+            'url'          => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
+            'namespace'    => '\\HL7\\FHIR\\STU3',
+            'testEndpoint' => 'https://hapi.fhir.org/baseDstu3',
         ],
         'R4'    => [
-            'url'       => 'http://www.hl7.org/fhir/fhir-codegen-xsd.zip',
-            'namespace' => '\\HL7\\FHIR\\R4',
+            'url'          => 'https://www.hl7.org/fhir/R4/fhir-all-xsd.zip',
+            'namespace'    => '\\HL7\\FHIR\\R4',
+            'testEndpoint' => 'https://hapi.fhir.org/baseR4',
         ],
-        'Build' => [
-            'url'       => 'http://build.fhir.org/fhir-all-xsd.zip',
-            'namespace' => '\\HL7\\FHIR\\Build',
-        ],
+        'R5' => [
+            'url'          => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
+            'namespace'    => '\\HL7\\FHIR\\R5',
+            'testEndpoint' => 'https://hapi.fhir.org/baseR5',
+        ]
     ],
 ]);
 
 // next, build definition class
-$version_config = new \DCarbone\PHPFHIR\Config\VersionConfig($config, $config->getVersion('R4'));
+$version_config = new \DCarbone\PHPFHIR\Config\VersionConfig($config, $config->getVersion('R5'));
 $definition = new \DCarbone\PHPFHIR\Definition($version_config);
 $definition->buildDefinition();
 
