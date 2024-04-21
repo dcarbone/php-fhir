@@ -168,7 +168,7 @@ require 'path to PHPFHIRResponseParser.php';
 // build config
 $config = new \YourConfiguredNamespace\PHPFHIRResponseParserConfig([
     'registerAutoloader' => true, // use if you are not using Composer
-    'sxeArgs' => LIBXML_COMPACT | LIBXML_NSCLEAN // choose different libxml arguments if you want, ymmv.
+    'libxmlOpts' => LIBXML_COMPACT | LIBXML_NSCLEAN // choose different libxml arguments if you want, ymmv.
 ]);
 
 // build parser
