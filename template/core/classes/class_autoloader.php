@@ -48,6 +48,9 @@ if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_CONTAINED_TYPE;
 if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
 }
+if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>.php';
+}
 
 // traits
 if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>', false)) {

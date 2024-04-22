@@ -40,7 +40,7 @@ echo "\n\n";
 <?php endif; ?>
 
     */
-    trait <?php echo PHPFHIR_TRAIT_XMLNS; ?>
+trait <?php echo PHPFHIR_TRAIT_XMLNS; ?>
 
 {
     /** @var string */
@@ -48,7 +48,7 @@ echo "\n\n";
 
     /**
      * @param null|string $xmlNamespace
-     * @return self
+     * @return static
      */
     public function _setFHIRXMLNamespace(null|string $xmlNamespace): self
     {
@@ -65,10 +65,15 @@ echo "\n\n";
     }
 
     /**
+     * @param string $elementName Name to use for the element
      * @return string
+     * @throws \InvalidArgumentException
      */
     public function _getFHIRXMLElementDefinition(string $elementName): string
     {
+        if ('' === $elementName) {
+            throw new \InvalidArgumentException(sprintf('%s::_getFHIRXMLElementDefinition - $elementName is required', get_called_class()));
+        }
         $xmlns = $this->_getFHIRXMLNamespace();
         if ('' !==  $xmlns) {
             $xmlns = sprintf(' xmlns="%s"', $xmlns);

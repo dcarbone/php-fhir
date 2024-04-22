@@ -65,7 +65,7 @@ ob_start(); ?>
             ));
         }
 <?php endif; ?>
-        if ('' === $type->_getFHIRXMLNamespace() && (null === $element->parentNode || $element->namespaceURI !== $element->parentNode->namespaceURI)) {
+        if ('' === $type->_getFHIRXMLNamespace() && $element->namespaceURI) {
             $type->_setFHIRXMLNamespace($element->namespaceURI);
         }
 <?php return ob_get_clean();

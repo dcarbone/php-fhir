@@ -34,7 +34,7 @@ ob_start();
 echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $namespace) {
-    echo "namespace {$namespace};\n\n";
+    echo sprintf("namespace %s;\n\n", $namespace);
 }
 
 // print out huge copyright block
