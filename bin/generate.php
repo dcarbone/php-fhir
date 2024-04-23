@@ -413,7 +413,7 @@ foreach ($versions_to_generate as $version) {
 
     if ($download) {
         // Download zip file...
-        echo sprintf('Downloading %s from %s%s', $version, $url, PHP_EOL);
+        echo sprintf('Downloading %s from %s to %s%s', $version, $url, $zip_file_name, PHP_EOL);
         $fh = fopen($zip_file_name, 'w');
         $ch = curl_init($url);
         curl_setopt_array(
