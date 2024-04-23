@@ -34,7 +34,7 @@ runs:
       # language=sh
       run: |
         _month="$(date "+%Y%m")"
-        _cache_key="fhir-${{ inputs.version }}-${_month}-0"
+        _cache_key="fhir-${{ inputs.version }}-${_month}-1"
         _dl_url="${{ inputs.base-url}}/${{ inputs.version }}/${{ inputs.filename }}"
         _cache_dir="${{ github.workspace }}/input"
         _xsd_cache_dir="${_cache_dir}/${{ inputs.version }}"
