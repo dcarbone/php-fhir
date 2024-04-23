@@ -24,7 +24,7 @@ $namespace = $config->getNamespace(false);
 
 ob_start();
 
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1)\n\n";
 
 if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
@@ -68,16 +68,16 @@ interface <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>
     /**
      * @param null|string|\DOMElement $element
      * @param null|static $type
-     * @param null|int $libxmlOpts
+     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
      * @return null|static
      */
-    public static function xmlUnserialize(null|string|\DOMElement $element, <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): null|self;
+    public static function xmlUnserialize(null|string|\DOMElement $element, <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): null|self;
 
     /**
      * @param null|\DOMElement $element
-     * @param null|int $libxmlOpts
+     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
      * @return \DOMElement
      */
-    public function xmlSerialize(null|\DOMElement $element = null, null|int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement;
+    public function xmlSerialize(null|\DOMElement $element = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \DOMElement;
 }
 <?php return ob_get_clean();

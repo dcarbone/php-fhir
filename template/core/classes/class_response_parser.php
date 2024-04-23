@@ -25,7 +25,7 @@ $namespace = $config->getNamespace(false);
 
 ob_start();
 
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
@@ -45,61 +45,61 @@ echo "\n\n"; ?>
 class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
 {
-    /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> $config */
-    private <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> $config;
+    private const XML_START = ['<'];
+    private const JSON_START = ['{', '['];
+
+    /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config */
+    private <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> Constructor
-     * @param \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>|null $config
+     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
      */
-    public function __construct(?<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> $config = null)
+    public function __construct(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null)
     {
         if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>;
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>;
         }
         $this->config = $config;
     }
 
     /**
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>
+     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?>
 
      */
-    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>
+    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>
 
     {
         return $this->config;
     }
 
     /**
-     * @param array|string|\SimpleXMLElement|\DOMDocument $input
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * Attempts to parse the provided input into FHIR objects.
+     *
+     * @param null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    public function parse($input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parse(null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $inputType = gettype($input);
-        if ('NULL' === $inputType) {
+        if (null === $input) {
             return null;
-        } elseif ('string' === $inputType) {
-            return $this->parseStringInput($input);
-        } elseif ('array' === $inputType) {
-            return $this->parseArrayInput($input);
-        } elseif ('object' === $inputType) {
-            return $this->parseObjectInput($input);
+        } else if (is_string($input)) {
+            return $this->parseString($input);
+        } else if (is_array($input)) {
+            return $this->parseArray($input);
         } else {
-            throw new \InvalidArgumentException(sprintf(
-                '%s::parse - $input must be XML or JSON encoded string, array, or an object of type \\DOMElement or \\SimpleXMLElement, %s seen.',
-                get_class($this),
-                $inputType
-            ));
+            return $this->parseObject($input);
         }
     }
 
     /**
      * @param array $input
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    protected function parseArrayInput(array $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parseArray(array $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if ([] === $input) {
@@ -126,80 +126,79 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param \stdClass $input
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    protected function parseObjectStdClassInput(\stdClass $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parseStdClass(\stdClass $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return self::parseArrayInput((array)$input);
+        return $this->parseArray((array)$input);
     }
 
     /**
      * @param \SimpleXMLElement $input
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    protected function parseObjectSimpleXMLElementInput(\SimpleXMLElement $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parseSimpleXMLElement(\SimpleXMLElement $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return self::parseObjectDOMDocumentInput(dom_import_simplexml($input));
+        return $this->parseDOMDocument(dom_import_simplexml($input)->ownerDocument);
     }
 
     /**
      * @param \DOMDocument $input
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    protected function parseObjectDOMDocumentInput(\DOMDocument $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parseDOMDocument(\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         $elementName = $input->documentElement->nodeName;
-        $className = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
-         if (null === $className) {
+        /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?> $fhirType */
+        $fhirType = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
+        if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
-                'Unable to locate class for root XML element "%s". Input seen: %s',
+                'Unable to locate FHIR type for root XML element "%s". Input seen: %s',
                 $elementName,
                 $this->getPrintableStringInput($input->saveXML())
             ));
         }
-        return $className::xmlUnserialize($input->documentElement);
+        return $fhirType::xmlUnserialize($input->documentElement, $this->config);
     }
 
     /**
-     * @param object $input
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * @param \stdClass|\SimpleXMLElement|\DOMDocument $input
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    protected function parseObjectInput(object $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parseObject(\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        if ($input instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
-            return $input;
-        } elseif ($input instanceof \stdClass) {
-            return $this->parseObjectStdClassInput($input);
+        if ($input instanceof \stdClass) {
+            return $this->parseStdClass($input);
         } elseif ($input instanceof \SimpleXMLElement) {
-            return $this->parseObjectSimpleXMLElementInput($input);
-        } elseif ($input instanceof \DOMDocument) {
-            return $this->parseObjectDOMDocumentInput($input);
+            return $this->parseSimpleXMLElement($input);
+        } else {
+            return $this->parseDOMDocument($input);
         }
-        throw new \UnexpectedValueException(sprintf(
-            'Unable parse provided input object of type "%s"',
-            get_class($input)
-        ));
     }
 
     /**
      * @param string $input
-     * @param null|int $libxmlOpts
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    protected function parseStringXMLInput(string $input, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parseXml(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
-        $dom->loadXML($input, $libxmlOpts);
+        $dom->loadXML($input, $this->config->getLibxmlOpts());
         $err = libxml_get_last_error();
         libxml_use_internal_errors(false);
         if (false === $err) {
-            return $this->parseObjectDOMDocumentInput($dom);
+            return $this->parseDOMDocument($dom);
         }
         throw new \DomainException(sprintf(
             'Unable to parse provided input as XML.  Error: %s; Input: %s',
@@ -210,9 +209,10 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param string $input
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    protected function parseStringJSONInput(string $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parseJson(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         $decoded = json_decode($input, true);
@@ -225,14 +225,15 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             ));
         }
 
-        return $this->parseArrayInput($decoded);
+        return $this->parseArray($decoded);
     }
 
     /**
      * @param string $input
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+
      */
-    protected function parseStringInput(string $input): ?<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function parseString(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         $input = trim($input);
@@ -240,16 +241,15 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return null;
         }
         $chr = $input[0];
-        if ('<' === $chr) {
-            return $this->parseStringXMLInput($input);
-        } elseif ('{' === $chr) {
-            return $this->parseStringJSONInput($input);
-        } else {
-            throw new \UnexpectedValueException(sprintf(
-                'Input string must be either XML or JSON encoded object.  Provided: %s',
-               $this->getPrintableStringInput($input)
-            ));
+        if (in_array(self::XML_START, $chr, true)) {
+            return $this->parseXml($input);
+        } elseif (in_array(self::JSON_START, $chr, true)) {
+            return $this->parseJson($input);
         }
+        throw new \UnexpectedValueException(sprintf(
+            'Input string must be either XML or JSON encoded object.  Provided: %s',
+           $this->getPrintableStringInput($input)
+        ));
     }
 
     /**
@@ -258,7 +258,10 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      */
     protected function getPrintableStringInput(string $input): string
     {
-        return strlen($input) > 100 ? substr($input, 0, 100) . '[...]' : $input;
+        if (strlen($input) > 100) {
+            return sprintf('%s[...]', substr($input, 0, 100));
+        }
+        return $input;
     }
 }
 <?php return ob_get_clean();

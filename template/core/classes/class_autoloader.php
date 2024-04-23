@@ -27,7 +27,7 @@ $nsPrefix = "{$namespace}\\";
 
 ob_start();
 
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1)\n\n";
 
 if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
@@ -73,8 +73,8 @@ if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONSTANTS; ?>', fal
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_TYPEMAP; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
 }
-if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>.php';
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONFIG; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONFIG; ?>.php';
 }
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';

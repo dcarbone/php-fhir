@@ -511,9 +511,9 @@ foreach ($versions_to_generate as $version) {
 
     $builder = new Builder($build_config, $definition);
     if ($only_library) {
-        $builder->renderFHIRClasses();
+        $builder->writeFhirTypeFiles();
     } elseif ($only_tests) {
-        $builder->renderTestClasses();
+        $builder->writeFhirTestFiles();
     } else {
         $builder->render();
     }

@@ -25,7 +25,7 @@ $namespace = $config->getNamespace(false);
 
 ob_start();
 
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1)\n\n";
 
 if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
@@ -35,50 +35,66 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
- * Class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; if ('' !== $namespace) : ?>
+ * Class <?php echo PHPFHIR_CLASSNAME_CONFIG; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSerializable
+class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
-    const KEY_REGISTER_AUTOLOADER = 'registerAutoloader';
-    const KEY_LIBXML_OPTS         = 'libxmlOpts';
-
-    /** @var array */
-    private static array $_keysWithDefaults = [
-        self::KEY_REGISTER_AUTOLOADER => false,
-        self::KEY_LIBXML_OPTS => <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>,
-    ];
-
     /** @var bool */
     private bool $registerAutoloader;
     /** @var int */
     private int $libxmlOpts;
 
     /**
-     * <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> Constructor
+     * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
      * @param array $config
      */
     public function __construct(array $config = [])
     {
-        foreach(self::$_keysWithDefaults as $k => $v) {
-            if (isset($config[$k]) || array_key_exists($k, $config)) {
-                $this->{'set'.$k}($config[$k]);
-            } else {
-                $this->{'set'.$k}($v);
-            }
+        foreach(self::getKeysWithDefaults() as $k => $v) {
+            $this->setKey($k, $config[$k] ?? $v);
         }
+    }
+
+    /**
+     * TODO(@dcarbone): Return const once we drop 8.1
+     *
+     * @return array
+     */
+    public static function getKeysWithDefaults(): array
+    {
+        return [
+            PHPFHIRConfigKeysEnum::REGISTER_AUTOLOADER->value => false,
+            PHPFHIRConfigKeysEnum::LIBXML_OPTS->value => LIBXML_NONET | LIBXML_PARSEHUGE | LIBXML_COMPACT,
+        ];
+    }
+
+    /**
+     * Set arbitrary key on this config
+     *
+     * @param \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_CONFIG_KEYS; ?>|string $key
+     * @param mixed $value
+     * @return static
+     */
+    public function setKey(PHPFHIRConfigKeysEnum|string $key, mixed $value): self
+    {
+        if (!is_string($key)) {
+            $key = $key->value;
+        }
+        $this->{'set'.$key}($value);
+        return $this;
     }
 
     /**
      * @param bool $registerAutoloader
      * @return void
      */
-    public function setRegisterAutoloader($registerAutoloader): void
+    public function setRegisterAutoloader(bool $registerAutoloader): void
     {
-        $this->registerAutoloader = (bool)$registerAutoloader;
+        $this->registerAutoloader = $registerAutoloader;
     }
 
     /**
@@ -108,10 +124,10 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?> implements \JsonSe
     /**
      * @return \stdClass
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): \stdClass
     {
-        $out= new \stdClass();
-        foreach(self::$_keysWithDefaults as $k => $_) {
+        $out = new \stdClass();
+        foreach(self::getKeysWithDefaults() as $k => $_) {
             $out->{$k} = $this->{'get'.$k}();
         }
         return $out;

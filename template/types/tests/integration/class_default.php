@@ -56,7 +56,7 @@ ob_start();
 
 if ($type->isDomainResource()) :
     echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR . 'header_domain_resource.php',
+        PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR . 'header_domain_resource.php',
         [
             'config'     => $config,
             'type'       => $type,
@@ -65,7 +65,7 @@ if ($type->isDomainResource()) :
     );
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TESTS_TYPES_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR . 'body_domain_resource.php',
+        PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR . 'body_domain_resource.php',
         [
             'config'     => $config,
             'type'       => $type,

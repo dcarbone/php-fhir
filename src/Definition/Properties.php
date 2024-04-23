@@ -37,7 +37,7 @@ class Properties implements Countable
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private array $_localProperties;
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private array $_directSortedProperties;
+    private array $_localSortedProperties;
 
     /** @var bool */
     private bool $cacheBuilt = false;
@@ -195,7 +195,7 @@ class Properties implements Countable
     public function localSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
-        return SplFixedArray::fromArray($this->_directSortedProperties, false);
+        return SplFixedArray::fromArray($this->_localSortedProperties, false);
     }
 
     /**
@@ -211,7 +211,7 @@ class Properties implements Countable
         if (!$this->cacheBuilt) {
             $this->_sortedProperties = $this->properties;
             $this->_localProperties = [];
-            $this->_directSortedProperties = [];
+            $this->_localSortedProperties = [];
             usort(
                 $this->_sortedProperties,
                 function (Property $a, Property $b) {
@@ -225,7 +225,7 @@ class Properties implements Countable
             }
             foreach ($this->_sortedProperties as $property) {
                 if (!$property->isOverloaded()) {
-                    $this->_directSortedProperties[] = $property;
+                    $this->_localSortedProperties[] = $property;
                 }
             }
             $this->cacheBuilt = true;

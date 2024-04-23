@@ -122,14 +122,14 @@ echo require_with(
 
     /**
      * @param \DOMElement|null $element
-     * @param null|int $libxmlOpts
+     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
      * @return \DOMElement
      */
-    public function xmlSerialize(\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
+    public function xmlSerialize(\DOMElement $element = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \DOMElement
     {
         if (null === $element) {
             $dom = new \DOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
+            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $config?->getLibxmlOpts() ?? 0);
             $element = $dom->documentElement;
         }
         $node = $this->getNode();

@@ -21,24 +21,25 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
+$namespace = $config->getNamespace(false);
 $localProperties = $type->getLocalProperties()->localPropertiesIterator();
 
 ob_start(); ?>
     /**
      * @param null|\DOMElement $element
-     * @param null|int $libxmlOpts
+     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
      * @return \DOMElement
      */
-    public function xmlSerialize(null|\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
+    public function xmlSerialize(null|\DOMElement $element = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \DOMElement
     {
 <?php foreach($localProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo $property->getGetterName(); ?>())) {
-            return $v->xmlSerialize($element, $libxmlOpts);
+            return $v->xmlSerialize($element, $config?->getLibxmlOpts() ?? 0);
         }
 <?php endforeach; ?>
         if (null === $element) {
             $dom = new \DOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition(<?php echo NameUtils::getTypeXMLElementName($type); ?>), $libxmlOpts);
+            $dom->loadXML($this->_getFHIRXMLElementDefinition(<?php echo NameUtils::getTypeXMLElementName($type); ?>), );
             $element = $dom->documentElement;
         }
 <?php

@@ -22,17 +22,18 @@
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
+$namespace = $config->getNamespace(false);
 $versionName = $config->getVersion()->getName();
 
 ob_start(); ?>
     /**
      * @param null|string|\DOMElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|int $libxmlOpts
+     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): null|self
+    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
@@ -40,7 +41,7 @@ ob_start(); ?>
         if (is_string($element)) {
             libxml_use_internal_errors(true);
             $dom = new \DOMDocument();
-            if (false === $dom->loadXML($element, $libxmlOpts)) {
+            if (false === $dom->loadXML($element, $config?->getLibxmlOpts() ?? 0)) {
                 throw new \DomainException(sprintf('<?php echo $typeClassName; ?>::xmlUnserialize - String provided is not parseable as XML: %s', implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))));
             }
             libxml_use_internal_errors(false);
