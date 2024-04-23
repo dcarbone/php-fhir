@@ -68,6 +68,11 @@ jobs:
         with:
           version: '${{ matrix.fhir-version }}'
 
+      - run: |
+          ls -lsa
+          ls -lsa input
+          exit 1
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
