@@ -34,17 +34,22 @@ runs:
       # language=sh
       run: |
         _month="$(date "+%Y%m")"
-        _cache_key="fhir-${{ inputs.version }}-${_month}"
+        _cache_key="fhir-${{ inputs.version }}-${_month}-0"
         _dl_url="${{ inputs.base-url}}/${{ inputs.version }}/${{ inputs.filename }}"
+        _cache_dir="${{ github.workspace }}/input/"
+        _xsd_cache_dir="${_cache_dir}/${{ inputs.version }}"
         
         echo "cache-key=${_cache_key}" >> $GITHUB_OUTPUT
-        echo "cache-dir=${{ github.workspace }}/input/${{ inputs.version }}" >> $GITHUB_OUTPUT
+        echo "cache-dir=${_cache_dir}" >> $GITHUB_OUTPUT
+        echo "xsd-cache-dir=${_xsd_cache_dir}" >> $GITHUB_OUTPUT
         echo "url=${_dl_url}" >> $GITHUB_OUTPUT
 
     - uses: actions/cache@v4
       id: cache
       with:
-        path: '${{ steps.vars.outputs.cache-dir }}'
+        path: |
+          '${{ steps.vars.outputs.cache-dir }}/${{ inputs.filename }}'
+          '${{ steps.vars.outputs.xsd-cache-dir}}'
         key: '${{ steps.vars.outputs.cache-key }}'
 
     - name: 'Download'
@@ -52,12 +57,12 @@ runs:
       shell: bash -e {0}
       # language=sh
       run: |
-        mkdir -p '${{ steps.vars.outputs.cache-dir }}'
+        mkdir -p '${{ steps.vars.outputs.xsd-cache-dir }}'
         
         curl \
           -L \
           -A '${{ inputs.user-agent }}' \
-          -o '${{ inputs.filename }}' \
+          -o '${{ steps.vars.outputs.cache-dir}}/${{ inputs.filename }}' \
           '${{ steps.vars.outputs.url }}'
         
-        unzip -o -qq '${{ inputs.filename }}' -d '${{ steps.vars.outputs.cache-dir }}'
+        unzip -o -qq '${{ steps.vars.outputs.cache-dir}}/${{ inputs.filename }}' -d '${{ steps.vars.outputs.xsd-cache-dir }}'
