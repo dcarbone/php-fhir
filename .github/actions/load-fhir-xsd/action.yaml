@@ -66,3 +66,6 @@ runs:
           '${{ steps.vars.outputs.url }}'
         
         unzip -o -qq '${{ steps.vars.outputs.cache-dir}}/${{ inputs.filename }}' -d '${{ steps.vars.outputs.xsd-cache-dir }}'
+        
+        ls -l '${{ steps.vars.outputs.cache-dir}}'
+        ls -l '${{ steps.vars.outputs.xsd-cache-dir }}'
