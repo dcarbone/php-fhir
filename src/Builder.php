@@ -235,7 +235,7 @@ class Builder
             // store "type"
             $ftype = substr($fname, 0, strpos($fname, '_'));
             // trim "type" and ".php"
-            $fname = strstr(substr($fname, strpos($fname,'_')), '.', true);
+            $fname = strstr(substr($fname, strpos($fname,'_') + 1), '.', true);
             // classname suffix
             $suffix = ucfirst($ftype);
 
@@ -248,6 +248,8 @@ class Builder
             } else if ('test' === $ftype) {
                 // test classes have different namespace
                 $ns = $this->config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, true);
+                // trim subtype
+                $fname = substr($fname, strpos($fname, '_') + 1);
             }
 
             // construct class filename
