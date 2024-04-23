@@ -35,7 +35,7 @@ if (null === $containerType) {
 
 ob_start();
 
-echo "<?php declare(strict_types=1)\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
