@@ -53,7 +53,7 @@ runs:
         key: '${{ steps.vars.outputs.cache-key }}'
 
     - name: 'Download'
-      if: steps.cache.cache-hit != 'true'
+      if: steps.cache.cache-hit != 'true' || steps.cache.cache-hit != true
       shell: bash -e {0}
       # language=sh
       run: |
