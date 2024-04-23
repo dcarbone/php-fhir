@@ -26,7 +26,7 @@ on:
       - 'phpunit.xml'
 
 jobs:
-  fhir-sources:
+  load-fhir-source:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
@@ -41,10 +41,20 @@ jobs:
         with:
           version: '${{ matrix.fhir-version }}'
 
+
+  load-fhir-validator:
+    runs-on: ubuntu-22.04
+    name: 'Download FHIR Validator'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/load-fhir-validator
+
   run:
     runs-on: ubuntu-22.04
     needs:
-      - fhir-sources
+      - load-fhir-source
+      - load-fhir-validator
     strategy:
       fail-fast: false
       matrix:
@@ -62,19 +72,26 @@ jobs:
             paratest-version: '7'
     name: '${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     steps:
-      - uses: actions/checkout@v4
+      - name: 'Check the stuff out'
+        uses: actions/checkout@v4
 
-      - uses: ./.github/actions/load-fhir-xsd
+      - name: 'Load FHIR ${{ matrix.fhir-version }} Source'
+        uses: ./.github/actions/load-fhir-xsd
         with:
           version: '${{ matrix.fhir-version }}'
 
-      - uses: shivammathur/setup-php@v2
+      - name: 'Install FHIR validator'
+        uses: ./.github/actions/load-fhir-validator
+
+      - name: 'Install PHP'
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           extensions: libxml simplexml json zip
           # https://github.com/mheap/phpunit-github-actions-printer/blob/master/.github/workflows/ci.yml#L32
 
-      - uses: dcarbone/install-jq-action@v2
+      - name: 'Install jq'
+        uses: dcarbone/install-jq-action@v2
         with:
           force: true
 
@@ -91,7 +108,8 @@ jobs:
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v4
+      - name: 'Cache Composer Stuff'
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}"
@@ -106,15 +124,11 @@ jobs:
         run: |
           ./bin/generate.sh --useExisting --versions '${{ matrix.fhir-version }}'
 
-      - uses: actions/setup-java@v4
+      - name: 'Install Java'
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: 18
-
-      - name: 'Install FHIR validator'
-        # language=sh
-        run: |
-          wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/6.3.4/validator_cli.jar -O ./bin/validator_cli.jar
 
       - name: 'Run tests'
         # language=sh
