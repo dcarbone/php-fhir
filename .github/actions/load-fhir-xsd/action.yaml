@@ -38,7 +38,7 @@ runs:
         _dl_url="${{ inputs.base-url}}/${{ inputs.version }}/${{ inputs.filename }}"
         
         echo "cache-key=${_cache_key}" >> $GITHUB_OUTPUT
-        echo "cache-dir=${{ gitub.workspace }}/input/${{ inputs.version }}" >> $GITHUB_OUTPUT
+        echo "cache-dir=${{ github.workspace }}/input/${{ inputs.version }}" >> $GITHUB_OUTPUT
         echo "url=${_dl_url}" >> $GITHUB_OUTPUT
 
     - uses: actions/cache@v4
