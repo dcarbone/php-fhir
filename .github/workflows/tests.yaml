@@ -26,8 +26,25 @@ on:
       - 'phpunit.xml'
 
 jobs:
+  fhir-sources:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: true
+      matrix:
+        fhir-version: [ 'DSTU1', 'DSTU2', 'STU3', 'R4', 'R5' ]
+
+    name: 'Download ${{ matrix.fhir-version }} Source'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/load-fhir-xsd/action.yaml
+        with:
+          version: '${{ matrix.fhir-version }}'
+
   run:
     runs-on: ubuntu-22.04
+    needs:
+      - fhir-sources
     strategy:
       fail-fast: false
       matrix:
@@ -43,9 +60,13 @@ jobs:
           - php-version: '8.3'
             phpunit-version: '11.1'
             paratest-version: '7'
-    name: ${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}
+    name: '${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     steps:
       - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/load-fhir-xsd/action.yaml
+        with:
+          version: '${{ matrix.fhir-version }}'
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -58,6 +79,7 @@ jobs:
           force: true
 
       - name: 'Set Composer Dep Versions'
+        # language=sh
         run: |
           tmpf="$(mktemp)"
           jq -rcM '."require-dev"."phpunit/phpunit" = "^${{ matrix.phpunit-version }}" | ."require-dev"."brianium/paratest" = "^${{ matrix.paratest-version }}"' composer.json > "${tmpf}"
@@ -65,6 +87,7 @@ jobs:
 
       - name: 'Get Composer Cache Directory'
         id: composer-cache
+        # language=sh
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
@@ -73,17 +96,13 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}"
 
-      - name: 'Cache downloaded FHIR sources'
-        uses: actions/cache@v4
-        with:
-          path: ./input
-          key: "fhir-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}"
-
       - name: 'Install Composer deps'
+        # language=sh
         run: |
           composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
 
       - name: 'Generate code'
+        # language=sh
         run: |
           ./bin/generate.sh --useExisting --versions '${{ matrix.fhir-version }}'
 
@@ -93,9 +112,11 @@ jobs:
           java-version: 18
 
       - name: 'Install FHIR validator'
+        # language=sh
         run: |
           wget --quiet https://github.com/hapifhir/org.hl7.fhir.core/releases/download/6.3.4/validator_cli.jar -O ./bin/validator_cli.jar
 
       - name: 'Run tests'
+        # language=sh
         run: |
           ./vendor/bin/paratest -c 'phpunit/${{ matrix.fhir-version }}.xml'
