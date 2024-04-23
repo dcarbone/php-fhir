@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/load-fhir-xsd/action.yaml
+      - uses: ./.github/actions/load-fhir-xsd/
         with:
           version: '${{ matrix.fhir-version }}'
 
