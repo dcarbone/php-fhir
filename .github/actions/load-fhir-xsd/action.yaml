@@ -57,9 +57,7 @@ runs:
         curl \
           -L \
           -A '${{ inputs.user-agent }}' \
-          -o '${{ steps.vars.outputs.cache-dir }}/${{ inputs.filename }}' \
+          -o '${{ inputs.filename }}' \
           '${{ steps.vars.outputs.url }}'
         
         unzip -o -qq '${{ inputs.filename }}' -d '${{ steps.vars.outputs.cache-dir }}'
-        
-        rm '${{ inputs.filename }}'
