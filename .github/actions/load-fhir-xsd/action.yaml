@@ -34,7 +34,7 @@ runs:
       # language=sh
       run: |
         _month="$(date "+%Y%m")"
-        _cach_key="fhir-${{ inputs.version }}-${_month}"
+        _cache_key="fhir-${{ inputs.version }}-${_month}"
         _dl_url="${{ inputs.base-url}}/${{ inputs.version }}/${{ inputs.filename }}"
         
         echo "cache-key=${_cache_key}" >> $GITHUB_OUTPUT
