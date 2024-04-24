@@ -66,7 +66,12 @@ if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XMLNS; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XMLNS; ?>.php';
 }
 
-// common classes
+// enums
+if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_CONFIG_KEYS; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_CONFIG_KEYS; ?>.php';
+}
+
+// classes
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
 }
@@ -105,10 +110,10 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      */
     public static function register(): bool
     {
-        if (self::$_registered) {
-            return self::$_registered;
+        if (!self::$_registered) {
+            self::$_registered = spl_autoload_register(__CLASS__ . '::loadClass', true);
         }
-        return self::$_registered = spl_autoload_register([__CLASS__, 'loadClass'], true);
+        return self::$_registered;
     }
 
     /**
@@ -117,7 +122,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function unregister(): bool
     {
         if (self::$_registered) {
-            if (spl_autoload_unregister([__CLASS__, 'loadClass'])) {
+            if (spl_autoload_unregister(__CLASS__ . '::loadClass')) {
                 self::$_registered = false;
                 return true;
             }
@@ -131,7 +136,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      * @param string $class
      * @return bool|null
      */
-    public static function loadClass(string $class): ?bool
+    public static function loadClass(string $class): null|bool
     {
         if (isset(self::_CLASS_MAP[$class])) {
             return (bool)require __DIR__ . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];
