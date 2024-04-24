@@ -112,7 +112,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('**/composer.lock') }}"
+          key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('composer.lock') }}"
 
       - name: 'Install Composer deps'
         # language=sh
