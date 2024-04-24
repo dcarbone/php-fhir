@@ -27,19 +27,25 @@ $localProperties = $type->getLocalProperties()->localPropertiesIterator();
 ob_start(); ?>
     /**
      * @param null|\DOMElement $element
-     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return \DOMElement
      */
-    public function xmlSerialize(null|\DOMElement $element = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(null|\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
     {
+        if (is_int($config)) {
+            $libxmlOpts = $config;
+            $config = null;
+        } else {
+            $libxmlOpts = $config?->getLibxmlOpts() ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+        }
 <?php foreach($localProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo $property->getGetterName(); ?>())) {
-            return $v->xmlSerialize($element, $config?->getLibxmlOpts() ?? 0);
+            return $v->xmlSerialize($element, $libxmlOpts);
         }
 <?php endforeach; ?>
         if (null === $element) {
             $dom = new \DOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition(<?php echo NameUtils::getTypeXMLElementName($type); ?>), );
+            $dom->loadXML($this->_getFHIRXMLElementDefinition(<?php echo NameUtils::getTypeXMLElementName($type); ?>), $libxmlOpts);
             $element = $dom->documentElement;
         }
 <?php

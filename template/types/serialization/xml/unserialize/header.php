@@ -29,19 +29,25 @@ ob_start(); ?>
     /**
      * @param null|string|\DOMElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): null|self
+    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
         }
+        if (is_int($config)) {
+            $libxmlOpts = $config;
+            $config = null;
+        } else {
+            $libxmlOpts = $config?->getLibxmlOpts() ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+        }
         if (is_string($element)) {
             libxml_use_internal_errors(true);
             $dom = new \DOMDocument();
-            if (false === $dom->loadXML($element, $config?->getLibxmlOpts() ?? 0)) {
+            if (false === $dom->loadXML($element, $libxmlOpts)) {
                 throw new \DomainException(sprintf('<?php echo $typeClassName; ?>::xmlUnserialize - String provided is not parseable as XML: %s', implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))));
             }
             libxml_use_internal_errors(false);

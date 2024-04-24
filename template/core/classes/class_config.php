@@ -41,12 +41,12 @@ echo "\n\n"; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
+class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>, \JsonSerializable
 {
+    use <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>;
+
     /** @var bool */
     private bool $registerAutoloader;
-    /** @var int */
-    private int $libxmlOpts;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
@@ -68,7 +68,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     {
         return [
             PHPFHIRConfigKeysEnum::REGISTER_AUTOLOADER->value => false,
-            PHPFHIRConfigKeysEnum::LIBXML_OPTS->value => LIBXML_NONET | LIBXML_PARSEHUGE | LIBXML_COMPACT,
+            PHPFHIRConfigKeysEnum::LIBXML_OPTS->value => <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS,
         ];
     }
 
@@ -90,11 +90,12 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 
     /**
      * @param bool $registerAutoloader
-     * @return void
+     * @return static
      */
-    public function setRegisterAutoloader(bool $registerAutoloader): void
+    public function setRegisterAutoloader(bool $registerAutoloader): self
     {
         $this->registerAutoloader = $registerAutoloader;
+        return $this;
     }
 
     /**
@@ -103,22 +104,6 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     public function getRegisterAutoloader(): bool
     {
         return $this->registerAutoloader;
-    }
-
-    /**
-     * @param int $libxmlOpts
-     */
-    public function setLibxmlOpts(int $libxmlOpts): void
-    {
-        $this->libxmlOpts = $libxmlOpts;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLibxmlOpts(): int
-    {
-        return $this->libxmlOpts;
     }
 
     /**

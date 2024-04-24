@@ -48,6 +48,9 @@ if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_CONTAINED_TYPE;
 if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
 }
+if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>.php';
+}
 if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>.php';
 }
@@ -64,6 +67,9 @@ if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_CHANGE_TRACKING; ?>', f
 }
 if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XMLNS; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XMLNS; ?>.php';
+}
+if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>.php';
 }
 
 // enums
