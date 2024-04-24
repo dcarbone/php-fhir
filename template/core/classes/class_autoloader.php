@@ -70,6 +70,9 @@ if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XMLNS; ?>', false)) {
 if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_CONFIG_KEYS; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_CONFIG_KEYS; ?>.php';
 }
+if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_TYPES; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_TYPES; ?>.php';
+}
 
 // classes
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {

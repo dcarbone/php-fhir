@@ -98,6 +98,7 @@ const PHPFHIR_TRAIT_XMLNS = 'PHPFHIRXmlNamespaceTrait';
 
 // Core enums
 const PHPFHIR_ENUM_CONFIG_KEYS = 'PHPFHIRConfigKeysEnum';
+const PHPFHIR_ENUM_TYPES = 'PHPFHIRTypesEnum';
 
 // validation constants
 const PHPFHIR_VALIDATION_ENUM = 'enum';
