@@ -122,10 +122,10 @@ echo require_with(
 
     /**
      * @param \DOMElement|null $element
-     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return \DOMElement
      */
-    public function xmlSerialize(\DOMElement $element = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
     {
         if (null === $element) {
             $dom = new \DOMDocument();
