@@ -52,7 +52,7 @@ interface <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>
      * @param int $libxmlOpts
      * @return static
      */
-    public function setLibxmlOpts(int $libxmlOpts): self
+    public function setLibxmlOpts(int $libxmlOpts): self;
 
     /**
      * Must return the set libxml option flags

@@ -72,7 +72,7 @@ ob_start(); ?>
             ));
         }
 <?php endif; ?>
-        if ('' === $type->_getFHIRXMLNamespace() && $element->namespaceURI) {
-            $type->_setFHIRXMLNamespace($element->namespaceURI);
+        if ('' === $type->_getFHIRXMLNamespace() && '' !== ($ens = (string)$element->namespaceURI)) {
+            $type->_setFHIRXMLNamespace($ens);
         }
 <?php return ob_get_clean();

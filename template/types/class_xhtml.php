@@ -84,19 +84,21 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     public function setNode(null|string|\DOMNode $node): self
     {
         if (null === $node) {
-            $newNode = null;
-        } else if (is_string($node)) {
-            $dom = new \DOMDocument();
+            $this->_trackValueSet($this->_node, null);
+            $this->_node = null;
+            return $this;
+        }
+        $dom = new \DOMDocument();
+        if (is_string($node)) {
             $dom->loadHTML($node);
-            $newNode = $dom->documentElement;
         } else if ($node instanceof \DOMDocument) {
-            $dom = new \DOMDocument();
             $dom->appendChild($dom->importNode($node->documentElement, true));
-            $newNode = $dom->documentElement;
         } else {
-            $dom = new \DOMDocument();
             $dom->appendChild($dom->importNode($node, true));
-            $newNode = $dom->documentElement;
+        }
+        $newNode = $dom->documentElement;
+        if ('' !== ($ens = (string)$newNode->namespaceURI)) {
+            $this->_setFHIRXMLNamespace($ens);
         }
         $this->_trackValueSet($this->_node, $newNode);
         $this->_node = $newNode;
