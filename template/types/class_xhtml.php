@@ -127,9 +127,15 @@ echo require_with(
      */
     public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
     {
+        if (is_int($config)) {
+            $libxmlOpts = $config;
+            $config = null;
+        } else {
+            $libxmlOpts = $config?->getLibxmlOpts() ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+        }
         if (null === $element) {
             $dom = new \DOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $config?->getLibxmlOpts() ?? 0);
+            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
             $element = $dom->documentElement;
         }
         $node = $this->getNode();
