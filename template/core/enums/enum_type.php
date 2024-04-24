@@ -35,13 +35,13 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
- * Enum <?php echo PHPFHIR_ENUM_TYPES; if ('' !== $namespace) : ?>
+ * Enum <?php echo PHPFHIR_ENUM_TYPE; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-enum <?php echo PHPFHIR_ENUM_TYPES; ?> : string
+enum <?php echo PHPFHIR_ENUM_TYPE; ?> : string
 {
 <?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>
     case <?php echo $type->getConstName(false); ?> = '<?php echo $type->getFHIRName(); ?>';

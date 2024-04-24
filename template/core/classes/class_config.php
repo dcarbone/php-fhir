@@ -75,7 +75,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTE
     /**
      * Set arbitrary key on this config
      *
-     * @param \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_CONFIG_KEYS; ?>|string $key
+     * @param \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_CONFIG_KEY; ?>|string $key
      * @param mixed $value
      * @return static
      */

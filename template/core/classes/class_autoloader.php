@@ -73,11 +73,14 @@ if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG
 }
 
 // enums
-if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_CONFIG_KEYS; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_CONFIG_KEYS; ?>.php';
+if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_CONFIG_KEY; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>.php';
 }
-if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_TYPES; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_TYPES; ?>.php';
+if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_TYPE; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_TYPE; ?>.php';
+}
+if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_API_FORMAT; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_API_FORMAT; ?>.php';
 }
 
 // classes
@@ -92,6 +95,9 @@ if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONFIG; ?>', false)
 }
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
+}
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>.php';
 }
 
 /**

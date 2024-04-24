@@ -35,16 +35,16 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
- * Enum <?php echo PHPFHIR_ENUM_CONFIG_KEYS; if ('' !== $namespace) : ?>
+ * Enum <?php echo PHPFHIR_ENUM_API_FORMAT; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-enum <?php echo PHPFHIR_ENUM_CONFIG_KEYS; ?> : string
+enum <?php echo PHPFHIR_ENUM_API_FORMAT; ?> : string
 {
-    case REGISTER_AUTOLOADER = 'registerAutoloader';
-    case LIBXML_OPTS = 'libxmlOpts';
+    case XML = 'xml';
+    case JSON = 'json';
 }
 
 <?php return ob_get_clean();
