@@ -156,7 +156,7 @@ echo require_with(
             return $element;
         }
         for ($i = 0; $i < $node->childNodes->length; $i++) {
-            $element->appendChild($element->ownerDocument->importNode($node->childNodes->item($i)));
+            $element->appendChild($element->ownerDocument->importNode($node->childNodes->item($i), true));
         }
         return $element;
     }
@@ -167,10 +167,7 @@ echo require_with(
     public function jsonSerialize(): mixed
     {
         $node = $this->getNode();
-        if (null === $node) {
-            return null;
-        }
-        return $node->ownerDocument->saveXML($node);
+        return $node?->ownerDocument->saveXML($node);
     }
 
     /**

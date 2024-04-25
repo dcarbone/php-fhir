@@ -507,13 +507,11 @@ class Type
     }
 
     /**
-     * TODO: super hacky.
-     *
      * @return bool
      */
-    public function isDomainResource(): bool
+    public function isResourceType(): bool
     {
-        return str_contains($this->getFullyQualifiedNamespace(false), 'DomainResource');
+        return str_contains($this->getFullyQualifiedNamespace(false), '\\FHIRResource\\');
     }
 
     /**

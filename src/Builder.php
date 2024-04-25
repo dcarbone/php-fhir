@@ -161,7 +161,7 @@ class Builder
             foreach ($testTypes as $testType) {
                 // skip domain resources
                 // TODO(@dcarbone): why did you do this.
-                if (PHPFHIR_TEST_TYPE_INTEGRATION === $testType && !$type->isDomainResource()) {
+                if (PHPFHIR_TEST_TYPE_INTEGRATION === $testType && !$type->isResourceType()) {
                     continue;
                 }
 

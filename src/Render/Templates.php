@@ -70,6 +70,6 @@ abstract class Templates
      */
     public static function renderFhirTypeClassTest(VersionConfig $config, Types $types, Type $type, string $testType): string
     {
-        return require PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR .'class_default.php';
+        return require PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR .'class.php';
     }
 }
