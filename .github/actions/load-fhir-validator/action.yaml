@@ -62,8 +62,3 @@ runs:
         java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 5.0.0
         echo '::endgroup::'
         
-        echo '::group::Cached assets:'
-        ls -l '/home/runner/.fhir'
-        ls -l '/home/runner/.fhir' | wc -l
-        echo '::endgroup::'
-        
