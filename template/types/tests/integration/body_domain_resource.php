@@ -139,7 +139,7 @@ ob_start(); ?>
                 $e
             );
         }
-        $this->assertInstanceOf('<?php echo $bundleType->getFullyQualifiedClassName(true); ?>', $bundle);
+        $this->assertInstanceOf(<?php echo $bundleType->getClassName(); ?>::class, $bundle);
         $entry = $bundle->getEntry();
 <?php if ($bundleEntryProperty->isCollection()) : ?>
         if (0 === count($entry)) {
@@ -172,7 +172,7 @@ ob_start(); ?>
                 $e
             );
         }
-        $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
+        $this->assertInstanceOf(<?php echo $type->getClassName(); ?>::class, $type);
         $typeElement = $type->xmlSerialize();
         $this->assertEquals($resourceXML, $typeElement->ownerDocument->saveXML($typeElement));
         $bundleElement = $bundle->xmlSerialize();

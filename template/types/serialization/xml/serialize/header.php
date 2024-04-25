@@ -29,14 +29,14 @@ $xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start(); ?>
     /**
-     * @param null|\DOMElement $element
+     * @param null|\DOMNode $element
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMElement<?php if ($typeKind !== TypeKind::PRIMITIVE) : ?>
+     * @return \DOMNode<?php if ($typeKind !== TypeKind::PRIMITIVE) : ?>
 
      * @throws \DOMException<?php endif; ?>
 
      */
-    public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(\DOMNode $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMNode
     {
         if (is_int($config)) {
             $libxmlOpts = $config;

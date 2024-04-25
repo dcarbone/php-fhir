@@ -54,7 +54,7 @@ if ($type->isDomainResource()) {
 
 ob_start();
 
-if ($type->isDomainResource()) :
+if ($type->isDomainResource()) {
     echo require_with(
         PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR . 'header_domain_resource.php',
         [
@@ -73,7 +73,7 @@ if ($type->isDomainResource()) :
             'bundleEntryProperty' => $bundleEntryProperty,
         ]
     );
-endif;
+}
 
 echo "}\n";
 return ob_get_clean();

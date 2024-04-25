@@ -57,6 +57,8 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     use <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>,
         <?php echo PHPFHIR_TRAIT_XMLNS; ?>;
 
+    const _NOISE_NODES = ['html', 'head', 'body'];
+
     /** @var null|\DOMNode */
     private null|\DOMNode $_node = null;
 
@@ -97,7 +99,14 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
             $dom->appendChild($dom->importNode($node, true));
         }
         $newNode = $dom->documentElement;
-        if ('' !== ($ens = (string)$newNode->namespaceURI)) {
+        while (null !== $newNode) {
+            if (in_array(strtolower($newNode->nodeName), self::_NOISE_NODES, true)) {
+                $newNode = $newNode->firstChild;
+            } else {
+                break;
+            }
+        }
+        if ('' !== ($ens = (string)$newNode?->namespaceURI)) {
             $this->_setFHIRXMLNamespace($ens);
         }
         $this->_trackValueSet($this->_node, $newNode);
@@ -123,11 +132,11 @@ echo require_with(
     }
 
     /**
-     * @param \DOMElement|null $element
+     * @param \DOMNode|null $element
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMElement
+     * @return \DOMNode
      */
-    public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(\DOMNode $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMNode
     {
         if (is_int($config)) {
             $libxmlOpts = $config;
@@ -139,6 +148,8 @@ echo require_with(
             $dom = new \DOMDocument();
             $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
             $element = $dom->documentElement;
+        } else if ('' !== ($ns = $this->_getFHIRXMLNamespace())) {
+            $element->setAttribute('xmlns', $ns);
         }
         $node = $this->getNode();
         if (null === $node) {

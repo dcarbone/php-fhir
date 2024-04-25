@@ -27,13 +27,13 @@ $versionName = $config->getVersion()->getName();
 
 ob_start(); ?>
     /**
-     * @param null|string|\DOMElement $element
+     * @param null|string|\DOMNode $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self
+    public static function xmlUnserialize(null|string|\DOMNode $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
@@ -58,7 +58,8 @@ ob_start(); ?>
             throw new \RuntimeException('<?php echo $typeClassName; ?>::xmlUnserialize: Cannot unserialize directly into root type');
         } else if (!($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
-                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be child instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
+                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be child instance of %s or null, %s seen.',
+                static::class,
                 get_class($type)
             ));
         }
@@ -67,7 +68,8 @@ ob_start(); ?>
             $type = new <?php echo $typeClassName; ?>(null);
         } else if (!($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
-                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
+                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of %s or null, %s seen.',
+                static::class,
                 get_class($type)
             ));
         }
