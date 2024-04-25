@@ -1,0 +1,64 @@
+name: 'Load FHIR Validator'
+description: 'Downloads and caches a FHIR validator jar'
+
+inputs:
+  version:
+    required: false
+    description: 'Version of validator to download'
+    default: '6.3.4'
+
+  base-url:
+    required: false
+    description: 'Base download URL'
+    default: 'https://github.com/hapifhir/org.hl7.fhir.core/releases/download'
+
+  filename:
+    required: false
+    description: 'Validator filename'
+    default: 'validator_cli.jar'
+
+runs:
+  using: composite
+  steps:
+    - id: vars
+      shell: bash -e {0}
+      # language=sh
+      run: |
+        echo 'url=${{ inputs.base-url }}/${{ inputs.version }}/${{ inputs.filename }}' >> $GITHUB_OUTPUT
+        echo 'cache-key=fhir-validator-${{ inputs.version }}-2' >> $GITHUB_OUTPUT
+
+    - uses: actions/cache@v4
+      id: cache
+      with:
+        path: |
+          ${{ github.workspace }}/bin
+          /home/runner/.fhir
+        key: '${{ steps.vars.outputs.cache-key }}'
+
+    - name: 'Install Java'
+      if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: 18
+
+    - name: 'Download and cache extensions'
+      if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
+      shell: bash -e {0}
+      # language=sh
+      run: |
+        echo '::group::Downloading validator_cli.jar ${{ inputs.version }}'
+        mkdir -p '${{ github.workspace }}/bin'
+        wget -q '${{ steps.vars.outputs.url }}' -O '${{ github.workspace }}/bin/${{ inputs.filename }}'
+        echo '::endgroup::'
+        
+        echo '::group::Caching validator assets'
+        java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 1.0.2
+        java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 1.4.0
+        java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 3.0.2
+        java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 4.0.1
+        java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 4.1.0
+        java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 4.3.0
+        java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 5.0.0
+        echo '::endgroup::'
+        

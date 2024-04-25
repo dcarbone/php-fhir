@@ -35,7 +35,7 @@ if (null === $containerType) {
 
 ob_start();
 
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
@@ -54,7 +54,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>, <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE ?>
+interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
 {
     /**

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,40 +20,32 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var bool $skipImports */
-/** @var string $fqns */
 
-// determine if we need to declare a namespace
-$namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
+$namespace = $config->getNamespace(false);
 
-// start output buffer
 ob_start();
 
-// build php opener
 echo "<?php declare(strict_types=1);\n\n";
 
-if ('' !== $namespace) {
-    echo sprintf("namespace %s;\n\n", $namespace);
-}
+if ('' !== $namespace) :
+    echo "namespace {$namespace};\n\n";
+endif;
 
-// print out huge copyright block
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
-// formatting!
-echo "\n\n";
+echo "\n\n"; ?>
+/**
+ * Enum <?php echo PHPFHIR_ENUM_TYPE; if ('' !== $namespace) : ?>
 
-if (!isset($skipImports) || !$skipImports) {
-    $imported = 0;
-    foreach ($type->getImports() as $import) {
-        if ($import->isRequiresImport()) {
-            echo $import->getUseStatement();
-            $imported++;
-        }
-    }
-    if (0 !== $imported) {
-        echo "\n";
-    }
+ * @package \<?php echo $namespace; ?>
+<?php endif; ?>
+
+ */
+enum <?php echo PHPFHIR_ENUM_TYPE; ?> : string
+{
+<?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>
+    case <?php echo $type->getConstName(false); ?> = '<?php echo $type->getFHIRName(); ?>';
+<?php endforeach;?>
 }
 
-return ob_get_clean();
+<?php return ob_get_clean();

@@ -19,6 +19,8 @@
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
+use DCarbone\PHPFHIR\Enum\TypeKind;
+
 $typeNameConst = $type->getTypeNameConst(true);
 $typeKind = $type->getKind();
 
@@ -54,34 +56,35 @@ ob_start(); ?>
         $errs = [];
 <?php endif; ?>
         $validationRules = $this->_getValidationRules();
-<?php foreach ($type->getLocalProperties()->localPropertiesIterator() as $property) :
+<?php foreach ($type->getLocalProperties()->localPropertiesIterator() as $property) {
     $propertyType = $property->getValueFHIRType();
-    if (null === $propertyType) :
-        if ($property->isCollection()) :
+    if (null === $propertyType) {
+        if ($property->isCollection()) {
             echo require_with(
                 PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
                 $requireArgs + ['property' => $property]
             );
-        else :
+        } else {
             echo require_with(
                 PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
                 $requireArgs + ['property' => $property]
             );
-        endif;
-    else :
-        if ($property->isCollection()) :
-            echo require_with(
-                PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
-                $requireArgs + ['property' => $property]
-            );
-        else :
-            echo require_with(
-                PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'typed.php',
-                $requireArgs + ['property' => $property]
-            );
-        endif;
-    endif;
-endforeach;
+        }
+    } else if ($propertyType->getKind() === TypeKind::PHPFHIR_XHTML) {
+        // TODO(@dcarbone): better way to omit validation
+        continue;
+    } else if ($property->isCollection()) {
+        echo require_with(
+            PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
+            $requireArgs + ['property' => $property]
+        );
+    } else {
+        echo require_with(
+            PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'typed.php',
+            $requireArgs + ['property' => $property]
+        );
+    }
+}
 if (null !== $type->getParentType()) :
     $ptype = $type;
     while (null !== $ptype) :

@@ -27,7 +27,7 @@ $nsPrefix = "{$namespace}\\";
 
 ob_start();
 
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
@@ -48,6 +48,12 @@ if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_CONTAINED_TYPE;
 if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
 }
+if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>.php';
+}
+if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>.php';
+}
 
 // traits
 if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>', false)) {
@@ -62,19 +68,36 @@ if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_CHANGE_TRACKING; ?>', f
 if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XMLNS; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XMLNS; ?>.php';
 }
+if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>.php';
+}
 
-// common classes
+// enums
+if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_CONFIG_KEY; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>.php';
+}
+if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_TYPE; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_TYPE; ?>.php';
+}
+if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_API_FORMAT; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_API_FORMAT; ?>.php';
+}
+
+// classes
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
 }
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_TYPEMAP; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
 }
-if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG; ?>.php';
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONFIG; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONFIG; ?>.php';
 }
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
+}
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>.php';
 }
 
 /**
@@ -102,10 +125,10 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      */
     public static function register(): bool
     {
-        if (self::$_registered) {
-            return self::$_registered;
+        if (!self::$_registered) {
+            self::$_registered = spl_autoload_register(__CLASS__ . '::loadClass', true);
         }
-        return self::$_registered = spl_autoload_register([__CLASS__, 'loadClass'], true);
+        return self::$_registered;
     }
 
     /**
@@ -114,7 +137,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function unregister(): bool
     {
         if (self::$_registered) {
-            if (spl_autoload_unregister([__CLASS__, 'loadClass'])) {
+            if (spl_autoload_unregister(__CLASS__ . '::loadClass')) {
                 self::$_registered = false;
                 return true;
             }
@@ -128,7 +151,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      * @param string $class
      * @return bool|null
      */
-    public static function loadClass(string $class): ?bool
+    public static function loadClass(string $class): null|bool
     {
         if (isset(self::_CLASS_MAP[$class])) {
             return (bool)require __DIR__ . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];

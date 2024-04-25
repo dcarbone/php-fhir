@@ -16,18 +16,67 @@
  * limitations under the License.
  */
 
-
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Type $bundleType */
-/** @var \DCarbone\PHPFHIR\Definition\Property $bundleEntryProperty */
+/** @var string $testType */
 
-// TODO: precompile list of ID's to test with?
+$typeKind = $type->getKind();
 
-ob_start(); ?>
+$bundleType = $types->getBundleType();
+$bundleEntryProperty = null;
+
+// we can only perform integration tests on "Resource" types.
+if (!$type->isResourceType()) {
+    return;
+}
+
+// TODO(@dcarbone): find a more efficient way to do this...
+if (null === $bundleType) {
+    throw ExceptionUtils::createBundleTypeNotFoundException($type);
+}
+
+foreach($bundleType->getAllPropertiesIterator() as $prop) {
+    if ($prop->getName() === 'entry') {
+        $bundleEntryProperty = $prop;
+        break;
+    }
+}
+
+if (null === $bundleEntryProperty) {
+    throw ExceptionUtils::createBundleEntryPropertyNotFoundException($type);
+}
+
+$testNS = $type->getFullyQualifiedTestNamespace(PHPFHIR_TEST_TYPE_INTEGRATION, false);
+$testClassname = $type->getTestClassName();
+$typeNS = $type->getFullyQualifiedClassName(false);
+$typeClassname = $type->getClassName();
+
+ob_start();
+
+echo "<?php\n\n";
+
+echo "namespace {$testNS};\n\n";
+
+echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+?>
+
+use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
+use <?php echo $type->getFullyQualifiedClassName(false); ?>;
+use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Class <?php echo $testClassname; ?>
+
+ * @package \<?php echo $testNS; ?>
+
+ */
+class <?php echo $testClassname; ?> extends TestCase
+{
 
     /** @var array */
     private array $_fetchedResources = [];
@@ -99,7 +148,7 @@ ob_start(); ?>
         $this->assertEmpty($err, sprintf('curl error seen: %s', $err));
         $this->assertIsString($res);
         $this->_fetchedResources[$format] = $res;
-        $fname = sprintf('%s/<?php echo $type->getFHIRName(); ?>-<?php echo CopyrightUtils::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, $format);
+        $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo CopyrightUtils::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
         file_put_contents($fname, $res);
         return $res;
     }
@@ -139,7 +188,7 @@ ob_start(); ?>
                 $e
             );
         }
-        $this->assertInstanceOf('<?php echo $bundleType->getFullyQualifiedClassName(true); ?>', $bundle);
+        $this->assertInstanceOf(<?php echo $bundleType->getClassName(); ?>::class, $bundle);
         $entry = $bundle->getEntry();
 <?php if ($bundleEntryProperty->isCollection()) : ?>
         if (0 === count($entry)) {
@@ -172,7 +221,7 @@ ob_start(); ?>
                 $e
             );
         }
-        $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
+        $this->assertInstanceOf(<?php echo $type->getClassName(); ?>::class, $type);
         $typeElement = $type->xmlSerialize();
         $this->assertEquals($resourceXML, $typeElement->ownerDocument->saveXML($typeElement));
         $bundleElement = $bundle->xmlSerialize();
@@ -328,7 +377,7 @@ ob_start(); ?>
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
         file_put_contents($fname, $bundle->xmlSerialize()->ownerDocument->saveXML());
         $this->assertFileExists($fname);
 
@@ -385,7 +434,7 @@ ob_start(); ?>
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . '/' . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
         file_put_contents($fname, json_encode($bundle));
         $this->assertFileExists($fname);
 
@@ -408,5 +457,6 @@ ob_start(); ?>
             );
         }
     }
+}
 <?php
 return ob_get_clean();

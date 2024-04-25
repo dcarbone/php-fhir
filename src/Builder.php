@@ -72,11 +72,29 @@ class Builder
     }
 
     /**
+     * Generate FHIR object classes based on XSD
+     * @throws \ErrorException
+     */
+    public function render(): void
+    {
+        $this->prerender();
+
+        $this->writeCoreTypeFiles();
+
+        $this->writeFhirTypeFiles();
+
+        if (!$this->config->isSkipTests()) {
+            $this->writeFhirTestFiles();
+        }
+    }
+
+    /**
      * Generate FHIR classes only.
      * @throws \ErrorException
      */
-    public function renderFHIRClasses(): void
+    public function writeFhirTypeFiles(): void
     {
+        // register custom error handler to force explosions.
         set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
             throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
         });
@@ -86,8 +104,6 @@ class Builder
         $this->prerender();
 
         $definition = $this->getDefinition();
-
-        $this->renderPhpFhirTypes();
 
         $types = $definition->getTypes();
 
@@ -99,11 +115,11 @@ class Builder
             if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
                 $classDefinition = Templates::renderXhtmlTypeClass($this->config, $types, $type);
             } else {
-                $classDefinition = Templates::renderTypeClass($this->config, $types, $type);
+                $classDefinition = Templates::renderFhirTypeClass($this->config, $types, $type);
             }
             $filepath = FileUtils::buildTypeFilePath($this->config, $type);
             if (!file_put_contents($filepath, $classDefinition)) {
-                throw new RuntimeException(
+                throw new \RuntimeException(
                     sprintf(
                         'Unable to write Type %s class definition to file %s',
                         $filepath,
@@ -120,7 +136,7 @@ class Builder
     /**
      * Generate Test classes only.  Tests will not pass if FHIR classes have not been built.
      */
-    public function renderTestClasses(): void
+    public function writeFhirTestFiles(): void
     {
         $log = $this->config->getLogger();
 
@@ -130,24 +146,6 @@ class Builder
         $types = $definition->getTypes();
 
         $log->startBreak('Test Class Generation');
-
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, true),
-                PHPFHIR_TEST_CLASSNAME_CONSTANTS
-            ),
-            Templates::renderConstantsTestClass($this->config, $types)
-        );
-
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, true),
-                PHPFHIR_TEST_CLASSNAME_TYPEMAP
-            ),
-            Templates::renderTypeMapTestClass($this->config, $types)
-        );
 
         $testTypes = [PHPFHIR_TEST_TYPE_UNIT];
         if (null !== $this->config->getTestEndpoint()) {
@@ -163,12 +161,12 @@ class Builder
             foreach ($testTypes as $testType) {
                 // skip domain resources
                 // TODO(@dcarbone): why did you do this.
-                if (PHPFHIR_TEST_TYPE_INTEGRATION === $testType && !$type->isDomainResource()) {
+                if (PHPFHIR_TEST_TYPE_INTEGRATION === $testType && !$type->isResourceType()) {
                     continue;
                 }
 
                 $log->debug("Generated {$testType} test class for type {$type}...");
-                $classDefinition = Templates::renderTypeTestClass($this->config, $types, $type, $testType);
+                $classDefinition = Templates::renderFhirTypeClassTest($this->config, $types, $type, $testType);
                 $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
                 if (false === file_put_contents($filepath, $classDefinition)) {
                     throw new RuntimeException(
@@ -187,23 +185,6 @@ class Builder
     }
 
     /**
-     * Generate FHIR object classes based on XSD
-     * @throws \ErrorException
-     */
-    public function render(): void
-    {
-        $this->prerender();
-
-        $this->renderFHIRClasses();
-
-        if (!$this->config->isSkipTests()) {
-            $this->renderTestClasses();
-        }
-
-        $this->renderPhpFhirTypes();
-    }
-
-    /**
      * Commands to run prior to class generation
      */
     protected function prerender(): void
@@ -219,10 +200,84 @@ class Builder
     }
 
     /**
+     * @return \RecursiveIteratorIterator
+     */
+    protected function getCoreTypeFileIterator(): \RecursiveIteratorIterator
+    {
+        return new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(
+                PHPFHIR_TEMPLATE_CORE_DIR,
+                \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS
+            ),
+        );
+    }
+
+    /**
+     * TODO(@dcarbone): refactor generation system, too sloppy right now.
+     *
+     * Renders core PHP FHIR type classes, interfaces, traits, and enums.
+     *
+     * @return void
+     */
+    protected function writeCoreTypeFiles(): void
+    {
+        $this->log->startBreak('Core Files');
+
+        // localize types
+        $types = $this->getDefinition()->getTypes();
+
+        // render each core file
+        foreach($this->getCoreTypeFileIterator() as $fpath => $fi) {
+            /** @var $fi \SplFileInfo */
+
+            // get filename
+            $fname = basename($fpath);
+            // store "type"
+            $ftype = substr($fname, 0, strpos($fname, '_'));
+            // trim "type" and ".php"
+            $fname = strstr(substr($fname, strpos($fname,'_') + 1), '.', true);
+            // classname suffix
+            $suffix = ucfirst($ftype);
+
+            // define "default" namespace
+            $ns = $this->config->getNamespace(true);
+
+            if ('class' === $ftype) {
+                // 'class' types do have suffix
+                $suffix = '';
+            } else if ('test' === $ftype) {
+                // test classes have different namespace
+                $ns = $this->config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, true);
+                // trim subtype
+                $fname = substr($fname, strpos($fname, '_') + 1);
+            }
+
+            // construct class filename
+            $cname = sprintf(
+                'PHPFHIR%s%s',
+                implode('', array_map('ucfirst', explode('_', $fname))),
+                $suffix
+            );
+
+            // write file to disk
+            $this->writeFile(
+                FileUtils::buildGenericFilePath(
+                    $this->config,
+                    $ns,
+                    $cname,
+                ),
+                Templates::renderCoreType($fpath, $this->config, $types)
+            );
+        }
+
+        $this->log->endBreak('Core Files');
+    }
+
+    /**
      * @param string $filePath
      * @param string $fileContents
      */
-    private function writeClassFile(string $filePath, string $fileContents): void
+    private function writeFile(string $filePath, string $fileContents): void
     {
         $this->log->info(sprintf('Writing %s...', $filePath));
         $b = file_put_contents($filePath, $fileContents);
@@ -235,140 +290,5 @@ class Builder
             );
         }
         $this->log->debug(sprintf('%d bytes written to file %s', $b, $filePath));
-    }
-
-    protected function renderPhpFhirTypes(): void
-    {
-        $types = $this->definition->getTypes();
-
-        // Constants class
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_CLASSNAME_CONSTANTS
-            ),
-            Templates::renderConstants($this->config, $types)
-        );
-
-        // TypeMap class
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_CLASSNAME_TYPEMAP
-            ),
-            Templates::renderTypeMapClass($this->config, $types)
-        );
-
-        // Autoloader class
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_CLASSNAME_AUTOLOADER
-            ),
-            Templates::renderAutoloaderClass($this->config, $types)
-        );
-
-        // FHIRType interface
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_INTERFACE_TYPE
-            ),
-            Templates::renderPhpFhirTypeInterface($this->config, $types)
-        );
-
-        // XmlSerialize interface
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_INTERFACE_XML_SERIALIZABLE
-            ),
-            Templates::renderPhpFhirXmlSerializableInterface($this->config, $types)
-        );
-
-        // ContainedType interface
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_INTERFACE_CONTAINED_TYPE
-            ),
-            Templates::renderPhpFhirContainedTypeInterface($this->config, $types)
-        );
-
-        // CommentContainer interface
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_INTERFACE_COMMENT_CONTAINER
-            ),
-            Templates::renderPhpFhirCommentContainerInterface($this->config, $types)
-        );
-
-        // CommentContainer trait
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_TRAIT_COMMENT_CONTAINER
-            ),
-            Templates::renderPhpFhirCommentContainerTrait($this->config, $types)
-        );
-
-        // ValidationAssertions trait
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_TRAIT_VALIDATION_ASSERTIONS
-            ),
-            Templates::renderPhpFhirValidationAssertionsTrait($this->config, $types)
-        );
-
-        // ChangeTracking trait
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_TRAIT_CHANGE_TRACKING
-            ),
-            Templates::renderPhpFhirChangeTrackingTrait($this->config, $types)
-        );
-
-        // XMLNS trait
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_TRAIT_XMLNS
-            ),
-            Templates::renderPhpFhirXhtmlNamespaceTrait($this->config, $types)
-        );
-
-        // ResponseParser config class
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_CLASSNAME_RESPONSE_PARSER_CONFIG
-            ),
-            Templates::renderPhpFhirResponseParserConfigClass($this->config, $types)
-        );
-
-        // ResponseParser class
-        $this->writeClassFile(
-            FileUtils::buildGenericFilePath(
-                $this->config,
-                $this->config->getNamespace(true),
-                PHPFHIR_CLASSNAME_RESPONSE_PARSER
-            ),
-            Templates::renderPhpFhirResponseParserClass($this->config, $types)
-        );
     }
 }

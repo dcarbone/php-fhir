@@ -507,13 +507,11 @@ class Type
     }
 
     /**
-     * TODO: super hacky.
-     *
      * @return bool
      */
-    public function isDomainResource(): bool
+    public function isResourceType(): bool
     {
-        return str_contains($this->getFullyQualifiedNamespace(false), 'DomainResource');
+        return str_contains($this->getFullyQualifiedNamespace(false), '\\FHIRResource\\');
     }
 
     /**
@@ -751,11 +749,6 @@ class Type
         $interfaces = [];
         $parentType = $this->getParentType();
 
-        if (!$this->isAbstract()) {
-            // always add xml serializable interface to all non-abstract types
-            $interfaces[] = PHPFHIR_INTERFACE_XML_SERIALIZABLE;
-        }
-
         if (null === $parentType) {
             if ($this->isCommentContainer()) {
                 $interfaces[] = PHPFHIR_INTERFACE_COMMENT_CONTAINER;
@@ -767,11 +760,6 @@ class Type
             }
         } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
             $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
-        }
-
-        // if this is not abstract and has no concrete parent, add the \JsonSerializable interface
-        if (!$this->isAbstract() && !$this->hasConcreteParent()) {
-            $interfaces[] = '\\JsonSerializable';
         }
 
         return $interfaces;

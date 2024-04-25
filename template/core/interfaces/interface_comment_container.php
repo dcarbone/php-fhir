@@ -24,7 +24,7 @@ $namespace = $config->getNamespace(false);
 
 ob_start();
 
-echo "<?php\n\n";
+echo "<?php declare(strict_types=1);\n\n";
 
 if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";

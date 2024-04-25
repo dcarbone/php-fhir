@@ -43,6 +43,12 @@ class Types implements Countable
     private Type $containerType;
 
     /**
+     * This will eventually be the "Bundle" type seen
+     * @var \DCarbone\PHPFHIR\Definition\Type
+     */
+    private Type $bundleType;
+
+    /**
      * FHIRTypes constructor.
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      */
@@ -71,7 +77,7 @@ class Types implements Countable
      * @param string $name
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getTypeByName(string $name): ?Type
+    public function getTypeByName(string $name): null|Type
     {
         foreach ($this->types as $type) {
             if ($type->getFHIRName() === $name) {
@@ -85,7 +91,7 @@ class Types implements Countable
      * @param string $name
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getTypeByClassName(string $name): ?Type
+    public function getTypeByClassName(string $name): null|Type
     {
         foreach ($this->types as $type) {
             if ($type->getClassName() === $name) {
@@ -100,7 +106,7 @@ class Types implements Countable
      * @param bool $leadingSlash
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getTypeByFQN(string $fqn, bool $leadingSlash): ?Type
+    public function getTypeByFQN(string $fqn, bool $leadingSlash): null|Type
     {
         foreach ($this->types as $type) {
             if ($type->getFullyQualifiedClassName($leadingSlash) === $fqn) {
@@ -192,7 +198,7 @@ class Types implements Countable
      * @param string $version
      * @return \DCarbone\PHPFHIR\Definition\Type|null
      */
-    public function getContainerType(string $version): ?Type
+    public function getContainerType(string $version): null|Type
     {
         if (!isset($this->containerType)) {
             foreach ($this->types as $type) {
@@ -226,6 +232,22 @@ class Types implements Countable
             }
         }
         return false;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Type|null
+     */
+    public function getBundleType(): null|Type
+    {
+        if (!isset($this->bundleType)) {
+            foreach($this->types as $type) {
+                if ($type->getFHIRName() === 'Bundle') {
+                    $this->bundleType = $type;
+                    break;
+                }
+            }
+        }
+        return $this->bundleType ?? null;
     }
 
     /**

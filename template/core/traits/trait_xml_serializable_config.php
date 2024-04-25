@@ -34,47 +34,38 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
     /**
-    * Trait <?php echo PHPFHIR_TRAIT_XMLNS; if ('' !== $rootNS) : ?>
+    * Trait <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; if ('' !== $rootNS) : ?>
 
     * @package \<?php echo $rootNS; ?>
 <?php endif; ?>
 
     */
-    trait <?php echo PHPFHIR_TRAIT_XMLNS; ?>
+trait <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>
 
 {
-    /** @var string */
-    protected string $_xmlns = '';
+    /** @var int */
+    private int $libxmlOpts;
 
     /**
-     * @param null|string $xmlNamespace
-     * @return self
+     * Sets the option flags to provide to libxml when serializing and unserializing XML
+     *
+     * @param int $libxmlOpts
+     * @return static
      */
-    public function _setFHIRXMLNamespace(null|string $xmlNamespace): self
+    public function setLibxmlOpts(int $libxmlOpts): self
     {
-        $this->_xmlns = trim((string)$xmlNamespace);
+        $this->libxmlOpts = $libxmlOpts;
         return $this;
     }
 
     /**
-     * @return string
+     * Returns set libxml option flags
+     *
+     * @return int
      */
-    public function _getFHIRXMLNamespace(): string
+    public function getLibxmlOpts(): int
     {
-        return $this->_xmlns;
-    }
-
-    /**
-     * @return string
-     */
-    public function _getFHIRXMLElementDefinition(string $elementName): string
-    {
-        $xmlns = $this->_getFHIRXMLNamespace();
-        if ('' !==  $xmlns) {
-            $xmlns = sprintf(' xmlns="%s"', $xmlns);
-        }
-        return sprintf('<%1$s%2$s></%1$s>', $elementName, $xmlns);
+        return $this->libxmlOpts ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
     }
 }
-
 <?php return ob_get_clean();

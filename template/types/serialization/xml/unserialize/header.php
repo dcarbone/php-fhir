@@ -22,50 +22,56 @@
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
+$namespace = $config->getNamespace(false);
 $versionName = $config->getVersion()->getName();
 
 ob_start(); ?>
     /**
-     * @param null|string|\DOMElement $element
+     * @param null|string|\DOMNode $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|int $libxmlOpts
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): null|self
+    public static function xmlUnserialize(null|string|\DOMNode $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
+        }
+        if (is_int($config)) {
+            $libxmlOpts = $config;
+            $config = null;
+        } else {
+            $libxmlOpts = $config?->getLibxmlOpts() ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
         }
         if (is_string($element)) {
             libxml_use_internal_errors(true);
             $dom = new \DOMDocument();
             if (false === $dom->loadXML($element, $libxmlOpts)) {
-                throw new \DomainException(sprintf('<?php echo $typeClassName; ?>::xmlUnserialize - String provided is not parseable as XML: %s', implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))));
+                throw new \DomainException(sprintf(
+                    '%s::xmlUnserialize - String provided is not parseable as XML: %s',
+                    ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                    implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))
+                ));
             }
             libxml_use_internal_errors(false);
             $element = $dom->documentElement;
         }
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
-            throw new \RuntimeException('<?php echo $typeClassName; ?>::xmlUnserialize: Cannot unserialize directly into root type');
-        } else if (!($type instanceof <?php echo $typeClassName; ?>)) {
-            throw new \RuntimeException(sprintf(
-                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be child instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
-                get_class($type)
-            ));
-        }
-<?php else : ?>
+            throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
+        }<?php else : ?>
         if (null === $type) {
-            $type = new <?php echo $typeClassName; ?>(null);
-        } else if (!($type instanceof <?php echo $typeClassName; ?>)) {
+            $type = new static(null);
+        }<?php endif; ?> else if (!($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
-                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of <?php echo $type->getFullyQualifiedClassName(true); ?> or null, %s seen.',
+                '%s::xmlUnserialize - $type must be instance of \\%s or null, %s seen.',
+                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                static::class,
                 get_class($type)
             ));
         }
-<?php endif; ?>
-        if ('' === $type->_getFHIRXMLNamespace() && (null === $element->parentNode || $element->namespaceURI !== $element->parentNode->namespaceURI)) {
-            $type->_setFHIRXMLNamespace($element->namespaceURI);
+        if ('' === $type->_getFHIRXMLNamespace() && '' !== ($ens = (string)$element->namespaceURI)) {
+            $type->_setFHIRXMLNamespace($ens);
         }
 <?php return ob_get_clean();

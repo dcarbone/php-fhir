@@ -21,16 +21,23 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
+$namespace = $config->getNamespace(false);
 $localProperties = $type->getLocalProperties()->localPropertiesIterator();
 
 ob_start(); ?>
     /**
-     * @param null|\DOMElement $element
-     * @param null|int $libxmlOpts
-     * @return \DOMElement
+     * @param null|\DOMNode $element
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return \DOMNode
      */
-    public function xmlSerialize(null|\DOMElement $element = null, ?int $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>): \DOMElement
+    public function xmlSerialize(null|\DOMNode $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMNode
     {
+        if (is_int($config)) {
+            $libxmlOpts = $config;
+            $config = null;
+        } else {
+            $libxmlOpts = $config?->getLibxmlOpts() ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+        }
 <?php foreach($localProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo $property->getGetterName(); ?>())) {
             return $v->xmlSerialize($element, $libxmlOpts);

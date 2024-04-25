@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * Copyright 2016-2022 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
  * @param array $vars
  * @return mixed
  */
-function require_with(string $requiredFile, array $vars)
+function require_with(string $requiredFile, array $vars): mixed
 {
     $num = extract($vars, EXTR_OVERWRITE);
     if ($num !== count($vars)) {

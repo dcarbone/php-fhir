@@ -1,0 +1,71 @@
+name: 'Load FHIR XSD'
+description: 'Downloads and caches a a version of FHIR source files'
+
+inputs:
+  version:
+    required: true
+    description: 'Version to download'
+
+  base-url:
+    required: false
+    description: 'Base FHIR URL'
+    default: 'https://hl7.org/fhir'
+
+  filename:
+    required: false
+    description: 'Name of xsd file'
+    default: 'fhir-all-xsd.zip'
+
+  user-agent:
+    required: false
+    description: 'User agent string to use'
+    default: 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0'
+
+outputs:
+  cache-key:
+    description: 'Actions Cache key'
+    value: '${{ steps.vars.cache-key }}'
+
+runs:
+  using: composite
+  steps:
+    - id: vars
+      shell: bash -e {0}
+      # language=sh
+      run: |
+        _month="$(date "+%Y%m")"
+        _cache_key="fhir-source-${{ inputs.version }}-${_month}-1"
+        _dl_url="${{ inputs.base-url}}/${{ inputs.version }}/${{ inputs.filename }}"
+        _cache_dir="${{ github.workspace }}/input"
+        _xsd_cache_dir="${_cache_dir}/${{ inputs.version }}"
+        _zip_filename="${_cache_dir}/${{ inputs.version }}.zip"
+        
+        echo "cache-key=${_cache_key}" >> $GITHUB_OUTPUT
+        echo "cache-dir=${_cache_dir}" >> $GITHUB_OUTPUT
+        echo "xsd-cache-dir=${_xsd_cache_dir}" >> $GITHUB_OUTPUT
+        echo "url=${_dl_url}" >> $GITHUB_OUTPUT
+        echo "zip-filename=${_zip_filename}" >> $GITHUB_OUTPUT
+
+    - uses: actions/cache@v4
+      id: cache
+      with:
+        path: '${{ steps.vars.outputs.cache-dir }}'
+        key: '${{ steps.vars.outputs.cache-key }}'
+
+    - name: 'Download'
+      if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
+      shell: bash -e {0}
+      # language=sh
+      run: |
+        mkdir -p '${{ steps.vars.outputs.xsd-cache-dir }}'
+        
+        curl \
+          -L \
+          -A '${{ inputs.user-agent }}' \
+          -o '${{ steps.vars.outputs.zip-filename }}' \
+          '${{ steps.vars.outputs.url }}'
+        
+        unzip -o -qq '${{ steps.vars.outputs.zip-filename }}' -d '${{ steps.vars.outputs.xsd-cache-dir }}'
+        
+        ls -l '${{ steps.vars.outputs.cache-dir}}'
+        ls -l '${{ steps.vars.outputs.xsd-cache-dir }}'
