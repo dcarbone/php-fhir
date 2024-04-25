@@ -48,32 +48,30 @@ ob_start(); ?>
             libxml_use_internal_errors(true);
             $dom = new \DOMDocument();
             if (false === $dom->loadXML($element, $libxmlOpts)) {
-                throw new \DomainException(sprintf('<?php echo $typeClassName; ?>::xmlUnserialize - String provided is not parseable as XML: %s', implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))));
+                throw new \DomainException(sprintf(
+                    '%s::xmlUnserialize - String provided is not parseable as XML: %s',
+                    static::class,
+                    implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))
+                ));
             }
             libxml_use_internal_errors(false);
             $element = $dom->documentElement;
         }
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
-            throw new \RuntimeException('<?php echo $typeClassName; ?>::xmlUnserialize: Cannot unserialize directly into root type');
-        } else if (!($type instanceof <?php echo $typeClassName; ?>)) {
-            throw new \RuntimeException(sprintf(
-                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be child instance of %s or null, %s seen.',
-                static::class,
-                get_class($type)
-            ));
+            throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
         }
 <?php else : ?>
         if (null === $type) {
-            $type = new <?php echo $typeClassName; ?>(null);
-        } else if (!($type instanceof <?php echo $typeClassName; ?>)) {
+            $type = new static(null);
+        }<?php endif; ?> else if (!($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
-                '<?php echo $typeClassName; ?>::xmlUnserialize - $type must be instance of %s or null, %s seen.',
+                '%s::xmlUnserialize - $type must be instance of \\%s or null, %s seen.',
+                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
                 static::class,
                 get_class($type)
             ));
         }
-<?php endif; ?>
         if ('' === $type->_getFHIRXMLNamespace() && '' !== ($ens = (string)$element->namespaceURI)) {
             $type->_setFHIRXMLNamespace($ens);
         }
