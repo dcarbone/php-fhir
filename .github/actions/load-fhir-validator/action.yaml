@@ -60,7 +60,6 @@ runs:
         java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 4.1.0
         java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 4.3.0
         java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 5.0.0
-        java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 6.0.0
         echo '::endgroup::'
         
         echo '::group::Cached assets:'
