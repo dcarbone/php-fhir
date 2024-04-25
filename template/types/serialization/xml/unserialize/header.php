@@ -50,7 +50,7 @@ ob_start(); ?>
             if (false === $dom->loadXML($element, $libxmlOpts)) {
                 throw new \DomainException(sprintf(
                     '%s::xmlUnserialize - String provided is not parseable as XML: %s',
-                    static::class,
+                    ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
                     implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))
                 ));
             }
@@ -60,8 +60,7 @@ ob_start(); ?>
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
             throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
-        }
-<?php else : ?>
+        }<?php else : ?>
         if (null === $type) {
             $type = new static(null);
         }<?php endif; ?> else if (!($type instanceof <?php echo $typeClassName; ?>)) {
