@@ -63,7 +63,7 @@ runs:
         echo '::endgroup::'
         
         echo '::group::Cached assets:'
-        wc -l '/home/runner/.fhir'
         ls -l '/home/runner/.fhir'
+        ls -l '/home/runner/.fhir' | wc -l
         echo '::endgroup::'
         
