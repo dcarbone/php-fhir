@@ -113,6 +113,7 @@ jobs:
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('composer.lock') }}"
+          save-always: true
 
       - name: 'Install Composer deps'
         # language=sh
