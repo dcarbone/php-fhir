@@ -47,9 +47,9 @@ ob_start(); ?>
             $str = str_replace(',', '', $str);
         }
         if (false === $dec) {
-            $this->_decimals = 1;
+            $this->_decimals = 0;
         } else {
-            $this->_decimals = strlen($dec) - 1;
+            $this->_decimals = strlen((int)$dec) - 1;
         }
         $this->value = floatval($str);
         return $this;
