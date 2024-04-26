@@ -72,6 +72,9 @@ ob_start(); ?>
         if (null === $v) {
             return '0';
         }
-        return number_format($v, 0, '.', $this->_commas ? ',' : '');
+        if ($this->_commas) {
+            return strrev(wordwrap(strrev((string)$v), 3, ',', true));
+        }
+        return (string)$v;
     }
 <?php return ob_get_clean();
