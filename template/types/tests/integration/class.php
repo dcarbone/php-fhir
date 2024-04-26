@@ -94,6 +94,8 @@ class <?php echo $testClassname; ?> extends TestCase
         'fhir_comments',
         'None of the codings provided are in the value set',
         ' is not valid in the value set ',
+        'this may not be a problem',
+        'An expression or a reference must be provided',
     ];
 
     /**
