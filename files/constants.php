@@ -91,6 +91,7 @@ const PHPFHIR_INTERFACE_XML_SERIALIZABLE = 'PHPFHIRXmlSerializableInterface';
 const PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG = 'PHPFHIRXmlSerializableConfigInterface';
 const PHPFHIR_INTERFACE_CONTAINED_TYPE = 'PHPFHIRContainedTypeInterface';
 const PHPFHIR_INTERFACE_COMMENT_CONTAINER = 'PHPFHIRCommentContainerInterface';
+const PHPFHIR_INTERFACE_PRIMITIVE_TYPE = 'PHPFHIRPrimitiveTypeInterface';
 
 // Core traits
 const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'PHPFHIRCommentContainerTrait';

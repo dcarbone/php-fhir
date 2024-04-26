@@ -25,27 +25,34 @@ use DCarbone\PHPFHIR\Enum\PrimitiveType;
 $primitiveType = $type->getPrimitiveType();
 
 // TODO: more different types of strvals...
-$strVal = match ($primitiveType) {
-    PrimitiveType::INTEGER, PrimitiveType::POSITIVE_INTEGER, PrimitiveType::INTEGER64 => '10',
-    PrimitiveType::NEGATIVE_INTEGER => '-10',
-    PrimitiveType::DECIMAL => '10.5',
-    PrimitiveType::UNSIGNED_INTEGER => (string)PHP_INT_MAX,
-    PrimitiveType::BOOLEAN => 'true',
-    default => 'randomstring',
+$strVals = match ($primitiveType) {
+    PrimitiveType::INTEGER, PrimitiveType::POSITIVE_INTEGER, PrimitiveType::INTEGER64 => ['10', '1,000'],
+    PrimitiveType::NEGATIVE_INTEGER => ['-10', '-1,000'],
+    PrimitiveType::DECIMAL => ['10.5', '1,000.3333'],
+    PrimitiveType::UNSIGNED_INTEGER => [(string)PHP_INT_MAX, '1,000'],
+    PrimitiveType::BOOLEAN => ['true'],
+    default => ['randomstring'],
 };
 
 ob_start(); ?>
-
     public function testCanConstructWithString()
     {
-        $n = new <?php echo $type->getClassName(); ?>('<?php echo $strVal; ?>');
-        $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+<?php foreach($strVals as $strVal) : ?>
+        {
+            $n = new <?php echo $type->getClassName(); ?>('<?php echo $strVal; ?>');
+            $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+        }
+<?php endforeach; ?>
     }
 
     public function testCanSetValueFromString()
     {
-        $n = new <?php echo $type->getClassName(); ?>;
-        $n->setValue('<?php echo $strVal; ?>');
-        $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+<?php foreach($strVals as $strVal) : ?>
+        {
+            $n = new <?php echo $type->getClassName(); ?>;
+            $n->setValue('<?php echo $strVal; ?>');
+            $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+        }
+<?php endforeach; ?>
     }
 <?php return ob_get_clean();

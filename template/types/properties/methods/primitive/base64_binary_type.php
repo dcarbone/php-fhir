@@ -43,12 +43,20 @@ ob_start(); ?>
      * @param resource $fileHandle
      * @return int|false
      */
-    public function _writeToFile($fileHandle)
+    public function writeToFile(resource $fileHandle): int|bool
     {
         $v = $this->getValue();
         if (null === $v) {
             return 0;
         }
         return fwrite($fileHandle, base64_decode($v));
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormattedValue(): string
+    {
+        return (string)$this->getValue();
     }
 <?php return ob_get_clean();

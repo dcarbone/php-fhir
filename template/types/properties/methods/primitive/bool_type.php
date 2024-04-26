@@ -38,4 +38,12 @@ ob_start(); ?>
         }
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getFormattedValue(): string
+    {
+        return $this->getValue() ? PHPFHIRConstants::STRING_TRUE : PHPFHIRConstants::STRING_FALSE;
+    }
 <?php return ob_get_clean();

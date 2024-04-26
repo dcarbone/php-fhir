@@ -47,7 +47,7 @@ ob_start(); ?>
     /**
      * @return null|\DateTimeInterface
      */
-    public function _getDateTime(): ?\DateTimeInterface
+    public function getDateTime(): null|\DateTimeInterface
     {
         $value = $this->getValue();
         if (null === $value) {
@@ -58,5 +58,13 @@ ob_start(); ?>
             throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, PHPFHIRConstants::TIME_FORMAT));
         }
         return $dt;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormattedValue(): string
+    {
+        return (string)$this->getValue();
     }
 <?php return ob_get_clean();

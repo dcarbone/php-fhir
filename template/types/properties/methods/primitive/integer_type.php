@@ -24,6 +24,9 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var string $typeClassName */
 
 ob_start(); ?>
+    /** @var bool */
+    private bool $_commas = false;
+
     /**
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
      * @return static
@@ -32,21 +35,38 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
+            $this->_commas = false;
             return $this;
         }
-        if (is_string($value)) {
+        if (is_float($value)) {
+            $value = intval($value);
+        } else if (is_string($value)) {
             if ('' === $value) {
-                $value = 0;
-            } else {
-                $neg = 1;
-                if ('-' === $value[0]) {
-                    $neg = -1;
-                    $value = substr($value, 1);
-                }
-                $value = $neg * intval($value, 10);
+                $value = '0';
             }
+            $neg = 1;
+            if ('-' === $value[0]) {
+                $neg = -1;
+                $value = substr($value, 1);
+            }
+            if ($this->_commas = str_contains($value, ',')) {
+                $value = str_replace(',', '', $value);
+            }
+            $value = $neg * intval($value);
         }
         $this->value = $value;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormattedValue(): string
+    {
+        $v = $this->getValue();
+        if (null === $v) {
+            return '0';
+        }
+        return number_format($v, 0, '.', $this->_commas ? ',' : '');
     }
 <?php return ob_get_clean();

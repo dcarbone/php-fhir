@@ -196,21 +196,9 @@ if (!$type->hasPrimitiveParent()) : ?>
      */
     public function __toString(): string
     {
-<?php if ($typeKind === TypeKind::PRIMITIVE) :
-    $primitiveType = $type->getPrimitiveType();
-    if ($primitiveType === PrimitiveType::BOOLEAN) : ?>
-        return $this->getValue() ? PHPFHIRConstants::STRING_TRUE : PHPFHIRConstants::STRING_FALSE;
-<?php elseif ($primitiveType === PrimitiveType::DECIMAL) : ?>
-        if (null !== ($v = $this->getValue())) {
-            if (isset($this->_decimals)) {
-                return number_format($v, $this->_decimals);
-            }
-            return (string)$v;
-        }
-        return '';
-<?php else : ?>
-        return (string)$this->getValue();
-<?php endif; elseif ($typeKind->isOneOf(TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
+<?php if ($typeKind === TypeKind::PRIMITIVE) : ?>
+        return $this->getFormattedValue();
+<?php elseif ($typeKind->isOneOf(TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
         return (string)$this->getValue();
 <?php else : ?>
         return self::FHIR_TYPE_NAME;

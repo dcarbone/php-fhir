@@ -16,22 +16,12 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 $namespace = $config->getNamespace(false);
-
-$containerType = $types->getContainerType($config->getVersion()->getName());
-if (null === $containerType) {
-    throw new \RuntimeException(sprintf(
-        'Unable to locate either "%s" or "%s" type',
-        TypeKind::RESOURCE_CONTAINER->value,
-        TypeKind::RESOURCE_INLINE->value
-    ));
-}
 
 ob_start();
 
@@ -46,21 +36,19 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
- *
- * This interface is applied to any class that is containable within a <?php $containerType->getFullyQualifiedClassName(true); ?><?php if ('' !== $namespace) : ?>
+ * Interface <?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>
+interface <?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
 {
     /**
-     * The return from this method is used only when json serializing this type
+     * Must return the appropriate "formatted" stringified version of this primitive type's value
      * @return string
      */
-    public function _getResourceType(): string;
+    public function getFormattedValue(): string;
 }
 <?php return ob_get_clean();
