@@ -96,6 +96,9 @@ class <?php echo $testClassname; ?> extends TestCase
         ' is not valid in the value set ',
         'this may not be a problem',
         'An expression or a reference must be provided',
+        ' should be usable as an identifier for the module by machine processing applications such as code generation',
+        ' Unknown code ',
+        ' Wrong Display Name ',
     ];
 
     /**
