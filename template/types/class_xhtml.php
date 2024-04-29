@@ -88,6 +88,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
         if (null === $node) {
             $this->_trackValueSet($this->_node, null);
             $this->_node = null;
+            $this->_attributes = [];
             return $this;
         }
         $dom = new \DOMDocument();
@@ -154,6 +155,10 @@ echo require_with(
         $node = $this->getNode();
         if (null === $node) {
             return $element;
+        }
+        for ($i = 0; $i < $node->attributes->length; $i++) {
+            $attr = $node->attributes->item($i);
+            $element->setAttribute($attr->nodeName, $attr->nodeValue);
         }
         for ($i = 0; $i < $node->childNodes->length; $i++) {
             $element->appendChild($element->ownerDocument->importNode($node->childNodes->item($i), true));

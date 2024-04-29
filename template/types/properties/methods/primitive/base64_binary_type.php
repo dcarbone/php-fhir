@@ -43,7 +43,7 @@ ob_start(); ?>
      * @param resource $fileHandle
      * @return int|false
      */
-    public function writeToFile(resource $fileHandle): int|bool
+    public function writeToFile($fileHandle): int|bool
     {
         $v = $this->getValue();
         if (null === $v) {

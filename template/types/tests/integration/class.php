@@ -99,6 +99,7 @@ class <?php echo $testClassname; ?> extends TestCase
         ' should be usable as an identifier for the module by machine processing applications such as code generation',
         ' Unknown code ',
         ' Wrong Display Name ',
+        'If a code for the unit is present, the system SHALL also be present',
     ];
 
     /**
