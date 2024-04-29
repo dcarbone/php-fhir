@@ -64,8 +64,11 @@ echo "namespace {$testNS};\n\n";
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 ?>
 
+
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
+use <?php echo $config->getNamespace(false); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>;
+use <?php echo $config->getNamespace(false); ?>\<?php echo PHPFHIR_ENUM_TYPE; ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -77,10 +80,6 @@ use PHPUnit\Framework\TestCase;
  */
 class <?php echo $testClassname; ?> extends TestCase
 {
-
-    /** @var array */
-    private array $_fetchedResources = [];
-
     /** @var array */
     private const IGNORE_ERRS = [
         'Unable to provide support for code system',
@@ -101,6 +100,17 @@ class <?php echo $testClassname; ?> extends TestCase
         ' Wrong Display Name ',
         'If a code for the unit is present, the system SHALL also be present',
     ];
+
+    /** @var <?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> */
+    private <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> $client;
+
+    /** @var array */
+    private array $_fetchedResources = [];
+
+    protected function setUp(): void
+    {
+        $this->client = new PHPFHIRDebugClient('<?php echo rtrim($config->getTestEndpoint(), '/'); ?>');
+    }
 
     /**
      * @var string $filename
@@ -142,21 +152,14 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $url = sprintf('<?php echo rtrim($config->getTestEndpoint(), '/') . '/' . $type->getFHIRName(); ?>/?_count=1&_format=%s', $format);
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-        ]);
-        $res = curl_exec($ch);
-        $err = curl_error($ch);
-        curl_close($ch);
-        $this->assertEmpty($err, sprintf('curl error seen: %s', $err));
-        $this->assertIsString($res);
-        $this->_fetchedResources[$format] = $res;
+        $rc = $this->client->get(sprintf('/%s', <?php echo PHPFHIR_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '1', '_format' => $format]);
+        $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
+        $this->assertEquals(200, $rc->code, 'Expected 200 OK');
+        $this->assertIsString($rc->resp);
+        $this->_fetchedResources[$format] = $rc->resp;
         $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo CopyrightUtils::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
-        file_put_contents($fname, $res);
-        return $res;
+        file_put_contents($fname, $rc->resp);
+        return $rc->resp;
     }
 
     /**

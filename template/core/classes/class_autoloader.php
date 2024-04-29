@@ -99,6 +99,9 @@ if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONFIG; ?>', false)
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
 }
+if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>.php';
+}
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>.php';
 }
