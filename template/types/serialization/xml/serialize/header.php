@@ -31,7 +31,7 @@ ob_start(); ?>
     /**
      * @param null|\DOMElement $element
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMElement<?php if ($typeKind !== TypeKind::PRIMITIVE) : ?>
+     * @return \DOMElement<?php if ($typeKind !== TypeKind::PRIMITIVE || $type->hasParent()) : ?>
 
      * @throws \DOMException<?php endif; ?>
 
