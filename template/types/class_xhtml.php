@@ -59,16 +59,17 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
 
     const _NOISE_NODES = ['html', 'head', 'body'];
 
-    /** @var null|\DOMNode */
-    private null|\DOMNode $_node = null;
+    /** @var null|\DOMElement */
+    private null|\DOMElement $_node = null;
 
     /**
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
      * @param null|string|\DOMNode $node
+     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config
      */
-    public function __construct(null|string|\DOMNode $node = null)
+    public function __construct(null|string|\DOMNode $node = null, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config = null)
     {
-        $this->setNode($node);
+        $this->setNode($node, $config);
     }
 
     /**
@@ -81,17 +82,20 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
 
     /**
      * @param null|string|\DOMNode $node
+     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config
      * @return static
      */
-    public function setNode(null|string|\DOMNode $node): self
+    public function setNode(null|string|\DOMNode $node, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config = null): self
     {
         if (null === $node) {
             $this->_trackValueSet($this->_node, null);
             $this->_node = null;
-            $this->_attributes = [];
             return $this;
         }
-        $dom = new \DOMDocument();
+        if (null === $config) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+        }
+        $dom = $config->newDOMDocument();
         if (is_string($node)) {
             $dom->loadHTML($node);
         } else if ($node instanceof \DOMDocument) {
@@ -133,20 +137,23 @@ echo require_with(
     }
 
     /**
-     * @param \DOMNode|null $element
+     * @param null|\DOMElement $element
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMNode
+     * @return \DOMElement
      */
-    public function xmlSerialize(\DOMNode $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMNode
+    public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
     {
         if (is_int($config)) {
             $libxmlOpts = $config;
-            $config = null;
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+        } else if (null === $config) {
+            $libxmlOpts = <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
         } else {
-            $libxmlOpts = $config?->getLibxmlOpts() ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+            $libxmlOpts = $config->getLibxmlOpts();
         }
         if (null === $element) {
-            $dom = new \DOMDocument();
+            $dom = $config->newDOMDocument();
             $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
             $element = $dom->documentElement;
         } else if ('' !== ($ns = $this->_getFHIRXMLNamespace())) {

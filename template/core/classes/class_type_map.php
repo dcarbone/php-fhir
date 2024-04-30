@@ -121,11 +121,11 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 
     /**
      * Will attempt to determine if the provided value is or describes a containable resource type
-     * @param string|array|\DOMNode|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type
+     * @param string|array|\DOMElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public static function isContainableResource(string|array|\DOMNode|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool
+    public static function isContainableResource(string|array|\DOMElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool
     {
         $tt = gettype($type);
         if ('object' === $tt) {
@@ -144,10 +144,10 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
     }
 
     /**
-     * @param \DOMNode $node Parent element containing inline resource
+     * @param \DOMElement $node Parent element containing inline resource
      * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
-    public static function getContainedTypeFromXML(\DOMNode $node): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+    public static function getContainedTypeFromXML(\DOMElement $node): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 
     {
         $typeName = $node->nodeName;

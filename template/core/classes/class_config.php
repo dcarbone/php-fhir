@@ -46,7 +46,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTE
     use <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>;
 
     /** @var bool */
-    private bool $registerAutoloader;
+    private bool $registerAutoloader = false;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
@@ -54,22 +54,11 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTE
      */
     public function __construct(array $config = [])
     {
-        foreach(self::getKeysWithDefaults() as $k => $v) {
-            $this->setKey($k, $config[$k] ?? $v);
+        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::values() as $k => $_) {
+            if (isset($config[$k]) || array_key_exists($k, $config)) {
+                $this->setKey($k, $config[$k]);
+            }
         }
-    }
-
-    /**
-     * TODO(@dcarbone): Return const once we drop 8.1
-     *
-     * @return array
-     */
-    public static function getKeysWithDefaults(): array
-    {
-        return [
-            PHPFHIRConfigKeysEnum::REGISTER_AUTOLOADER->value => false,
-            PHPFHIRConfigKeysEnum::LIBXML_OPTS->value => <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS,
-        ];
     }
 
     /**
@@ -79,7 +68,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTE
      * @param mixed $value
      * @return static
      */
-    public function setKey(PHPFHIRConfigKeysEnum|string $key, mixed $value): self
+    public function setKey(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>|string $key, mixed $value): self
     {
         if (!is_string($key)) {
             $key = $key->value;
@@ -112,7 +101,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTE
     public function jsonSerialize(): \stdClass
     {
         $out = new \stdClass();
-        foreach(self::getKeysWithDefaults() as $k => $_) {
+        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::values() as $k => $_) {
             $out->{$k} = $this->{'get'.$k}();
         }
         return $out;
