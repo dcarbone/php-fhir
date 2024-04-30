@@ -31,7 +31,7 @@ foreach ($localProperties as $property) {
                 'property' => $property,
             ]
         );
-    } elseif (null === $parentType) {
+    } elseif (0 < count($localProperties)) {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'body_untyped.php',
             [
