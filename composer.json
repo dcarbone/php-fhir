@@ -28,7 +28,7 @@
   },
   "require-dev": {
     "ext-curl": "*",
-    "phpunit/phpunit": "^11.0",
+    "phpunit/phpunit": "^10.5 || ^11.0",
     "monolog/monolog": "^3.2.0"
   },
   "replace": {

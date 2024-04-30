@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="../vendor/autoload.php"
-         colors="true" stopOnFailure="true">
-    <coverage includeUncoveredFiles="true">
-        <include>
-            <directory suffix=".php">../src</directory>
-        </include>
-    </coverage>
-    <php>
-        <ini name="memory_limit" value="2048M"/>
-    </php>
-    <testsuites>
-        <testsuite name="R5-Static">
-            <file>../output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-            <file>../output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-        </testsuite>
-        <testsuite name="R5-Unit">
-            <directory>../output/HL7/FHIR/R5/PHPFHIRTests/Unit</directory>
-        </testsuite>
-        <testsuite name="R5-Integration">
-            <directory>../output/HL7/FHIR/R5/PHPFHIRTests/Integration</directory>
-        </testsuite>
-    </testsuites>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" bootstrap="../vendor/autoload.php" colors="true" stopOnFailure="true">
+  <php>
+    <ini name="memory_limit" value="2048M"/>
+  </php>
+  <testsuites>
+    <testsuite name="R5-Static">
+      <file>../output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
+      <file>../output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+    </testsuite>
+    <testsuite name="R5-Unit">
+      <directory>../output/HL7/FHIR/R5/PHPFHIRTests/Unit</directory>
+    </testsuite>
+    <testsuite name="R5-Integration">
+      <directory>../output/HL7/FHIR/R5/PHPFHIRTests/Integration</directory>
+    </testsuite>
+  </testsuites>
+  <source>
+    <include>
+      <directory suffix=".php">../src</directory>
+    </include>
+  </source>
 </phpunit>
