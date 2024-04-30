@@ -116,7 +116,7 @@ class <?php echo $testClassname; ?> extends TestCase
      * @param bool $asArray
      * @return mixed
      */
-    protected function decodeJSON(string $sourceJSON, bool $asArray): mixed
+    protected function decodeJson(string $sourceJSON, bool $asArray): mixed
     {
         $this->assertJson($sourceJSON);
         $decoded = json_decode($sourceJSON, $asArray);
@@ -189,7 +189,7 @@ class <?php echo $testClassname; ?> extends TestCase
     public function testJSON(): void
     {
         $sourceJSON = $this->fetchResource('json');
-        $decoded = $this->decodeJSON($sourceJSON, true);
+        $decoded = $this->decodeJson($sourceJSON, true);
         try {
             $bundle = new <?php echo $bundleType->getClassName(); ?>($decoded);
         } catch(\Exception $e) {
@@ -217,7 +217,7 @@ class <?php echo $testClassname; ?> extends TestCase
 
         $reEncoded = json_encode($bundle);
         try {
-            $this->assertEquals($decoded, $this->decodeJSON($reEncoded, true));
+            $this->assertEquals($decoded, $this->decodeJson($reEncoded, true));
         } catch (\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(
@@ -270,7 +270,7 @@ class <?php echo $testClassname; ?> extends TestCase
     public function testValidationJSON(): void
     {
         $sourceJSON = $this->fetchResource('json');
-        $decoded = $this->decodeJSON($sourceJSON, true);
+        $decoded = $this->decodeJson($sourceJSON, true);
         try {
             $bundle = new <?php echo $bundleType->getClassName(); ?>($decoded);
         } catch(\Exception $e) {

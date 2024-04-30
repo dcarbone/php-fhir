@@ -163,6 +163,25 @@ class <?php echo $testClassname; ?> extends TestCase
         return $rc->resp;
     }
 
+     /**
+     * @param string $sourceJSON
+     * @param bool $asArray
+     * @return mixed
+     */
+    protected function decodeJson(string $sourceJSON, bool $asArray): mixed
+    {
+        $this->assertJson($sourceJSON);
+        $decoded = json_decode($sourceJSON, $asArray);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            $this->fail(sprintf(
+                'Error decoded JSON: %s; Raw: %s',
+                function_exists('json_last_error_msg') ? json_last_error_msg() : ('Code: '.json_last_error()),
+                $sourceJSON
+            ));
+        }
+        return $decoded;
+    }
+
     public function testFHIRValidationXML(): void
     {
         $sourceXML = $this->fetchResource('xml');
@@ -222,7 +241,7 @@ class <?php echo $testClassname; ?> extends TestCase
     public function testFHIRValidationJSON()
     {
         $sourceJSON = $this->fetchResource('json');
-        $decoded = $this->decodeJSON($sourceJSON, true);
+        $decoded = $this->decodeJson($sourceJSON, true);
         try {
             $bundle = new <?php echo $bundleType->getClassName(); ?>($decoded);
         } catch(\Exception $e) {
