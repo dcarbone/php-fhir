@@ -26,8 +26,5 @@ ob_start(); ?>
         $n = $element->attributes->getNamedItem(self::<?php echo $property->getFieldConstantName(); ?>);
         if (null !== $n) {
             $type->setValue($n->nodeValue);
-<?php if (null !== $propType && $propType->getKind() === TypeKind::PHPFHIR_XHTML) : ?>
-            $type->_setElementName($n->nodeName);
-<?php endif; ?>
         }
 <?php return ob_get_clean();

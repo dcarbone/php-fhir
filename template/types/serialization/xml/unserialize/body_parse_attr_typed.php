@@ -30,12 +30,16 @@ ob_start();
 if ($propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
         $n = $element->attributes->getNamedItem(self::<?php echo $propertyConst; ?>);
         if (null !== $n) {
+<?php if (!$property->isCollection()) : ?>
             $pt = $type-><?php echo $property->getGetterName(); ?>();
             if (null !== $pt) {
                 $pt->setValue($n->nodeValue);
             } else {
                 $type-><?php echo $setter; ?>($n->nodeValue);
             }
+<?php else : ?>
+            $type-><?php echo $setter; ?>($n->nodeValue);
+<?php endif; ?>
         }
 <?php endif;
 return ob_get_clean();
