@@ -16,13 +16,14 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
 $rootNS = $config->getNamespace(false);
-$testNS = $config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, false);
+$testNS = $config->getTestsNamespace(TestType::BASE, false);
 
 ob_start();
 echo "<?php\n\n";?>

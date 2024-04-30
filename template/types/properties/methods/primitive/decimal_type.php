@@ -24,7 +24,10 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 ob_start(); ?>
     /** @var int */
-    private int $_decimals;
+    private int $_decimals = 1;
+
+    /** @var bool */
+    private bool $_commas = false;
 
     /**
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($config, $primitiveType, true, false); ?> $value
@@ -34,16 +37,33 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
-        } else {
-            $str = (string)$value;
-            $dec = strstr($str, '.');
-            if (false === $dec) {
-                $this->_decimals = 1;
-            } else {
-                $this->_decimals = strlen($dec) - 1;
-            }
-            $this->value = floatval($value);
+            $this->_decimals = 1;
+            $this->_commas = false;
+            return $this;
         }
+        $str = (string)$value;
+        $dec = strstr($str, '.');
+        if ($this->_commas = str_contains($str, ',')) {
+            $str = str_replace(',', '', $str);
+        }
+        if (false === $dec) {
+            $this->_decimals = 0;
+        } else {
+            $this->_decimals = strlen($dec) - 1;
+        }
+        $this->value = floatval($str);
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormattedValue(): string
+    {
+        $v = $this->getValue();
+        if (null === $v) {
+            return '0.0';
+        }
+        return number_format($v, $this->_decimals, '.', $this->_commas ? ',' : '');
     }
 <?php return ob_get_clean();

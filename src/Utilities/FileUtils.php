@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Enum\TestType;
 use RuntimeException;
 
 /**
@@ -28,9 +29,9 @@ use RuntimeException;
  */
 abstract class FileUtils
 {
-    const REGEX_SLASH_SEARCH         = '{[\\\]}S';
-    const REGEX_SLASH_SEARCH_CLEANUP = '{[/]{2,}}S';
-    const REGEX_SLASH_REPLACE        = '/';
+    public const REGEX_SLASH_SEARCH         = '{[\\\]}S';
+    public const REGEX_SLASH_SEARCH_CLEANUP = '{[/]{2,}}S';
+    public const REGEX_SLASH_REPLACE        = '/';
 
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
@@ -87,10 +88,10 @@ abstract class FileUtils
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param string $testType
+     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
      * @return string
      */
-    public static function buildTypeTestFilePath(VersionConfig $config, Type $type,string  $testType): string
+    public static function buildTypeTestFilePath(VersionConfig $config, Type $type, TestType $testType): string
     {
         return static::mkdirRecurse(
                 $config,
@@ -107,14 +108,8 @@ abstract class FileUtils
     {
         return ltrim(
                 str_replace(
-                    [
-                        $config->getNamespace(false),
-                        '\\',
-                    ],
-                    [
-                        '',
-                        '/',
-                    ],
+                    [$config->getNamespace(false), '\\'],
+                    ['', '/'],
                     $type->getFullyQualifiedClassName(false)
                 ),
                 '/\\'

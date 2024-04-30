@@ -132,6 +132,8 @@ enum PrimitiveType:string
             // integers may stem from floats
             case PrimitiveType::INTEGER:
             case PrimitiveType::INTEGER64:
+            case PrimitiveType::POSITIVE_INTEGER:
+            case PrimitiveType::NEGATIVE_INTEGER:
                 $hintTypes[] = 'float';
                 break;
 

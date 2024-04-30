@@ -63,13 +63,10 @@ jobs:
         include:
           - php-version: '8.1'
             phpunit-version: '10.5'
-            paratest-version: '7'
           - php-version: '8.2'
             phpunit-version: '11.1'
-            paratest-version: '7'
           - php-version: '8.3'
             phpunit-version: '11.1'
-            paratest-version: '7'
     name: '${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     steps:
       - name: 'Check the stuff out'
@@ -99,7 +96,7 @@ jobs:
         # language=sh
         run: |
           tmpf="$(mktemp)"
-          jq -rcM '."require-dev"."phpunit/phpunit" = "^${{ matrix.phpunit-version }}" | ."require-dev"."brianium/paratest" = "^${{ matrix.paratest-version }}"' composer.json > "${tmpf}"
+          jq -rcM '."require-dev"."phpunit/phpunit" = "^${{ matrix.phpunit-version }}"' composer.json > "${tmpf}"
           mv "${tmpf}" composer.json
 
       - name: 'Get Composer Cache Directory'
@@ -113,12 +110,13 @@ jobs:
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('composer.lock') }}"
+          save-always: true
 
       - name: 'Install Composer deps'
         # language=sh
         run: |
           rm composer.lock
-          composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+          composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: 'Generate code'
         # language=sh
@@ -134,4 +132,4 @@ jobs:
       - name: 'Run tests'
         # language=sh
         run: |
-          ./vendor/bin/paratest -c 'phpunit/${{ matrix.fhir-version }}.xml'
+          ./vendor/bin/phpunit -c 'phpunit/${{ matrix.fhir-version }}.xml'

@@ -193,7 +193,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     {
         libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
+        $dom = $this->config->newDOMDocment();
         $dom->loadXML($input, $this->config->getLibxmlOpts());
         $err = libxml_get_last_error();
         libxml_use_internal_errors(false);

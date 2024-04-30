@@ -45,6 +45,25 @@ trait <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>
 {
     /** @var int */
     private int $libxmlOpts;
+    /** @var string */
+    private string $domVersion;
+    /** @var string */
+    private string $encoding;
+    /** @var bool */
+    private bool $preserveWhitespace;
+    /** @var bool */
+    private bool $formatOutput;
+
+    /**
+     * @return \DOMDocument;
+     */
+    public function newDOMDocument(): \DOMDocument
+    {
+        $dom = new \DOMDocument($this->getDOMVersion(), $this->getEncoding());
+        $dom->preserveWhiteSpace = $this->getPreserveWhitespace();
+        $dom->formatOutput = $this->getFormatOutput();
+        return $dom;
+    }
 
     /**
      * Sets the option flags to provide to libxml when serializing and unserializing XML
@@ -66,6 +85,80 @@ trait <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>
     public function getLibxmlOpts(): int
     {
         return $this->libxmlOpts ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+    }
+
+    /**
+     * @param string $domVersion
+     * @return static
+     */
+    public function setDOMVersion(string $domVersion): self
+    {
+        $this->domVersion = $domVersion;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDOMVersion(): string
+    {
+        return $this->domVersion ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_DOM_VERSION;
+    }
+
+    /**
+     * @param string $encoding
+     * @return static
+     */
+    public function setEncoding(string $encoding): self
+    {
+        $this->encoding = $encoding;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEncoding(): string
+    {
+        return $this->encoding ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_ENCODING;
+    }
+
+    /**
+     * Sets whether or not to preserve whitespace when rendering XML
+     *
+     * @param bool $preserveWhitespace
+     * @return static
+     */
+    public function setPreserveWhitespace(bool $preserveWhitespace): self
+    {
+        $this->preserveWhitespace = $preserveWhitespace;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getPreserveWhitespace(): bool
+    {
+        return $this->preserveWhitespace ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_PRESERVE_WHITESPACE;
+    }
+
+    /**
+     * @param bool $formatOutput
+     * @return static
+     */
+    public function setFormatOutput(bool $formatOutput): self
+    {
+        $this->formatOutput = $formatOutput;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getFormatOutput(): bool
+    {
+        return $this->formatOutput ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_FORMAT_OUTPUT;
     }
 }
 <?php return ob_get_clean();

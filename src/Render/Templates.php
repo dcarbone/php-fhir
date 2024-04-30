@@ -21,6 +21,7 @@ namespace DCarbone\PHPFHIR\Render;
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
+use DCarbone\PHPFHIR\Enum\TestType;
 
 /**
  * Class TemplateBuilder
@@ -65,11 +66,11 @@ abstract class Templates
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param string $testType
+     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
      * @return string
      */
-    public static function renderFhirTypeClassTest(VersionConfig $config, Types $types, Type $type, string $testType): string
+    public static function renderFhirTypeClassTest(VersionConfig $config, Types $types, Type $type, TestType $testType): string
     {
-        return require PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType . DIRECTORY_SEPARATOR .'class.php';
+        return require PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR .'class.php';
     }
 }

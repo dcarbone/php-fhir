@@ -66,18 +66,18 @@ interface <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>
     public function _getFHIRXMLElementDefinition(string $elementName): string;
 
     /**
-     * @param null|string|\DOMNode $element
+     * @param null|string|\DOMElement $element
      * @param null|static $type
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return null|static
      */
-    public static function xmlUnserialize(null|string|\DOMNode $element, <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self;
+    public static function xmlUnserialize(null|string|\DOMElement $element, <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self;
 
     /**
-     * @param null|\DOMNode $element
+     * @param null|\DOMElement $element
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMNode
+     * @return \DOMElement
      */
-    public function xmlSerialize(null|\DOMNode $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMNode;
+    public function xmlSerialize(null|\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement;
 }
 <?php return ob_get_clean();

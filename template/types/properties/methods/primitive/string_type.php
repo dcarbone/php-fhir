@@ -36,4 +36,12 @@ ob_start(); ?>
         }
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getFormattedValue(): string
+    {
+        return (string)$this->getValue();
+    }
 <?php return ob_get_clean();

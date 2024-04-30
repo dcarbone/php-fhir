@@ -27,26 +27,29 @@ $versionName = $config->getVersion()->getName();
 
 ob_start(); ?>
     /**
-     * @param null|string|\DOMNode $element
+     * @param null|string|\DOMElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\DOMNode $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self
+    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
         }
         if (is_int($config)) {
             $libxmlOpts = $config;
-            $config = null;
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+        } else if (null === $config) {
+            $libxmlOpts = <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
         } else {
-            $libxmlOpts = $config?->getLibxmlOpts() ?? <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
+            $libxmlOpts = $config->getLibxmlOpts();
         }
         if (is_string($element)) {
             libxml_use_internal_errors(true);
-            $dom = new \DOMDocument();
+            $dom = $config->newDOMDocument();
             if (false === $dom->loadXML($element, $libxmlOpts)) {
                 throw new \DomainException(sprintf(
                     '%s::xmlUnserialize - String provided is not parseable as XML: %s',

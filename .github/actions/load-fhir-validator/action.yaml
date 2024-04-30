@@ -34,6 +34,7 @@ runs:
           ${{ github.workspace }}/bin
           /home/runner/.fhir
         key: '${{ steps.vars.outputs.cache-key }}'
+        save-always: true
 
     - name: 'Install Java'
       if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true

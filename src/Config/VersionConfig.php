@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Config;
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Logger;
 
 /**
@@ -101,30 +102,18 @@ class VersionConfig
     }
 
     /**
-     * @param $testType
+     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
      * @param bool $leadingSlash
      * @return string
      */
-    public function getTestsNamespace($testType, bool $leadingSlash): string
+    public function getTestsNamespace(TestType $testType, bool $leadingSlash): string
     {
         $ns = $this->getNamespace(false);
-        switch ($testType) {
-            case PHPFHIR_TEST_TYPE_BASE:
-                $rem = PHPFHIR_TESTS_NAMESPACE_BASE;
-                break;
-            case PHPFHIR_TEST_TYPE_UNIT:
-                $rem = PHPFHIR_TESTS_NAMESPACE_UNIT;
-                break;
-            case PHPFHIR_TEST_TYPE_INTEGRATION:
-                $rem = PHPFHIR_TESTS_NAMESPACE_INTEGRATION;
-                break;
-            default:
-                throw new \InvalidArgumentException(sprintf('Unknown value for $testType: %s', $testType));
-        }
+
         if ('' === $ns) {
-            $ns = $rem;
+            $ns = $testType->namespaceSlug();
         } else {
-            $ns .= '\\' . $rem;
+            $ns .= '\\' . $testType->namespaceSlug();
         }
         return $leadingSlash ? "\\{$ns}" : $ns;
     }

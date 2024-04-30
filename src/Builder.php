@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
@@ -147,9 +148,10 @@ class Builder
 
         $log->startBreak('Test Class Generation');
 
-        $testTypes = [PHPFHIR_TEST_TYPE_UNIT];
+        $testTypes = [TestType::UNIT];
         if (null !== $this->config->getTestEndpoint()) {
-            $testTypes[] = PHPFHIR_TEST_TYPE_INTEGRATION;
+            $testTypes[] = TestType::INTEGRATION;
+            $testTypes[] = TestType::VALIDATION;
         }
         foreach ($types->getIterator() as $type) {
 
@@ -159,13 +161,12 @@ class Builder
             }
 
             foreach ($testTypes as $testType) {
-                // skip domain resources
-                // TODO(@dcarbone): why did you do this.
-                if (PHPFHIR_TEST_TYPE_INTEGRATION === $testType && !$type->isResourceType()) {
+                // only render integration and validation tests if this is a "resource" type
+                if (!$type->isResourceType() && $testType->isOneOf(TestType::INTEGRATION, TestType::VALIDATION)) {
                     continue;
                 }
 
-                $log->debug("Generated {$testType} test class for type {$type}...");
+                $log->debug("Generated {$testType->value} test class for type {$type}...");
                 $classDefinition = Templates::renderFhirTypeClassTest($this->config, $types, $type, $testType);
                 $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
                 if (false === file_put_contents($filepath, $classDefinition)) {
@@ -247,7 +248,7 @@ class Builder
                 $suffix = '';
             } else if ('test' === $ftype) {
                 // test classes have different namespace
-                $ns = $this->config->getTestsNamespace(PHPFHIR_TEST_TYPE_BASE, true);
+                $ns = $this->config->getTestsNamespace(TestType::BASE, true);
                 // trim subtype
                 $fname = substr($fname, strpos($fname, '_') + 1);
             }
