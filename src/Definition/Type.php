@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DomainException;
@@ -284,11 +285,11 @@ class Type
     }
 
     /**
-     * @param $testType
+     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedTestNamespace($testType, bool $leadingSlash): string
+    public function getFullyQualifiedTestNamespace(TestType $testType, bool $leadingSlash): string
     {
         $ns = $this->getConfig()->getTestsNamespace($testType, false);
         $typeNS = $this->getTypeNamespace();

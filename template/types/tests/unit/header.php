@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
@@ -25,7 +26,7 @@ ob_start();
 
 echo "<?php\n\n";
 
-$testNS = $type->getFullyQualifiedTestNamespace(PHPFHIR_TEST_TYPE_UNIT, false);
+$testNS = $type->getFullyQualifiedTestNamespace(TestType::UNIT, false);
 $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
 $typeClassname = $type->getClassName();
