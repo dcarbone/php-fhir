@@ -62,6 +62,9 @@ trait <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>
         $dom = new \DOMDocument($this->getDOMVersion(), $this->getEncoding());
         $dom->preserveWhiteSpace = $this->getPreserveWhitespace();
         $dom->formatOutput = $this->getFormatOutput();
+        $dom->substituteEntities = false;
+        $dom->strictErrorChecking = false;
+        $dom->validateOnParse = false;
         return $dom;
     }
 

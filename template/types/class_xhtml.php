@@ -57,7 +57,8 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     use <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>,
         <?php echo PHPFHIR_TRAIT_XMLNS; ?>;
 
-    const _NOISE_NODES = ['html', 'head', 'body'];
+    private const _PARENT_NODES = ['html', 'head', 'body'];
+    private const _SIBLING_NODES = ['meta'];
 
     /** @var null|\DOMElement */
     private null|\DOMElement $_node = null;
@@ -97,7 +98,12 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
         }
         $dom = $config->newDOMDocument();
         if (is_string($node)) {
-            $dom->loadHTML($node);
+            // https://stackoverflow.com/a/8218649/11101981
+            if (PHP_VERSION_ID >= 80200) {
+                $dom->loadHTML(mb_encode_numericentity($node, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
+            } else {
+                $dom->loadHTML(mb_convert_encoding($node, 'HTML-ENTITIES', 'UTF-8'));
+            }
         } else if ($node instanceof \DOMDocument) {
             $dom->appendChild($dom->importNode($node->documentElement, true));
         } else {
@@ -105,7 +111,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
         }
         $newNode = $dom->documentElement;
         while (null !== $newNode) {
-            if (in_array(strtolower($newNode->nodeName), self::_NOISE_NODES, true)) {
+            if (in_array(strtolower($newNode->nodeName), self::_PARENT_NODES, true)) {
                 $newNode = $newNode->firstChild;
             } else {
                 break;

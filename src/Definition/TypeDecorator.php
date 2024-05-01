@@ -210,24 +210,24 @@ abstract class TypeDecorator
      */
     public static function ensureValueOnPrimitiveChildTypes(VersionConfig $config, Types $types): void
     {
-        $logger = $config->getLogger();
-        foreach ($types->getIterator() as $type) {
-            if (!$type->hasPrimitiveParent() ||
-                null !== $type->getLocalProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
-                continue;
-            }
-            $logger->warning(
-                sprintf(
-                    'Type "%s" extends primitive "%s" but is missing "%s" property.  Adding...',
-                    $type->getFHIRName(),
-                    $type->getParentType()->getFHIRName(),
-                    PHPFHIR_VALUE_PROPERTY_NAME
-                )
-            );
-            $property = new Property($type, $type->getSourceSXE(), $type->getSourceFilename());
-            $property->setName(PHPFHIR_VALUE_PROPERTY_NAME);
-            $type->getLocalProperties()->addProperty($property);
-        }
+//        $logger = $config->getLogger();
+//        foreach ($types->getIterator() as $type) {
+//            if (!$type->hasPrimitiveParent() ||
+//                null !== $type->getLocalProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+//                continue;
+//            }
+//            $logger->warning(
+//                sprintf(
+//                    'Type "%s" extends primitive "%s" but is missing "%s" property.  Adding...',
+//                    $type->getFHIRName(),
+//                    $type->getParentType()->getFHIRName(),
+//                    PHPFHIR_VALUE_PROPERTY_NAME
+//                )
+//            );
+//            $property = new Property($type, $type->getSourceSXE(), $type->getSourceFilename());
+//            $property->setName(PHPFHIR_VALUE_PROPERTY_NAME);
+//            $type->getLocalProperties()->addProperty($property);
+//        }
     }
 
     /**
