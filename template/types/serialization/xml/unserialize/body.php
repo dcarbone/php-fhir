@@ -25,11 +25,8 @@ $requireArgs = [
 ];
 
 ob_start(); ?>
-        for ($i = 0; $i < $element->childNodes->length; $i++) {
-            $n = $element->childNodes->item($i);
-            if (!($n instanceof \DOMElement)) {
-                continue;
-            }
+        foreach ($element->children() as $n) {
+            $childName = $n->getName();
 <?php foreach ($properties as $i => $property) {
     if (null !== $property->getValueFHIRType()) {
         echo require_with(

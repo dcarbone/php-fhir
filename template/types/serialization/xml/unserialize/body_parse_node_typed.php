@@ -49,5 +49,4 @@ echo match ($propertyTypeKind) {
     )
 };
 
-
 return ob_get_clean();

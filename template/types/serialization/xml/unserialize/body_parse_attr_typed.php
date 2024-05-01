@@ -28,17 +28,17 @@ $setter = $property->getSetterName();
 
 ob_start();
 if ($propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
-        $n = $element->attributes->getNamedItem(self::<?php echo $propertyConst; ?>);
+        $n = $element->attributes[self::<?php echo $propertyConst; ?>];
         if (null !== $n) {
 <?php if (!$property->isCollection()) : ?>
             $pt = $type-><?php echo $property->getGetterName(); ?>();
             if (null !== $pt) {
-                $pt->setValue($n->nodeValue);
+                $pt->setValue((string)$n);
             } else {
-                $type-><?php echo $setter; ?>($n->nodeValue);
+                $type-><?php echo $setter; ?>((string)$n);
             }
 <?php else : ?>
-            $type-><?php echo $setter; ?>($n->nodeValue);
+            $type-><?php echo $setter; ?>((string)$n);
 <?php endif; ?>
         }
 <?php endif;

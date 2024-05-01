@@ -52,40 +52,106 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE ?>, \JsonSerializable
+class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFACE_TYPE ?>
+
 {
     use <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>,
+        <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>,
         <?php echo PHPFHIR_TRAIT_XMLNS; ?>;
 
-    private const _PARENT_NODES = ['html', 'head', 'body'];
-
-    /** @var null|\DOMElement */
-    private null|\DOMElement $_node = null;
+    /** @var null|\SimpleXMLElement */
+    private null|\SimpleXMLElement $_node = null;
 
     /**
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
-     * @param null|string|\DOMNode $node
-     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config
+     * @param null|string|\DOMNode|\SimpleXmlElement $node
+     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config
      */
-    public function __construct(null|string|\DOMNode $node = null, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config = null)
+    public function __construct(null|string|\DOMNode|\SimpleXmlElement $node = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null)
     {
         $this->setNode($node, $config);
     }
 
     /**
-     * @return null|\DOMNode
+     * @return string
      */
-    public function getNode(): null|\DOMNode
+    public function _getFhirTypeName(): string
+    {
+        return 'Xhtml';
+    }
+
+    /**
+     * @return null|\SimpleXMLElement
+     */
+    public function getNode(): null|\SimpleXMLElement
     {
         return $this->_node;
     }
 
     /**
-     * @param null|string|\DOMNode $node
-     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config
+     * @param string $elementName Name to use for the element
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function _getFhirXmlElementDefinition(string $elementName): string
+    {
+        if ('' === $elementName) {
+            throw new \InvalidArgumentException(sprintf('%s::_getFhirXmlElementDefinition - $elementName is required', get_called_class()));
+        }
+        $node = $this->getNode();
+        if (null === $node) {
+            $xmlns = $this->_getFhirXmlNamespace();
+            if ('' !==  $xmlns) {
+                $xmlns = sprintf(' xmlns="%s"', $xmlns);
+            }
+            return sprintf('<%1$s%2$s></%1$s>', $elementName, $xmlns);
+        }
+        $xml = $node->asXML();
+        return substr($xml, strpos($xml, "\n") + 1, -1);
+    }
+
+    /**
+     * @return array
+     */
+    public function _getValidationRules(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function _getValidationErrors(): array
+    {
+        return [];
+    }
+
+    /**
+     * Recursively copies nodes from one sxe to another
+     *
+     * @param \SimpleXMLElement $dest
+     * @param \SimpleXMLElement $src
+     */
+    private static function _copy(\SimpleXMLElement $dest, \SimpleXMLElement $src): void
+    {
+        if (null === $src) {
+            return;
+        }
+        foreach ($src->attributes() as $k => $v) {
+            $dest->addAttribute($k, (string)$v);
+        }
+        foreach ($src->children() as $child) {
+            $babe = $dest->addChild($child->getName(), (string)$child);
+            self::_copy($babe, $child);
+        }
+    }
+
+    /**
+     * @param null|string|\DOMNode|\SimpleXmlElement $node
+     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config
      * @return static
      */
-    public function setNode(null|string|\DOMNode $node, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config = null): self
+    public function setNode(null|string|\DOMNode|\SimpleXMLElement $node, null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): self
     {
         if (null === $node) {
             $this->_trackValueSet($this->_node, null);
@@ -95,32 +161,18 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
         if (null === $config) {
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
         }
-        $dom = $config->newDOMDocument();
         if (is_string($node)) {
-            // https://stackoverflow.com/a/8218649/11101981
-            if (PHP_VERSION_ID >= 80200) {
-                $dom->loadHTML(mb_encode_numericentity($node, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'));
-            } else {
-                $dom->loadHTML(mb_convert_encoding($node, 'HTML-ENTITIES', 'UTF-8'));
-            }
+            $node = new \SimpleXMLElement($node, $config->getLibxmlOpts());
         } else if ($node instanceof \DOMDocument) {
-            $dom->appendChild($dom->importNode($node->documentElement, true));
+            $node = simplexml_import_dom($node);
         } else {
-            $dom->appendChild($dom->importNode($node, true));
+            $node = simplexml_import_dom($node->ownerDocument);
         }
-        $newNode = $dom->documentElement;
-        while (null !== $newNode) {
-            if (in_array(strtolower($newNode->nodeName), self::_PARENT_NODES, true)) {
-                $newNode = $newNode->firstChild;
-            } else {
-                break;
-            }
+        if ('' !== ($ens = (string)$node->attributes['xmlns'])) {
+            $this->_setFhirXmlNamespace($ens);
         }
-        if ('' !== ($ens = (string)$newNode?->namespaceURI)) {
-            $this->_setFHIRXMLNamespace($ens);
-        }
-        $this->_trackValueSet($this->_node, $newNode);
-        $this->_node = $newNode;
+        $this->_trackValueSet($this->_node, $node);
+        $this->_node = $node;
         return $this;
     }
 
@@ -142,39 +194,25 @@ echo require_with(
     }
 
     /**
-     * @param null|\DOMElement $element
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMElement
+     * @param null|\SimpleXMLElement $element
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return \SimpleXMLElement
      */
-    public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(\SimpleXMLElement $element = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \SimpleXMLElement
     {
         if (is_int($config)) {
-            $libxmlOpts = $config;
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>(['libxmlOpts' => $config]);
         } else if (null === $config) {
-            $libxmlOpts = <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        } else {
-            $libxmlOpts = $config->getLibxmlOpts();
         }
         if (null === $element) {
-            $dom = $config->newDOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
-            $element = $dom->documentElement;
-        } else if ('' !== ($ns = $this->_getFHIRXMLNamespace())) {
-            $element->setAttribute('xmlns', $ns);
+            return new \SimpleXMLElement($this->_getFhirXmlElementDefinition('<?php echo $xmlName; ?>'), $config->getLibxmlOpts());
         }
         $node = $this->getNode();
         if (null === $node) {
             return $element;
         }
-        for ($i = 0; $i < $node->attributes->length; $i++) {
-            $attr = $node->attributes->item($i);
-            $element->setAttribute($attr->nodeName, $attr->nodeValue);
-        }
-        for ($i = 0; $i < $node->childNodes->length; $i++) {
-            $element->appendChild($element->ownerDocument->importNode($node->childNodes->item($i), true));
-        }
+        self::_copy($element, $node);
         return $element;
     }
 
@@ -184,7 +222,11 @@ echo require_with(
     public function jsonSerialize(): mixed
     {
         $node = $this->getNode();
-        return $node?->ownerDocument->saveXML($node);
+        if (null === $node) {
+            return null;
+        }
+        $xml = $node->asXML();
+        return substr($xml, strpos($xml, "\n") + 1, -1);
     }
 
     /**
@@ -192,6 +234,6 @@ echo require_with(
      */
     public function __toString(): string
     {
-        return $this->jsonSerialize() ?? '';
+        return (string)$this->jsonSerialize();
     }
 }<?php return ob_get_clean();

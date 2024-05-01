@@ -88,8 +88,6 @@ const PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE = 'PHPFHIRDebugClientResponse';
 
 // Core interface names
 const PHPFHIR_INTERFACE_TYPE = 'PHPFHIRTypeInterface';
-const PHPFHIR_INTERFACE_XML_SERIALIZABLE = 'PHPFHIRXmlSerializableInterface';
-const PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG = 'PHPFHIRXmlSerializableConfigInterface';
 const PHPFHIR_INTERFACE_CONTAINED_TYPE = 'PHPFHIRContainedTypeInterface';
 const PHPFHIR_INTERFACE_COMMENT_CONTAINER = 'PHPFHIRCommentContainerInterface';
 const PHPFHIR_INTERFACE_PRIMITIVE_TYPE = 'PHPFHIRPrimitiveTypeInterface';
@@ -99,7 +97,6 @@ const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'PHPFHIRCommentContainerTrait';
 const PHPFHIR_TRAIT_VALIDATION_ASSERTIONS = 'PHPFHIRValidationAssertionsTrait';
 const PHPFHIR_TRAIT_CHANGE_TRACKING = 'PHPFHIRChangeTrackingTrait';
 const PHPFHIR_TRAIT_XMLNS = 'PHPFHIRXmlNamespaceTrait';
-const PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG = 'PHPFHIRXmlSerializableConfigTrait';
 
 // Core enums
 const PHPFHIR_ENUM_CONFIG_KEY = 'PHPFHIRConfigKeyEnum';

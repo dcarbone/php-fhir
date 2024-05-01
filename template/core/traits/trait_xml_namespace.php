@@ -50,7 +50,7 @@ trait <?php echo PHPFHIR_TRAIT_XMLNS; ?>
      * @param null|string $xmlNamespace
      * @return static
      */
-    public function _setFHIRXMLNamespace(null|string $xmlNamespace): self
+    public function _setFhirXmlNamespace(null|string $xmlNamespace): self
     {
         $this->_xmlns = trim((string)$xmlNamespace);
         return $this;
@@ -59,7 +59,7 @@ trait <?php echo PHPFHIR_TRAIT_XMLNS; ?>
     /**
      * @return string
      */
-    public function _getFHIRXMLNamespace(): string
+    public function _getFhirXmlNamespace(): string
     {
         return $this->_xmlns;
     }
@@ -69,12 +69,12 @@ trait <?php echo PHPFHIR_TRAIT_XMLNS; ?>
      * @return string
      * @throws \InvalidArgumentException
      */
-    public function _getFHIRXMLElementDefinition(string $elementName): string
+    public function _getFhirXmlElementDefinition(string $elementName): string
     {
         if ('' === $elementName) {
-            throw new \InvalidArgumentException(sprintf('%s::_getFHIRXMLElementDefinition - $elementName is required', get_called_class()));
+            throw new \InvalidArgumentException(sprintf('%s::_getFhirXmlElementDefinition - $elementName is required', get_called_class()));
         }
-        $xmlns = $this->_getFHIRXMLNamespace();
+        $xmlns = $this->_getFhirXmlNamespace();
         if ('' !==  $xmlns) {
             $xmlns = sprintf(' xmlns="%s"', $xmlns);
         }

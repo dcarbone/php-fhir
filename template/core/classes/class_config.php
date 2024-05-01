@@ -41,12 +41,15 @@ echo "\n\n"; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>, \JsonSerializable
+class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
-    use <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>;
+    public const DEFAULT_LIBXML_OPTS = LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL;
 
     /** @var bool */
     private bool $registerAutoloader = false;
+
+    /** @var int */
+    private int $libxmlOpts;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
@@ -93,6 +96,28 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTE
     public function getRegisterAutoloader(): bool
     {
         return $this->registerAutoloader;
+    }
+
+    /**
+     * Sets the option flags to provide to libxml when unserializing XML
+     *
+     * @param int $libxmlOpts
+     * @return static
+     */
+    public function setLibxmlOpts(int $libxmlOpts): self
+    {
+        $this->libxmlOpts = $libxmlOpts;
+        return $this;
+    }
+
+    /**
+     * Returns set libxml option flags
+     *
+     * @return int
+     */
+    public function getLibxmlOpts(): int
+    {
+        return $this->libxmlOpts ?? static::DEFAULT_LIBXML_OPTS;
     }
 
     /**

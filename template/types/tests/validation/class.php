@@ -214,7 +214,7 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFhirTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
         file_put_contents($fname, $bundle->xmlSerialize()->ownerDocument->saveXML());
         $this->assertFileExists($fname);
 
@@ -271,7 +271,7 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFhirTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
         file_put_contents($fname, json_encode($bundle));
         $this->assertFileExists($fname);
 

@@ -17,6 +17,6 @@
  */
 
 ob_start(); ?>
-        $element->setAttribute(self::FIELD_VALUE, (string)$this);
+        $element->addAttribute(self::FIELD_VALUE, (string)$this);
 <?php
 return ob_get_clean();

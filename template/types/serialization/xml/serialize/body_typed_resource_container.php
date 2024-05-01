@@ -28,20 +28,16 @@ if ($property->isCollection()) : ?>
                 if (null === $v) {
                     continue;
                 }
-                $e2 = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
-                $element->appendChild($e2);
-                $e3 = $element->ownerDocument->createElement($v->_getFHIRTypeName());
-                $e2->appendChild($e3);
-                $v->xmlSerialize($e3);
+                $e2 = $element->addChild(self::<?php echo $propertyConstName; ?>);
+                $e3 = $e2->addChild($v->_getFhirTypeName());
+                $v->xmlSerialize($e3, $config);
             }
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $e2 = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
-            $element->appendChild($e2);
-            $e3 = $element->ownerDocument->createElement($v->_getFHIRTypeName());
-            $e2->appendChild($e3);
-            $v->xmlSerialize($e3);
+            $e2 = $element->addChild(self::<?php echo $propertyConstName; ?>);
+            $e3 = $e2->addChild($v->_getFhirTypeName());
+            $v->xmlSerialize($e3, $config);
         }
 <?php endif;
 return ob_get_clean();

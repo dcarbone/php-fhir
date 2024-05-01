@@ -26,30 +26,24 @@ $localProperties = $type->getLocalProperties()->localPropertiesIterator();
 
 ob_start(); ?>
     /**
-     * @param null|\DOMElement $element
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMElement
+     * @param null|\SimpleXMLElement $element
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return \SimpleXMLElement
      */
-    public function xmlSerialize(null|\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(null|\SimpleXMLElement $element = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \SimpleXMLElement
     {
         if (is_int($config)) {
-            $libxmlOpts = $config;
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>(['libxmlOpts' => $libxmlOpts]);
         } else if (null === $config) {
-            $libxmlOpts = <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        } else {
-            $libxmlOpts = $config->getLibxmlOpts();
         }
 <?php foreach($localProperties as $property) : ?>
         if (null !== ($v = $this->get<?php echo $property->getGetterName(); ?>())) {
-            return $v->xmlSerialize($element, $libxmlOpts);
+            return $v->xmlSerialize($element, $config);
         }
 <?php endforeach; ?>
         if (null === $element) {
-            $dom = $config->newDOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition(<?php echo NameUtils::getTypeXMLElementName($type); ?>), $libxmlOpts);
-            $element = $dom->documentElement;
+            $element = new \SimpleXMLElement($this->_getFhirXmlElementDefinition(<?php echo NameUtils::getTypeXMLElementName($type); ?>), $config->getLibxmlOpts());
         }
 <?php
 return ob_get_clean();

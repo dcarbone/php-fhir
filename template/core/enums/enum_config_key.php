@@ -45,10 +45,6 @@ enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
 {
     case REGISTER_AUTOLOADER = 'registerAutoloader';
     case LIBXML_OPTS = 'libxmlOpts';
-    case DOM_VERSION = 'domVersion';
-    case XML_ENCODING = 'encoding';
-    case PRESERVE_WHITESPACE = 'preserveWhitespace';
-    case FORMAT_OUTPUT = 'formatOutput';
 
     /**
      * @return array

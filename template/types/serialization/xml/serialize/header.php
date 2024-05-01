@@ -29,30 +29,24 @@ $xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start(); ?>
     /**
-     * @param null|\DOMElement $element
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMElement<?php if ($typeKind !== TypeKind::PRIMITIVE || $type->hasParent()) : ?>
+     * @param null|\SimpleXMLElement $element
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return \SimpleXMLElement<?php if ($typeKind !== TypeKind::PRIMITIVE || $type->hasParent()) : ?>
 
-     * @throws \DOMException<?php endif; ?>
+     * @throws \Exception<?php endif; ?>
 
      */
-    public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(\SimpleXMLElement $element = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \SimpleXMLElement
     {
         if (is_int($config)) {
-            $libxmlOpts = $config;
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>(['libxmlOpts' => $config]);
         } else if (null === $config) {
-            $libxmlOpts = <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        } else {
-            $libxmlOpts = $config->getLibxmlOpts();
         }
         if (null === $element) {
-            $dom = $config->newDOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
-            $element = $dom->documentElement;
+            $element = new \SimpleXMLElement($this->_getFhirXmlElementDefinition('<?php echo NameUtils::getTypeXMLElementName($type); ?>'), $config->getLibxmlOpts());
         }
 <?php if ($type->hasParentWithLocalProperties()) : ?>
-        parent::xmlSerialize($element);
+        parent::xmlSerialize($element, $config);
 <?php endif;
 return ob_get_clean();
