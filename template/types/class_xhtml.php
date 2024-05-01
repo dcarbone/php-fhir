@@ -58,7 +58,6 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
         <?php echo PHPFHIR_TRAIT_XMLNS; ?>;
 
     private const _PARENT_NODES = ['html', 'head', 'body'];
-    private const _SIBLING_NODES = ['meta'];
 
     /** @var null|\DOMElement */
     private null|\DOMElement $_node = null;
