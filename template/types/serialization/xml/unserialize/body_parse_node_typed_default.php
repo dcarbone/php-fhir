@@ -19,12 +19,17 @@
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 /** @var int $i */
 
+use DCarbone\PHPFHIR\Enum\TypeKind;
+
 $propType = $property->getValueFHIRType();
 $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType);
 $propConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
 ob_start();
-if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $childName) {
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $childName) {<?php if ($propType->hasPrimitiveParent() || $propType->getKind() === TypeKind::PRIMITIVE) : ?>
+
+                $type->_primitiveXmlLocations[self::<?php echo $propConst; ?>] = <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ELEMENT;<?php endif; ?>
+
                 $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config));
             }<?php return ob_get_clean();

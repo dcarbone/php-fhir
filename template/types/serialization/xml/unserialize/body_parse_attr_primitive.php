@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
-
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $propType = $property->getValueFHIRType();
@@ -25,5 +23,6 @@ $propType = $property->getValueFHIRType();
 ob_start(); ?>
         if (isset($attributes[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $type->setValue((string)$attributes[self::<?php echo $property->getFieldConstantName(); ?>]);
+            $type->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] = <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE;
         }
 <?php return ob_get_clean();

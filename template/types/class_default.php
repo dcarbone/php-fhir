@@ -109,6 +109,17 @@ if (0 !== count($localProperties)) {
     echo "\n";
 
     echo require_with(
+        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'primitive_xml_location_map.php',
+        [
+            'config' => $config,
+            'type' => $type,
+            'localProperties' => $localProperties,
+        ]
+    );
+
+    echo "\n";
+
+    echo require_with(
         PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
         [
             'config' => $config,

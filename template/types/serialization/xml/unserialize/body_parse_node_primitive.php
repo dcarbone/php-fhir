@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
-
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 /** @var int $i */
 
