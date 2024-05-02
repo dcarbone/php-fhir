@@ -5,7 +5,7 @@ on:
 
   push:
     branches:
-      - master
+      - main
     paths:
       - '.github/workflows/tests.yaml'
       - '**.php'
