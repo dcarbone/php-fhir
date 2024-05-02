@@ -25,9 +25,6 @@ ob_start();
 if ($property->isCollection()) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             foreach($vs as $v) {
-                if (null === $v) {
-                    continue;
-                }
                 $xw->startElement(self::<?php echo $propertyConstName; ?>);
                 $xw->startElement($v->_getFhirTypeName());
                 $v->xmlSerialize($xw, $config);

@@ -39,7 +39,7 @@ ob_start(); ?>
             return null;
         }
         if (is_int($config)) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>(['libxmlOpts' => $config]);
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>([<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::LIBXML_OPTS->value => $config]);
         } else if (null === $config) {
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
         }

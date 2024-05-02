@@ -16,14 +16,31 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKind;
+
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $localProperties */
 
 ob_start();
+// TODO(@dcarbone): improve efficiency here a bit
+
+// this logic is repeated as we must set attributes before defining child elements.
+
 foreach ($localProperties as $property) {
-    if (null !== $property->getValueFHIRType()) {
+    if ($property->isCollection()) {
+        continue;
+    }
+    $pt = $property->getValueFHIRType();
+    if (null === $pt) {
+        echo require_with(
+            __DIR__ . DIRECTORY_SEPARATOR . 'body_untyped.php',
+            [
+                'config' => $config,
+            ]
+        );
+    } else if ($pt->hasPrimitiveParent() || $pt->getKind() === TypeKind::PRIMITIVE) {
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'body_typed.php',
             [
@@ -31,13 +48,24 @@ foreach ($localProperties as $property) {
                 'property' => $property,
             ]
         );
-    } elseif (0 < count($localProperties)) {
-        echo require_with(
-            __DIR__ . DIRECTORY_SEPARATOR . 'body_untyped.php',
-            [
-                'config' => $config,
-            ]
-        );
     }
+}
+
+if ($type->hasParentWithLocalProperties()) : ?>
+        parent::xmlSerialize($xw, $config);
+<?php endif;
+
+foreach ($localProperties as $property) {
+    $pt = $property->getValueFHIRType();
+    if (!$property->isCollection() && (null === $pt || $pt->hasPrimitiveParent() || $pt->getKind() === TypeKind::PRIMITIVE)) {
+        continue;
+    }
+    echo require_with(
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_typed.php',
+        [
+            'config' => $config,
+            'property' => $property,
+        ]
+    );
 }
 return ob_get_clean();

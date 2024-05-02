@@ -229,6 +229,7 @@ class TypeImports implements Iterator, Countable
         if (!$this->type->isAbstract()) {
             $this->addImport(PHPFHIR_CLASSNAME_CONFIG, $configNS);
             $this->addImport(PHPFHIR_CLASSNAME_XML_WRITER, $configNS);
+            $this->addImport(PHPFHIR_ENUM_CONFIG_KEY, $configNS);
         }
 
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits

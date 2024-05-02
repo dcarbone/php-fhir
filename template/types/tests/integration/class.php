@@ -103,7 +103,11 @@ class <?php echo $testClassname; ?> extends TestCase
         }
         $rc = $this->client->get(sprintf('/%s', <?php echo PHPFHIR_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '1', '_format' => $format]);
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
-        $this->assertEquals(200, $rc->code, 'Expected 200 OK');
+        if (404 === $rc->code) {
+            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->client->_getBaseUrl(), <?php echo PHPFHIR_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
+        } else {
+            $this->assertEquals(200, $rc->code, 'Expected 200 OK');
+        }
         $this->assertIsString($rc->resp);
         $this->_fetchedResources[$format] = $rc->resp;
         $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo CopyrightUtils::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);

@@ -73,6 +73,22 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
     }
 
     /**
+     * @return string
+     */
+    public function _getBaseUrl(): string
+    {
+        return $this->_baseUrl;
+    }
+
+    /**
+     * @return array
+     */
+    public function _getBaseCurlOpts(): array
+    {
+        return $this->_curlOpts;
+    }
+
+    /**
      * @param string $path
      * @param array $queryParams
      * @param array $curlOpts

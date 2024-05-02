@@ -27,15 +27,10 @@ $getter = $property->getGetterName();
 
 ob_start();
 if ($property->isCollection()) : // collection fields ?>
-        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-            foreach($vs as $v) {
-                if (null === $v) {
-                    continue;
-                }
-                $xw->startElement(self::<?php echo $propertyConstName; ?>);
-                $v->xmlSerialize($xw, $config);
-                $xw->endElement();
-            }
+        foreach ($this-><?php echo $getter; ?>() as $v) {
+            $xw->startElement(self::<?php echo $propertyConstName; ?>);
+            $v->xmlSerialize($xw, $config);
+            $xw->endElement();
         }
 <?php else : // single fields ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
