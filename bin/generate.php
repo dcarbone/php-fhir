@@ -384,6 +384,7 @@ foreach ($versions_to_generate as $version) {
 
     $url = $build_config->getUrl();
 
+    // build vars
     $namespace = $build_config->getFullyQualifiedName(true);
     $version = trim($version);
     $schema_dir = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version;
