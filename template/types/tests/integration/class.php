@@ -68,8 +68,8 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
-use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>;
-use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_ENUM_TYPE; ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_TYPE); ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -81,7 +81,7 @@ use PHPUnit\Framework\TestCase;
  */
 class <?php echo $testClassname; ?> extends TestCase
 {
-    /** @var <?php echo $config->getFullyQualifiedName(true); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> */
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?> */
     private <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> $client;
 
     /** @var array */

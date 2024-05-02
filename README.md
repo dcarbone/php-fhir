@@ -168,7 +168,9 @@ require 'path to PHPFHIRResponseParser.php';
 // build config
 $config = new \YourConfiguredNamespace\PHPFHIRResponseParserConfig([
     'registerAutoloader' => true, // use if you are not using Composer
-    'libxmlOpts' => LIBXML_COMPACT | LIBXML_NSCLEAN // choose different libxml arguments if you want, ymmv.
+    'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL // choose different libxml arguments if you want, ymmv.
+    'rootXmlns' => 'https://hl7.org/fhir', // a specific root xmlns to use, if the source does not return one
+    'overrideSourceXmlns' => true, // set this to true if you want the 'rootXmlns' value you defined to override any value seen from source 
 ]);
 
 // build parser
@@ -190,14 +192,19 @@ $json = json_encode($object);
 ## XML Serialization
 
 ```php
-// To get an instance of \DOMElement...
-$element = $object->xmlSerialize();
+// To get an instance of \XMLWriter...
+$xw = $object->xmlSerialize(null, $yourConfigInstance);
 
 // to get as XML string...
-$xml = $element->ownerDocument->saveXML($element);
+$xml = $xw->outputMemory(true);
+
+// you can alternatively have the output written directly to a file:
+$xw = new \YourConfiguredNamespace\PHPFHIRXmlWriter();
+$xw->openUri('file:///some/directory/fhir-resource.xml');
+$object->xmlSerialize($xw, $yourConfigInstance);
 ```
 
-XML Serialization utilizes [DOM](https://www.php.net/manual/en/book.dom.php).
+XML Serialization utilizes [XMLWriter](https://www.php.net/manual/en/book.xmlwriter.php).
 
 # Testing
 
