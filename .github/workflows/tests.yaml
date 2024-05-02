@@ -42,19 +42,19 @@ jobs:
           version: '${{ matrix.fhir-version }}'
 
 
-  load-fhir-validator:
-    runs-on: ubuntu-22.04
-    name: 'Download FHIR Validator'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/load-fhir-validator
+#  load-fhir-validator:
+#    runs-on: ubuntu-22.04
+#    name: 'Download FHIR Validator'
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - uses: ./.github/actions/load-fhir-validator
 
   run:
     runs-on: ubuntu-22.04
     needs:
       - load-fhir-source
-      - load-fhir-validator
+#      - load-fhir-validator
     strategy:
       fail-fast: false
       matrix:
