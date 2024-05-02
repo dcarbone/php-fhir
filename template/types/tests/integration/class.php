@@ -106,7 +106,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (404 === $rc->code) {
             $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->client->_getBaseUrl(), <?php echo PHPFHIR_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
         } else if (500 === $rc->code) {
-            $this->markTestSkipped(sprintf('Endpoint "%s" is experiencing issues', $this->client->_getBaseUrl());
+            $this->markTestSkipped(sprintf('Endpoint "%s" is experiencing issues', $this->client->_getBaseUrl()));
         } else {
             $this->assertEquals(200, $rc->code, 'Expected 200 OK');
         }
