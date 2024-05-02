@@ -77,8 +77,8 @@ jobs:
         with:
           version: '${{ matrix.fhir-version }}'
 
-      - name: 'Install FHIR validator'
-        uses: ./.github/actions/load-fhir-validator
+#      - name: 'Install FHIR validator'
+#        uses: ./.github/actions/load-fhir-validator
 
       - name: 'Install PHP'
         uses: shivammathur/setup-php@v2
@@ -123,11 +123,11 @@ jobs:
         run: |
           ./bin/generate.sh --useExisting --versions '${{ matrix.fhir-version }}'
 
-      - name: 'Install Java'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: 18
+#      - name: 'Install Java'
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'zulu'
+#          java-version: 18
 
       - name: 'Run tests'
         # language=sh
