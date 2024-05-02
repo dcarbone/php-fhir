@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 
 $containerType = $types->getContainerType($config->getVersion()->getName());
 if (null === $containerType) {
@@ -145,9 +145,11 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource
-     * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
+
      */
-    public static function getContainedTypeFromXML(\SimpleXMLElement $node, <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+    public static function getContainedTypeFromXML(\SimpleXMLElement $node, <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 
     {
         $typeName = $node->getName();
@@ -161,9 +163,10 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 
     /**
      * @param array|null $data
-     * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
+     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
+
      */
-    public static function getContainedTypeFromArray(null|array $data): ?<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+    public static function getContainedTypeFromArray(null|array $data): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 
     {
         if (null === $data || [] === $data) {

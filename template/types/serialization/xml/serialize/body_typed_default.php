@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $propertyType = $property->getValueFHIRType();
@@ -38,7 +39,7 @@ if ($property->isCollection()) : // collection fields ?>
 <?php else : // single fields ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
 <?php if ($propertyType->hasPrimitiveParent() || $propertyType->getKind() === TypeKind::PRIMITIVE) : ?>
-            $element->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
+            $element->addAttribute(self::<?php echo $propertyConstName; ?>, $v->getFormattedValue());
 <?php else : ?>
             $telement = $element->addChild(self::<?php echo $propertyConstName; ?>);
             $v->xmlSerialize($telement, $config);

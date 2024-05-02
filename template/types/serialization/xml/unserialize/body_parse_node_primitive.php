@@ -25,8 +25,8 @@ $propType = $property->getValueFHIRType();
 $propConst = $property->getFieldConstantName();
 
 ob_start();
-if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $n->getName()) {
-                $valueAttr = $n->attributes[self::FIELD_VALUE];
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $childName) {
+                $valueAttr = $n->attributes()[self::FIELD_VALUE] ?? null;
                 if (null !== $valueAttr) {
                     $type->setValue((string)$valueAttr);
                 } elseif ($n->hasChildren()) {

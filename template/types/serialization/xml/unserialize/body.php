@@ -48,6 +48,7 @@ ob_start(); ?>
 }; ?>
 
         }
+        $attributes = $element->attributes();
 <?php foreach ($properties as $i => $property) {
     if (null !== $property->getValueFHIRType()) {
         echo require_with(

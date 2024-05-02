@@ -16,35 +16,14 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
-$namespace = $config->getFullyQualifiedName(false);
+$getter = $property->getGetterName();
 
-ob_start();
-
-echo "<?php declare(strict_types=1);\n\n";
-
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
-
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
-
-echo "\n\n"; ?>
-/**
- * Enum <?php echo PHPFHIR_ENUM_API_FORMAT; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
-enum <?php echo PHPFHIR_ENUM_API_FORMAT; ?> : string
-{
-    case XML = 'xml';
-    case JSON = 'json';
-}
-
+ob_start(); ?>
+        if (null !== ($v = $this-><?php echo $getter; ?>())) {
+            $telement = $element->addChild(self::<?php echo $property->getFieldConstantName(); ?>, (string)$v->getNode());
+            $v->xmlSerialize($telement, $config);
+        }
 <?php return ob_get_clean();

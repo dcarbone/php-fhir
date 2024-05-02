@@ -174,7 +174,7 @@ abstract class TypeHintUtils
         if ($tk->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
             array_push(
                 $types,
-                sprintf('\\%s\\', trim($config->getNamespace(true), '\\')),
+                sprintf('\\%s\\', trim($config->getFullyQualifiedName(true), '\\')),
                 PHPFHIR_INTERFACE_CONTAINED_TYPE,
             );
         } else {

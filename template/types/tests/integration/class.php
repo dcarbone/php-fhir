@@ -68,8 +68,8 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
-use <?php echo $config->getNamespace(false); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>;
-use <?php echo $config->getNamespace(false); ?>\<?php echo PHPFHIR_ENUM_TYPE; ?>;
+use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>;
+use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_ENUM_TYPE; ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -81,7 +81,7 @@ use PHPUnit\Framework\TestCase;
  */
 class <?php echo $testClassname; ?> extends TestCase
 {
-    /** @var <?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> */
+    /** @var <?php echo $config->getFullyQualifiedName(true); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> */
     private <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> $client;
 
     /** @var array */
@@ -165,7 +165,7 @@ class <?php echo $testClassname; ?> extends TestCase
         $resource = $entry->getResource();
 <?php endif; ?>
         $resourceElement = $resource->xmlSerialize();
-        $resourceXML = $resourceElement->ownerDocument->saveXML($resourceElement);
+        $resourceXML = $resourceElement->saveXML();
         try {
             $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($resourceXML);
         } catch (\Exception $e) {
@@ -181,9 +181,9 @@ class <?php echo $testClassname; ?> extends TestCase
         }
         $this->assertInstanceOf(<?php echo $type->getClassName(); ?>::class, $type);
         $typeElement = $type->xmlSerialize();
-        $this->assertEquals($resourceXML, $typeElement->ownerDocument->saveXML($typeElement));
+        $this->assertEquals($resourceXML, $typeElement->saveXML());
         $bundleElement = $bundle->xmlSerialize();
-        $this->assertXmlStringEqualsXmlString($sourceXML, $bundleElement->ownerDocument->saveXML());
+        $this->assertXmlStringEqualsXmlString($sourceXML, $bundleElement->saveXML());
     }
 
     public function testJSON(): void

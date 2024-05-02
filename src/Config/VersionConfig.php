@@ -78,11 +78,17 @@ class VersionConfig
 
     /**
      * @param bool $leadingSlash
+     * @param string ...$bits
      * @return string
      */
-    public function getNamespace(bool $leadingSlash): string
+    public function getFullyQualifiedName(bool $leadingSlash, string... $bits): string
     {
-        return $this->version->getNamespace($leadingSlash);
+        $ns = $this->version->getNamespace($leadingSlash);
+        $bits = array_filter($bits);
+        if ([] === $bits) {
+            return $ns;
+        }
+        return sprintf('%s\\%s', $ns, implode('\\' , $bits));
     }
 
     /**
@@ -104,18 +110,12 @@ class VersionConfig
     /**
      * @param \DCarbone\PHPFHIR\Enum\TestType $testType
      * @param bool $leadingSlash
+     * @param string ...$bits
      * @return string
      */
-    public function getTestsNamespace(TestType $testType, bool $leadingSlash): string
+    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string... $bits): string
     {
-        $ns = $this->getNamespace(false);
-
-        if ('' === $ns) {
-            $ns = $testType->namespaceSlug();
-        } else {
-            $ns .= '\\' . $testType->namespaceSlug();
-        }
-        return $leadingSlash ? "\\{$ns}" : $ns;
+        return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
     }
 
     /**

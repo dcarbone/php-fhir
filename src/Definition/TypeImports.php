@@ -221,7 +221,7 @@ class TypeImports implements Iterator, Countable
         $this->addImport($this->type->getClassName(), $this->type->getFullyQualifiedNamespace(false));
 
         $typeNS = $this->type->getFullyQualifiedNamespace(false);
-        $configNS = $this->type->getConfig()->getNamespace(false);
+        $configNS = $this->type->getConfig()->getFullyQualifiedName(false);
 
         $sortedProperties = $this->type->getAllPropertiesIterator();
 

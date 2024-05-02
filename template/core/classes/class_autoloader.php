@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 $nsPrefix = "{$namespace}\\";
 
 ob_start();

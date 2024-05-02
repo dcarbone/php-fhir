@@ -22,7 +22,7 @@
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 $versionName = $config->getVersion()->getName();
 
 ob_start(); ?>
@@ -44,16 +44,7 @@ ob_start(); ?>
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
         }
         if (is_string($element)) {
-            libxml_use_internal_errors(true);
             $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());
-            if (false === $element) {
-                throw new \DomainException(sprintf(
-                    '%s::xmlUnserialize - String provided is not parseable as XML: %s',
-                    ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
-                    implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))
-                ));
-            }
-            libxml_use_internal_errors(false);
         }
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
@@ -69,7 +60,7 @@ ob_start(); ?>
                 get_class($type)
             ));
         }
-        if ('' === $type->_getFhirXmlNamespace() && '' !== ($ens = (string)$element->attributes['xmlns'])) {
+        if ('' === $type->_getFhirXmlNamespace() && '' !== ($ens = (string)$element->getNamespaces()[''] ?? '')) {
             $type->_setFhirXmlNamespace($ens);
         }
 <?php return ob_get_clean();

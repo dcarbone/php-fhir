@@ -65,7 +65,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     /**
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
      * @param null|string|\DOMNode|\SimpleXmlElement $node
-     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config
+     * @param null|<?php echo $config->getFullyQualifiedName(true); ?>\<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config
      */
     public function __construct(null|string|\DOMNode|\SimpleXmlElement $node = null, null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null)
     {
@@ -134,21 +134,21 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
      */
     private static function _copy(\SimpleXMLElement $dest, \SimpleXMLElement $src): void
     {
-        if (null === $src) {
-            return;
+        foreach ($src->getNamespaces() as $k => $v) {
+            $dest->addAttribute(('' === $k ? 'xmlns' : $k), $v);
         }
         foreach ($src->attributes() as $k => $v) {
             $dest->addAttribute($k, (string)$v);
         }
-        foreach ($src->children() as $child) {
-            $babe = $dest->addChild($child->getName(), (string)$child);
-            self::_copy($babe, $child);
+        foreach ($src->children() as $srcChild) {
+            $destChild = $dest->addChild($srcChild->getName(), (string)$srcChild);
+            self::_copy($destChild, $srcChild);
         }
     }
 
     /**
      * @param null|string|\DOMNode|\SimpleXmlElement $node
-     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config
+     * @param null|<?php echo $config->getFullyQualifiedName(true); ?>\<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config
      * @return static
      */
     public function setNode(null|string|\DOMNode|\SimpleXMLElement $node, null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): self
@@ -165,10 +165,10 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
             $node = new \SimpleXMLElement($node, $config->getLibxmlOpts());
         } else if ($node instanceof \DOMDocument) {
             $node = simplexml_import_dom($node);
-        } else {
+        } else if ($node instanceof \DOMNode) {
             $node = simplexml_import_dom($node->ownerDocument);
         }
-        if ('' !== ($ens = (string)$node->attributes['xmlns'])) {
+        if ('' !== ($ens = (string)$node->getNamespaces()[''] ?? '')) {
             $this->_setFhirXmlNamespace($ens);
         }
         $this->_trackValueSet($this->_node, $node);
