@@ -164,26 +164,26 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $resourceElement = $resource->xmlSerialize();
-        $resourceXML = $resourceElement->saveXML();
+        $resourceXmlWriter = $resource->xmlSerialize();
+        $resourceXml = $resourceXmlWriter->outputMemory();
         try {
-            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($resourceXML);
+            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($resourceXml);
         } catch (\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(
                     'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; XML: %s',
                     $e->getMessage(),
-                    $resourceXML
+                    $resourceXml
                 ),
                 $e->getCode(),
                 $e
             );
         }
         $this->assertInstanceOf(<?php echo $type->getClassName(); ?>::class, $type);
-        $typeElement = $type->xmlSerialize();
-        $this->assertEquals($resourceXML, $typeElement->saveXML());
-        $bundleElement = $bundle->xmlSerialize();
-        $this->assertXmlStringEqualsXmlString($sourceXML, $bundleElement->saveXML());
+        $typeXmlWriter = $type->xmlSerialize();
+        $this->assertEquals($resourceXml, $typeXmlWriter->outputMemory());
+        $bundleXmlWriter = $bundle->xmlSerialize();
+        $this->assertXmlStringEqualsXmlString($sourceXML, $bundleXmlWriter->outputMemory());
     }
 
     public function testJSON(): void

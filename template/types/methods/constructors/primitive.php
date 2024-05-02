@@ -48,7 +48,7 @@ if (null !== $parentType) {
             $this->setValue($value);
         } elseif (is_array($value)) {
             parent::__construct($value);
-            if (isset($value[self::FIELD_VALUE])) {
+            if (array_key_exists(self::FIELD_VALUE, $value)) {
                 $this->setValue($value[self::FIELD_VALUE]);
             }
         } else {

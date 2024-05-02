@@ -60,7 +60,7 @@ ob_start(); ?>
                 get_class($type)
             ));
         }
-        if ('' === $type->_getFhirXmlNamespace() && '' !== ($ens = (string)$element->getNamespaces()[''] ?? '')) {
-            $type->_setFhirXmlNamespace($ens);
+        if (null !== ($ns = $element->getNamespaces()[''] ?? null)) {
+            $type->_setSourceXmlns((string)$ns);
         }
 <?php return ob_get_clean();

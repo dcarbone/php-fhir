@@ -50,6 +50,14 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
     public function _getFhirTypeName(): string;
 
     /**
+     * Returns the root Xmlns value found in the source.  Null indicates no "xmlns" was found.  Only defined when
+     * unserializing XML, and only used when serializing XML.
+     *
+     * @return null|string
+     */
+    public function _getSourceXmlns(): null|string;
+
+    /**
      * Must return an associative array in structure ["field" => ["rule" => {constraint}]] to be used during validation
      * @return array
      */
@@ -69,40 +77,20 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
     public function _isValued(): bool;
 
     /**
-     * Returns the xml namespace to use for this type when serializing to XML, if applicable.
-     * @return string
-     */
-    public function _getFhirXmlNamespace(): string;
-
-    /**
-     * Set the XML Namespace to be output when serializing this type to XML
-     * @param string $xmlNamespace
-     * @return static
-     */
-    public function _setFhirXmlNamespace(string $xmlNamespace): self;
-
-    /**
-     * Returns the base xml element definition for this type
-     *
-     * @param string $elementName Name of the root element
-     * @return string
-     */
-    public function _getFhirXmlElementDefinition(string $elementName): string;
-
-    /**
      * @param null|string|\SimpleXMLElement $element
      * @param null|static $type
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return null|static
      */
     public static function xmlUnserialize(null|string|\SimpleXMLElement $element, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): null|self;
 
     /**
-     * @param null|\SimpleXMLElement $element
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \SimpleXMLElement
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+
      */
-    public function xmlSerialize(null|\SimpleXMLElement $element = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \SimpleXMLElement;
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>;
 
     /**
      * @return string

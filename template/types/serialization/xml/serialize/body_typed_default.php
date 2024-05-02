@@ -32,17 +32,19 @@ if ($property->isCollection()) : // collection fields ?>
                 if (null === $v) {
                     continue;
                 }
-                $telement = $element->addChild(self::<?php echo $propertyConstName; ?>);
-                $v->xmlSerialize($telement, $config);
+                $xw->startElement(self::<?php echo $propertyConstName; ?>);
+                $v->xmlSerialize($xw, $config);
+                $xw->endElement();
             }
         }
 <?php else : // single fields ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
 <?php if ($propertyType->hasPrimitiveParent() || $propertyType->getKind() === TypeKind::PRIMITIVE) : ?>
-            $element->addAttribute(self::<?php echo $propertyConstName; ?>, $v->getFormattedValue());
+            $xw->writeAttribute(self::<?php echo $propertyConstName; ?>, $v->getFormattedValue());
 <?php else : ?>
-            $telement = $element->addChild(self::<?php echo $propertyConstName; ?>);
-            $v->xmlSerialize($telement, $config);
+            $xw->startElement(self::<?php echo $propertyConstName; ?>);
+            $v->xmlSerialize($xw, $config);
+            $xw->endElement();
 <?php endif; ?>
         }
 <?php endif;

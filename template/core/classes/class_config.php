@@ -43,13 +43,17 @@ echo "\n\n"; ?>
  */
 class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
-    public const DEFAULT_LIBXML_OPTS = LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL;
-
     /** @var bool */
     private bool $registerAutoloader = false;
 
     /** @var int */
     private int $libxmlOpts;
+
+    /** @var string */
+    private string $rootXmlns;
+
+    /** @var bool */
+    private bool $overrideSourceXmlns;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
@@ -67,7 +71,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     /**
      * Set arbitrary key on this config
      *
-     * @param \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_CONFIG_KEY; ?>|string $key
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CONFIG_KEY); ?>|string $key
      * @param mixed $value
      * @return static
      */
@@ -117,7 +121,47 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      */
     public function getLibxmlOpts(): int
     {
-        return $this->libxmlOpts ?? static::DEFAULT_LIBXML_OPTS;
+        return $this->libxmlOpts ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_LIBXML_OPTS;
+    }
+
+    /**
+     * Default root xmlns to use.
+     *
+     * @param string $rootXmlns
+     * @return static
+     */
+    public function setRootXmlns(string $rootXmlns): self
+    {
+        $this->rootXmlns = $rootXmlns;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getRootXmlns(): null|string
+    {
+        return $this->rootXmlns ?? null;
+    }
+
+    /**
+     * If true, overrides the xmlns entry found at the root of a source document, if there was one.
+     *
+     * @param bool $overrideSourceXmlns
+     * @return static
+     */
+    public function setOverrideSourceXmlns(bool $overrideSourceXmlns): self
+    {
+        $this->overrideSourceXmlns = $overrideSourceXmlns;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getOverrideSourceXmlns(): bool
+    {
+        return $this->overrideSourceXmlns ?? false;
     }
 
     /**
@@ -126,8 +170,8 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     public function jsonSerialize(): \stdClass
     {
         $out = new \stdClass();
-        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::values() as $k => $_) {
-            $out->{$k} = $this->{'get'.$k}();
+        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $key) {
+            $out->{$k} = $this->{$key->getter()}();
         }
         return $out;
     }

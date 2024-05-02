@@ -755,7 +755,7 @@ class Type
                     $traits,
                     PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
                     PHPFHIR_TRAIT_CHANGE_TRACKING,
-                    PHPFHIR_TRAIT_XMLNS,
+                    PHPFHIR_TRAIT_SOURCE_XMLNS,
                 );
             }
         } else if (!$parentType->hasLocalProperties()) {
@@ -765,7 +765,7 @@ class Type
                 $traits,
                 PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
                 PHPFHIR_TRAIT_CHANGE_TRACKING,
-                PHPFHIR_TRAIT_XMLNS,
+                PHPFHIR_TRAIT_SOURCE_XMLNS,
             );
         }
 

@@ -26,24 +26,37 @@ $localProperties = $type->getLocalProperties()->localPropertiesIterator();
 
 ob_start(); ?>
     /**
-     * @param null|\SimpleXMLElement $element
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \SimpleXMLElement
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+
      */
-    public function xmlSerialize(null|\SimpleXMLElement $element = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): \SimpleXMLElement
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+
     {
         if (is_int($config)) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>(['libxmlOpts' => $libxmlOpts]);
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>(['libxmlOpts' => $config]);
         } else if (null === $config) {
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
         }
+        if (null === $xw) {
+            $xw = new <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>();
+        }
+        if (!$xw->isOpen()) {
+            $xw->openMemory();
+        }
+        if (!$xw->isDocStarted()) {
+            $docStarted = true;
+            $xw->startDocument();
+        }
 <?php foreach($localProperties as $property) : ?>
-        if (null !== ($v = $this->get<?php echo $property->getGetterName(); ?>())) {
-            return $v->xmlSerialize($element, $config);
+        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+            return $v->xmlSerialize($xw, $config);
         }
 <?php endforeach; ?>
-        if (null === $element) {
-            $element = new \SimpleXMLElement($this->_getFhirXmlElementDefinition(<?php echo NameUtils::getTypeXMLElementName($type); ?>), $config->getLibxmlOpts());
+        if (!$xw->isRootOpen()) {
+            $openedRoot = true;
+            $xw->openRootNode($config, '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXmlns());
         }
 <?php
 return ob_get_clean();

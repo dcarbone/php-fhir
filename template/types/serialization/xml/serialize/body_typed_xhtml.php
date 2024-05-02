@@ -23,7 +23,8 @@ $getter = $property->getGetterName();
 
 ob_start(); ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $telement = $element->addChild(self::<?php echo $property->getFieldConstantName(); ?>, (string)$v->getNode());
-            $v->xmlSerialize($telement, $config);
+            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+            $v->xmlSerialize($xw, $config);
+            $xw->endElement();
         }
 <?php return ob_get_clean();
