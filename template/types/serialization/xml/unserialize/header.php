@@ -22,43 +22,29 @@
 /** @var null|\DCarbone\PHPFHIR\Definition\Type $parentType */
 /** @var string $typeClassName */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 $versionName = $config->getVersion()->getName();
 
 ob_start(); ?>
     /**
-     * @param null|string|\DOMElement $element
+     * @param null|string|\SimpleXMLElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\DOMElement $element, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?> $type = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): null|self
+    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
         }
         if (is_int($config)) {
-            $libxmlOpts = $config;
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>([<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::LIBXML_OPTS->value => $config]);
         } else if (null === $config) {
-            $libxmlOpts = <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        } else {
-            $libxmlOpts = $config->getLibxmlOpts();
         }
         if (is_string($element)) {
-            libxml_use_internal_errors(true);
-            $dom = $config->newDOMDocument();
-            if (false === $dom->loadXML($element, $libxmlOpts)) {
-                throw new \DomainException(sprintf(
-                    '%s::xmlUnserialize - String provided is not parseable as XML: %s',
-                    ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
-                    implode(', ', array_map(function(\libXMLError $err) { return $err->message; }, libxml_get_errors()))
-                ));
-            }
-            libxml_use_internal_errors(false);
-            $element = $dom->documentElement;
+            $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());
         }
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
@@ -74,7 +60,7 @@ ob_start(); ?>
                 get_class($type)
             ));
         }
-        if ('' === $type->_getFHIRXMLNamespace() && '' !== ($ens = (string)$element->namespaceURI)) {
-            $type->_setFHIRXMLNamespace($ens);
+        if (null !== ($ns = $element->getNamespaces()[''] ?? null)) {
+            $type->_setSourceXmlns((string)$ns);
         }
 <?php return ob_get_clean();

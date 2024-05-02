@@ -21,7 +21,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -70,6 +70,22 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
     {
         $this->_baseUrl = $baseUrl;
         $this->_curlOpts = $curlOpts;
+    }
+
+    /**
+     * @return string
+     */
+    public function _getBaseUrl(): string
+    {
+        return $this->_baseUrl;
+    }
+
+    /**
+     * @return array
+     */
+    public function _getBaseCurlOpts(): array
+    {
+        return $this->_curlOpts;
     }
 
     /**

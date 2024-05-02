@@ -23,36 +23,37 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 $typeKind = $type->getKind();
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start(); ?>
     /**
-     * @param null|\DOMElement $element
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMElement<?php if ($typeKind !== TypeKind::PRIMITIVE || $type->hasParent()) : ?>
-
-     * @throws \DOMException<?php endif; ?>
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
 
      */
-    public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+
     {
         if (is_int($config)) {
-            $libxmlOpts = $config;
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>([<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::LIBXML_OPTS->value => $config]);
         } else if (null === $config) {
-            $libxmlOpts = <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        } else {
-            $libxmlOpts = $config->getLibxmlOpts();
         }
-        if (null === $element) {
-            $dom = $config->newDOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
-            $element = $dom->documentElement;
+        if (null === $xw) {
+            $xw = new <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>();
         }
-<?php if ($type->hasParentWithLocalProperties()) : ?>
-        parent::xmlSerialize($element);
-<?php endif;
-return ob_get_clean();
+        if (!$xw->isOpen()) {
+            $xw->openMemory();
+        }
+        if (!$xw->isDocStarted()) {
+            $docStarted = true;
+            $xw->startDocument();
+        }
+        if (!$xw->isRootOpen()) {
+            $openedRoot = true;
+            $xw->openRootNode($config, '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXmlns());
+        }
+<?php return ob_get_clean();

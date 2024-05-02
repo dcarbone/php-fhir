@@ -24,13 +24,10 @@ $propertyFieldConstExt = $property->getFieldConstantExtensionName();
 $setter = $property->getSetterName();
 
 ob_start(); ?>
-        if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
+        if (array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data)) {
 <?php if ($property->isCollection()) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
-                    if (null === $v) {
-                        continue;
-                    }
                     if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
                         $this-><?php echo $setter; ?>($v);
                     } else {

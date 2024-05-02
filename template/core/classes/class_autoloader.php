@@ -22,8 +22,7 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getNamespace(false);
-$nsPrefix = "{$namespace}\\";
+$namespace = $config->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -38,71 +37,73 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
 
+// constants
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONSTANTS); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
+}
+
+// config
+if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CONFIG_KEY); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>.php';
+}
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONFIG; ?>.php';
+}
+
+// xml writer
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>.php';
+}
+
 // interfaces
-if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_TYPE; ?>', false)) {
+if (!interface_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
 }
-if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?>', false)) {
+if (!interface_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_PRIMITIVE_TYPE); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?>.php';
 }
-if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>', false)) {
+if (!interface_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
 }
-if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>', false)) {
+if (!interface_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_COMMENT_CONTAINER); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
-}
-if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>.php';
-}
-if (!interface_exists('\<?php echo $nsPrefix . PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>.php';
 }
 
 // traits
-if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>', false)) {
+if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_COMMENT_CONTAINER); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>.php';
 }
-if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>', false)) {
+if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_VALIDATION_ASSERTIONS); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>.php';
 }
-if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_CHANGE_TRACKING; ?>', false)) {
+if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_CHANGE_TRACKING); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>.php';
 }
-if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XMLNS; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XMLNS; ?>.php';
-}
-if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>.php';
+if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_SOURCE_XMLNS); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>.php';
 }
 
 // enums
-if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_CONFIG_KEY; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>.php';
-}
-if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_TYPE; ?>', false)) {
+if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_TYPE); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_TYPE; ?>.php';
 }
-if (!enum_exists('\<?php echo $nsPrefix . PHPFHIR_ENUM_API_FORMAT; ?>', false)) {
+if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_API_FORMAT; ?>.php';
 }
 
-// classes
-if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
-}
-if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_TYPEMAP; ?>', false)) {
+// parser classes
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_TYPEMAP); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
 }
-if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONFIG; ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONFIG; ?>.php';
-}
-if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>', false)) {
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
 }
-if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>', false)) {
+
+// debug client
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>.php';
 }
-if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>', false)) {
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>.php';
 }
 

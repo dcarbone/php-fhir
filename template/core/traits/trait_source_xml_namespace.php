@@ -19,58 +19,47 @@
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getFullyQualifiedName(false);
+$rootNS = $config->getFullyQualifiedName(false);
 
 ob_start();
-
 echo "<?php declare(strict_types=1);\n\n";
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
+if ('' !== $rootNS) :
+    echo "namespace {$rootNS};\n\n";
 endif;
 
 echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
+echo "\n\n";
+?>
 /**
- * Enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; if ('' !== $namespace) : ?>
+ * Trait <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; if ('' !== $rootNS) : ?>
 
- * @package \<?php echo $namespace; ?>
+ * @package \<?php echo $rootNS; ?>
 <?php endif; ?>
 
  */
-enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
+trait <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>
+
 {
-    case REGISTER_AUTOLOADER = 'registerAutoloader';
-    case LIBXML_OPTS = 'libxmlOpts';
-    case ROOT_XMLNS = 'rootXmlns';
-    case OVERRIDE_SOURCE_XMLNS = 'overrideSourceXmlns';
+    /** @var string */
+    private string $_sourceXmlns;
 
     /**
-     * @return string
+     * @param string $xmlns
      */
-    public function setter(): string
+    protected function _setSourceXmlns(string $xmlns): void
     {
-        return 'set' . $this->value;
+        $this->_sourceXmlns = $xmlns;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getter(): string
+    public function _getSourceXmlns(): null|string
     {
-        return 'get' . $this->value;
-    }
-
-    /**
-     * @return array
-     */
-    public static function values(): array
-    {
-        return array_column(self::cases(), 'values');
+        return $this->_sourceXmlns ?? null;
     }
 }
-
 <?php return ob_get_clean();

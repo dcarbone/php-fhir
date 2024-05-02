@@ -21,7 +21,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -41,12 +41,19 @@ echo "\n\n"; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>, \JsonSerializable
+class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
-    use <?php echo PHPFHIR_TRAIT_XML_SERIALIZABLE_CONFIG; ?>;
-
     /** @var bool */
     private bool $registerAutoloader = false;
+
+    /** @var int */
+    private int $libxmlOpts;
+
+    /** @var string */
+    private string $rootXmlns;
+
+    /** @var bool */
+    private bool $overrideSourceXmlns;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
@@ -64,7 +71,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTE
     /**
      * Set arbitrary key on this config
      *
-     * @param \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_CONFIG_KEY; ?>|string $key
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CONFIG_KEY); ?>|string $key
      * @param mixed $value
      * @return static
      */
@@ -96,13 +103,75 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements <?php echo PHPFHIR_INTE
     }
 
     /**
+     * Sets the option flags to provide to libxml when unserializing XML
+     *
+     * @param int $libxmlOpts
+     * @return static
+     */
+    public function setLibxmlOpts(int $libxmlOpts): self
+    {
+        $this->libxmlOpts = $libxmlOpts;
+        return $this;
+    }
+
+    /**
+     * Returns set libxml option flags
+     *
+     * @return int
+     */
+    public function getLibxmlOpts(): int
+    {
+        return $this->libxmlOpts ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_LIBXML_OPTS;
+    }
+
+    /**
+     * Default root xmlns to use.
+     *
+     * @param string $rootXmlns
+     * @return static
+     */
+    public function setRootXmlns(string $rootXmlns): self
+    {
+        $this->rootXmlns = $rootXmlns;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getRootXmlns(): null|string
+    {
+        return $this->rootXmlns ?? null;
+    }
+
+    /**
+     * If true, overrides the xmlns entry found at the root of a source document, if there was one.
+     *
+     * @param bool $overrideSourceXmlns
+     * @return static
+     */
+    public function setOverrideSourceXmlns(bool $overrideSourceXmlns): self
+    {
+        $this->overrideSourceXmlns = $overrideSourceXmlns;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getOverrideSourceXmlns(): bool
+    {
+        return $this->overrideSourceXmlns ?? false;
+    }
+
+    /**
      * @return \stdClass
      */
     public function jsonSerialize(): \stdClass
     {
         $out = new \stdClass();
-        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::values() as $k => $_) {
-            $out->{$k} = $this->{'get'.$k}();
+        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $key) {
+            $out->{$k} = $this->{$key->getter()}();
         }
         return $out;
     }

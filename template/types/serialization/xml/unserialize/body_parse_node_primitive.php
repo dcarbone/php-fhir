@@ -25,16 +25,13 @@ $propType = $property->getValueFHIRType();
 $propConst = $property->getFieldConstantName();
 
 ob_start();
-if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $n->nodeName) {
-                $valueAttr = $n->attributes->getNamedItem('value');
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $childName) {
+                $valueAttr = $n->attributes()[self::FIELD_VALUE] ?? null;
                 if (null !== $valueAttr) {
-                    $type->setValue($valueAttr->nodeValue);
-                } elseif ($n->hasChildNodes()) {
-                    $type->setValue($n->ownerDocument->saveXML($n));
+                    $type->setValue((string)$valueAttr);
+                } elseif ($n->hasChildren()) {
+                    $type->setValue($n->saveXML());
                 } else {
-                    $type->setValue($n->textContent);
+                    $type->setValue((string)$n);
                 }
-<?php if (null !== $propType && $propType->getKind() === TypeKind::PHPFHIR_XHTML) : ?>
-                $type->_setElementName($n->nodeName);
-<?php endif; ?>
             }<?php return ob_get_clean();

@@ -20,7 +20,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -41,13 +41,21 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE; ?>, \JsonSerializable
+interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
 {
     /**
      * Returns the FHIR name represented by this Type
      * @return string
      */
-    public function _getFHIRTypeName(): string;
+    public function _getFhirTypeName(): string;
+
+    /**
+     * Returns the root Xmlns value found in the source.  Null indicates no "xmlns" was found.  Only defined when
+     * unserializing XML, and only used when serializing XML.
+     *
+     * @return null|string
+     */
+    public function _getSourceXmlns(): null|string;
 
     /**
      * Must return an associative array in structure ["field" => ["rule" => {constraint}]] to be used during validation
@@ -67,6 +75,22 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends <?php echo PHPFHIR_INTER
      * @return bool
      */
     public function _isValued(): bool;
+
+    /**
+     * @param null|string|\SimpleXMLElement $element
+     * @param null|static $type
+     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return null|static
+     */
+    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): null|self;
+
+    /**
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+
+     */
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>;
 
     /**
      * @return string

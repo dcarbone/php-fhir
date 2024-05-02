@@ -68,8 +68,8 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
-use <?php echo $config->getNamespace(false); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>;
-use <?php echo $config->getNamespace(false); ?>\<?php echo PHPFHIR_ENUM_TYPE; ?>;
+use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>;
+use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_ENUM_TYPE; ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -102,7 +102,7 @@ class <?php echo $testClassname; ?> extends TestCase
         'If a code for the unit is present, the system SHALL also be present',
     ];
 
-    /** @var <?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> */
+    /** @var <?php echo $config->getFullyQualifiedName(true); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> */
     private <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> $client;
 
     /** @var array */
@@ -214,7 +214,7 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFhirTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.xml';
         file_put_contents($fname, $bundle->xmlSerialize()->ownerDocument->saveXML());
         $this->assertFileExists($fname);
 
@@ -271,7 +271,7 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFhirTypeName() . '-<?php echo CopyrightUtils::getFHIRVersion(false); ?>.json';
         file_put_contents($fname, json_encode($bundle));
         $this->assertFileExists($fname);
 

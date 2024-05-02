@@ -36,7 +36,7 @@ ob_start(); ?>
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
+     * @param null|<?php echo $config->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
 
      * @return static
      */

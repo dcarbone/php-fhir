@@ -273,15 +273,7 @@ class Type
      */
     public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
-        $ns = $this->getConfig()->getNamespace(false);
-        $typeNS = $this->getTypeNamespace();
-        if ('' !== $typeNS) {
-            $ns = sprintf('%s\\%s', $ns, $typeNS);
-        }
-        return match ($leadingSlash) {
-            true => sprintf('\\%s', $ns),
-            false => $ns,
-        };
+        return $this->getConfig()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace());
     }
 
     /**
@@ -291,15 +283,7 @@ class Type
      */
     public function getFullyQualifiedTestNamespace(TestType $testType, bool $leadingSlash): string
     {
-        $ns = $this->getConfig()->getTestsNamespace($testType, false);
-        $typeNS = $this->getTypeNamespace();
-        if ('' !== $typeNS) {
-            $ns = sprintf('%s\\%s', $ns, $typeNS);
-        }
-        return match ($leadingSlash) {
-            true => sprintf('\\%s', $ns),
-            false => $ns,
-        };
+        return $this->getConfig()->getFullyQualifiedTestsName($testType, $leadingSlash,$this->getTypeNamespace());
     }
 
     /**
@@ -308,16 +292,7 @@ class Type
      */
     public function getFullyQualifiedClassName(bool $leadingSlash): string
     {
-        $cn = $this->getFullyQualifiedNamespace(false);
-        if ('' === $cn) {
-            $cn = $this->getClassName();
-        } else {
-            $cn = sprintf('%s\\%s', $cn, $this->getClassName());
-        }
-        return match ($leadingSlash) {
-            true => sprintf('\\%s', $cn),
-            false => $cn,
-        };
+        return $this->getConfig()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace(), $this->getClassName());
     }
 
     /**
@@ -335,16 +310,7 @@ class Type
      */
     public function getFullyQualifiedTestClassName($testType, bool $leadingSlash): string
     {
-        $cn = $this->getFullyQualifiedTestNamespace($testType, false);
-        if ('' === $cn) {
-            $cn = $this->getTestClassName();
-        } else {
-            $cn = sprintf('%s\\%s', $cn, $this->getTestClassName());
-        }
-        return match ($leadingSlash) {
-            true => sprintf('\\%s', $cn),
-            false => $cn,
-        };
+        return $this->getConfig()->getFullyQualifiedTestsName($testType, $leadingSlash, $this->getTypeNamespace(), $this->getTestClassName());
     }
 
     /**
@@ -789,7 +755,7 @@ class Type
                     $traits,
                     PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
                     PHPFHIR_TRAIT_CHANGE_TRACKING,
-                    PHPFHIR_TRAIT_XMLNS,
+                    PHPFHIR_TRAIT_SOURCE_XMLNS,
                 );
             }
         } else if (!$parentType->hasLocalProperties()) {
@@ -799,7 +765,7 @@ class Type
                 $traits,
                 PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
                 PHPFHIR_TRAIT_CHANGE_TRACKING,
-                PHPFHIR_TRAIT_XMLNS,
+                PHPFHIR_TRAIT_SOURCE_XMLNS,
             );
         }
 

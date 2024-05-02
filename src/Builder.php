@@ -241,14 +241,14 @@ class Builder
             $suffix = ucfirst($ftype);
 
             // define "default" namespace
-            $ns = $this->config->getNamespace(true);
+            $ns = $this->config->getFullyQualifiedName(true);
 
             if ('class' === $ftype) {
                 // 'class' types do have suffix
                 $suffix = '';
             } else if ('test' === $ftype) {
                 // test classes have different namespace
-                $ns = $this->config->getTestsNamespace(TestType::BASE, true);
+                $ns = $this->config->getFullyQualifiedTestsName(TestType::BASE, true);
                 // trim subtype
                 $fname = substr($fname, strpos($fname, '_') + 1);
             }

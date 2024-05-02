@@ -52,71 +52,133 @@ echo require_with(
  * @package <?php echo $fqns; ?>
 
  */
-class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFACE_XML_SERIALIZABLE ?>, \JsonSerializable
+class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFACE_TYPE ?>
+
 {
     use <?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>,
-        <?php echo PHPFHIR_TRAIT_XMLNS; ?>;
+        <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>,
+        <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>;
 
-    const _NOISE_NODES = ['html', 'head', 'body'];
-
-    /** @var null|\DOMElement */
-    private null|\DOMElement $_node = null;
+    /** @var null|string */
+    private null|string $_xhtml = null;
 
     /**
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
-     * @param null|string|\DOMNode $node
-     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config
+     * @param null|string|\DOMNode|\SimpleXMLElement $xhtml
      */
-    public function __construct(null|string|\DOMNode $node = null, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config = null)
+    public function __construct(null|string|\DOMNode|\SimpleXmlElement $xhtml = null)
     {
-        $this->setNode($node, $config);
+        $this->setXhtml($xhtml);
     }
 
     /**
-     * @return null|\DOMNode
+     * @return string
      */
-    public function getNode(): null|\DOMNode
+    public function _getFhirTypeName(): string
     {
-        return $this->_node;
+        return 'Xhtml';
     }
 
     /**
-     * @param null|string|\DOMNode $node
-     * @param null|<?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config
+     * @return array
+     */
+    public function _getValidationRules(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public function _getValidationErrors(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getXhtml(): null|string
+    {
+        return $this->_xhtml;
+    }
+
+    /**
+     * @param null|string|\DOMNode|\SimpleXmlElement $xhtml
      * @return static
      */
-    public function setNode(null|string|\DOMNode $node, null|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config = null): self
+    public function setXhtml(null|string|\DOMNode|\SimpleXMLElement $xhtml): self
     {
-        if (null === $node) {
-            $this->_trackValueSet($this->_node, null);
-            $this->_node = null;
+        if (null === $xhtml) {
+            $this->_trackValueSet($this->_xhtml, null);
+            $this->_xhtml = null;
             return $this;
+        }
+        if ($xhtml instanceof \DOMDocument) {
+            $xhtml = $xhtml->saveXML($xhtml->documentElement);
+        } else if ($xhtml instanceof \DOMNode) {
+            $xhtml = $xhtml->ownerDocument->saveXML($xhtml);
+        } else if ($xhtml instanceof \SimpleXMLElement) {
+            $xhtml = $xhtml->asXML();
+        }
+        $this->_trackValueSet($this->_xhtml, $xhtml);
+        $this->_xhtml = $xhtml;
+        return $this;
+    }
+
+    /**
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @return null|\SimpleXMLElement
+     * @throws \Exception
+     */
+    public function getSimpleXMLElement(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): null|\SimpleXMLElement
+    {
+        $xhtml = $this->getXhtml();
+        if (null === $xhtml) {
+            return null;
         }
         if (null === $config) {
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
         }
-        $dom = $config->newDOMDocument();
-        if (is_string($node)) {
-            $dom->loadHTML($node);
-        } else if ($node instanceof \DOMDocument) {
-            $dom->appendChild($dom->importNode($node->documentElement, true));
-        } else {
-            $dom->appendChild($dom->importNode($node, true));
+        return new \SimpleXMLElement($xhtml, $config->getLibxmlOpts());
+    }
+
+    /**
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @return null|\DOMDocument
+     */
+    public function getDOMDocument(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): null|\DOMDocument
+    {
+        $xhtml = $this->getXhtml();
+        if (null === $xhtml) {
+            return null;
         }
-        $newNode = $dom->documentElement;
-        while (null !== $newNode) {
-            if (in_array(strtolower($newNode->nodeName), self::_NOISE_NODES, true)) {
-                $newNode = $newNode->firstChild;
-            } else {
-                break;
-            }
+        if (null === $config) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
         }
-        if ('' !== ($ens = (string)$newNode?->namespaceURI)) {
-            $this->_setFHIRXMLNamespace($ens);
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->loadXML($xhtml, $config->getLibxmlOpts());
+        return $dom;
+    }
+
+    /**
+     * Returns open \XMLReader instance with content read
+     *
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @return null|\XMLReader
+     */
+    public function getXMLReader(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): null|\XMLReader
+    {
+        $xhtml = $this->getXhtml();
+        if (null === $xhtml) {
+            return null;
         }
-        $this->_trackValueSet($this->_node, $newNode);
-        $this->_node = $newNode;
-        return $this;
+        if (null === $config) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+        }
+        $xr = \XMLReader::XML($xhtml, 'UTF-8', $config->getLibxmlOpts());
+        $xr->read();
+        return $xr;
     }
 
 <?php
@@ -132,45 +194,53 @@ echo require_with(
     ]
 );
 ?>
-        $type->setNode($element);
+        $type->setXhtml($element);
         return $type;
     }
 
     /**
-     * @param null|\DOMElement $element
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return \DOMElement
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+
      */
-    public function xmlSerialize(\DOMElement $element = null, null|int|<?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG ?> $config = null): \DOMElement
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+
     {
         if (is_int($config)) {
-            $libxmlOpts = $config;
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>([<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::LIBXML_OPTS->value => $config]);
         } else if (null === $config) {
-            $libxmlOpts = <?php echo PHPFHIR_INTERFACE_XML_SERIALIZALE_CONFIG; ?>::DEFAULT_LIBXML_OPTS;
             $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        } else {
-            $libxmlOpts = $config->getLibxmlOpts();
         }
-        if (null === $element) {
-            $dom = $config->newDOMDocument();
-            $dom->loadXML($this->_getFHIRXMLElementDefinition('<?php echo $xmlName; ?>'), $libxmlOpts);
-            $element = $dom->documentElement;
-        } else if ('' !== ($ns = $this->_getFHIRXMLNamespace())) {
-            $element->setAttribute('xmlns', $ns);
+        if (null === $xw) {
+            $xw = new <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>();
         }
-        $node = $this->getNode();
-        if (null === $node) {
-            return $element;
+        if (!$xw->isOpen()) {
+            $xw->openMemory();
         }
-        for ($i = 0; $i < $node->attributes->length; $i++) {
-            $attr = $node->attributes->item($i);
-            $element->setAttribute($attr->nodeName, $attr->nodeValue);
+        if (!$xw->isDocStarted()) {
+            $docStarted = true;
+            $xw->startDocument();
         }
-        for ($i = 0; $i < $node->childNodes->length; $i++) {
-            $element->appendChild($element->ownerDocument->importNode($node->childNodes->item($i), true));
+        if (!$xw->isRootOpen()) {
+            $rootOpened = true;
+            $xw->openRootNode($config, 'Xhtml', $this->_getSourceXmlns());
         }
-        return $element;
+        $xr = $this->getXMLReader($config);
+        if (null === $xr) {
+            return $xw;
+        }
+        while ($xr->moveToNextAttribute()) {
+            $xw->writeAttribute($xr->name, $xr->value);
+        }
+        $xw->writeRaw($xr->readInnerXml());
+        if (isset($rootOpened) && $rootOpened) {
+            $xw->endElement();
+        }
+        if (isset($docStarted) && $docStarted) {
+            $xw->endDocument();
+        }
+        return $xw;
     }
 
     /**
@@ -178,8 +248,11 @@ echo require_with(
      */
     public function jsonSerialize(): mixed
     {
-        $node = $this->getNode();
-        return $node?->ownerDocument->saveXML($node);
+        $xhtml = $this->getXhtml();
+        if (null === $xhtml) {
+            return null;
+        }
+        return (string)$xhtml;
     }
 
     /**
@@ -187,6 +260,6 @@ echo require_with(
      */
     public function __toString(): string
     {
-        return $this->jsonSerialize() ?? '';
+        return (string)$this->getXhtml();
     }
 }<?php return ob_get_clean();

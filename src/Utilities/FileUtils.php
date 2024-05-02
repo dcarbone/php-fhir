@@ -108,7 +108,7 @@ abstract class FileUtils
     {
         return ltrim(
                 str_replace(
-                    [$config->getNamespace(false), '\\'],
+                    [$config->getFullyQualifiedName(false), '\\'],
                     ['', '/'],
                     $type->getFullyQualifiedClassName(false)
                 ),

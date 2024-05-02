@@ -20,7 +20,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 
-$rootNS = $config->getNamespace(false);
+$rootNS = $config->getFullyQualifiedName(false);
 
 ob_start();
 echo "<?php declare(strict_types=1);\n\n";

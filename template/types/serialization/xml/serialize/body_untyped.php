@@ -17,6 +17,6 @@
  */
 
 ob_start(); ?>
-        $element->setAttribute(self::FIELD_VALUE, (string)$this);
+        $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
 <?php
 return ob_get_clean();

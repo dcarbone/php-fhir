@@ -68,8 +68,8 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
-use <?php echo $config->getNamespace(false); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>;
-use <?php echo $config->getNamespace(false); ?>\<?php echo PHPFHIR_ENUM_TYPE; ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_TYPE); ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -81,7 +81,7 @@ use PHPUnit\Framework\TestCase;
  */
 class <?php echo $testClassname; ?> extends TestCase
 {
-    /** @var <?php echo $config->getNamespace(true); ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> */
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?> */
     private <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> $client;
 
     /** @var array */
@@ -103,7 +103,11 @@ class <?php echo $testClassname; ?> extends TestCase
         }
         $rc = $this->client->get(sprintf('/%s', <?php echo PHPFHIR_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '1', '_format' => $format]);
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
-        $this->assertEquals(200, $rc->code, 'Expected 200 OK');
+        if (404 === $rc->code) {
+            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->client->_getBaseUrl(), <?php echo PHPFHIR_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
+        } else {
+            $this->assertEquals(200, $rc->code, 'Expected 200 OK');
+        }
         $this->assertIsString($rc->resp);
         $this->_fetchedResources[$format] = $rc->resp;
         $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo CopyrightUtils::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
@@ -164,26 +168,26 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $resourceElement = $resource->xmlSerialize();
-        $resourceXML = $resourceElement->ownerDocument->saveXML($resourceElement);
+        $resourceXmlWriter = $resource->xmlSerialize();
+        $resourceXml = $resourceXmlWriter->outputMemory();
         try {
-            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($resourceXML);
+            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($resourceXml);
         } catch (\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(
                     'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; XML: %s',
                     $e->getMessage(),
-                    $resourceXML
+                    $resourceXml
                 ),
                 $e->getCode(),
                 $e
             );
         }
         $this->assertInstanceOf(<?php echo $type->getClassName(); ?>::class, $type);
-        $typeElement = $type->xmlSerialize();
-        $this->assertEquals($resourceXML, $typeElement->ownerDocument->saveXML($typeElement));
-        $bundleElement = $bundle->xmlSerialize();
-        $this->assertXmlStringEqualsXmlString($sourceXML, $bundleElement->ownerDocument->saveXML());
+        $typeXmlWriter = $type->xmlSerialize();
+        $this->assertEquals($resourceXml, $typeXmlWriter->outputMemory());
+        $bundleXmlWriter = $bundle->xmlSerialize();
+        $this->assertXmlStringEqualsXmlString($sourceXML, $bundleXmlWriter->outputMemory());
     }
 
     public function testJSON(): void

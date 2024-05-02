@@ -21,7 +21,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -143,7 +143,18 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     public function parseSimpleXMLElement(\SimpleXMLElement $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return $this->parseDOMDocument(dom_import_simplexml($input)->ownerDocument);
+        $elementName = $input->getName();
+        $className = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
+        /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?> $fhirType */
+        $fhirType = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
+        if (null === $fhirType) {
+            throw new \UnexpectedValueException(sprintf(
+                'Unable to locate FHIR type for root XML element "%s". Input seen: %s',
+                $elementName,
+                $this->getPrintableStringInput($input->saveXML())
+            ));
+        }
+        return $fhirType::xmlUnserialize($input, $this->config);
     }
 
     /**
@@ -154,17 +165,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     public function parseDOMDocument(\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $elementName = $input->documentElement->nodeName;
-        /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?> $fhirType */
-        $fhirType = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
-        if (null === $fhirType) {
-            throw new \UnexpectedValueException(sprintf(
-                'Unable to locate FHIR type for root XML element "%s". Input seen: %s',
-                $elementName,
-                $this->getPrintableStringInput($input->saveXML())
-            ));
-        }
-        return $fhirType::xmlUnserialize($input->documentElement, $this->config);
+        return $this->parseSimpleXMLElement(simplexml_import_dom($input));
     }
 
     /**
@@ -193,12 +194,11 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     {
         libxml_use_internal_errors(true);
-        $dom = $this->config->newDOMDocment();
-        $dom->loadXML($input, $this->config->getLibxmlOpts());
+        $sxe = new \SimpleXMLElement($input, $this->config->getLibxmlOpts();
         $err = libxml_get_last_error();
         libxml_use_internal_errors(false);
         if (false === $err) {
-            return $this->parseDOMDocument($dom);
+            return $this->parseSimpleXMLElement($dom);
         }
         throw new \DomainException(sprintf(
             'Unable to parse provided input as XML.  Error: %s; Input: %s',

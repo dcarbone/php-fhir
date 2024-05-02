@@ -21,7 +21,7 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$namespace = $config->getNamespace(false);
+$namespace = $config->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -42,7 +42,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
+final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
 {
     // FHIR source
@@ -51,6 +51,10 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
     // PHPFHIR
     public const CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+
+    // Config Defaults
+    public const DEFAULT_LIBXML_OPTS = LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL;
+    public const DEFAULT_XMLNS = 'https://hl7.org/fhir';
 
     // Common
     public const JSON_FIELD_RESOURCE_TYPE = 'resourceType';

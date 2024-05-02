@@ -25,6 +25,6 @@ $propConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
 ob_start();
-if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $n->nodeName) {
-                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n));
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $childName) {
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config));
             }<?php return ob_get_clean();

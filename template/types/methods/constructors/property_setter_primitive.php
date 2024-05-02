@@ -22,13 +22,10 @@ $propertyFieldConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
 ob_start(); ?>
-        if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
+        if (array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data)) {
 <?php if ($property->isCollection()) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
-                    if (null === $v) {
-                        continue;
-                    }
                     $this-><?php echo $setter; ?>($v);
                 }
             } else {

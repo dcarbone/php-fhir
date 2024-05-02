@@ -22,8 +22,8 @@ use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 
-$rootNS = $config->getNamespace(false);
-$testNS = $config->getTestsNamespace(TestType::BASE, false);
+$rootNS = $config->getFullyQualifiedName(false);
+$testNS = $config->getFullyQualifiedTestsName(TestType::BASE, false);
 
 ob_start();
 echo "<?php\n\n";?>

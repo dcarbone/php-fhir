@@ -84,9 +84,6 @@ class Definition
         $log->info('Finding property types');
         TypePropertyDecorator::findPropertyTypes($this->config, $this->types);
 
-        $log->info('Ensuring primitive type children have "value" property');
-        TypeDecorator::ensureValueOnPrimitiveChildTypes($this->config, $this->types);
-
         $log->info('Finding overloaded properties in child types');
         TypePropertyDecorator::findOverloadedProperties($this->config, $this->types);
 

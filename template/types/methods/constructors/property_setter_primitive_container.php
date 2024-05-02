@@ -27,7 +27,7 @@ $setter = $property->getSetterName();
 // these types are a pain in the ass
 
 ob_start(); ?>
-        if (isset($data[self::<?php echo $propertyFieldConst; ?>]) || isset($data[self::<?php echo $propertyFieldConstExt; ?>])) {
+        if (array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data) || array_key_exists(self::<?php echo $propertyFieldConstExt; ?>, $data)) {
             $value = $data[self::<?php echo $propertyFieldConst; ?>] ?? null;
             $ext = (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) ? $data[self::<?php echo $propertyFieldConstExt; ?>] : [];
             if (null !== $value) {
@@ -59,6 +59,8 @@ ob_start(); ?>
 <?php else : ?>
                 $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($ext));
 <?php endif; ?>
+            } else {
+                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>(null));
             }
         }
 <?php

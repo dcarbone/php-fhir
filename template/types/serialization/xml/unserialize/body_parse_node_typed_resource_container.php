@@ -24,11 +24,8 @@ $propertyName = $property->getName();
 $propertyConst = $property->getFieldConstantName();
 
 ob_start();
-if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propertyConst; ?> === $n->nodeName) {
-                for ($ni = 0; $ni < $n->childNodes->length; $ni++) {
-                    $nn = $n->childNodes->item($ni);
-                    if ($nn instanceof \DOMElement) {
-                        $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($nn));
-                    }
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propertyConst; ?> === $childName) {
+                foreach ($n->children() as $nn) {
+                    $type-><?php echo $setter; ?>(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getContainedTypeFromXML($nn, $config));
                 }
             }<?php return ob_get_clean();

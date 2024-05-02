@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 $propertyTypeKind = $property->getValueFHIRType()->getKind();
 
 ob_start();
-if ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
+if ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) {
     echo require_with(
         __DIR__ . DIRECTORY_SEPARATOR . 'body_typed_resource_container.php',
         [
@@ -32,7 +32,15 @@ if ($propertyTypeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_
             'property' => $property,
         ]
     );
-else :
+} else if ($propertyTypeKind === TypeKind::PHPFHIR_XHTML) {
+    echo require_with(
+        __DIR__ . DIRECTORY_SEPARATOR . 'body_typed_xhtml.php',
+        [
+            'config' => $config,
+            'property' => $property,
+        ]
+    );
+} else {
     echo require_with(
         __DIR__ . DIRECTORY_SEPARATOR . 'body_typed_default.php',
         [
@@ -40,5 +48,5 @@ else :
             'property' => $property,
         ]
     );
-endif;
+}
 return ob_get_clean();

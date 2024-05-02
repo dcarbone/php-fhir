@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 $propertyType = $property->getValueFHIRType();
@@ -26,24 +27,19 @@ $getter = $property->getGetterName();
 
 ob_start();
 if ($property->isCollection()) : // collection fields ?>
-        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-            foreach($vs as $v) {
-                if (null === $v) {
-                    continue;
-                }
-                $telement = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
-                $element->appendChild($telement);
-                $v->xmlSerialize($telement);
-            }
+        foreach ($this-><?php echo $getter; ?>() as $v) {
+            $xw->startElement(self::<?php echo $propertyConstName; ?>);
+            $v->xmlSerialize($xw, $config);
+            $xw->endElement();
         }
 <?php else : // single fields ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
 <?php if ($propertyType->hasPrimitiveParent() || $propertyType->getKind() === TypeKind::PRIMITIVE) : ?>
-            $element->setAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
+            $xw->writeAttribute(self::<?php echo $propertyConstName; ?>, $v->getFormattedValue());
 <?php else : ?>
-            $telement = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
-            $element->appendChild($telement);
-            $v->xmlSerialize($telement);
+            $xw->startElement(self::<?php echo $propertyConstName; ?>);
+            $v->xmlSerialize($xw, $config);
+            $xw->endElement();
 <?php endif; ?>
         }
 <?php endif;
