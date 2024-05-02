@@ -145,6 +145,7 @@ class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
     /**
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @param string $name
+     * @param string|null $sourceXmlns
      * @return bool
      */
     public function openRootNode(<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config, string $name, null|string $sourceXmlns): bool

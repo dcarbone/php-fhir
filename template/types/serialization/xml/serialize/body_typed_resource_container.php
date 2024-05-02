@@ -30,7 +30,7 @@ if ($property->isCollection()) : ?>
                 }
                 $xw->startElement(self::<?php echo $propertyConstName; ?>);
                 $xw->startElement($v->_getFhirTypeName());
-                $v->xmlSerialize($e3, $config);
+                $v->xmlSerialize($xw, $config);
                 $xw->endElement();
                 $xw->endElement();
             }

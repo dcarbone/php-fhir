@@ -120,7 +120,6 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
             $xhtml = $xhtml->ownerDocument->saveXML($xhtml);
         } else if ($xhtml instanceof \SimpleXMLElement) {
             $xhtml = $xhtml->asXML();
-            $xhtml = substr($xhtml, strpos($xhtml, "\n") + 1, -1);
         }
         $this->_trackValueSet($this->_xhtml, $xhtml);
         $this->_xhtml = $xhtml;

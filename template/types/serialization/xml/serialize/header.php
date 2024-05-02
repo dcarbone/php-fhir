@@ -49,6 +49,7 @@ ob_start(); ?>
             $xw->openMemory();
         }
         if (!$xw->isDocStarted()) {
+            $docStarted = true;
             $xw->startDocument();
         }
         if (!$xw->isRootOpen()) {
