@@ -40,14 +40,19 @@ ob_start();
 
      * @param <?php echo TypeHintUtils::propertySetterTypeDoc($config, $property, false); ?> $<?php echo $propertyName; ?>
 
-     * @return static
+<?php if (!$property->isCollection()) : ?>
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM); ?> $xmlLocation
+     <?php endif; ?>* @return static
      */
-    public function <?php echo $methodName; ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null): self
+    public function <?php echo $methodName; ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null<?php if (!$property->isCollection()) : ?>, <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE<?php endif; ?>): self
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         }
-        <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
+        $this->_trackValue<?php if ($isCollection) : ?>Added(<?php else : ?>Set($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
+<?php if (!$isCollection) : ?>
+        $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] = $xmlLocation;
+<?php endif; ?>
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }

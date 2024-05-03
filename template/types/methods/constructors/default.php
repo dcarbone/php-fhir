@@ -34,7 +34,6 @@ ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, false); endif; ?> $data
-
      */
     public function __construct(null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, false); endif; ?> $data = null)
     {

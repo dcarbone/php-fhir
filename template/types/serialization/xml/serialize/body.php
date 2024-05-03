@@ -24,48 +24,90 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 /** @var \DCarbone\PHPFHIR\Definition\Property[] $localProperties */
 
 ob_start();
-// TODO(@dcarbone): improve efficiency here a bit
 
-// this logic is repeated as we must set attributes before defining child elements.
+// first, marshal attribute values
 
-foreach ($localProperties as $property) {
-    if ($property->isCollection()) {
+foreach ($type->getLocalProperties()->localPropertiesOfTypeKinds(includeCollections: false, kinds: null) as $property) : ?>
+        if (($this->_primitiveXmlLocations[self::FIELD_VALUE] ?? <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE) {
+            $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
+        }
+<?php endforeach;
+
+foreach ($type->getLocalProperties()->localPropertiesIterator() as $property) :
+    $pt = $property->getValueFHIRType();
+    if ($property->isCollection() || null === $pt) {
         continue;
     }
-    $pt = $property->getValueFHIRType();
-    if (null === $pt) {
-        echo require_with(
-            __DIR__ . DIRECTORY_SEPARATOR . 'body_untyped.php',
-            [
-                'config' => $config,
-            ]
-        );
-    } else if ($pt->hasPrimitiveParent() || $pt->getKind() === TypeKind::PRIMITIVE) {
-        echo require_with(
-            __DIR__ . DIRECTORY_SEPARATOR . 'body_typed.php',
-            [
-                'config' => $config,
-                'property' => $property,
-            ]
-        );
-    }
-}
+    if ($pt->hasPrimitiveParent() || $pt->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) : ?>
+        if (($this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getFormattedValue());
+        }
+<?php elseif ($pt->getKind() === TypeKind::PRIMITIVE_CONTAINER) : ?>
+        if (($this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getValue()?->getFormattedValue());
+        }
+<?php endif;
+endforeach;
 
+// next, marshal parent attribute & element values
 if ($type->hasParentWithLocalProperties()) : ?>
         parent::xmlSerialize($xw, $config);
 <?php endif;
 
-foreach ($localProperties as $property) {
+// finally, marshal local element values
+foreach ($localProperties as $property) :
     $pt = $property->getValueFHIRType();
-    if (!$property->isCollection() && (null === $pt || $pt->hasPrimitiveParent() || $pt->getKind() === TypeKind::PRIMITIVE)) {
-        continue;
-    }
-    echo require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'body_typed.php',
-        [
-            'config' => $config,
-            'property' => $property,
-        ]
-    );
-}
+
+    // if this property has a "type"...
+    if (null !== $pt) :
+        $ptk = $pt->getKind();
+        // ... and IS a containe
+        if ($ptk->isContainer($config->getVersion()->getName())) :
+            if ($property->isCollection()) : ?>
+            foreach($this-><?php echo $property->getGetterName(); ?>() as $v) {
+                $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+                $xw->startElement($v->_getFhirTypeName());
+                $v->xmlSerialize($xw, $config);
+                $xw->endElement();
+                $xw->endElement();
+            }
+            <?php else : ?>
+            if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+                $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+                $xw->startElement($v->_getFhirTypeName());
+                $v->xmlSerialize($xw, $config);
+                $xw->endElement();
+                $xw->endElement();
+            }
+<?php        endif;
+        // ... and IS NOT a container and IS primitive
+        elseif ($pt->hasPrimitiveParent() || $pt->getKind() === TypeKind::PRIMITIVE) : ?>
+        if (($this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ELEMENT && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+            $v->xmlSerialize($xw, $config);
+            $xw->endElement();
+        }
+<?php elseif ($property->isCollection()) : ?>
+        foreach ($this-><?php echo $property->getGetterName(); ?>() as $v) {
+            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+            $v->xmlSerialize($xw, $config);
+            $xw->endElement();
+        }
+<?php  else: ?>
+        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+            $v->xmlSerialize($xw, $config);
+            $xw->endElement();
+        }
+<?php   endif;
+
+// ... is NOT a typed proprety...
+else: ?>
+        if (($this->_primitiveXmlLocations[self::FIELD_VALUE] ?? <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ELEMENT) {
+            $xw->writeSimpleElement(self::FIELD_VALUE, $this->getFormattedValue());
+        }
+<?php endif;
+
+endforeach;
+
 return ob_get_clean();

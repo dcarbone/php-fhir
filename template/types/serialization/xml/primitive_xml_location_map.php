@@ -16,28 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
-
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $localProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 ob_start(); ?>
     /** @var array */
-    private array $_primitiveXmlLocations = [<?php
-foreach($localProperties as $p) :
-    if ($p->isCollection()) {
-        continue;
-    }
-    $pt = $p->getValueFHIRType();
-    if (null === $pt) : ?>
-
-        self::FIELD_VALUE => <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE,<?php
-    elseif ($pt->hasPrimitiveParent() || $pt->getKind() == TypeKind::PRIMITIVE) : ?>
-
-        self::<?php echo $p->getFieldConstantName(); ?> => <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?>::ATTRIBUTE,<?php
-    endif;
-endforeach; ?>
-
-    ];
+    private array $_primitiveXmlLocations = [];
 <?php return ob_get_clean();

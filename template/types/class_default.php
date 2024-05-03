@@ -113,7 +113,6 @@ if (0 !== count($localProperties)) {
         [
             'config' => $config,
             'type' => $type,
-            'localProperties' => $localProperties,
         ]
     );
 
