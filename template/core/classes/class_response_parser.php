@@ -79,6 +79,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input
      * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
 
+     * @throws \Exception
      */
     public function parse(null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
@@ -144,7 +145,6 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     {
         $elementName = $input->getName();
-        $className = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
         /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?> $fhirType */
         $fhirType = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
         if (null === $fhirType) {
@@ -189,22 +189,12 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param string $input
      * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
 
+     * @throws \Exception
      */
     public function parseXml(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        libxml_use_internal_errors(true);
-        $sxe = new \SimpleXMLElement($input, $this->config->getLibxmlOpts();
-        $err = libxml_get_last_error();
-        libxml_use_internal_errors(false);
-        if (false === $err) {
-            return $this->parseSimpleXMLElement($dom);
-        }
-        throw new \DomainException(sprintf(
-            'Unable to parse provided input as XML.  Error: %s; Input: %s',
-            $err ? $err->message : 'Unknown',
-            $this->getPrintableStringInput($input)
-        ));
+        return $this->parseSimpleXMLElement(new \SimpleXMLElement($input, $this->config->getLibxmlOpts()));
     }
 
     /**
@@ -232,6 +222,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param string $input
      * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
 
+     * @throws \Exception
      */
     public function parseString(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
