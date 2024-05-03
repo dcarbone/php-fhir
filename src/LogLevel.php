@@ -25,12 +25,12 @@ enum LogLevel: string
 {
     use ValuesTrait;
 
-    case EMERGENCY = PLogLevel::EMERGENCY;
-    case ALERT = PLogLevel::ALERT;
-    case CRITICAL = PLogLevel::CRITICAL;
-    case ERROR = PLogLevel::ERROR;
-    case WARNING = PLogLevel::WARNING;
-    case NOTICE = PLogLevel::NOTICE;
-    case INFO = PLogLevel::INFO;
-    case DEBUG = PLogLevel::DEBUG;
+    case EMERGENCY = 'emergency';
+    case ALERT = 'alert';
+    case CRITICAL = 'critical';
+    case ERROR = 'error';
+    case WARNING = 'warning';
+    case NOTICE = 'notice';
+    case INFO = 'info';
+    case DEBUG = 'debug';
 }
