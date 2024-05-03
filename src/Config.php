@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Config\Version;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -43,7 +44,8 @@ class Config
 
     /** @var string */
     private string $classesPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
-    /** @var \DCarbone\PHPFHIR\Config\Version[] */
+
+    /** @var \DCarbone\PHPFHIR\Config\VersionConfig[] */
     private array $versions = [];
 
     /** @var bool */
@@ -226,13 +228,13 @@ class Config
     {
         $this->versions = [];
         foreach ($versions as $name => $version) {
-            $this->versions[$name] = ($version instanceof Version) ? $version : new Version($name, $version);
+            $this->versions[$name] = ($version instanceof VersionConfig) ? $version : new VersionConfig($this, new Version($name, $version));
         }
         return $this;
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Config\Version[]
+     * @return \DCarbone\PHPFHIR\Config\VersionConfig[]
      */
     public function getVersions(): array
     {
@@ -250,9 +252,9 @@ class Config
 
     /**
      * @param string $version
-     * @return \DCarbone\PHPFHIR\Config\Version
+     * @return \DCarbone\PHPFHIR\Config\VersionConfig
      */
-    public function getVersion(string $version): Version
+    public function getVersion(string $version): VersionConfig
     {
         if (!$this->hasVersion($version)) {
             throw new \OutOfBoundsException(

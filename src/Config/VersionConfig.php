@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Config;
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition;
 use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Logger;
 
@@ -32,6 +33,9 @@ class VersionConfig
     private Config $config;
     /** @var \DCarbone\PHPFHIR\Config\Version */
     private Version $version;
+
+    /** @var \DCarbone\PHPFHIR\Definition */
+    private Definition $definition;
 
     /**
      * BuildConfig constructor.
@@ -140,5 +144,16 @@ class VersionConfig
     public function getVersion(): Version
     {
         return $this->version;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition
+     */
+    public function getDefinition(): Definition
+    {
+        if (!isset($this->definition)) {
+            $this->definition = new Definition($this);
+        }
+        return $this->definition;;
     }
 }

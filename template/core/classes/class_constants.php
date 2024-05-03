@@ -72,8 +72,6 @@ final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
     public const UNLIMITED = -1;
 
-    public const NOT_SET = '<?php uniqid(); ?>';
-
     // Validation
     public const <?php echo PHPFHIR_VALIDATION_ENUM_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_ENUM; ?>';
     public const <?php echo PHPFHIR_VALIDATION_MIN_LENGTH_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_MIN_LENGTH; ?>';
