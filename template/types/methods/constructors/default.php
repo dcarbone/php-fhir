@@ -34,7 +34,6 @@ ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, false); endif; ?> $data
-
      */
     public function __construct(null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, false); endif; ?> $data = null)
     {
@@ -58,9 +57,9 @@ ob_start(); ?>
         }<?php endif; ?>
 
 <?php foreach($properties as $property) :
-    if ($property->isOverloaded()) :
+    if ($property->isOverloaded()) {
         continue;
-    endif;
+    }
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) :
         echo require_with(
                 PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'resource_container_property_setter_call.php',

@@ -103,6 +103,7 @@ const PHPFHIR_TRAIT_SOURCE_XMLNS = 'PHPFHIRSourceXmlNamespaceTrait';
 const PHPFHIR_ENUM_CONFIG_KEY = 'PHPFHIRConfigKeyEnum';
 const PHPFHIR_ENUM_TYPE = 'PHPFHIRTypeEnum';
 const PHPFHIR_ENUM_API_FORMAT = 'PHPFHIRApiFormatEnum';
+const PHPFHIR_ENUM_XML_LOCATION_ENUM = 'PHPFHIRXmlLocationEnum';
 
 // validation constants
 const PHPFHIR_VALIDATION_ENUM = 'enum';

@@ -20,10 +20,10 @@
  */
 return [
     // The path to look look for and optionally download source XSD files to
-    'schemaPath'  => __DIR__ . '/../input/',
+    'schemaPath'  => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'input/',
 
     // The path to place generated type class files
-    'classesPath' => __DIR__ . '/../output/',
+    'classesPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output/',
 
     // If true, will use a noop null logger
     'silent'      => false,
@@ -32,7 +32,7 @@ return [
     'skipTests'   => false,
 
     // If you wish to specify alternative libxml opts, do so here.
-    'libxmlOpts'  => LIBXML_NONET | LIBXML_PARSEHUGE | LIBXML_COMPACT,
+    'libxmlOpts'  => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
 
     // Map of versions and configurations to generate
     // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
@@ -43,6 +43,8 @@ return [
             'url'       => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
             // Namespace to prefix the generated classes with
             'namespace' => '\\HL7\\FHIR\\DSTU1',
+            // if defined, enables integration and validation test generation against the provided endpoint.
+            'testEndpoint' => '',
         ],
         'DSTU2' => [
             'url'          => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',

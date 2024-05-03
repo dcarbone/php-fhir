@@ -26,13 +26,22 @@ ob_start(); ?>
 <?php if ($property->isCollection()) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
+                    if (!($v instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>)) {
+                        $v = new <?php echo $property->getValueFHIRType()->getClassName(); ?>($v);
+                    }
                     $this-><?php echo $setter; ?>($v);
                 }
-            } else {
+            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+            } else {
+                $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
 <?php else : ?>
-            $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+            if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $property->getvalueFHIRType()->getClassName(); ?>) {
+                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+            } else {
+                $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
+            }
 <?php endif; ?>
         }
 <?php

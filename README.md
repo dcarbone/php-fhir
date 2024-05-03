@@ -75,79 +75,22 @@ There are 2 important things to note with this section:
 
 ### Generation Example
 
+You can view an example config array here: [bin/config.php](./bin/config.php).
+
 ```php
-require __DIR__.'/vendor/autoload.php';
-
-$schemaPath = 'schema/path';
-
 // first, build new configuration class
-$config = new \DCarbone\PHPFHIR\Config([
-    // The path to look look for and optionally download source XSD files to
-    'schemaPath'  => __DIR__ . '/../input',
+$config = new \DCarbone\PHPFHIR\Config(require 'config.php');
 
-    // The path to place generated type class files
-    'classesPath' => __DIR__ . '/../output',
-
-    // If true, will use a noop null logger
-    'silent'      => false,
-
-    // If true, will skip generation of test classes
-    'skipTests'   => false,
-
-    // Map of versions and configurations to generate
-    // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
-    // version, please see https://www.hl7.org/fhir/directory.html
-    'versions'    => [
-        'DSTU1' => [
-            // Source URL
-            'url'       => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
-            // Namespace to prefix the generated classes with
-            'namespace' => '\\HL7\\FHIR\\DSTU1',
-        ],
-        'DSTU2' => [
-            'url'          => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
-            'namespace'    => '\\HL7\\FHIR\\DSTU2',
-            'testEndpoint' => 'https://hapi.fhir.org/baseDstu2',
-        ],
-        'STU3'  => [
-            'url'          => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
-            'namespace'    => '\\HL7\\FHIR\\STU3',
-            'testEndpoint' => 'https://hapi.fhir.org/baseDstu3',
-        ],
-        'R4'    => [
-            'url'          => 'https://www.hl7.org/fhir/R4/fhir-all-xsd.zip',
-            'namespace'    => '\\HL7\\FHIR\\R4',
-            'testEndpoint' => 'https://hapi.fhir.org/baseR4',
-        ],
-        'R5' => [
-            'url'          => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
-            'namespace'    => '\\HL7\\FHIR\\R5',
-            'testEndpoint' => 'https://hapi.fhir.org/baseR5',
-        ]
-    ],
-]);
-
-// next, build definition class
-$version_config = new \DCarbone\PHPFHIR\Config\VersionConfig($config, $config->getVersion('R5'));
-$definition = new \DCarbone\PHPFHIR\Definition($version_config);
-$definition->buildDefinition();
-
-$builder = new \DCarbone\PHPFHIR\Builder($config, $definition);
-$builder->render();
+// next, iterate through all configured versions and render code:
+foreach ($config->getVersions() as $versionConfig) {
+    $versionConfig->getDefinition()->getBuilder()->render();
+}
 ```
-
-Using the above code will generate class files under the included [output](./output) directory, under the namespace
-` HL7\\FHIR\\{version} `
-
-If you wish the files to be placed under a different directory, pass the path in as the 2nd argument in the
-generator constructor.
-
-If you wish the classes to have a different base namespace, pass the desired NS name in as the 3rd argument in the
-generator constructor.
 
 ## Data Querying
 
-There are a plethora of good HTTP clients you can use to get data out of a FHIR server, so I leave that up to you.
+Currently only a very simple client intended for debugging use is generated.  A future goal is to generate a more
+fully-featured client.
 
 ## Response Parsing
 
@@ -166,7 +109,7 @@ require 'path to PHPFHIRResponseParserConfig.php';
 require 'path to PHPFHIRResponseParser.php';
 
 // build config
-$config = new \YourConfiguredNamespace\PHPFHIRResponseParserConfig([
+$config = new \YourConfiguredNamespace\PHPFHIRConfig([
     'registerAutoloader' => true, // use if you are not using Composer
     'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL // choose different libxml arguments if you want, ymmv.
     'rootXmlns' => 'https://hl7.org/fhir', // a specific root xmlns to use, if the source does not return one

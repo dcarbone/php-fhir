@@ -135,6 +135,20 @@ class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
     }
 
     /**
+     * Write a complete element with a text value
+     *
+     * @param string $name Element name
+     * @param string $value Element text value
+     * @return bool
+     */
+    public function writeSimpleElement(string $name, string $value): bool
+    {
+        return $this->startElement($name)
+            && $this->text($value)
+            && $this->endElement();
+    }
+
+    /**
      * @return bool
      */
     public function isRootOpen(): bool

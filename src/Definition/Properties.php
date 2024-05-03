@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use Countable;
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\TypeKind;
 use InvalidArgumentException;
 use SplFixedArray;
 
@@ -162,7 +163,7 @@ class Properties implements Countable
      */
     public function allPropertiesIterator(): iterable
     {
-        return SplFixedArray::fromArray($this->properties, false);
+        return SplFixedArray::fromArray($this->properties, preserveKeys: false);
     }
 
     /**
@@ -173,7 +174,7 @@ class Properties implements Countable
     public function allSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
-        return SplFixedArray::fromArray($this->_sortedProperties, false);
+        return SplFixedArray::fromArray($this->_sortedProperties, preserveKeys: false);
     }
 
     /**
@@ -184,7 +185,7 @@ class Properties implements Countable
     public function localPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
-        return SplFixedArray::fromArray($this->_localProperties, false);
+        return SplFixedArray::fromArray($this->_localProperties, preserveKeys: false);
     }
 
     /**
@@ -195,7 +196,26 @@ class Properties implements Countable
     public function localSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
-        return SplFixedArray::fromArray($this->_localSortedProperties, false);
+        return SplFixedArray::fromArray($this->_localSortedProperties, preserveKeys: false);
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\TypeKind|null ...$kinds
+     * @return \DCarbone\PHPFHIR\Definition\Property[]
+     */
+    public function localPropertiesOfTypeKinds(bool $includeCollections, null|TypeKind... $kinds): iterable
+    {
+        $out = [];
+        foreach ($this->localPropertiesIterator() as $property) {
+            if (!$includeCollections && $property->isCollection()) {
+                continue;
+            }
+            $pt = $property->getValueFHIRType();
+            if (in_array($pt?->getKind(), $kinds, true)) {
+                $out[] = $property;
+            }
+        }
+        return SplFixedArray::fromArray($out, preserveKeys: false);
     }
 
     /**

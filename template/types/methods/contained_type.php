@@ -26,6 +26,5 @@ ob_start(); ?>
     {
         return static::FHIR_TYPE_NAME;
     }
-
 <?php
 return ob_get_clean();

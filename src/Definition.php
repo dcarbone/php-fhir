@@ -35,7 +35,10 @@ class Definition
     private VersionConfig $config;
 
     /** @var \DCarbone\PHPFHIR\Definition\Types|null */
-    private ?Types $types = null;
+    private null|Types $types = null;
+
+    /** @var \DCarbone\PHPFHIR\Builder */
+    private Builder $builder;
 
     /**
      * Definition constructor.
@@ -131,5 +134,16 @@ class Definition
     public function isDefined(): bool
     {
         return null !== $this->getTypes();
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Builder
+     */
+    public function getBuilder(): Builder
+    {
+        if (!isset($this->builder)) {
+            $this->builder = new Builder($this->getConfig(), $this);
+        }
+        return $this->builder;
     }
 }

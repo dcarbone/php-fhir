@@ -380,12 +380,11 @@ echo sprintf(
 );
 
 foreach ($versions_to_generate as $version) {
-    $build_config = new Config\VersionConfig($config, $config->getVersion($version));
-
-    $url = $build_config->getUrl();
+    $version_config = $config->getVersion($version);
+    $url = $version_config->getUrl();
 
     // build vars
-    $namespace = $build_config->getFullyQualifiedName(true);
+    $namespace = $version_config->getFullyQualifiedName(true);
     $version = trim($version);
     $schema_dir = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version;
 
@@ -507,10 +506,10 @@ foreach ($versions_to_generate as $version) {
         PHP_EOL
     );
 
-    $definition = new Definition($build_config);
+    $definition = new Definition($version_config);
     $definition->buildDefinition();
 
-    $builder = new Builder($build_config, $definition);
+    $builder = new Builder($version_config, $definition);
     if ($only_library) {
         $builder->writeFhirTypeFiles();
     } elseif ($only_tests) {

@@ -17,14 +17,9 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Property $property */
-
-$getter = $property->getGetterName();
+/** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 ob_start(); ?>
-        if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $v->xmlSerialize($xw, $config);
-            $xw->endElement();
-        }
+    /** @var array */
+    private array $_primitiveXmlLocations = [];
 <?php return ob_get_clean();

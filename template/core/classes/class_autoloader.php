@@ -90,6 +90,10 @@ if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_T
 if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_API_FORMAT; ?>.php';
 }
+if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>.php';
+}
+
 
 // parser classes
 if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_TYPEMAP); ?>', false)) {
