@@ -51,7 +51,9 @@ if ($property->isCollection()) : ?>
         }
 <?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $out->{self::<?php echo $propertyFieldConst; ?>} = $v->getValue();
+            if (null !== ($val = $v->getValue())) {
+                $out->{self::<?php echo $propertyFieldConst; ?>} = $val;
+            }
             $ext = $v->jsonSerialize();
             unset($ext->{<?php echo $propertyTypeClassname; ?>::FIELD_VALUE});
             if (count((array)$ext) > 0) {

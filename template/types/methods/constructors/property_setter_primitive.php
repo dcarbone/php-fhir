@@ -37,7 +37,11 @@ ob_start(); ?>
                 $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
 <?php else : ?>
-            $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
+            if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $property->getvalueFHIRType()->getClassName(); ?>) {
+                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+            } else {
+                $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
+            }
 <?php endif; ?>
         }
 <?php
