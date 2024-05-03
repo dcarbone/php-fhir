@@ -57,9 +57,9 @@ ob_start(); ?>
         }<?php endif; ?>
 
 <?php foreach($properties as $property) :
-    if ($property->isOverloaded()) :
+    if ($property->isOverloaded()) {
         continue;
-    endif;
+    }
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) :
         echo require_with(
                 PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'resource_container_property_setter_call.php',

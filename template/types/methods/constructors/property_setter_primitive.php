@@ -26,13 +26,13 @@ ob_start(); ?>
 <?php if ($property->isCollection()) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
-                    $this-><?php echo $setter; ?>($v);
+                    $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>$v);
                 }
             } else {
-                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+                $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
             }
 <?php else : ?>
-            $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+            $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
 <?php endif; ?>
         }
 <?php

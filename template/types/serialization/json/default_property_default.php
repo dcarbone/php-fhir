@@ -26,9 +26,6 @@ if ($property->isCollection()) : ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             $out->{self::<?php echo $propertyFieldConst; ?>} = [];
             foreach($vs as $v) {
-                if (null === $v) {
-                    continue;
-                }
                 $out->{self::<?php echo $propertyFieldConst; ?>}[] = $v;
             }
         }
