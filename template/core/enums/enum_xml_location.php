@@ -35,13 +35,13 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
- * Enum <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; if ('' !== $namespace) : ?>
+ * Enum <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-enum <?php echo PHPFHIR_ENUM_XML_SERIALIZE_LOCATION_ENUM; ?> : string
+enum <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> : string
 {
     case ATTRIBUTE = 'attribute';
     case ELEMENT = 'element';
