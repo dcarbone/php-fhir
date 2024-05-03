@@ -85,7 +85,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           extensions: libxml simplexml json zip
-          # https://github.com/mheap/phpunit-github-actions-printer/blob/master/.github/workflows/ci.yml#L32
+          ini-values: precision=20
 
       - name: 'Install jq'
         uses: dcarbone/install-jq-action@v2
