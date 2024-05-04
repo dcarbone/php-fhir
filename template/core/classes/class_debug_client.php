@@ -59,17 +59,25 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
     private string $_baseUrl;
     /** @var array */
     private array $_curlOpts;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?> */
+    private <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> $parser;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> Constructor
      *
      * @param string $baseUrl URL of FHIR server to query
      * @param array $curlOpts Base curl options array
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?> $parser
      */
-    public function __construct(string $baseUrl, array $curlOpts = [], )
+    public function __construct(string $baseUrl, array $curlOpts = [],  null|<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> $parser = null)
     {
         $this->_baseUrl = $baseUrl;
         $this->_curlOpts = $curlOpts;
+        if (null === $parser) {
+            $this->parser =  new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>());
+        } else {
+            $this->parser = $parser;
+        }
     }
 
     /**
@@ -95,10 +103,10 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
      * @return <?php echo '' !== $namespace ? sprintf('\\%s', $namespace) : ''; ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
 
      */
-    public function get(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+    private function _exec(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
     {
         $url = sprintf('%s%s?%s', $this->_baseUrl, $path, http_build_query($queryParams, '', '&',  PHP_QUERY_RFC3986));
-
+        
         $ch = curl_init($url);
         curl_setopt_array(
             $ch,
@@ -120,6 +128,54 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
     }
 
     /**
+     * @param string $path
+     * @param array $queryParams
+     * @param array $curlOpts
+     * @return <?php echo '' !== $namespace ? sprintf('\\%s', $namespace) : ''; ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+
+     */
+    public function get(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+    {
+        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => 'GET'] + $curlOpts);
+    }
+
+    /**
+     * @param string $path
+     * @param array $queryParams
+     * @param array $curlOpts
+     * @return <?php echo '' !== $namespace ? sprintf('\\%s', $namespace) : ''; ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+
+     */
+    public function put(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+    {
+        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => 'PUT'] + $curlOpts);
+    }
+
+    /**
+     * @param string $path
+     * @param array $queryParams
+     * @param array $curlOpts
+     * @return <?php echo '' !== $namespace ? sprintf('\\%s', $namespace) : ''; ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+
+     */
+    public function post(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+    {
+        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => 'POST'] + $curlOpts);
+    }
+
+    /**
+     * @param string $path
+     * @param array $queryParams
+     * @param array $curlOpts
+     * @return <?php echo '' !== $namespace ? sprintf('\\%s', $namespace) : ''; ?>\<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+
+     */
+    public function delete(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
+    {
+        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => 'DELETE'] + $curlOpts);
+    }
+
+    /**
      * Execute a read operation for a particular resource.
      *
      * @see https://www.hl7.org/fhir/http.html#read
@@ -127,12 +183,11 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
      * @param string|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_TYPE; ?> $resource
      * @param string $id
      * @param string|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_API_FORMAT; ?> $format
-     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> $parser
      * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
 
      * @throws \Exception
      */
-    public function readOne(string|<?php echo PHPFHIR_ENUM_TYPE; ?> $resource, string $id, string|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON, null|<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> $parser = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function readOne(string|<?php echo PHPFHIR_ENUM_TYPE; ?> $resource, string $id, string|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if (!is_string($resource)) {
@@ -151,11 +206,7 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
             throw new \Exception(sprintf('Error executing "%s": Expected 200 OK, saw %d', $rc->url, $rc->code));
         }
 
-        if (null === $parser) {
-            $parser = new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>());
-        }
-
-        return $parser->parse($rc->resp);
+        return $this->parser->parse($rc->resp);
     }
 
     /**
@@ -165,12 +216,11 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
      *
      * @param string|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_TYPE; ?> $resource
      * @param string|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_ENUM_API_FORMAT; ?> $format
-     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> $parser
      * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
 
      * @throws \Exception
      */
-    public function readFirst(string|<?php echo PHPFHIR_ENUM_TYPE; ?> $resource, string|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON, null|<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> $parser = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function readFirst(string|<?php echo PHPFHIR_ENUM_TYPE; ?> $resource, string|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if (!is_string($resource)) {
@@ -189,11 +239,7 @@ class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>
             throw new \Exception(sprintf('Error executing "%s": Expected 200 OK, saw %d', $rc->url, $rc->code));
         }
 
-        if (null === $parser) {
-            $parser = new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>());
-        }
-
-        return $parser->parse($rc->resp);
+        return $this->parser->parse($rc->resp);
     }
 }
 <?php return ob_get_clean();
