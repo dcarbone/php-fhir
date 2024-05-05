@@ -35,15 +35,20 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
- * This client is intended for debug purposes only, and is not intended to be used in a production environment.
+ * This type is not intended to be used directly, and will have its API changed over time.
  *
- * Its API is subject to change at any time.
- *
- * Class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; if ('' !== $namespace) : ?>
+ * Class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> extends <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> {}
+final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
+{
+    public string $url = '';
+    public int $code = 0;
+    public string $resp = '';
+    public string $err = '';
+}
 <?php return ob_get_clean();
