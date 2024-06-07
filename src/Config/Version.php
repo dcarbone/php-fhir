@@ -18,8 +18,10 @@ namespace DCarbone\PHPFHIR\Config;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Definition;
+use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
-use DomainException;
 use InvalidArgumentException;
 
 /**
@@ -28,40 +30,62 @@ use InvalidArgumentException;
  */
 class Version
 {
-    public const KEY_URL           = 'url';
-    public const KEY_NAMESPACE     = 'namespace';
-    public const KEY_TEST_ENDPOINT = 'testEndpoint';
+    /** @var \DCarbone\PHPFHIR\Config */
+    private Config $config;
 
     /** @var string */
     private string $name;
-
     /** @var string */
-    private string $url;
+    private string $sourceUrl;
     /** @var string */
     private string $namespace;
     /** @var string */
     private string $testEndpoint;
 
+    /** @var \DCarbone\PHPFHIR\Definition */
+    private Definition $definition;
+
     /**
-     * Version constructor.
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string $name
-     * @param array $conf
+     * @param array $params
      */
-    public function __construct(string $name, array $conf = [])
+    public function __construct(Config $config, string $name, array $params = [])
     {
+        $this->config = $config;
         $this->name = $name;
 
-        if (!isset($conf[self::KEY_URL])) {
-            throw new DomainException(sprintf('Version %s is missing required config key ', self::KEY_URL));
-        }
-        $this->setUrl($conf[self::KEY_URL]);
-
-        if (isset($conf[self::KEY_NAMESPACE])) {
-            $this->setNamespace($conf[self::KEY_NAMESPACE]);
+        if ('' === trim($this->name)) {
+            throw new \DomainException('Version name cannot be empty.');
         }
 
-        if (isset($conf[self::KEY_TEST_ENDPOINT])) {
-            $this->setTestEndpoint($conf[self::KEY_TEST_ENDPOINT]);
+        // attempt to set each expectd key
+        foreach(VersionKeys::cases() as $key) {
+            if (isset($params[$key->value])) {
+                $this->{$key->value} = $params[$key->value];
+            }
+        }
+
+        // default namespace to name, if no specific namespace provided
+        if (!isset($this->namespace)) {
+            $this->namespace = $this->name;
+        }
+
+        // require a few fields
+        foreach (self::_requiredParamKeys() as $key) {
+            if (!isset($this->{$key->name})) {
+                throw new \DomainException(sprintf('Config must have "%s" key', $key->name));
+            }
+        }
+
+        // ensure namespace is valid
+        if (!NameUtils::isValidNSName($this->namespace)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '"%s" is not a valid PHP namespace.',
+                    $this->namespace
+                )
+            );
         }
     }
 
@@ -76,19 +100,9 @@ class Version
     /**
      * @return string
      */
-    public function getUrl(): string
+    public function getSourceUrl(): string
     {
-        return $this->url;
-    }
-
-    /**
-     * @param string $url
-     * @return \DCarbone\PHPFHIR\Config\Version
-     */
-    public function setUrl(string $url): Version
-    {
-        $this->url = $url;
-        return $this;
+        return $this->sourceUrl;
     }
 
     /**
@@ -101,51 +115,55 @@ class Version
     }
 
     /**
-     * @param string|null $namespace
-     * @return \DCarbone\PHPFHIR\Config\Version
-     */
-    public function setNamespace(?string $namespace): Version
-    {
-        if (null === $namespace) {
-            $this->namespace = '';
-            return $this;
-        }
-        // handle no or empty namespace
-        $namespace = trim($namespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
-        if ('' === $namespace) {
-            $this->namespace = '';
-            return $this;
-        }
-
-        if (false === NameUtils::isValidNSName($namespace)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Version "%s" namespace "%s" is not a valid PHP namespace.',
-                    $this->name,
-                    $this->namespace
-                )
-            );
-        }
-
-        $this->namespace = $namespace;
-        return $this;
-    }
-
-    /**
      * @return string|null
      */
-    public function getTestEndpoint(): ?string
+    public function getTestEndpoint(): string|null
     {
         return $this->testEndpoint ?? null;
     }
 
     /**
-     * @param string $testEndpoint
-     * @return \DCarbone\PHPFHIR\Config\Version
+     * @param bool $leadingSlash
+     * @param string ...$bits
+     * @return string
      */
-    public function setTestEndpoint(string $testEndpoint): Version
+    public function getFullyQualifiedName(bool $leadingSlash, string... $bits): string
     {
-        $this->testEndpoint = $testEndpoint;
-        return $this;
+        $ns = $this->getNamespace($leadingSlash);
+        $bits = array_filter($bits);
+        if ([] === $bits) {
+            return $ns;
+        }
+        return sprintf('%s\\%s', $ns, implode('\\' , $bits));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
+     * @param bool $leadingSlash
+     * @param string ...$bits
+     * @return string
+     */
+    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string... $bits): string
+    {
+        return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition
+     */
+    public function getDefinition(): Definition
+    {
+        if (!isset($this->definition)) {
+            $this->definition = new Definition($this);
+        }
+        return $this->definition;
+    }
+
+    /**
+     * @return array
+     */
+    private static function _requiredParamKeys(): array
+    {
+        return [VersionKeys::SOURCE_URL->value, VersionKeys::NAMESPACE->value];
     }
 }

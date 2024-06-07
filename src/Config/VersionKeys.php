@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DCarbone\PHPFHIR\Enum;
+namespace DCarbone\PHPFHIR\Config;
 
 /*
  * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,13 +18,13 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
-trait ValuesTrait
+use DCarbone\PHPFHIR\Enum\ValuesTrait;
+
+enum VersionKeys: string
 {
-    /**
-     * @return string[]
-     */
-    public function values(): array
-    {
-        return array_column(self::cases(), 'values');
-    }
+    use ValuesTrait;
+
+    case SOURCE_URL = 'sourceUrl';
+    case NAMESPACE = 'namespace';
+    case TEST_ENDPOINT = 'testEndpoint';
 }
