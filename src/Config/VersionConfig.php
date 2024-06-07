@@ -34,9 +34,6 @@ class VersionConfig
     /** @var \DCarbone\PHPFHIR\Config\Version */
     private Version $version;
 
-    /** @var \DCarbone\PHPFHIR\Definition */
-    private Definition $definition;
-
     /**
      * BuildConfig constructor.
      * @param \DCarbone\PHPFHIR\Config $config
@@ -77,23 +74,10 @@ class VersionConfig
      */
     public function getUrl(): string
     {
-        return $this->version->getUrl();
+        return $this->version->getSourceUrl();
     }
 
-    /**
-     * @param bool $leadingSlash
-     * @param string ...$bits
-     * @return string
-     */
-    public function getFullyQualifiedName(bool $leadingSlash, string... $bits): string
-    {
-        $ns = $this->version->getNamespace($leadingSlash);
-        $bits = array_filter($bits);
-        if ([] === $bits) {
-            return $ns;
-        }
-        return sprintf('%s\\%s', $ns, implode('\\' , $bits));
-    }
+
 
     /**
      * @return bool
@@ -111,16 +95,7 @@ class VersionConfig
         return $this->config->getLibxmlOpts();
     }
 
-    /**
-     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
-     * @param bool $leadingSlash
-     * @param string ...$bits
-     * @return string
-     */
-    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string... $bits): string
-    {
-        return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
-    }
+
 
     /**
      * @return string|null
@@ -144,16 +119,5 @@ class VersionConfig
     public function getVersion(): Version
     {
         return $this->version;
-    }
-
-    /**
-     * @return \DCarbone\PHPFHIR\Definition
-     */
-    public function getDefinition(): Definition
-    {
-        if (!isset($this->definition)) {
-            $this->definition = new Definition($this);
-        }
-        return $this->definition;;
     }
 }

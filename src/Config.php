@@ -20,6 +20,8 @@ namespace DCarbone\PHPFHIR;
 
 use DCarbone\PHPFHIR\Config\Version;
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -27,17 +29,12 @@ use Psr\Log\NullLogger;
  * Class Config
  * @package DCarbone\PHPFHIR
  */
-class Config
+class Config implements LoggerAwareInterface
 {
-    public const KEY_SCHEMA_PATH = 'schemaPath';
-    public const KEY_CLASSES_PATH = 'classesPath';
-    public const KEY_VERSIONS = 'versions';
-    public const KEY_SILENT = 'silent';
-    public const KEY_SKIP_TESTS = 'skipTests';
-    public const KEY_LIBXML_OPTS = 'libxmlOpts';
+    use LoggerAwareTrait;
 
     /** @var \DCarbone\PHPFHIR\Logger */
-    protected Logger $_log;
+    private Logger $_log;
 
     /** @var string */
     private string $schemaPath;
@@ -56,43 +53,53 @@ class Config
     private ?int $libxmlOpts;
 
     /**
-     * @param \Psr\Log\LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->_log = new Logger($logger);
-    }
-
-    /**
      * Config constructor.
-     * @param array $conf
+     * @param array $params
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(array $conf = [], LoggerInterface $logger = null)
+    public function __construct(array $params = [], LoggerInterface $logger = null)
     {
-        if (!isset($conf[self::KEY_SCHEMA_PATH])) {
+        foreach (ConfigKeys::cases() as $key) {
+            if (isset($params[$key->value])) {
+                $this->{$key->value} = $params[$key->value];
+            }
+        }
+        if (!isset($params[self::KEY_SCHEMA_PATH])) {
             throw new \DomainException('Required configuration key "' . self::KEY_SCHEMA_PATH . '" missing');
         }
-        if (!isset($conf[self::KEY_CLASSES_PATH])) {
+        if (!isset($params[self::KEY_CLASSES_PATH])) {
             throw new \DomainException('Required configuration key "' . self::KEY_CLASSES_PATH . '" missing');
         }
-        if (!isset($conf[self::KEY_VERSIONS]) || !is_array($conf[self::KEY_VERSIONS]) || 0 == count(
-                $conf[self::KEY_VERSIONS]
+        if (!isset($params[self::KEY_VERSIONS]) || !is_array($params[self::KEY_VERSIONS]) || 0 == count(
+                $params[self::KEY_VERSIONS]
             )) {
             throw new \DomainException(
                 'Configuration key "' . self::KEY_VERSIONS . '" must be an array with at least 1 configured version.'
             );
         }
-        $this->setSchemaPath($conf[self::KEY_SCHEMA_PATH]);
-        $this->setClassesPath($conf[self::KEY_CLASSES_PATH]);
-        $this->setVersions($conf[self::KEY_VERSIONS]);
-        $this->setSilent(isset($conf[self::KEY_SILENT]) && (bool)$conf[self::KEY_SILENT]);
-        $this->setSkipTests($conf[self::KEY_SKIP_TESTS] ?? false);
-        $this->setLibxmlOpts($conf[self::KEY_LIBXML_OPTS] ?? null);
+        $this->setSchemaPath($params[self::KEY_SCHEMA_PATH]);
+        $this->setClassesPath($params[self::KEY_CLASSES_PATH]);
+        $this->setVersions($params[self::KEY_VERSIONS]);
+        $this->setSilent(isset($params[self::KEY_SILENT]) && (bool)$params[self::KEY_SILENT]);
+        $this->setSkipTests($params[self::KEY_SKIP_TESTS] ?? false);
+        $this->setLibxmlOpts($params[self::KEY_LIBXML_OPTS] ?? null);
         if ($logger && !$this->isSilent()) {
-            $this->_log = new Logger($logger);
+            $this->setLogger(new Logger($logger));
         } else {
-            $this->_log = new Logger(new NullLogger());
+            $this->setLogger(new NullLogger());
+        }
+    }
+
+    /**
+     * @param \Psr\Log\LoggerInterface $logger
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        if ($logger instanceof Logger) {
+            $this->logger = $logger;
+        } else {
+            $this->_log = new Logger($logger);
         }
     }
 

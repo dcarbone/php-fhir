@@ -46,6 +46,9 @@ echo "\n\n"; ?>
 final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?>
 
 {
+    /** @var null|string */
+    public null|string $host;
+
     /** @var int */
     public null|int $count = null;
     /** @var null|string */
