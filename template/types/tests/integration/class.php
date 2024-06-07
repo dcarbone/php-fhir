@@ -70,6 +70,7 @@ use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_TYPE); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -306,6 +307,109 @@ class <?php echo $testClassname; ?> extends TestCase
             $this->assertCount(0, $errs);
         } catch (\Exception $e) {
             $this->markTestSkipped(sprintf('Validation errors seen: %s', json_encode($errs, JSON_PRETTY_PRINT)));
+        }
+    }
+
+    public function testResponseParserXML(): void
+    {
+        $sourceXML = $this->fetchResource('xml');
+        $parser = new PHPFHIRResponseParser();
+        try {
+            $bundle = $parser->parse($sourceXML);
+        } catch(\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from XML: %s; Returned XML: %s',
+                    $e->getMessage(),
+                    $sourceXML
+                ),
+                $e->getCode(),
+                $e
+            );
+        }
+        $this->assertInstanceOf(<?php echo $bundleType->getClassName(); ?>::class, $bundle);
+        $entry = $bundle->getEntry();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        if (0 === count($entry)) {
+<?php else : ?>
+        if (null === $entry) {
+<?php endif; ?>
+            $this->markTestSkipped(sprintf(
+                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any "<?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
+                $sourceXML
+            ));
+        }
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        $this->assertCount(1, $entry);
+        $resource = $entry[0]->getResource();
+<?php else: ?>
+        $resource = $entry->getResource();
+<?php endif; ?>
+        $resourceXmlWriter = $resource->xmlSerialize();
+        $resourceXml = $resourceXmlWriter->outputMemory();
+        try {
+            $type = <?php echo $type->getClassName(); ?>::xmlUnserialize($resourceXml);
+        } catch (\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $type->getFHIRName(); ?>" from XML: %s; XML: %s',
+                    $e->getMessage(),
+                    $resourceXml
+                ),
+                $e->getCode(),
+                $e
+            );
+        }
+        $this->assertInstanceOf(<?php echo $type->getClassName(); ?>::class, $type);
+        $typeXmlWriter = $type->xmlSerialize();
+        $this->assertEquals($resourceXml, $typeXmlWriter->outputMemory());
+        $bundleXmlWriter = $bundle->xmlSerialize();
+        $this->assertXmlStringEqualsXmlString($sourceXML, $bundleXmlWriter->outputMemory());
+    }
+
+    public function testResponseParserJSON(): void
+    {
+        $sourceJSON = $this->fetchResource('json');
+        $parser = new PHPFHIRResponseParser();
+        try {
+            $bundle = $parser->parse($sourceJSON);
+        } catch(\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf(
+                    'Error building type "<?php echo $bundleType->getFHIRName(); ?>" from JSON: %s; Returned JSON: %s',
+                    $e->getMessage(),
+                    $sourceJSON
+                ),
+                $e->getCode(),
+                $e
+            );
+        }
+        $entry = $bundle->getEntry();
+<?php if ($bundleEntryProperty->isCollection()) : ?>
+        if (0 === count($entry)) {
+<?php else : ?>
+        if (null === $entry) {
+<?php endif; ?>
+            $this->markTestSkipped(sprintf(
+                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                $sourceJSON
+            ));
+        }
+
+        $reEncoded = json_encode($bundle);
+        try {
+            $this->assertJsonStringEqualsJsonString($sourceJSON, $reEncoded);
+        } catch (\Exception $e) {
+            throw new AssertionFailedError(
+                sprintf(
+                    "json_encode output of \"<?php echo $type->getClassName(); ?>\" does not match input: %s\nSource:\n%s\nRe-encoded:\n%s\n",
+                    $e->getMessage(),
+                    $sourceJSON,
+                    $reEncoded
+                ),
+                $e->getCode(),
+                $e
+            );
         }
     }
 }
