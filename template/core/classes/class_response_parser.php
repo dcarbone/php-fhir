@@ -48,12 +48,12 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     private const XML_START = ['<'];
     private const JSON_START = ['{', '['];
 
-    /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config */
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config */
     private <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> Constructor
-     * @param null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      */
     public function __construct(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null)
     {
@@ -64,7 +64,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     }
 
     /**
-     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?>
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>
 
      */
     public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>
@@ -77,7 +77,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * Attempts to parse the provided input into FHIR objects.
      *
      * @param null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
@@ -97,7 +97,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param array $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
     public function parseArray(array $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
@@ -127,7 +127,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param \stdClass $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
     public function parseStdClass(\stdClass $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
@@ -138,7 +138,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param \SimpleXMLElement $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
     public function parseSimpleXMLElement(\SimpleXMLElement $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
@@ -159,7 +159,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param \DOMDocument $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
     public function parseDOMDocument(\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
@@ -170,7 +170,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param \stdClass|\SimpleXMLElement|\DOMDocument $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
     public function parseObject(\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
@@ -187,7 +187,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param string $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
@@ -199,7 +199,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param string $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
     public function parseJson(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
@@ -220,7 +220,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     /**
      * @param string $input
-     * @return null|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
