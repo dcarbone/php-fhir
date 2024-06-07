@@ -232,9 +232,9 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return null;
         }
         $chr = $input[0];
-        if (in_array(self::XML_START, $chr, true)) {
+        if (in_array($chr, self::XML_START, true)) {
             return $this->parseXml($input);
-        } elseif (in_array(self::JSON_START, $chr, true)) {
+        } elseif (in_array($chr, self::JSON_START, true)) {
             return $this->parseJson($input);
         }
         throw new \UnexpectedValueException(sprintf(
