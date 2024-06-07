@@ -154,7 +154,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
                 $this->getPrintableStringInput($input->saveXML())
             ));
         }
-        return $fhirType::xmlUnserialize($input, $this->config);
+        return $fhirType::xmlUnserialize($input, null, $this->config);
     }
 
     /**
