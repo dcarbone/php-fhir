@@ -35,18 +35,17 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
- * Class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; if ('' !== $namespace) : ?>
+ * Enum <?php echo PHPFHIR_ENUM_API_RESOURCE_LIST; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-final class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>
-
+enum <?php echo PHPFHIR_ENUM_API_RESOURCE_LIST; ?> : string
 {
-    public string $url = '';
-    public int $code = 0;
-    public string $resp = '';
-    public string $err = '';
+    case CURRENT_PROBLEMS = '$current-problems';
+    case CURRENT_MEDICATIONS = '$current-medications';
+    case CURRENT_ALLERGIES = '$current-allergies';
+    csae CURRENT_DRUG_ALLERGIES = '$current-drug-allergies';
 }
 <?php return ob_get_clean();

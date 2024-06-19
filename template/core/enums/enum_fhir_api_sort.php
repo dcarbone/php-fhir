@@ -35,15 +35,16 @@ echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
- * This client is intended for debug purposes only, and is not intended to be used in a production environment.
- *
- * Its API is subject to change at any time.
- *
- * Class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; if ('' !== $namespace) : ?>
+ * Enum <?php echo PHPFHIR_ENUM_API_SORT; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?> extends <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> {}
+enum <?php echo PHPFHIR_ENUM_API_SORT; ?> : string
+{
+    case LAST_UPDATED_DESC = '-_lastUpdated';
+    case LAST_UPDATED_ASC = '_lastUpdated';
+    case NONE = 'none';
+}
 <?php return ob_get_clean();
