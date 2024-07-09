@@ -43,7 +43,7 @@ class Config
     private string $schemaPath;
 
     /** @var string */
-    private string $classesPath = PHPFHIR_DEFAULT_OUTPUT_DIR;
+    private string $classesPath;
 
     /** @var \DCarbone\PHPFHIR\Config\VersionConfig[] */
     private array $versions = [];
