@@ -17,10 +17,10 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\VersionCopyright;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -33,7 +33,7 @@ if (null === $containerType) {
     ));
 }
 
-/** @var \DCarbone\PHPFHIR\Definition\Type[] $innerTypes */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Type[] $innerTypes */
 $innerTypes = [];
 foreach ($containerType->getLocalProperties()->allPropertiesIterator() as $property) {
     if ($ptype = $property->getValueFHIRType()) {
@@ -51,7 +51,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo VersionCopyright::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>

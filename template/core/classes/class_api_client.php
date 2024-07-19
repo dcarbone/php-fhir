@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\VersionCopyright;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -31,7 +31,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo VersionCopyright::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
@@ -57,7 +57,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HEADER => 0,
-        CURLOPT_USERAGENT => 'php-fhir client (build: <?php echo CopyrightUtils::getFHIRGenerationDate(); ?>; fhir version: <?php echo $config->getVersion()->getName(); ?>)',
+        CURLOPT_USERAGENT => 'php-fhir client (build: <?php echo $config->getStandardDate(); ?>;)',
     ];
 
     /** @var string */

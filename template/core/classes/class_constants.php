@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\VersionCopyright;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -31,7 +31,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo VersionCopyright::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
@@ -46,11 +46,11 @@ final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
 {
     // FHIR source
-    public const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(false); ?>';
-    public const SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
+    public const SOURCE_VERSION = '<?php echo VersionCopyright::getFHIRVersion(false); ?>';
+    public const SOURCE_GENERATION_DATE = '<?php echo VersionCopyright::getFHIRGenerationDate(); ?>';
 
     // PHPFHIR
-    public const CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+    public const CODE_GENERATION_DATE = '<?php echo $config::getStandardDate(); ?>';
 
     // Config Defaults
     public const DEFAULT_LIBXML_OPTS = LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL;

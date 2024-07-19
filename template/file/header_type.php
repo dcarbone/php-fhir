@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\VersionCopyright;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
-/** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var bool $skipImports */
 /** @var string $fqns */
 
@@ -38,7 +38,7 @@ if ('' !== $namespace) {
 }
 
 // print out huge copyright block
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo VersionCopyright::getFullPHPFHIRCopyrightComment();
 
 // formatting!
 echo "\n\n";

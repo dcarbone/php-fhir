@@ -18,8 +18,8 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Enum\TestType;
 use RuntimeException;
 
@@ -34,19 +34,19 @@ abstract class FileUtils
     public const REGEX_SLASH_REPLACE        = '/';
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string $pathSuffix
      * @return string
      */
-    public static function mkdirRecurse(VersionConfig $config, string $pathSuffix): string
+    public static function mkdirRecurse(Config $config, string $pathSuffix): string
     {
-        $path = $config->getClassesPath();
+        $path = $config->getOutputPath();
         foreach (explode('/', str_replace('\\', '/', $pathSuffix)) as $dir) {
             $dir = trim($dir, "/");
             if ('' === $dir) {
                 continue;
             }
-            $path .= "/{$dir}";
+            $path .= DIRECTORY_SEPARATOR .$dir;
             if (is_dir($path)) {
                 $config->getLogger()->debug(sprintf('Directory at path "%s" already exists.', $path));
             } else {
@@ -62,22 +62,22 @@ abstract class FileUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string $namespace
      * @param string $filename
      * @return string
      */
-    public static function buildGenericFilePath(VersionConfig $config, string $namespace, string $filename): string
+    public static function buildGenericFilePath(Config $config, string $namespace, string $filename): string
     {
-        return self::mkdirRecurse($config, self::cleanupPath($namespace)) . DIRECTORY_SEPARATOR."{$filename}.php";
+        return self::mkdirRecurse($config, self::cleanupPath($namespace)) . DIRECTORY_SEPARATOR . "{$filename}.php";
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function buildTypeFilePath(VersionConfig $config, Type $type): string
+    public static function buildTypeFilePath(Config $config, Type $type): string
     {
         return static::mkdirRecurse(
                 $config,
@@ -86,12 +86,12 @@ abstract class FileUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Enum\TestType $testType
      * @return string
      */
-    public static function buildTypeTestFilePath(VersionConfig $config, Type $type, TestType $testType): string
+    public static function buildTypeTestFilePath(Config $config, Type $type, TestType $testType): string
     {
         return static::mkdirRecurse(
                 $config,
@@ -100,11 +100,11 @@ abstract class FileUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function buildAutoloaderRelativeFilepath(VersionConfig $config, Type $type): string
+    public static function buildAutoloaderRelativeFilepath(Config $config, Type $type): string
     {
         return ltrim(
                 str_replace(

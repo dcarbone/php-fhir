@@ -18,9 +18,8 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Property;
-use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Version\Definition\Property;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 
 /**
  * Class ExceptionUtils
@@ -29,7 +28,7 @@ use DCarbone\PHPFHIR\Enum\PrimitiveType;
 abstract class ExceptionUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createPrimitiveValuePropertyNotFound(Type $type): \DomainException
@@ -43,7 +42,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createUnknownTypeKindException(Type $type): \DomainException
@@ -57,7 +56,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createUnknownPrimitiveTypeException(Type $type): \DomainException
@@ -72,7 +71,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createUndefinedListRestrictionBaseException(Type $type): \DomainException
@@ -87,7 +86,7 @@ abstract class ExceptionUtils
 
     /**
      * @param bool $expected
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \UnexpectedValueException
      */
     public static function createContainedTypeFlagMismatchException(bool $expected, Type $type): \UnexpectedValueException
@@ -103,7 +102,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \UnexpectedValueException
      */
     public static function createDuplicateClassException(Type $type): \UnexpectedValueException
@@ -118,7 +117,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createValuePropertyNotFoundException(Type $type): \DomainException
@@ -132,8 +131,8 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @return \DomainException
      */
     public static function createPropertyMissingNameException(Type $type, Property $property): \DomainException
@@ -149,7 +148,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createInvalidTypeClassNameException(Type $type): \DomainException
@@ -164,7 +163,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createInvalidTypeNamespaceException(Type $type): \DomainException
@@ -179,8 +178,8 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Type $parentType
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $parentType
      * @return \DomainException
      */
     public static function createRootTypeCannotHaveParentException(Type $type, Type $parentType): \DomainException
@@ -195,7 +194,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createNonRootTypeMustHaveParentException(Type $type): \DomainException
@@ -209,8 +208,8 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @return \DomainException
      */
     public static function createUnknownPropertyTypeException(Type $type, Property $property): \DomainException
@@ -226,7 +225,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createComponentParentTypeNotFoundException(Type $type): \DomainException
@@ -243,8 +242,8 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @return \DomainException
      */
     public static function createPropertyHasNoNameException(Type $type, Property $property): \DomainException
@@ -259,7 +258,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createTypeParentNotFoundException(Type $type): \DomainException
@@ -275,7 +274,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DomainException
      */
     public static function createTypeRestrictionBaseNotFoundException(Type $type): \DomainException
@@ -308,7 +307,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $attribute
      * @return \UnexpectedValueException
@@ -332,7 +331,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $element
      * @return \UnexpectedValueException
@@ -356,7 +355,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $element
      * @param string $attributeName
      * @return \DomainException
@@ -380,7 +379,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param \SimpleXMLElement $element
      * @param $attributeName
      * @return \DomainException
@@ -404,7 +403,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $source
      * @param string $setterMethod
@@ -431,7 +430,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param string $parentName
      * @return \UnexpectedValueException
      */
@@ -448,7 +447,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $source
      * @param $setterMethod
@@ -475,7 +474,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \RuntimeException
      */
     public static function createBundleTypeNotFoundException(Type $type): \RuntimeException
@@ -489,7 +488,7 @@ abstract class ExceptionUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \RuntimeException
      */
     public static function createBundleEntryPropertyNotFoundException(Type $type): \RuntimeException

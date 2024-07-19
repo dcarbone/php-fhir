@@ -22,10 +22,30 @@ use DCarbone\PHPFHIR\Enum\ValuesTrait;
 
 enum ConfigKeys: string
 {
-    case SCHEMA_PATH = 'schemaPath';
     case OUTPUT_PATH = 'outputPath';
+    case ROOT_NAMESPACE = 'rootNamespace';
     case VERSIONS = 'versions';
     case SILENT = 'silent';
     case SKIP_TESTS = 'skipTests';
     case LIBXML_OPTS = 'libxmlOpts';
+
+    /**
+     * @return \DCarbone\PHPFHIR\ConfigKeys[]
+     */
+    public static function required(): array
+    {
+        return [
+            self::OUTPUT_PATH,
+            self::ROOT_NAMESPACE,
+            self::VERSIONS,
+        ];
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\ConfigKeys[]
+     */
+    public static function optional(): array
+    {
+        return array_diff(ConfigKeys::cases(), self::required());
+    }
 }
