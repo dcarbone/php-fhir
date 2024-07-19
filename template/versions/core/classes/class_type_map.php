@@ -17,9 +17,9 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
-use DCarbone\PHPFHIR\Version\VersionCopyright;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
@@ -51,7 +51,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo $version->getCopyright()->getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
@@ -62,7 +62,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
+abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?> implements <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
 
 {
     /**
@@ -86,7 +86,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @param string $typeName
      * @return string|null
      */
-    public static function getTypeClass(string $typeName): null|string
+    public function getTypeClass(string $typeName): null|string
     {
         return self::TYPE_MAP[$typeName] ?? null;
     }
@@ -95,7 +95,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * Returns the full internal class map
      * @return array
      */
-    public static function getMap(): array
+    public function getMap(): array
     {
         return self::TYPE_MAP;
     }
@@ -104,7 +104,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * Returns the full list of containable resource types
      * @return array
      */
-    public static function getContainableTypes(): array
+    public function getContainableTypes(): array
     {
         return self::CONTAINABLE_TYPES;
     }
@@ -114,7 +114,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
 
      * @return string|null Name of class as string or null if type is not contained in map
      */
-    public static function getContainedTypeClassName(string $typeName): null|string
+    public function getContainedTypeClassName(string $typeName): null|string
     {
         return self::CONTAINABLE_TYPES[$typeName] ?? null;
     }
@@ -125,7 +125,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public static function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool
+    public function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool
     {
         $tt = gettype($type);
         if ('object' === $tt) {
@@ -149,7 +149,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
 
      */
-    public static function getContainedTypeFromXML(\SimpleXMLElement $node, <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+    public function getContainedTypeFromXML(\SimpleXMLElement $node, <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 
     {
         $typeName = $node->getName();
@@ -166,7 +166,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
      * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
 
      */
-    public static function getContainedTypeFromArray(null|array $data): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+    public function getContainedTypeFromArray(null|array $data): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 
     {
         if (null === $data || [] === $data) {

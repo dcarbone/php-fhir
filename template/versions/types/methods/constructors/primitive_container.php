@@ -64,7 +64,7 @@ ob_start(); ?>
         continue;
     endif;
     echo require_with(
-            PHPFHIR_TEMPLATE_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
+            PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
             [
                 'config' => $config,
                 'type' => $type,

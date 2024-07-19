@@ -31,7 +31,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
@@ -43,7 +43,6 @@ echo "\n\n"; ?>
  */
 enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
 {
-    case REGISTER_AUTOLOADER = 'registerAutoloader';
     case LIBXML_OPTS = 'libxmlOpts';
     case ROOT_XMLNS = 'rootXmlns';
     case OVERRIDE_SOURCE_XMLNS = 'overrideSourceXmlns';

@@ -19,9 +19,10 @@
 use DCarbone\PHPFHIR\Version\VersionCopyright;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
-$namespace = $config->getFullyQualifiedName(false);
+$namespace = $version->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -31,7 +32,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 
@@ -42,7 +43,7 @@ echo "\n\n"; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
+class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> implements <?php echo PHPFHIR_INTERFACE_RESPONSE_PARSER; ?>
 
 {
     private const XML_START = ['<'];

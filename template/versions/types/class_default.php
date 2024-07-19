@@ -57,7 +57,7 @@ echo require_with(
  */
 <?php
 echo require_with(
-    PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'definition.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'definition.php',
     [
         'config' => $config,
         'type' => $type,
@@ -76,7 +76,7 @@ if (0 !== count($localProperties)) {
 
     foreach ($localProperties as $property) {
         echo require_with(
-            PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'constants.php',
+            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'constants.php',
             [
                 'config' => $config,
                 'property' => $property,
@@ -88,7 +88,7 @@ if (0 !== count($localProperties)) {
 
     foreach ($localProperties as $property) {
         echo require_with(
-            PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'declaration.php',
+            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'declaration.php',
             [
                 'config' => $config,
                 'property' => $property,
@@ -99,7 +99,7 @@ if (0 !== count($localProperties)) {
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'field_map.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'field_map.php',
         [
             'config' => $config,
             'type' => $type,
@@ -109,7 +109,7 @@ if (0 !== count($localProperties)) {
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'primitive_xml_location_map.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'primitive_xml_location_map.php',
         [
             'config' => $config,
             'type' => $type,
@@ -119,7 +119,7 @@ if (0 !== count($localProperties)) {
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
         [
             'config' => $config,
             'type' => $type,
@@ -130,7 +130,7 @@ if (0 !== count($localProperties)) {
 }
 
 echo require_with(
-    PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
     [
         'config' => $config,
         'type' => $type,
@@ -142,7 +142,7 @@ if ($type->isContainedType()) {
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'contained_type.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'contained_type.php',
         [
             'config' => $config,
             'type' => $type,
@@ -152,7 +152,7 @@ if ($type->isContainedType()) {
 
 if (0 < count($localProperties)) {
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods.php',
         [
             'config' => $config,
             'type' => $type,
@@ -163,7 +163,7 @@ if (0 < count($localProperties)) {
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
         [
             'config' => $config,
             'type' => $type,
@@ -173,7 +173,7 @@ if (0 < count($localProperties)) {
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml.php',
         [
             'config' => $config,
             'type'     => $type,
@@ -186,7 +186,7 @@ if (0 < count($localProperties)) {
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json.php',
         [
             'config' => $config,
             'type' => $type,

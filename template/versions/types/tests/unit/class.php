@@ -28,7 +28,7 @@ $typeKind = $type->getKind();
 ob_start();
 
 echo require_with(
-    PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'header.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'header.php',
     [
         'config'     => $config,
         'type'       => $type,
@@ -36,7 +36,7 @@ echo require_with(
 );
 
 echo require_with(
-    PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_base.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_base.php',
     [
         'config' => $config,
         'type'   => $type,
@@ -45,7 +45,7 @@ echo require_with(
 
 if ($typeKind === TypeKind::PRIMITIVE) :
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_primitive.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_primitive.php',
         [
             'config' => $config,
             'type' => $type,

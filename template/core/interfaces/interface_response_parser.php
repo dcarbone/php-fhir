@@ -17,7 +17,6 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config $config */
-/** @var \DCarbone\PHPFHIR\Version $version */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -29,22 +28,27 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo $version->getCopyright()->getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
 /**
- * Class <?php echo PHPFHIR_CLASSNAME_VERSION; if ('' !== $namespace) : ?>
+ * Interface <?php echo PHPFHIR_INTERFACE_RESPONSE_PARSER; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_VERSION; ?>
+interface <?php echo PHPFHIR_INTERFACE_RESPONSE_PARSER; ?>
 
 {
-    public const NAME = '<?php echo $version->getName(); ?>';
-    public const SOURCE_URL = '<?php echo $version->getSourceUrl(); ?>';
-    public const FHIR_GENERATION_DATE = '<?php echo $version->getCopyright()->getFHIRGenerationDate(); ?>';
+    /**
+     * Must attempt to parse the provided input into FHIR objects.
+     *
+     * @param null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
+
+     * @throws \Exception
+     */
+    public function parse(null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>;
 }
-<?php return ob_get_clean();

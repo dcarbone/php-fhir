@@ -31,7 +31,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
@@ -43,9 +43,6 @@ echo "\n\n"; ?>
  */
 class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
-    /** @var bool */
-    private bool $registerAutoloader = false;
-
     /** @var int */
     private int $libxmlOpts;
 
@@ -61,45 +58,11 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      */
     public function __construct(array $config = [])
     {
-        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::values() as $k => $_) {
-            if (isset($config[$k]) || array_key_exists($k, $config)) {
-                $this->setKey($k, $config[$k]);
+        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $key) {
+            if (isset($config[$key->value]) || array_key_exists($key->value, $config)) {
+                $this->{"set$key->value"}($config[$key->value);
             }
         }
-    }
-
-    /**
-     * Set arbitrary key on this config
-     *
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CONFIG_KEY); ?>|string $key
-     * @param mixed $value
-     * @return static
-     */
-    public function setKey(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>|string $key, mixed $value): self
-    {
-        if (!is_string($key)) {
-            $key = $key->value;
-        }
-        $this->{'set'.$key}($value);
-        return $this;
-    }
-
-    /**
-     * @param bool $registerAutoloader
-     * @return static
-     */
-    public function setRegisterAutoloader(bool $registerAutoloader): self
-    {
-        $this->registerAutoloader = $registerAutoloader;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getRegisterAutoloader(): bool
-    {
-        return $this->registerAutoloader;
     }
 
     /**
@@ -171,7 +134,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     {
         $out = new \stdClass();
         foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $key) {
-            $out->{$k} = $this->{$key->getter()}();
+            $out->{$key->value} = $this->{"get$key->value"}();
         }
         return $out;
     }

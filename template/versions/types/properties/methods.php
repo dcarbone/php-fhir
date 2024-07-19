@@ -26,7 +26,7 @@ ob_start();
 
 if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
         [
             'config' => $config,
             'type' => $type
@@ -34,7 +34,7 @@ if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
     );
 else :
     echo require_with(
-        PHPFHIR_TEMPLATE_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'default.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'default.php',
         [
             'config'           => $config,
             'type'             => $type,

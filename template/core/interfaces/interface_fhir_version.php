@@ -16,3 +16,62 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config $config */
+
+$namespace = $config->getFullyQualifiedName(false);
+
+ob_start();
+
+echo "<?php declare(strict_types=1);\n\n";
+
+if ('' !== $namespace) :
+    echo "namespace {$namespace};\n\n";
+endif;
+
+echo $config->getBasePHPFHIRCopyrightComment();
+
+echo "\n\n";
+?>
+/**
+ * Interface <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; if ('' !== $namespace) : ?>
+
+ * @package \<?php echo $namespace; ?>
+<?php endif; ?>
+
+ */
+interface <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
+
+{
+    /**
+     * Must return the "name" of this version, e.g. DSTU1, STU3, R5, etc.
+     * @return string
+     */
+    public function getName(): string;
+
+    /**
+     * Must return the source this version was generated from
+     * @return string
+     */
+    public function getSourceUrl(): string;
+
+    /**
+     * Must return the date this FHIR version's source was generated
+     * @return string
+     */
+    public function getFhirGenerationDate(): string;
+
+    /**
+     * Must return config for this version
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>
+
+     */
+    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>;
+
+    /**
+     * Must return the type map class for this version
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE_MAP); ?>
+
+     */
+    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>;
+}
+<?php return ob_get_clean();
