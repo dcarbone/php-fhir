@@ -24,7 +24,7 @@
     "ext-json": "*",
     "ext-libxml": "*",
     "ext-simplexml": "*",
-    "psr/log": "^3.0",
+    "psr/log": "^3.0"
   },
   "require-dev": {
     "ext-curl": "*",
