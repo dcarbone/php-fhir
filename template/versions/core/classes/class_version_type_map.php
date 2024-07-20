@@ -56,13 +56,13 @@ echo $version->getCopyright()->getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; if ('' !== $namespace) : ?>
+ * Class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?> implements <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
+abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
 
 {
     /**

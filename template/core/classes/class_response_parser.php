@@ -94,7 +94,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return null;
         }
         if (isset($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-            $className = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+            $className = $this->version->getTypeMap()->getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
             if (null === $className) {
                 throw new \UnexpectedValueException(sprintf(
                     'Provided input has "%s" value of "%s", but it does not map to any known type.  Other keys: ["%s"]',
@@ -132,8 +132,8 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     {
         $elementName = $input->getName();
-        /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?> $fhirType */
-        $fhirType = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
+        /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $fhirType */
+        $fhirType = $this->version->getTypeMap()->getTypeClass($elementName);
         if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
                 'Unable to locate FHIR type for root XML element "%s". Input seen: %s',
@@ -141,7 +141,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
                 $this->getPrintableStringInput($input->saveXML())
             ));
         }
-        return $fhirType::xmlUnserialize($input, null, $this->config);
+        return $fhirType::xmlUnserialize($input, null, $this->version->getConfig());
     }
 
     /**
@@ -181,7 +181,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     public function parseXml(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return $this->parseSimpleXMLElement(new \SimpleXMLElement($input, $this->config->getLibxmlOpts()));
+        return $this->parseSimpleXMLElement(new \SimpleXMLElement($input, $this->version->getConfig()->getLibxmlOpts()));
     }
 
     /**
@@ -192,7 +192,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     public function parseJson(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $decoded = json_decode($input, true);
+        $decoded = json_decode($input, true, $this->version->getConfig()->getJsonDecodeMaxDepth());
         $err = json_last_error();
         if (JSON_ERROR_NONE !== $err) {
             throw new \DomainException(sprintf(

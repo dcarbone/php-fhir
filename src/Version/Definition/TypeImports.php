@@ -274,7 +274,7 @@ class TypeImports implements Iterator, Countable
             if ($ptk->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE) &&
                 $typeNS !== $configNS) {
                 $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
-                $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);
+                $this->addImport(PHPFHIR_CLASSNAME_VERSION_TYPEMAP, $configNS);
             } else {
 
                 if ($ptk === TypeKind::PRIMITIVE_CONTAINER) {

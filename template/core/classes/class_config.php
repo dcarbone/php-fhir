@@ -45,12 +45,12 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
     /** @var int */
     private int $libxmlOpts;
-
     /** @var string */
     private string $rootXmlns;
-
     /** @var bool */
     private bool $overrideSourceXmlns;
+    /** @var int
+    private int $jsonDecodeMaxDepth;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
@@ -67,6 +67,8 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 
     /**
      * Sets the option flags to provide to libxml when unserializing XML
+     *
+     * @see https://www.php.net/manual/en/libxml.constants.php
      *
      * @param int $libxmlOpts
      * @return static
@@ -125,6 +127,27 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     public function getOverrideSourceXmlns(): bool
     {
         return $this->overrideSourceXmlns ?? false;
+    }
+
+    /**
+     * Max depth option to provide when decoding a JSON input string.
+     *
+     * See https://www.php.net/manual/en/function.json-decode.php
+     *
+     * @param int $maxDepth
+     */
+    public function setJsonDecodeMaxDepth(int $maxDepth): self
+    {
+        $this->jsonDecodeMaxDepth = $maxDepth;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getJsonDecodeMaxDepth(): int
+    {
+        return $this->jsonDecodeMaxDepth ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_JSON_DECODE_MAX_DEPTH;
     }
 
     /**
