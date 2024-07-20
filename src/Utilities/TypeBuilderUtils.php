@@ -18,9 +18,9 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\EnumerationValue;
-use DCarbone\PHPFHIR\Definition\Property;
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue;
+use DCarbone\PHPFHIR\Version\Definition\Property;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 
 /**
  * Class BuilderUtils
@@ -29,7 +29,7 @@ use DCarbone\PHPFHIR\Definition\Type;
 abstract class TypeBuilderUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $source
      * @param string $setterMethod
@@ -54,7 +54,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $attribute
      * @param string $setterMethod
@@ -69,7 +69,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $element
      * @param string $setterMethod
      * @param string $attributeName
@@ -88,7 +88,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parent
      * @param \SimpleXMLElement $source
      * @param string $setterMethod
@@ -103,7 +103,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $attribute
      * @param string $setterMethod
@@ -126,7 +126,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $element
      * @param string $setterMethod
      * @param string $attributeName
@@ -147,7 +147,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $attribute
      * @param string $setterMethod
@@ -174,7 +174,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $element
      * @param string $setterMethod
      * @param string $attributeName
@@ -193,7 +193,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $enumElement
      */
@@ -207,7 +207,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $source
      * @param string $setterMethod
@@ -232,7 +232,7 @@ abstract class TypeBuilderUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param \SimpleXMLElement $parent
      * @param \SimpleXMLElement $source
      * @param string $setterMethod

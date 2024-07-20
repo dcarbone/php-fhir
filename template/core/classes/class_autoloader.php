@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\VersionCopyright;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -32,7 +32,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo VersionCopyright::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
@@ -96,17 +96,28 @@ if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_X
 
 
 // parser classes
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_TYPEMAP); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPEMAP); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>.php';
 }
 if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
 }
 
-// debug client
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>.php';
+// api client
+if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_RESOURCE_LIST); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_API_RESOURCE_LIST; ?>.php';
 }
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_REQUEST); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?>.php';
+}
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>.php';
+}
+if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT); ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>.php';
+}
+
+// debug client
 if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>.php';
 }

@@ -17,10 +17,10 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\VersionCopyright;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $rootNS = $config->getFullyQualifiedName(false);
 $testNS = $config->getFullyQualifiedTestsName(TestType::BASE, false);
@@ -29,9 +29,9 @@ ob_start();
 echo "<?php\n\n"; ?>
 namespace <?php echo $testNS; ?>;
 
-<?php echo CopyrightUtils::getFullPHPFHIRCopyrightComment(); ?>
+<?php echo VersionCopyright::getFullPHPFHIRCopyrightComment(); ?>
 
-use <?php echo $rootNS; ?>\<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>;
+use <?php echo $rootNS; ?>\<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -44,16 +44,16 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_TYPEMAP; ?> extends TestCase
 {
     public function testGetTypeClassWithNonStringReturnsNull()
     {
-        $this->assertNull(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass(1));
+        $this->assertNull(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::getTypeClass(1));
     }
 
     public function testGetContainedTypeClassName()
     {
 <?php foreach($types->getNameSortedIterator() as $type) :
     if ($type->isContainedType()) : ?>
-        $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getContainedTypeClassName('<?php echo $type->getFHIRName(); ?>'));
+        $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::getContainedTypeClassName('<?php echo $type->getFHIRName(); ?>'));
 <?php else : ?>
-        $this->assertNull(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getContainedTypeClassName('<?php echo $type->getFHIRName(); ?>'));
+        $this->assertNull(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::getContainedTypeClassName('<?php echo $type->getFHIRName(); ?>'));
 <?php endif;
 endforeach; ?>
     }
@@ -66,11 +66,11 @@ endforeach; ?>
         continue;
     }
     if ($type->isContainedType()) : ?>
-        $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(false); ?>'));
-        $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(true); ?>'));
+        $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(false); ?>'));
+        $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(true); ?>'));
 <?php else : ?>
-        $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(false); ?>'));
-        $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(true); ?>'));
+        $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(false); ?>'));
+        $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(true); ?>'));
 <?php endif;
 endforeach; ?>
     }
@@ -86,9 +86,9 @@ endforeach; ?>
         continue;
     }
     if ($type->isContainedType()) : ?>
-        $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFHIRName(); ?>'));
+        $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFHIRName(); ?>'));
 <?php else : ?>
-        $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFHIRName(); ?>'));
+        $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::isContainableResource('<?php echo $type->getFHIRName(); ?>'));
 <?php endif;
 endforeach; ?>
     }
@@ -106,9 +106,9 @@ endforeach; ?>
 ?>
         $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>;
 <?php if ($type->isContainedType()) : ?>
-        $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource($type));
+        $this->assertTrue(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::isContainableResource($type));
 <?php else : ?>
-        $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::isContainableResource($type));
+        $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::isContainableResource($type));
 <?php endif;
 endforeach; ?>
     }
@@ -116,7 +116,7 @@ endforeach; ?>
     public function testGetTypeClass()
     {
 <?php foreach($types->getNamespaceSortedIterator() as $type): ?>
-        $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass('<?php echo $type->getFHIRName(); ?>'));
+        $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::getTypeClass('<?php echo $type->getFHIRName(); ?>'));
 <?php endforeach; ?>
     }
 }

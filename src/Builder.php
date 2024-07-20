@@ -18,10 +18,8 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Render\Templates;
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use RuntimeException;
 
@@ -31,45 +29,19 @@ use RuntimeException;
  */
 class Builder
 {
-    /** @var \DCarbone\PHPFHIR\Config\VersionConfig */
-    protected VersionConfig $config;
-
-    /** @var \DCarbone\PHPFHIR\Definition */
-    protected Definition $definition;
+    /** @var \DCarbone\PHPFHIR\Config */
+    protected Config $config;
 
     /** @var \DCarbone\PHPFHIR\Logger */
     private Logger $log;
 
-    /** @var bool */
-    private bool $preGenerationCompleted = false;
-
     /**
-     * Generator constructor.
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition $definition
+     * @param \DCarbone\PHPFHIR\Config $config
      */
-    public function __construct(VersionConfig $config, Definition $definition)
+    public function __construct(Config $config)
     {
         $this->config = $config;
-        $this->definition = $definition;
         $this->log = $config->getLogger();
-    }
-
-
-    /**
-     * @return \DCarbone\PHPFHIR\Definition
-     */
-    public function getDefinition(): Definition
-    {
-        $log = $this->config->getLogger();
-
-        if (!$this->definition->isDefined()) {
-            $log->startBreak('XSD Parsing');
-            $this->definition->buildDefinition();
-            $log->endBreak('XSD Parsing');
-        }
-
-        return $this->definition;
     }
 
     /**
@@ -78,11 +50,9 @@ class Builder
      */
     public function render(): void
     {
-        $this->prerender();
-
         $this->writeCoreTypeFiles();
 
-        $this->writeFhirTypeFiles();
+        $this->writeFhirVersionFiles();
 
         if (!$this->config->isSkipTests()) {
             $this->writeFhirTestFiles();
@@ -93,7 +63,7 @@ class Builder
      * Generate FHIR classes only.
      * @throws \ErrorException
      */
-    public function writeFhirTypeFiles(): void
+    public function writeFhirVersionFiles(): void
     {
         // register custom error handler to force explosions.
         set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
@@ -102,31 +72,38 @@ class Builder
 
         $log = $this->config->getLogger();
 
-        $this->prerender();
+        foreach($this->config->getVersions() as $version) {
+            $log->startBreak(sprintf('FHIR Version %s Class Generation', $version->getName()));
 
-        $definition = $this->getDefinition();
+            $definition = $version->getDefinition();
 
-        $types = $definition->getTypes();
-
-        $log->startBreak('FHIR Class Generation');
-        foreach ($types->getIterator() as $type) {
-            $log->debug("Generating class for type {$type}...");
-
-            // TODO(@dcarbone): revisit with template system refactor
-            if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
-                $classDefinition = Templates::renderXhtmlTypeClass($this->config, $types, $type);
-            } else {
-                $classDefinition = Templates::renderFhirTypeClass($this->config, $types, $type);
+            if (!$definition->isDefined()) {
+                $log->startBreak('XSD Parsing');
+                $definition->buildDefinition();
+                $log->endBreak('XSD Parsing');
             }
-            $filepath = FileUtils::buildTypeFilePath($this->config, $type);
-            if (!file_put_contents($filepath, $classDefinition)) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'Unable to write Type %s class definition to file %s',
-                        $filepath,
-                        $type
-                    )
-                );
+
+            $types = $definition->getTypes();
+
+            foreach ($types->getIterator() as $type) {
+                $log->debug("Generating class for type {$type}...");
+
+                // TODO(@dcarbone): revisit with template system refactor
+                if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
+                    $classDefinition = Templates::renderXhtmlTypeClass($this->config, $version, $types, $type);
+                } else {
+                    $classDefinition = Templates::renderFhirTypeClass($this->config, $version, $types, $type);
+                }
+                $filepath = FileUtils::buildTypeFilePath($this->config, $type);
+                if (!file_put_contents($filepath, $classDefinition)) {
+                    throw new \RuntimeException(
+                        sprintf(
+                            'Unable to write Type %s class definition to file %s',
+                            $filepath,
+                            $type
+                        )
+                    );
+                }
             }
         }
         $log->endBreak('FHIR Class Generation');
@@ -141,62 +118,53 @@ class Builder
     {
         $log = $this->config->getLogger();
 
-        $this->prerender();
+        foreach($this->config->getVersions() as $version) {
+            $definition = $version->getDefinition();
 
-        $definition = $this->getDefinition();
-        $types = $definition->getTypes();
-
-        $log->startBreak('Test Class Generation');
-
-        $testTypes = [TestType::UNIT];
-        if (null !== $this->config->getTestEndpoint()) {
-            $testTypes[] = TestType::INTEGRATION;
-            $testTypes[] = TestType::VALIDATION;
-        }
-        foreach ($types->getIterator() as $type) {
-
-            // skip "abstract" types
-            if ($type->isAbstract()) {
-                continue;
+            if (!$definition->isDefined()) {
+                $log->startBreak('XSD Parsing');
+                $definition->buildDefinition();
+                $log->endBreak('XSD Parsing');
             }
 
-            foreach ($testTypes as $testType) {
-                // only render integration and validation tests if this is a "resource" type
-                if (!$type->isResourceType() && $testType->isOneOf(TestType::INTEGRATION, TestType::VALIDATION)) {
+            $types = $definition->getTypes();
+
+            $log->startBreak('Test Class Generation');
+
+            $testTypes = [TestType::UNIT];
+            if (null !== $version->getTestEndpoint()) {
+                $testTypes[] = TestType::INTEGRATION;
+                $testTypes[] = TestType::VALIDATION;
+            }
+            foreach ($types->getIterator() as $type) {
+
+                // skip "abstract" types
+                if ($type->isAbstract()) {
                     continue;
                 }
 
-                $log->debug("Generated {$testType->value} test class for type {$type}...");
-                $classDefinition = Templates::renderFhirTypeClassTest($this->config, $types, $type, $testType);
-                $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
-                if (false === file_put_contents($filepath, $classDefinition)) {
-                    throw new RuntimeException(
-                        sprintf(
-                            'Unable to write Type %s class definition to file %s',
-                            $filepath,
-                            $type
-                        )
-                    );
+                foreach ($testTypes as $testType) {
+                    // only render integration and validation tests if this is a "resource" type
+                    if (!$type->isResourceType() && $testType->isOneOf(TestType::INTEGRATION, TestType::VALIDATION)) {
+                        continue;
+                    }
+
+                    $log->debug("Generated {$testType->value} test class for type {$type}...");
+                    $classDefinition = Templates::renderFhirTypeClassTest($this->config, $version, $types, $type, $testType);
+                    $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
+                    if (false === file_put_contents($filepath, $classDefinition)) {
+                        throw new RuntimeException(
+                            sprintf(
+                                'Unable to write Type %s class definition to file %s',
+                                $filepath,
+                                $type
+                            )
+                        );
+                    }
                 }
             }
-        }
 
-
-        $log->endBreak('Test Class Generation');
-    }
-
-    /**
-     * Commands to run prior to class generation
-     */
-    protected function prerender(): void
-    {
-        // Initialize some classes and things.
-        if (!$this->preGenerationCompleted) {
-            $this->log->startBreak('Prerender');
-            $this->log->info('Compiling Copyrights...');
-            CopyrightUtils::compileCopyrights($this->config);
-            $this->log->endBreak('Prerender');
-            $this->preGenerationCompleted = true;
+            $log->endBreak('Test Class Generation');
         }
     }
 
@@ -224,9 +192,6 @@ class Builder
     {
         $this->log->startBreak('Core Files');
 
-        // localize types
-        $types = $this->getDefinition()->getTypes();
-
         // render each core file
         foreach($this->getCoreTypeFileIterator() as $fpath => $fi) {
             /** @var $fi \SplFileInfo */
@@ -248,7 +213,7 @@ class Builder
                 $suffix = '';
             } else if ('test' === $ftype) {
                 // test classes have different namespace
-                $ns = $this->config->getFullyQualifiedTestsName(TestType::BASE, true);
+                $ns = $this->config->getFullyQualifiedName(true, TestType::BASE->value);
                 // trim subtype
                 $fname = substr($fname, strpos($fname, '_') + 1);
             }
@@ -267,7 +232,7 @@ class Builder
                     $ns,
                     $cname,
                 ),
-                Templates::renderCoreType($fpath, $this->config, $types)
+                Templates::renderCoreType($fpath, $this->config)
             );
         }
 

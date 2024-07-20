@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 
 /**
  * Class NameUtils
@@ -201,29 +201,11 @@ abstract class NameUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
     public static function getTypeXMLElementName(Type $type): string
     {
         return str_replace(self::$classNameSearch, self::$classNameReplace, $type->getFHIRName());
-    }
-
-    /**
-     * @param string $propName
-     * @return string
-     */
-    public static function getPropertyMethodName(string $propName): string
-    {
-        return ucfirst($propName);
-    }
-
-    /**
-     * @param string $propName
-     * @return string
-     */
-    public static function getPropertyVariableName(string $propName): string
-    {
-        return sprintf('$%s', $propName);
     }
 }

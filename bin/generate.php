@@ -177,7 +177,6 @@ STRING;
  * TODO: Figure out what to do with Windows...
  *
  * @param string $q
- *
  * @return bool
  */
 function ask(string $q): bool
@@ -186,7 +185,7 @@ function ask(string $q): bool
     echo "{$q} [enter \"yes\" or \"no\"]: ";
     while (0 !== stream_select($ins, $null, $null, null)) {
         foreach ($ins as $in) {
-            $resp = stream_get_line($in, 25, "\n");
+            $resp = stream_get_line($in, 8, "\n");
             if (is_string($resp)) {
                 return str_starts_with(strtolower($resp), 'y');
             }
@@ -241,7 +240,7 @@ if ($argc > 1) {
             $next = trim($argv[$i + 1]);
         }
         if (str_contains($arg, '=')) {
-            list($arg, $next) = explode('=', $arg, 2);
+            [$arg, $next] = explode('=', $arg, 2);
             $found_equal = true;
         }
         switch ($arg) {
@@ -500,7 +499,7 @@ foreach ($versions_to_generate as $version) {
     echo sprintf(
         'Generating "%s" into %s%s%s%s',
         $version,
-        $config->getClassesPath(),
+        $config->getOutputPath(),
         DIRECTORY_SEPARATOR,
         str_replace('\\', DIRECTORY_SEPARATOR, trim($namespace, "\\")),
         PHP_EOL
@@ -511,7 +510,7 @@ foreach ($versions_to_generate as $version) {
 
     $builder = new Builder($version_config, $definition);
     if ($only_library) {
-        $builder->writeFhirTypeFiles();
+        $builder->writeFhirVersionFiles();
     } elseif ($only_tests) {
         $builder->writeFhirTestFiles();
     } else {

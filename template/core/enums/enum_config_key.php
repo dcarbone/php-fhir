@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\VersionCopyright;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -31,7 +31,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
@@ -43,10 +43,10 @@ echo "\n\n"; ?>
  */
 enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
 {
-    case REGISTER_AUTOLOADER = 'registerAutoloader';
     case LIBXML_OPTS = 'libxmlOpts';
     case ROOT_XMLNS = 'rootXmlns';
     case OVERRIDE_SOURCE_XMLNS = 'overrideSourceXmlns';
+    case JSON_DECODE_MAX_DEPTH = 'jsonDecodeMaxDepth';
 
     /**
      * @return string

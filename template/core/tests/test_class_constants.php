@@ -17,10 +17,10 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\VersionCopyright;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $rootNS = $config->getFullyQualifiedName(false);
 $testNS = $config->getFullyQualifiedTestsName(TestType::BASE, false);
@@ -29,7 +29,7 @@ ob_start();
 echo "<?php\n\n";?>
 namespace <?php echo $testNS; ?>;
 
-<?php echo CopyrightUtils::getFullPHPFHIRCopyrightComment(); ?>
+<?php echo VersionCopyright::getFullPHPFHIRCopyrightComment(); ?>
 
 use <?php echo $rootNS; ?>\<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>;
 use PHPUnit\Framework\TestCase;
