@@ -49,6 +49,12 @@ interface <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
     public function getName(): string;
 
     /**
+     * Must return source's reported version of FHIR
+     * @return string
+     */
+    public function getSourceVersion(): string;
+
+    /**
      * Must return the source this version was generated from
      * @return string
      */
@@ -58,7 +64,7 @@ interface <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
      * Must return the date this FHIR version's source was generated
      * @return string
      */
-    public function getFhirGenerationDate(): string;
+    public function getSourceGenerationDate(): string;
 
     /**
      * Must return config for this version

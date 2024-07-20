@@ -96,7 +96,6 @@ const PHPFHIR_CLASSNAME_DEBUG_CLIENT = 'PHPFHIRDebugClient';
 
 // Core interface names
 const PHPFHIR_INTERFACE_TYPE_MAP = 'PHPFHIRTypeMapInterface';
-const PHPFHIR_INTERFACE_RESPONSE_PARSER = 'PPHPFHIRResponseParserInterface';
 const PHPFHIR_INTERFACE_FHIR_VERSION = 'PHPFHIRVersionInterface';
 const PHPFHIR_INTERFACE_TYPE = 'PHPFHIRTypeInterface';
 const PHPFHIR_INTERFACE_CONTAINED_TYPE = 'PHPFHIRContainedTypeInterface';

@@ -43,35 +43,21 @@ echo "\n\n"; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> implements <?php echo PHPFHIR_INTERFACE_RESPONSE_PARSER; ?>
+class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
 {
     private const XML_START = ['<'];
     private const JSON_START = ['{', '['];
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config */
-    private <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_FHIR_VERSION); ?> $version */
+    private <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?> $version;
 
     /**
-     * <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> Constructor
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_FHIR_VERSION); ?> $version
      */
-    public function __construct(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null)
+    public function __construct(<?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?> $version)
     {
-        if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>;
-        }
-        $this->config = $config;
-    }
-
-    /**
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>
-
-     */
-    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>
-
-    {
-        return $this->config;
+        $this->version = $version;
     }
 
     /**

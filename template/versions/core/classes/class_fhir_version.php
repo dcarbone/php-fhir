@@ -44,8 +44,10 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
 
 {
     public const NAME = '<?php echo $version->getName(); ?>';
+
     public const SOURCE_URL = '<?php echo $version->getSourceUrl(); ?>';
-    public const FHIR_GENERATION_DATE = '<?php echo $version->getCopyright()->getFHIRGenerationDate(); ?>';
+    public const SOURCE_VERSION = '<?php echo $version->getCopyright()->getFHIRVersion(false); ?>;
+    public const SOURCE_GENERATION_DATE = '<?php echo $version->getCopyright()->getFHIRGenerationDate(); ?>';
 
     /** @var <?php $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> */
     private <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $_config;
@@ -85,9 +87,17 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
     /**
      * @return string
      */
-    public function getFhirGenerationDate(): string
+    public function getSourceVersion(): string
     {
-        return self::FHIR_GENERATION_DATE;
+        return self::SOURCE_VERSION;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSourceGenerationDate(): string
+    {
+        return self::SOURCE_GENERATION_DATE;
     }
 
     /**
