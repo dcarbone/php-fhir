@@ -27,11 +27,10 @@ ob_start();
 
 // first, marshal attribute values
 
+// this is only used in primitive types.  they have no other fields, and I am just going to assume you want it
+// as an attribute if marshalled directly.
 foreach ($type->getLocalProperties()->localPropertiesOfTypeKinds(includeCollections: false, kinds: null) as $property) : ?>
-        $locs = $this->_primitiveXmlLocations[self::FIELD_VALUE] ?? [];
-        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE === $locs[0]))) {
-            $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
-        }
+        $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
 <?php endforeach;
 
 foreach ($type->getLocalProperties()->localPropertiesIterator() as $property) :
@@ -151,12 +150,16 @@ foreach ($localProperties as $property) :
         }
 <?php   endif;
 
-// ... is NOT a typed proprety...
-else: ?>
+else:
+    // NOTE: This clause is _only_ applicable to primitive types value's.  Since these are always assumed
+    // to be attributes, this is useless.
+    //
+    // Uncomment and implement properly if the need arises in the future.
+    /*?>
         if (($this->_primitiveXmlLocations[self::FIELD_VALUE] ?? <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT) {
             $xw->writeSimpleElement(self::FIELD_VALUE, $this->getFormattedValue());
         }
-<?php endif;
+<?php */ endif;
 
 endforeach;
 
