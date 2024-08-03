@@ -103,9 +103,9 @@ foreach ($properties as $property) :
         }
         foreach($<?php echo $propertyName; ?> as $v) {
             if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
-                $this->add<?php echo ucfirst($propertyName); ?>($v, $xmlLocation);
+                $this-><?php echo $property->getSetterName(); ?>($v, $xmlLocation);
             } else {
-                $this->add<?php echo ucfirst($propertyName); ?>(new <?php echo $propertyTypeClassName; ?>($v), $xmlLocation);
+                $this-><?php echo $property->getSetterName(); ?>(new <?php echo $propertyTypeClassName; ?>($v), $xmlLocation);
             }
         }
         return $this;
