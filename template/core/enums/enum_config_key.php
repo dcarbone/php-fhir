@@ -69,7 +69,7 @@ enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
      */
     public static function values(): array
     {
-        return array_column(self::cases(), 'values');
+        return array_flip(array_map(fn(PHPFHIRConfigKeyEnum $enum) => $enum->value, self::cases()));
     }
 }
 
