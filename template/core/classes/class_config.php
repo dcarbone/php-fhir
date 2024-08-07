@@ -61,9 +61,9 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      */
     public function __construct(array $config = [])
     {
-        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::values() as $k => $_) {
-            if (isset($config[$k]) || array_key_exists($k, $config)) {
-                $this->setKey($k, $config[$k]);
+        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $k) {
+            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
+                $this->setKey($k->value, $config[$k->value]);
             }
         }
     }
