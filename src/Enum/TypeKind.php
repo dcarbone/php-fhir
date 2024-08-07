@@ -19,8 +19,6 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum TypeKind: string
 {
-    use ValuesTrait;
-
     // this represents an actual value: string, int, etc.
     case PRIMITIVE = 'primitive';
 
@@ -133,14 +131,7 @@ enum TypeKind: string
      */
     public function isOneOf(TypeKind|string ...$other): bool
     {
-        $vals = self::values();
-        foreach ($other as $name) {
-            if ($this === $name || in_array($name, $vals, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return in_array($this, $other, true) || in_array($this->value, $other, true);
     }
 
     /**

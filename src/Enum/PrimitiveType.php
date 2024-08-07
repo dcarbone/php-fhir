@@ -19,8 +19,6 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum PrimitiveType:string
 {
-    use ValuesTrait;
-
     case STRING = 'string';
     case BOOLEAN = 'boolean';
     case INTEGER = 'integer';
@@ -152,13 +150,6 @@ enum PrimitiveType:string
      */
     public function isOneOf(PrimitiveType|string ...$other): bool
     {
-        $vals = self::values();
-        foreach ($other as $name) {
-            if ($this === $name || in_array($name, $vals, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return in_array($this, $other, true) || in_array($this->value, $other, true);
     }
 }
