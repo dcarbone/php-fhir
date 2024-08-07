@@ -23,7 +23,6 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\ElementName;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 
 /**
  * Class AnnotationElementTypeDecorator
@@ -51,12 +50,7 @@ abstract class AnnotationElementTypeDecorator
         foreach ($annotation->children('xs', true) as $child) {
             switch ($child->getName()) {
                 case ElementName::DOCUMENTATION->value:
-                    TypeBuilderUtils::setTypeStringFromElementValue(
-                        $type,
-                        $annotation,
-                        $child,
-                        'addDocumentationFragment'
-                    );
+                    $type->addDocumentationFragment((string)$annotation);
                     break;
                 case ElementName::COMPLEX_CONTENT->value:
                     ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);
