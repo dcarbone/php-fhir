@@ -7,6 +7,7 @@
     <testsuite name="DSTU1-Core">
       <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
       <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+      <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConfigTest.php</file>
     </testsuite>
     <testsuite name="DSTU1-Unit">
       <directory>../output/HL7/FHIR/DSTU1/PHPFHIRTests/Unit</directory>

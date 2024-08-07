@@ -7,6 +7,7 @@
     <testsuite name="STU3-Core">
       <file>../output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
       <file>../output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+      <file>../output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConfigTest.php</file>
     </testsuite>
     <testsuite name="STU3-Unit">
       <directory>../output/HL7/FHIR/STU3/PHPFHIRTests/Unit</directory>
