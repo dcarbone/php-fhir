@@ -19,12 +19,12 @@ namespace DCarbone\PHPFHIR\Definition\Decorator;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Definition\EnumerationValue;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeName;
 use DCarbone\PHPFHIR\Enum\ElementName;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 use SimpleXMLElement;
 
 /**
@@ -58,14 +58,16 @@ abstract class RestrictionElementTypeDecorator
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
                 case ElementName::PATTERN->value:
-                    TypeBuilderUtils::setTypeStringFromElementAttribute($type, $child, 'setPattern');
+                    $type->setPattern((string)$child);
                     break;
                 case ElementName::MIN_LENGTH->value:
+                    $type->setMinLength(intval((string)$child));
+                    break;
                 case ElementName::MAX_LENGTH->value:
-                    TypeBuilderUtils::setTypeIntegerFromElementAttribute($type, $child, 'set' . $child->getName());
+                    $type->setMaxLength(intval((string)$child));
                     break;
                 case ElementName::ENUMERATION->value:
-                    TypeBuilderUtils::addTypeEnumeratedValue($type, $restriction, $child);
+                    $type->addEnumerationValue(new EnumerationValue((string)$child->attributes()->value, $child));
                     break;
                 case ElementName::SEQUENCE->value:
                     SequenceElementTypeDecorator::decorate($config, $types, $type, $child);
