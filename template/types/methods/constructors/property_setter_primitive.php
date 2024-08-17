@@ -16,33 +16,35 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+/** @var int $propertyIndex */
 
 $propertyFieldConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
-ob_start(); ?>
-        if (array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data)) {
+ob_start();
+if (0 === $propertyIndex) : ?>
+            if <?php else : ?> else if <?php endif; ?>(self::<?php echo $propertyFieldConst; ?> === $field) {
 <?php if ($property->isCollection()) : ?>
-            if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
-                foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
-                    if (!($v instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>)) {
-                        $v = new <?php echo $property->getValueFHIRType()->getClassName(); ?>($v);
+                if (is_array($value)) {
+                    foreach($value as $v) {
+                        if (!($v instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>)) {
+                            $v = new <?php echo $property->getValueFHIRType()->getClassName(); ?>($v);
+                        }
+                        $this-><?php echo $setter; ?>($v);
                     }
-                    $this-><?php echo $setter; ?>($v);
+                } else if ($value instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>) {
+                    $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+                } else {
+                    $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($value));
                 }
-            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>) {
-                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } else {
-                $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
-            }
 <?php else : ?>
-            if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $property->getvalueFHIRType()->getClassName(); ?>) {
-                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
-            } else {
-                $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($data[self::<?php echo $propertyFieldConst; ?>]));
-            }
+                if ($value instanceof <?php echo $property->getvalueFHIRType()->getClassName(); ?>) {
+                    $this-><?php echo $setter; ?>($value);
+                } else {
+                    $this-><?php echo $setter; ?>(new <?php echo $property->getValueFHIRType()->getClassName(); ?>($value));
+                }
 <?php endif; ?>
-        }
-<?php
+            }<?php
 return ob_get_clean();

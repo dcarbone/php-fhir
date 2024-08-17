@@ -21,12 +21,14 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+/** @var int $propertyIndex */
 
 $propertyType = $property->getValueFHIRType();
 $fieldConstantName = $property->getFieldConstantName();
 
 $requireArgs = [
     'config' => $config,
+    'propertyIndex' => $propertyIndex,
     'property' => $property
 ];
 

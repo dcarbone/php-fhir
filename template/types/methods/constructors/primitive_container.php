@@ -59,7 +59,9 @@ ob_start(); ?>
                 $this->_addFHIRComment($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS]);
             }
         }<?php endif; ?>
-<?php foreach ($properties as $property) :
+<?php
+$propertyIndex = 0;
+foreach ($properties as $property) :
     if ($property->isOverloaded()) :
         continue;
     endif;
@@ -68,9 +70,12 @@ ob_start(); ?>
             [
                 'config' => $config,
                 'type' => $type,
+                'propertyIndex' => $propertyIndex,
                 'property' => $property,
             ]
     );
+    $propertyIndex++;
 endforeach; ?>
+
     }
 <?php return ob_get_clean();

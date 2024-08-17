@@ -56,7 +56,11 @@ ob_start(); ?>
             }
         }<?php endif; ?>
 
-<?php foreach($properties as $property) :
+        $_parsed = [];
+        foreach($data as $field => $value) {
+<?php
+$propertyIndex = 0;
+foreach($properties as $property) :
     if ($property->isOverloaded()) {
         continue;
     }
@@ -66,6 +70,7 @@ ob_start(); ?>
                 [
                     'config' => $config,
                     'type' => $type,
+                    'propertyIndex' => $propertyIndex,
                     'property' => $property,
                 ]
         );
@@ -75,10 +80,14 @@ ob_start(); ?>
                 [
                     'config' => $config,
                     'type' => $type,
+                    'propertyIndex' => $propertyIndex,
                     'property' => $property
                 ]
         );
     endif;
+    $propertyIndex++;
 endforeach; ?>
+
+        }
     }
 <?php return ob_get_clean();
