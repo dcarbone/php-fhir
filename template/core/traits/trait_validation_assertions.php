@@ -167,7 +167,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      */
     protected function _assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|string $value): null|string
     {
-        if ('' === $pattern || null === $value || '' === $value || (bool)preg_match($pattern, )$value)) {
+        if ('' === $pattern || null === $value || '' === $value || (bool)preg_match($pattern, $value)) {
             return null;
         }
         return sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $fieldName, $typeName, $value, $pattern);
