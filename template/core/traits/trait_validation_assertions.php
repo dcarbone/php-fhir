@@ -56,11 +56,12 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
         if (0 >= $expected) {
             return null;
         }
-        if (!is_array($value) || [] === $value) {
+        if (null === $value || [] === $value) {
             return sprintf('Field "%s" on type "%s" must have at least %d elements, but it is empty', $fieldName, $typeName, $expected);
         }
-        if ($expected > ($cnt = count($value))) {
-            return sprintf('Field "%s" on type "%s" must have at least %d elements, %d seen.', $fieldName, $typeName, $expected, $cnt);
+        $len = count($value);
+        if ($expected > $len) {
+            return sprintf('Field "%s" on type "%s" must have at least %d elements, %d seen.', $fieldName, $typeName, $expected, $len);
         }
         return null;
     }
@@ -75,10 +76,14 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      */
     protected function _assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array $value): null|string
     {
-        if (PHPFHIRConstants::UNLIMITED === $expected || null === $value || [] === $value || $expected >= ($cnt = count($value))) {
+        if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || [] === $value) {
             return null;
         }
-        return sprintf('Field "%s" on type "%s" must have no more than %d elements, %d seen', $fieldName, $typeName, $expected, $cnt);
+        $len = count($value);
+        if ($expected >= $len) {
+            return null;
+        }
+        return sprintf('Field "%s" on type "%s" must have no more than %d elements, %d seen', $fieldName, $typeName, $expected, $len);
     }
 
     /**
@@ -94,14 +99,14 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
         if (0 >= $expected) {
             return null;
         }
-        if (!is_string($value) || '' === $value) {
+        if (null === $value || '' === $value) {
             return sprintf('Field "%s" on type "%s" must be at least %d characters long, but it is empty', $fieldName, $typeName, $expected);
         }
-        $cnt = strlen($value);
-        if ($expected <= $cnt) {
+        $len = strlen($value);
+        if ($expected <= $len) {
             return null;
         }
-        return sprintf('Field "%s" on type "%s" must be at least %d characters long, %d seen.', $fieldName, $typeName, $expected, $cnt);
+        return sprintf('Field "%s" on type "%s" must be at least %d characters long, %d seen.', $fieldName, $typeName, $expected, $len);
     }
 
     /**
@@ -114,14 +119,14 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      */
     protected function _assertMaxLength(string $typeName, string $fieldName, int $expected, null|string $value): null|string
     {
-        if (PHPFHIRConstants::UNLIMITED === $expected || !is_string($value) || '' === $value) {
+        if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || '' === $value) {
             return null;
         }
-        $cnt = strlen($value);
-        if ($expected >= $cnt) {
+        $len = strlen($value);
+        if ($expected >= $len) {
             return null;
         }
-        return sprintf('Field "%s" on type "%s" must be no more than %d characters long, %d seen', $fieldName, $typeName, $expected, $cnt);
+        return sprintf('Field "%s" on type "%s" must be no more than %d characters long, %d seen', $fieldName, $typeName, $expected, $len);
     }
 
     /**
@@ -157,12 +162,12 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param string $typeName
      * @param string $fieldName
      * @param string $pattern
-     * @param null|float|int|string|bool $value
+     * @param null|string $value
      * @return null|string
      */
-    protected function _assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|float|int|string|bool $value): null|string
+    protected function _assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|string $value): null|string
     {
-        if ('' === $pattern || (bool)preg_match($pattern, (string)$value)) {
+        if ('' === $pattern || null === $value || '' === $value || (bool)preg_match($pattern, )$value)) {
             return null;
         }
         return sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $fieldName, $typeName, $value, $pattern);
@@ -179,12 +184,12 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
     protected function _performValidation(string $typeName, string $fieldName, string $ruleName, mixed $constraint, mixed $value): null|string
     {
         return match ($ruleName) {
-            PHPFHIRConstants::VALIDATE_ENUM => $this->_assertValueInEnum($typeName, $fieldName, $constraint, $value),
-            PHPFHIRConstants::VALIDATE_MIN_LENGTH => $this->_assertMinLength($typeName, $fieldName, $constraint, $value),
-            PHPFHIRConstants::VALIDATE_MAX_LENGTH => $this->_assertMaxLength($typeName, $fieldName, $constraint, $value),
-            PHPFHIRConstants::VALIDATE_MIN_OCCURS => $this->_assertMinOccurs($typeName, $fieldName, $constraint, $value),
-            PHPFHIRConstants::VALIDATE_MAX_OCCURS => $this->_assertMaxOccurs($typeName, $fieldName, $constraint, $value),
-            PHPFHIRConstants::VALIDATE_PATTERN => $this->_assertPatternMatch($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_ENUM => $this->_assertValueInEnum($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MIN_LENGTH => $this->_assertMinLength($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MAX_LENGTH => $this->_assertMaxLength($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MIN_OCCURS => $this->_assertMinOccurs($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MAX_OCCURS => $this->_assertMaxOccurs($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_PATTERN => $this->_assertPatternMatch($typeName, $fieldName, $constraint, $value),
             default => sprintf('Type "%s" specifies unknown validation for field "%s": Name "%s"; Constraint "%s"', $typeName, $fieldName, $ruleName, var_export($constraint, true)),
         };
     }

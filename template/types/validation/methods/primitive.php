@@ -19,9 +19,9 @@
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
 ob_start(); ?>
-        if (isset($validationRules[self::FIELD_VALUE]) && null !== ($v = $this->getValue())) {
+        if (isset($validationRules[self::FIELD_VALUE]) && null !== $this->getValue()) {
             foreach($validationRules[self::FIELD_VALUE] as $rule => $constraint) {
-                $err = $this->_performValidation(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
+                $err = $this->_performValidation(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $this->getFormattedValue());
                 if (null !== $err) {
                     if (!isset($errs[self::FIELD_VALUE])) {
                         $errs[self::FIELD_VALUE] = [];

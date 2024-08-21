@@ -18,9 +18,7 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PrimitiveType;
 use DCarbone\PHPFHIR\Enum\PropertyUse;
-use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use InvalidArgumentException;
 use SimpleXMLElement;
