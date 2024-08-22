@@ -26,13 +26,14 @@ ob_start(); ?>
 
      * @var array
      */
-    private const _VALIDATION_RULES = [<?php foreach ($properties as $property) :
+    private const _VALIDATION_RULES = [<?php if (!$type->hasLocalPropertiesWithValidations()): ?>];
+<?php else: foreach ($properties as $property) :
     $validationMap = $property->buildValidationMap();
     if ([] !== $validationMap) : ?>
 
         self::<?php echo $property->getFieldConstantName(); ?> => [
 <?php foreach($validationMap as $k => $v) : ?>
-            PHPFHIRConstants::<?php echo $k; ?> => <?php
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::<?php echo $k; ?> => <?php
             switch ($k) :
                 case PHPFHIR_VALIDATION_ENUM_NAME:
                     echo '[';
@@ -45,9 +46,11 @@ ob_start(); ?>
                     var_export($v);
             endswitch; ?>,
 <?php endforeach; ?>
-        ],
-<?php endif;
+        ],<?php endif;
 endforeach; ?>
+
     ];
 <?php
+endif;
+
 return ob_get_clean();

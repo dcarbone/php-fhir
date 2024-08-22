@@ -53,21 +53,38 @@ abstract class RestrictionElementTypeDecorator
         }
 
         foreach ($restriction->children('xs', true) as $child) {
+            $attrs = $child->attributes();;
             switch ($child->getName()) {
                 case ElementName::SIMPLE_TYPE->value:
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
                 case ElementName::PATTERN->value:
-                    $type->setPattern((string)$child);
+                    if (isset($attrs[AttributeName::VALUE->value])) {
+                        $type->setpattern((string)$attrs[AttributeName::VALUE->value]);
+                    } else if ('' !== ($v = (string)$child)) {
+                        $type->setpattern($v);
+                    }
                     break;
                 case ElementName::MIN_LENGTH->value:
-                    $type->setMinLength(intval((string)$child));
+                    if (isset($attrs[AttributeName::VALUE->value])) {
+                        $type->setMinLength(intval((string)$attrs[AttributeName::VALUE->value]));
+                    } else if ('' !== ($v = (string)$child)) {
+                        $type->setMinLength(intval($v));
+                    }
                     break;
                 case ElementName::MAX_LENGTH->value:
-                    $type->setMaxLength(intval((string)$child));
+                    if (isset($attrs[AttributeName::VALUE->value])) {
+                        $type->setMaxLength(intval((string)$attrs[AttributeName::VALUE->value]));
+                    } else if ('' !== ($v = (string)$child)) {
+                        $type->setMaxLength(intval($v));
+                    }
                     break;
                 case ElementName::ENUMERATION->value:
-                    $type->addEnumerationValue(new EnumerationValue((string)$child->attributes()->value, $child));
+                    if (isset($attrs[AttributeName::VALUE->value])) {
+                        $type->addEnumerationValue(new EnumerationValue((string)$attrs[AttributeName::VALUE->value], $attrs[AttributeName::VALUE->value]));
+                    } else if ('' !== ($v = (string)$child)) {
+                        $type->addEnumerationValue(new EnumerationValue($v, $child));
+                    }
                     break;
                 case ElementName::SEQUENCE->value:
                     SequenceElementTypeDecorator::decorate($config, $types, $type, $child);

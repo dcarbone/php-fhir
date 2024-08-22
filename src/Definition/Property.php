@@ -20,7 +20,6 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use DCarbone\PHPFHIR\Enum\PrimitiveType;
 use DCarbone\PHPFHIR\Enum\PropertyUse;
-use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use InvalidArgumentException;
 use SimpleXMLElement;
@@ -38,21 +37,21 @@ class Property
     private Type $memberOf;
 
     /** @var string|null */
-    private ?string $name = null;
+    private null|string $name = null;
 
     /** @var string|null */
-    private ?string $valueFHIRTypeName = null;
+    private null|string $valueFHIRTypeName = null;
 
     /** @var null|string */
-    private ?string $rawPHPValue = null;
+    private null|string $rawPHPValue = null;
 
     /** @var int */
     private int $minOccurs = 0;
-    /** @var int */
-    private int $maxOccurs = 1;
+    /** @var null|int */
+    private null|int $maxOccurs = null;
 
-    /** @var string|null */
-    private ?string $pattern = null;
+    /** @var null|string */
+    private null|string $pattern = null;
 
     /** @var null|\DCarbone\PHPFHIR\Definition\Type */
     private ?Type $valueFHIRType = null;
@@ -61,13 +60,13 @@ class Property
     private PropertyUse $use;
 
     /** @var string|null */
-    private ?string $ref = null;
+    private null|string $ref = null;
 
     /** @var null|string */ // TODO: what the hell is this...?
-    private ?string $fixed = null;
+    private null|string $fixed = null;
 
     /** @var null|string */ // NOTE: not a php namespace
-    private ?string $namespace = null;
+    private null|string $namespace = null;
 
     /** @var bool */
     private bool $overloaded = false;
@@ -118,7 +117,7 @@ class Property
     /**
      * @return string|null
      */
-    public function getName(): ?string
+    public function getName(): null|string
     {
         return $this->name;
     }
@@ -144,7 +143,7 @@ class Property
     /**
      * @return string|null
      */
-    public function getValueFHIRTypeName(): ?string
+    public function getValueFHIRTypeName(): null|string
     {
         return $this->valueFHIRTypeName;
     }
@@ -181,7 +180,7 @@ class Property
     /**
      * @return string|null
      */
-    public function getRawPHPValue(): ?string
+    public function getRawPHPValue(): null|string
     {
         return $this->rawPHPValue;
     }
@@ -197,9 +196,9 @@ class Property
     }
 
     /**
-     * @return int
+     * @return null|int
      */
-    public function getMaxOccurs(): int
+    public function getMaxOccurs(): null|int
     {
         return $this->maxOccurs;
     }
@@ -241,9 +240,15 @@ class Property
      *
      * @return null|string
      */
-    public function getPattern(): ?string
+    public function getPattern(): null|string
     {
-        return $this->pattern;
+        if (isset($this->pattern)) {
+            return $this->pattern;
+        }
+        if (isset($this->valueFHIRType)) {
+            return $this->valueFHIRType->getPattern();
+        }
+        return null;
     }
 
     /**
@@ -262,23 +267,7 @@ class Property
     public function isCollection(): bool
     {
         $maxOccurs = $this->getMaxOccurs();
-        return PHPFHIR_UNLIMITED === $maxOccurs || 1 < $maxOccurs;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRequired(): bool
-    {
-        return 1 <= $this->getMinOccurs();
-    }
-
-    /**
-     * @return bool
-     */
-    public function unlimitedOccurrences(): bool
-    {
-        return PHPFHIR_UNLIMITED === $this->getMaxOccurs();
+        return null !== $maxOccurs && (PHPFHIR_UNLIMITED === $maxOccurs || 1 < $maxOccurs);
     }
 
     /**
@@ -302,7 +291,7 @@ class Property
     /**
      * @return string|null
      */
-    public function getRef(): ?string
+    public function getRef(): null|string
     {
         return $this->ref;
     }
@@ -328,7 +317,7 @@ class Property
     /**
      * @return string|null
      */
-    public function getFixed(): ?string
+    public function getFixed(): null|string
     {
         return $this->fixed;
     }
@@ -346,7 +335,7 @@ class Property
     /**
      * @return string|null
      */
-    public function getNamespace(): ?string
+    public function getNamespace(): null|string
     {
         return $this->namespace;
     }
@@ -409,26 +398,33 @@ class Property
         $map = [];
         $memberOf = $this->getMemberOf();
 
-        if (null !== ($v = $this->getPattern())) {
-            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = '/^' . addcslashes($v, '/\'') . '$/';
-        } elseif (null !== ($v = $memberOf->getPattern())) {
-            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = '/^' . addcslashes($v, '/\'') . '$/';
+
+        $pattern = $this->getPattern();
+        if (null === $pattern) {
+            $pattern = $memberOf->getPattern();
         }
 
-        if ($this->isCollection()) {
-            if (null !== ($v = $this->getMinOccurs()) && 0 !== $v) {
-                $map[PHPFHIR_VALIDATION_MIN_OCCURS_NAME] = $v;
-            }
-            if (null !== ($v = $this->getMaxOccurs()) && PHPFHIR_UNLIMITED !== $v) {
-                $map[PHPFHIR_VALIDATION_MAX_OCCURS_NAME] = $v;
-            }
+        if (null !== $pattern) {
+            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = '/^' . addcslashes($pattern, '/\'') . '$/';
         }
 
-        if (null !== ($v = $memberOf->getMinLength()) && 0 !== $v) {
-            $map[PHPFHIR_VALIDATION_MIN_LENGTH_NAME] = $v;
+        $minOccurs = $this->getMinOccurs();
+        $maxOccurs = $this->getMaxOccurs();
+        $minLength = $memberOf->getMinLength();
+        $maxlength = $memberOf->getMaxLength();
+
+        if (0 < $minOccurs) {
+            $map[PHPFHIR_VALIDATION_MIN_OCCURS_NAME] = $minOccurs;
         }
-        if (null !== ($v = $memberOf->getMaxLength()) && PHPFHIR_UNLIMITED !== $v) {
-            $map[PHPFHIR_VALIDATION_MAX_LENGTH_NAME] = $v;
+        if (null !== $maxOccurs && PHPFHIR_UNLIMITED !== $maxOccurs && 1 < $maxOccurs) {
+            $map[PHPFHIR_VALIDATION_MAX_OCCURS_NAME] = $maxOccurs;
+        }
+
+        if (0 < $minLength) {
+            $map[PHPFHIR_VALIDATION_MIN_LENGTH_NAME] = $minLength;
+        }
+        if (PHPFHIR_UNLIMITED !== $maxlength) {
+            $map[PHPFHIR_VALIDATION_MAX_LENGTH_NAME] = $maxlength;
         }
 
         if ($memberOf->isEnumerated()) {
@@ -437,6 +433,8 @@ class Property
                 $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
             }
         }
+
+
 
         return $map;
     }

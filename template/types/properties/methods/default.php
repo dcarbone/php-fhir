@@ -159,7 +159,7 @@ foreach ($properties as $property) :
                     ));
                 }
             } elseif (is_array($v)) {
-                $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($v);
+                $typeClass = <?php echo PHPFHIR_CLASSNAME_TYPEMAP ?>::getContainedTypeFromArray($v);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(
                         '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',

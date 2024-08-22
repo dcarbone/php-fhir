@@ -332,6 +332,19 @@ class Type
     }
 
     /**
+     * @return bool
+     */
+    public function hasLocalPropertiesWithValidations(): bool
+    {
+        foreach($this->getlocalProperties()->allSortedPropertiesIterator() as $property) {
+            if ([] !== $property->buildValidationMap()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Definition\Property[]
      */
     public function getAllPropertiesIterator(): iterable
@@ -585,6 +598,14 @@ class Type
     public function getPrimitiveType(): PrimitiveType
     {
         return $this->primitiveType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPrimitiveType(): bool
+    {
+        return isset($this->primitiveType);
     }
 
     /**

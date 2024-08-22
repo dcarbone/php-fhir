@@ -38,7 +38,7 @@ ob_start(); ?>
             return $this;
         }
         if ($value instanceof \DateTimeInterface) {
-            $this->value = $value->format(PHPFHIRConstants::TIME_FORMAT);
+            $this->value = $value->format(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT);
             return $this;
         }
         throw new \InvalidArgumentException(sprintf('$value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
@@ -53,9 +53,9 @@ ob_start(); ?>
         if (null === $value) {
             return null;
         }
-        $dt = \DateTime::createFromFormat(PHPFHIRConstants::TIME_FORMAT, $value);
+        $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT, $value);
         if (!($dt instanceof \DateTime)) {
-            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, PHPFHIRConstants::TIME_FORMAT));
+            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT));
         }
         return $dt;
     }
