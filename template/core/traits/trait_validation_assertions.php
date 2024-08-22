@@ -165,9 +165,15 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param null|string $value
      * @return null|string
      */
-    protected function _assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|string $value): null|string
+    protected function _assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE ?>|string $value): null|string
     {
-        if ('' === $pattern || null === $value || '' === $value || (bool)preg_match($pattern, $value)) {
+        if ('' === $pattern || null === $value) {
+            return null;
+        }
+        if ($value instanceof <?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?>) {
+            $value = (string)$value;
+        }
+        if ('' === $value || (bool)preg_match($pattern, $value)) {
             return null;
         }
         return sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $fieldName, $typeName, $value, $pattern);

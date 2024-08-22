@@ -70,5 +70,6 @@ ob_start(); ?>
         if ($this->_commas) {
             return strrev(wordwrap(strrev((string)$v), 3, ',', true));
         }
-        return (string)$v;    }
+        return (string)$v;
+    }
 <?php return ob_get_clean();
