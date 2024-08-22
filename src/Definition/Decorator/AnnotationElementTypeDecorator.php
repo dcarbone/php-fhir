@@ -50,7 +50,7 @@ abstract class AnnotationElementTypeDecorator
         foreach ($annotation->children('xs', true) as $child) {
             switch ($child->getName()) {
                 case ElementName::DOCUMENTATION->value:
-                    $type->addDocumentationFragment((string)$annotation);
+                    $type->addDocumentationFragment((string)$child);
                     break;
                 case ElementName::COMPLEX_CONTENT->value:
                     ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);
