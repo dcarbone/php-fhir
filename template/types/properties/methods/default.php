@@ -204,11 +204,11 @@ foreach ($properties as $property) :
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo $property->getValueFHIRType()->getFullyQualifiedClassName(true); ?>[] $<?php echo $propertyName; ?>
+     * @param <?php echo $property->getValueFHIRType()->getFullyQualifiedClassName(true); ?> ...$<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = []): self
+    public function set<?php echo ucfirst($propertyName); ?>(<?php echo $property->getValueFHIRType()->getClassName(); ?> ...$<?php echo $propertyName; ?>): self
     {
         if ([] !== $this-><?php echo $propertyName; ?>) {
             $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));
@@ -218,21 +218,7 @@ foreach ($properties as $property) :
             return $this;
         }
         foreach($<?php echo $propertyName; ?> as $v) {
-            if (is_object($v)) {
-                if ($v instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>) {
-                    $this-><?php echo $property->getSetterName(); ?>($v);
-                } else {
-                    throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo $property->getValueFHIRType()->getClassName(); ?>, object of type %s seen',
-                        get_class($v)
-                    ));
-                }
-            } else {
-                throw new \InvalidArgumentException(sprintf(
-                    '<?php echo $type->getClassName(); ?> - Unable to set value for field "<?php echo $propertyName; ?>" from value: %s',
-                    json_encode($v)
-                ));
-            }
+            $this-><?php echo $property->getSetterName(); ?>($v);
         }
         return $this;
     }
