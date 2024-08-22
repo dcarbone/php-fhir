@@ -48,12 +48,12 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param string $typeName
      * @param string $fieldName
      * @param int $expected
-     * @param null|array $value)
+     * @param null|array|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $value
      * @return null|string
      */
-    protected function _assertMinOccurs(string $typeName, string $fieldName, int $expected, null|array $value): null|string
+    protected function _assertMinOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $value): null|string
     {
-        if (0 >= $expected) {
+        if (0 >= $expected || (1 === $expected && $value instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>)) {
             return null;
         }
         if (null === $value || [] === $value) {
@@ -71,12 +71,12 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param string $typeName
      * @param string $fieldName
      * @param int $expected
-     * @param null|array $value
+     * @param null|array|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $value
      * @return null|string
      */
-    protected function _assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array $value): null|string
+    protected function _assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $value): null|string
     {
-        if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || [] === $value) {
+        if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || [] === $value || $value instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
             return null;
         }
         $len = count($value);
@@ -162,10 +162,10 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param string $typeName
      * @param string $fieldName
      * @param string $pattern
-     * @param null|string $value
+     * @param null|string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_PRIMITIVE_TYPE); ?> $value
      * @return null|string
      */
-    protected function _assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE ?>|string $value): null|string
+    protected function _assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|string|<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE ?> $value): null|string
     {
         if ('' === $pattern || null === $value) {
             return null;

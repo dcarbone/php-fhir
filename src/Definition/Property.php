@@ -416,7 +416,7 @@ class Property
         if (0 < $minOccurs) {
             $map[PHPFHIR_VALIDATION_MIN_OCCURS_NAME] = $minOccurs;
         }
-        if (null !== $maxOccurs && PHPFHIR_UNLIMITED !== $maxOccurs) {
+        if (null !== $maxOccurs && PHPFHIR_UNLIMITED !== $maxOccurs && 1 < $maxOccurs) {
             $map[PHPFHIR_VALIDATION_MAX_OCCURS_NAME] = $maxOccurs;
         }
 
