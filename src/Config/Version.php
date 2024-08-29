@@ -31,6 +31,15 @@ class Version
     public const KEY_URL           = 'url';
     public const KEY_NAMESPACE     = 'namespace';
     public const KEY_TEST_ENDPOINT = 'testEndpoint';
+    public const KEY_DEFAULT_XML_ELEMENT_LOCATION = 'defaultXmlElementLocation';
+
+
+    private const XML_ELEMENT_LOCATION_ATTRIBUTE = 'attribute';
+    private const XML_ELEMENT_LOCATION_ELEMENT = 'element';
+    private const XML_ELEMENT_LOCATION_VALUES = [
+        self::XML_ELEMENT_LOCATION_ATTRIBUTE,
+        self::XML_ELEMENT_LOCATION_ELEMENT,
+    ];
 
     /** @var string */
     private string $name;
@@ -41,6 +50,8 @@ class Version
     private string $namespace;
     /** @var string */
     private string $testEndpoint;
+
+    private string $defaultXmlElementLocation = self::XML_ELEMENT_LOCATION_ATTRIBUTE;
 
     /**
      * Version constructor.
@@ -59,9 +70,11 @@ class Version
         if (isset($conf[self::KEY_NAMESPACE])) {
             $this->setNamespace($conf[self::KEY_NAMESPACE]);
         }
-
         if (isset($conf[self::KEY_TEST_ENDPOINT])) {
             $this->setTestEndpoint($conf[self::KEY_TEST_ENDPOINT]);
+        }
+        if (isset($conf[self::KEY_DEFAULT_XML_ELEMENT_LOCATION])) {
+            $this->setDefaultXmlElementLocation($conf[self::KEY_DEFAULT_XML_ELEMENT_LOCATION]);
         }
     }
 
@@ -134,7 +147,7 @@ class Version
     /**
      * @return string|null
      */
-    public function getTestEndpoint(): ?string
+    public function getTestEndpoint(): null|string
     {
         return $this->testEndpoint ?? null;
     }
@@ -146,6 +159,35 @@ class Version
     public function setTestEndpoint(string $testEndpoint): Version
     {
         $this->testEndpoint = $testEndpoint;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultXmlElementLocation(): string
+    {
+        return $this->defaultXmlElementLocation;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultXmlElementLocationEnum(): string
+    {
+        return sprintf('%s::%s', PHPFHIR_ENUM_XML_LOCATION_ENUM, strtoupper($this->getDefaultXmlElementLocation()));
+    }
+
+    /**
+     * @param string $defaultXmlElementLocation
+     * @return $this
+     */
+    public function setDefaultXmlElementLocation(string $defaultXmlElementLocation): Version
+    {
+        if (!in_array($defaultXmlElementLocation, self::XML_ELEMENT_LOCATION_VALUES, true)) {
+            throw new \InvalidArgumentException(sprintf('%s must be one of [%s]', self::KEY_DEFAULT_XML_ELEMENT_LOCATION, implode(', ', self::XML_ELEMENT_LOCATION_VALUES)));
+        }
+        $this->defaultXmlElementLocation = $defaultXmlElementLocation;
         return $this;
     }
 }

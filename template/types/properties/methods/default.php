@@ -66,7 +66,7 @@ foreach ($properties as $property) :
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo $config->getVersion()->getDefaultXmlElementLocationEnum(); ?>): self
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
@@ -91,7 +91,7 @@ foreach ($properties as $property) :
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
      * @return static
      */
-    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE): self
+    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo $config->getVersion()->getDefaultXmlElementLocationEnum(); ?>): self
     {
         unset($this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]);
         if ([] !== $this-><?php echo $propertyName; ?>) {

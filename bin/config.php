@@ -45,26 +45,33 @@ return [
             'namespace' => '\\HL7\\FHIR\\DSTU1',
             // if defined, enables integration and validation test generation against the provided endpoint.
             'testEndpoint' => '',
+            // Configures the default location of Elements during XML serialization.  Valid values are
+            // 'attribute' and 'element'.
+            'defaultXmlElementLocation' => 'attribute',
         ],
         'DSTU2' => [
             'url'          => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
             'namespace'    => '\\HL7\\FHIR\\DSTU2',
             'testEndpoint' => 'https://hapi.fhir.org/baseDstu2',
+            'defaultXmlElementLocation' => 'attribute',
         ],
         'STU3'  => [
             'url'          => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
             'namespace'    => '\\HL7\\FHIR\\STU3',
             'testEndpoint' => 'https://hapi.fhir.org/baseDstu3',
+            'defaultXmlElementLocation' => 'attribute',
         ],
         'R4'    => [
             'url'          => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
             'namespace'    => '\\HL7\\FHIR\\R4',
             'testEndpoint' => 'https://hapi.fhir.org/baseR4',
+            'defaultXmlElementLocation' => 'attribute',
         ],
         'R5' => [
             'url'          => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
             'namespace'    => '\\HL7\\FHIR\\R5',
             'testEndpoint' => 'https://hapi.fhir.org/baseR5',
+            'defaultXmlElementLocation' => 'attribute',
         ]
 
         //        'Build' => [

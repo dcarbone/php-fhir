@@ -53,15 +53,7 @@ class Config
     /** @var bool */
     private bool $skipTests = false;
     /** @var int|null */
-    private ?int $libxmlOpts;
-
-    /**
-     * @param \Psr\Log\LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->_log = new Logger($logger);
-    }
+    private null|int $libxmlOpts;
 
     /**
      * Config constructor.
@@ -94,6 +86,14 @@ class Config
         } else {
             $this->_log = new Logger(new NullLogger());
         }
+    }
+
+    /**
+     * @param \Psr\Log\LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->_log = new Logger($logger);
     }
 
     /**
@@ -135,7 +135,7 @@ class Config
     /**
      * @return int|null
      */
-    public function getLibxmlOpts(): ?int
+    public function getLibxmlOpts(): null|int
     {
         return $this->libxmlOpts;
     }
