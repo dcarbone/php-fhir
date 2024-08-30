@@ -66,16 +66,22 @@ foreach ($properties as $property) :
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         }
         $this->_trackValue<?php if ($isCollection) : ?>Added(<?php else : ?>Set($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
-        if (!isset($this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>])) {
-            $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] = [];
+        if (!isset($this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>])) {
+            $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] = [];
         }
-        $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]<?php if ($isCollection) : ?>[]<?php else : ?>[0]<?php endif; ?> = $xmlLocation;
+        <?php if ($isCollection) : ?>if ([] === $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]) {
+            $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] = $xmlLocation;
+        } else {
+            $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][] = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT;
+        }<?php else : ?>
+$this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] = $xmlLocation;<?php endif; ?>
+
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
@@ -91,9 +97,9 @@ foreach ($properties as $property) :
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
      * @return static
      */
-    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE): self
+    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
     {
-        unset($this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]);
+        unset($this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]);
         if ([] !== $this-><?php echo $propertyName; ?>) {
             $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));
             $this-><?php echo $propertyName; ?> = [];
