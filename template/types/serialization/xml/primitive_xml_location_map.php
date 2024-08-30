@@ -21,5 +21,5 @@
 
 ob_start(); ?>
     /** @var array */
-    private array $_primitiveXmlLocations = [];
+    private array $_xmlLocations = [];
 <?php return ob_get_clean();
