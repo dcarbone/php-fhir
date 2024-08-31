@@ -110,7 +110,6 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     public function setXhtml(null|string|\DOMNode|\SimpleXMLElement $xhtml): self
     {
         if (null === $xhtml) {
-            $this->_trackValueSet($this->_xhtml, null);
             $this->_xhtml = null;
             return $this;
         }
@@ -121,7 +120,6 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
         } else if ($xhtml instanceof \SimpleXMLElement) {
             $xhtml = $xhtml->asXML();
         }
-        $this->_trackValueSet($this->_xhtml, $xhtml);
         $this->_xhtml = $xhtml;
         return $this;
     }

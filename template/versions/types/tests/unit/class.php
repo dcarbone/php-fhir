@@ -43,7 +43,7 @@ echo require_with(
     ]
 );
 
-if ($typeKind === TypeKind::PRIMITIVE) :
+if ($typeKind === TypeKind::PRIMITIVE) {
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_primitive.php',
         [
@@ -51,7 +51,7 @@ if ($typeKind === TypeKind::PRIMITIVE) :
             'type' => $type,
         ]
     );
-endif;
+}
 
 echo "}\n";
 return ob_get_clean();

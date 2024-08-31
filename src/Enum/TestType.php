@@ -20,8 +20,6 @@ namespace DCarbone\PHPFHIR\Enum;
 
 enum TestType: string
 {
-    use ValuesTrait;
-
     case BASE= 'base';
     case UNIT = 'unit';
     case INTEGRATION = 'integration';
@@ -43,13 +41,6 @@ enum TestType: string
      */
     public function isOneOf(TestType|string ...$other): bool
     {
-        $vals = self::values();
-        foreach ($other as $name) {
-            if ($this === $name || in_array($name, $vals, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return in_array($this, $other, true) || in_array($this->value, $other, true);
     }
 }

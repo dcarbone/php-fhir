@@ -24,7 +24,6 @@ use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
 use DCarbone\PHPFHIR\Enum\ElementName;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 
 /**
  * Class AnnotationElementTypeDecorator

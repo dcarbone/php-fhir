@@ -66,16 +66,21 @@ foreach ($properties as $property) :
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         }
-        $this->_trackValue<?php if ($isCollection) : ?>Added(<?php else : ?>Set($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
-        if (!isset($this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>])) {
-            $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] = [];
+        if (!isset($this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>])) {
+            $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] = [];
         }
-        $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]<?php if ($isCollection) : ?>[]<?php else : ?>[0]<?php endif; ?> = $xmlLocation;
+        <?php if ($isCollection) : ?>if ([] === $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]) {
+            $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] = $xmlLocation;
+        } else {
+            $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][] = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT;
+        }<?php else : ?>
+$this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] = $xmlLocation;<?php endif; ?>
+
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
@@ -91,11 +96,10 @@ foreach ($properties as $property) :
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
      * @return static
      */
-    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE): self
+    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
     {
-        unset($this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]);
+        unset($this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]);
         if ([] !== $this-><?php echo $propertyName; ?>) {
-            $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));
             $this-><?php echo $propertyName; ?> = [];
         }
         if ([] === $<?php echo $propertyName; ?>) {
@@ -103,9 +107,9 @@ foreach ($properties as $property) :
         }
         foreach($<?php echo $propertyName; ?> as $v) {
             if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
-                $this->add<?php echo ucfirst($propertyName); ?>($v, $xmlLocation);
+                $this-><?php echo $property->getSetterName(); ?>($v, $xmlLocation);
             } else {
-                $this->add<?php echo ucfirst($propertyName); ?>(new <?php echo $propertyTypeClassName; ?>($v), $xmlLocation);
+                $this-><?php echo $property->getSetterName(); ?>(new <?php echo $propertyTypeClassName; ?>($v), $xmlLocation);
             }
         }
         return $this;
@@ -124,7 +128,6 @@ foreach ($properties as $property) :
      */
     public function <?php echo $property->getSetterName() ?>(null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?> = null): self
     {
-        <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
@@ -142,7 +145,6 @@ foreach ($properties as $property) :
     public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = []): self
     {
         if ([] !== $this-><?php echo $propertyName; ?>) {
-            $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));
             $this-><?php echo $propertyName; ?> = [];
         }
         if ([] === $<?php echo $propertyName; ?>) {
@@ -159,7 +161,7 @@ foreach ($properties as $property) :
                     ));
                 }
             } elseif (is_array($v)) {
-                $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($v);
+                $typeClass = <?php echo PHPFHIR_CLASSNAME_TYPEMAP ?>::getContainedTypeFromArray($v);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(
                         '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
@@ -193,11 +195,34 @@ foreach ($properties as $property) :
         if (null === $<?php echo $propertyName; ?>) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>();
         }
-        $this->_trackValue<?php if ($isCollection) : ?>Added(<?php else : ?>Set($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
-<?php
+<?php   if ($isCollection) : ?>
+
+    /**<?php if ('' !== $documentation) : ?>
+
+<?php echo $documentation; ?>
+     *<?php endif; ?>
+
+     * @param <?php echo $property->getValueFHIRType()->getFullyQualifiedClassName(true); ?> ...$<?php echo $propertyName; ?>
+
+     * @return static
+     */
+    public function set<?php echo ucfirst($propertyName); ?>(<?php echo $property->getValueFHIRType()->getClassName(); ?> ...$<?php echo $propertyName; ?>): self
+    {
+        if ([] !== $this-><?php echo $propertyName; ?>) {
+            $this-><?php echo $propertyName; ?> = [];
+        }
+        if ([] === $<?php echo $propertyName; ?>) {
+            return $this;
+        }
+        foreach($<?php echo $propertyName; ?> as $v) {
+            $this-><?php echo $property->getSetterName(); ?>($v);
+        }
+        return $this;
+    }
+<?php   endif;
     endif;
 endforeach;
 

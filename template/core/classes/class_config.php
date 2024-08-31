@@ -43,12 +43,18 @@ echo "\n\n"; ?>
  */
 class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
+    /** @var bool */
+    private bool $registerAutoloader = false;
+
     /** @var int */
     private int $libxmlOpts;
+
     /** @var string */
     private string $rootXmlns;
+
     /** @var bool */
     private bool $overrideSourceXmlns;
+
     /** @var int
     private int $jsonDecodeMaxDepth;
 
@@ -58,9 +64,9 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      */
     public function __construct(array $config = [])
     {
-        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $key) {
-            if (isset($config[$key->value]) || array_key_exists($key->value, $config)) {
-                $this->{"set$key->value"}($config[$key->value);
+        foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $k) {
+            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
+                $this->setKey($k->value, $config[$k->value]);
             }
         }
     }

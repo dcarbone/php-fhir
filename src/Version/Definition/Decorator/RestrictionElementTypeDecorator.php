@@ -19,12 +19,12 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Version\Definition\EnumerationValue;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeName;
 use DCarbone\PHPFHIR\Enum\ElementName;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
-use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
 use SimpleXMLElement;
 
 /**
@@ -53,19 +53,38 @@ abstract class RestrictionElementTypeDecorator
         }
 
         foreach ($restriction->children('xs', true) as $child) {
+            $attrs = $child->attributes();
             switch ($child->getName()) {
                 case ElementName::SIMPLE_TYPE->value:
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
                 case ElementName::PATTERN->value:
-                    TypeBuilderUtils::setTypeStringFromElementAttribute($type, $child, 'setPattern');
+                    if (isset($attrs[AttributeName::VALUE->value])) {
+                        $type->setpattern((string)$attrs[AttributeName::VALUE->value]);
+                    } else if ('' !== ($v = (string)$child)) {
+                        $type->setpattern($v);
+                    }
                     break;
                 case ElementName::MIN_LENGTH->value:
+                    if (isset($attrs[AttributeName::VALUE->value])) {
+                        $type->setMinLength(intval((string)$attrs[AttributeName::VALUE->value]));
+                    } else if ('' !== ($v = (string)$child)) {
+                        $type->setMinLength(intval($v));
+                    }
+                    break;
                 case ElementName::MAX_LENGTH->value:
-                    TypeBuilderUtils::setTypeIntegerFromElementAttribute($type, $child, 'set' . $child->getName());
+                    if (isset($attrs[AttributeName::VALUE->value])) {
+                        $type->setMaxLength(intval((string)$attrs[AttributeName::VALUE->value]));
+                    } else if ('' !== ($v = (string)$child)) {
+                        $type->setMaxLength(intval($v));
+                    }
                     break;
                 case ElementName::ENUMERATION->value:
-                    TypeBuilderUtils::addTypeEnumeratedValue($type, $restriction, $child);
+                    if (isset($attrs[AttributeName::VALUE->value])) {
+                        $type->addEnumerationValue(new EnumerationValue((string)$attrs[AttributeName::VALUE->value], $attrs[AttributeName::VALUE->value]));
+                    } else if ('' !== ($v = (string)$child)) {
+                        $type->addEnumerationValue(new EnumerationValue($v, $child));
+                    }
                     break;
                 case ElementName::SEQUENCE->value:
                     SequenceElementTypeDecorator::decorate($config, $types, $type, $child);

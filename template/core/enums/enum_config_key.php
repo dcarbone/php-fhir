@@ -63,14 +63,6 @@ enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
     {
         return 'get' . $this->value;
     }
-
-    /**
-     * @return array
-     */
-    public static function values(): array
-    {
-        return array_column(self::cases(), 'values');
-    }
 }
 
 <?php return ob_get_clean();

@@ -19,8 +19,6 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum ElementName : string
 {
-    use ValuesTrait;
-
     case _INCLUDE = 'include';
     case IMPORT   = 'import';
 
@@ -54,13 +52,6 @@ enum ElementName : string
      */
     public function isOneOf(ElementName|string ...$other): bool
     {
-        $vals = self::values();
-        foreach ($other as $name) {
-            if ($this === $name || in_array($name, $vals, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return in_array($this, $other, true) || in_array($this->value, $other, true);
     }
 }

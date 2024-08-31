@@ -7,6 +7,7 @@
     <testsuite name="DSTU1-Core">
       <file>./output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
       <file>./output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+      <file>./output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConfigtest.php</file>
     </testsuite>
     <testsuite name="DSTU1-Unit">
       <directory>./output/HL7/FHIR/DSTU1/PHPFHIRTests/Unit</directory>
@@ -14,6 +15,7 @@
     <testsuite name="DSTU2-Core">
       <file>./output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
       <file>./output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+      <file>./output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRConfigtest.php</file>
     </testsuite>
     <testsuite name="DSTU2-Unit">
       <directory>./output/HL7/FHIR/DSTU2/PHPFHIRTests/Unit</directory>
@@ -24,6 +26,7 @@
     <testsuite name="STU3-Core">
       <file>./output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
       <file>./output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+      <file>./output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConfigtest.php</file>
     </testsuite>
     <testsuite name="STU3-Unit">
       <directory>./output/HL7/FHIR/STU3/PHPFHIRTests/Unit</directory>
@@ -34,6 +37,7 @@
     <testsuite name="R4-Core">
       <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
       <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+      <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRConfigtest.php</file>
     </testsuite>
     <testsuite name="R4-Unit">
       <directory>./output/HL7/FHIR/R4/PHPFHIRTests/Unit</directory>
@@ -44,6 +48,7 @@
     <testsuite name="R5-Core">
       <file>./output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
       <file>./output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
+      <file>./output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConfigtest.php</file>
     </testsuite>
     <testsuite name="R5-Unit">
       <directory>./output/HL7/FHIR/R5/PHPFHIRTests/Unit</directory>

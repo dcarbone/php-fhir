@@ -38,7 +38,7 @@ ob_start(); ?>
             return $this;
         }
         if ($value instanceof \DateTimeInterface) {
-            $this->value = $value->format(PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH_DAY_TIME);
+            $this->value = $value->format(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR_MONTH_DAY_TIME);
             return $this;
         }
         throw new \InvalidArgumentException(sprintf('Value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
@@ -55,28 +55,28 @@ ob_start(); ?>
         }
         switch(strlen($value)) {
             case 4:
-                $dt = \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_YEAR, $value);
+                $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR, $value);
                 if (!($dt instanceof \DateTime)) {
-                    throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, PHPFHIRConstants::DATE_FORMAT_YEAR));
+                    throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR));
                 }
                 return $dt;
             case 7:
-                $dt = \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH, $value);
+                $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR_MONTH, $value);
                 if (!($dt instanceof \DateTime)) {
-                    throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH));
+                    throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR_MONTH));
                 }
                 return $dt;
             case 10:
-                $dt = \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH_DAY, $value);
+                $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR_MONTH_DAY, $value);
                 if (!($dt instanceof \DateTime)) {
-                    throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH_DAY));
+                    throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR_MONTH_DAY));
                 }
                 return $dt;
 
             default:
-                $dt = \DateTime::createFromFormat(PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH_DAY_TIME, $value);
+                $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR_MONTH_DAY_TIME, $value);
                 if (!($dt instanceof \DateTime)) {
-                    throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, PHPFHIRConstants::DATE_FORMAT_YEAR_MONTH_DAY_TIME));
+                    throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_YEAR_MONTH_DAY_TIME));
                 }
                 return $dt;
         }

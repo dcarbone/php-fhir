@@ -24,8 +24,6 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum PropertyUse: string
 {
-    use ValuesTrait;
-    
     case PROHIBITED = 'prohibited';
     case OPTIONAL   = 'optional';
     case REQUIRED   = 'required';
@@ -36,13 +34,6 @@ enum PropertyUse: string
      */
     public function isOneOf(PropertyUse|string ...$other): bool
     {
-        $vals = self::values();
-        foreach ($other as $name) {
-            if ($this === $name || in_array($name, $vals, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return in_array($this, $other, true) || in_array($this->value, $other, true);
     }
 }

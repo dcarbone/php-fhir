@@ -24,8 +24,6 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 enum AttributeName : string
 {
-    use ValuesTrait;
-
     case NAME         = 'name';
     case VALUE        = 'value';
     case BASE         = 'base';
@@ -45,13 +43,6 @@ enum AttributeName : string
      */
     public function isOneOf(AttributeName|string ...$other): bool
     {
-        $vals = self::values();
-        foreach ($other as $name) {
-            if ($this === $name || in_array($name, $vals, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return in_array($this, $other, true) || in_array($this->value, $other, true);
     }
 }

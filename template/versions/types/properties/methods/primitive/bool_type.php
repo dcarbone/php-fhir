@@ -32,7 +32,7 @@ ob_start(); ?>
         if (null === $value) {
             $this->value = null;
         } elseif (is_string($value)) {
-            $this->value = PHPFHIRConstants::STRING_TRUE === strtolower($value);
+            $this->value = <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_TRUE === strtolower($value);
         } else {
             $this->value = (bool)$value;
         }
@@ -44,6 +44,6 @@ ob_start(); ?>
      */
     public function getFormattedValue(): string
     {
-        return $this->getValue() ? PHPFHIRConstants::STRING_TRUE : PHPFHIRConstants::STRING_FALSE;
+        return $this->getValue() ? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_TRUE : <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_FALSE;
     }
 <?php return ob_get_clean();

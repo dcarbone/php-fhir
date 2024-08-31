@@ -125,7 +125,7 @@ class Type
         $this->fhirName = $fhirName;
         $this->sourceSXE = $sourceSXE;
         $this->sourceFilename = $sourceFilename;
-        $this->localProperties = new Properties($config, $version, $this);
+        $this->localProperties = new Properties($config, $this);
         $this->enumeration = new Enumeration();
         $this->imports = new TypeImports($this);
     }
@@ -345,6 +345,19 @@ class Type
     public function hasLocalProperties(): bool
     {
         return count($this->localProperties) > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasLocalPropertiesWithValidations(): bool
+    {
+        foreach($this->getlocalProperties()->allSortedPropertiesIterator() as $property) {
+            if ([] !== $property->buildValidationMap()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -601,6 +614,14 @@ class Type
     public function getPrimitiveType(): PrimitiveType
     {
         return $this->primitiveType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPrimitiveType(): bool
+    {
+        return isset($this->primitiveType);
     }
 
     /**

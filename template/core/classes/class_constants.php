@@ -59,12 +59,12 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     public const STRING_FALSE = 'false';
 
     // Date and time formats
-    public const DATE_FORMAT_YEAR = 'Y';
-    public const DATE_FORMAT_YEAR_MONTH = 'Y-m';
-    public const DATE_FORMAT_YEAR_MONTH_DAY = 'Y-m-d';
-    public const DATE_FORMAT_YEAR_MONTH_DAY_TIME = 'Y-m-d\\TH:i:s\\.uP';
-    public const DATE_FORMAT_INSTANT = 'Y-m-d\\TH:i:s\\.uP';
-    public const TIME_FORMAT = 'H:i:s';
+    public const DATE_FORMAT_YEAR = '<?php echo PHPFHIR_DATE_FORMAT_YEAR; ?>';
+    public const DATE_FORMAT_YEAR_MONTH = '<?php echo PHPFHIR_DATE_FORMAT_YEAR_MONTH; ?>';
+    public const DATE_FORMAT_YEAR_MONTH_DAY = '<?php echo PHPFHIR_DATE_FORMAT_YEAR_MONTH_DAY; ?>';
+    public const DATE_FORMAT_YEAR_MONTH_DAY_TIME = '<?php echo PHPFHIR_DATE_FORMAT_YEAR_MONTH_DAY_TIME; ?>';
+    public const DATE_FORMAT_INSTANT = '<?php echo PHPFHIR_DATE_FORMAT_INSTANT; ?>';
+    public const TIME_FORMAT = '<?php echo PHPFHIR_TIME_FORMAT; ?>';
 
     public const UNLIMITED = -1;
 

@@ -27,10 +27,10 @@ ob_start();
 
 // first, marshal attribute values
 
+// this is only used in primitive types.  they have no other fields, and I am just going to assume you want it
+// as an attribute if marshalled directly.
 foreach ($type->getLocalProperties()->localPropertiesOfTypeKinds(includeCollections: false, kinds: null) as $property) : ?>
-        if (($this->_primitiveXmlLocations[self::FIELD_VALUE] ?? <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE) {
-            $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
-        }
+        $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
 <?php endforeach;
 
 foreach ($type->getLocalProperties()->localPropertiesIterator() as $property) :
@@ -39,7 +39,7 @@ foreach ($type->getLocalProperties()->localPropertiesIterator() as $property) :
         continue;
     }
     if ($pt->hasPrimitiveParent() || $pt->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) : ?>
-        $locs = $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
+        $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php   if ($property->isCollection()) : ?>
         if ([] === $locs && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $vs[0]->getFormattedValue());
@@ -52,7 +52,7 @@ foreach ($type->getLocalProperties()->localPropertiesIterator() as $property) :
         }
 <?php   endif;
     elseif ($pt->getKind() === TypeKind::PRIMITIVE_CONTAINER) : ?>
-        $locs = $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
+        $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php   if ($property->isCollection()) : ?>
         if ([] === $locs && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $vs[0]->getValue()?->getFormattedValue());
@@ -99,7 +99,7 @@ foreach ($localProperties as $property) :
         }
 <?php       endif;
         elseif ($pt->hasPrimitiveParent() || $ptk->isOneOf(TypeKind::LIST, TypeKind::PRIMITIVE)) : ?>
-        $locs = $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
+        $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php        if ($property->isCollection()) : ?>
         if (([] === $locs || in_array(<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             foreach($vs as $i => $v) {
@@ -118,7 +118,7 @@ foreach ($localProperties as $property) :
         }
 <?php       endif;
         elseif ($ptk === TypeKind::PRIMITIVE_CONTAINER) : ?>
-        $locs = $this->_primitiveXmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
+        $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php        if ($property->isCollection()) : ?>
         if (([] === $locs || in_array(<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             foreach($vs as $i => $v) {
@@ -150,12 +150,16 @@ foreach ($localProperties as $property) :
         }
 <?php   endif;
 
-// ... is NOT a typed proprety...
-else: ?>
-        if (($this->_primitiveXmlLocations[self::FIELD_VALUE] ?? <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT) {
+else:
+    // NOTE: This clause is _only_ applicable to primitive types value's.  Since these are always assumed
+    // to be attributes, this is useless.
+    //
+    // Uncomment and implement properly if the need arises in the future.
+    /*?>
+        if (($this->_xmlLocations[self::FIELD_VALUE] ?? <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE) === <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT) {
             $xw->writeSimpleElement(self::FIELD_VALUE, $this->getFormattedValue());
         }
-<?php endif;
+<?php */ endif;
 
 endforeach;
 
