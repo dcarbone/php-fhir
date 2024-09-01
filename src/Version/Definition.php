@@ -64,6 +64,10 @@ class Definition
         ];
     }
 
+    /**
+     * @return void
+     * @throws \Exception
+     */
     public function buildDefinition(): void
     {
         $log = $this->config->getLogger();
@@ -155,7 +159,7 @@ class Definition
     public function getBuilder(): Builder
     {
         if (!isset($this->builder)) {
-            $this->builder = new Builder($this->config, $this->version, $this);
+            $this->builder = new Builder($this->config);
         }
         return $this->builder;
     }

@@ -29,13 +29,14 @@ use Psr\Log\NullLogger;
  */
 class Config implements LoggerAwareInterface
 {
-    use LoggerAwareTrait;
-
     /** @var \DCarbone\PHPFHIR\Logger */
     private Logger $_log;
 
     /** @var string */
-    private string $outputPath;
+    private string $schemaPath;
+
+    /** @var string */
+    private string $classesPath;
 
     /** @var string */
     private string $rootnamespace;
@@ -65,14 +66,14 @@ class Config implements LoggerAwareInterface
      */
     public function __construct(array $params = [], LoggerInterface $logger = null)
     {
-        foreach(ConfigKeys::required() as $key) {
+        foreach (ConfigKeys::required() as $key) {
             if (!isset($params[$key->value])) {
                 throw new \DomainException(sprintf('Missing required configuration key "%s"', $key->value));
             }
             $this->{"set$key->value"}($params[$key->value]);
         }
 
-        foreach(ConfigKeys::optional() as $key) {
+        foreach (ConfigKeys::optional() as $key) {
             if (isset($params[$key->value])) {
                 $this->{"set$key->value"}($params[$key->value]);
             }
@@ -123,10 +124,46 @@ class Config implements LoggerAwareInterface
     public function setLogger(LoggerInterface $logger): void
     {
         if ($logger instanceof Logger) {
-            $this->logger = $logger;
+            $this->_log = $logger;
         } else {
             $this->_log = new Logger($logger);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getSchemaPath(): string
+    {
+        return $this->schemaPath;
+    }
+
+    /**
+     * @param string $schemaPath
+     * @return $this
+     */
+    public function setSchemaPath(string $schemaPath): self
+    {
+        $this->schemaPath = $schemaPath;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootnamespace(): string
+    {
+        return $this->rootnamespace;
+    }
+
+    /**
+     * @param string $rootnamespace
+     * @return self
+     */
+    public function setRootnamespace(string $rootnamespace): self
+    {
+        $this->rootnamespace = $rootnamespace;
+        return $this;
     }
 
     /**
@@ -194,37 +231,37 @@ class Config implements LoggerAwareInterface
     /**
      * @return string
      */
-    public function getOutputPath(): string
+    public function getClassesPath(): string
     {
-        return $this->outputPath;
+        return $this->classesPath;
     }
 
     /**
-     * @param string $outputPath
+     * @param string $classesPath
      * @return $this
      */
-    public function setOutputPath(string $outputPath): self
+    public function setClassesPath(string $classesPath): self
     {
-        if (!is_dir($outputPath)) {
-            throw new \RuntimeException('Unable to locate output dir "' . $outputPath . '"');
+        if (!is_dir($classesPath)) {
+            throw new \RuntimeException('Unable to locate output dir "' . $classesPath . '"');
         }
-        if (!is_writable($outputPath)) {
+        if (!is_writable($classesPath)) {
             throw new \RuntimeException(
                 sprintf(
                     'Specified output path "%s" is not writable by this process.',
-                    $outputPath
+                    $classesPath
                 )
             );
         }
-        if (!is_readable($outputPath)) {
+        if (!is_readable($classesPath)) {
             throw new \RuntimeException(
                 sprintf(
                     'Specified output path "%s" is not readable by this process.',
-                    $outputPath
+                    $classesPath
                 )
             );
         }
-        $this->outputPath = $outputPath;
+        $this->classesPath = $classesPath;
         return $this;
     }
 
@@ -242,11 +279,11 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Config[]
+     * @return \DCarbone\PHPFHIR\Version[]
      */
-    public function getVersions(): array
+    public function getVersionsIterator(): \Iterator
     {
-        return $this->versions;
+        return \SplFixedArray::fromArray($this->versions);
     }
 
     /**
@@ -265,11 +302,11 @@ class Config implements LoggerAwareInterface
     public function getVersion(string $version): Version
     {
         if (!$this->hasVersion($version)) {
-            throw new \OutOfBoundsException(
-                'No version with name "' . $version . '" has been configured.  Available: ["' . implode(
-                    '", "',
-                    array_keys($this->versions)
-                ) . '"]'
+            throw new \OutOfBoundsException(sprintf(
+                    'No version with name "%s" has been configured.  Available: ["%s"]',
+                    $version,
+                    implode('", "', array_keys($this->versions)),
+                )
             );
         }
         return $this->versions[$version];
@@ -288,14 +325,14 @@ class Config implements LoggerAwareInterface
      * @param string ...$bits
      * @return string
      */
-    public function getFullyQualifiedName(bool $leadingSlash, string... $bits): string
+    public function getFullyQualifiedName(bool $leadingSlash, string...$bits): string
     {
         $ns = $leadingSlash ? "\\$this->rootnamespace" : $this->rootnamespace;
         $bits = array_filter($bits);
         if ([] === $bits) {
             return $ns;
         }
-        return sprintf('%s\\%s', $ns, implode('\\' , $bits));
+        return sprintf('%s\\%s', $ns, implode('\\', $bits));
     }
 
     /**

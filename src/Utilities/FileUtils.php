@@ -40,7 +40,7 @@ abstract class FileUtils
      */
     public static function mkdirRecurse(Config $config, string $pathSuffix): string
     {
-        $path = $config->getOutputPath();
+        $path = $config->getClassesPath();
         foreach (explode('/', str_replace('\\', '/', $pathSuffix)) as $dir) {
             $dir = trim($dir, "/");
             if ('' === $dir) {

@@ -18,14 +18,9 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\ValuesTrait;
-
 enum VersionKeys: string
 {
-    use ValuesTrait;
-
     case SOURCE_URL = 'sourceUrl';
-    case SOURCE_PATH = 'sourcePath';
     case NAMESPACE = 'namespace';
     case TEST_ENDPOINT = 'testEndpoint';
 
@@ -36,6 +31,7 @@ enum VersionKeys: string
     {
         return [
             self::NAMESPACE,
+            self::SOURCE_URL,
         ];
     }
 
@@ -44,6 +40,13 @@ enum VersionKeys: string
      */
     public static function optional(): array
     {
-        return array_diff(self::cases(), self::required());
+        $required = self::required();
+        $out = [];
+        foreach (self::cases() as $case) {
+            if (!in_array($case, $required, true)) {
+                $out[] = $case;
+            }
+        }
+        return $out;
     }
 }

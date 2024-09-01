@@ -67,9 +67,21 @@ class Version
         // attempt to set each required key
         foreach(VersionKeys::required() as $key) {
             if (!isset($params[$key->value])) {
-                throw new \DomainException(sprintf('Missing required configuration key "%s"', $key->value));
+                throw new \DomainException(sprintf(
+                    'Version %s is missing required configuration key "%s"',
+                    $name,
+                    $key->value
+                ));
             }
             $this->{"set$key->value"}($params[$key->value]);
+        }
+
+        if ((!isset($this->sourceUrl) || '' === $this->sourceUrl)) {
+            throw new \DomainException(sprintf(
+                'Version %s missing required configuration key "%s"',
+                $name,
+                VersionKeys::SOURCE_URL->value,
+            ));
         }
 
         // attempt to set all "optional" keys
@@ -77,14 +89,6 @@ class Version
             if (isset($params[$key->value])) {
                 $this->{"set$key->value"}($params[$key->value]);
             }
-        }
-
-        if ((!isset($this->sourceUrl) || '' === $this->sourceUrl) || (!isset($this->sourcePath) || '' === $this->sourcePath)) {
-            throw new \DomainException(sprintf(
-                'Must configure "%s" and / or "%s" per version',
-                VersionKeys::SOURCE_URL->value,
-                VersionKeys::SOURCE_PATH->value,
-            ));
         }
 
         // ensure namespace is valid
@@ -125,27 +129,30 @@ class Version
     }
 
     /**
-     * @return string
+     * @param string $sourceUrl
+     * @return self
      */
-    public function getSourcePath(): string
+    public function setSourceUrl(string $sourceUrl): self
     {
-        return $this->sourcePath;
+        $this->sourceUrl = $sourceUrl;
+        return $this;
     }
 
     /**
-     * @param string $sourcePath
-     * @return $this
+     * @return string
      */
-    public function setSourcePath(string $sourcePath): self
+    public function getNamespace(): string
     {
-        // Bunch'o validation
-        if (false === is_dir($sourcePath)) {
-            throw new \RuntimeException('Unable to locate XSD dir "' . $sourcePath . '"');
-        }
-        if (false === is_readable($sourcePath)) {
-            throw new \RuntimeException('This process does not have read access to directory "' . $sourcePath . '"');
-        }
-        $this->sourcePath = rtrim($sourcePath, "/\\");
+        return $this->namespace;
+    }
+
+    /**
+     * @param string $namespace
+     * @return self
+     */
+    public function setNamespace(string $namespace): self
+    {
+        $this->namespace = $namespace;
         return $this;
     }
 
@@ -155,6 +162,16 @@ class Version
     public function getTestEndpoint(): string|null
     {
         return $this->testEndpoint ?? null;
+    }
+
+    /**
+     * @param string $testEndpoint
+     * @return self
+     */
+    public function setTestEndpoint(string $testEndpoint): self
+    {
+        $this->testEndpoint = $testEndpoint;
+        return $this;
     }
 
     /**

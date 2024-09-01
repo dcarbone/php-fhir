@@ -31,7 +31,6 @@ class VersionCopyright
     /** @var bool */
     private bool $_compiled = false;
 
-
     /** @var array */
     private array $_fhirCopyright;
 

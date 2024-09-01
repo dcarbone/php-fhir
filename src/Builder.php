@@ -48,11 +48,15 @@ class Builder
      * Generate FHIR object classes based on XSD
      * @throws \ErrorException
      */
-    public function render(): void
+    public function render(string ...$versionNames): void
     {
+        if ([] === $versionNames) {
+            $versionNames = $this->config->listVersions();
+        }
+
         $this->writeCoreTypeFiles();
 
-        $this->writeFhirVersionFiles();
+        $this->writeFhirVersionFiles(...$versionNames);
 
         if (!$this->config->isSkipTests()) {
             $this->writeFhirTestFiles();
@@ -62,8 +66,9 @@ class Builder
     /**
      * Generate FHIR classes only.
      * @throws \ErrorException
+     * @throws \Exception
      */
-    public function writeFhirVersionFiles(): void
+    public function writeFhirVersionFiles(string ...$versionNames): void
     {
         // register custom error handler to force explosions.
         set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
@@ -72,7 +77,11 @@ class Builder
 
         $log = $this->config->getLogger();
 
-        foreach($this->config->getVersions() as $version) {
+        foreach($this->config->getVersionsIterator() as $version) {
+            if (!in_array($version->getName(), $versionNames, true)) {
+                continue;
+            }
+
             $log->startBreak(sprintf('FHIR Version %s Class Generation', $version->getName()));
 
             $definition = $version->getDefinition();
@@ -114,11 +123,15 @@ class Builder
     /**
      * Generate Test classes only.  Tests will not pass if FHIR classes have not been built.
      */
-    public function writeFhirTestFiles(): void
+    public function writeFhirTestFiles(string ...$versionNames): void
     {
         $log = $this->config->getLogger();
 
-        foreach($this->config->getVersions() as $version) {
+        foreach($this->config->getVersionsIterator() as $version) {
+            if (!in_array($version->getName(), $versionNames, true)) {
+                continue;
+            }
+
             $definition = $version->getDefinition();
 
             if (!$definition->isDefined()) {

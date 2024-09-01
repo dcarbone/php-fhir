@@ -23,7 +23,7 @@ return [
     'schemaPath'  => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'input/',
 
     // The path to place generated files
-    'outputPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output/',
+    'classesPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output/',
 
     // The root namespace for all generated classes
     'rootNamespace' => '\\DCarbone\\PHPFhir\\',
@@ -43,29 +43,29 @@ return [
     'versions'    => [
         'DSTU1' => [
             // Source URL
-            'url'       => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
+            'sourceUrl'       => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
             // Namespac
             'namespace' => 'Versions\\DSTU1',
             // if defined, enables integration and validation test generation against the provided endpoint.
             'testEndpoint' => '',
         ],
         'DSTU2' => [
-            'url'          => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
+            'sourceUrl'          => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
             'namespace'    => 'Versions\\DSTU2',
             'testEndpoint' => 'https://hapi.fhir.org/baseDstu2',
         ],
         'STU3'  => [
-            'url'          => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
+            'sourceUrl'          => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
             'namespace'    => 'Versions\\STU3',
             'testEndpoint' => 'https://hapi.fhir.org/baseDstu3',
         ],
         'R4'    => [
-            'url'          => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
+            'sourceUrl'          => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
             'namespace'    => 'Versions\\R4',
             'testEndpoint' => 'https://hapi.fhir.org/baseR4',
         ],
         'R5' => [
-            'url'          => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
+            'sourceUrl'          => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
             'namespace'    => 'Versions\\R5',
             'testEndpoint' => 'https://hapi.fhir.org/baseR5',
         ]

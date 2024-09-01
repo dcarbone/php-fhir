@@ -85,7 +85,7 @@ You can view an example config array here: [bin/config.php](./bin/config.php).
 $config = new \DCarbone\PHPFHIR\Config(require 'config.php');
 
 // next, iterate through all configured versions and render code:
-foreach ($config->getVersions() as $versionConfig) {
+foreach ($config->getVersionsIterator() as $versionConfig) {
     $versionConfig->getDefinition()->getBuilder()->render();
 }
 ```

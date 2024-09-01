@@ -18,11 +18,10 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\ValuesTrait;
-
 enum ConfigKeys: string
 {
-    case OUTPUT_PATH = 'outputPath';
+    case SCHEMA_PATH = 'schemaPath';
+    case CLASSES_PATH = 'classesPath';
     case ROOT_NAMESPACE = 'rootNamespace';
     case VERSIONS = 'versions';
     case SILENT = 'silent';
@@ -35,7 +34,8 @@ enum ConfigKeys: string
     public static function required(): array
     {
         return [
-            self::OUTPUT_PATH,
+            self::SCHEMA_PATH,
+            self::CLASSES_PATH,
             self::ROOT_NAMESPACE,
             self::VERSIONS,
         ];
@@ -46,6 +46,13 @@ enum ConfigKeys: string
      */
     public static function optional(): array
     {
-        return array_diff(ConfigKeys::cases(), self::required());
+        $required = self::required();
+        $out = [];
+        foreach (self::cases() as $case) {
+            if (!in_array($case, $required, true)) {
+                $out[] = $case;
+            }
+        }
+        return $out;
     }
 }
