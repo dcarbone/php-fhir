@@ -31,7 +31,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo $version->getCopyright()->getFullPHPFHIRCopyrightComment();
+echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
@@ -48,8 +48,8 @@ final class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; ?>
     public const VERSION_NAME = '<?php echo $version->getName(); ?>';
 
     public const VERSION_SOURCE_URL = '<?php echo $version->getSourceUrl(); ?>';
-    public const VERSION_SOURCE_VERSION = '<?php echo $version->getCopyright()->getFHIRVersion(false); ?>';
-    public const VERSION_SOURCE_GENERATION_DATE = '<?php echo $version->getCopyright()->getFHIRGenerationDate(); ?>';
+    public const VERSION_SOURCE_VERSION = '<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>';
+    public const VERSION_SOURCE_GENERATION_DATE = '<?php echo $version->getSourceMetadata()->getFHIRGenerationDate(); ?>';
 
 <?php foreach($types->getNameSortedIterator() as $type) : ?>
     public const <?php echo $type->getTypeNameConst(false); ?> = '<?php echo $type->getFHIRName(); ?>';

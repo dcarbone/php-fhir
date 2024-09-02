@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\SourceMetadata;
-
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
@@ -31,7 +30,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo SourceMetadata::getFullPHPFHIRCopyrightComment();
+echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**

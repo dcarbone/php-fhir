@@ -107,7 +107,7 @@ class Version
     /**
      * @return \DCarbone\PHPFHIR\Version\SourceMetadata
      */
-    public function getCopyright(): SourceMetadata
+    public function getSourceMetadata(): SourceMetadata
     {
         return $this->copyright;
     }
