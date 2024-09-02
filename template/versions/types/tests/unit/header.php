@@ -17,7 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Version\VersionCopyright;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -33,7 +33,7 @@ $typeClassname = $type->getClassName();
 
 echo "namespace {$testNS};\n\n";
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo SourceMetadata::getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 echo "use PHPUnit\\Framework\\TestCase;\n";
 echo "use {$type->getFullyQualifiedClassName(false)};\n";

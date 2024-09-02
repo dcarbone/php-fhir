@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR;
 
 use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
-use DCarbone\PHPFHIR\Version\VersionCopyright;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
 use InvalidArgumentException;
 
@@ -33,8 +33,8 @@ class Version
     /** @var \DCarbone\PHPFHIR\Config */
     private Config $config;
 
-    /** @var \DCarbone\PHPFHIR\Version\VersionCopyright */
-    private VersionCopyright $copyright;
+    /** @var \DCarbone\PHPFHIR\Version\SourceMetadata */
+    private SourceMetadata $copyright;
 
     /** @var string */
     private string $name;
@@ -65,7 +65,7 @@ class Version
         }
 
         // attempt to set each required key
-        foreach(VersionKeys::required() as $key) {
+        foreach (VersionKeys::required() as $key) {
             if (!isset($params[$key->value])) {
                 throw new \DomainException(sprintf(
                     'Version %s is missing required configuration key "%s"',
@@ -85,7 +85,7 @@ class Version
         }
 
         // attempt to set all "optional" keys
-        foreach(VersionKeys::optional() as $key) {
+        foreach (VersionKeys::optional() as $key) {
             if (isset($params[$key->value])) {
                 $this->{"set$key->value"}($params[$key->value]);
             }
@@ -101,13 +101,13 @@ class Version
             );
         }
 
-        $this->copyright = new VersionCopyright($config, $this);
+        $this->copyright = new SourceMetadata($config, $this);
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Version\VersionCopyright
+     * @return \DCarbone\PHPFHIR\Version\SourceMetadata
      */
-    public function getCopyright(): VersionCopyright
+    public function getCopyright(): SourceMetadata
     {
         return $this->copyright;
     }
@@ -136,6 +136,16 @@ class Version
     {
         $this->sourceUrl = $sourceUrl;
         return $this;
+    }
+
+    /**
+     * Returns the specific schema path for this version's XSD's
+     *
+     * @return string
+     */
+    public function getSchemaPath(): string
+    {
+        return $this->config->getSchemaPath() . DIRECTORY_SEPARATOR . $this->name;
     }
 
     /**
@@ -179,7 +189,7 @@ class Version
      * @param string ...$bits
      * @return string
      */
-    public function getFullyQualifiedName(bool $leadingSlash, string... $bits): string
+    public function getFullyQualifiedName(bool $leadingSlash, string...$bits): string
     {
         return $this->config->getFullyQualifiedName($leadingSlash, ...array_merge([$this->namespace], ...$bits));
     }
@@ -190,7 +200,7 @@ class Version
      * @param string ...$bits
      * @return string
      */
-    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string... $bits): string
+    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string...$bits): string
     {
         return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
     }

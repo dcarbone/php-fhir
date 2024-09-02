@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\VersionCopyright;
-
 /** @var \DCarbone\PHPFHIR\Config $config */
 
 $namespace = $config->getFullyQualifiedName(false);
@@ -41,7 +39,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
+final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
 {
     // PHPFHIR

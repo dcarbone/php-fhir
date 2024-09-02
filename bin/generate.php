@@ -384,7 +384,7 @@ foreach ($versions_to_generate as $version_name) {
     $version_config = $config->getVersion($version_name);
 
     $source_url = $version_config->getSourceUrl();
-    $schema_dir = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version_name;
+    $schema_dir = $version_config->getSchemaPath();
 
     // Download zip files
     $zip_file_name = $schema_dir . DIRECTORY_SEPARATOR . $version_name . '.zip';

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\VersionCopyright;
-
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 
@@ -44,7 +42,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-final class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; ?> extends <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
+final class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; ?>
 
 {
     public const VERSION_NAME = '<?php echo $version->getName(); ?>';

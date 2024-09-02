@@ -17,7 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Version\VersionCopyright;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
@@ -29,7 +29,7 @@ ob_start();
 echo "<?php\n\n";?>
 namespace <?php echo $testNS; ?>;
 
-<?php echo VersionCopyright::getFullPHPFHIRCopyrightComment(); ?>
+<?php echo SourceMetadata::getFullPHPFHIRCopyrightComment(); ?>
 
 use <?php echo $rootNS; ?>\<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>;
 use PHPUnit\Framework\TestCase;

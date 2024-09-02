@@ -43,12 +43,6 @@ echo "\n\n";
 class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
 
 {
-    public const NAME = '<?php echo $version->getName(); ?>';
-
-    public const SOURCE_URL = '<?php echo $version->getSourceUrl(); ?>';
-    public const SOURCE_VERSION = '<?php echo $version->getCopyright()->getFHIRVersion(false); ?>;
-    public const SOURCE_GENERATION_DATE = '<?php echo $version->getCopyright()->getFHIRGenerationDate(); ?>';
-
     /** @var <?php $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> */
     private <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $_config;
 
@@ -73,7 +67,7 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
      */
     public function getName(): string
     {
-        return self::NAME;
+        return <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS ?>::VERSION_NAME;
     }
 
     /**
@@ -81,7 +75,7 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
      */
     public function getSourceUrl(): string
     {
-        return self::SOURCE_URL;
+        return <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS ?>::VERSION_SOURCE_URL;
     }
 
     /**
@@ -89,7 +83,7 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
      */
     public function getSourceVersion(): string
     {
-        return self::SOURCE_VERSION;
+        return <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS ?>::VERSION_SOURCE_VERSION;
     }
 
     /**
@@ -97,7 +91,7 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
      */
     public function getSourceGenerationDate(): string
     {
-        return self::SOURCE_GENERATION_DATE;
+        return <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS ?>::VERSION_SOURCE_GENERATION_DATE;
     }
 
     /**
@@ -117,8 +111,8 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
     public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
 
     {
-        if (!isset(static::$_typeMap)) {
-            static::$_typeMap = new <?php echo $version->getVersionClassname(); ?>();
+        if (!isset(self::$_typeMap)) {
+            self::$_typeMap = new <?php echo $version->getVersionClassname(); ?>();
         }
         return self::$_typeMap;
     }

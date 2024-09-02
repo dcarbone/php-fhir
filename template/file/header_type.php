@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\VersionCopyright;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
@@ -38,7 +38,7 @@ if ('' !== $namespace) {
 }
 
 // print out huge copyright block
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo SourceMetadata::getFullPHPFHIRCopyrightComment();
 
 // formatting!
 echo "\n\n";

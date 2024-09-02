@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\VersionCopyright;
-
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
@@ -31,7 +29,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**

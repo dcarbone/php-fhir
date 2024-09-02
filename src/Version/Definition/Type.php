@@ -180,7 +180,7 @@ class Type
     public function getConstName(bool $withConstClass, string $prefix = ''): string
     {
         if ($withConstClass) {
-            $cn = sprintf('%s::', PHPFHIR_CLASSNAME_CONSTANTS);
+            $cn = sprintf('%s::', PHPFHIR_CLASSNAME_VERSION_CONSTANTS);
         } else {
             $cn = '';
         }
@@ -791,7 +791,6 @@ class Type
                 array_push(
                     $traits,
                     PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
-                    PHPFHIR_TRAIT_CHANGE_TRACKING,
                     PHPFHIR_TRAIT_SOURCE_XMLNS,
                 );
             }
@@ -801,7 +800,6 @@ class Type
             array_push(
                 $traits,
                 PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
-                PHPFHIR_TRAIT_CHANGE_TRACKING,
                 PHPFHIR_TRAIT_SOURCE_XMLNS,
             );
         }

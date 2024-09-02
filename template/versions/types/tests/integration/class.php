@@ -17,7 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Version\VersionCopyright;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -62,7 +62,7 @@ echo "<?php\n\n";
 
 echo "namespace {$testNS};\n\n";
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo SourceMetadata::getFullPHPFHIRCopyrightComment();
 ?>
 
 
@@ -113,7 +113,7 @@ class <?php echo $testClassname; ?> extends TestCase
         }
         $this->assertIsString($rc->resp);
         $this->_fetchedResources[$format] = $rc->resp;
-        $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo VersionCopyright::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
+        $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo SourceMetadata::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
         file_put_contents($fname, $rc->resp);
         return $rc->resp;
     }

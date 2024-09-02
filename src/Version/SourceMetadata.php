@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 
-class VersionCopyright
+class SourceMetadata
 {
     /** @var \DCarbone\PHPFHIR\Config */
     private Config $_config;
@@ -58,9 +58,9 @@ class VersionCopyright
             return;
         }
 
-        $fhirBase = sprintf('%s/fhir-base.xsd', $this->_version->getSourcePath());
+        $fhirBase = sprintf('%s/fhir-base.xsd', $this->_version->getSchemaPath());
 
-        $this->_config->getLogger()->debug(sprintf('Extracting FHIR copyright from "%s"...', $fhirBase));
+        $this->_config->getLogger()->debug(sprintf('Extracting FHIR version metadata from "%s"...', $fhirBase));
 
         $this->_fhirCopyright = [];
         $fh = fopen($fhirBase, 'rb');

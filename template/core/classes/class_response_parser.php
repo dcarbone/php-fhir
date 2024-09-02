@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\VersionCopyright;
-
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */

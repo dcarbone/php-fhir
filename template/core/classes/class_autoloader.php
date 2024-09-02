@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\VersionCopyright;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -32,7 +32,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo SourceMetadata::getFullPHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 // if this class is used, assume not using Composer...

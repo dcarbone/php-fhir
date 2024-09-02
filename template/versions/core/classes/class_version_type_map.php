@@ -65,17 +65,11 @@ echo "\n\n";
 abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
 
 {
-    /**
-     * This array represents every type known to this lib
-     */
     private const TYPE_MAP = [
 <?php foreach ($types->getNameSortedIterator() as $type) : ?>
         <?php echo $type->getTypeNameConst(true); ?> => <?php echo $type->getClassNameConst(true); ?>,
 <?php endforeach; ?>    ];
 
-    /**
-     * This is the list of resource types that are allowed to be contained within a <?php echo $containerType->getFHIRName(); ?> type
-     */
     private const CONTAINABLE_TYPES = [
 <?php foreach($innerTypes as $innerType) : ?>
         <?php echo $innerType->getTypeNameConst(true); ?> => <?php echo $innerType->getClassNameConst(true); ?>,
@@ -130,7 +124,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php
         $tt = gettype($type);
         if ('object' === $tt) {
             if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
-                return in_array('\\' . get_class($type), self::CONTAINABLE_TYPES, true);
+                return in_array('\\' . $type::class, self::CONTAINABLE_TYPES, true);
             }
             return isset(self::CONTAINABLE_TYPES[$type->getName()]);
         }

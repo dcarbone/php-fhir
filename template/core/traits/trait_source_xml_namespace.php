@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\VersionCopyright;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 
@@ -29,7 +28,7 @@ if ('' !== $rootNS) :
     echo "namespace {$rootNS};\n\n";
 endif;
 
-echo VersionCopyright::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
