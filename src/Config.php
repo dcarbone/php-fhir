@@ -48,8 +48,8 @@ class Config implements LoggerAwareInterface
     private bool $silent = false;
     /** @var bool */
     private bool $skipTests = false;
-    /** @var int|null */
-    private ?int $libxmlOpts;
+    /** @var null|int */
+    private null|int $libxmlOpts;
 
     /** @var string */
     private string $_standardDate;
@@ -203,15 +203,15 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @return int|null
+     * @return null|int
      */
-    public function getLibxmlOpts(): ?int
+    public function getLibxmlOpts(): null|int
     {
         return $this->libxmlOpts;
     }
 
     /**
-     * @param int|null $libxmlOpts
+     * @param null|int $libxmlOpts
      * @return static
      */
     public function setLibxmlOpts(?int $libxmlOpts): self
