@@ -47,22 +47,6 @@ enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
     case ROOT_XMLNS = 'rootXmlns';
     case OVERRIDE_SOURCE_XMLNS = 'overrideSourceXmlns';
     case JSON_DECODE_MAX_DEPTH = 'jsonDecodeMaxDepth';
-
-    /**
-     * @return string
-     */
-    public function setter(): string
-    {
-        return 'set' . $this->value;
-    }
-
-    /**
-     * @return string
-     */
-    public function getter(): string
-    {
-        return 'get' . $this->value;
-    }
 }
 
 <?php return ob_get_clean();

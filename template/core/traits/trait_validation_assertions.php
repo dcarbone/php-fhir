@@ -34,7 +34,7 @@ echo "\n\n";
 /**
  * Trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; if ('' !== $rootNS) : ?>
 
- * @package \<?php echo $rootNS; ?>
+ * @package <?php echo $rootNS; ?>
 <?php endif; ?>
 
  */

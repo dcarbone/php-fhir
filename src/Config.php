@@ -18,8 +18,8 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TestType;
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -39,7 +39,7 @@ class Config implements LoggerAwareInterface
     private string $classesPath;
 
     /** @var string */
-    private string $rootnamespace;
+    private string $rootNamespace;
 
     /** @var \DCarbone\PHPFHIR\Version[] */
     private array $versions = [];
@@ -151,18 +151,18 @@ class Config implements LoggerAwareInterface
     /**
      * @return string
      */
-    public function getRootnamespace(): string
+    public function getRootNamespace(): string
     {
-        return $this->rootnamespace;
+        return $this->rootNamespace;
     }
 
     /**
-     * @param string $rootnamespace
+     * @param string $rootNamespace
      * @return self
      */
-    public function setRootnamespace(string $rootnamespace): self
+    public function setRootNamespace(string $rootNamespace): self
     {
-        $this->rootnamespace = $rootnamespace;
+        $this->rootNamespace = $rootNamespace;
         return $this;
     }
 
@@ -327,12 +327,23 @@ class Config implements LoggerAwareInterface
      */
     public function getFullyQualifiedName(bool $leadingSlash, string...$bits): string
     {
-        $ns = $leadingSlash ? "\\$this->rootnamespace" : $this->rootnamespace;
+        $ns = $leadingSlash ? "\\$this->rootNamespace" : $this->rootNamespace;
         $bits = array_filter($bits);
         if ([] === $bits) {
             return $ns;
         }
         return sprintf('%s\\%s', $ns, implode('\\', $bits));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
+     * @param bool $leadingSlash
+     * @param string ...$bits
+     * @return string
+     */
+    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string...$bits): string
+    {
+        return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
     }
 
     /**

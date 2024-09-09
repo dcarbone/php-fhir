@@ -44,6 +44,6 @@ enum <?php echo PHPFHIR_ENUM_API_RESOURCE_LIST; ?> : string
     case CURRENT_PROBLEMS = '$current-problems';
     case CURRENT_MEDICATIONS = '$current-medications';
     case CURRENT_ALLERGIES = '$current-allergies';
-    csae CURRENT_DRUG_ALLERGIES = '$current-drug-allergies';
+    case CURRENT_DRUG_ALLERGIES = '$current-drug-allergies';
 }
 <?php return ob_get_clean();
