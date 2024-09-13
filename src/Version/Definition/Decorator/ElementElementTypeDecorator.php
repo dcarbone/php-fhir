@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
@@ -36,12 +36,12 @@ class ElementElementTypeDecorator
     /**
      * This method is intended to be used for <xs:element...> elements that are at the top level of an xsd file
      *
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function rootDecorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $element): void
+    public static function rootDecorate(Config $config, Types $types, Type $type, SimpleXMLElement $element): void
     {
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
@@ -94,12 +94,12 @@ class ElementElementTypeDecorator
     /**
      * This method is intended to be used for <xs:element...> elements that are children of other elements
      *
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $element): void
+    public static function decorate(Config $config, Types $types, Type $type, SimpleXMLElement $element): void
     {
         $property = new Property($type, $element, $type->getSourceFilename());
 

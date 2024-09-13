@@ -26,7 +26,7 @@ return [
     'classesPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output/',
 
     // The root namespace for all generated classes
-    'rootNamespace' => '\\DCarbone\\PHPFhir\\',
+    'rootNamespace' => '\\DCarbone\\PHPFHIRGenerated',
 
     // If true, will use a noop null logger
     'silent'      => false,

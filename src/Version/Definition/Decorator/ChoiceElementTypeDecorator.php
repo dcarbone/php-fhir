@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeName;
@@ -32,12 +32,12 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 abstract class ChoiceElementTypeDecorator
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $choice
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $choice): void
+    public static function decorate(Config $config, Types $types, Type $type, \SimpleXMLElement $choice): void
     {
         $minOccurs = null;
         $maxOccurs = null;

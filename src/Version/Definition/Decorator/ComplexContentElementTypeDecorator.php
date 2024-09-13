@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
  */
 
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
 use DCarbone\PHPFHIR\Enum\ElementName;
@@ -33,13 +33,13 @@ use SimpleXMLElement;
 abstract class ComplexContentElementTypeDecorator
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $complexContent
      */
     public static function decorate(
-        VersionConfig $config,
+        Config $config,
         Types $types,
         Type $type,
         SimpleXMLElement $complexContent

@@ -55,7 +55,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     /** @var bool */
     private bool $overrideSourceXmlns;
 
-    /** @var int
+    /** @var int */
     private int $jsonDecodeMaxDepth;
 
     /**
@@ -66,7 +66,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     {
         foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $k) {
             if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
-                $this->setKey($k->value, $config[$k->value]);
+                $this->{"set{$k->value}"}($config[$k->value]);
             }
         }
     }
@@ -141,6 +141,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      * See https://www.php.net/manual/en/function.json-decode.php
      *
      * @param int $maxDepth
+     * @return static
      */
     public function setJsonDecodeMaxDepth(int $maxDepth): self
     {

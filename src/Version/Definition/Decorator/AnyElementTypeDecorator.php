@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
@@ -32,12 +32,12 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 abstract class AnyElementTypeDecorator
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $any
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $any): void
+    public static function decorate(Config $config, Types $types, Type $type, \SimpleXMLElement $any): void
     {
         $property = new Property($type, $any, $type->getSourceFilename());
 

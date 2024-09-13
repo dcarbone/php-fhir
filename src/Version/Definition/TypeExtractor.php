@@ -170,7 +170,7 @@ abstract class TypeExtractor
 
                     $logger->debug(sprintf('Parsing "%s" from Element', $fhirName));
                     // build type
-                    $type = TypeBuilder::build($config, $fhirName, $child, $sourceFile);
+                    $type = TypeBuilder::build($config, $version, $fhirName, $child, $sourceFile);
 
                     // add type
                     $types->addType($type);
@@ -192,9 +192,9 @@ abstract class TypeExtractor
      * @return \DCarbone\PHPFHIR\Version\Definition\Types
      * @throws \Exception
      */
-    public static function parseTypes(Config $config): Types
+    public static function parseTypes(Config $config, Version $version): Types
     {
-        $types = new Types($config);
+        $types = new Types($config, $version);
         $logger = $config->getLogger();
 
         // first, parse all .xsd files without the "fhir-" prefix
@@ -210,7 +210,7 @@ abstract class TypeExtractor
                 $logger->debug(sprintf('Skipping file "%s"', $xsdFile));
                 continue;
             }
-            static::extractTypesFromXSD($config, $types, $xsdFile);
+            static::extractTypesFromXSD($config, $version, $types, $xsdFile);
         }
 
         // next, parse the "fhir-" prefixed ones.
@@ -227,7 +227,7 @@ abstract class TypeExtractor
             if (str_starts_with($basename, PHPFHIR_SKIP_ATOM_XSD_PREFIX)) {
                 continue;
             }
-            static::extractTypesFromXSD($config, $types, $xsdFile);
+            static::extractTypesFromXSD($config, $version, $types, $xsdFile);
         }
 
         return $types;

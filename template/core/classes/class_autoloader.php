@@ -16,11 +16,9 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -32,7 +30,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo SourceMetadata::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 // if this class is used, assume not using Composer...
@@ -75,9 +73,6 @@ if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT
 }
 if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_VALIDATION_ASSERTIONS); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>.php';
-}
-if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_CHANGE_TRACKING); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>.php';
 }
 if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_SOURCE_XMLNS); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>.php';
@@ -134,9 +129,11 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 {
     /** @var array */
     private const _CLASS_MAP = [
-<?php foreach ($types->getNamespaceSortedIterator() as $type) : ?>
+<?php foreach ($config->getVersionsIterator() as $version) :
+    foreach ($version->getDefinition()->getTypes()->getNamespaceSortedIterator() as $type) : ?>
         '<?php echo $type->getFullyQualifiedClassName(false); ?>' => '<?php echo FileUtils::buildAutoloaderRelativeFilepath($config, $type); ?>',
-<?php endforeach; ?>    ];
+<?php endforeach;
+endforeach; ?>    ];
 
     /** @var bool */
     private static bool $_registered = false;

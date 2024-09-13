@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
@@ -34,9 +35,10 @@ ob_start();
 
 // build file header
 echo require_with(
-    PHPFHIR_TEMPLATE_FILE_DIR . DIRECTORY_SEPARATOR . 'header_type.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'header_type.php',
     [
         'config' => $config,
+        'version' => $version,
         'fqns' => $fqns,
         'skipImports' => false,
         'type' => $type,

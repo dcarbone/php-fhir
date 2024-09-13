@@ -125,7 +125,7 @@ class Type
         $this->fhirName = $fhirName;
         $this->sourceSXE = $sourceSXE;
         $this->sourceFilename = $sourceFilename;
-        $this->localProperties = new Properties($config, $this);
+        $this->localProperties = new Properties($config, $version, $this);
         $this->enumeration = new Enumeration();
         $this->imports = new TypeImports($this);
     }

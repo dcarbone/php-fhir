@@ -20,8 +20,6 @@
 
 $namespace = $config->getFullyQualifiedName(false);
 
-var_dump($namespace);exit(1);
-
 ob_start();
 
 echo "<?php declare(strict_types=1);\n\n";

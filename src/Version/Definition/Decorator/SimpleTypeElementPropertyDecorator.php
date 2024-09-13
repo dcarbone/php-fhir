@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
 
 // TODO: this was only seen when parsing the ATOM file, which I currently have no plans on supporting.
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
@@ -34,14 +34,14 @@ use SimpleXMLElement;
 abstract class SimpleTypeElementPropertyDecorator
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param \SimpleXMLElement $simpleType
      */
     public static function decorate(
-        VersionConfig $config,
+        Config $config,
         Types $types,
         Type $type,
         Property $property,

@@ -17,10 +17,9 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config $config */
-/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
-$namespace = $version->getFullyQualifiedName(false);
+$namespace = $config->getFullyQualifiedName(false);
 
 ob_start();
 

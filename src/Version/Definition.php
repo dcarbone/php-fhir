@@ -47,6 +47,7 @@ class Definition
     /**
      * Definition constructor.
      * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version $version
      */
     public function __construct(Config $config, Version $version)
     {
@@ -70,12 +71,16 @@ class Definition
      */
     public function buildDefinition(): void
     {
+        if ($this->isDefined()) {
+            return;
+        }
+
         $log = $this->config->getLogger();
 
         $log->startBreak('Extracting defined types');
 
         $log->info('Parsing types');
-        $this->types = TypeExtractor::parseTypes($this->config);
+        $this->types = TypeExtractor::parseTypes($this->config, $this->version);
 
         $log->info('Finding restriction base types');
         TypeDecorator::findRestrictionBaseTypes($this->config, $this->types);
@@ -138,19 +143,24 @@ class Definition
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Version\Definition\Types|null
+     * @return \DCarbone\PHPFHIR\Version\Definition\Types
+     * @throws \Exception
      */
-    public function getTypes(): ?Types
+    public function getTypes(): Types
     {
+        if (!$this->isDefined()) {
+            $this->buildDefinition();
+        }
         return $this->types;
     }
 
     /**
      * @return bool
+     * @throws \Exception
      */
     public function isDefined(): bool
     {
-        return null !== $this->getTypes();
+        return isset($this->types);
     }
 
     /**

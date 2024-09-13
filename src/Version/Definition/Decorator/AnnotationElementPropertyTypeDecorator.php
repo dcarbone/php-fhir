@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
@@ -32,14 +32,14 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 abstract class AnnotationElementPropertyTypeDecorator
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param \SimpleXMLElement $annotation
      */
     public static function decorate(
-        VersionConfig $config,
+        Config $config,
         Types $types,
         Type $type,
         Property $property,

@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -162,6 +163,21 @@ class Config implements LoggerAwareInterface
      */
     public function setRootNamespace(string $rootNamespace): self
     {
+        // handle no or empty namespace
+        $rootNamespace = trim($rootNamespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
+        if ('' === $rootNamespace) {
+            $this->rootNamespace = '';
+            return $this;
+        }
+        if (false === NameUtils::isValidNSName($rootNamespace)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Root namespace "%s" is not a valid PHP namespace.',
+                    $rootNamespace
+                )
+            );
+        }
+
         $this->rootNamespace = $rootNamespace;
         return $this;
     }
@@ -281,9 +297,9 @@ class Config implements LoggerAwareInterface
     /**
      * @return \DCarbone\PHPFHIR\Version[]
      */
-    public function getVersionsIterator(): \Iterator
+    public function getVersionsIterator(): iterable
     {
-        return \SplFixedArray::fromArray($this->versions);
+        return \SplFixedArray::fromArray(array_values($this->versions));
     }
 
     /**
