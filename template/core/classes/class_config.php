@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -31,7 +31,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
@@ -55,6 +55,9 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     /** @var bool */
     private bool $overrideSourceXmlns;
 
+    /** @var int */
+    private int $jsonDecodeMaxDepth;
+
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
      * @param array $config
@@ -63,47 +66,15 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     {
         foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $k) {
             if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
-                $this->setKey($k->value, $config[$k->value]);
+                $this->{"set{$k->value}"}($config[$k->value]);
             }
         }
     }
 
     /**
-     * Set arbitrary key on this config
-     *
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CONFIG_KEY); ?>|string $key
-     * @param mixed $value
-     * @return static
-     */
-    public function setKey(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>|string $key, mixed $value): self
-    {
-        if (!is_string($key)) {
-            $key = $key->value;
-        }
-        $this->{'set'.$key}($value);
-        return $this;
-    }
-
-    /**
-     * @param bool $registerAutoloader
-     * @return static
-     */
-    public function setRegisterAutoloader(bool $registerAutoloader): self
-    {
-        $this->registerAutoloader = $registerAutoloader;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getRegisterAutoloader(): bool
-    {
-        return $this->registerAutoloader;
-    }
-
-    /**
      * Sets the option flags to provide to libxml when unserializing XML
+     *
+     * @see https://www.php.net/manual/en/libxml.constants.php
      *
      * @param int $libxmlOpts
      * @return static
@@ -165,13 +136,35 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     }
 
     /**
+     * Max depth option to provide when decoding a JSON input string.
+     *
+     * See https://www.php.net/manual/en/function.json-decode.php
+     *
+     * @param int $maxDepth
+     * @return static
+     */
+    public function setJsonDecodeMaxDepth(int $maxDepth): self
+    {
+        $this->jsonDecodeMaxDepth = $maxDepth;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getJsonDecodeMaxDepth(): int
+    {
+        return $this->jsonDecodeMaxDepth ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_JSON_DECODE_MAX_DEPTH;
+    }
+
+    /**
      * @return \stdClass
      */
     public function jsonSerialize(): \stdClass
     {
         $out = new \stdClass();
         foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $key) {
-            $out->{$k} = $this->{$key->getter()}();
+            $out->{$key->value} = $this->{"get$key->value"}();
         }
         return $out;
     }

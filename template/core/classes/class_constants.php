@@ -16,10 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -31,7 +28,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
@@ -45,16 +42,13 @@ echo "\n\n";
 final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
 {
-    // FHIR source
-    public const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(false); ?>';
-    public const SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
-
     // PHPFHIR
-    public const CODE_GENERATION_DATE = '<?php echo CopyrightUtils::getStandardDate(); ?>';
+    public const CODE_GENERATION_DATE = '<?php echo $config->getStandardDate(); ?>';
 
     // Config Defaults
     public const DEFAULT_LIBXML_OPTS = LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL;
     public const DEFAULT_XMLNS = 'https://hl7.org/fhir';
+    public const DEFAULT_JSON_DECODE_MAX_DEPTH = 512;
 
     // Common
     public const JSON_FIELD_RESOURCE_TYPE = 'resourceType';
@@ -79,15 +73,6 @@ final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     public const <?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_PATTERN; ?>';
     public const <?php echo PHPFHIR_VALIDATION_MIN_OCCURS_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_MIN_OCCURS; ?>';
     public const <?php echo PHPFHIR_VALIDATION_MAX_OCCURS_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_MAX_OCCURS; ?>';
-
-    // Type names
-<?php foreach($types->getNameSortedIterator() as $type) : ?>
-    public const <?php echo $type->getTypeNameConst(false); ?> = '<?php echo $type->getFHIRName(); ?>';
-<?php endforeach;?>
-
-    // Type classes
-<?php foreach($types->getNameSortedIterator() as $type) : ?>
-    public const <?php echo $type->getClassNameConst(false); ?> = '<?php echo str_replace('\\', '\\\\', $type->getFullyQualifiedClassName(true)); ?>';
-<?php endforeach;
-echo "}\n";
+}
+<?php
 return ob_get_clean();

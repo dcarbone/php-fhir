@@ -18,8 +18,9 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\Version;
-use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -27,17 +28,10 @@ use Psr\Log\NullLogger;
  * Class Config
  * @package DCarbone\PHPFHIR
  */
-class Config
+class Config implements LoggerAwareInterface
 {
-    public const KEY_SCHEMA_PATH = 'schemaPath';
-    public const KEY_CLASSES_PATH = 'classesPath';
-    public const KEY_VERSIONS = 'versions';
-    public const KEY_SILENT = 'silent';
-    public const KEY_SKIP_TESTS = 'skipTests';
-    public const KEY_LIBXML_OPTS = 'libxmlOpts';
-
     /** @var \DCarbone\PHPFHIR\Logger */
-    protected Logger $_log;
+    private Logger $_log;
 
     /** @var string */
     private string $schemaPath;
@@ -45,55 +39,147 @@ class Config
     /** @var string */
     private string $classesPath;
 
-    /** @var \DCarbone\PHPFHIR\Config\VersionConfig[] */
+    /** @var string */
+    private string $rootNamespace;
+
+    /** @var \DCarbone\PHPFHIR\Version[] */
     private array $versions = [];
 
     /** @var bool */
     private bool $silent = false;
     /** @var bool */
     private bool $skipTests = false;
-    /** @var int|null */
-    private ?int $libxmlOpts;
+    /** @var null|int */
+    private null|int $libxmlOpts;
 
-    /**
-     * @param \Psr\Log\LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->_log = new Logger($logger);
-    }
+    /** @var string */
+    private string $_standardDate;
+
+    /** @var array */
+    private array $_phpFHIRCopyright;
+    /** @var string */
+    private string $_basePHPFHIRCopyrightComment;
 
     /**
      * Config constructor.
-     * @param array $conf
+     * @param array $params
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(array $conf = [], LoggerInterface $logger = null)
+    public function __construct(array $params = [], LoggerInterface $logger = null)
     {
-        if (!isset($conf[self::KEY_SCHEMA_PATH])) {
-            throw new \DomainException('Required configuration key "' . self::KEY_SCHEMA_PATH . '" missing');
+        foreach (ConfigKeys::required() as $key) {
+            if (!isset($params[$key->value])) {
+                throw new \DomainException(sprintf('Missing required configuration key "%s"', $key->value));
+            }
+            $this->{"set$key->value"}($params[$key->value]);
         }
-        if (!isset($conf[self::KEY_CLASSES_PATH])) {
-            throw new \DomainException('Required configuration key "' . self::KEY_CLASSES_PATH . '" missing');
+
+        foreach (ConfigKeys::optional() as $key) {
+            if (isset($params[$key->value])) {
+                $this->{"set$key->value"}($params[$key->value]);
+            }
         }
-        if (!isset($conf[self::KEY_VERSIONS]) || !is_array($conf[self::KEY_VERSIONS]) || 0 == count(
-                $conf[self::KEY_VERSIONS]
-            )) {
-            throw new \DomainException(
-                'Configuration key "' . self::KEY_VERSIONS . '" must be an array with at least 1 configured version.'
+
+        if (null !== $logger && !$this->isSilent()) {
+            $this->setLogger(new Logger($logger));
+        } else {
+            $this->setLogger(new NullLogger());
+        }
+
+        $this->_standardDate = date('F jS, Y H:iO');
+
+        $this->_phpFHIRCopyright = [
+            'This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using',
+            'class definitions from HL7 FHIR (https://www.hl7.org/fhir/)',
+            '',
+            sprintf('Class creation date: %s', $this->_standardDate),
+            '',
+            'PHPFHIR Copyright:',
+            '',
+            sprintf('Copyright 2016-%d Daniel Carbone (daniel.p.carbone@gmail.com)', date('Y')),
+            '',
+            'Licensed under the Apache License, Version 2.0 (the "License");',
+            'you may not use this file except in compliance with the License.',
+            'You may obtain a copy of the License at',
+            '',
+            '       http://www.apache.org/licenses/LICENSE-2.0',
+            '',
+            'Unless required by applicable law or agreed to in writing, software',
+            'distributed under the License is distributed on an "AS IS" BASIS,',
+            'WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
+            'See the License for the specific language governing permissions and',
+            'limitations under the License.',
+            '',
+        ];
+
+        $this->_basePHPFHIRCopyrightComment = sprintf(
+            "/*!\n * %s\n */",
+            implode("\n * ", $this->_phpFHIRCopyright)
+        );
+    }
+
+    /**
+     * @param \Psr\Log\LoggerInterface $logger
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        if ($logger instanceof Logger) {
+            $this->_log = $logger;
+        } else {
+            $this->_log = new Logger($logger);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getSchemaPath(): string
+    {
+        return $this->schemaPath;
+    }
+
+    /**
+     * @param string $schemaPath
+     * @return $this
+     */
+    public function setSchemaPath(string $schemaPath): self
+    {
+        $this->schemaPath = $schemaPath;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootNamespace(): string
+    {
+        return $this->rootNamespace;
+    }
+
+    /**
+     * @param string $rootNamespace
+     * @return self
+     */
+    public function setRootNamespace(string $rootNamespace): self
+    {
+        // handle no or empty namespace
+        $rootNamespace = trim($rootNamespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
+        if ('' === $rootNamespace) {
+            $this->rootNamespace = '';
+            return $this;
+        }
+        if (false === NameUtils::isValidNSName($rootNamespace)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Root namespace "%s" is not a valid PHP namespace.',
+                    $rootNamespace
+                )
             );
         }
-        $this->setSchemaPath($conf[self::KEY_SCHEMA_PATH]);
-        $this->setClassesPath($conf[self::KEY_CLASSES_PATH]);
-        $this->setVersions($conf[self::KEY_VERSIONS]);
-        $this->setSilent(isset($conf[self::KEY_SILENT]) && (bool)$conf[self::KEY_SILENT]);
-        $this->setSkipTests($conf[self::KEY_SKIP_TESTS] ?? false);
-        $this->setLibxmlOpts($conf[self::KEY_LIBXML_OPTS] ?? null);
-        if ($logger && !$this->isSilent()) {
-            $this->_log = new Logger($logger);
-        } else {
-            $this->_log = new Logger(new NullLogger());
-        }
+
+        $this->rootNamespace = $rootNamespace;
+        return $this;
     }
 
     /**
@@ -133,15 +219,15 @@ class Config
     }
 
     /**
-     * @return int|null
+     * @return null|int
      */
-    public function getLibxmlOpts(): ?int
+    public function getLibxmlOpts(): null|int
     {
         return $this->libxmlOpts;
     }
 
     /**
-     * @param int|null $libxmlOpts
+     * @param null|int $libxmlOpts
      * @return static
      */
     public function setLibxmlOpts(?int $libxmlOpts): self
@@ -156,31 +242,6 @@ class Config
     public function getLogger(): Logger
     {
         return $this->_log;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSchemaPath(): string
-    {
-        return $this->schemaPath;
-    }
-
-    /**
-     * @param string $schemaPath
-     * @return $this
-     */
-    public function setSchemaPath(string $schemaPath): self
-    {
-        // Bunch'o validation
-        if (false === is_dir($schemaPath)) {
-            throw new \RuntimeException('Unable to locate XSD dir "' . $schemaPath . '"');
-        }
-        if (false === is_readable($schemaPath)) {
-            throw new \RuntimeException('This process does not have read access to directory "' . $schemaPath . '"');
-        }
-        $this->schemaPath = rtrim($schemaPath, "/\\");
-        return $this;
     }
 
     /**
@@ -227,18 +288,18 @@ class Config
     public function setVersions(array $versions): self
     {
         $this->versions = [];
-        foreach ($versions as $name => $version) {
-            $this->versions[$name] = ($version instanceof VersionConfig) ? $version : new VersionConfig($this, new Version($name, $version));
+        foreach ($versions as $name => $data) {
+            $this->versions[$name] = ($data instanceof Version) ? $data : new Version($this, $name, $data);
         }
         return $this;
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Config\VersionConfig[]
+     * @return \DCarbone\PHPFHIR\Version[]
      */
-    public function getVersions(): array
+    public function getVersionsIterator(): iterable
     {
-        return $this->versions;
+        return \SplFixedArray::fromArray(array_values($this->versions));
     }
 
     /**
@@ -252,16 +313,16 @@ class Config
 
     /**
      * @param string $version
-     * @return \DCarbone\PHPFHIR\Config\VersionConfig
+     * @return \DCarbone\PHPFHIR\Version
      */
-    public function getVersion(string $version): VersionConfig
+    public function getVersion(string $version): Version
     {
         if (!$this->hasVersion($version)) {
-            throw new \OutOfBoundsException(
-                'No version with name "' . $version . '" has been configured.  Available: ["' . implode(
-                    '", "',
-                    array_keys($this->versions)
-                ) . '"]'
+            throw new \OutOfBoundsException(sprintf(
+                    'No version with name "%s" has been configured.  Available: ["%s"]',
+                    $version,
+                    implode('", "', array_keys($this->versions)),
+                )
             );
         }
         return $this->versions[$version];
@@ -273,5 +334,55 @@ class Config
     public function listVersions(): array
     {
         return array_keys($this->versions);
+    }
+
+    /**
+     * @param bool $leadingSlash
+     * @param string ...$bits
+     * @return string
+     */
+    public function getFullyQualifiedName(bool $leadingSlash, string...$bits): string
+    {
+        $ns = $leadingSlash ? "\\$this->rootNamespace" : $this->rootNamespace;
+        $bits = array_filter($bits);
+        if ([] === $bits) {
+            return $ns;
+        }
+        return sprintf('%s\\%s', $ns, implode('\\', $bits));
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
+     * @param bool $leadingSlash
+     * @param string ...$bits
+     * @return string
+     */
+    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string...$bits): string
+    {
+        return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
+    }
+
+    /**
+     * @return string
+     */
+    public function getStandardDate(): string
+    {
+        return $this->_standardDate;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPHPFHIRCopyright(): array
+    {
+        return $this->_phpFHIRCopyright;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBasePHPFHIRCopyrightComment(): string
+    {
+        return $this->_basePHPFHIRCopyrightComment;
     }
 }

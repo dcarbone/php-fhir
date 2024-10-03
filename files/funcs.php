@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Config;
 
 /**
  * require_with is used to ensure a clean context per required template file.
@@ -38,11 +38,11 @@ function require_with(string $requiredFile, array $vars): mixed
             )
         );
     }
-    if (!isset($config) || !($config instanceof VersionConfig)) {
+    if (!isset($config) || !($config instanceof Config)) {
         throw new \LogicException(sprintf(
             'Refusing to require "%s" as you didn\'t provide \'config\' => $config(%s)',
             $requiredFile,
-            VersionConfig::class,
+            Config::class,
         ));
     }
     // unset vars defined by this func
