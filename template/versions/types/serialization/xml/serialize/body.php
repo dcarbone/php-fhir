@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type|null $parentType */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $localProperties */
@@ -80,7 +81,7 @@ foreach ($localProperties as $property) :
     if (null !== $pt) :
         $ptk = $pt->getKind();
         // ... and IS a containe
-        if ($ptk->isContainer($config->getVersion()->getName())) :
+        if ($ptk->isContainer($version->getName())) :
             if ($property->isCollection()) : ?>
         foreach($this-><?php echo $property->getGetterName(); ?>() as $v) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);

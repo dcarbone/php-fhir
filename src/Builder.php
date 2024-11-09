@@ -95,6 +95,7 @@ class Builder
             $types = $definition->getTypes();
 
             foreach ($types->getIterator() as $type) {
+                /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
                 $log->debug("Generating class for type {$type}...");
 
                 // TODO(@dcarbone): revisit with template system refactor
@@ -195,8 +196,6 @@ class Builder
     }
 
     /**
-     * TODO(@dcarbone): refactor generation system, too sloppy right now.
-     *
      * Renders core PHP FHIR type classes, interfaces, traits, and enums.
      *
      * @return void

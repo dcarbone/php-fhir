@@ -19,7 +19,7 @@
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
 $isCollection = $property->isCollection();
@@ -27,13 +27,13 @@ $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, 
 
 ob_start(); ?>
 <?php if ('' === $documentation) : ?>
-    /** @var <?php echo TypeHintUtils::propertyGetterTypeDoc($config, $property, true); ?> */
+    /** @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?> */
 <?php else : ?>
     /**
 <?php echo $documentation; ?>
-     * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($config, $property, true); ?>
+     * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
 
      */
 <?php endif; ?>
-    protected <?php echo TypeHintUtils::propertyTypeHint($config, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
+    protected <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
 <?php return ob_get_clean();

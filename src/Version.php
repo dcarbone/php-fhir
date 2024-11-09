@@ -189,9 +189,9 @@ class Version
      * @param string ...$bits
      * @return string
      */
-    public function getFullyQualifiedName(bool $leadingSlash, string...$bits): string
+    public function getFullyQualifiedName(bool $leadingSlash, string ...$bits): string
     {
-        return $this->config->getFullyQualifiedName($leadingSlash, ...array_merge([$this->namespace], ...$bits));
+        return $this->config->getFullyQualifiedName($leadingSlash, ...array_merge([$this->namespace], $bits));
     }
 
     /**
@@ -200,7 +200,7 @@ class Version
      * @param string ...$bits
      * @return string
      */
-    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string...$bits): string
+    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string ...$bits): string
     {
         return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
     }

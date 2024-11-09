@@ -308,7 +308,7 @@ class Type
      */
     public function getFullyQualifiedClassName(bool $leadingSlash): string
     {
-        return $this->getConfig()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace(), $this->getClassName());
+        return $this->getVersion()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace(), $this->getClassName());
     }
 
     /**

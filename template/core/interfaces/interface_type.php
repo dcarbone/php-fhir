@@ -70,12 +70,6 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
     public function _getValidationErrors(): array;
 
     /**
-     * Must return true if any field on this type is set to a non-empty value
-     * @return bool
-     */
-    public function _isValued(): bool;
-
-    /**
      * @param null|string|\SimpleXMLElement $element
      * @param null|static $type
      * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.

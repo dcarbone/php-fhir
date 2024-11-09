@@ -20,8 +20,9 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
+/** @var \DCarbone\PHPFHIR\Config $version */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 
 $isPrimitiveType = $type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST);
@@ -46,10 +47,10 @@ foreach ($properties as $property) :
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @return <?php echo TypeHintUtils::propertyGetterTypeDoc($config, $property, true); ?>
+     * @return <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
 
      */
-    public function get<?php echo ucfirst($propertyName); ?>(): <?php echo TypeHintUtils::propertyTypeHint($config, $property, true); ?>
+    public function get<?php echo ucfirst($propertyName); ?>(): <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?>
 
     {
         return $this-><?php echo $propertyName; ?>;
@@ -61,12 +62,12 @@ foreach ($properties as $property) :
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo TypeHintUtils::propertySetterTypeDoc($config, $property, false); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::propertySetterTypeDoc($version, $property, false); ?> $<?php echo $propertyName; ?>
 
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
+     * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($config, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
@@ -93,7 +94,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 
      * @param <?php echo $propertyType->getFullyQualifiedClassName(true);?>[] $<?php echo $propertyName; ?>
 
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
+     * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?> $xmlLocation
      * @return static
      */
     public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
@@ -115,14 +116,14 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   endif;
-    elseif ($propertyTypeKind->isContainer($config->getVersion()->getName())) : ?>
+    elseif ($propertyTypeKind->isContainer($version->getName())) : ?>
 
     /**<?php if ('' !== $documentation) : ?>
 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $config->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
+     * @param null|<?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
@@ -138,7 +139,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo $config->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>[] $<?php echo $propertyName; ?>
+     * @param <?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>[] $<?php echo $propertyName; ?>
 
      * @return static
      */
@@ -186,11 +187,11 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo TypeHintUtils::propertySetterTypeDoc($config, $property, false); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::propertySetterTypeDoc($version, $property, false); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::typeSetterTypeHint($config, $propertyType, true); ?> $<?php echo $propertyName; ?> = null): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::typeSetterTypeHint($version, $propertyType, true); ?> $<?php echo $propertyName; ?> = null): self
     {
         if (null === $<?php echo $propertyName; ?>) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>();

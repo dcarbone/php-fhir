@@ -62,6 +62,7 @@ echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'definition.php',
     [
         'config' => $config,
+        'version' => $version,
         'type' => $type,
         'parentType' => $parentType
     ]
@@ -81,6 +82,7 @@ if (0 !== count($localProperties)) {
             PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'constants.php',
             [
                 'config' => $config,
+                'version' => $version,
                 'property' => $property,
             ]
         );
@@ -93,6 +95,7 @@ if (0 !== count($localProperties)) {
             PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'declaration.php',
             [
                 'config' => $config,
+                'version' => $version,
                 'property' => $property,
             ]
         );
@@ -104,6 +107,7 @@ if (0 !== count($localProperties)) {
         PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'field_map.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
         ]
     );
@@ -114,6 +118,7 @@ if (0 !== count($localProperties)) {
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'primitive_xml_location_map.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
         ]
     );
@@ -124,6 +129,7 @@ if (0 !== count($localProperties)) {
         PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
             'properties' => $localProperties,
             'parentType' => $parentType,
@@ -135,6 +141,7 @@ echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
     [
         'config' => $config,
+        'version' => $version,
         'type' => $type,
         'parentType' => $type->getParentType(),
     ]
@@ -147,6 +154,7 @@ if ($type->isContainedType()) {
         PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'contained_type.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
         ]
     );
@@ -157,6 +165,7 @@ if (0 < count($localProperties)) {
         PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
             'properties' => $localProperties,
         ]
@@ -168,6 +177,7 @@ if (0 < count($localProperties)) {
         PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
         ]
     );
@@ -178,6 +188,7 @@ if (0 < count($localProperties)) {
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml.php',
         [
             'config' => $config,
+            'version' => $version,
             'type'     => $type,
             'typeKind' => $typeKind,
             'parentType' => $parentType,
@@ -191,6 +202,7 @@ if (0 < count($localProperties)) {
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
         ]
     );

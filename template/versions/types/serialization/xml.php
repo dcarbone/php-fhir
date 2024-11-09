@@ -20,12 +20,12 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKind $typeKind */
+/** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $parentType */
 /** @var string $typeClassName */
 
-$versionName = $config->getVersion()->getName();
 $xmlName = NameUtils::getTypeXMLElementName($type);
 $localProperties = $type->getLocalProperties()->localPropertiesIterator();
 $properties = $type->getAllPropertiesIterator();
@@ -37,6 +37,7 @@ echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
     [
         'config' => $config,
+        'version' => $version,
         'type' => $type,
         'typeKind' => $typeKind,
         'parentType' => $parentType,
@@ -51,6 +52,7 @@ if (0 < count($properties)) :
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'body.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
             'properties' => $properties,
         ]
@@ -68,6 +70,7 @@ if ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE))
             PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'resource_container.php',
             [
                 'config' => $config,
+                'version' => $version,
                 'type' => $type,
             ]
     );
@@ -77,6 +80,7 @@ if ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE))
             PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'header.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type,
             'parentType' => $parentType,
         ]
@@ -87,6 +91,7 @@ if ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE))
             PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'body.php',
             [
                 'config' => $config,
+                'version' => $version,
                 'type' => $type,
                 'parentType' => $parentType,
                 'localProperties' => $localProperties,

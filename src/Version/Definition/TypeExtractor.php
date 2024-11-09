@@ -133,7 +133,7 @@ abstract class TypeExtractor
                 case ElementName::SIMPLE_TYPE->value:
                     $logger->debug(sprintf('Parsing "%s" from SimpleType', $fhirName));
                     // build type
-                    $type = TypeBuilder::build($config, $fhirName, $child, $sourceFile);
+                    $type = TypeBuilder::build($config, $version, $fhirName, $child, $sourceFile);
 
                     // add type
                     $types->addType($type);
@@ -145,7 +145,7 @@ abstract class TypeExtractor
                 case ElementName::COMPLEX_TYPE->value:
                     $logger->debug(sprintf('Parsing "%s" from ComplexType', $fhirName));
                     // build type
-                    $type = TypeBuilder::build($config, $fhirName, $child, $sourceFile);
+                    $type = TypeBuilder::build($config, $version, $fhirName, $child, $sourceFile);
 
                     // add type
                     $types->addType($type);
@@ -198,7 +198,7 @@ abstract class TypeExtractor
         $logger = $config->getLogger();
 
         // first, parse all .xsd files without the "fhir-" prefix
-        foreach (glob(sprintf('%s/*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
+        foreach (glob(sprintf('%s/*.xsd', $version->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
             $basename = basename($xsdFile);
             if (str_starts_with($basename, PHPFHIR_SKIP_FHIR_XSD_PREFIX)) {
                 continue;
@@ -218,7 +218,7 @@ abstract class TypeExtractor
         //  - fhir-base.xsd: contains primitive types, base Element, Resource, ResourceContainer, etc...
         //  - fhir-single.xsd: ideally this would just be full of dupes found in other files, but in practice there
         //    are often types only defined in this file that are not defined in the specific individual files.
-        foreach (glob(sprintf('%s/fhir-*.xsd', $config->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
+        foreach (glob(sprintf('%s/fhir-*.xsd', $version->getSchemaPath()), GLOB_NOSORT) as $xsdFile) {
             $basename = basename($xsdFile);
             if (PHPFHIR_SKIP_XML_XSD === $basename || PHPFHIR_SKIP_XHTML_XSD === $basename) {
                 $logger->debug(sprintf('Skipping file "%s"', $xsdFile));

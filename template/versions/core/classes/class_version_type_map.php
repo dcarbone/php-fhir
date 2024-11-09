@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 
 $namespace = $config->getFullyQualifiedName(false);
 
-$containerType = $types->getContainerType($config->getVersion()->getName());
+$containerType = $types->getContainerType($version->getName());
 if (null === $containerType) {
     throw new \RuntimeException(sprintf(
         'Unable to locate either "%s" or "%s" type',

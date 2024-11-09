@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 
@@ -29,6 +30,7 @@ if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
         PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
         [
             'config' => $config,
+            'version' => $version,
             'type' => $type
         ]
     );
@@ -36,8 +38,9 @@ else :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'default.php',
         [
-            'config'           => $config,
-            'type'             => $type,
+            'config' => $config,
+            'version' => $version,
+            'type' => $type,
             'properties' => $properties,
         ]
     );
