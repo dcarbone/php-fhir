@@ -21,16 +21,17 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 $primitiveType = $type->getPrimitiveType();
 
 ob_start(); ?>
     /**
-     * @return <?php echo TypeHintUtils::primitivePHPReturnValueTypeDoc($config, $primitiveType, true, false); ?>
+     * @return <?php echo TypeHintUtils::primitivePHPReturnValueTypeDoc($version, $primitiveType, true, false); ?>
 
      */
-    public function getValue(): <?php echo TypeHintUtils::primitivePHPValueTypeHint($config, $primitiveType, true); ?>
+    public function getValue(): <?php echo TypeHintUtils::primitivePHPValueTypeHint($version, $primitiveType, true); ?>
 
     {
         return $this->value;
@@ -101,6 +102,7 @@ echo require_with(
     $typeFile,
     [
         'config' => $config,
+        'version' => $version,
         'type' => $type,
         'primitiveType' => $primitiveType
     ]

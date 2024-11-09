@@ -20,12 +20,13 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKind $typeKind */
 
 ob_start(); ?>
     /**
-     * @return <?php echo TypeHintUtils::primitivePHPReturnValueTypeDoc($config, $type->getPrimitiveType(), true, false); ?>
+     * @return <?php echo TypeHintUtils::primitivePHPReturnValueTypeDoc($version, $type->getPrimitiveType(), true, false); ?>
 
      */
     public function jsonSerialize(): mixed

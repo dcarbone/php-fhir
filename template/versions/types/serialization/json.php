@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 $localProperties = $type->getLocalProperties()->localPropertiesIterator();
@@ -30,6 +31,7 @@ if ($typeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'primitive.php',
         [
             'config' => $config,
+            'version' => $version,
             'type'     => $type,
             'typeKind' => $typeKind,
         ]
@@ -39,6 +41,7 @@ elseif ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLI
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'resource_container.php',
         [
             'config' => $config,
+            'version' => $version,
             'properties' => $localProperties,
         ]
     );
@@ -47,7 +50,8 @@ else:
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'default.php',
         [
             'config' => $config,
-            'type'       => $type,
+            'version' => $version,
+            'type' => $type,
             'properties' => $localProperties,
         ]
     );

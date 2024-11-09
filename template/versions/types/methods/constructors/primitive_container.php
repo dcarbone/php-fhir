@@ -20,6 +20,7 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type|null $parentType */
@@ -37,9 +38,9 @@ $typeImports = $type->getImports();
 ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::typeSetterTypeHint($config, $valuePropertyType, true); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
+     * @param <?php echo TypeHintUtils::typeSetterTypeHint($version, $valuePropertyType, true); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
      */
-    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($config, $valueProperty, true); ?>|array $data = null)
+    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true); ?>|array $data = null)
     {
         if (null === $data) {
             return;
@@ -67,6 +68,7 @@ ob_start(); ?>
             PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
             [
                 'config' => $config,
+                'version' => $version,
                 'type' => $type,
                 'property' => $property,
             ]
