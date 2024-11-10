@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
@@ -26,7 +25,6 @@ $propertyType = $property->getValueFHIRType();
 $fieldConstantName = $property->getFieldConstantName();
 
 $requireArgs = [
-    'config' => $config,
     'property' => $property
 ];
 

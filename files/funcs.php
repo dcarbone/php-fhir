@@ -38,13 +38,6 @@ function require_with(string $requiredFile, array $vars): mixed
             )
         );
     }
-    if (!isset($config) || !($config instanceof Config)) {
-        throw new \LogicException(sprintf(
-            'Refusing to require "%s" as you didn\'t provide \'config\' => $config(%s)',
-            $requiredFile,
-            Config::class,
-        ));
-    }
     // unset vars defined by this func
     unset($vars, $num);
     return require $requiredFile;

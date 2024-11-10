@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -26,7 +25,6 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 
 $typeKind = $type->getKind();
 $requireArgs = [
-    'config' => $config,
     'version' => $version,
     'type' => $type,
     'parentType' => $parentType,

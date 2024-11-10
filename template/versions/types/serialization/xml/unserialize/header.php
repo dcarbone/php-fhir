@@ -16,14 +16,13 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\TypeKind $typeKind */
 /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type $parentType */
 /** @var string $typeClassName */
 
-$namespace = $config->getFullyQualifiedName(false);
+$namespace = $version->getFullyQualifiedName(false);
 $versionName = $version->getName();
 
 ob_start(); ?>

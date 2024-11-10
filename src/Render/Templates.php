@@ -41,38 +41,35 @@ abstract class Templates
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderXhtmlTypeClass(Config $config, Version $version, Types $types, Type $type): string
+    public static function renderXhtmlTypeClass(Version $version, Types $types, Type $type): string
     {
         return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_xhtml.php';
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderFhirTypeClass(Config $config, Version $version, Types $types, Type $type): string
+    public static function renderFhirTypeClass(Version $version, Types $types, Type $type): string
     {
         return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_default.php';
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \DCarbone\PHPFHIR\Enum\TestType $testType
      * @return string
      */
-    public static function renderFhirTypeClassTest(Config $config, Version $version, Types $types, Type $type, TestType $testType): string
+    public static function renderFhirTypeClassTest(Version $version, Types $types, Type $type, TestType $testType): string
     {
         return require PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR .'class.php';
     }

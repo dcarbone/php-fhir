@@ -19,7 +19,6 @@
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -67,7 +66,6 @@ ob_start(); ?>
     echo require_with(
             PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
             [
-                'config' => $config,
                 'version' => $version,
                 'type' => $type,
                 'property' => $property,

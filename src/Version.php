@@ -105,6 +105,14 @@ class Version
     }
 
     /**
+     * @return \DCarbone\PHPFHIR\Config
+     */
+    public function getConfig(): Config
+    {
+        return $this->config;
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Version\SourceMetadata
      */
     public function getSourceMetadata(): SourceMetadata
@@ -146,6 +154,16 @@ class Version
     public function getSchemaPath(): string
     {
         return $this->config->getSchemaPath() . DIRECTORY_SEPARATOR . $this->name;
+    }
+
+    /**
+     * Returns the specific class output path for this version's generated code
+     *
+     * @return string
+     */
+    public function getClassesPath(): string
+    {
+        return $this->config->getClassesPath() . DIRECTORY_SEPARATOR . $this->name;
     }
 
     /**

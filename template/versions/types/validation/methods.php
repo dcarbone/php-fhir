@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
@@ -25,7 +25,7 @@ $typeNameConst = $type->getTypeNameConst(true);
 $typeKind = $type->getKind();
 
 $requireArgs = [
-    'config' => $config
+    'version' => $version,
 ];
 
 // TODO: this is a quick and lazy initial implementation.  Should improve this later...

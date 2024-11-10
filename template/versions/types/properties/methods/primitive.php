@@ -20,7 +20,6 @@ use DCarbone\PHPFHIR\Enum\PrimitiveType;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
@@ -101,7 +100,6 @@ switch ($primitiveType) {
 echo require_with(
     $typeFile,
     [
-        'config' => $config,
         'version' => $version,
         'type' => $type,
         'primitiveType' => $primitiveType

@@ -18,17 +18,17 @@
 
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-$namespace = $config->getFullyQualifiedName(false);
+$namespace = $version->getFullyQualifiedName(false);
 $localProperties = $type->getLocalProperties()->localPropertiesIterator();
 
 ob_start(); ?>
     /**
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|<?php echo $version->getConfig()->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
      * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+     * @return <?php echo $version->getConfig()->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
 
      */
     public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>

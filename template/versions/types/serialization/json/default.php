@@ -18,7 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 
@@ -48,7 +48,7 @@ foreach ($properties as $property) :
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'default_property_primitive_list.php',
                 [
-                    'config' => $config,
+                    'version' => $version,
                     'property' => $property
                 ]
         );
@@ -56,7 +56,7 @@ foreach ($properties as $property) :
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'default_property_value_primitive_container.php',
             [
-                'config' => $config,
+                'version' => $version,
                 'property' => $property
             ]
         );
@@ -64,7 +64,7 @@ foreach ($properties as $property) :
         echo require_with(
                 __DIR__ . DIRECTORY_SEPARATOR . 'default_property_default.php',
                 [
-                    'config' => $config,
+                    'version' => $version,
                     'property' => $property
                 ]
         );

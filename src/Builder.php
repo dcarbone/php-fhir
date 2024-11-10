@@ -100,11 +100,11 @@ class Builder
 
                 // TODO(@dcarbone): revisit with template system refactor
                 if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
-                    $classDefinition = Templates::renderXhtmlTypeClass($this->config, $version, $types, $type);
+                    $classDefinition = Templates::renderXhtmlTypeClass($version, $types, $type);
                 } else {
-                    $classDefinition = Templates::renderFhirTypeClass($this->config, $version, $types, $type);
+                    $classDefinition = Templates::renderFhirTypeClass($version, $types, $type);
                 }
-                $filepath = FileUtils::buildTypeFilePath($this->config, $type);
+                $filepath = FileUtils::buildTypeFilePath($version, $type);
                 if (!file_put_contents($filepath, $classDefinition)) {
                     throw new \RuntimeException(
                         sprintf(
@@ -164,7 +164,7 @@ class Builder
                     }
 
                     $log->debug("Generated {$testType->value} test class for type {$type}...");
-                    $classDefinition = Templates::renderFhirTypeClassTest($this->config, $version, $types, $type, $testType);
+                    $classDefinition = Templates::renderFhirTypeClassTest($version, $types, $type, $testType);
                     $filepath = FileUtils::buildTypeTestFilePath($this->config, $type, $testType);
                     if (false === file_put_contents($filepath, $classDefinition)) {
                         throw new RuntimeException(
@@ -239,7 +239,7 @@ class Builder
 
             // write file to disk
             $this->writeFile(
-                FileUtils::buildGenericFilePath(
+                FileUtils::buildCoreFilePath(
                     $this->config,
                     $ns,
                     $cname,

@@ -18,7 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 /** @var int $i */
 
@@ -26,7 +26,7 @@ $propertyType = $property->getValueFHIRType();
 $propertyTypeKind = $propertyType->getKind();
 
 $requireArgs = [
-    'config' => $config,
+    'version' => $version,
 ];
 
 ob_start();
