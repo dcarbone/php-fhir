@@ -52,7 +52,6 @@ final class FileUtils
         if (!is_dir($path) && !mkdir($path, 0777, true)) {
             throw new RuntimeException(sprintf('Unable to create directory at path "%s"', $path));
         }
-        var_dump(realpath($path));
         return realpath($path);
     }
 

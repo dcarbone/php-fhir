@@ -23,12 +23,6 @@ define('PHPFHIR_DEFAULT_OUTPUT_DIR', realpath(PHPFHIR_ROOT_DIR . DIRECTORY_SEPAR
 const PHPFHIR_OUTPUT_TMP_DIR = PHPFHIR_DEFAULT_OUTPUT_DIR . DIRECTORY_SEPARATOR . 'tmp';
 const PHPFHIR_FHIR_VALIDATION_JAR = PHPFHIR_BIN_DIR . DIRECTORY_SEPARATOR . 'validator_cli.jar';
 
-// format regex
-const PHPFHIR_VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
-const PHPFHIR_FUNCTION_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
-const PHPFHIR_CLASSNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
-const PHPFHIR_NAMESPACE_REGEX = '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-zA-Z0-9_]$}';
-
 // type suffixes
 const PHPFHIR_PRIMITIVE_SUFFIX = '-primitive';
 const PHPFHIR_LIST_SUFFIX = '-list';
@@ -81,13 +75,13 @@ const PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR = PHPFHIR_TEMPLATE_VERSION_TYPES_D
 // Core class names
 const PHPFHIR_CLASSNAME_AUTOLOADER = 'Autoloader';
 const PHPFHIR_CLASSNAME_CONFIG = 'Config';
+const PHPFHIR_CLASSNAME_TYPEMAP = 'TypeMap';
 const PHPFHIR_CLASSNAME_RESPONSE_PARSER = 'ResponseParser';
 const PHPFHIR_CLASSNAME_CONSTANTS = 'Constants';
 const PHPFHIR_CLASSNAME_API_CLIENT = 'ApiClient';
 const PHPFHIR_CLASSNAME_API_CLIENT_REQUEST = 'ApiClientRequest';
 const PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE = 'ApiClientResponse';
 const PHPFHIR_CLASSNAME_XML_WRITER = 'XmlWriter';
-const PHPFHIR_CLASSNAME_DEBUG_CLIENT = 'DebugClient';
 
 // Core interface names
 const PHPFHIR_INTERFACE_TYPE_MAP = 'TypeMapInterface';

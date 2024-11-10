@@ -112,11 +112,6 @@ if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASS
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>.php';
 }
 
-// debug client
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>.php';
-}
-
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; if ('' !== $namespace) : ?>
 
