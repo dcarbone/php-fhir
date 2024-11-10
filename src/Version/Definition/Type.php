@@ -289,7 +289,7 @@ class Type
      */
     public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
-        return $this->getConfig()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace());
+        return $this->getVersion()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace());
     }
 
     /**

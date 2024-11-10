@@ -28,11 +28,12 @@ use RuntimeException;
  * Class FileUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class FileUtils
+final class FileUtils
 {
-    public const REGEX_SLASH_SEARCH         = '{[\\\]}S';
-    public const REGEX_SLASH_SEARCH_CLEANUP = '{[/]{2,}}S';
-    public const REGEX_SLASH_REPLACE        = '/';
+    public const REGEX_SLASH_SEARCH = '{\\\}S';
+    public const REGEX_SLASH_SEARCH_CLEANUP = '{/{2,}}S';
+    public const REGEX_DIR_SPLIT = '{[/\\\]}';
+    public const REGEX_SLASH_REPLACE = '/';
 
     /**
      * @param string ...$bits
@@ -41,17 +42,18 @@ abstract class FileUtils
     public static function mkdirRecurse(string ...$bits): string
     {
         $path = '';
-        foreach (preg_split('{[/\\\]}', implode('/', $bits)) as $dir) {
-            $dir = trim($dir, '/');
+        foreach (preg_split(self::REGEX_DIR_SPLIT, implode(DIRECTORY_SEPARATOR, $bits)) as $dir) {
+            $dir = trim($dir);
             if ('' === $dir) {
                 continue;
             }
-            $path .= DIRECTORY_SEPARATOR .$dir;
-            if (!is_dir($path) && !mkdir($path)) {
-                throw new RuntimeException(sprintf('Unable to create directory at path "%s"', $path));
-            }
+            $path .= DIRECTORY_SEPARATOR . $dir;
         }
-        return $path;
+        if (!is_dir($path) && !mkdir($path, 0777, true)) {
+            throw new RuntimeException(sprintf('Unable to create directory at path "%s"', $path));
+        }
+        var_dump(realpath($path));
+        return realpath($path);
     }
 
     /**
@@ -72,7 +74,7 @@ abstract class FileUtils
      */
     public static function buildTypeFilePath(Version $version, Type $type): string
     {
-        return static::mkdirRecurse(
+        return self::mkdirRecurse(
                 $version->getClassesPath(),
                 self::cleanupPath($type->getFullyQualifiedNamespace(false))
             ) . DIRECTORY_SEPARATOR . "{$type->getClassName()}.php";
@@ -86,7 +88,7 @@ abstract class FileUtils
      */
     public static function buildTypeTestFilePath(Version $version, Type $type, TestType $testType): string
     {
-        return static::mkdirRecurse(
+        return self::mkdirRecurse(
                 $version->getClassesPath(),
                 self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
             ) . DIRECTORY_SEPARATOR . "{$type->getTestClassName()}.php";

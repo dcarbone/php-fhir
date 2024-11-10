@@ -20,53 +20,54 @@
  */
 return [
     // The path to look look for and optionally download source XSD files to
-    'schemaPath'  => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'input/',
+    'schemaPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'input' . DIRECTORY_SEPARATOR,
 
     // The path to place generated files
-    'classesPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output/',
+    'classesPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output' . DIRECTORY_SEPARATOR,
 
     // The root namespace for all generated classes
     'rootNamespace' => '\\DCarbone\\PHPFHIRGenerated',
 
     // If true, will use a noop null logger
-    'silent'      => false,
+    'silent' => false,
 
     // If true, will skip generation of test classes
-    'skipTests'   => false,
+    'skipTests' => false,
 
     // If you wish to specify alternative libxml opts, do so here.
-    'libxmlOpts'  => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
+    'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
 
-    // Map of versions and configurations to generate
-    // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
-    // version, please see https://www.hl7.org/fhir/directory.html
-    'versions'    => [
+    // Map of versions and configurations to generate.
+    // Each entry in this map will grab the latest revision of that particular version.
+    //
+    // For a list of base versions, see here: https://www.hl7.org/fhir/directory.html
+    'versions' => [
         'DSTU1' => [
             // Source URL
-            'sourceUrl'       => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
-            // Namespac
+            'sourceUrl' => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
+            // Namespace
             'namespace' => 'Versions\\DSTU1',
-            // if defined, enables integration and validation test generation against the provided endpoint.
+            // If defined, enables integration and validation test generation against the provided endpoint.
             'testEndpoint' => '',
         ],
         'DSTU2' => [
-            'sourceUrl'          => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
-            'namespace'    => 'Versions\\DSTU2',
+            'sourceUrl' => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
+            'namespace' => 'Versions\\DSTU2',
             'testEndpoint' => 'https://hapi.fhir.org/baseDstu2',
         ],
-        'STU3'  => [
-            'sourceUrl'          => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
-            'namespace'    => 'Versions\\STU3',
+        'STU3' => [
+            'sourceUrl' => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
+            'namespace' => 'Versions\\STU3',
             'testEndpoint' => 'https://hapi.fhir.org/baseDstu3',
         ],
-        'R4'    => [
-            'sourceUrl'          => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
-            'namespace'    => 'Versions\\R4',
+        'R4' => [
+            'sourceUrl' => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
+            'namespace' => 'Versions\\R4',
             'testEndpoint' => 'https://hapi.fhir.org/baseR4',
         ],
         'R5' => [
-            'sourceUrl'          => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
-            'namespace'    => 'Versions\\R5',
+            'sourceUrl' => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
+            'namespace' => 'Versions\\R5',
             'testEndpoint' => 'https://hapi.fhir.org/baseR5',
         ]
 

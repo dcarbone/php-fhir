@@ -163,7 +163,7 @@ class Version
      */
     public function getClassesPath(): string
     {
-        return $this->config->getClassesPath() . DIRECTORY_SEPARATOR . $this->name;
+        return $this->config->getClassesPath();
     }
 
     /**
