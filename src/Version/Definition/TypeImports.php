@@ -222,6 +222,7 @@ class TypeImports implements Iterator, Countable
 
         $typeNS = $this->type->getFullyQualifiedNamespace(false);
         $configNS = $this->type->getConfig()->getFullyQualifiedName(false);
+        $versionNS = $this->type->getVersion()->getFullyQualifiedName(false);
 
         $sortedProperties = $this->type->getAllPropertiesIterator();
 
@@ -239,7 +240,7 @@ class TypeImports implements Iterator, Countable
             // always add the base interface type as its used by the xml serialization func
             $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
             // always add the constants class as its used everywhere.
-            $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
+            $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONSTANTS, $versionNS);
             // add directly implemented interfaces
             foreach ($this->type->getDirectlyImplementedInterfaces() as $interface) {
                 $this->addImport($interface, $configNS);
@@ -273,8 +274,8 @@ class TypeImports implements Iterator, Countable
 
             if ($ptk->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE) &&
                 $typeNS !== $configNS) {
-                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
-                $this->addImport(PHPFHIR_CLASSNAME_VERSION_TYPEMAP, $configNS);
+                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $versionNS);
+                $this->addImport(PHPFHIR_CLASSNAME_VERSION_TYPEMAP, $versionNS);
             } else {
 
                 if ($ptk === TypeKind::PRIMITIVE_CONTAINER) {

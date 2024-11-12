@@ -79,9 +79,6 @@ if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT
 }
 
 // enums
-if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_TYPE); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_TYPE; ?>.php';
-}
 if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_API_FORMAT; ?>.php';
 }

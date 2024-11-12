@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 
-$namespace = $config->getFullyQualifiedName(false);
+$namespace = $version->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -34,24 +33,29 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Class <?php echo $version->getVersionClassname(); if ('' !== $namespace) : ?>
+ * Class <?php echo PHPFHIR_CLASSNAME_VERSION; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
+class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
 
 {
-    /** @var <?php $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> */
+    public const NAME = '<?php echo $version->getName(); ?>';
+    public const SOURCE_URL = '<?php echo $version->getSourceUrl(); ?>';
+    public const SOURCE_VERSION = '<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>';
+    public const SOURCE_GENERATION_DATE = '<?php echo $version->getSourceMetadata()->getFHIRGenerationDate(); ?>';
+
+    /** @var <?php $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> */
     private <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $_config;
 
-    /** @var <?php $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE_MAP); ?> */
+    /** @var <?php $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE_MAP); ?> */
     private static <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?> $_typeMap;
 
     /**
-     * <?php echo $version->getVersionClassname(); ?> Constructor
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * <?php echo PHPFHIR_CLASSNAME_VERSION; ?> Constructor
+     * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      */
     public function __construct(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null)
     {
@@ -95,7 +99,7 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
     }
 
     /**
-     * @return <?php $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>
+     * @return <?php $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>
 
      */
     public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>
@@ -105,14 +109,14 @@ class <?php echo $version->getVersionClassname(); ?> implements <?php echo PHPFH
     }
 
     /**
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE_MAP); ?>
+     * @return <?php echo $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE_MAP); ?>
 
      */
-    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
+    public static function getTypeMap(): <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
 
     {
         if (!isset(self::$_typeMap)) {
-            self::$_typeMap = new <?php echo $version->getVersionClassname(); ?>();
+            self::$_typeMap = new <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>();
         }
         return self::$_typeMap;
     }

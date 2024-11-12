@@ -162,7 +162,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
                     ));
                 }
             } elseif (is_array($v)) {
-                $typeClass = <?php echo PHPFHIR_CLASSNAME_TYPEMAP ?>::getContainedTypeFromArray($v);
+                $typeClass = <?php echo PHPFHIR_CLASSNAME_VERSION ?>::getTypeMap()::getContainedTypeFromArray($v);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(
                         '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',

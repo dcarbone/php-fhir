@@ -224,14 +224,6 @@ class Version
     }
 
     /**
-     * @return string
-     */
-    public function getVersionClassname(): string
-    {
-        return ucfirst($this->name);
-    }
-
-    /**
      * @return \DCarbone\PHPFHIR\Version\Definition
      */
     public function getDefinition(): Definition

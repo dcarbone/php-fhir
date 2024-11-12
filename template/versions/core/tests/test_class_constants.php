@@ -18,11 +18,10 @@
 
 use DCarbone\PHPFHIR\Enum\TestType;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
-$rootNS = $config->getFullyQualifiedName(false);
+$rootNS = $version->getFullyQualifiedName(false);
 $testNS = $version->getFullyQualifiedTestsName(TestType::BASE, false);
 
 ob_start();

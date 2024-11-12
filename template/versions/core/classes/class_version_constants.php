@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 
-$namespace = $config->getFullyQualifiedName(false);
+$namespace = $version->getFullyQualifiedName(false);
 
 $types = $version->getDefinition()->getTypes();
 
@@ -45,12 +44,6 @@ echo "\n\n";
 final class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; ?>
 
 {
-    public const VERSION_NAME = '<?php echo $version->getName(); ?>';
-
-    public const VERSION_SOURCE_URL = '<?php echo $version->getSourceUrl(); ?>';
-    public const VERSION_SOURCE_VERSION = '<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>';
-    public const VERSION_SOURCE_GENERATION_DATE = '<?php echo $version->getSourceMetadata()->getFHIRGenerationDate(); ?>';
-
 <?php foreach($types->getNameSortedIterator() as $type) : ?>
     public const <?php echo $type->getTypeNameConst(false); ?> = '<?php echo $type->getFHIRName(); ?>';
 <?php endforeach;?>

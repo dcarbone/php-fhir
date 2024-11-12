@@ -18,11 +18,10 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
-$namespace = $config->getFullyQualifiedName(false);
+$namespace = $version->getFullyQualifiedName(false);
 
 $containerType = $types->getContainerType($version->getName());
 if (null === $containerType) {
@@ -139,8 +138,8 @@ abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php
 
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
-     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
+     * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @return null|<?php echo $version->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
 
      */
     public function getContainedTypeFromXML(\SimpleXMLElement $node, <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
@@ -157,7 +156,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php
 
     /**
      * @param array|null $data
-     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
+     * @return null|<?php echo $version->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
 
      */
     public function getContainedTypeFromArray(null|array $data): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>

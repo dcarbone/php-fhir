@@ -56,14 +56,14 @@ final class FileUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param string $baseDir
      * @param string $namespace
      * @param string $filename
      * @return string
      */
-    public static function buildCoreFilePath(Config $config, string $namespace, string $filename): string
+    public static function buildCoreFilePath(string $baseDir, string $namespace, string $filename): string
     {
-        return self::mkdirRecurse($config->getClassesPath(), self::cleanupPath($namespace)) . DIRECTORY_SEPARATOR . "{$filename}.php";
+        return self::mkdirRecurse($baseDir, self::cleanupPath($namespace)) . DIRECTORY_SEPARATOR . "{$filename}.php";
     }
 
     /**
