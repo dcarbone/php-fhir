@@ -86,11 +86,7 @@ if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_X
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>.php';
 }
 
-
 // parser classes
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPEMAP); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>.php';
-}
 if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
 }
