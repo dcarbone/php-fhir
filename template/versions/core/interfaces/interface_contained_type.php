@@ -21,6 +21,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
+$config = $version->getConfig();
 $namespace = $version->getFullyQualifiedName(false);
 
 $containerType = $types->getContainerType($version->getName());
@@ -44,6 +45,8 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>;
+
 /**
  * Interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
  *
@@ -56,10 +59,8 @@ echo "\n\n";
 interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
 {
-    /**
-     * The return from this method is used only when json serializing this type
-     * @return string
-     */
-    public function _getResourceType(): string;
+    // This interface exists purely to enable version-type enforcement within the <?php echo $version->getName(); ?>
+
+    // version package.
 }
 <?php return ob_get_clean();

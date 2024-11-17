@@ -21,6 +21,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
+$config = $version->getConfig();
 $namespace = $version->getFullyQualifiedName(false);
 
 $containerType = $types->getContainerType($version->getName());
@@ -54,6 +55,12 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
+
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CONFIG); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CONSTANTS); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE_MAP); ?>;
+
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; if ('' !== $namespace) : ?>
 
@@ -138,7 +145,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php
 
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource
-     * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @return null|<?php echo $version->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
 
      */
