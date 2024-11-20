@@ -22,6 +22,7 @@
 /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type $parentType */
 /** @var string $typeClassName */
 
+$config = $version->getConfig();
 $namespace = $version->getFullyQualifiedName(false);
 $versionName = $version->getName();
 
@@ -29,7 +30,7 @@ ob_start(); ?>
     /**
      * @param null|string|\SimpleXMLElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */

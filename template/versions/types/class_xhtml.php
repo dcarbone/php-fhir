@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
+$config = $version->getConfig();
 $fqns = $type->getFullyQualifiedNamespace(true);
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 $namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
@@ -124,7 +125,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     }
 
     /**
-     * @param null|<?php echo $version->getConfig()->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @return null|\SimpleXMLElement
      * @throws \Exception
      */
@@ -141,7 +142,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     }
 
     /**
-     * @param null|<?php echo $version->getConfig()->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @return null|\DOMDocument
      */
     public function getDOMDocument(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): null|\DOMDocument
@@ -161,7 +162,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     /**
      * Returns open \XMLReader instance with content read
      *
-     * @param null|<?php echo $version->getConfig()->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @return null|\XMLReader
      */
     public function getXMLReader(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): null|\XMLReader
@@ -196,9 +197,9 @@ echo require_with(
     }
 
     /**
-     * @param null|<?php echo $version->getConfig()->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
-     * @param null|int|\<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_CLASSNAME_CONFIG; ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
-     * @return <?php echo $version->getConfig()->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
 
      */
     public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
