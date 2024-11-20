@@ -45,7 +45,7 @@ echo "\n\n";
 
 if (!isset($skipImports) || !$skipImports) {
     $imported = 0;
-    foreach ($type->getImports() as $import) {
+    foreach ($type->getImports()->getIterator() as $import) {
         if ($import->isRequiresImport()) {
             echo $import->getUseStatement();
             $imported++;

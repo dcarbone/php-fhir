@@ -21,7 +21,7 @@
 
 $typeClassname = $type->getClassName();
 $allProperties = $type->getLocalProperties();
-$localProperties = $allProperties->localSortedPropertiesIterator();
+$localProperties = $allProperties->getLocalSortedPropertiesIterator();
 
 ob_start();
 ?>

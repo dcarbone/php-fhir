@@ -82,7 +82,7 @@ abstract class TypeDecorationValidator
                 throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($versionName, $type), $type);
             }
 
-            foreach ($type->getLocalProperties()->allPropertiesIterator() as $property) {
+            foreach ($type->getLocalProperties()->getAllPropertiesIterator() as $property) {
                 $name = $property->getName();
                 if (null === $name || '' === $name) {
                     throw ExceptionUtils::createPropertyMissingNameException($type, $property);

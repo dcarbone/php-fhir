@@ -56,7 +56,7 @@ ob_start(); ?>
         $errs = [];
 <?php endif; ?>
         $validationRules = $this->_getValidationRules();
-<?php foreach ($type->getLocalProperties()->localPropertiesIterator() as $property) {
+<?php foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property) {
     $propertyType = $property->getValueFHIRType();
     if (null === $propertyType) {
         if ($property->isCollection()) {
@@ -88,7 +88,7 @@ ob_start(); ?>
 if (null !== $type->getParentType()) :
     $ptype = $type;
     while (null !== $ptype) :
-        foreach($ptype->getLocalProperties()->localPropertiesIterator() as $property) : ?>
+        foreach($ptype->getLocalProperties()->getLocalPropertiesIterator() as $property) : ?>
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {

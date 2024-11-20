@@ -27,7 +27,7 @@ $fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassname = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
-$localProperties = $type->getLocalProperties()->localPropertiesIterator();
+$localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 
 ob_start();

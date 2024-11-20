@@ -352,7 +352,7 @@ class Type
      */
     public function hasLocalPropertiesWithValidations(): bool
     {
-        foreach($this->getlocalProperties()->allSortedPropertiesIterator() as $property) {
+        foreach($this->getlocalProperties()->getAllSortedPropertiesIterator() as $property) {
             if ([] !== $property->buildValidationMap()) {
                 return true;
             }
@@ -366,7 +366,7 @@ class Type
     public function getAllPropertiesIterator(): iterable
     {
         $properties = [];
-        foreach($this->getLocalProperties()->localPropertiesIterator() as $property) {
+        foreach($this->getLocalProperties()->getLocalPropertiesIterator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach($this->getParentTypes() as $parentType) {

@@ -158,7 +158,7 @@ class Properties implements Countable
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function allPropertiesIterator(): iterable
+    public function getAllPropertiesIterator(): iterable
     {
         return SplFixedArray::fromArray($this->properties, preserveKeys: false);
     }
@@ -168,7 +168,7 @@ class Properties implements Countable
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function allSortedPropertiesIterator(): iterable
+    public function getAllSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
         return SplFixedArray::fromArray($this->_sortedProperties, preserveKeys: false);
@@ -179,7 +179,7 @@ class Properties implements Countable
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function localPropertiesIterator(): iterable
+    public function getLocalPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
         return SplFixedArray::fromArray($this->_localProperties, preserveKeys: false);
@@ -190,7 +190,7 @@ class Properties implements Countable
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function localSortedPropertiesIterator(): iterable
+    public function getLocalSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
         return SplFixedArray::fromArray($this->_localSortedProperties, preserveKeys: false);
@@ -200,10 +200,10 @@ class Properties implements Countable
      * @param \DCarbone\PHPFHIR\Enum\TypeKind|null ...$kinds
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function localPropertiesOfTypeKinds(bool $includeCollections, null|TypeKind... $kinds): iterable
+    public function getLocalPropertiesOfTypeKinds(bool $includeCollections, null|TypeKind... $kinds): iterable
     {
         $out = [];
-        foreach ($this->localPropertiesIterator() as $property) {
+        foreach ($this->getLocalPropertiesIterator() as $property) {
             if (!$includeCollections && $property->isCollection()) {
                 continue;
             }

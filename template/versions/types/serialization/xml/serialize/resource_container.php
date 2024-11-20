@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 $config = $version->getConfig();
 $namespace = $version->getFullyQualifiedName(false);
-$localProperties = $type->getLocalProperties()->localPropertiesIterator();
+$localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
 
 ob_start(); ?>
     /**
