@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Config $config */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -30,7 +29,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
@@ -69,12 +68,6 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @return array
      */
     public function _getValidationErrors(): array;
-
-    /**
-     * Must return true if any field on this type is set to a non-empty value
-     * @return bool
-     */
-    public function _isValued(): bool;
 
     /**
      * @param null|string|\SimpleXMLElement $element
