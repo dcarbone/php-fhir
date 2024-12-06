@@ -42,7 +42,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
 {
     /**

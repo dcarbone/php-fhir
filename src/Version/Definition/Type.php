@@ -758,14 +758,14 @@ class Type
                 $interfaces[] = PHPFHIR_INTERFACE_COMMENT_CONTAINER;
             }
             if ($this->isContainedType()) {
-                $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
+                $interfaces[] = PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE;
             } else if ($this->getKind() === TypeKind::PRIMITIVE) {
                 $interfaces[] = PHPFHIR_INTERFACE_PRIMITIVE_TYPE;
             } else {
                 $interfaces[] = PHPFHIR_INTERFACE_TYPE;
             }
         } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
-            $interfaces[] = PHPFHIR_INTERFACE_CONTAINED_TYPE;
+            $interfaces[] = PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE;
         }
 
         return $interfaces;

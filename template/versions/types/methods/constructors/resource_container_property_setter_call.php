@@ -33,7 +33,7 @@ ob_start(); ?>
                 if (is_int(key($data[self::<?php echo $propertyFieldConst; ?>]))) {
                     $this->set<?php echo ucfirst($propertyName); ?>($data[self::<?php echo $propertyFieldConst; ?>]);
                 } else {
-                    $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
+                    $typeClass = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                     if (null === $typeClass) {
                         throw new \InvalidArgumentException(sprintf(
                             '<?php echo $typeClassName; ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
@@ -56,7 +56,7 @@ ob_start(); ?>
                     ));
                 }
             } elseif (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
-                $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
+                $typeClass = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(
                         '<?php echo $typeClassName; ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',

@@ -223,7 +223,7 @@ class TypeImports implements \Countable
 
             if ($ptk->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE) &&
                 $typeNS !== $configNS) {
-                $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $versionNS);
+                $this->addImport(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE, $versionNS);
                 $this->addImport(PHPFHIR_CLASSNAME_VERSION_TYPEMAP, $versionNS);
             } else {
 

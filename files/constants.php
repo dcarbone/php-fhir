@@ -105,7 +105,7 @@ const PHPFHIR_ENUM_API_SORT = 'ApiSortEnum';
 
 // Version Constants
 const PHPFHIR_CLASSNAME_VERSION = 'Version';
-const PHPFHIR_CLASSNAME_VERSION_TYPEMAP = '\VersionTypeMap';
+const PHPFHIR_CLASSNAME_VERSION_TYPEMAP = 'VersionTypeMap';
 const PHPFHIR_CLASSNAME_VERSION_CONSTANTS = 'VersionConstants';
 const PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE = 'VersionContainedTypeInterface';
 
