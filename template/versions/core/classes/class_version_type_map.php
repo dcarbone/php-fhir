@@ -146,7 +146,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
-     * @return null|<?php echo $version->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
+     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
 
      */
     public function getContainedTypeFromXML(\SimpleXMLElement $node, <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
@@ -157,13 +157,13 @@ abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php
         if (null === $className) {
             throw self::createdInvalidContainedTypeException($typeName);
         }
-        /** @var \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?> $className */
+        /** @var \<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?> $className */
         return $className::xmlUnserialize($node, null, $config);
     }
 
     /**
      * @param array|null $data
-     * @return null|<?php echo $version->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
+     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
 
      */
     public function getContainedTypeFromArray(null|array $data): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>

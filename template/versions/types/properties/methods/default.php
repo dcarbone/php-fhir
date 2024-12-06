@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 
+$config = $version->getConfig();
 $isPrimitiveType = $type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST);
 
 ob_start();
@@ -123,11 +124,11 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
+     * @param null|<?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $property->getSetterName() ?>(null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?> = null): self
+    public function <?php echo $property->getSetterName() ?>(null|<?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?> = null): self
     {
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
@@ -139,7 +140,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>[] $<?php echo $propertyName; ?>
+     * @param <?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>[] $<?php echo $propertyName; ?>
 
      * @return static
      */
@@ -153,11 +154,11 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         }
         foreach($<?php echo $propertyName; ?> as $v) {
             if (is_object($v)) {
-                if ($v instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
+                if ($v instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>) {
                     $this-><?php echo $property->getSetterName(); ?>($v);
                 } else {
                     throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>, object of type %s seen',
+                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE); ?>, object of type %s seen',
                         get_class($v)
                     ));
                 }

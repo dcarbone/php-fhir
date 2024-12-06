@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,22 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKind;
+
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
+$config = $version->getConfig();
 $namespace = $version->getFullyQualifiedName(false);
+
+$containerType = $types->getContainerType($version->getName());
+if (null === $containerType) {
+    throw new \RuntimeException(sprintf(
+        'Unable to locate either "%s" or "%s" type',
+        TypeKind::RESOURCE_CONTAINER->value,
+        TypeKind::RESOURCE_INLINE->value
+    ));
+}
 
 ob_start();
 
@@ -31,19 +43,22 @@ endif;
 
 echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
+echo "\n\n";
+?>
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>;
+
 /**
- * Enum <?php echo PHPFHIR_ENUM_TYPE; if ('' !== $namespace) : ?>
+ * Interface <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>
+ *
+ * This interface is applied to any class that is containable within a <?php $containerType->getFullyQualifiedClassName(true); ?><?php if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-enum <?php echo PHPFHIR_ENUM_TYPE; ?> : string
-{
-<?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>
-    case <?php echo $type->getConstName(false); ?> = '<?php echo $type->getFHIRName(); ?>';
-<?php endforeach;?>
-}
+interface <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 
+{
+
+}
 <?php return ob_get_clean();

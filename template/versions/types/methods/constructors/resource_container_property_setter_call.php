@@ -19,6 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
+$config = $type->getConfig();
 $typeClassName = $type->getClassName();
 $propertyName = $property->getName();
 $propertyFieldConst = $property->getFieldConstantName();
@@ -41,16 +42,16 @@ ob_start(); ?>
                     }
                     $this-><?php echo $setter; ?>(new $typeClass($data[self::<?php echo $propertyFieldConst; ?>]));
                 }
-            } elseif ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
+            } elseif ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
             }
 <?php else : ?>
             if (is_object($data[self::<?php echo $propertyFieldConst; ?>])) {
-                if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
+                if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>) {
                     $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
                 } else {
                     throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an object implementing <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>, object of type %s seen',
+                        '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an object implementing <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE); ?>, object of type %s seen',
                         get_class($data[self::<?php echo $propertyFieldConst; ?>])
                     ));
                 }
