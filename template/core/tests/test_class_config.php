@@ -17,9 +17,8 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Config $config */
 
 ob_start();
 
@@ -27,7 +26,8 @@ echo "<?php\n\n";
 
 echo "namespace {$config->getFullyQualifiedTestsName(TestType::BASE, false)};\n\n";
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
+
 echo "\n\n";
 echo "use PHPUnit\\Framework\\TestCase;\n";
 echo "use {$config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CONFIG)};\n";

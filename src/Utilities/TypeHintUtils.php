@@ -18,21 +18,21 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Property;
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Version;
+use DCarbone\PHPFHIR\Version\Definition\Property;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Enum\PrimitiveType;
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
 abstract class TypeHintUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
      * @param bool $nullable
      * @return string
      */
-    public static function primitivePHPValueTypeHint(VersionConfig $config, PrimitiveType $primitiveType, bool $nullable): string
+    public static function primitivePHPValueTypeHint(Version $version, PrimitiveType $primitiveType, bool $nullable): string
     {
         // this assumes the property's value type is a primiive.
         // it will bomb if not.
@@ -43,7 +43,7 @@ abstract class TypeHintUtils
         );
     }
 
-    public static function primitivePHPReturnValueTypeDoc(VersionConfig $config, PrimitiveType $primitiveType, bool $nullable, bool $asCollection): string
+    public static function primitivePHPReturnValueTypeDoc(Version $version, PrimitiveType $primitiveType, bool $nullable, bool $asCollection): string
     {
         $hint = $primitiveType->getPHPReturnValueTypeHint();
 
@@ -59,13 +59,13 @@ abstract class TypeHintUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
      * @param bool $nullable
      * @param bool $asCollection
      * @return string
      */
-    public static function primitivePHPValueTypeSetterDoc(VersionConfig $config, PrimitiveType $primitiveType, bool $nullable, bool $asCollection): string
+    public static function primitivePHPValueTypeSetterDoc(Version $version, PrimitiveType $primitiveType, bool $nullable, bool $asCollection): string
     {
         $hintTypes = $primitiveType->getPHPReceiveValueTypeHints();
 
@@ -79,35 +79,35 @@ abstract class TypeHintUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param bool $nullable
      * @return string
      */
-    public static function primitiveValuePropertyTypeHint(VersionConfig $config, Property $property, bool $nullable): string
+    public static function primitiveValuePropertyTypeHint(Version $version, Property $property, bool $nullable): string
     {
-        return self::primitivePHPValueTypeHint($config, $property->getMemberOf()->getPrimitiveType(), $nullable);
+        return self::primitivePHPValueTypeHint($version, $property->getMemberOf()->getPrimitiveType(), $nullable);
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param bool $nullable
      * @param bool $asCollection
      * @return string
      */
-    public static function primitiveValuePropertyTypeDoc(VersionConfig $config, Property $property, bool $nullable, bool $asCollection): string
+    public static function primitiveValuePropertyTypeDoc(Version $version, Property $property, bool $nullable, bool $asCollection): string
     {
-        return self::primitivePHPReturnValueTypeDoc($config, $property->getMemberOf()->getPrimitiveType(), $nullable, $asCollection);
+        return self::primitivePHPReturnValueTypeDoc($version, $property->getMemberOf()->getPrimitiveType(), $nullable, $asCollection);
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param bool $nullable
      * @return string
      */
-    public static function typeTypeHint(VersionConfig $config, Type $type, bool $nullable): string
+    public static function typeTypeHint(Version $version, Type $type, bool $nullable): string
     {
         $tk = $type->getKind();
 
@@ -116,7 +116,7 @@ abstract class TypeHintUtils
             return sprintf(
                 '%s%s',
                 $nullable ? 'null|' : '',
-                PHPFHIR_INTERFACE_CONTAINED_TYPE
+                PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE
             );
         }
 
@@ -129,11 +129,12 @@ abstract class TypeHintUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @param bool $nullable
      * @return string
      */
-    public static function typeSetterTypeHint(VersionConfig $config, Type $type, bool $nullable): string
+    public static function typeSetterTypeHint(Version $version, Type $type, bool $nullable): string
     {
         $tk = $type->getKind();
         $types = $nullable ? ['null'] : [];
@@ -156,13 +157,13 @@ abstract class TypeHintUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param bool $nullable
      * @param bool $asCollection
      * @return string
      */
-    public static function typeTypeDoc(VersionConfig $config, Type $type, bool $nullable, bool $asCollection): string
+    public static function typeTypeDoc(Version $version, Type $type, bool $nullable, bool $asCollection): string
     {
         // if nullable, add to list of additional types
         $types = [];
@@ -172,11 +173,7 @@ abstract class TypeHintUtils
 
         // if this is an inline resource
         if ($tk->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
-            array_push(
-                $types,
-                sprintf('\\%s\\', trim($config->getFullyQualifiedName(true), '\\')),
-                PHPFHIR_INTERFACE_CONTAINED_TYPE,
-            );
+            $types[] = $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
         } else {
             $types[] = $type->getFullyQualifiedClassName(true);
         }
@@ -197,12 +194,12 @@ abstract class TypeHintUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param bool $nullable
      * @return string
      */
-    public static function propertyTypeHint(VersionConfig $config, Property $property, bool $nullable): string
+    public static function propertyTypeHint(Version $version, Property $property, bool $nullable): string
     {
         // if this proprety is a collection, the type hint must be a potentially nullable array
         if ($property->isCollection()) {
@@ -214,42 +211,42 @@ abstract class TypeHintUtils
 
         // if null, the (hopefully) only possibility is that this is a value property for a primitive type
         if (null === $t) {
-            return self::primitiveValuePropertyTypeHint($config, $property, $nullable);
+            return self::primitiveValuePropertyTypeHint($version, $property, $nullable);
         }
 
         // otherwise, hint as the underlying type
-        return self::typeTypeHint($config, $t, $nullable);
+        return self::typeTypeHint($version, $t, $nullable);
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param bool $nullable
      * @return string
      */
-    public static function propertyGetterTypeDoc(VersionConfig $config, Property $property, bool $nullable): string
+    public static function propertyGetterTypeDoc(Version $version, Property $property, bool $nullable): string
     {
         // determine if this property contains a FHIR type or a raw php type
         $t = $property->getValueFHIRType();
         if (null === $t) {
-            return self::primitiveValuePropertyTypeDoc($config, $property, $nullable, $property->isCollection());
+            return self::primitiveValuePropertyTypeDoc($version, $property, $nullable, $property->isCollection());
         }
 
-        return self::typeTypeDoc($config, $t, $nullable, $property->isCollection());
+        return self::typeTypeDoc($version, $t, $nullable, $property->isCollection());
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param bool $asCollection
      * @return string
      */
-    public static function propertySetterTypeDoc(VersionConfig $config, Property $property, bool $asCollection): string
+    public static function propertySetterTypeDoc(Version $version, Property $property, bool $asCollection): string
     {
         // determine if this property contains a FHIR type or a raw php type
         $pt = $property->getValueFHIRType();
         if (null === $pt) {
-            return self::primitiveValuePropertyTypeDoc($config, $property, !$asCollection, $asCollection);
+            return self::primitiveValuePropertyTypeDoc($version, $property, !$asCollection, $asCollection);
         }
 
         $ptk = $pt->getKind();
@@ -261,30 +258,31 @@ abstract class TypeHintUtils
             $hintTypes = array_merge($hintTypes, $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
                 $hintTypes,
-                self::typeTypeDoc($config, $ptp, false, $asCollection),
-                self::typeTypeDoc($config, $pt, false, $asCollection),
+                self::typeTypeDoc($version, $ptp, false, $asCollection),
+                self::typeTypeDoc($version, $pt, false, $asCollection),
             );
         } else if ($ptk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
             $hintTypes = array_merge($hintTypes, $pt->getPrimitiveType()->getPHPReceiveValueTypeHints());
-            $hintTypes[] = self::typeTypeDoc($config, $pt, false, $asCollection);
+            $hintTypes[] = self::typeTypeDoc($version, $pt, false, $asCollection);
         } else {
-            $hintTypes[] = self::typeTypeDoc($config, $pt, false, $asCollection);
+            $hintTypes[] = self::typeTypeDoc($version, $pt, false, $asCollection);
         }
 
         return implode('|', array_unique($hintTypes));
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
+     * @param bool $nullable
      * @return string
      */
-    public static function propertySetterTypeHint(VersionConfig $config, Property $property, bool $nullable): string
+    public static function propertySetterTypeHint(Version $version, Property $property, bool $nullable): string
     {
         $pt = $property->getValueFHIRType();
         $ptk = $pt->getKind();
 
-        $hint = self::typeSetterTypeHint($config, $pt, $nullable);
+        $hint = self::typeSetterTypeHint($version, $pt, $nullable);
 
         if ($ptk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
             return sprintf('%s|%s', $hint, $pt->getClassName());
