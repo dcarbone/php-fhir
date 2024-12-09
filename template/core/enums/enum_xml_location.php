@@ -16,10 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -31,17 +29,17 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
- * Enum <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; if ('' !== $namespace) : ?>
+ * Enum <?php echo PHPFHIR_ENUM_XML_LOCATION; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-enum <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?> : string
+enum <?php echo PHPFHIR_ENUM_XML_LOCATION; ?> : string
 {
     case ATTRIBUTE = 'attribute';
     case ELEMENT = 'element';

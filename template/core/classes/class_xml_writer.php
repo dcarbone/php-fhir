@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -31,7 +31,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
@@ -45,7 +45,7 @@ echo "\n\n"; ?>
  */
 class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
 {
-    private const MEM = 'memory';
+    private const _MEM = 'memory';
 
     /** @var bool */
     private bool $_docStarted = false;
@@ -61,7 +61,7 @@ class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
      */
     public function openMemory(): bool
     {
-        $this->_open = self::MEM;
+        $this->_open = self::_MEM;
         return parent::openMemory();
     }
 
