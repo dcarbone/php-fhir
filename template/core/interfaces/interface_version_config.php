@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,32 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
+/** @var \DCarbone\PHPFHIR\Config $config */
 
-$propType = $property->getValueFHIRType();
+$namespace = $config->getFullyQualifiedName(false);
 
-ob_start(); ?>
-        if (isset($attributes[self::<?php echo $property->getFieldConstantName(); ?>])) {
-            $type->setValue((string)$attributes[self::<?php echo $property->getFieldConstantName(); ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
-        }
+ob_start();
+
+echo "<?php declare(strict_types=1);\n\n";
+
+if ('' !== $namespace) :
+    echo "namespace {$namespace};\n\n";
+endif;
+
+echo $config->getBasePHPFHIRCopyrightComment();
+
+echo "\n\n";
+?>
+/**
+ * Interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; if ('' !== $namespace) : ?>
+
+ * @package \<?php echo $namespace; ?>
+<?php endif; ?>
+
+ */
+interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
+
+{
+
+}
 <?php return ob_get_clean();

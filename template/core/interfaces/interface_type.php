@@ -72,18 +72,17 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
     /**
      * @param null|string|\SimpleXMLElement $element
      * @param null|static $type
-     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @return null|static
      */
-    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): null|self;
+    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, <?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_INTERFACE_VERSION ?> $version = null): null|self;
 
     /**
      * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
-     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>;
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>;
 
     /**
      * @return string

@@ -34,25 +34,37 @@ ob_start(); ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, false); endif; ?> $data
+     * @param null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config
      */
-    public function __construct(null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, false); endif; ?> $data = null)
+    public function __construct(null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, false); endif; ?> $data = null, null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config = null)
     {
+        if (null === $config) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
+        }
+<?php if (!$type->hasParent()) : ?>
+        $this->_config = $config;
+<?php endif; ?>
         if (null === $data || [] === $data) {
+<?php if ($type->hasParent()) : ?>
+            parent::__construct(null, $config);
+<?php endif; ?>
             return;
         }
 <?php if ($type->isValueContainer()) : ?>
         if (!is_array($data)) {
+            <?php if ($type->hasParent()): ?>
+            parent::__construct(null, $config);<?php endif; ?>
             $this->setValue($data);
             return;
         }
 <?php endif; if ($type->hasParentWithLocalProperties()) : // add parent constructor call ?>
-        parent::__construct($data);<?php endif; ?><?php if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : // only parse comments if parent isn't already doing it. ?>
+        parent::__construct($data, $config);<?php endif; ?><?php if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : // only parse comments if parent isn't already doing it. ?>
 
-        if (isset($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
-            if (is_array($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
-                $this->_setFHIRComments($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS]);
-            } elseif (is_string($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS])) {
-                $this->_addFHIRComment($data[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS]);
+        if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+            if (is_array($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_setFHIRComments($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
+            } elseif (is_string($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_addFHIRComment($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
             }
         }<?php endif; ?>
 

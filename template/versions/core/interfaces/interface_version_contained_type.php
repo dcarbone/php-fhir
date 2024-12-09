@@ -49,10 +49,10 @@ use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_CONTAINED
 
 /**
  * Interface <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>
- *
- * This interface is applied to any class that is containable within a <?php $containerType->getFullyQualifiedClassName(true); ?><?php if ('' !== $namespace) : ?>
 
- * @package \<?php echo $namespace; ?>
+ *
+ * This interface is applied to any class that is containable within a <?php echo $version->getName(); ?> <?php echo $containerType->getClassName(); ?> instance
+<?php if ('' !== $namespace) : ?> * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */

@@ -39,16 +39,17 @@ if (null !== $parentType) {
     /**
      * <?php echo $type->getClassName(); ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?>|array $value
+     * @param null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config
      */
-    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($version, $valueProperty, true); ?>|array $value = null)
+    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($version, $valueProperty, true); ?>|array $value = null, null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config = null)
     {
         if (null === $value) {
-            parent::__construct();
+            parent::__construct(null, $config);
         } elseif (is_scalar($value)) {
-            parent::__construct();
+            parent::__construct(null, $config);
             $this->setValue($value);
         } elseif (is_array($value)) {
-            parent::__construct($value);
+            parent::__construct($value, $config);
             if (array_key_exists(self::FIELD_VALUE, $value)) {
                 $this->setValue($value[self::FIELD_VALUE]);
             }
@@ -68,9 +69,14 @@ ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
+     * @param null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config
      */
-    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value = null)
+    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value = null, null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config = null)
     {
+        if (null === $config) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
+        }
+        $this->_version = $config;
         $this->setValue($value);
     }
 <?php return ob_get_clean();

@@ -46,13 +46,13 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     private const XML_START = ['<'];
     private const JSON_START = ['{', '['];
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_FHIR_VERSION); ?> $version */
-    private <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?> $version;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version */
+    private <?php echo PHPFHIR_INTERFACE_VERSION; ?> $version;
 
     /**
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_FHIR_VERSION); ?> $version
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      */
-    public function __construct(<?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?> $version)
+    public function __construct(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version)
     {
         $this->version = $version;
     }

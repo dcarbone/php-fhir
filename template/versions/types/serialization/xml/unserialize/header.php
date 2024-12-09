@@ -30,19 +30,24 @@ ob_start(); ?>
     /**
      * @param null|string|\SimpleXMLElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config PHP FHIR config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?> $config
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): null|self
+    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
         }
-        if (is_int($config)) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>([<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::LIBXML_OPTS->value => $config]);
-        } else if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+        if (null === $config) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
+        } else if (!($version instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
+            throw new \RuntimeException(sprintf(
+                '%s::xmlUnserialize - $config must be instance of \\%s or null, %s seen.',
+                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>::class,
+                get_class($version)
+            ));
         }
         if (is_string($element)) {
             $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());
@@ -52,7 +57,7 @@ ob_start(); ?>
             throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
         }<?php else : ?>
         if (null === $type) {
-            $type = new static(null);
+            $type = new static(null, $config);
         }<?php endif; ?> else if (!($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
                 '%s::xmlUnserialize - $type must be instance of \\%s or null, %s seen.',

@@ -33,13 +33,13 @@ echo $config->getBasePHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_TYPE_MAP; if ('' !== $namespace) : ?>
+ * Interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
+interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
 {
     /**
@@ -77,11 +77,10 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
 
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
 
      */
-    public function getContainedTypeFromXML(\SimpleXMLElement $node, <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>;
+    public function getContainedTypeFromXML(\SimpleXMLElement $node): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>;
 
     /**
      * @param array|null $data

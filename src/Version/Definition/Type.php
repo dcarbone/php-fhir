@@ -746,6 +746,10 @@ class Type
     }
 
     /**
+     * Returns map of [$interface_name => $interface_namespace]
+     *
+     * $interface_namespace does NOT contain leading slash!
+     *
      * @return array
      */
     public function getDirectlyImplementedInterfaces(): array
@@ -755,17 +759,17 @@ class Type
 
         if (null === $parentType) {
             if ($this->isCommentContainer()) {
-                $interfaces[] = PHPFHIR_INTERFACE_COMMENT_CONTAINER;
+                $interfaces[PHPFHIR_INTERFACE_COMMENT_CONTAINER] = $this->config->getFullyQualifiedName(false);
             }
             if ($this->isContainedType()) {
-                $interfaces[] = PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE;
+                $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $this->version->getFullyQualifiedName(false);
             } else if ($this->getKind() === TypeKind::PRIMITIVE) {
-                $interfaces[] = PHPFHIR_INTERFACE_PRIMITIVE_TYPE;
+                $interfaces[PHPFHIR_INTERFACE_PRIMITIVE_TYPE] = $this->config->getFullyQualifiedName(false);
             } else {
-                $interfaces[] = PHPFHIR_INTERFACE_TYPE;
+                $interfaces[PHPFHIR_INTERFACE_TYPE] = $this->config->getFullyQualifiedName(false);
             }
         } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
-            $interfaces[] = PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE;
+            $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $this->version->getFullyQualifiedName(false);
         }
 
         return $interfaces;

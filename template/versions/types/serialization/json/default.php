@@ -36,7 +36,7 @@ ob_start(); ?>
 
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $out->{PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS} = $vs;
+            $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS} = $vs;
         }
 <?php endif;
 foreach ($properties as $property) :
@@ -72,7 +72,7 @@ foreach ($properties as $property) :
 endforeach;
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $out->{PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS} = $vs;
+            $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS} = $vs;
         }
 <?php endif; ?>
 

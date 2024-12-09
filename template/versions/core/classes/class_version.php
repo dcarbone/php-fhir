@@ -33,10 +33,9 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
-
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CONFIG); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_FHIR_VERSION); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE_MAP); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_TYPE_MAP); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>;
 
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_VERSION; if ('' !== $namespace) : ?>
@@ -45,7 +44,7 @@ use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE_MAP)
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
+class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION; ?>
 
 {
     public const NAME = '<?php echo $version->getName(); ?>';
@@ -53,23 +52,28 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
     public const SOURCE_VERSION = '<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>';
     public const SOURCE_GENERATION_DATE = '<?php echo $version->getSourceMetadata()->getFHIRGenerationDate(); ?>';
 
-    /** @var <?php $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $_config;
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?> */
+    private <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $_config;
 
-    /** @var <?php $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE_MAP); ?> */
-    private static <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?> $_typeMap;
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPEMAP); ?> */
+    private static <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> $_typeMap;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_VERSION; ?> Constructor
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?> $config
      */
-    public function __construct(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null)
+    public function __construct(null|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $config = null)
     {
         if (null === $config) {
-            $this->_config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        } else {
-            $this->_config = $config;
+            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
+        } else if (!($config instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
+            throw new \InvalidArgumentException(sprintf(
+                '$config must be an instance of \\%s, %s given',
+                <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>::class,
+                get_class($config)
+            ));
         }
+        $this->_config = $config;
     }
 
     /**
@@ -77,7 +81,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
      */
     public function getName(): string
     {
-        return self::VERSION_NAME;
+        return self::NAME;
     }
 
     /**
@@ -105,20 +109,22 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
     }
 
     /**
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>
+     * Returns version-specific configuration instance
+     *
+     * @return <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?>
 
      */
-    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>
+    public function getConfig(): <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
 
     {
         return $this->_config;
     }
 
     /**
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE_MAP); ?>
+     * @return <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPEMAP); ?>
 
      */
-    public static function getTypeMap(): <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>
+    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
     {
         if (!isset(self::$_typeMap)) {

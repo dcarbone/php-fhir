@@ -77,18 +77,20 @@ const PHPFHIR_CLASSNAME_AUTOLOADER = 'Autoloader';
 const PHPFHIR_CLASSNAME_CONFIG = 'Config';
 const PHPFHIR_CLASSNAME_RESPONSE_PARSER = 'ResponseParser';
 const PHPFHIR_CLASSNAME_CONSTANTS = 'Constants';
-const PHPFHIR_CLASSNAME_API_CLIENT = 'ApiClient';
-const PHPFHIR_CLASSNAME_API_CLIENT_REQUEST = 'ApiClientRequest';
-const PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE = 'ApiClientResponse';
-const PHPFHIR_CLASSNAME_XML_WRITER = 'XmlWriter';
+const PHPFHIR_CLASSNAME_API_CLIENT = 'APIClient';
+const PHPFHIR_CLASSNAME_API_CLIENT_REQUEST = 'APIClientRequest';
+const PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE = 'APIClientResponse';
+const PHPFHIR_CLASSNAME_XML_WRITER = 'XMLWriter';
 
 // Core interface names
-const PHPFHIR_INTERFACE_TYPE_MAP = 'TypeMapInterface';
-const PHPFHIR_INTERFACE_FHIR_VERSION = 'VersionInterface';
 const PHPFHIR_INTERFACE_TYPE = 'TypeInterface';
 const PHPFHIR_INTERFACE_CONTAINED_TYPE = 'ContainedTypeInterface';
 const PHPFHIR_INTERFACE_COMMENT_CONTAINER = 'CommentContainerInterface';
 const PHPFHIR_INTERFACE_PRIMITIVE_TYPE = 'PrimitiveTypeInterface';
+const PHPFHIR_INTERFACE_VERSION = 'VersionInterface';
+const PHPFHIR_INTERFACE_VERSION_CONFIG = 'VersionConfigInterface';
+const PHPFHIR_INTERFACE_VERSION_TYPE_MAP = 'VersionTypeMapInterface';
+
 
 // Core traits
 const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'CommentContainerTrait';
@@ -99,14 +101,15 @@ const PHPFHIR_TRAIT_SOURCE_XMLNS = 'SourceXmlNamespaceTrait';
 const PHPFHIR_ENUM_CONFIG_KEY = 'ConfigKeyEnum';
 const PHPFHIR_ENUM_TYPE = 'TypeEnum';
 const PHPFHIR_ENUM_API_FORMAT = 'ApiFormatEnum';
-const PHPFHIR_ENUM_XML_LOCATION_ENUM = 'XmlLocationEnum';
-const PHPFHIR_ENUM_API_RESOURCE_LIST = 'ApiResourceListEnum';
-const PHPFHIR_ENUM_API_SORT = 'ApiSortEnum';
+const PHPFHIR_ENUM_XML_LOCATION = 'XMLLocationEnum';
+const PHPFHIR_ENUM_API_RESOURCE_LIST = 'APIResourceListEnum';
+const PHPFHIR_ENUM_API_SORT = 'APISortEnum';
 
 // Version Constants
 const PHPFHIR_CLASSNAME_VERSION = 'Version';
-const PHPFHIR_CLASSNAME_VERSION_TYPEMAP = 'VersionTypeMap';
+const PHPFHIR_CLASSNAME_VERSION_CONFIG = 'VersionConfig';
 const PHPFHIR_CLASSNAME_VERSION_CONSTANTS = 'VersionConstants';
+const PHPFHIR_CLASSNAME_VERSION_TYPEMAP = 'VersionTypeMap';
 const PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE = 'VersionContainedTypeInterface';
 
 

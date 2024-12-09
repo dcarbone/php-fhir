@@ -59,6 +59,9 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     use <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>,
         <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>;
 
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?> */
+    private <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $_config;
+
     /** @var null|string */
     private null|string $_xhtml = null;
 
@@ -66,8 +69,19 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
      * @param null|string|\DOMNode|\SimpleXMLElement $xhtml
      */
-    public function __construct(null|string|\DOMNode|\SimpleXmlElement $xhtml = null)
+    public function __construct(null|string|\DOMNode|\SimpleXmlElement $xhtml = null, <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $config = null)
     {
+        if (null === $config) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
+        } else if (!($config instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
+            throw new \InvalidArgumentException(sprintf(
+                '%s::__construct - $config must be instance of \\%s, \\%s seen',
+                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>::class,
+                is_object($config) ? get_class($config) : gettype($config)
+            ));
+        }
+        $this->_config = $config;
         $this->setXhtml($xhtml);
     }
 
@@ -125,56 +139,47 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     }
 
     /**
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @return null|\SimpleXMLElement
      * @throws \Exception
      */
-    public function getSimpleXMLElement(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): null|\SimpleXMLElement
+    public function getSimpleXMLElement(): null|\SimpleXMLElement
     {
         $xhtml = $this->getXhtml();
         if (null === $xhtml) {
             return null;
         }
-        if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        }
-        return new \SimpleXMLElement($xhtml, $config->getLibxmlOpts());
+        return new \SimpleXMLElement($xhtml, $this->_config->getLibxmlOpts());
     }
 
     /**
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @return null|\DOMDocument
      */
-    public function getDOMDocument(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): null|\DOMDocument
+    public function getDOMDocument(): null|\DOMDocument
     {
         $xhtml = $this->getXhtml();
         if (null === $xhtml) {
             return null;
         }
         if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
+            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
         }
         $dom = new \DOMDocument('1.0', 'UTF-8');
-        $dom->loadXML($xhtml, $config->getLibxmlOpts());
+        $dom->loadXML($xhtml, $this->_config->getLibxmlOpts());
         return $dom;
     }
 
     /**
      * Returns open \XMLReader instance with content read
      *
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
      * @return null|\XMLReader
      */
-    public function getXMLReader(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null): null|\XMLReader
+    public function getXMLReader(): null|\XMLReader
     {
         $xhtml = $this->getXhtml();
         if (null === $xhtml) {
             return null;
         }
-        if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        }
-        $xr = \XMLReader::XML($xhtml, 'UTF-8', $config->getLibxmlOpts());
+        $xr = \XMLReader::XML($xhtml, 'UTF-8', $this->_config->getLibxmlOpts());
         $xr->read();
         return $xr;
     }
@@ -198,18 +203,12 @@ echo require_with(
 
     /**
      * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
-     * @param null|int|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config XML serialization config.  Supports an integer value interpreted as libxml opts for backwards compatibility.
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|int|<?php echo PHPFHIR_CLASSNAME_CONFIG ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
 
     {
-        if (is_int($config)) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>([<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::LIBXML_OPTS->value => $config]);
-        } else if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>();
-        }
         if (null === $xw) {
             $xw = new <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>();
         }
@@ -222,9 +221,9 @@ echo require_with(
         }
         if (!$xw->isRootOpen()) {
             $rootOpened = true;
-            $xw->openRootNode($config, 'Xhtml', $this->_getSourceXmlns());
+            $xw->openRootNode($this->_config, 'Xhtml', $this->_getSourceXmlns());
         }
-        $xr = $this->getXMLReader($config);
+        $xr = $this->getXMLReader($this->_config);
         if (null === $xr) {
             return $xw;
         }
@@ -260,4 +259,5 @@ echo require_with(
     {
         return (string)$this->getXhtml();
     }
-}<?php return ob_get_clean();
+}
+<?php return ob_get_clean();

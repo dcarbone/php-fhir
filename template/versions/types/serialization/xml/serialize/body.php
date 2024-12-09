@@ -44,11 +44,11 @@ foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property)
 <?php   if ($property->isCollection()) : ?>
         if ([] === $locs && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $vs[0]->getFormattedValue());
-        } else if (false !== ($idx = array_search(<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>()) && isset($vs[$idx])) {
+        } else if (false !== ($idx = array_search(<?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>()) && isset($vs[$idx])) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $vs[$idx]->getFormattedValue());
         }
 <?php   else : ?>
-        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE === $locs[0])) && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE === $locs[0])) && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getFormattedValue());
         }
 <?php   endif;
@@ -57,11 +57,11 @@ foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property)
 <?php   if ($property->isCollection()) : ?>
         if ([] === $locs && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $vs[0]->getValue()?->getFormattedValue());
-        } else if (false !== ($idx = array_search(<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>()) && isset($vs[$idx])) {
+        } else if (false !== ($idx = array_search(<?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>()) && isset($vs[$idx])) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $vs[$idx]->getValue()?->getFormattedValue());
         }
 <?php   else: ?>
-        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE === $locs[0])) && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE === $locs[0])) && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getValue()?->getFormattedValue());
         }
 <?php   endif;
@@ -102,9 +102,9 @@ foreach ($localProperties as $property) :
         elseif ($pt->hasPrimitiveParent() || $ptk->isOneOf(TypeKind::LIST, TypeKind::PRIMITIVE)) : ?>
         $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php        if ($property->isCollection()) : ?>
-        if (([] === $locs || in_array(<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
+        if (([] === $locs || in_array(<?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             foreach($vs as $i => $v) {
-                if (!isset($locs[$i]) || <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT === $locs[$i]) {
+                if (!isset($locs[$i]) || <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT === $locs[$i]) {
                     $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
                     $v->xmlSerialize($xw, $config);
                     $xw->endElement();
@@ -112,7 +112,7 @@ foreach ($localProperties as $property) :
             }
         }
 <?php       else : ?>
-        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT === $locs[0])) && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT === $locs[0])) && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
             $v->xmlSerialize($xw, $config);
             $xw->endElement();
@@ -121,9 +121,9 @@ foreach ($localProperties as $property) :
         elseif ($ptk === TypeKind::PRIMITIVE_CONTAINER) : ?>
         $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php        if ($property->isCollection()) : ?>
-        if (([] === $locs || in_array(<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
+        if (([] === $locs || in_array(<?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             foreach($vs as $i => $v) {
-                if (!isset($locs[$i]) || <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT === $locs[$i]) {
+                if (!isset($locs[$i]) || <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT === $locs[$i]) {
                     $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
                     $v->xmlSerialize($xw, $config);
                     $xw->endElement();
@@ -131,7 +131,7 @@ foreach ($localProperties as $property) :
             }
         }
 <?php       else : ?>
-        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ELEMENT === $locs[0])) && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+        if (([] === $locs || (isset($locs[0]) && <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT === $locs[0])) && null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
             $v->xmlSerialize($xw, $config);
             $xw->endElement();

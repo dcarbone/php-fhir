@@ -30,13 +30,13 @@ ob_start();
 if ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
         if (isset($attributes[self::<?php echo $propertyConst; ?>])) {
 <?php if ($property->isCollection()) : ?>
-            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propertyConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE);
+            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propertyConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
 <?php else : ?>
             $pt = $type-><?php echo $property->getGetterName(); ?>();
             if (null !== $pt) {
-                $pt->setValue((string)$attributes[self::<?php echo $propertyConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE);
+                $pt->setValue((string)$attributes[self::<?php echo $propertyConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
             } else {
-                $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propertyConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>::ATTRIBUTE);
+                $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propertyConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
             }
 <?php endif; ?>
         }

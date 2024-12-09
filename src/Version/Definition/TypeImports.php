@@ -153,6 +153,12 @@ class TypeImports implements \Countable
         $this->imports[$classname] = new TypeImport($classname, $namespace, false, '', $requiresImport);
     }
 
+    /**
+     * Attempts to build succinct list of imports used by this type.  Currently flawed, results in some unused imports
+     * to be defined.  Will need to be revisited.
+     *
+     * @return void
+     */
     private function buildImports(): void
     {
         if ($this->parsed) {
@@ -169,30 +175,41 @@ class TypeImports implements \Countable
         $configNS = $this->type->getConfig()->getFullyQualifiedName(false);
         $versionNS = $this->type->getVersion()->getFullyQualifiedName(false);
 
+        $typeKind = $this->type->getKind();
+
         $allProperties = $this->type->getAllPropertiesIterator();
 
         // non-abstract types must import config and xml writer
         if (!$this->type->isAbstract()) {
-            $this->addImport(PHPFHIR_CLASSNAME_CONFIG, $configNS);
+            $this->addImport(PHPFHIR_INTERFACE_VERSION_CONFIG, $configNS);
             $this->addImport(PHPFHIR_CLASSNAME_XML_WRITER, $configNS);
             $this->addImport(PHPFHIR_ENUM_CONFIG_KEY, $configNS);
-            $this->addImport(PHPFHIR_ENUM_XML_LOCATION_ENUM, $configNS);
+            $this->addImport(PHPFHIR_ENUM_XML_LOCATION, $configNS);
+            $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONFIG, $versionNS);
         }
 
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
         // that may need to be imported to ensure function
         if ($typeNS !== $configNS) {
-            // always add the base interface type as its used by the xml serialization func
-            $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
-            // always add the constants class as its used everywhere.
+            // always add version constants as its used for field names, xml serialization, etc.
             $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONSTANTS, $versionNS);
+
+            // always add the base type interface
+            $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
+
             // add directly implemented interfaces
-            foreach ($this->type->getDirectlyImplementedInterfaces() as $interface) {
-                $this->addImport($interface, $configNS);
+            foreach ($this->type->getDirectlyImplementedInterfaces() as $interface => $namespace) {
+                $this->addImport($interface, $namespace);
             }
             // add directly implemented traits
             foreach ($this->type->getDirectlyUsedTraits() as $trait) {
                 $this->addImport($trait, $configNS);
+            }
+            // add root Constants class if this is a comment containing type or has local properties with validations
+            if (($this->type->isCommentContainer() && !$this->type->hasCommentContainerParent()) ||
+                $this->type->hasLocalPropertiesWithValidations() ||
+                ($typeKind->isOneOf(typeKind::PRIMITIVE) && !$this->type->hasPrimitiveParent())) {
+                $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
             }
         }
 

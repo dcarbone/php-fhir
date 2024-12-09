@@ -33,13 +33,13 @@ echo $config->getBasePHPFHIRCopyrightComment();
 echo "\n\n";
 ?>
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; if ('' !== $namespace) : ?>
+ * Interface <?php echo PHPFHIR_INTERFACE_VERSION; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
+interface <?php echo PHPFHIR_INTERFACE_VERSION; ?>
 
 {
     /**
@@ -68,16 +68,16 @@ interface <?php echo PHPFHIR_INTERFACE_FHIR_VERSION; ?>
 
     /**
      * Must return config for this version
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>
 
      */
-    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>;
+    public function getConfig(): <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>;
 
     /**
      * Must return the type map class for this version
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE_MAP); ?>
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_TYPE_MAP); ?>
 
      */
-    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_TYPE_MAP; ?>;
+    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>;
 }
 <?php return ob_get_clean();

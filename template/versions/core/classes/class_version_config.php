@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config $config */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Version $version */
 
-$namespace = $config->getFullyQualifiedName(false);
+$config = $version->getConfig();
+$namespace = $version->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -29,19 +29,22 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo $config->getBasePHPFHIRCopyrightComment();
+echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
+echo "\n\n";
+?>
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>;
+
 /**
- * Enum <?php echo PHPFHIR_ENUM_XML_LOCATION; if ('' !== $namespace) : ?>
+ * Class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-enum <?php echo PHPFHIR_ENUM_XML_LOCATION; ?> : string
+class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
+
 {
-    case ATTRIBUTE = 'attribute';
-    case ELEMENT = 'element';
+
 }
 <?php return ob_get_clean();
