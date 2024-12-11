@@ -190,8 +190,8 @@ class TypeImports implements \Countable
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
         // that may need to be imported to ensure function
         if ($typeNS !== $configNS) {
-            // always add version constants as its used for field names, xml serialization, etc.
-            $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONSTANTS, $versionNS);
+
+            $this->addImport(PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG, $configNS);
 
             // always add the base type interface
             $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
@@ -210,6 +210,12 @@ class TypeImports implements \Countable
                 ($typeKind->isOneOf(typeKind::PRIMITIVE) && !$this->type->hasPrimitiveParent())) {
                 $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
             }
+        }
+
+        if ($typeNS !== $versionNS) {
+            // add a few imports used during unserialization.
+            $this->addImport(PHPFHIR_CLASSNAME_VERSION, $versionNS);
+            $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONSTANTS, $versionNS);
         }
 
         // determine if we need to import our parent type

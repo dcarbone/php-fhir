@@ -30,27 +30,20 @@ ob_start(); ?>
     /**
      * @param null|string|\SimpleXMLElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?> $config
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG); ?> $config
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      */
-    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG ?> $config = null): null|self
+    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
         }
         if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
-        } else if (!($config instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
-            throw new \RuntimeException(sprintf(
-                '%s::xmlUnserialize - $config must be instance of \\%s or null, %s seen.',
-                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
-                <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>::class,
-                get_class($config)
-            ));
+            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
         }
         if (is_string($element)) {
-            $element = new \SimpleXMLElement($element, $config->getUnserializeConfig()->getLibxmlOpts());
+            $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());
         }
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {

@@ -41,7 +41,7 @@ echo "\n\n";
 <?php endif; ?>
 
  */
-final class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; ?>
+abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; ?>
 
 {
 <?php foreach($types->getNameSortedIterator() as $type) : ?>

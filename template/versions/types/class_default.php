@@ -67,7 +67,7 @@ echo require_with(
 ?>
 
     // name of FHIR type this class describes
-    const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
+    public const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 <?php
 
 if (0 !== count($localProperties)) {
