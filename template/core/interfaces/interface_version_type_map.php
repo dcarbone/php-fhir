@@ -77,16 +77,14 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource
-     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
-
+     * @return string Fully qualified class name of contained resource type
      */
-    public function getContainedTypeFromXML(\SimpleXMLElement $node): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>;
+    public function getContainedTypeClassFromXML(\SimpleXMLElement $node): string;
 
     /**
      * @param array|null $data
-     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
-
+     * @return string Fully qualified class name of contained resource type
      */
-    public function getContainedTypeFromArray(null|array $data): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>;
+    public function getContainedTypeClassFromArray(array $data): string;
 }
 <?php return ob_get_clean();

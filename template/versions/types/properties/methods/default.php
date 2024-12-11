@@ -163,14 +163,9 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
                     ));
                 }
             } elseif (is_array($v)) {
-                $typeClass = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::getContainedTypeFromArray($v);
-                if (null === $typeClass) {
-                    throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',
-                        json_encode($v)
-                    ));
-                }
-                $this-><?php echo $property->getSetterName(); ?>(new $typeClass($v));
+                $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION; ?>::getTypeMap()->getContainedTypeClassFromArray($v);
+                unset($v[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+                $this-><?php echo $property->getSetterName(); ?>(new $typeClassName($v));
             } else {
                 throw new \InvalidArgumentException(sprintf(
                     '<?php echo $type->getClassName(); ?> - Unable to determine class for field "<?php echo $propertyName; ?>" from value: %s',

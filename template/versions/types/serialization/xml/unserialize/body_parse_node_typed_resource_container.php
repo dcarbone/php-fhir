@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 /** @var int $i */
 
@@ -26,6 +27,7 @@ $propertyConst = $property->getFieldConstantName();
 ob_start();
 if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propertyConst; ?> === $childName) {
                 foreach ($n->children() as $nn) {
-                    $type-><?php echo $setter; ?>($version->getTypeMap()<?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>::getContainedTypeFromXML($nn, $config));
+                    $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION; ?>::getTypeMap()->getContainedTypeClassFromXML($nn);
+                    $type-><?php echo $setter; ?>(new $typeClassName($nn, $config));
                 }
             }<?php return ob_get_clean();

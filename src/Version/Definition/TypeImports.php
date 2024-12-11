@@ -183,7 +183,6 @@ class TypeImports implements \Countable
         if (!$this->type->isAbstract()) {
             $this->addImport(PHPFHIR_INTERFACE_VERSION_CONFIG, $configNS);
             $this->addImport(PHPFHIR_CLASSNAME_XML_WRITER, $configNS);
-            $this->addImport(PHPFHIR_ENUM_CONFIG_KEY, $configNS);
             $this->addImport(PHPFHIR_ENUM_XML_LOCATION, $configNS);
             $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONFIG, $versionNS);
         }
@@ -241,9 +240,9 @@ class TypeImports implements \Countable
             if ($ptk->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE) &&
                 $typeNS !== $configNS) {
                 $this->addImport(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE, $versionNS);
-                $this->addImport(PHPFHIR_CLASSNAME_VERSION_TYPEMAP, $versionNS);
+                $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
+                $this->addImport(PHPFHIR_CLASSNAME_VERSION, $versionNS);
             } else {
-
                 if ($ptk === TypeKind::PRIMITIVE_CONTAINER) {
                     $primType = $propertyType->getLocalProperties()->getProperty('value')->getValueFHIRType();
                     $this->addImport($primType->getClassName(), $primType->getFullyQualifiedNamespace(false));

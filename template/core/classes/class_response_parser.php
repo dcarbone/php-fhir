@@ -91,7 +91,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return null;
         }
         if (isset($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-            $className = $this->version->getTypeMap()->getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+            $className = $this->version::getTypeMap()->getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
             if (null === $className) {
                 throw new \UnexpectedValueException(sprintf(
                     'Provided input has "%s" value of "%s", but it does not map to any known type.  Other keys: ["%s"]',
@@ -130,7 +130,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     {
         $elementName = $input->getName();
         /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $fhirType */
-        $fhirType = $this->version->getTypeMap()->getTypeClass($elementName);
+        $fhirType = $this->version::getTypeMap()->getTypeClass($elementName);
         if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
                 'Unable to locate FHIR type for root XML element "%s". Input seen: %s',
@@ -178,7 +178,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     public function parseXml(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return $this->parseSimpleXMLElement(new \SimpleXMLElement($input, $this->version->getConfig()->getLibxmlOpts()));
+        return $this->parseSimpleXMLElement(new \SimpleXMLElement($input, $this->version->getConfig()->getUnserializeConfig()->getLibxmlOpts()));
     }
 
     /**
@@ -189,7 +189,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     public function parseJson(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $decoded = json_decode($input, true, $this->version->getConfig()->getJsonDecodeMaxDepth());
+        $decoded = json_decode($input, true, $this->version->getConfig()->getUnserializeConfig()->getJsonDecodeMaxDepth());
         $err = json_last_error();
         if (JSON_ERROR_NONE !== $err) {
             throw new \DomainException(sprintf(

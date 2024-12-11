@@ -33,9 +33,9 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_TYPE_MAP); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_TYPE_MAP); ?>;
 
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_VERSION; if ('' !== $namespace) : ?>
@@ -55,8 +55,8 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
     /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?> */
     private <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $_config;
 
-    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPEMAP); ?> */
-    private static <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> $_typeMap;
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPE_MAP); ?> */
+    private static <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> $_typeMap;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_VERSION; ?> Constructor
@@ -121,14 +121,14 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
     }
 
     /**
-     * @return <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPEMAP); ?>
+     * @return <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPE_MAP); ?>
 
      */
-    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
+    public static function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
     {
         if (!isset(self::$_typeMap)) {
-            self::$_typeMap = new <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?>();
+            self::$_typeMap = new <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>();
         }
         return self::$_typeMap;
     }

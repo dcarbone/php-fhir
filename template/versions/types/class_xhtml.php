@@ -148,7 +148,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
         if (null === $xhtml) {
             return null;
         }
-        return new \SimpleXMLElement($xhtml, $this->_config->getLibxmlOpts());
+        return new \SimpleXMLElement($xhtml, $this->_config->getSerializeConfig()->getLibxmlOpts());
     }
 
     /**
@@ -164,7 +164,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
             $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
         }
         $dom = new \DOMDocument('1.0', 'UTF-8');
-        $dom->loadXML($xhtml, $this->_config->getLibxmlOpts());
+        $dom->loadXML($xhtml, $this->_config->getSerializeConfig()->getLibxmlOpts());
         return $dom;
     }
 
@@ -179,7 +179,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
         if (null === $xhtml) {
             return null;
         }
-        $xr = \XMLReader::XML($xhtml, 'UTF-8', $this->_config->getLibxmlOpts());
+        $xr = \XMLReader::XML($xhtml, 'UTF-8', $this->_config->getSerializeConfig()->getLibxmlOpts());
         $xr->read();
         return $xr;
     }
@@ -221,7 +221,7 @@ echo require_with(
         }
         if (!$xw->isRootOpen()) {
             $rootOpened = true;
-            $xw->openRootNode($this->_config, 'Xhtml', $this->_getSourceXmlns());
+            $xw->openRootNode($this->_config->getSerializeConfig(), 'Xhtml', $this->_getSourceXmlns());
         }
         $xr = $this->getXMLReader($this->_config);
         if (null === $xr) {

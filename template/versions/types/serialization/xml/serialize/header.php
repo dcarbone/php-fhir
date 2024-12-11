@@ -48,6 +48,6 @@ ob_start(); ?>
         }
         if (!$xw->isRootOpen()) {
             $openedRoot = true;
-            $xw->openRootNode($config, '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXmlns());
+            $xw->openRootNode($this->_config->getSerializeConfig(), '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXmlns());
         }
 <?php return ob_get_clean();

@@ -50,7 +50,7 @@ ob_start(); ?>
             ));
         }
         if (is_string($element)) {
-            $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());
+            $element = new \SimpleXMLElement($element, $config->getUnserializeConfig()->getLibxmlOpts());
         }
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {

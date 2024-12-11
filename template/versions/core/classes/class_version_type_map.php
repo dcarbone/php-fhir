@@ -60,17 +60,15 @@ use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CONSTANTS
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_TYPE_MAP); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>;
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?>;
 
 /**
- * Class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; if ('' !== $namespace) : ?>
+ * Class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
+class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
 {
     private const _TYPE_MAP = [
@@ -82,19 +80,6 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php echo PHP
 <?php foreach($innerTypes as $innerType) : ?>
         <?php echo $innerType->getTypeNameConst(true); ?> => <?php echo $innerType->getClassNameConst(true); ?>,
 <?php endforeach; ?>    ];
-
-    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $_config;
-
-    /**
-     * <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> constructor.
-     *
-     * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?> $config
-     */
-    public function __construct(<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config)
-    {
-        $this->_config = $config;
-    }
 
     /**
      * Get fully qualified class name for FHIR Type name.  Returns null if type not found
@@ -160,10 +145,9 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php echo PHP
 
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource
-     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
-
+     * @return string Fully qualified class name of contained resource type
      */
-    public function getContainedTypeFromXML(\SimpleXMLElement $node): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+    public function getContainedTypeClassFromXML(\SimpleXMLElement $node): string
 
     {
         $typeName = $node->getName();
@@ -171,27 +155,16 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php echo PHP
         if (null === $className) {
             throw self::createdInvalidContainedTypeException($typeName);
         }
-        /** @var <?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?> $className */
-        return $className::xmlUnserialize($node, null, $this->_config);
+        return $className;
     }
 
     /**
      * @param array|null $data
-     * @return null|<?php echo $config->getfullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>
-
+     * @return string Fully qualified class name of contained resource type
      */
-    public function getContainedTypeFromArray(null|array $data): null|<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+    public function getContainedTypeClassFromArray(array $data): string
 
     {
-        if (null === $data || [] === $data) {
-            return null;
-        }
-        if (!is_array($data)) {
-            throw new \InvalidArgumentException(sprintf(
-                '$data must be either an array or null, %s seen.',
-                gettype($data)
-            ));
-        }
         $resourceType = null;
         if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
             $resourceType = $data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE];
@@ -203,12 +176,11 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPEMAP; ?> implements <?php echo PHP
                 implode('","', array_keys($data))
             ));
         }
-        unset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
         $className = self::getContainedTypeClassName($resourceType);
         if (null === $className) {
             throw self::createdInvalidContainedTypeException($resourceType);
         }
-        return new $className($data, $this->_config);
+        return $className;
     }
 
     /**
