@@ -67,14 +67,14 @@ class Config implements LoggerAwareInterface
      */
     public function __construct(array $params = [], LoggerInterface $logger = null)
     {
-        foreach (ConfigKeys::required() as $key) {
+        foreach (ConfigKeyEnum::required() as $key) {
             if (!isset($params[$key->value])) {
                 throw new \DomainException(sprintf('Missing required configuration key "%s"', $key->value));
             }
             $this->{"set$key->value"}($params[$key->value]);
         }
 
-        foreach (ConfigKeys::optional() as $key) {
+        foreach (ConfigKeyEnum::optional() as $key) {
             if (isset($params[$key->value])) {
                 $this->{"set$key->value"}($params[$key->value]);
             }

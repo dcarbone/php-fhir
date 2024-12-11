@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\SourceMetadata;
-
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
@@ -77,7 +75,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      * @see https://www.php.net/manual/en/libxml.constants.php
      *
      * @param int $libxmlOpts
-     * @return static
+     * @return self
      */
     public function setLibxmlOpts(int $libxmlOpts): self
     {
@@ -96,10 +94,8 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     }
 
     /**
-     * Default root xmlns to use.
-     *
      * @param string $rootXmlns
-     * @return static
+     * @return self
      */
     public function setRootXmlns(string $rootXmlns): self
     {
@@ -119,7 +115,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      * If true, overrides the xmlns entry found at the root of a source document, if there was one.
      *
      * @param bool $overrideSourceXmlns
-     * @return static
+     * @return self
      */
     public function setOverrideSourceXmlns(bool $overrideSourceXmlns): self
     {
@@ -141,7 +137,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      * See https://www.php.net/manual/en/function.json-decode.php
      *
      * @param int $maxDepth
-     * @return static
+     * @return self
      */
     public function setJsonDecodeMaxDepth(int $maxDepth): self
     {

@@ -41,12 +41,12 @@ ob_start(); ?>
         }
         if (null === $config) {
             $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
-        } else if (!($version instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
+        } else if (!($config instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
             throw new \RuntimeException(sprintf(
                 '%s::xmlUnserialize - $config must be instance of \\%s or null, %s seen.',
                 ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
                 <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>::class,
-                get_class($version)
+                get_class($config)
             ));
         }
         if (is_string($element)) {

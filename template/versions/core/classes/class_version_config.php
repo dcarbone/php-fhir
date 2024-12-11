@@ -19,6 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 
 $config = $version->getConfig();
+$defConfig = $version->getDefaultConfig();
 $namespace = $version->getFullyQualifiedName(false);
 
 ob_start();
@@ -33,7 +34,8 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_ABSTRACT_VERSION_CONFIG); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_VERSION_CONFIG_KEY); ?>;
 
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; if ('' !== $namespace) : ?>
@@ -42,9 +44,30 @@ use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_C
 <?php endif; ?>
 
  */
-class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
+class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> extends <?php echo PHPFHIR_CLASSNAME_ABSTRACT_VERSION_CONFIG; ?>
 
 {
+    private const _VERSION_DEFAULT_UNSERIALIZE_CONFIG = <?php echo pretty_var_export($defConfig->getUnserializeConfig(), 1); ?>;
+    private const _VERSION_DEFAULT_SERIALIZE_CONFIG = <?php echo pretty_var_export($defConfig->getSerializeConfig(), 1); ?>;
 
+    /**
+     * <?php echo $version->getName(); ?> version config constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        foreach(<?php echo PHPFHIR_ENUM_VERSION_CONFIG_KEY; ?>::cases() as $k) {
+            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
+                $this->{"set{$k->value}"}($config[$k->value]);
+            }
+        }
+
+        if (!isset($this->_unserializeConfig)) {
+            $this->setUnserializeConfig(array_merge(parent::_DEFAULT_UNSERIALIZE_CONFIG, self::_VERSION_DEFAULT_UNSERIALIZE_CONFIG));
+        }
+        if (!isset($this->_serializeConfig)) {
+            $this->setSerializeConfig(array_merge(parent::_DEFAULT_SERIALIZE_CONFIG, self::_VERSION_DEFAULT_SERIALIZE_CONFIG));
+        }
+    }
 }
 <?php return ob_get_clean();

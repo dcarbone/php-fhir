@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-enum ConfigKeys: string
+enum ConfigKeyEnum: string
 {
     case SCHEMA_PATH = 'schemaPath';
     case CLASSES_PATH = 'classesPath';
@@ -29,7 +29,7 @@ enum ConfigKeys: string
     case LIBXML_OPTS = 'libxmlOpts';
 
     /**
-     * @return \DCarbone\PHPFHIR\ConfigKeys[]
+     * @return \DCarbone\PHPFHIR\ConfigKeyEnum[]
      */
     public static function required(): array
     {
@@ -42,7 +42,7 @@ enum ConfigKeys: string
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\ConfigKeys[]
+     * @return \DCarbone\PHPFHIR\ConfigKeyEnum[]
      */
     public static function optional(): array
     {

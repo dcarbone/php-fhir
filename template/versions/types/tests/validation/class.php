@@ -69,7 +69,7 @@ echo SourceMetadata::getFullPHPFHIRCopyrightComment();
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
 use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>;
-use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_ENUM_TYPE; ?>;
+use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_VERSION_ENUM_TYPE; ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -153,7 +153,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->client->get(sprintf('/%s', <?php echo PHPFHIR_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '1', '_format' => $format]);
+        $rc = $this->client->get(sprintf('/%s', <?php echo PHPFHIR_VERSION_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '1', '_format' => $format]);
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         $this->assertEquals(200, $rc->code, 'Expected 200 OK');
         $this->assertIsString($rc->resp);

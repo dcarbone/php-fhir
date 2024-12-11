@@ -207,14 +207,14 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
      *
      * @see https://www.hl7.org/fhir/http.html#read
      *
-     * @param string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_TYPE); ?> $resourceType
+     * @param string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_VERSION_ENUM_TYPE); ?> $resourceType
      * @param string $id
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> $format
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
-    public function readOne(string|<?php echo PHPFHIR_ENUM_TYPE; ?> $resourceType, string $id, <?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function readOne(string|<?php echo PHPFHIR_VERSION_ENUM_TYPE; ?> $resourceType, string $id, <?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if (!is_string($resourceType)) {
@@ -238,13 +238,13 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
      *
      * @see https://www.hl7.org/fhir/http.html#read
      *
-     * @param string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_TYPE); ?> $resourceType
+     * @param string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_VERSION_ENUM_TYPE); ?> $resourceType
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> $format
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
-    public function readFirst(string|<?php echo PHPFHIR_ENUM_TYPE; ?> $resourceType, <?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public function readFirst(string|<?php echo PHPFHIR_VERSION_ENUM_TYPE; ?> $resourceType, <?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if (!is_string($resourceType)) {

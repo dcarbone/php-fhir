@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
-$namespace = $config->getFullyQualifiedName(false);
+$namespace = $version->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -28,31 +29,21 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo $config->getBasePHPFHIRCopyrightComment();
+echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
+echo "\n\n"; ?>
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; if ('' !== $namespace) : ?>
+ * Enum <?php echo PHPFHIR_VERSION_ENUM_TYPE; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
-
+enum <?php echo PHPFHIR_VERSION_ENUM_TYPE; ?> : string
 {
-    /**
-     * Must return the unserialization config to use for this version
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG); ?>
-
-     */
-    public function getUnserializeConfig(): <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?>;
-
-    /**
-     * Must return the serialization config to use for this version
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?>
-     */
-    public function getSerializeConfig(): <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>;
+<?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>
+    case <?php echo $type->getConstName(false); ?> = <?php echo $type->getTypeNameConst(true) ?>;
+<?php endforeach;?>
 }
+
 <?php return ob_get_clean();

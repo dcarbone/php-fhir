@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Enum\TestType;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
+use DCarbone\PHPFHIR\Version\VersionDefaultConfig;
 use InvalidArgumentException;
 
 /**
@@ -36,12 +37,13 @@ class Version
     /** @var \DCarbone\PHPFHIR\Version\SourceMetadata */
     private SourceMetadata $copyright;
 
+    /** @var \DCarbone\PHPFHIR\Version\VersionDefaultConfig */
+    private VersionDefaultConfig $defaultConfig;
+
     /** @var string */
     private string $name;
     /** @var string */
     private string $sourceUrl;
-    /** @var string */
-    private string $sourcePath;
     /** @var string */
     private string $namespace;
     /** @var string */
@@ -99,6 +101,10 @@ class Version
                     $this->namespace
                 )
             );
+        }
+
+        if (!isset($this->defaultConfig)) {
+            $this->defaultConfig = new VersionDefaultConfig([]);
         }
 
         $this->copyright = new SourceMetadata($config, $this);
@@ -181,6 +187,27 @@ class Version
     public function setNamespace(string $namespace): self
     {
         $this->namespace = $namespace;
+        return $this;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\VersionDefaultConfig
+     */
+    public function getDefaultConfig(): VersionDefaultConfig
+    {
+        return $this->defaultConfig;
+    }
+
+    /**
+     * @param array|\DCarbone\PHPFHIR\VersionDefaultConfig $defaultConfig
+     * @return $this
+     */
+    public function setDefaultConfig(array|VersionDefaultConfig $defaultConfig): self
+    {
+        if (is_array($defaultConfig)) {
+            $defaultConfig = new VersionDefaultConfig($defaultConfig);
+        }
+        $this->defaultConfig = $defaultConfig;
         return $this;
     }
 

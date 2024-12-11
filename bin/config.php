@@ -34,7 +34,7 @@ return [
     // If true, will skip generation of test classes
     'skipTests' => false,
 
-    // If you wish to specify alternative libxml opts, do so here.
+    // The libxml opts to use for parsing source XSD's.
     'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
 
     // Map of versions and configurations to generate.
@@ -45,10 +45,27 @@ return [
         'DSTU1' => [
             // Source URL
             'sourceUrl' => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
-            // Namespace
+            // Namespace to generate classes into
             'namespace' => 'Versions\\DSTU1',
-            // If defined, enables integration and validation test generation against the provided endpoint.
+            // If defined, enables integration test generation against the provided endpoint.
             'testEndpoint' => '',
+
+            // The default configuration for all instances of this version.  May be overridden per version during
+            // instantiation.
+            'defaultConfig' => [
+                'unserializeConfig' => [
+                    // Libxml options to use when unserialize types from XML
+                    'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
+                    // Maximum depth to allow when decoding JSON
+                    'jsonDecodeMaxDepth' => 512,
+                ],
+                'serializeConfig' => [
+                    // If true, will override the default xmlns value with the value provided in the rootXmlns key
+                    'overrideSourceXmlns' => false,
+                    // If overrideSourceXmlns is true, this value will be used as the root xmlns value
+                    'rootXmlns' => 'http://hl7.org/fhir',
+                ]
+            ]
         ],
         'DSTU2' => [
             'sourceUrl' => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',

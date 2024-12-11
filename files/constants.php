@@ -75,6 +75,9 @@ const PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR = PHPFHIR_TEMPLATE_VERSION_TYPES_D
 // Core class names
 const PHPFHIR_CLASSNAME_AUTOLOADER = 'Autoloader';
 const PHPFHIR_CLASSNAME_CONFIG = 'Config';
+const PHPFHIR_CLASSNAME_ABSTRACT_VERSION_CONFIG = 'AbstractVersionConfig';
+const PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG = 'UnserializeConfig';
+const PHPFHIR_CLASSNAME_SERIALIZE_CONFIG = 'SerializeConfig';
 const PHPFHIR_CLASSNAME_RESPONSE_PARSER = 'ResponseParser';
 const PHPFHIR_CLASSNAME_CONSTANTS = 'Constants';
 const PHPFHIR_CLASSNAME_API_CLIENT = 'APIClient';
@@ -99,7 +102,9 @@ const PHPFHIR_TRAIT_SOURCE_XMLNS = 'SourceXmlNamespaceTrait';
 
 // Core enums
 const PHPFHIR_ENUM_CONFIG_KEY = 'ConfigKeyEnum';
-const PHPFHIR_ENUM_TYPE = 'TypeEnum';
+const PHPFHIR_ENUM_VERSION_CONFIG_KEY = 'VersionConfigKeyEnum';
+const PHPFHIR_ENUM_UNSERIALIZE_CONFIG_KEY = 'UnserializeConfigKeyEnum';
+const PHPFHIR_ENUM_SERIALIZE_CONFIG_KEY = 'SerializeConfigKey';
 const PHPFHIR_ENUM_API_FORMAT = 'ApiFormatEnum';
 const PHPFHIR_ENUM_XML_LOCATION = 'XMLLocationEnum';
 const PHPFHIR_ENUM_API_RESOURCE_LIST = 'APIResourceListEnum';
@@ -109,6 +114,7 @@ const PHPFHIR_ENUM_API_SORT = 'APISortEnum';
 const PHPFHIR_CLASSNAME_VERSION = 'Version';
 const PHPFHIR_CLASSNAME_VERSION_CONFIG = 'VersionConfig';
 const PHPFHIR_CLASSNAME_VERSION_CONSTANTS = 'VersionConstants';
+const PHPFHIR_VERSION_ENUM_TYPE = 'VersionTypeEnum';
 const PHPFHIR_CLASSNAME_VERSION_TYPEMAP = 'VersionTypeMap';
 const PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE = 'VersionContainedTypeInterface';
 

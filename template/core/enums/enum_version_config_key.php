@@ -17,6 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -30,29 +31,17 @@ endif;
 
 echo $config->getBasePHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
+echo "\n\n"; ?>
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; if ('' !== $namespace) : ?>
+ * Enum <?php echo PHPFHIR_ENUM_VERSION_CONFIG_KEY; if ('' !== $namespace) : ?>
 
  * @package \<?php echo $namespace; ?>
 <?php endif; ?>
 
  */
-interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
-
+enum <?php echo PHPFHIR_ENUM_VERSION_CONFIG_KEY; ?> : string
 {
-    /**
-     * Must return the unserialization config to use for this version
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG); ?>
-
-     */
-    public function getUnserializeConfig(): <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?>;
-
-    /**
-     * Must return the serialization config to use for this version
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?>
-     */
-    public function getSerializeConfig(): <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>;
+    case UNSERIALIZE_CONFIG = 'unserializeConfig';
+    case SERIALIZE_CONFIG = 'serializeConfig';
 }
 <?php return ob_get_clean();
