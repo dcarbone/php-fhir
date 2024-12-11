@@ -16,10 +16,8 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $config->getFullyQualifiedName(false);
 
@@ -31,7 +29,7 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
 /**
@@ -44,53 +42,30 @@ echo "\n\n"; ?>
 class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
     /** @var bool */
-    private bool $registerAutoloader = false;
+    private bool $_registerAutoloader = false;
 
-    /** @var int */
-    private int $libxmlOpts;
-
-    /** @var string */
-    private string $rootXmlns;
-
-    /** @var bool */
-    private bool $overrideSourceXmlns;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?>[]
+    private array $versions = [];
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
-     * @param array $config
+     * @param array $_config
      */
     public function __construct(array $config = [])
     {
         foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $k) {
             if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
-                $this->setKey($k->value, $config[$k->value]);
+                $this->{"set{$k->value}"}($config[$k->value]);
             }
         }
     }
 
     /**
-     * Set arbitrary key on this config
-     *
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CONFIG_KEY); ?>|string $key
-     * @param mixed $value
-     * @return static
-     */
-    public function setKey(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>|string $key, mixed $value): self
-    {
-        if (!is_string($key)) {
-            $key = $key->value;
-        }
-        $this->{'set'.$key}($value);
-        return $this;
-    }
-
-    /**
-     * @param bool $registerAutoloader
-     * @return static
+     * @var bool $registerAutoloader
      */
     public function setRegisterAutoloader(bool $registerAutoloader): self
     {
-        $this->registerAutoloader = $registerAutoloader;
+        $this->_registerAutoloader = $registerAutoloader;
         return $this;
     }
 
@@ -99,70 +74,10 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      */
     public function getRegisterAutoloader(): bool
     {
-        return $this->registerAutoloader;
+        return $this->_registerAutoloader;
     }
 
-    /**
-     * Sets the option flags to provide to libxml when unserializing XML
-     *
-     * @param int $libxmlOpts
-     * @return static
-     */
-    public function setLibxmlOpts(int $libxmlOpts): self
-    {
-        $this->libxmlOpts = $libxmlOpts;
-        return $this;
-    }
-
-    /**
-     * Returns set libxml option flags
-     *
-     * @return int
-     */
-    public function getLibxmlOpts(): int
-    {
-        return $this->libxmlOpts ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_LIBXML_OPTS;
-    }
-
-    /**
-     * Default root xmlns to use.
-     *
-     * @param string $rootXmlns
-     * @return static
-     */
-    public function setRootXmlns(string $rootXmlns): self
-    {
-        $this->rootXmlns = $rootXmlns;
-        return $this;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getRootXmlns(): null|string
-    {
-        return $this->rootXmlns ?? null;
-    }
-
-    /**
-     * If true, overrides the xmlns entry found at the root of a source document, if there was one.
-     *
-     * @param bool $overrideSourceXmlns
-     * @return static
-     */
-    public function setOverrideSourceXmlns(bool $overrideSourceXmlns): self
-    {
-        $this->overrideSourceXmlns = $overrideSourceXmlns;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getOverrideSourceXmlns(): bool
-    {
-        return $this->overrideSourceXmlns ?? false;
-    }
+    <?php // TODO: add version initialization; ?>
 
     /**
      * @return \stdClass
@@ -171,7 +86,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     {
         $out = new \stdClass();
         foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $key) {
-            $out->{$k} = $this->{$key->getter()}();
+            $out->{$key->value} = $this->{"get$key->value"}();
         }
         return $out;
     }

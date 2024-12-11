@@ -16,9 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
+/** @var \DCarbone\PHPFHIR\Config $config */
 
 $rootNS = $config->getFullyQualifiedName(false);
 
@@ -29,7 +27,7 @@ if ('' !== $rootNS) :
     echo "namespace {$rootNS};\n\n";
 endif;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n";
 ?>
@@ -58,7 +56,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
     /**
      * Set internal fhir_comments list, overwriting any previous value(s)
      * @param array $fhirComments
-     * @return static
+     * @return self
      */
     public function _setFHIRComments(array $fhirComments): self
     {
@@ -69,7 +67,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
     /**
      * Append comment string to internal fhir_comments list
      * @param string $fhirComment
-     * @return static
+     * @return self
      */
     public function _addFHIRComment(string $fhirComment): self
     {
