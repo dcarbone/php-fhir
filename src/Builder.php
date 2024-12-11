@@ -280,7 +280,7 @@ class Builder
             // construct class filename
             $cname = sprintf(
                 '%s%s',
-                implode('', array_map('ucfirst', explode('_', $fname))),
+                implode('', array_map('classFilenameFormat', explode('_', $fname))),
                 $suffix
             );
 

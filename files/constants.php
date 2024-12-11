@@ -98,7 +98,7 @@ const PHPFHIR_INTERFACE_VERSION_TYPE_MAP = 'VersionTypeMapInterface';
 // Core traits
 const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'CommentContainerTrait';
 const PHPFHIR_TRAIT_VALIDATION_ASSERTIONS = 'ValidationAssertionsTrait';
-const PHPFHIR_TRAIT_SOURCE_XMLNS = 'SourceXmlNamespaceTrait';
+const PHPFHIR_TRAIT_SOURCE_XMLNS = 'SourceXMLNamespaceTrait';
 
 // Core enums
 const PHPFHIR_ENUM_CONFIG_KEY = 'ConfigKeyEnum';

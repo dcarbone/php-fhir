@@ -73,3 +73,17 @@ function pretty_var_export(mixed $var, int $indent = 0, bool $indentFirst = fals
     }
     return sprintf("%s\n%s]", $out, str_repeat(' ', $indent * $indentSize));
 }
+
+/**
+ * Sloppy little function to ensure filenames are consistent or whatever
+ *
+ * @param string $bit
+ * @return string
+ */
+function classFilenameFormat(string $bit): string
+{
+    return match ($bit) {
+        'xml' => 'XML',
+        default => ucfirst($bit),
+    };
+}
