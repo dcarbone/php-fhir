@@ -45,11 +45,6 @@ final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     // PHPFHIR
     public const CODE_GENERATION_DATE = '<?php echo $config->getStandardDate(); ?>';
 
-    // Config Defaults
-    public const DEFAULT_LIBXML_OPTS = LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL;
-    public const DEFAULT_XMLNS = 'https://hl7.org/fhir';
-    public const DEFAULT_JSON_DECODE_MAX_DEPTH = 512;
-
     // Common
     public const JSON_FIELD_RESOURCE_TYPE = 'resourceType';
     public const JSON_FIELD_FHIR_COMMENTS = 'fhir_comments';

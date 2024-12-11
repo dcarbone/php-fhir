@@ -42,23 +42,14 @@ echo "\n\n"; ?>
 class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
     /** @var bool */
-    private bool $registerAutoloader = false;
+    private bool $_registerAutoloader = false;
 
-    /** @var int */
-    private int $libxmlOpts;
-
-    /** @var string */
-    private string $rootXmlns;
-
-    /** @var bool */
-    private bool $overrideSourceXmlns;
-
-    /** @var int */
-    private int $jsonDecodeMaxDepth;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?>[]
+    private array $versions = [];
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
-     * @param array $config
+     * @param array $_config
      */
     public function __construct(array $config = [])
     {
@@ -70,88 +61,23 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     }
 
     /**
-     * Sets the option flags to provide to libxml when unserializing XML
-     *
-     * @see https://www.php.net/manual/en/libxml.constants.php
-     *
-     * @param int $libxmlOpts
-     * @return self
+     * @var bool $registerAutoloader
      */
-    public function setLibxmlOpts(int $libxmlOpts): self
+    public function setRegisterAutoloader(bool $registerAutoloader): self
     {
-        $this->libxmlOpts = $libxmlOpts;
-        return $this;
-    }
-
-    /**
-     * Returns set libxml option flags
-     *
-     * @return int
-     */
-    public function getLibxmlOpts(): int
-    {
-        return $this->libxmlOpts ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_LIBXML_OPTS;
-    }
-
-    /**
-     * @param string $rootXmlns
-     * @return self
-     */
-    public function setRootXmlns(string $rootXmlns): self
-    {
-        $this->rootXmlns = $rootXmlns;
-        return $this;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getRootXmlns(): null|string
-    {
-        return $this->rootXmlns ?? null;
-    }
-
-    /**
-     * If true, overrides the xmlns entry found at the root of a source document, if there was one.
-     *
-     * @param bool $overrideSourceXmlns
-     * @return self
-     */
-    public function setOverrideSourceXmlns(bool $overrideSourceXmlns): self
-    {
-        $this->overrideSourceXmlns = $overrideSourceXmlns;
+        $this->_registerAutoloader = $registerAutoloader;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function getOverrideSourceXmlns(): bool
+    public function getRegisterAutoloader(): bool
     {
-        return $this->overrideSourceXmlns ?? false;
+        return $this->_registerAutoloader;
     }
 
-    /**
-     * Max depth option to provide when decoding a JSON input string.
-     *
-     * See https://www.php.net/manual/en/function.json-decode.php
-     *
-     * @param int $maxDepth
-     * @return self
-     */
-    public function setJsonDecodeMaxDepth(int $maxDepth): self
-    {
-        $this->jsonDecodeMaxDepth = $maxDepth;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getJsonDecodeMaxDepth(): int
-    {
-        return $this->jsonDecodeMaxDepth ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_JSON_DECODE_MAX_DEPTH;
-    }
+    <?php // TODO: add version initialization; ?>
 
     /**
      * @return \stdClass

@@ -43,10 +43,8 @@ echo "\n\n"; ?>
  */
 enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
 {
-    case LIBXML_OPTS = 'libxmlOpts';
-    case ROOT_XMLNS = 'rootXmlns';
-    case OVERRIDE_SOURCE_XMLNS = 'overrideSourceXmlns';
-    case JSON_DECODE_MAX_DEPTH = 'jsonDecodeMaxDepth';
+    case REGISTER_AUTOLOADER = 'registerAutoloader';
+    case VERSIONS = 'versions';
 }
 
 <?php return ob_get_clean();
