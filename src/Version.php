@@ -23,7 +23,6 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
 use DCarbone\PHPFHIR\Version\VersionDefaultConfig;
-use InvalidArgumentException;
 
 /**
  * Class Version
@@ -32,25 +31,31 @@ use InvalidArgumentException;
 class Version
 {
     /** @var \DCarbone\PHPFHIR\Config */
-    private Config $config;
+    private Config $_config;
 
     /** @var \DCarbone\PHPFHIR\Version\SourceMetadata */
-    private SourceMetadata $copyright;
+    private SourceMetadata $_sourceMetadata;
 
     /** @var \DCarbone\PHPFHIR\Version\VersionDefaultConfig */
-    private VersionDefaultConfig $defaultConfig;
+    private VersionDefaultConfig $_defaultConfig;
 
     /** @var string */
-    private string $name;
+    private string $_name;
     /** @var string */
-    private string $sourceUrl;
+    private string $_sourceUrl;
     /** @var string */
-    private string $namespace;
+    private string $_namespace;
     /** @var string */
-    private string $testEndpoint;
+    private string $_testEndpoint;
+
+    /** @var string */
+    private string $_constName;
 
     /** @var \DCarbone\PHPFHIR\Version\Definition */
-    private Definition $definition;
+    private Definition $_definition;
+
+    /** @var \DCarbone\PHPFHIR\CoreFiles */
+    private CoreFiles $_coreFiles;
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
@@ -59,10 +64,10 @@ class Version
      */
     public function __construct(Config $config, string $name, array $params = [])
     {
-        $this->config = $config;
-        $this->name = $name;
+        $this->_config = $config;
+        $this->_name = $name;
 
-        if ('' === trim($this->name)) {
+        if ('' === trim($this->_name)) {
             throw new \DomainException('Version name cannot be empty.');
         }
 
@@ -78,7 +83,7 @@ class Version
             $this->{"set$key->value"}($params[$key->value]);
         }
 
-        if ((!isset($this->sourceUrl) || '' === $this->sourceUrl)) {
+        if ((!isset($this->_sourceUrl) || '' === $this->_sourceUrl)) {
             throw new \DomainException(sprintf(
                 'Version %s missing required configuration key "%s"',
                 $name,
@@ -94,20 +99,27 @@ class Version
         }
 
         // ensure namespace is valid
-        if (!NameUtils::isValidNSName($this->namespace)) {
-            throw new InvalidArgumentException(
+        if (!NameUtils::isValidNSName($this->_namespace)) {
+            throw new \InvalidArgumentException(
                 sprintf(
                     '"%s" is not a valid PHP namespace.',
-                    $this->namespace
+                    $this->_namespace
                 )
             );
         }
 
-        if (!isset($this->defaultConfig)) {
-            $this->defaultConfig = new VersionDefaultConfig([]);
+        if (!isset($this->_defaultConfig)) {
+            $this->_defaultConfig = new VersionDefaultConfig([]);
         }
 
-        $this->copyright = new SourceMetadata($config, $this);
+        $this->_sourceMetadata = new SourceMetadata($config, $this);
+
+        $this->_coreFiles = new CoreFiles(
+            $config->getClassesPath(),
+            PHPFHIR_TEMPLATE_VERSIONS_CORE_DIR,
+            $this->getFullyQualifiedName(true),
+            $this->getFullyQualifiedTestsName(TestType::BASE, true)
+        );
     }
 
     /**
@@ -115,7 +127,7 @@ class Version
      */
     public function getConfig(): Config
     {
-        return $this->config;
+        return $this->_config;
     }
 
     /**
@@ -123,7 +135,7 @@ class Version
      */
     public function getSourceMetadata(): SourceMetadata
     {
-        return $this->copyright;
+        return $this->_sourceMetadata;
     }
 
     /**
@@ -131,7 +143,7 @@ class Version
      */
     public function getName(): string
     {
-        return $this->name;
+        return $this->_name;
     }
 
     /**
@@ -139,7 +151,7 @@ class Version
      */
     public function getSourceUrl(): string
     {
-        return $this->sourceUrl;
+        return $this->_sourceUrl;
     }
 
     /**
@@ -148,7 +160,7 @@ class Version
      */
     public function setSourceUrl(string $sourceUrl): self
     {
-        $this->sourceUrl = $sourceUrl;
+        $this->_sourceUrl = $sourceUrl;
         return $this;
     }
 
@@ -159,7 +171,7 @@ class Version
      */
     public function getSchemaPath(): string
     {
-        return $this->config->getSchemaPath() . DIRECTORY_SEPARATOR . $this->name;
+        return $this->_config->getSchemaPath() . DIRECTORY_SEPARATOR . $this->_name;
     }
 
     /**
@@ -169,7 +181,7 @@ class Version
      */
     public function getClassesPath(): string
     {
-        return $this->config->getClassesPath();
+        return $this->_config->getClassesPath();
     }
 
     /**
@@ -177,7 +189,7 @@ class Version
      */
     public function getNamespace(): string
     {
-        return $this->namespace;
+        return $this->_namespace;
     }
 
     /**
@@ -186,20 +198,20 @@ class Version
      */
     public function setNamespace(string $namespace): self
     {
-        $this->namespace = $namespace;
+        $this->_namespace = $namespace;
         return $this;
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\VersionDefaultConfig
+     * @return \DCarbone\PHPFHIR\Version\VersionDefaultConfig
      */
     public function getDefaultConfig(): VersionDefaultConfig
     {
-        return $this->defaultConfig;
+        return $this->_defaultConfig;
     }
 
     /**
-     * @param array|\DCarbone\PHPFHIR\VersionDefaultConfig $defaultConfig
+     * @param array|\DCarbone\PHPFHIR\Version\VersionDefaultConfig $defaultConfig
      * @return $this
      */
     public function setDefaultConfig(array|VersionDefaultConfig $defaultConfig): self
@@ -207,7 +219,7 @@ class Version
         if (is_array($defaultConfig)) {
             $defaultConfig = new VersionDefaultConfig($defaultConfig);
         }
-        $this->defaultConfig = $defaultConfig;
+        $this->_defaultConfig = $defaultConfig;
         return $this;
     }
 
@@ -216,7 +228,7 @@ class Version
      */
     public function getTestEndpoint(): string|null
     {
-        return $this->testEndpoint ?? null;
+        return $this->_testEndpoint ?? null;
     }
 
     /**
@@ -225,7 +237,7 @@ class Version
      */
     public function setTestEndpoint(string $testEndpoint): self
     {
-        $this->testEndpoint = $testEndpoint;
+        $this->_testEndpoint = $testEndpoint;
         return $this;
     }
 
@@ -236,7 +248,7 @@ class Version
      */
     public function getFullyQualifiedName(bool $leadingSlash, string ...$bits): string
     {
-        return $this->config->getFullyQualifiedName($leadingSlash, ...array_merge([$this->namespace], $bits));
+        return $this->_config->getFullyQualifiedName($leadingSlash, ...array_merge([$this->_namespace], $bits));
     }
 
     /**
@@ -251,13 +263,40 @@ class Version
     }
 
     /**
+     * @return string
+     */
+    public function getConstName(): string
+    {
+        if (!isset($this->_constName)) {
+            $this->_constName = NameUtils::getConstName($this->_name);
+        }
+        return $this->_constName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEnumImportName(): string
+    {
+        return sprintf('Version%s', $this->getConstName());
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Version\Definition
      */
     public function getDefinition(): Definition
     {
-        if (!isset($this->definition)) {
-            $this->definition = new Definition($this->config, $this);
+        if (!isset($this->_definition)) {
+            $this->_definition = new Definition($this->_config, $this);
         }
-        return $this->definition;
+        return $this->_definition;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\CoreFiles
+     */
+    public function getCoreFiles(): CoreFiles
+    {
+        return $this->_coreFiles;
     }
 }

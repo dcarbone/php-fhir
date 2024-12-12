@@ -84,6 +84,9 @@ You can view an example config array here: [bin/config.php](./bin/config.php).
 // first, build new configuration class
 $config = new \DCarbone\PHPFHIR\Config(require 'config.php');
 
+// if you wish to limit the versions generated to a subset of those configured:
+// $config->setVersionsToGenerate(['DSTU2', 'STU3']);
+
 // next, iterate through all configured versions and render code:
 foreach ($config->getVersionsIterator() as $versionConfig) {
     $versionConfig->getDefinition()->getBuilder()->render();

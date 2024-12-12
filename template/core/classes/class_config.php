@@ -44,12 +44,12 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     /** @var bool */
     private bool $_registerAutoloader = false;
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?>[]
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?>[] */
     private array $versions = [];
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
-     * @param array $_config
+     * @param array $config
      */
     public function __construct(array $config = [])
     {
@@ -62,6 +62,7 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 
     /**
      * @var bool $registerAutoloader
+     * @return self
      */
     public function setRegisterAutoloader(bool $registerAutoloader): self
     {
@@ -75,6 +76,18 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     public function getRegisterAutoloader(): bool
     {
         return $this->_registerAutoloader;
+    }
+
+    public function addVersion(string $name, array $config): self
+    {
+        if (isset($this->_versions[$name])) {
+            throw new \InvalidArgumentException(sprintf('Version "%s" already defined.', $name));
+        }
+
+
+
+        $this->versions[] = ;
+        return $this;
     }
 
     <?php // TODO: add version initialization; ?>

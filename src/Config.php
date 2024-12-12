@@ -34,23 +34,23 @@ class Config implements LoggerAwareInterface
     private Logger $_log;
 
     /** @var string */
-    private string $schemaPath;
+    private string $_schemaPath;
 
     /** @var string */
-    private string $classesPath;
+    private string $_classesPath;
 
     /** @var string */
-    private string $rootNamespace;
+    private string $_rootNamespace;
 
     /** @var \DCarbone\PHPFHIR\Version[] */
-    private array $versions = [];
+    private array $_versions = [];
 
     /** @var bool */
-    private bool $silent = false;
+    private bool $_silent = false;
     /** @var bool */
-    private bool $skipTests = false;
+    private bool $_skipTests = false;
     /** @var null|int */
-    private null|int $libxmlOpts;
+    private null|int $_libxmlOpts;
 
     /** @var string */
     private string $_standardDate;
@@ -59,6 +59,12 @@ class Config implements LoggerAwareInterface
     private array $_phpFHIRCopyright;
     /** @var string */
     private string $_basePHPFHIRCopyrightComment;
+
+    /** @var \DCarbone\PHPFHIR\CoreFiles */
+    private CoreFiles $_coreFiles;
+
+    /** @var array */
+    private array $_versionsToGenerate;
 
     /**
      * Config constructor.
@@ -116,6 +122,13 @@ class Config implements LoggerAwareInterface
             "/*!\n * %s\n */",
             implode("\n * ", $this->_phpFHIRCopyright)
         );
+
+        $this->_coreFiles = new CoreFiles(
+            $this->getClassesPath(),
+            PHPFHIR_TEMPLATE_CORE_DIR,
+            $this->getFullyQualifiedName(true),
+            $this->getFullyQualifiedTestsName(TestType::BASE, true)
+        );
     }
 
     /**
@@ -136,7 +149,7 @@ class Config implements LoggerAwareInterface
      */
     public function getSchemaPath(): string
     {
-        return $this->schemaPath;
+        return $this->_schemaPath;
     }
 
     /**
@@ -145,7 +158,7 @@ class Config implements LoggerAwareInterface
      */
     public function setSchemaPath(string $schemaPath): self
     {
-        $this->schemaPath = $schemaPath;
+        $this->_schemaPath = $schemaPath;
         return $this;
     }
 
@@ -154,7 +167,7 @@ class Config implements LoggerAwareInterface
      */
     public function getRootNamespace(): string
     {
-        return $this->rootNamespace;
+        return $this->_rootNamespace;
     }
 
     /**
@@ -166,7 +179,7 @@ class Config implements LoggerAwareInterface
         // handle no or empty namespace
         $rootNamespace = trim($rootNamespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
         if ('' === $rootNamespace) {
-            $this->rootNamespace = '';
+            $this->_rootNamespace = '';
             return $this;
         }
         if (false === NameUtils::isValidNSName($rootNamespace)) {
@@ -178,7 +191,7 @@ class Config implements LoggerAwareInterface
             );
         }
 
-        $this->rootNamespace = $rootNamespace;
+        $this->_rootNamespace = $rootNamespace;
         return $this;
     }
 
@@ -187,7 +200,7 @@ class Config implements LoggerAwareInterface
      */
     public function isSilent(): bool
     {
-        return $this->silent;
+        return $this->_silent;
     }
 
     /**
@@ -196,7 +209,7 @@ class Config implements LoggerAwareInterface
      */
     public function setSilent(bool $silent): self
     {
-        $this->silent = $silent;
+        $this->_silent = $silent;
         return $this;
     }
 
@@ -205,7 +218,7 @@ class Config implements LoggerAwareInterface
      */
     public function isSkipTests(): bool
     {
-        return $this->skipTests;
+        return $this->_skipTests;
     }
 
     /**
@@ -214,7 +227,7 @@ class Config implements LoggerAwareInterface
      */
     public function setSkipTests(bool $skipTests): self
     {
-        $this->skipTests = $skipTests;
+        $this->_skipTests = $skipTests;
         return $this;
     }
 
@@ -223,7 +236,7 @@ class Config implements LoggerAwareInterface
      */
     public function getLibxmlOpts(): null|int
     {
-        return $this->libxmlOpts;
+        return $this->_libxmlOpts;
     }
 
     /**
@@ -232,7 +245,7 @@ class Config implements LoggerAwareInterface
      */
     public function setLibxmlOpts(?int $libxmlOpts): self
     {
-        $this->libxmlOpts = $libxmlOpts;
+        $this->_libxmlOpts = $libxmlOpts;
         return $this;
     }
 
@@ -249,7 +262,7 @@ class Config implements LoggerAwareInterface
      */
     public function getClassesPath(): string
     {
-        return $this->classesPath;
+        return $this->_classesPath;
     }
 
     /**
@@ -277,7 +290,7 @@ class Config implements LoggerAwareInterface
                 )
             );
         }
-        $this->classesPath = $classesPath;
+        $this->_classesPath = $classesPath;
         return $this;
     }
 
@@ -287,19 +300,27 @@ class Config implements LoggerAwareInterface
      */
     public function setVersions(array $versions): self
     {
-        $this->versions = [];
+        $this->_versions = [];
         foreach ($versions as $name => $data) {
-            $this->versions[$name] = ($data instanceof Version) ? $data : new Version($this, $name, $data);
+            $this->_versions[$name] = ($data instanceof Version) ? $data : new Version($this, $name, $data);
         }
         return $this;
     }
 
     /**
+     * @param bool $limit If true, limits return to only versions that are set to be generated
      * @return \DCarbone\PHPFHIR\Version[]
      */
-    public function getVersionsIterator(): iterable
+    public function getVersionsIterator(bool $limit = true): iterable
     {
-        return \SplFixedArray::fromArray(array_values($this->versions));
+        if (!$limit) {
+            return \SplFixedArray::fromArray(array_values($this->_versions));
+        }
+        $out = [];
+        foreach ($this->_versionsToGenerate as $vn) {
+            $out[] = $this->_versions[$vn];
+        }
+        return \SplFixedArray::fromArray($out);
     }
 
     /**
@@ -308,7 +329,7 @@ class Config implements LoggerAwareInterface
      */
     public function hasVersion(string $version): bool
     {
-        return isset($this->versions[$version]);
+        return isset($this->_versions[$version]);
     }
 
     /**
@@ -321,11 +342,11 @@ class Config implements LoggerAwareInterface
             throw new \OutOfBoundsException(sprintf(
                     'No version with name "%s" has been configured.  Available: ["%s"]',
                     $version,
-                    implode('", "', array_keys($this->versions)),
+                    implode('", "', array_keys($this->_versions)),
                 )
             );
         }
-        return $this->versions[$version];
+        return $this->_versions[$version];
     }
 
     /**
@@ -333,7 +354,36 @@ class Config implements LoggerAwareInterface
      */
     public function listVersions(): array
     {
-        return array_keys($this->versions);
+        return array_keys($this->_versions);
+    }
+
+    /**
+     * Specify which versions are being generated this run.  An empty array assumes all.
+     *
+     * @param array $versionNames
+     * @return $this
+     */
+    public function setVersionsToGenerate(array $versionNames): self
+    {
+        $this->_versionsToGenerate = [];
+        if ([] === $versionNames) {
+            return $this;
+        }
+        foreach (array_unique($versionNames, SORT_STRING) as $vn) {
+            // test if this version is defined
+            $this->getVersion($vn);
+            // add to list.
+            $this->_versionsToGenerate[] = $vn;
+        }
+        return $this;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\CoreFiles
+     */
+    public function getCoreFiles(): CoreFiles
+    {
+        return $this->_coreFiles;
     }
 
     /**
@@ -343,7 +393,7 @@ class Config implements LoggerAwareInterface
      */
     public function getFullyQualifiedName(bool $leadingSlash, string...$bits): string
     {
-        $ns = $leadingSlash ? "\\$this->rootNamespace" : $this->rootNamespace;
+        $ns = $leadingSlash ? "\\$this->_rootNamespace" : $this->_rootNamespace;
         $bits = array_filter($bits);
         if ([] === $bits) {
             return $ns;

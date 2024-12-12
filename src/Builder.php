@@ -47,40 +47,20 @@ class Builder
      * Generate FHIR object classes based on XSD
      * @throws \ErrorException
      */
-    public function render(string ...$versionNames): void
+    public function render(): void
     {
-        if ([] === $versionNames) {
-            $versionNames = $this->config->listVersions();
-        }
-
         // write php-fhir core files
         $this->writeCoreFiles(
-            $this->getCoreTemplateFileIterator(),
-            $this->config->getClassesPath(),
-            $this->config->getFullyQualifiedName(true),
-            $this->config->getFullyQualifiedTestsName(TestType::BASE, true),
+            $this->config->getCoreFiles(),
             ['config' => $this->config]
         );
 
         // write fhir version files
-        $this->writeFhirVersionFiles(...$versionNames);
+        $this->writeFHIRVersionFiles();
 
         if (!$this->config->isSkipTests()) {
-            $this->writeFhirVersionTestFiles();
+            $this->writeFHIRVersionTestFiles();
         }
-    }
-
-    /**
-     * @return \RecursiveIteratorIterator
-     */
-    protected function getVersionCoreTemplateFileIterator(): \RecursiveIteratorIterator
-    {
-        return new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(
-                PHPFHIR_TEMPLATE_VERSIONS_CORE_DIR,
-                \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS
-            )
-        );
     }
 
     /**
@@ -89,7 +69,7 @@ class Builder
      * @throws \ErrorException
      * @throws \Exception
      */
-    public function writeFhirVersionFiles(string ...$versionNames): void
+    public function writeFHIRVersionFiles(): void
     {
         // register custom error handler to force explosions.
         set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
@@ -99,10 +79,6 @@ class Builder
         $log = $this->config->getLogger();
 
         foreach ($this->config->getVersionsIterator() as $version) {
-            if (!in_array($version->getName(), $versionNames, true)) {
-                continue;
-            }
-
             $log->startBreak(sprintf('FHIR Version %s Class Generation', $version->getName()));
 
             // write version fhir type files
@@ -118,10 +94,7 @@ class Builder
 
             // write version core files
             $this->writeCoreFiles(
-                $this->getVersionCoreTemplateFileIterator(),
-                $version->getClassesPath(),
-                $version->getFullyQualifiedName(true),
-                $version->getFullyQualifiedTestsName(TestType::BASE, true),
+                $version->getCoreFiles(),
                 [
                     'version' => $version,
                     'types' => $definition->getTypes(),
@@ -160,7 +133,7 @@ class Builder
      *
      * @throws \Exception
      */
-    public function writeFhirVersionTestFiles(string ...$versionNames): void
+    public function writeFHIRVersionTestFiles(string ...$versionNames): void
     {
         $log = $this->config->getLogger();
 
@@ -219,79 +192,22 @@ class Builder
     }
 
     /**
-     * @return \RecursiveIteratorIterator
-     */
-    protected function getCoreTemplateFileIterator(): \RecursiveIteratorIterator
-    {
-        return new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(
-                PHPFHIR_TEMPLATE_CORE_DIR,
-                \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS
-            ),
-        );
-    }
-
-    /**
      * Renders core PHP FHIR type classes, interfaces, traits, and enums.
      *
-     * @param \RecursiveIteratorIterator $dirIterator
-     * @param string $baseOutputDir
-     * @param string $baseNS
-     * @param string $testNS
+     * @param \DCarbone\PHPFHIR\CoreFiles $coreFiles
      * @param array $templateArgs
      * @return void
      */
-    protected function writeCoreFiles(
-        \RecursiveIteratorIterator $dirIterator,
-        string                     $baseOutputDir,
-        string                     $baseNS,
-        string                     $testNS,
-        array                      $templateArgs,
-    ): void
+    protected function writeCoreFiles(CoreFiles $coreFiles, array $templateArgs): void
     {
         $this->log->startBreak('Core Files');
 
         // render each core file
-        foreach ($dirIterator as $fpath => $fi) {
-            /** @var $fi \SplFileInfo */
-
-            // get filename
-            $fname = basename($fpath);
-            // store "type"
-            $ftype = substr($fname, 0, strpos($fname, '_'));
-            // trim "type" and ".php"
-            $fname = strstr(substr($fname, strpos($fname, '_') + 1), '.', true);
-            // classname suffix
-            $suffix = ucfirst($ftype);
-
-            // define "default" namespace
-            $ns = $baseNS;
-
-            if ('class' === $ftype) {
-                // 'class' types do have suffix
-                $suffix = '';
-            } else if ('test' === $ftype) {
-                // test classes have different namespace
-                $ns = $testNS;
-                // trim subtype
-                $fname = substr($fname, strpos($fname, '_') + 1);
-            }
-
-            // construct class filename
-            $cname = sprintf(
-                '%s%s',
-                implode('', array_map('classFilenameFormat', explode('_', $fname))),
-                $suffix
-            );
-
-            // write file to disk
+        foreach ($coreFiles->getIterator() as $coreFile) {
+            /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
             $this->writeFile(
-                FileUtils::buildCoreFilePath(
-                    $baseOutputDir,
-                    $ns,
-                    $cname,
-                ),
-                Templates::renderCoreTemplate($fpath, $templateArgs)
+                $coreFile->getFilepath(),
+                Templates::renderCoreTemplate($coreFile->getTemplateFile(), $templateArgs)
             );
         }
 

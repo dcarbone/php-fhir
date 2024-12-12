@@ -62,10 +62,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
      * <?php echo PHPFHIR_CLASSNAME_VERSION; ?> Constructor
      * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?> $config
      */
-    public function __construct(null|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $config = null)
+    public function __construct(null|array|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $config = null)
     {
-        if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
+        if (!is_object($config)) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>((array)$config);
         } else if (!($config instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
             throw new \InvalidArgumentException(sprintf(
                 '$config must be an instance of \\%s, %s given',

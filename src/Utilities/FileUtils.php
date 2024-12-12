@@ -94,20 +94,18 @@ final class FileUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @param string $baseNS
+     * @param string $classFQN
      * @return string
      */
-    public static function buildAutoloaderRelativeFilepath(Config $config, Type $type): string
+    public static function buildAutoloaderRelativeFilepath(string $baseNS, string $classFQN): string
     {
-        return ltrim(
-                str_replace(
-                    [$config->getFullyQualifiedName(false), '\\'],
-                    ['', '/'],
-                    $type->getFullyQualifiedClassName(false)
-                ),
-                '/\\'
-            ) . '.php';
+        $baseNS = ltrim($baseNS, '\\');
+        $classFQN = ltrim($classFQN, '\\');
+        if (str_starts_with($classFQN, $baseNS)) {
+            $classFQN = ltrim(substr($classFQN, strlen($baseNS)), '\\');
+        }
+        return sprintf("'%s.php'", str_replace('\\', "' . DIRECTORY_SEPARATOR . '", $classFQN));
     }
 
     /**

@@ -370,6 +370,9 @@ foreach ($versions_to_generate as $vg) {
     }
 }
 
+// set specific list of versions being generated.
+$config->setVersionsToGenerate($versions_to_generate);
+
 $ins = [STDIN];
 $null = null;
 
@@ -504,6 +507,6 @@ echo sprintf(
     implode(', ', $versions_to_generate)
 );
 
-$builder->render(...$versions_to_generate);
+$builder->render();
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;

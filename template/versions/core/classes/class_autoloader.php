@@ -18,9 +18,10 @@
 
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 
-$namespace = $config->getFullyQualifiedName(false);
+$config = $version->getConfig();
+$namespace = $version->getFullyQualifiedName(false);
 
 ob_start();
 
@@ -33,17 +34,6 @@ endif;
 echo $config->getBasePHPFHIRCopyrightComment();
 
 echo "\n\n"; ?>
-// version autoloaders
-<?php foreach($config->getVersionsIterator() as $version): ?>
-if (!class_exists('<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . <?php echo FileUtils::buildAutoloaderRelativeFilepath(
-        $config->getFullyQualifiedName(false),
-        $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER),
-    ); ?>;
-    <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>::register();
-}
-<?php endforeach; ?>
-
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; if ('' !== $namespace) : ?>
 
@@ -56,12 +46,20 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 {
     /** @var array */
     private const _CLASS_MAP = [
-        // core types
-<?php foreach($config->getCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
+        // version core types
+<?php foreach($version->getCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
         '<?php echo $coreFile->getFullyQualifiedName(false); ?>' => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
-        $config->getFullyQualifiedName(false),
-        $coreFile->getFullyQualifiedName(false),
-    ); ?>,
+            $version->getFullyQualifiedName(false),
+            $coreFile->getFullyQualifiedName(false),
+        ); ?>,
+<?php endforeach; ?>
+
+        // version fhir types
+<?php foreach ($version->getDefinition()->getTypes()->getNamespaceSortedIterator() as $type) : ?>
+        '<?php echo $type->getFullyQualifiedClassName(false); ?>' => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
+            $version->getFullyQualifiedName(false),
+            $type->getFullyQualifiedClassName(false),
+        ); ?>,
 <?php endforeach; ?>    ];
 
     /** @var bool */
@@ -107,7 +105,4 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
         return null;
     }
 }
-
-<?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>::register();
-
 <?php return ob_get_clean();

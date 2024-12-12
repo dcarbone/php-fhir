@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
-
 /**
  * require_with is used to ensure a clean context per required template file.
  *
@@ -84,6 +82,8 @@ function classFilenameFormat(string $bit): string
 {
     return match ($bit) {
         'xml' => 'XML',
+        'api' => 'API',
+        'fhir' => 'FHIR',
         default => ucfirst($bit),
     };
 }
