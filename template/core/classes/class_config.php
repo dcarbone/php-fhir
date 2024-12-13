@@ -44,8 +44,8 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     /** @var bool */
     private bool $_registerAutoloader = false;
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?>[] */
-    private array $versions = [];
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>[] */
+    private array $_versionConfigs = [];
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
@@ -78,19 +78,53 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
         return $this->_registerAutoloader;
     }
 
-    public function addVersion(string $name, array $config): self
+    /**
+     * Register a FHIR version's config.  Will overwrite an existing version config with the same name.
+     *
+     * @param string $name Unique FHIR version name.
+     * @param array $config Configuration array for this version.
+     * @return self
+     */
+    public function setVersion(string $name, array $config): self
     {
         if (isset($this->_versions[$name])) {
             throw new \InvalidArgumentException(sprintf('Version "%s" already defined.', $name));
         }
 
+        $ve = VersionEnum::from($name);
+        $configClass = $ve->getVersionConfigClass();
+        $this->_versions[$name] = new $vc($config);
 
-
-        $this->versions[] = ;
         return $this;
     }
 
-    <?php // TODO: add version initialization; ?>
+    /**
+     * Retrieve a specific FHIR version config by name.  Returns null if no version registered with that name.
+     *
+     * @param string $name
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>
+
+     */
+    public function getVersion(string $name): null|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
+
+    {
+        return $this->_versions[$name] ?? null;
+    }
+
+    /**
+     * Define all versions at once.  Will overwrite any existing versions.
+     *
+     * @param array $versions Map of version $name => $config
+     * @return self
+     */
+    public function setVersions(array $versions): self
+    {
+        $this->_versions = [];
+        foreach($versions as $name => $config) {
+            $this->setVersion($name, $config);
+        }
+        return $this;
+    }
 
     /**
      * @return \stdClass

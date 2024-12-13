@@ -109,5 +109,4 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 }
 
 <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>::register();
-
 <?php return ob_get_clean();

@@ -59,8 +59,22 @@ enum <?php echo PHPFHIR_ENUM_VERSION; ?> : string
 <?php foreach ($config->getVersionsIterator() as $version) : ?>
             <?php echo $version->getEnumImportName(); ?>::NAME => <?php echo $version->getEnumImportName(); ?>::class,
 <?php endforeach; ?>
-            default => throw new \InvalidArgumentException(sprintf('Unknown version value: %s', self::class, $this->value))
+            default => throw new \InvalidArgumentException(sprintf('Unknown version value: %s', $this->value))
         };
     }
-}
+
+    /**
+     * Returns the fully qualified config classname for this version.
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function getVersionConfigClass(): string
+    {
+        return match($this->value) {
+<?php foreach ($config->getVersionsIterator() as $version) : ?>
+            <?php echo $version->getEnumImportName(); ?>::NAME => '<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?>',
+<?php endforeach; ?>
+            default => throw new \InvalidArgumentException(sprintf('Unknown version value: %s', $this->value))
+        };
+    }
 <?php return ob_get_clean();
