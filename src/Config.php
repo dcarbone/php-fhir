@@ -37,7 +37,7 @@ class Config implements LoggerAwareInterface
     private string $_schemaPath;
 
     /** @var string */
-    private string $_classesPath;
+    private string $_outputPath;
 
     /** @var string */
     private string $_rootNamespace;
@@ -124,7 +124,7 @@ class Config implements LoggerAwareInterface
         );
 
         $this->_coreFiles = new CoreFiles(
-            $this->getClassesPath(),
+            $this->getOutputPath(),
             PHPFHIR_TEMPLATE_CORE_DIR,
             $this->getFullyQualifiedName(true),
             $this->getFullyQualifiedTestsName(TestType::BASE, true)
@@ -176,13 +176,12 @@ class Config implements LoggerAwareInterface
      */
     public function setRootNamespace(string $rootNamespace): self
     {
-        // handle no or empty namespace
         $rootNamespace = trim($rootNamespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
         if ('' === $rootNamespace) {
-            $this->_rootNamespace = '';
-            return $this;
+            throw new \InvalidArgumentException('Root namespace must not be empty');
         }
-        if (false === NameUtils::isValidNSName($rootNamespace)) {
+
+        if (!NameUtils::isValidNSName($rootNamespace)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     'Root namespace "%s" is not a valid PHP namespace.',
@@ -260,37 +259,37 @@ class Config implements LoggerAwareInterface
     /**
      * @return string
      */
-    public function getClassesPath(): string
+    public function getOutputPath(): string
     {
-        return $this->_classesPath;
+        return $this->_outputPath;
     }
 
     /**
-     * @param string $classesPath
+     * @param string $outputPath
      * @return $this
      */
-    public function setClassesPath(string $classesPath): self
+    public function setOutputPath(string $outputPath): self
     {
-        if (!is_dir($classesPath)) {
-            throw new \RuntimeException('Unable to locate output dir "' . $classesPath . '"');
+        if (!is_dir($outputPath)) {
+            throw new \RuntimeException('Unable to locate output dir "' . $outputPath . '"');
         }
-        if (!is_writable($classesPath)) {
+        if (!is_writable($outputPath)) {
             throw new \RuntimeException(
                 sprintf(
                     'Specified output path "%s" is not writable by this process.',
-                    $classesPath
+                    $outputPath
                 )
             );
         }
-        if (!is_readable($classesPath)) {
+        if (!is_readable($outputPath)) {
             throw new \RuntimeException(
                 sprintf(
                     'Specified output path "%s" is not readable by this process.',
-                    $classesPath
+                    $outputPath
                 )
             );
         }
-        $this->_classesPath = $classesPath;
+        $this->_outputPath = $outputPath;
         return $this;
     }
 

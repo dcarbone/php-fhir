@@ -41,7 +41,6 @@ echo "\n\n"; ?>
  */
 enum <?php echo PHPFHIR_ENUM_CONFIG_KEY; ?> : string
 {
-    case REGISTER_AUTOLOADER = 'registerAutoloader';
     case VERSIONS = 'versions';
 }
 

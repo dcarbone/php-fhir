@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR;
 enum ConfigKeyEnum: string
 {
     case SCHEMA_PATH = 'schemaPath';
-    case CLASSES_PATH = 'classesPath';
+    case OUTPUT_PATH = 'outputPath';
     case ROOT_NAMESPACE = 'rootNamespace';
     case VERSIONS = 'versions';
     case SILENT = 'silent';
@@ -35,7 +35,7 @@ enum ConfigKeyEnum: string
     {
         return [
             self::SCHEMA_PATH,
-            self::CLASSES_PATH,
+            self::OUTPUT_PATH,
             self::ROOT_NAMESPACE,
             self::VERSIONS,
         ];

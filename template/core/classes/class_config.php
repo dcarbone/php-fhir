@@ -41,11 +41,19 @@ echo "\n\n"; ?>
  */
 class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
 {
-    /** @var bool */
-    private bool $_registerAutoloader = false;
+    private const _GENERATED = [
+        'versions' => [
+<?php foreach ($config->getVersionsIterator() as $version): ?>
+            '<?php echo $version->getName(); ?>' => [
+                'class' => '<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?>',
+                'config' => <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 4); ?>,
+            ],
+<?php endforeach; ?>
+        ]
+    ];
 
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>[] */
-    private array $_versionConfigs = [];
+    private array $_versions = [];
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> Constructor
@@ -53,6 +61,10 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
      */
     public function __construct(array $config = [])
     {
+        if ([] === $config) {
+            $config = self::_GENERATED;
+        }
+
         foreach(<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>::cases() as $k) {
             if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
                 $this->{"set{$k->value}"}($config[$k->value]);
@@ -61,21 +73,12 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
     }
 
     /**
-     * @var bool $registerAutoloader
-     * @return self
+     * Returns the default configuration array created during code generation
+     * @return array
      */
-    public function setRegisterAutoloader(bool $registerAutoloader): self
+    public static function getGeneratedConfigArray(): array
     {
-        $this->_registerAutoloader = $registerAutoloader;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getRegisterAutoloader(): bool
-    {
-        return $this->_registerAutoloader;
+        return self::_GENERATED;
     }
 
     /**
@@ -91,6 +94,8 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
             throw new \InvalidArgumentException(sprintf('Version "%s" already defined.', $name));
         }
 
+
+
         $ve = VersionEnum::from($name);
         $configClass = $ve->getVersionConfigClass();
         $this->_versions[$name] = new $vc($config);
@@ -98,14 +103,10 @@ class <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * Retrieve a specific FHIR version config by name.  Returns null if no version registered with that name.
-     *
-     * @param string $name
-     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>
 
-     */
-    public function getVersion(string $name): null|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
+    /**
+     * Return
+    public function getVersion(string $name): null|array
 
     {
         return $this->_versions[$name] ?? null;

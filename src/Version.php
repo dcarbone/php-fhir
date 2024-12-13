@@ -115,7 +115,7 @@ class Version
         $this->_sourceMetadata = new SourceMetadata($config, $this);
 
         $this->_coreFiles = new CoreFiles(
-            $config->getClassesPath(),
+            $config->getOutputPath(),
             PHPFHIR_TEMPLATE_VERSIONS_CORE_DIR,
             $this->getFullyQualifiedName(true),
             $this->getFullyQualifiedTestsName(TestType::BASE, true)
@@ -181,7 +181,7 @@ class Version
      */
     public function getClassesPath(): string
     {
-        return $this->_config->getClassesPath();
+        return $this->_config->getOutputPath();
     }
 
     /**

@@ -31,7 +31,7 @@ const PHPFHIR_LIST_SUFFIX = '-list';
 const PHPFHIR_XHTML_DIV = 'xhtml:div';
 
 // raw type
-const PHPFHIR_XHTML_TYPE_NAME = 'Xhtml';
+const PHPFHIR_XHTML_TYPE_NAME = 'XHTML';
 const PHPFHIR_XHTML_TYPE_DESCRIPTION = 'XHTML type used in special cases';
 
 // FHIR XML NS
@@ -75,6 +75,7 @@ const PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR = PHPFHIR_TEMPLATE_VERSION_TYPES_D
 // Core class names
 const PHPFHIR_CLASSNAME_AUTOLOADER = 'Autoloader';
 const PHPFHIR_CLASSNAME_CONFIG = 'Config';
+const PHPFHIR_CLASSNAME_FACTORY = 'Factory';
 const PHPFHIR_CLASSNAME_ABSTRACT_VERSION_CONFIG = 'AbstractVersionConfig';
 const PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG = 'UnserializeConfig';
 const PHPFHIR_CLASSNAME_SERIALIZE_CONFIG = 'SerializeConfig';

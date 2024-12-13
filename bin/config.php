@@ -23,7 +23,7 @@ return [
     'schemaPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'input' . DIRECTORY_SEPARATOR,
 
     // The path to place generated files
-    'classesPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output' . DIRECTORY_SEPARATOR,
+    'outputPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output' . DIRECTORY_SEPARATOR,
 
     // The root namespace for all generated classes
     'rootNamespace' => '\\DCarbone\\PHPFHIRGenerated',
@@ -54,7 +54,7 @@ return [
             // instantiation.
             'defaultConfig' => [
                 'unserializeConfig' => [
-                    // Libxml options to use when unserialize types from XML
+                    // Libxml options to use when unserializing types from XML
                     'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
                     // Maximum depth to allow when decoding JSON
                     'jsonDecodeMaxDepth' => 512,

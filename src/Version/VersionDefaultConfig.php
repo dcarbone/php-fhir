@@ -102,4 +102,12 @@ class VersionDefaultConfig
     {
         return $this->_serializeConfig;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'serializeConfig' => $this->getSerializeConfig(),
+            'unserializeConfig' => $this->getUnserializeConfig(),
+        ];
+    }
 }
