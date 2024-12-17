@@ -181,10 +181,9 @@ class TypeImports implements \Countable
 
         // non-abstract types must import config and xml writer
         if (!$this->type->isAbstract()) {
-            $this->addImport(PHPFHIR_INTERFACE_VERSION_CONFIG, $configNS);
+            $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONFIG, $configNS);
             $this->addImport(PHPFHIR_CLASSNAME_XML_WRITER, $configNS);
             $this->addImport(PHPFHIR_ENUM_XML_LOCATION, $configNS);
-            $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONFIG, $versionNS);
         }
 
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits

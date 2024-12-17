@@ -20,19 +20,14 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 
-$namespace = $config->getFullyQualifiedName(false);
-
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo $config->getBasePHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
 // version autoloaders
 <?php foreach($config->getVersionsIterator() as $version): ?>
 if (!class_exists('<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>', false)) {
@@ -44,13 +39,6 @@ if (!class_exists('<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLAS
 }
 <?php endforeach; ?>
 
-/**
- * Class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
 {

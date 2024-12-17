@@ -18,29 +18,15 @@
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 
-$namespace = $config->getFullyQualifiedName(false);
-
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo $config->getBasePHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
-
-/**
- * Class <?php echo PHPFHIR_CLASSNAME_ABSTRACT_VERSION_CONFIG; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
-abstract class <?php echo PHPFHIR_CLASSNAME_ABSTRACT_VERSION_CONFIG; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
+class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
 
 {
     // These are used when no default configuration was provided during version code genreation
@@ -55,10 +41,30 @@ abstract class <?php echo PHPFHIR_CLASSNAME_ABSTRACT_VERSION_CONFIG; ?> implemen
     ];
 
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG); ?> */
-    protected <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?> $unserializeConfig;
+    private <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?> $unserializeConfig;
 
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> */
-    protected <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $serializeConfig;
+    private <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $serializeConfig;
+
+    /**
+     * <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        foreach(<?php echo PHPFHIR_ENUM_VERSION_CONFIG_KEY; ?>::cases() as $k) {
+            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
+                $this->{"set{$k->value}"}($config[$k->value]);
+            }
+        }
+
+        if (!isset($this->_unserializeConfig)) {
+            $this->setUnserializeConfig(self::_DEFAULT_UNSERIALIZE_CONFIG);
+        }
+        if (!isset($this->_serializeConfig)) {
+            $this->setSerializeConfig(self::_DEFAULT_SERIALIZE_CONFIG);
+        }
+    }
 
     /**
      * @param array|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG); ?> $config

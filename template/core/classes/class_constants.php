@@ -18,27 +18,14 @@
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 
-$namespace = $config->getFullyQualifiedName(false);
-
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo $config->getBasePHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
-/**
- * Class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
 {

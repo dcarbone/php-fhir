@@ -19,28 +19,14 @@
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
-$namespace = $config->getFullyQualifiedName(false);
-
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo $config->getBasePHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
-/**
- * This client is under active development.  Its API may change significantly between major releases.
- *
- * Class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
 
 {
@@ -77,7 +63,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
         $this->_baseUrl = $baseUrl;
         $this->_curlOpts = $curlOpts;
         if (null === $parser) {
-            $this->parser =  new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>());
+            $this->parser =  new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>());
         } else {
             $this->parser = $parser;
         }

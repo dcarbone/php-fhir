@@ -428,10 +428,11 @@ class Config implements LoggerAwareInterface
     }
 
     /**
+     * @param bool $trailingNewline
      * @return string
      */
-    public function getBasePHPFHIRCopyrightComment(): string
+    public function getBasePHPFHIRCopyrightComment(bool $trailingNewline): string
     {
-        return $this->_basePHPFHIRCopyrightComment;
+        return $this->_basePHPFHIRCopyrightComment . ($trailingNewline ? "\n" : '');
     }
 }

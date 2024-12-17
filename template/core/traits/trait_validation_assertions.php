@@ -18,26 +18,14 @@
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 
-$rootNS = $config->getFullyQualifiedName(false);
-
 ob_start();
-echo "<?php declare(strict_types=1);\n\n";
+echo '<?php ';?>declare(strict_types=1);
 
-if ('' !== $rootNS) :
-    echo "namespace {$rootNS};\n\n";
-endif;
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-echo $config->getBasePHPFHIRCopyrightComment();
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo "\n\n";
-?>
-/**
- * Trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; if ('' !== $rootNS) : ?>
 
- * @package <?php echo $rootNS; ?>
-<?php endif; ?>
-
- */
 trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
 
 {

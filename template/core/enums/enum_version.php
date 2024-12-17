@@ -18,63 +18,22 @@
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 
-$namespace = $config->getFullyQualifiedName(false);
-
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo $config->getBasePHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
 <?php foreach($config->getVersionsIterator() as $version) : ?>
 use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION); ?> as <?php echo $version->getEnumImportName(); ?>;
 <?php endforeach; ?>
 
-/**
- * Enum <?php echo PHPFHIR_ENUM_VERSION; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 enum <?php echo PHPFHIR_ENUM_VERSION; ?> : string
 {
 <?php foreach ($config->getVersionsIterator() as $version) : ?>
     case <?php echo $version->getConstName(); ?> = <?php echo $version->getEnumImportName(); ?>::NAME;
 <?php endforeach; ?>
-
-    /**
-     * Returns the fully qualified classname for this version.
-     * @return string
-     * @throws \InvalidArgumentException
-     */
-    public function getVersionClass(): string
-    {
-        return match($this->value) {
-<?php foreach ($config->getVersionsIterator() as $version) : ?>
-            <?php echo $version->getEnumImportName(); ?>::NAME => <?php echo $version->getEnumImportName(); ?>::class,
-<?php endforeach; ?>
-            default => throw new \InvalidArgumentException(sprintf('Unknown version value: %s', $this->value))
-        };
-    }
-
-    /**
-     * Returns the fully qualified config classname for this version.
-     * @return string
-     * @throws \InvalidArgumentException
-     */
-    public function getVersionConfigClass(): string
-    {
-        return match($this->value) {
-<?php foreach ($config->getVersionsIterator() as $version) : ?>
-            <?php echo $version->getEnumImportName(); ?>::NAME => '<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?>',
-<?php endforeach; ?>
-            default => throw new \InvalidArgumentException(sprintf('Unknown version value: %s', $this->value))
-        };
-    }
+}
 <?php return ob_get_clean();

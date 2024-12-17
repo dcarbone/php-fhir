@@ -31,16 +31,9 @@ if ('' !== $namespace) :
     echo "namespace {$namespace};\n\n";
 endif;
 
-echo $config->getBasePHPFHIRCopyrightComment();
+echo $config->getBasePHPFHIRCopyrightComment(false);
 
 echo "\n\n"; ?>
-/**
- * Class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
 {

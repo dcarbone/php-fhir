@@ -17,48 +17,94 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config $config */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
-
-$namespace = $config->getFullyQualifiedName(false);
 
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
+
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
+
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-echo "<?php declare(strict_types=1);\n\n";
+/**
+ * Class <?php echo PHPFHIR_CLASSNAME_FACTORY; ?>
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
-
-echo $config->getBasePHPFHIRCopyrightComment();
-
-echo "\n\n"; ?>
-class <?php echo PHPFHIR_CLASSNAME_FACTORY; ?>
+ *
+ * This factory class exists as a helper to instantiate and manage generated Version instances.  If working within
+ * a framework that provides its own service management system, it would be better to use the Version directly.
+ */
+final class <?php echo PHPFHIR_CLASSNAME_FACTORY; ?>
 
 {
-    private const _CLASSES = [
-<?php foreach($config->getVersionsIterator() as $version) : ?>
-        '<?php echo $version->getName(); ?>' => '<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?>',
+    private const _GENERATED_CONFIG = [
+        'versions' => [
+<?php foreach ($config->getVersionsIterator() as $version): ?>
+            [
+                'name' => '<?php echo $version->getName(); ?>',
+                'class' => '<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?>',
+            ],
 <?php endforeach; ?>
+        ]
     ];
 
-    private const _CONFIGS = [
-<?php foreach($config->getVersionsIterator() as $version) : ?>
-        '<?php echo $version->getName(); ?>' => <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 2); ?>,
-<?php endforeach; ?>
-    ];
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_FACTORY_CONFIG); ?> */
+    private static <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?> $_config;
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> */
-    private Config $_config;
-    /** @var  */
-    private array $_versions = [];
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?>[] */
+    private static array $_versions = [];
+
+    private static function _init(): void
+    {
+        if (isset(self::$_config)) {
+            return;
+        }
+        self::$_config = new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>(self::_GENERATED_CONFIG);
+    }
 
     /**
-     * <?php echo PHPFHIR_CLASSNAME_FACTORY; ?> Constructor
+     * Set the configuration to use with this factory
+     * @param array|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_FACTORY_CONFIG); ?> $config
      */
-    public function __construct()
+    public static function setConfig(array|<?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?> $config): void
     {
-        $this->_config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>
+        if (is_array($config)) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>($config);
+        }
+        self::$_config = new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>($config);
+    }
+
+    /**
+     * Return the current configuration used by the factory
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_FACTORY_CONFIG); ?>
+
+     */
+    public static function getConfig(): <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>
+
+    {
+        self::_init();
+        return self::$_config;
+    }
+
+    /**
+     * Returns Version of the specififed name.
+     *
+     * @param string $name Version name
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?>
+
+     */
+    public static function getVersion(string $name): <?php echo PHPFHIR_INTERFACE_VERSION; ?>
+
+    {
+        self::_init();
+        if (!isset(self::$_versions[$name])) {
+            $version = self::$_config->getVersion($name);
+            if (null === $version) {
+                throw new \InvalidArgumentException(sprintf('Unknown version "%s"', $name));
+            }
+            $classname = $version->getClass();
+            self::$_versions[$name] = new $classname($version->getConfig());
+        }
+        return self::$_versions[$name];
     }
 }
 <?php return ob_get_clean();
