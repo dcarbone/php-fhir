@@ -34,17 +34,13 @@ if (null === $containerType) {
 }
 
 ob_start();
+echo '<?php'; ?> declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>;
 
 /**

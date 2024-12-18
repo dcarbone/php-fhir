@@ -28,10 +28,11 @@ $localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
 ob_start(); ?>
     /**
      * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> $config
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
 
     {
         if (null === $xw) {
@@ -44,14 +45,17 @@ ob_start(); ?>
             $docStarted = true;
             $xw->startDocument();
         }
+        if (null === $config) {
+            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>)()->getConfig()->getSerializeConfig();
+        }
 <?php foreach($localProperties as $property) : ?>
         if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
-            return $v->xmlSerialize($xw);
+            return $v->xmlSerialize($xw, $config);
         }
 <?php endforeach; ?>
         if (!$xw->isRootOpen()) {
             $openedRoot = true;
-            $xw->openRootNode($this->_config->getSerializeConfig(), '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXmlns());
+            $xw->openRootNode($config, '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
         }
 <?php
 return ob_get_clean();

@@ -26,12 +26,13 @@ class VersionDefaultConfig
 {
     private const _UNSERIALIZE_CONFIG_KEYS = [
         'libxmlOpts',
+        'libxmlOptMask',
         'jsonDecodeMaxDepth',
     ];
 
     private const _SERIALIZE_CONFIG_KEYS = [
-        'overrideSourceXmlns',
-        'rootXmlns',
+        'overrideSourceXMLNS',
+        'rootXMLNS',
     ];
 
     /** @var array */
@@ -60,6 +61,9 @@ class VersionDefaultConfig
         $this->_unserializeConfig = [];
         if ([] === $config) {
             return $this;
+        }
+        if (isset($config['libxmlOpts']) && isset($config['libxmlOptMask'])) {
+            throw new \DomainException('Cannot specify both "libxmlOpts" and "libxmlOptMask" keys.');
         }
         foreach (self::_UNSERIALIZE_CONFIG_KEYS as $k) {
             if (isset($config[$k]) || array_key_exists($k, $config)) {

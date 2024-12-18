@@ -85,15 +85,6 @@ if (0 !== count($localProperties)) {
 
 }
 
-// define $verison property on root types
-if ($type->isRootType()) {
-    echo "\n";
-    echo sprintf('    /** @var %s */', $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG));
-    echo "\n";
-    echo sprintf('    protected %s $_config;', PHPFHIR_CLASSNAME_VERSION_CONFIG);
-    echo "\n";
-}
-
 if (0 !== count($localProperties)) {
     echo "\n";
 

@@ -34,25 +34,25 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
      * @param string $typeName
      * @return string|null
      */
-    public function getTypeClass(string $typeName): null|string;
+    public static function getTypeClass(string $typeName): null|string;
 
     /**
      * Must return the full internal class map
      * @return array
      */
-    public function getMap(): array;
+    public static function getMap(): array;
 
     /**
      * Must return the full list of containable resource types
      * @return array
      */
-    public function getContainableTypes(): array;
+    public static function getContainableTypes(): array;
 
     /**
      * @param string $typeName Name of FHIR object reference by a version's container type
      * @return string|null Name of class as string or null if type is not contained in map
      */
-    public function getContainedTypeClassName(string $typeName): null|string;
+    public static function getContainedTypeClassName(string $typeName): null|string;
 
     /**
      * Must attempt to determine if the provided value is or describes a containable resource type
@@ -60,18 +60,18 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool;
+    public static function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool;
 
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource
      * @return string Fully qualified class name of contained resource type
      */
-    public function getContainedTypeClassFromXML(\SimpleXMLElement $node): string;
+    public static function getContainedTypeClassNameFromXML(\SimpleXMLElement $node): string;
 
     /**
      * @param array|null $data
      * @return string Fully qualified class name of contained resource type
      */
-    public function getContainedTypeClassFromArray(array $data): string;
+    public static function getContainedTypeClassNameFromArray(array $data): string;
 }
 <?php return ob_get_clean();

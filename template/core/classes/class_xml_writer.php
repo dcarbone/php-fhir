@@ -159,10 +159,10 @@ final class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
     /**
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> $config
      * @param string $name
-     * @param string|null $sourceXmlns
+     * @param string|null $sourceXMLNS
      * @return bool
      */
-    public function openRootNode(<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config, string $name, null|string $sourceXmlns): bool
+    public function openRootNode(<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config, string $name, null|string $sourceXMLNS): bool
     {
         if (null === $this->_open) {
             throw new \LogicException('Must open write destination before writing root node');
@@ -173,10 +173,10 @@ final class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
         if (!$ok) {
             return false;
         }
-        if ($config->getOverrideSourceXmlns() || null === $sourceXmlns) {
-            $ns = (string)$config->getRootXmlns();
+        if ($config->getOverrideSourceXMLNS() || null === $sourceXMLNS) {
+            $ns = (string)$config->getRootXMLNS();
         } else {
-            $ns = $sourceXmlns;
+            $ns = $sourceXMLNS;
         }
         if ('' !== $ns) {
             $ok = $this->writeAttribute('xmlns', $ns);

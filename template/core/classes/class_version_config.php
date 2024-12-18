@@ -36,8 +36,8 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
         'jsonDecodeMaxDepth' => 512,
     ];
     protected const _DEFAULT_SERIALIZE_CONFIG = [
-        'overrideRootXmlns' => false,
-        'rootXmlns' => PHPFHIR_FHIR_XMLNS,
+        'overrideRootXMLNS' => false,
+        'rootXMLNS' => PHPFHIR_FHIR_XMLNS,
     ];
 
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG); ?> */

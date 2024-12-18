@@ -43,8 +43,8 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_FACTORY_CONFIG; ?> extends TestCase
         $config = new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>();
         $this->assertFalse($config->getRegisterAutoloader());
         $this->assertEquals(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_LIBXML_OPTS, $config->getLibxmlOpts());
-        $this->assertNull($config->getRootXmlns());
-        $this->assertFalse($config->getOverrideSourceXmlns());
+        $this->assertNull($config->getRootXMLNS());
+        $this->assertFalse($config->getOverrideSourceXMLNS());
     }
 
     public function testConfigWithkeys(): void

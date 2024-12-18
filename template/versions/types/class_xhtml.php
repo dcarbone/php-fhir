@@ -59,9 +59,6 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     use <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>,
         <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>;
 
-    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $_config;
-
     /** @var null|string */
     private null|string $_xhtml = null;
 
@@ -69,20 +66,9 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
      * @param null|string|\DOMNode|\SimpleXMLElement $xhtml
      */
-    public function __construct(null|string|\DOMNode|\SimpleXmlElement $xhtml = null, <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $config = null)
+    public function __construct(null|string|\DOMNode|\SimpleXmlElement $xhtml = null)
     {
-        if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
-        } else if (!($config instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
-            throw new \InvalidArgumentException(sprintf(
-                '%s::__construct - $config must be instance of \\%s, \\%s seen',
-                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
-                <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>::class,
-                is_object($config) ? get_class($config) : gettype($config)
-            ));
-        }
-        $this->_config = $config;
-        $this->setXhtml($xhtml);
+        $this->setXHTML($xhtml);
     }
 
     /**
@@ -90,7 +76,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
      */
     public function _getFhirTypeName(): string
     {
-        return 'Xhtml';
+        return 'XHTML';
     }
 
     /**
@@ -112,21 +98,19 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     /**
      * @return null|string
      */
-    public function getXhtml(): null|string
+    public function getXHTML(): null|string
     {
         return $this->_xhtml;
     }
 
     /**
+     * Set the full XHTML content of this element.
+     *
      * @param null|string|\DOMNode|\SimpleXmlElement $xhtml
      * @return static
      */
-    public function setXhtml(null|string|\DOMNode|\SimpleXMLElement $xhtml): self
+    public function setXHTML(null|string|\DOMNode|\SimpleXMLElement $xhtml): self
     {
-        if (null === $xhtml) {
-            $this->_xhtml = null;
-            return $this;
-        }
         if ($xhtml instanceof \DOMDocument) {
             $xhtml = $xhtml->saveXML($xhtml->documentElement);
         } else if ($xhtml instanceof \DOMNode) {
@@ -139,47 +123,45 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     }
 
     /**
+     * @param int $libxmlOpts libxml options mask
      * @return null|\SimpleXMLElement
      * @throws \Exception
      */
-    public function getSimpleXMLElement(): null|\SimpleXMLElement
+    public function getSimpleXMLElement(int $libxmlOpts): null|\SimpleXMLElement
     {
-        $xhtml = $this->getXhtml();
+        $xhtml = $this->getXHTML();
         if (null === $xhtml) {
             return null;
         }
-        return new \SimpleXMLElement($xhtml, $this->_config->getSerializeConfig()->getLibxmlOpts());
+        return new \SimpleXMLElement($xhtml, $libxmlOpts);
     }
 
     /**
+     * @param int $libxmlOpts libxml options mask
      * @return null|\DOMDocument
      */
-    public function getDOMDocument(): null|\DOMDocument
+    public function getDOMDocument(int $libxmlOpts): null|\DOMDocument
     {
-        $xhtml = $this->getXhtml();
+        $xhtml = $this->getXHTML();
         if (null === $xhtml) {
             return null;
         }
-        if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
-        }
         $dom = new \DOMDocument('1.0', 'UTF-8');
-        $dom->loadXML($xhtml, $this->_config->getSerializeConfig()->getLibxmlOpts());
+        $dom->loadXML($xhtml, $libxmlOpts);
         return $dom;
     }
 
     /**
-     * Returns open \XMLReader instance with content read
-     *
+     * @param int $libxmlOpts libxml options mask
      * @return null|\XMLReader
      */
-    public function getXMLReader(): null|\XMLReader
+    public function getXMLReader(int $libxmlOpts): null|\XMLReader
     {
-        $xhtml = $this->getXhtml();
+        $xhtml = $this->getXHTML();
         if (null === $xhtml) {
             return null;
         }
-        $xr = \XMLReader::XML($xhtml, 'UTF-8', $this->_config->getSerializeConfig()->getLibxmlOpts());
+        $xr = \XMLReader::XML($xhtml, 'UTF-8', $libxmlOpts);
         $xr->read();
         return $xr;
     }
@@ -197,16 +179,17 @@ echo require_with(
     ]
 );
 ?>
-        $type->setXhtml($element);
+        $type->setXHTML($element);
         return $type;
     }
 
     /**
      * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> $config
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
 
     {
         if (null === $xw) {
@@ -219,11 +202,14 @@ echo require_with(
             $docStarted = true;
             $xw->startDocument();
         }
+        if (null === $config) {
+            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>)()->getConfig()->getSerializeConfig();
+        }
         if (!$xw->isRootOpen()) {
             $rootOpened = true;
-            $xw->openRootNode($this->_config->getSerializeConfig(), 'Xhtml', $this->_getSourceXmlns());
+            $xw->openRootNode($config, 'XHTML', $this->_getSourceXMLNS());
         }
-        $xr = $this->getXMLReader($this->_config);
+        $xr = $this->getXMLReader($config->getXHTMLLibxmlOpts());
         if (null === $xr) {
             return $xw;
         }
@@ -245,7 +231,7 @@ echo require_with(
      */
     public function jsonSerialize(): mixed
     {
-        $xhtml = $this->getXhtml();
+        $xhtml = $this->getXHTML();
         if (null === $xhtml) {
             return null;
         }
@@ -257,7 +243,7 @@ echo require_with(
      */
     public function __toString(): string
     {
-        return (string)$this->getXhtml();
+        return (string)$this->getXHTML();
     }
 }
 <?php return ob_get_clean();

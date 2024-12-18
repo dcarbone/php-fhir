@@ -55,15 +55,17 @@ return [
             'defaultConfig' => [
                 'unserializeConfig' => [
                     // Libxml options to use when unserializing types from XML
-                    'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
+                    'libxmlOptMask' => 'LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL',
                     // Maximum depth to allow when decoding JSON
                     'jsonDecodeMaxDepth' => 512,
                 ],
                 'serializeConfig' => [
                     // If true, will override the default xmlns value with the value provided in the rootXmlns key
-                    'overrideSourceXmlns' => false,
+                    'overrideSourceXMLNS' => false,
                     // If overrideSourceXmlns is true, this value will be used as the root xmlns value
-                    'rootXmlns' => 'http://hl7.org/fhir',
+                    'rootXMLNS' => 'http://hl7.org/fhir',
+                    // Libxml options to use when serializing XHTML content
+                    'xhtmlLibxmlOptMask' => 'LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL',
                 ]
             ]
         ],

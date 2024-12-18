@@ -23,24 +23,13 @@ $namespace = $version->getFullyQualifiedName(false);
 $types = $version->getDefinition()->getTypes();
 
 ob_start();
+echo '<?php'; ?> declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
-/**
- * Class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; ?>
 
 {

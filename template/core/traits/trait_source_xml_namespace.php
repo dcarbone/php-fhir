@@ -31,22 +31,22 @@ trait <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>
 
 {
     /** @var string */
-    private string $_sourceXmlns;
+    private string $_sourceXMLNS;
 
     /**
      * @param string $xmlns
      */
-    protected function _setSourceXmlns(string $xmlns): void
+    protected function _setSourceXMLNS(string $xmlns): void
     {
-        $this->_sourceXmlns = $xmlns;
+        $this->_sourceXMLNS = $xmlns;
     }
 
     /**
      * @return null|string
      */
-    public function _getSourceXmlns(): null|string
+    public function _getSourceXMLNS(): null|string
     {
-        return $this->_sourceXmlns ?? null;
+        return $this->_sourceXMLNS ?? null;
     }
 }
 <?php return ob_get_clean();

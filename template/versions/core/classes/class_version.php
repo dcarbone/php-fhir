@@ -26,6 +26,8 @@ echo '<?php ';?>declare(strict_types=1);
 namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
+
+
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION_CONFIG); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>;
@@ -39,7 +41,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
     public const SOURCE_VERSION = '<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>';
     public const SOURCE_GENERATION_DATE = '<?php echo $version->getSourceMetadata()->getFHIRGenerationDate(); ?>';
 
-    private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 4); ?>;
+    private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
 
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?> */
     private <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $_config;

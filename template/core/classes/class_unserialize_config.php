@@ -63,7 +63,7 @@ class <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?>
      */
     public function getLibxmlOpts(): int
     {
-        return $this->_libxmlOpts ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_LIBXML_OPTS;
+        return $this->_libxmlOpts ?? 0;
     }
 
     /**
@@ -81,7 +81,7 @@ class <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?>
      */
     public function getJsonDecodeMaxDepth(): int
     {
-        return $this->_jsonDecodeMaxDepth ?? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DEFAULT_JSON_DECODE_MAX_DEPTH;
+        return $this->_jsonDecodeMaxDepth ?? 0;
     }
 }
 <?php return ob_get_clean();

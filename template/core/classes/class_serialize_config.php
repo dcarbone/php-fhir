@@ -30,10 +30,11 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
 
 {
     /** @var bool */
-    private bool $_overrideSourceXmlns;
-
+    private bool $_overrideSourceXMLNS;
     /** @var string */
-    private string $_rootXmlns;
+    private string $_rootXMLNS;
+    /** @var int */
+    private int $_xhtmlLibxmlOpts;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> constructor.
@@ -49,41 +50,59 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
     }
 
     /**
-     * @param string $rootXmlns
+     * @param string $rootXMLNS
      * @return self
      */
-    public function setRootXmlns(string $rootXmlns): self
+    public function setRootXMLNS(string $rootXMLNS): self
     {
-        $this->rootXmlns = $rootXmlns;
+        $this->rootXMLNS = $rootXMLNS;
         return $this;
     }
 
     /**
      * @return null|string
      */
-    public function getRootXmlns(): null|string
+    public function getRootXMLNS(): null|string
     {
-        return $this->rootXmlns ?? null;
+        return $this->rootXMLNS ?? null;
     }
 
     /**
      * If true, overrides the xmlns entry found at the root of a source document, if there was one.
      *
-     * @param bool $overrideSourceXmlns
+     * @param bool $overrideSourceXMLNS
      * @return self
      */
-    public function setOverrideSourceXmlns(bool $overrideSourceXmlns): self
+    public function setOverrideSourceXMLNS(bool $overrideSourceXMLNS): self
     {
-        $this->overrideSourceXmlns = $overrideSourceXmlns;
+        $this->overrideSourceXMLNS = $overrideSourceXMLNS;
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function getOverrideSourceXmlns(): bool
+    public function getOverrideSourceXMLNS(): bool
     {
-        return $this->overrideSourceXmlns ?? false;
+        return $this->overrideSourceXMLNS ?? false;
+    }
+
+    /**
+     * @param int $xhtmlLibxmlOpts
+     * @return self
+     */
+    public function setXHTMLLibxmlOpts(int $xhtmlLibxmlOpts): self
+    {
+        $this->xhtmlLibxmlOpts = $xhtmlLibxmlOpts;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getXHTMLLibxmlOpts(): int
+    {
+        return $this->xhtmlLibxmlOpts ?? 0;
     }
 }
 <?php return ob_get_clean();

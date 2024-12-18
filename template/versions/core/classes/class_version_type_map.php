@@ -22,7 +22,6 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $config = $version->getConfig();
-$namespace = $version->getFullyQualifiedName(false);
 
 $containerType = $types->getContainerType($version->getName());
 if (null === $containerType) {
@@ -44,30 +43,17 @@ foreach ($containerType->getLocalProperties()->getAllPropertiesIterator() as $pr
 ksort($innerTypes, SORT_NATURAL);
 
 ob_start();
+echo '<?php'; ?> declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
-
-echo "\n\n";
-?>
 
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CONSTANTS); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_TYPE_MAP); ?>;
 
-/**
- * Class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
 {
@@ -86,7 +72,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
      * @param string $typeName
      * @return string|null
      */
-    public function getTypeClass(string $typeName): null|string
+    public static function getTypeClass(string $typeName): null|string
     {
         return self::_TYPE_MAP[$typeName] ?? null;
     }
@@ -95,7 +81,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
      * Returns the full internal class map
      * @return array
      */
-    public function getMap(): array
+    public static function getMap(): array
     {
         return self::_TYPE_MAP;
     }
@@ -104,7 +90,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
      * Returns the full list of containable resource types
      * @return array
      */
-    public function getContainableTypes(): array
+    public static function getContainableTypes(): array
     {
         return self::_CONTAINABLE_TYPES;
     }
@@ -114,7 +100,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
 
      * @return string|null Name of class as string or null if type is not contained in map
      */
-    public function getContainedTypeClassName(string $typeName): null|string
+    public static function getContainedTypeClassName(string $typeName): null|string
     {
         return self::_CONTAINABLE_TYPES[$typeName] ?? null;
     }
@@ -125,12 +111,12 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool
+    public static function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool
     {
         $tt = gettype($type);
         if ('object' === $tt) {
             if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
-                return in_array('\\' . $type::class, self::_CONTAINABLE_TYPES, true);
+                return ($type instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>);
             }
             return isset(self::_CONTAINABLE_TYPES[$type->getName()]);
         }
@@ -147,7 +133,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
      * @param \SimpleXMLElement $node Parent element containing inline resource
      * @return string Fully qualified class name of contained resource type
      */
-    public function getContainedTypeClassFromXML(\SimpleXMLElement $node): string
+    public static function getContainedTypeClassNameFromXML(\SimpleXMLElement $node): string
 
     {
         $typeName = $node->getName();
@@ -159,10 +145,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
     }
 
     /**
-     * @param array|null $data
+     * @param array $data
      * @return string Fully qualified class name of contained resource type
      */
-    public function getContainedTypeClassFromArray(array $data): string
+    public static function getContainedTypeClassNameFromArray(array $data): string
 
     {
         $resourceType = null;

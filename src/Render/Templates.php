@@ -47,7 +47,7 @@ abstract class Templates
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderVersionXhtmlTypeClass(Version $version, Types $types, Type $type): string
+    public static function renderVersionXHTMLTypeClass(Version $version, Types $types, Type $type): string
     {
         return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_xhtml.php';
     }

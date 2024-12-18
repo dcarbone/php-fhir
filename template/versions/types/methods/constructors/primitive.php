@@ -28,7 +28,7 @@ $typeClassName = $type->getClassName();
 $primitiveType = $type->getPrimitiveType();
 $valueProperty = $type->getLocalProperties()->getProperty('value');
 
-if (null !== $parentType) {
+if (null !== $parentType) :
     // if this is a primitive that inherits from a parent primitive, there is no reason to define a constructor here.
     if ($parentType->getKind() === TypeKind::PRIMITIVE || $parentType->isValueContainer()) {
         return;
@@ -39,17 +39,16 @@ if (null !== $parentType) {
     /**
      * <?php echo $type->getClassName(); ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?>|array $value
-     * @param null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config
      */
-    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($version, $valueProperty, true); ?>|array $value = null, null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config = null)
+    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($version, $valueProperty, true); ?>|array $value = null)
     {
         if (null === $value) {
-            parent::__construct(null, $config);
+            parent::__construct(null);
         } elseif (is_scalar($value)) {
-            parent::__construct(null, $config);
+            parent::__construct(null);
             $this->setValue($value);
         } elseif (is_array($value)) {
-            parent::__construct($value, $config);
+            parent::__construct($value);
             if (array_key_exists(self::FIELD_VALUE, $value)) {
                 $this->setValue($value[self::FIELD_VALUE]);
             }
@@ -62,21 +61,16 @@ if (null !== $parentType) {
     }
 <?php
     return ob_get_clean();
-}
+endif;
 
 // in all other cases, just set value and move on.
 ob_start(); ?>
     /**
      * <?php echo $type->getClassName(); ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
-     * @param null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config
      */
-    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value = null, null|<?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> $config = null)
+    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value = null)
     {
-        if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>();
-        }
-        $this->_version = $config;
         $this->setValue($value);
     }
 <?php return ob_get_clean();

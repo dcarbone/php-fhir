@@ -163,7 +163,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
                     ));
                 }
             } elseif (is_array($v)) {
-                $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION; ?>::getTypeMap()->getContainedTypeClassFromArray($v);
+                $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($v);
                 unset($v[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
                 $this-><?php echo $property->getSetterName(); ?>(new $typeClassName($v));
             } else {

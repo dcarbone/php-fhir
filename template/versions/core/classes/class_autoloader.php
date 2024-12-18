@@ -24,16 +24,13 @@ $config = $version->getConfig();
 $namespace = $version->getFullyQualifiedName(false);
 
 ob_start();
+echo '<?php'; ?> declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-echo $config->getBasePHPFHIRCopyrightComment(false);
 
-echo "\n\n"; ?>
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
 {

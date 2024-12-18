@@ -28,22 +28,14 @@ $namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
 
 // start output buffer
 ob_start();
+echo '<?php'; ?> declare(strict_types=1);
 
-// build php opener
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $namespace; ?>;
 
-if ('' !== $namespace) {
-    echo sprintf("namespace %s;\n\n", $namespace);
-}
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-// print out huge copyright block
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
-
-// formatting!
-echo "\n\n";
-
-if (!isset($skipImports) || !$skipImports) {
+<?php if (!isset($skipImports) || !$skipImports) {
     $imported = 0;
     foreach ($type->getImports()->getIterator() as $import) {
         if ($import->isRequiresImport()) {

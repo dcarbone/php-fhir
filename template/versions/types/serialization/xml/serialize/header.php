@@ -30,10 +30,11 @@ $xmlName = NameUtils::getTypeXMLElementName($type);
 ob_start(); ?>
     /**
      * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> $config
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
 
     {
         if (null === $xw) {
@@ -46,8 +47,11 @@ ob_start(); ?>
             $docStarted = true;
             $xw->startDocument();
         }
+        if (null === $config) {
+            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>)()->getConfig()->getSerializeConfig();
+        }
         if (!$xw->isRootOpen()) {
             $openedRoot = true;
-            $xw->openRootNode($this->_config->getSerializeConfig(), '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXmlns());
+            $xw->openRootNode($config, '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
         }
 <?php return ob_get_clean();

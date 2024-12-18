@@ -181,7 +181,6 @@ class TypeImports implements \Countable
 
         // non-abstract types must import config and xml writer
         if (!$this->type->isAbstract()) {
-            $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONFIG, $configNS);
             $this->addImport(PHPFHIR_CLASSNAME_XML_WRITER, $configNS);
             $this->addImport(PHPFHIR_ENUM_XML_LOCATION, $configNS);
         }
@@ -189,8 +188,8 @@ class TypeImports implements \Countable
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
         // that may need to be imported to ensure function
         if ($typeNS !== $configNS) {
-
             $this->addImport(PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG, $configNS);
+            $this->addImport(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG, $configNS);
 
             // always add the base type interface
             $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
@@ -221,6 +220,9 @@ class TypeImports implements \Countable
         if ($parentType = $this->type->getParentType()) {
             $pns = $parentType->getFullyQualifiedNamespace(false);
             $this->addImport($parentType->getClassName(), $pns);
+        } else {
+            $this->addImport(PHPFHIR_TRAIT_VALIDATION_ASSERTIONS, $configNS);
+            $this->addImport(PHPFHIR_TRAIT_SOURCE_XMLNS, $configNS);
         }
 
         // determine if we need to import a restriction base

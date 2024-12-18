@@ -107,7 +107,7 @@ class Builder
 
                 // TODO(@dcarbone): revisit with template system refactor
                 if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
-                    $classDefinition = Templates::renderVersionXhtmlTypeClass($version, $types, $type);
+                    $classDefinition = Templates::renderVersionXHTMLTypeClass($version, $types, $type);
                 } else {
                     $classDefinition = Templates::renderVersionTypeClass($version, $types, $type);
                 }

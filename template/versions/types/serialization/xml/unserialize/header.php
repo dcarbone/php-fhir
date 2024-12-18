@@ -50,7 +50,7 @@ ob_start(); ?>
             throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
         }<?php else : ?>
         if (null === $type) {
-            $type = new static(null, $config);
+            $type = new static(null);
         }<?php endif; ?> else if (!($type instanceof <?php echo $typeClassName; ?>)) {
             throw new \RuntimeException(sprintf(
                 '%s::xmlUnserialize - $type must be instance of \\%s or null, %s seen.',
@@ -60,6 +60,6 @@ ob_start(); ?>
             ));
         }
         if (null !== ($ns = $element->getNamespaces()[''] ?? null)) {
-            $type->_setSourceXmlns((string)$ns);
+            $type->_setSourceXMLNS((string)$ns);
         }
 <?php return ob_get_clean();

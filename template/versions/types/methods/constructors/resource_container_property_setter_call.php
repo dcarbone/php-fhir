@@ -34,7 +34,7 @@ ob_start(); ?>
                 if (is_int(key($data[self::<?php echo $propertyFieldConst; ?>]))) {
                     $this->set<?php echo ucfirst($propertyName); ?>($data[self::<?php echo $propertyFieldConst; ?>]);
                 } else {
-                    $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION; ?>::getTypeMap()->getContainedTypeClassFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
+                    $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                     $d = $data[self::<?php echo $propertyFieldConst; ?>];
                     unset($d[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
                     $this-><?php echo $setter; ?>(new $typeClassName($d));
@@ -49,7 +49,7 @@ ob_start(); ?>
             }
 <?php else : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
-                $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION; ?>::getTypeMap()->getContainedTypeClassFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
+                $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                 $d = $data[self::<?php echo $propertyFieldConst; ?>];
                 unset($d[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
                 $typeClass = new $typeClassName($d);

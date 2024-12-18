@@ -29,7 +29,8 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
 enum <?php echo PHPFHIR_ENUM_SERIALIZE_CONFIG_KEY; ?> : string
 {
-    case OVERRIDE_SOURCE_XMLNS = 'overrideSourceXmlns';
-    csae ROOT_XMLNS = 'rootXmlns';
+    case OVERRIDE_SOURCE_XMLNS = 'overrideSourceXMLNS';
+    case ROOT_XMLNS = 'rootXMLNS';
+    case XHTML_LIBXML_OPTS = 'xhtmlLibxmlOpts';
 }
 <?php return ob_get_clean();

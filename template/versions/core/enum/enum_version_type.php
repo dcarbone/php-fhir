@@ -20,25 +20,14 @@
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $namespace = $version->getFullyQualifiedName(false);
-
 ob_start();
+echo '<?php'; ?> declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
-/**
- * Enum <?php echo PHPFHIR_VERSION_ENUM_TYPE; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 enum <?php echo PHPFHIR_VERSION_ENUM_TYPE; ?> : string
 {
 <?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>

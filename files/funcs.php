@@ -62,12 +62,21 @@ function pretty_var_export(mixed $var, int $indent = 0, bool $indentFirst = fals
 
     $out = sprintf("%s[", str_repeat(' ', $indentFirst ? $indent * $indentSize : 0));
     foreach ($var as $k => $v) {
+        $literal = false;
         $indentFirst = is_int($k);
+        // TODO: if it works, is it really a shit idea?  Probably.
+        if ('libxmlOptMask' === $k) {
+            $k = 'libxmlOpts';
+            $literal = true;
+        } else if ('xhtmlLibxmlOptMask' === $k) {
+            $k = 'xhtmlLibxmlOpts';
+            $literal = true;
+        }
         $out = sprintf("%s\n%s%s => %s,",
             $out,
             str_repeat(' ', ($indent + 1) * $indentSize),
             var_export($k, true),
-            pretty_var_export($v, $indent + 1, $indentFirst, $indentSize)
+            $literal ? $v : pretty_var_export($v, $indent + 1, $indentFirst, $indentSize),
         );
     }
     return sprintf("%s\n%s]", $out, str_repeat(' ', $indent * $indentSize));
