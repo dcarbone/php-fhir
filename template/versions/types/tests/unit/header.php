@@ -29,10 +29,9 @@ $typeClassname = $type->getClassName();
 ob_start();
 echo '<?php'; ?>
 
-
 namespace <?php echo $testNS; ?>;
 
-<?php $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
 use PHPUnit\Framework\TestCase;
