@@ -30,15 +30,9 @@ namespace <?php echo $testNS; ?>;
 
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-use <?php echo $rootNS; ?>\<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION_CONSTANTS); ?>;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class <?php echo PHPFHIR_TEST_CLASSNAME_CONSTANTS; ?>
-
- * @package \<?php echo $testNS; ?>
-
- */
 class <?php echo PHPFHIR_TEST_CLASSNAME_CONSTANTS; ?> extends TestCase
 {
 <?php foreach($types->getNameSortedIterator() as $type) : ?>
