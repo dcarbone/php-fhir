@@ -5,7 +5,7 @@
   </php>
   <testsuites>
     <testsuite name="STU3">
-      <directory>../output/DCarbone/PHPFHIRGenerated/STU3/Tests</directory>
+      <directory>../output/DCarbone/PHPFHIRGenerated/Versions/STU3/Tests</directory>
     </testsuite>
   </testsuites>
   <source>
