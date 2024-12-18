@@ -54,7 +54,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "HL7\\": "output/HL7"
+      "DCarbone\\PHPFHIRGenerated\\": "output/DCarbone/PHPFHIRGenerated"
     }
   },
   "config": {
