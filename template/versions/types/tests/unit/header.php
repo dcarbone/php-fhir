@@ -16,35 +16,29 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Version\SourceMetadata;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-ob_start();
-
-echo "<?php\n\n";
-
-$testNS = $type->getFullyQualifiedTestNamespace(TestType::UNIT, false);
+$testNS = $type->getFullyQualifiedTestNamespace(TestTypeEnum::UNIT, false);
 $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
 $typeClassname = $type->getClassName();
 
-echo "namespace {$testNS};\n\n";
 
-echo SourceMetadata::getFullPHPFHIRCopyrightComment();
-echo "\n\n";
-echo "use PHPUnit\\Framework\\TestCase;\n";
-echo "use {$type->getFullyQualifiedClassName(false)};\n";
-?>
+ob_start();
+echo '<?php'; ?>
 
-/**
- * Class <?php echo $testClassname; ?>
 
- * @package \<?php echo $testNS; ?>
+namespace <?php echo $testNS; ?>;
 
- */
+<?php $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
+
+
+use PHPUnit\Framework\TestCase;
+use <?php echo $type->getFullyQualifiedClassName(false); ?>;
+
 class <?php echo $testClassname; ?> extends TestCase
 {
 <?php

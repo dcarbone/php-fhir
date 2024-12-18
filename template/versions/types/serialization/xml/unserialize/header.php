@@ -33,6 +33,7 @@ ob_start(); ?>
      * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG); ?> $config
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
+     * @throws \Exception
      */
     public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self
     {

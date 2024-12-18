@@ -16,14 +16,15 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Version\SourceMetadata;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var string $testType */
+
+$config = $version->getConfig();
 
 $typeKind = $type->getKind();
 
@@ -51,7 +52,7 @@ if (null === $bundleEntryProperty) {
     throw ExceptionUtils::createBundleEntryPropertyNotFoundException($type);
 }
 
-$testNS = $type->getFullyQualifiedTestNamespace(TestType::INTEGRATION, false);
+$testNS = $type->getFullyQualifiedTestNamespace(TestTypeEnum::INTEGRATION, false);
 $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
 $typeClassname = $type->getClassName();
@@ -62,7 +63,7 @@ echo "<?php\n\n";
 
 echo "namespace {$testNS};\n\n";
 
-echo SourceMetadata::getFullPHPFHIRCopyrightComment();
+echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 ?>
 
 
@@ -90,7 +91,7 @@ class <?php echo $testClassname; ?> extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new PHPFHIRDebugClient('<?php echo rtrim($config->getTestEndpoint(), '/'); ?>');
+        $this->client = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT ?>('<?php echo rtrim($version->getTestEndpoint(), '/'); ?>');
     }
 
     /**
@@ -113,7 +114,7 @@ class <?php echo $testClassname; ?> extends TestCase
         }
         $this->assertIsString($rc->resp);
         $this->_fetchedResources[$format] = $rc->resp;
-        $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo SourceMetadata::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
+        $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
         file_put_contents($fname, $rc->resp);
         return $rc->resp;
     }
@@ -161,7 +162,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any "<?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
+                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any "<?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
                 $sourceXML
             ));
         }
@@ -218,7 +219,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
             ));
         }
@@ -263,7 +264,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned XML: %s)',
+                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned XML: %s)',
                 $sourceXML
             ));
         }
@@ -299,7 +300,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
             ));
         }
@@ -336,7 +337,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any "<?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
+                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any "<?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
                 $sourceXML
             ));
         }
@@ -393,7 +394,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
             ));
         }

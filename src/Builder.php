@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
@@ -46,9 +46,15 @@ class Builder
     /**
      * Generate FHIR object classes based on XSD
      * @throws \ErrorException
+     * @throws \Exception
      */
     public function render(): void
     {
+        // register custom error handler to force explosions.
+        set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
+            throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
+        });
+
         // write php-fhir core files
         $this->writeCoreFiles(
             $this->config->getCoreFiles(),
@@ -66,20 +72,14 @@ class Builder
     /**
      * Generate FHIR version files.
      *
-     * @throws \ErrorException
      * @throws \Exception
      */
     public function writeFHIRVersionFiles(): void
     {
-        // register custom error handler to force explosions.
-        set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
-            throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
-        });
-
         $log = $this->config->getLogger();
 
         foreach ($this->config->getVersionsIterator() as $version) {
-            $log->startBreak(sprintf('FHIR Version %s Class Generation', $version->getName()));
+            $log->startBreak(sprintf('FHIR Version %s Code Generation', $version->getName()));
 
             // write version fhir type files
             $definition = $version->getDefinition();
@@ -122,8 +122,8 @@ class Builder
                     );
                 }
             }
+            $log->endBreak(sprintf('FHIR Version %s Code Generation', $version->getName()));
         }
-        $log->endBreak('FHIR Class Generation');
 
         restore_error_handler();
     }
@@ -133,14 +133,12 @@ class Builder
      *
      * @throws \Exception
      */
-    public function writeFHIRVersionTestFiles(string ...$versionNames): void
+    public function writeFHIRVersionTestFiles(): void
     {
         $log = $this->config->getLogger();
 
         foreach ($this->config->getVersionsIterator() as $version) {
-            if (!in_array($version->getName(), $versionNames, true)) {
-                continue;
-            }
+            $log->startBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
 
             $definition = $version->getDefinition();
 
@@ -154,21 +152,19 @@ class Builder
 
             $log->startBreak('Test Class Generation');
 
-            $testTypes = [TestType::UNIT];
+            $testTypes = [TestTypeEnum::UNIT];
             if (null !== $version->getTestEndpoint()) {
-                $testTypes[] = TestType::INTEGRATION;
-                $testTypes[] = TestType::VALIDATION;
+                $testTypes[] = TestTypeEnum::INTEGRATION;
+                $testTypes[] = TestTypeEnum::VALIDATION;
             }
             foreach ($types->getIterator() as $type) {
-
-                // skip "abstract" types
                 if ($type->isAbstract()) {
                     continue;
                 }
 
                 foreach ($testTypes as $testType) {
                     // only render integration and validation tests if this is a "resource" type
-                    if (!$type->isResourceType() && $testType->isOneOf(TestType::INTEGRATION, TestType::VALIDATION)) {
+                    if (!$type->isResourceType() && $testType->isOneOf(TestTypeEnum::INTEGRATION, TestTypeEnum::VALIDATION)) {
                         continue;
                     }
 
@@ -186,8 +182,7 @@ class Builder
                     }
                 }
             }
-
-            $log->endBreak('Test Class Generation');
+            $log->endBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
         }
     }
 

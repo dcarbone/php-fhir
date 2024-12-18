@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 
 /**
  * Class TemplateBuilder
@@ -67,11 +67,11 @@ abstract class Templates
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
+     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
      * @return string
      */
-    public static function renderVersionTypeClassTest(Version $version, Types $types, Type $type, TestType $testType): string
+    public static function renderVersionTypeClassTest(Version $version, Types $types, Type $type, TestTypeEnum $testType): string
     {
-        return require PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR .'class.php';
+        return require PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'class.php';
     }
 }

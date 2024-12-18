@@ -55,7 +55,9 @@ ob_start(); ?>
 <?php else : ?>
         $errs = [];
 <?php endif; ?>
+<?php if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) : ?>
         $validationRules = $this->_getValidationRules();
+<?php endif; ?>
 <?php foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property) {
     $propertyType = $property->getValueFHIRType();
     if (null === $propertyType) {

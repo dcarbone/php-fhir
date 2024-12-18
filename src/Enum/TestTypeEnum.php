@@ -18,9 +18,9 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
-enum TestType: string
+enum TestTypeEnum: string
 {
-    case BASE= 'base';
+    case BASE = 'base';
     case UNIT = 'unit';
     case INTEGRATION = 'integration';
     case VALIDATION = 'validation';
@@ -36,10 +36,10 @@ enum TestType: string
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\TestType|string ...$other
+     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum|string ...$other
      * @return bool
      */
-    public function isOneOf(TestType|string ...$other): bool
+    public function isOneOf(TestTypeEnum|string ...$other): bool
     {
         return in_array($this, $other, true) || in_array($this->value, $other, true);
     }

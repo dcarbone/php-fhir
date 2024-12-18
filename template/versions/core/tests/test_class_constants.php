@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $rootNS = $version->getFullyQualifiedName(false);
-$testNS = $version->getFullyQualifiedTestsName(TestType::BASE, false);
+$testNS = $version->getFullyQualifiedTestsName(TestTypeEnum::BASE, false);
 
 ob_start();
 echo "<?php\n\n";?>

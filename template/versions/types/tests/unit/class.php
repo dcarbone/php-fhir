@@ -18,10 +18,10 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TestType $testType */
+/** @var \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType */
 
 $typeKind = $type->getKind();
 
@@ -30,16 +30,16 @@ ob_start();
 echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'header.php',
     [
-        'config'     => $config,
-        'type'       => $type,
+        'version' => $version,
+        'type' => $type,
     ]
 );
 
 echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_base.php',
     [
-        'config' => $config,
-        'type'   => $type,
+        'version' => $version,
+        'type' => $type,
     ]
 );
 
@@ -47,7 +47,7 @@ if ($typeKind === TypeKind::PRIMITIVE) {
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_primitive.php',
         [
-            'config' => $config,
+            'version' => $version,
             'type' => $type,
         ]
     );

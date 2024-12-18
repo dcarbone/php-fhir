@@ -22,7 +22,7 @@ $propertyFieldConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
 ob_start(); ?>
-        if (array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data)) {
+        if (isset($data[self::<?php echo $propertyFieldConst; ?>]) || array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data)) {
 <?php if ($property->isCollection()) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {

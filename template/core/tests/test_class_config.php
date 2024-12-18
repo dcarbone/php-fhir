@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 
@@ -24,7 +24,7 @@ ob_start();
 
 echo "<?php\n\n";
 
-echo "namespace {$config->getFullyQualifiedTestsName(TestType::BASE, false)};\n\n";
+echo "namespace {$config->getFullyQualifiedTestsName(TestTypeEnum::BASE, false)};\n\n";
 
 echo $config->getBasePHPFHIRCopyrightComment(false);
 

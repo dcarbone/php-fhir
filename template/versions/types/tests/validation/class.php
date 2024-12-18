@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestType;
-use DCarbone\PHPFHIR\Version\SourceMetadata;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var string $testType */
 
+$config = $version->getConfig();
 $typeKind = $type->getKind();
 
 $bundleType = $types->getBundleType();
@@ -51,7 +51,7 @@ if (null === $bundleEntryProperty) {
     throw ExceptionUtils::createBundleEntryPropertyNotFoundException($type);
 }
 
-$testNS = $type->getFullyQualifiedTestNamespace(TestType::VALIDATION, false);
+$testNS = $type->getFullyQualifiedTestNamespace(TestTypeEnum::VALIDATION, false);
 $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
 $typeClassname = $type->getClassName();
@@ -62,23 +62,17 @@ echo "<?php\n\n";
 
 echo "namespace {$testNS};\n\n";
 
-echo SourceMetadata::getFullPHPFHIRCopyrightComment();
+echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 ?>
 
 
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
-use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>;
-use <?php echo $config->getFullyQualifiedName(false); ?>\<?php echo PHPFHIR_VERSION_ENUM_TYPE; ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_API_CLIENT); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_TYPE); ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class <?php echo $testClassname; ?>
-
- * @package \<?php echo $testNS; ?>
-
- */
 class <?php echo $testClassname; ?> extends TestCase
 {
     /** @var array */
@@ -110,7 +104,7 @@ class <?php echo $testClassname; ?> extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new PHPFHIRDebugClient('<?php echo rtrim($config->getTestEndpoint(), '/'); ?>');
+        $this->client = new PHPFHIRDebugClient('<?php echo rtrim($version->getTestEndpoint(), '/'); ?>');
     }
 
     /**
@@ -122,7 +116,7 @@ class <?php echo $testClassname; ?> extends TestCase
         $output = [];
         $code = -1;
         $cmd = sprintf(
-            'java -jar %s %s -version <?php echo SourceMetadata::getFHIRVersion(true); ?>',
+            'java -jar %s %s -version <?php echo $version->getSourceMetadata()->getFHIRVersion(true); ?>',
             PHPFHIR_FHIR_VALIDATION_JAR,
             $filename
         );
@@ -158,7 +152,7 @@ class <?php echo $testClassname; ?> extends TestCase
         $this->assertEquals(200, $rc->code, 'Expected 200 OK');
         $this->assertIsString($rc->resp);
         $this->_fetchedResources[$format] = $rc->resp;
-        $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo SourceMetadata::getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
+        $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
         file_put_contents($fname, $rc->resp);
         return $rc->resp;
     }
@@ -205,7 +199,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
+                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
                 $sourceXML
             ));
         }
@@ -214,7 +208,7 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFhirTypeName() . '-<?php echo SourceMetadata::getFHIRVersion(false); ?>.xml';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFhirTypeName() . '-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>.xml';
         file_put_contents($fname, $bundle->xmlSerialize()->ownerDocument->saveXML());
         $this->assertFileExists($fname);
 
@@ -262,7 +256,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $config->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
                 $sourceJSON
             ));
         }
@@ -271,7 +265,7 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFhirTypeName() . '-<?php echo SourceMetadata::getFHIRVersion(false); ?>.json';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFhirTypeName() . '-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>.json';
         file_put_contents($fname, json_encode($bundle));
         $this->assertFileExists($fname);
 

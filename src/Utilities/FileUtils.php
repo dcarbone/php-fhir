@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use RuntimeException;
 
 /**
@@ -82,10 +82,10 @@ final class FileUtils
     /**
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
+     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
      * @return string
      */
-    public static function buildTypeTestFilePath(Version $version, Type $type, TestType $testType): string
+    public static function buildTypeTestFilePath(Version $version, Type $type, TestTypeEnum $testType): string
     {
         return self::mkdirRecurse(
                 $version->getClassesPath(),

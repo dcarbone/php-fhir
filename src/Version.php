@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
@@ -118,7 +118,7 @@ class Version
             $config->getOutputPath(),
             PHPFHIR_TEMPLATE_VERSIONS_CORE_DIR,
             $this->getFullyQualifiedName(true),
-            $this->getFullyQualifiedTestsName(TestType::BASE, true)
+            $this->getFullyQualifiedTestsName(TestTypeEnum::BASE, true)
         );
     }
 
@@ -252,12 +252,12 @@ class Version
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
+     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
      * @param bool $leadingSlash
      * @param string ...$bits
      * @return string
      */
-    public function getFullyQualifiedTestsName(TestType $testType, bool $leadingSlash, string ...$bits): string
+    public function getFullyQualifiedTestsName(TestTypeEnum $testType, bool $leadingSlash, string ...$bits): string
     {
         return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
     }
