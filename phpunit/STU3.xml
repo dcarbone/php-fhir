@@ -4,16 +4,8 @@
     <ini name="memory_limit" value="2048M"/>
   </php>
   <testsuites>
-    <testsuite name="STU3-Core">
-      <file>../output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>../output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>../output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConfigTest.php</file>
-    </testsuite>
-    <testsuite name="STU3-Unit">
-      <directory>../output/HL7/FHIR/STU3/PHPFHIRTests/Unit</directory>
-    </testsuite>
-    <testsuite name="STU3-Integration">
-      <directory>../output/HL7/FHIR/STU3/PHPFHIRTests/Integration</directory>
+    <testsuite name="STU3">
+      <directory>../output/DCarbone/PHPFHIRGenerated/STU3/Tests</directory>
     </testsuite>
   </testsuites>
   <source>

@@ -26,7 +26,6 @@ $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
 $typeClassname = $type->getClassName();
 
-
 ob_start();
 echo '<?php'; ?>
 

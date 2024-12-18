@@ -41,7 +41,6 @@ class CoreFiles
 
         foreach ($this->getTemplateFileIterator() as $fpath => $fi) {
             /** @var $fi \SplFileInfo */
-            var_dump($fpath);
             $this->_files[] = new CoreFile($fpath, $outputDir, $baseNS, $testNS);
         }
     }

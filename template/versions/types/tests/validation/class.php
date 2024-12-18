@@ -69,7 +69,7 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_API_CLIENT); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_TYPE); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_TYPE); ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 

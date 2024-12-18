@@ -70,8 +70,9 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_API_CLIENT); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_TYPE); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_TYPE); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION); ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -315,7 +316,7 @@ class <?php echo $testClassname; ?> extends TestCase
     public function testResponseParserXML(): void
     {
         $sourceXML = $this->fetchResourceBundle('xml');
-        $parser = new PHPFHIRResponseParser();
+        $parser = new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>());
         try {
             $bundle = $parser->parse($sourceXML);
         } catch(\Exception $e) {
@@ -373,7 +374,7 @@ class <?php echo $testClassname; ?> extends TestCase
     public function testResponseParserJSON(): void
     {
         $sourceJSON = $this->fetchResourceBundle('json');
-        $parser = new PHPFHIRResponseParser();
+        $parser = new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>());
         try {
             $bundle = $parser->parse($sourceJSON);
         } catch(\Exception $e) {

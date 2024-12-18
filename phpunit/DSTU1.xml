@@ -4,13 +4,8 @@
     <ini name="memory_limit" value="2048M"/>
   </php>
   <testsuites>
-    <testsuite name="DSTU1-Core">
-      <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConfigTest.php</file>
-    </testsuite>
-    <testsuite name="DSTU1-Unit">
-      <directory>../output/HL7/FHIR/DSTU1/PHPFHIRTests/Unit</directory>
+    <testsuite name="DSTU1">
+      <directory>../output/DCarbone/PHPFHIRGenerated/DSTU1/Tests</directory>
     </testsuite>
   </testsuites>
   <source>
