@@ -62,8 +62,7 @@ echo "<?php\n\n";
 
 echo "namespace {$testNS};\n\n";
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
-?>
+echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
@@ -104,7 +103,7 @@ class <?php echo $testClassname; ?> extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = new PHPFHIRDebugClient('<?php echo rtrim($version->getTestEndpoint(), '/'); ?>');
+        $this->client = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT ?>('<?php echo rtrim($version->getTestEndpoint(), '/'); ?>');
     }
 
     /**
