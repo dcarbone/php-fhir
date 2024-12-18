@@ -39,7 +39,7 @@ require AUTOLOAD_CLASS_FILEPATH;
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Definition;
+use DCarbone\PHPFHIR\Version\Definition;
 use JetBrains\PhpStorm\NoReturn;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
@@ -177,7 +177,6 @@ STRING;
  * TODO: Figure out what to do with Windows...
  *
  * @param string $q
- *
  * @return bool
  */
 function ask(string $q): bool
@@ -186,7 +185,7 @@ function ask(string $q): bool
     echo "{$q} [enter \"yes\" or \"no\"]: ";
     while (0 !== stream_select($ins, $null, $null, null)) {
         foreach ($ins as $in) {
-            $resp = stream_get_line($in, 25, "\n");
+            $resp = stream_get_line($in, 8, "\n");
             if (is_string($resp)) {
                 return str_starts_with(strtolower($resp), 'y');
             }
@@ -241,7 +240,7 @@ if ($argc > 1) {
             $next = trim($argv[$i + 1]);
         }
         if (str_contains($arg, '=')) {
-            list($arg, $next) = explode('=', $arg, 2);
+            [$arg, $next] = explode('=', $arg, 2);
             $found_equal = true;
         }
         switch ($arg) {
@@ -371,32 +370,34 @@ foreach ($versions_to_generate as $vg) {
     }
 }
 
+// set specific list of versions being generated.
+$config->setVersionsToGenerate($versions_to_generate);
+
 $ins = [STDIN];
 $null = null;
 
 echo sprintf(
-    "\nGenerating classes for versions: %s\n\n",
+    "\nLocating source(s) for versions: %s\n\n",
     implode(', ', $versions_to_generate)
 );
 
-foreach ($versions_to_generate as $version) {
-    $version_config = $config->getVersion($version);
-    $url = $version_config->getUrl();
+foreach ($versions_to_generate as $version_name) {
+    $version_name = trim($version_name);
 
-    // build vars
-    $namespace = $version_config->getFullyQualifiedName(true);
-    $version = trim($version);
-    $schema_dir = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version;
+    $version_config = $config->getVersion($version_name);
+
+    $source_url = $version_config->getSourceUrl();
+    $schema_dir = $version_config->getSchemaPath();
 
     // Download zip files
-    $zip_file_name = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version . '.zip';
+    $zip_file_name = $schema_dir . DIRECTORY_SEPARATOR . $version_name . '.zip';
     $zip_exists = file_exists($zip_file_name);
 
     $download = $unzip = true;
 
     if ($zip_exists) {
         if (!$use_existing && ($force_delete ||
-                ask("ZIP \"{$zip_file_name}\" already exists.\nWould you like to re-download from \"{$url}\"?"))
+                ask("ZIP \"{$zip_file_name}\" already exists.\nWould you like to re-download from \"{$source_url}\"?"))
         ) {
             echo "Deleting {$zip_file_name} ...\n";
             unlink($zip_file_name);
@@ -404,7 +405,7 @@ foreach ($versions_to_generate as $version) {
                 echo "Unable to delete file {$zip_file_name}\n";
                 exit(1);
             }
-            echo "Deleted.\n";
+            echo "File {$zip_file_name} deleted.\n";
         } else {
             echo "Using existing local copy\n";
             $download = false;
@@ -413,9 +414,9 @@ foreach ($versions_to_generate as $version) {
 
     if ($download) {
         // Download zip file...
-        echo sprintf('Downloading %s from %s to %s%s', $version, $url, $zip_file_name, PHP_EOL);
+        echo sprintf('Downloading version %s from %s to %s%s', $version_name, $source_url, $zip_file_name, PHP_EOL);
         $fh = fopen($zip_file_name, 'w');
-        $ch = curl_init($url);
+        $ch = curl_init($source_url);
         curl_setopt_array(
             $ch,
             [
@@ -431,11 +432,11 @@ foreach ($versions_to_generate as $version) {
         curl_close($ch);
         fclose($fh);
         if ('' !== $err) {
-            echo sprintf('Error downloading from %s: %s%s', $version, $err, PHP_EOL);
+            echo sprintf('Error downloading version %s from %s: %s%s', $version_name, $source_url, $err, PHP_EOL);
             exit(1);
         }
         if ($code !== 200) {
-            echo sprintf('Error downlodaing from %s: %d (%s)%s', $version, $code, $resp, PHP_EOL);
+            echo sprintf('Error downlodaing from %s: %d (%s)%s', $version_name, $source_url, $code, $resp, PHP_EOL);
             exit(1);
         }
     }
@@ -496,27 +497,16 @@ foreach ($versions_to_generate as $version) {
             }
         }
     }
-
-    echo sprintf(
-        'Generating "%s" into %s%s%s%s',
-        $version,
-        $config->getClassesPath(),
-        DIRECTORY_SEPARATOR,
-        str_replace('\\', DIRECTORY_SEPARATOR, trim($namespace, "\\")),
-        PHP_EOL
-    );
-
-    $definition = new Definition($version_config);
-    $definition->buildDefinition();
-
-    $builder = new Builder($version_config, $definition);
-    if ($only_library) {
-        $builder->writeFhirTypeFiles();
-    } elseif ($only_tests) {
-        $builder->writeFhirTestFiles();
-    } else {
-        $builder->render();
-    }
 }
+
+// create builder
+$builder = new Builder($config);
+
+echo sprintf(
+    "\nGenerating classes for versions: %s\n\n",
+    implode(', ', $versions_to_generate)
+);
+
+$builder->render();
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;

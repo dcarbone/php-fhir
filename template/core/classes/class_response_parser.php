@@ -16,61 +16,32 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
-
-$namespace = $config->getFullyQualifiedName(false);
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
-
-/**
- * Class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
 {
     private const XML_START = ['<'];
     private const JSON_START = ['{', '['];
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config */
-    private <?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version */
+    private <?php echo PHPFHIR_INTERFACE_VERSION; ?> $version;
 
     /**
-     * <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> Constructor
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      */
-    public function __construct(null|<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config = null)
+    public function __construct(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version)
     {
-        if (null === $config) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>;
-        }
-        $this->config = $config;
-    }
-
-    /**
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>
-
-     */
-    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CONFIG; ?>
-
-    {
-        return $this->config;
+        $this->version = $version;
     }
 
     /**
@@ -107,7 +78,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return null;
         }
         if (isset($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-            $className = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+            $className = $this->version::getTypeMap()->getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
             if (null === $className) {
                 throw new \UnexpectedValueException(sprintf(
                     'Provided input has "%s" value of "%s", but it does not map to any known type.  Other keys: ["%s"]',
@@ -145,8 +116,8 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
     {
         $elementName = $input->getName();
-        /** @var \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?> $fhirType */
-        $fhirType = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
+        /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $fhirType */
+        $fhirType = $this->version::getTypeMap()->getTypeClass($elementName);
         if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
                 'Unable to locate FHIR type for root XML element "%s". Input seen: %s',
@@ -154,7 +125,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
                 $this->getPrintableStringInput($input->saveXML())
             ));
         }
-        return $fhirType::xmlUnserialize($input, null, $this->config);
+        return $fhirType::xmlUnserialize($input, null, $this->version->getConfig()->getUnserializeConfig());
     }
 
     /**
@@ -194,7 +165,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     public function parseXml(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return $this->parseSimpleXMLElement(new \SimpleXMLElement($input, $this->config->getLibxmlOpts()));
+        return $this->parseSimpleXMLElement(new \SimpleXMLElement($input, $this->version->getConfig()->getUnserializeConfig()->getLibxmlOpts()));
     }
 
     /**
@@ -205,7 +176,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     public function parseJson(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $decoded = json_decode($input, true);
+        $decoded = json_decode($input, true, $this->version->getConfig()->getUnserializeConfig()->getJsonDecodeMaxDepth());
         $err = json_last_error();
         if (JSON_ERROR_NONE !== $err) {
             throw new \DomainException(sprintf(
