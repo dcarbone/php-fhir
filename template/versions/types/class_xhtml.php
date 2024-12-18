@@ -74,7 +74,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFA
     /**
      * @return string
      */
-    public function _getFhirTypeName(): string
+    public function _getFHIRTypeName(): string
     {
         return 'XHTML';
     }

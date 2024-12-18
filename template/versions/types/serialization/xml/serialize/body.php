@@ -85,7 +85,7 @@ foreach ($localProperties as $property) :
             if ($property->isCollection()) : ?>
         foreach($this-><?php echo $property->getGetterName(); ?>() as $v) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $xw->startElement($v->_getFhirTypeName());
+            $xw->startElement($v->_getFHIRTypeName());
             $v->xmlSerialize($xw, $config);
             $xw->endElement();
             $xw->endElement();
@@ -93,7 +93,7 @@ foreach ($localProperties as $property) :
 <?php       else : ?>
         if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $xw->startElement($v->_getFhirTypeName());
+            $xw->startElement($v->_getFHIRTypeName());
             $v->xmlSerialize($xw, $config);
             $xw->endElement();
             $xw->endElement();

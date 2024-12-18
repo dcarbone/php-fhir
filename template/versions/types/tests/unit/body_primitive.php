@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
@@ -26,11 +26,11 @@ $primitiveType = $type->getPrimitiveType();
 
 // TODO: more different types of strvals...
 $strVals = match ($primitiveType) {
-    PrimitiveType::INTEGER, PrimitiveType::POSITIVE_INTEGER, PrimitiveType::INTEGER64 => ['10', '1,000'],
-    PrimitiveType::NEGATIVE_INTEGER => ['-10', '-1,000'],
-    PrimitiveType::DECIMAL => ['10.5', '1,000.3333'],
-    PrimitiveType::UNSIGNED_INTEGER => [(string)PHP_INT_MAX, '1,000'],
-    PrimitiveType::BOOLEAN => ['true'],
+    PrimitiveTypeEnum::INTEGER, PrimitiveTypeEnum::POSITIVE_INTEGER, PrimitiveTypeEnum::INTEGER64 => ['10', '1,000'],
+    PrimitiveTypeEnum::NEGATIVE_INTEGER => ['-10', '-1,000'],
+    PrimitiveTypeEnum::DECIMAL => ['10.5', '1,000.3333'],
+    PrimitiveTypeEnum::UNSIGNED_INTEGER => [(string)PHP_INT_MAX, '1,000'],
+    PrimitiveTypeEnum::BOOLEAN => ['true'],
     default => ['randomstring'],
 };
 

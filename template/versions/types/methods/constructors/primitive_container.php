@@ -47,7 +47,7 @@ ob_start(); ?>
         if (is_scalar($data) || $data instanceof <?php echo $typeImports->getImportByType($valuePropertyType); ?>) {
             $this->setValue($data);
             return;
-        }<?php if ($parentType) : ?>
+        }<?php if (null !== $parentType) : ?>
 
         parent::__construct($data);
 <?php endif; ?><?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>

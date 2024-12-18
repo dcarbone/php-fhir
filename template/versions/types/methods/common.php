@@ -31,7 +31,7 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function _getFhirTypeName(): string
+    public function _getFHIRTypeName(): string
     {
         return self::FHIR_TYPE_NAME;
     }

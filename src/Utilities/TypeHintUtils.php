@@ -21,18 +21,18 @@ namespace DCarbone\PHPFHIR\Utilities;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
-use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKind;
 
 abstract class TypeHintUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Version $version
-     * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType
      * @param bool $nullable
      * @return string
      */
-    public static function primitivePHPValueTypeHint(Version $version, PrimitiveType $primitiveType, bool $nullable): string
+    public static function primitivePHPValueTypeHint(Version $version, PrimitiveTypeEnum $primitiveType, bool $nullable): string
     {
         // this assumes the property's value type is a primiive.
         // it will bomb if not.
@@ -43,7 +43,7 @@ abstract class TypeHintUtils
         );
     }
 
-    public static function primitivePHPReturnValueTypeDoc(Version $version, PrimitiveType $primitiveType, bool $nullable, bool $asCollection): string
+    public static function primitivePHPReturnValueTypeDoc(Version $version, PrimitiveTypeEnum $primitiveType, bool $nullable, bool $asCollection): string
     {
         $hint = $primitiveType->getPHPReturnValueTypeHint();
 
@@ -60,12 +60,12 @@ abstract class TypeHintUtils
 
     /**
      * @param \DCarbone\PHPFHIR\Version $version
-     * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType
      * @param bool $nullable
      * @param bool $asCollection
      * @return string
      */
-    public static function primitivePHPValueTypeSetterDoc(Version $version, PrimitiveType $primitiveType, bool $nullable, bool $asCollection): string
+    public static function primitivePHPValueTypeSetterDoc(Version $version, PrimitiveTypeEnum $primitiveType, bool $nullable, bool $asCollection): string
     {
         $hintTypes = $primitiveType->getPHPReceiveValueTypeHints();
 

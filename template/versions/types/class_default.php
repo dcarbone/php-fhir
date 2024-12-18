@@ -131,6 +131,8 @@ if (0 !== count($localProperties)) {
     );
 }
 
+echo "\n";
+
 echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
     [
@@ -153,6 +155,8 @@ if ($type->isContainedType()) {
 }
 
 if (0 < count($localProperties)) {
+    echo "\n";
+
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods.php',
         [

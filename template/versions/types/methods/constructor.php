@@ -39,6 +39,4 @@ echo match ($typeKind) {
     default => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR  . DIRECTORY_SEPARATOR . 'default.php', $requireArgs),
 };
 
-echo "\n";
-
 return ob_get_clean();

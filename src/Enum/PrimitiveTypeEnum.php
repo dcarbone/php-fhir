@@ -17,7 +17,8 @@ namespace DCarbone\PHPFHIR\Enum;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum PrimitiveType:string
+
+enum PrimitiveTypeEnum: string
 {
     case STRING = 'string';
     case BOOLEAN = 'boolean';
@@ -42,7 +43,8 @@ enum PrimitiveType:string
     case ID = 'id';
     case UUID = 'uuid';
 
-    case BASE_64_BINARY = 'base64Binary';
+    case BASE64_BINARY = 'base64Binary';
+    case XS_BASE64_BINARY = 'xs:base64Binary';
     case MARKDOWN = 'markdown';
     case SAMPLE_DATA_TYPE = 'SampledDataDataType';
 
@@ -53,34 +55,34 @@ enum PrimitiveType:string
     {
         // leaving as switch for readability purposes.
         switch ($this) {
-            case PrimitiveType::STRING:
-            case PrimitiveType::BOOLEAN:
-            case PrimitiveType::INTEGER:
+            case PrimitiveTypeEnum::STRING:
+            case PrimitiveTypeEnum::BOOLEAN:
+            case PrimitiveTypeEnum::INTEGER:
                 return $this->value;
 
-            case PrimitiveType::DECIMAL:
+            case PrimitiveTypeEnum::DECIMAL:
                 return 'double';
 
-            case PrimitiveType::POSITIVE_INTEGER:
-            case PrimitiveType::NEGATIVE_INTEGER:
-            case PrimitiveType::INTEGER64:
+            case PrimitiveTypeEnum::POSITIVE_INTEGER:
+            case PrimitiveTypeEnum::NEGATIVE_INTEGER:
+            case PrimitiveTypeEnum::INTEGER64:
                 return 'integer';
 
-            case PrimitiveType::DATE:
-            case PrimitiveType::DATETIME:
-            case PrimitiveType::TIME:
-            case PrimitiveType::INSTANT:
-            case PrimitiveType::CODE:
-            case PrimitiveType::OID:
-            case PrimitiveType::CANONICAL:
-            case PrimitiveType::URI:
-            case PrimitiveType::URL:
-            case PrimitiveType::ID:
-            case PrimitiveType::UUID:
-            case PrimitiveType::SAMPLE_DATA_TYPE:
-            case PrimitiveType::BASE_64_BINARY: // TODO: add content decoding?
-            case PrimitiveType::MARKDOWN: // TODO: markdown lib, maybe?
-            case PrimitiveType::UNSIGNED_INTEGER: // TODO: utilize big number lib, maybe?
+            case PrimitiveTypeEnum::DATE:
+            case PrimitiveTypeEnum::DATETIME:
+            case PrimitiveTypeEnum::TIME:
+            case PrimitiveTypeEnum::INSTANT:
+            case PrimitiveTypeEnum::CODE:
+            case PrimitiveTypeEnum::OID:
+            case PrimitiveTypeEnum::CANONICAL:
+            case PrimitiveTypeEnum::URI:
+            case PrimitiveTypeEnum::URL:
+            case PrimitiveTypeEnum::ID:
+            case PrimitiveTypeEnum::UUID:
+            case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
+            case PrimitiveTypeEnum::BASE64_BINARY: // TODO: add content decoding?
+            case PrimitiveTypeEnum::MARKDOWN: // TODO: markdown lib, maybe?
+            case PrimitiveTypeEnum::UNSIGNED_INTEGER: // TODO: utilize big number lib, maybe?
                 return 'string';
 
             default:
@@ -115,28 +117,28 @@ enum PrimitiveType:string
 
         switch ($this) {
             // Date types may always accept a \DateTimeInterface instance
-            case PrimitiveType::DATE:
-            case PrimitiveType::DATETIME:
-            case PrimitiveType::INSTANT:
-            case PrimitiveType::TIME:
+            case PrimitiveTypeEnum::DATE:
+            case PrimitiveTypeEnum::DATETIME:
+            case PrimitiveTypeEnum::INSTANT:
+            case PrimitiveTypeEnum::TIME:
                 $hintTypes[] = '\\DateTimeInterface';
                 break;
 
             // floats may stem from integers
-            case PrimitiveType::DECIMAL:
+            case PrimitiveTypeEnum::DECIMAL:
                 $hintTypes[] = 'int';
                 break;
 
             // integers may stem from floats
-            case PrimitiveType::INTEGER:
-            case PrimitiveType::INTEGER64:
-            case PrimitiveType::POSITIVE_INTEGER:
-            case PrimitiveType::NEGATIVE_INTEGER:
+            case PrimitiveTypeEnum::INTEGER:
+            case PrimitiveTypeEnum::INTEGER64:
+            case PrimitiveTypeEnum::POSITIVE_INTEGER:
+            case PrimitiveTypeEnum::NEGATIVE_INTEGER:
                 $hintTypes[] = 'float';
                 break;
 
             // unsigned integers may stem from integers or floats
-            case PrimitiveType::UNSIGNED_INTEGER:
+            case PrimitiveTypeEnum::UNSIGNED_INTEGER:
                 array_push($hintTypes, 'int', 'float');
                 break;
         }
@@ -145,10 +147,10 @@ enum PrimitiveType:string
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\PrimitiveType|string ...$other
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum|string ...$other
      * @return bool
      */
-    public function isOneOf(PrimitiveType|string ...$other): bool
+    public function isOneOf(PrimitiveTypeEnum|string ...$other): bool
     {
         return in_array($this, $other, true) || in_array($this->value, $other, true);
     }

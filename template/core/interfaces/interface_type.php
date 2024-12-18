@@ -33,7 +33,7 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
      * Returns the FHIR name represented by this Type
      * @return string
      */
-    public function _getFhirTypeName(): string;
+    public function _getFHIRTypeName(): string;
 
     /**
      * Returns the root XMLNS value found in the source.  Null indicates no "xmlns" was found.  Only defined when

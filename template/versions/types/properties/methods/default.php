@@ -42,7 +42,6 @@ foreach ($properties as $property) :
     $propertyTypeClassName = $propertyType->getClassName();
     $propertyTypeKind = $propertyType->getKind();
 ?>
-
     /**<?php if ('' !== $documentation) : ?>
 
 <?php echo $documentation; ?>

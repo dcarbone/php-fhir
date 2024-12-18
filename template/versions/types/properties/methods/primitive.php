@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
@@ -40,55 +40,55 @@ ob_start(); ?>
 $typeFile = null;
 switch ($primitiveType) {
     // string types
-    case PrimitiveType::CANONICAL:
-    case PrimitiveType::CODE:
-    case PrimitiveType::STRING:
-    case PrimitiveType::SAMPLE_DATA_TYPE:
-    case PrimitiveType::ID:
-    case PrimitiveType::OID:
-    case PrimitiveType::URI:
-    case PrimitiveType::MARKDOWN: // TODO: markdown lib, maybe?
-    case PrimitiveType::UUID: // TODO: implement uuid lib?
-    case PrimitiveType::URL: // TODO: create specific URL type?
+    case PrimitiveTypeEnum::CANONICAL:
+    case PrimitiveTypeEnum::CODE:
+    case PrimitiveTypeEnum::STRING:
+    case PrimitiveTypeEnum::SAMPLE_DATA_TYPE:
+    case PrimitiveTypeEnum::ID:
+    case PrimitiveTypeEnum::OID:
+    case PrimitiveTypeEnum::URI:
+    case PrimitiveTypeEnum::MARKDOWN: // TODO: markdown lib, maybe?
+    case PrimitiveTypeEnum::UUID: // TODO: implement uuid lib?
+    case PrimitiveTypeEnum::URL: // TODO: create specific URL type?
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'string_type.php';
         break;
 
-    case PrimitiveType::BOOLEAN:
+    case PrimitiveTypeEnum::BOOLEAN:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'bool_type.php';
         break;
 
     // int types
-    case PrimitiveType::INTEGER:
-    case PrimitiveType::INTEGER64:
-    case PrimitiveType::POSITIVE_INTEGER:
-    case PrimitiveType::NEGATIVE_INTEGER:
+    case PrimitiveTypeEnum::INTEGER:
+    case PrimitiveTypeEnum::INTEGER64:
+    case PrimitiveTypeEnum::POSITIVE_INTEGER:
+    case PrimitiveTypeEnum::NEGATIVE_INTEGER:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'integer_type.php';
         break;
 
     // treat uint64's as strings for the moment.
-    case PrimitiveType::UNSIGNED_INTEGER:
+    case PrimitiveTypeEnum::UNSIGNED_INTEGER:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'unsigned_integer_type.php';
         break;
 
-    case PrimitiveType::DECIMAL:
+    case PrimitiveTypeEnum::DECIMAL:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'decimal_type.php';
         break;
 
     // date types
-    case PrimitiveType::DATE:
+    case PrimitiveTypeEnum::DATE:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'date_type.php';
         break;
-    case PrimitiveType::DATETIME:
+    case PrimitiveTypeEnum::DATETIME:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'datetime_type.php';
         break;
-    case PrimitiveType::TIME:
+    case PrimitiveTypeEnum::TIME:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'time_type.php';
         break;
-    case PrimitiveType::INSTANT:
+    case PrimitiveTypeEnum::INSTANT:
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'instant_type.php';
         break;
 
-    case PrimitiveType::BASE_64_BINARY:
+    case PrimitiveTypeEnum::BASE64_BINARY:
         // TODO: add content decoding?
         $typeFile = __DIR__ . DIRECTORY_SEPARATOR . 'primitive' . DIRECTORY_SEPARATOR . 'base64_binary_type.php';
         break;

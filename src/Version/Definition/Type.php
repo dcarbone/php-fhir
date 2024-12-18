@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
@@ -80,8 +80,8 @@ class Type
     /** @var array */
     private array $unionOf = [];
 
-    /** @var \DCarbone\PHPFHIR\Enum\PrimitiveType */
-    private PrimitiveType $primitiveType;
+    /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum */
+    private PrimitiveTypeEnum $primitiveType;
 
     /** @var null|string */
     private null|string $restrictionBaseFHIRName = null;
@@ -235,10 +235,10 @@ class Type
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\PrimitiveType $primitiveType
+     * @param \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType
      * @return \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    public function setPrimitiveType(PrimitiveType $primitiveType): Type
+    public function setPrimitiveType(PrimitiveTypeEnum $primitiveType): Type
     {
         if (isset($this->primitiveType) && $this->primitiveType === $primitiveType) {
             throw new LogicException(
@@ -609,9 +609,9 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\PrimitiveType
+     * @return \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum
      */
-    public function getPrimitiveType(): PrimitiveType
+    public function getPrimitiveType(): PrimitiveTypeEnum
     {
         return $this->primitiveType;
     }

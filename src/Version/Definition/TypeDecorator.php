@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\PrimitiveType;
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKind;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Version;
@@ -142,7 +142,12 @@ abstract class TypeDecorator
                 }
             }
 
-            // skip "base" types 'cuz php.
+            // handle base64Binary type
+            if ('xs:base64Binary' === $parentTypeName) {
+                $parentTypeName = 'base64Binary';
+            }
+
+            // skip "base" types 'cuz php
             if (str_starts_with($parentTypeName, 'xs:')) {
                 $logger->warning(
                     sprintf(
@@ -178,7 +183,7 @@ abstract class TypeDecorator
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
             if (in_array($type->getFHIRName(), self::DSTU1_PRIMITIVES, true)) {
-                $ptn = PrimitiveType::STRING->value;
+                $ptn = PrimitiveTypeEnum::STRING->value;
                 $logger->debug(sprintf('(DSTU1 suppport) Type "%s" determined to be DSTU1 primitive', $type->getFHIRName()));
             } elseif ($type->hasPrimitiveParent()) {
                 $ptn = $type->getParentType()->getFHIRName();
@@ -193,7 +198,7 @@ abstract class TypeDecorator
 
             $logger->debug(sprintf('Setting assumed primitive Type "%s" kind to "%s"', $type->getFHIRName(), $ptn));
             $ptn = str_replace('-primitive', '', $ptn);
-            $pt = PrimitiveType::from($ptn);
+            $pt = PrimitiveTypeEnum::from($ptn);
             $type->setPrimitiveType($pt);
             $logger->info(
                 sprintf(

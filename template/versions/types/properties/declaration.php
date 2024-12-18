@@ -25,8 +25,8 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 $isCollection = $property->isCollection();
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
-ob_start(); ?>
-<?php if ('' === $documentation) : ?>
+ob_start();
+if ('' === $documentation) : ?>
     /** @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?> */
 <?php else : ?>
     /**
