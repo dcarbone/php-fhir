@@ -16,43 +16,22 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
-
-$namespace = $config->getFullyQualifiedName(false);
-
-$containerType = $types->getContainerType($config->getVersion()->getName());
-if (null === $containerType) {
-    throw new \RuntimeException(sprintf(
-        'Unable to locate either "%s" or "%s" type',
-        TypeKind::RESOURCE_CONTAINER->value,
-        TypeKind::RESOURCE_INLINE->value
-    ));
-}
+/** @var \DCarbone\PHPFHIR\Config $config */
 
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
 /**
  * Interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+
  *
- * This interface is applied to any class that is containable within a <?php $containerType->getFullyQualifiedClassName(true); ?><?php if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
+ * This is a meta interface that must never be directly implemented by a class.  It exists purely to ensure type safety
+ * throughout the base package.
  */
 interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>
 

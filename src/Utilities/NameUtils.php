@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 
 /**
  * Class NameUtils
@@ -26,6 +26,11 @@ use DCarbone\PHPFHIR\Definition\Type;
  */
 abstract class NameUtils
 {
+    public const VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
+    public const FUNCTION_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
+    public const CLASSNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
+    public const NAMESPACE_REGEX = '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-zA-Z0-9_]$}';
+
     /** @var array */
     public static array $classNameSearch = [
         '.',
@@ -115,7 +120,7 @@ abstract class NameUtils
      */
     public static function isValidVariableName(string $name): bool
     {
-        return (bool)preg_match(PHPFHIR_VARIABLE_NAME_REGEX, $name);
+        return (bool)preg_match(self::VARIABLE_NAME_REGEX, $name);
     }
 
     /**
@@ -124,7 +129,7 @@ abstract class NameUtils
      */
     public static function isValidFunctionName(string $name): bool
     {
-        return (bool)preg_match(PHPFHIR_FUNCTION_NAME_REGEX, $name);
+        return (bool)preg_match(self::FUNCTION_NAME_REGEX, $name);
     }
 
     /**
@@ -133,7 +138,7 @@ abstract class NameUtils
      */
     public static function isValidClassName(string $name): bool
     {
-        return (bool)preg_match(PHPFHIR_CLASSNAME_REGEX, $name);
+        return (bool)preg_match(self::CLASSNAME_REGEX, $name);
     }
 
     /**
@@ -142,7 +147,7 @@ abstract class NameUtils
      */
     public static function isValidNSName(?string $name): bool
     {
-        return null === $name || '' === $name || preg_match(PHPFHIR_NAMESPACE_REGEX, $name);
+        return null === $name || '' === $name || preg_match(self::NAMESPACE_REGEX, $name);
     }
 
     /**
@@ -201,29 +206,11 @@ abstract class NameUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
     public static function getTypeXMLElementName(Type $type): string
     {
         return str_replace(self::$classNameSearch, self::$classNameReplace, $type->getFHIRName());
-    }
-
-    /**
-     * @param string $propName
-     * @return string
-     */
-    public static function getPropertyMethodName(string $propName): string
-    {
-        return ucfirst($propName);
-    }
-
-    /**
-     * @param string $propName
-     * @return string
-     */
-    public static function getPropertyVariableName(string $propName): string
-    {
-        return sprintf('$%s', $propName);
     }
 }

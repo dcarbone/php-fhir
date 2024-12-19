@@ -18,10 +18,11 @@ namespace DCarbone\PHPFHIR\Render;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Version;
+use DCarbone\PHPFHIR\Version\Definition\Type;
+use DCarbone\PHPFHIR\Version\Definition\Types;
+use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 
 /**
  * Class TemplateBuilder
@@ -31,46 +32,46 @@ abstract class Templates
 {
     /**
      * @param string $coreFilename
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param array $templateArgs
      * @return string
      */
-    public static function renderCoreType(string $coreFilename, VersionConfig $config, Types $types): string
+    public static function renderCoreTemplate(string $coreFilename, array $templateArgs): string
     {
+        extract($templateArgs);
         return require $coreFilename;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderXhtmlTypeClass(VersionConfig $config, Types $types, Type $type): string
+    public static function renderVersionXHTMLTypeClass(Version $version, Types $types, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_xhtml.php';
+        return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_xhtml.php';
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderFhirTypeClass(VersionConfig $config, Types $types, Type $type): string
+    public static function renderVersionTypeClass(Version $version, Types $types, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_default.php';
+        return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_default.php';
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
      * @return string
      */
-    public static function renderFhirTypeClassTest(VersionConfig $config, Types $types, Type $type, TestType $testType): string
+    public static function renderVersionTypeClassTest(Version $version, Types $types, Type $type, TestTypeEnum $testType): string
     {
-        return require PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR .'class.php';
+        return require PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'class.php';
     }
 }

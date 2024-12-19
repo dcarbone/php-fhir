@@ -1,60 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" bootstrap="./vendor/autoload.php" colors="true" stopOnFailure="false">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="./vendor/autoload.php"
+         colors="true"
+         stopOnFailure="false">
   <php>
     <ini name="memory_limit" value="2048M"/>
   </php>
   <testsuites>
-    <testsuite name="DSTU1-Core">
-      <file>./output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>./output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>./output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConfigtest.php</file>
+    <testsuite name="Core">
+      <directory>./output/DCarbone/PHPFHIRGenerated/Tests</directory>
     </testsuite>
-    <testsuite name="DSTU1-Unit">
-      <directory>./output/HL7/FHIR/DSTU1/PHPFHIRTests/Unit</directory>
+    <testsuite name="DSTU2">
+      <directory>./output/DCarbone/PHPFHIRGenerated/Versions/DSTU2/Tests</directory>
     </testsuite>
-    <testsuite name="DSTU2-Core">
-      <file>./output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>./output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>./output/HL7/FHIR/DSTU2/PHPFHIRTests/PHPFHIRConfigtest.php</file>
+    <testsuite name="STU3">
+      <directory>./output/DCarbone/PHPFHIRGenerated/Versions/STU3/Tests</directory>
     </testsuite>
-    <testsuite name="DSTU2-Unit">
-      <directory>./output/HL7/FHIR/DSTU2/PHPFHIRTests/Unit</directory>
+    <testsuite name="R4">
+      <directory>./output/DCarbone/PHPFHIRGenerated/Versions/R4/Tests</directory>
     </testsuite>
-    <testsuite name="DSTU2-Integration">
-      <directory>./output/HL7/FHIR/DSTU2/PHPFHIRTests/Integration</directory>
-    </testsuite>
-    <testsuite name="STU3-Core">
-      <file>./output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>./output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>./output/HL7/FHIR/STU3/PHPFHIRTests/PHPFHIRConfigtest.php</file>
-    </testsuite>
-    <testsuite name="STU3-Unit">
-      <directory>./output/HL7/FHIR/STU3/PHPFHIRTests/Unit</directory>
-    </testsuite>
-    <testsuite name="STU3-Integration">
-      <directory>./output/HL7/FHIR/STU3/PHPFHIRTests/Integration</directory>
-    </testsuite>
-    <testsuite name="R4-Core">
-      <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>./output/HL7/FHIR/R4/PHPFHIRTests/PHPFHIRConfigtest.php</file>
-    </testsuite>
-    <testsuite name="R4-Unit">
-      <directory>./output/HL7/FHIR/R4/PHPFHIRTests/Unit</directory>
-    </testsuite>
-    <testsuite name="R4-Integration">
-      <directory>./output/HL7/FHIR/R4/PHPFHIRTests/Integration</directory>
-    </testsuite>
-    <testsuite name="R5-Core">
-      <file>./output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>./output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>./output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConfigtest.php</file>
-    </testsuite>
-    <testsuite name="R5-Unit">
-      <directory>./output/HL7/FHIR/R5/PHPFHIRTests/Unit</directory>
-    </testsuite>
-    <testsuite name="R5-Integration">
-      <directory>./output/HL7/FHIR/R5/PHPFHIRTests/Integration</directory>
+    <testsuite name="R5">
+      <directory>./output/DCarbone/PHPFHIRGenerated/Versions/R5/Tests</directory>
     </testsuite>
   </testsuites>
   <source>

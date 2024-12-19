@@ -16,36 +16,27 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
-
-$namespace = $config->getFullyQualifiedName(false);
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
-echo "\n\n"; ?>
 /**
- * Fhir Xml Writer
+ * PHP FHIR XMLWriter Class.
  *
- * Class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?><?php if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
+ * This class is intended specifically for internal use within the PHPFHIR library.  Use outside this scope is not
+ * promoted or supported.
+ *
  */
-class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
+final class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
 {
-    private const MEM = 'memory';
+    private const _MEM = 'memory';
 
     /** @var bool */
     private bool $_docStarted = false;
@@ -61,7 +52,10 @@ class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
      */
     public function openMemory(): bool
     {
-        $this->_open = self::MEM;
+        if (null !== $this->_open) {
+            throw new \LogicException('This XMLWriter instance is already open');
+        }
+        $this->_open = self::_MEM;
         return parent::openMemory();
     }
 
@@ -73,6 +67,9 @@ class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
      */
     public function openUri(string $uri): bool
     {
+        if (null !== $this->_open) {
+            throw new \LogicException('This XMLWriter instance is already open');
+        }
         $this->_open = $uri;
         return parent::openUri($uri);
     }
@@ -116,6 +113,9 @@ class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
      */
     public function startDocument(null|string $version = '1.0', null|string $encoding = 'UTF-8', null|string $standalone = 'yes'): bool
     {
+        if ($this->_docStarted) {
+            throw new \LogicException('Document has already been started');
+        }
         $this->_docStarted = true;
         return parent::startDocument($version, $encoding, $standalone);
     }
@@ -157,21 +157,26 @@ class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
     }
 
     /**
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?> $config
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> $config
      * @param string $name
-     * @param string|null $sourceXmlns
+     * @param string|null $sourceXMLNS
      * @return bool
      */
-    public function openRootNode(<?php echo PHPFHIR_CLASSNAME_CONFIG; ?> $config, string $name, null|string $sourceXmlns): bool
+    public function openRootNode(<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config, string $name, null|string $sourceXMLNS): bool
     {
+        if (null === $this->_open) {
+            throw new \LogicException('Must open write destination before writing root node');
+        } else if (!$this->_docStarted) {
+            throw new \LogicException('Document must be started before writing root node');
+        }
         $ok = $this->startElement($name);
         if (!$ok) {
             return false;
         }
-        if ($config->getOverrideSourceXmlns() || null === $sourceXmlns) {
-            $ns = (string)$config->getRootXmlns();
+        if ($config->getOverrideSourceXMLNS() || null === $sourceXMLNS) {
+            $ns = (string)$config->getRootXMLNS();
         } else {
-            $ns = $sourceXmlns;
+            $ns = $sourceXMLNS;
         }
         if ('' !== $ns) {
             $ok = $this->writeAttribute('xmlns', $ns);
