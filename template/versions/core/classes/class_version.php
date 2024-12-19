@@ -113,7 +113,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
      * @return <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_TYPE_MAP); ?>
 
      */
-    public static function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
+    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
     {
         if (!isset(self::$_typeMap)) {

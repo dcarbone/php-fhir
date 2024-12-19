@@ -27,23 +27,44 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?>
+class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?>
 
 {
-    /** @var null|string */
-    public null|string $host;
+    /** @var string */
+    public string $method;
+
+    /** @var string */
+    public string $path;
 
     /** @var int */
-    public null|int $count = null;
-    /** @var null|string */
-    public null|string $since = null;
-    /** @var null|string */
-    public null|string $at = null;
+    public int $count;
+    /** @var string */
+    public string $since;
+    /** @var string */
+    public string $at;
 
-    /** @var null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_SORT); ?> */
-    public null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> */
+    public <?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format;
 
-    /** @var null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_RESOURCE_LIST); ?> */
-    public null|<?php echo PHPFHIR_ENUM_API_RESOURCE_LIST; ?> $resourceList = null;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_SORT); ?> */
+    public <?php echo PHPFHIR_ENUM_API_SORT; ?> $sort;
+
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_RESOURCE_LIST); ?> */
+    public <?php echo PHPFHIR_ENUM_API_RESOURCE_LIST; ?> $resourceList;
+
+    /**
+     * Extra query parameters.
+     *
+     * @var array
+     */
+    public array $queryParams;
+
+    /**
+     * Extra options.  Possible values depends on what client you are using.  If using the base API client, these
+     * must be valid PHP curl options.
+     *
+     * @var array
+     */
+    public array $options;
 }
 <?php return ob_get_clean();

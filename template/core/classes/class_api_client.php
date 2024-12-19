@@ -27,7 +27,13 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
+/**
+ * Class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
+
+ *
+ * Basic implementation of the <?php echo PHPFHIR_INTERFACE_API_CLIENT; ?> interface.
+ */
+class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_INTERFACE_API_CLIENT; ?>
 
 {
     private const _METHOD_GET = 'GET';
@@ -37,6 +43,10 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
     private const _METHOD_DELETE = 'DELETE';
     private const _METHOD_HEAD = 'HEAD';
 
+    private const _PARAM_FORMAT = '_format';
+    private const _PARAM_SORT = '_sort';
+    private const _PARAM_COUNT = '_count';
+
     private const _BASE_CURL_OPTS = [
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_RETURNTRANSFER => true,
@@ -44,63 +54,74 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
         CURLOPT_USERAGENT => 'php-fhir client (build: <?php echo $config->getStandardDate(); ?>;)',
     ];
 
-    /** @var string */
-    private string $_baseUrl;
-    /** @var array */
-    private array $_curlOpts;
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> $parser;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_CONFIG); ?> */
+    protected <?php echo PHPFHIR_CLASSNAME_API_CLIENT_CONFIG; ?> $_config;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> Constructor
      *
-     * @param string $baseUrl URL of FHIR server to query
-     * @param array $curlOpts Base curl options array
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?> $parser
+     * @param string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_CONFIG); ?> $config Fully qualified address of FHIR server, or configuration object.
      */
-    public function __construct(string $baseUrl, array $curlOpts = [],  null|<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?> $parser = null)
+    public function __construct(string|<?php echo PHPFHIR_CLASSNAME_API_CLIENT_CONFIG; ?> $config)
     {
-        $this->_baseUrl = $baseUrl;
-        $this->_curlOpts = $curlOpts;
-        if (null === $parser) {
-            $this->parser =  new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>());
-        } else {
-            $this->parser = $parser;
+        if (is_string($config)) {
+            $config = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT_CONFIG; ?>($config);
         }
+        $this->_config = $config;
     }
 
     /**
-     * @return string
+     * Return configuration used by this client.
+     *
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_CONFIG); ?>
+
      */
-    public function _getBaseUrl(): string
+    public function getConfig(): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_CONFIG; ?>
+
     {
-        return $this->_baseUrl;
+        return $this->_config;
     }
 
     /**
-     * @return array
-     */
-    public function _getBaseCurlOpts(): array
-    {
-        return $this->_curlOpts;
-    }
-
-    /**
-     * @param string $path
-     * @param array $queryParams
-     * @param array $curlOpts
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_REQUEST); ?> $request
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>
 
      */
-    private function _exec(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+    public function exec(<?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?> $request): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
     {
-        $url = sprintf('%s%s?%s', $this->_baseUrl, $path, http_build_query($queryParams, '', '&',  PHP_QUERY_RFC3986));
-        
-        $ch = curl_init($url);
-        curl_setopt_array(
-            $ch,
-            self::_BASE_CURL_OPTS + $this->_curlOpts + $curlOpts
+        $queryParams = array_merge($this->_config->getQueryParams(), $request->queryParams ?? []);
+
+        $format = $request->format ?? $this->_config->getDefaultFormat();
+        if (null !== $format) {
+            $queryParams[self::_PARAM_FORMAT] = $format->value;
+        }
+        if (isset($request->sort)) {
+            $queryParams[self::_PARAM_SORT] = $request->sort->value;
+        }
+        if (isset($request->count)) {
+            $queryParams[self::_PARAM_COUNT] = $request->count;
+        }
+
+        $url = sprintf(
+            '%s%s?%s',
+            $this->_config->getAddress(),
+            $request->path,
+            http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986),
         );
+
+        $curlOpts = self::_BASE_CURL_OPTS +
+            [CURLOPT_CUSTOMREQUEST => $request->method] +
+            array_merge($this->_config->getCurlOpts(), $request->options ?? []);
+
+        $ch = curl_init($url);
+        if (!curl_setopt_array($ch, $curlOpts)) {
+            throw new \DomainException(sprintf(
+                'Error setting curl opts for query "%s" with value: %s',
+                $url,
+                var_export($curlOpts, true),
+            ));
+        }
 
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -117,6 +138,25 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
     }
 
     /**
+     * @param string $method
+     * @param string $path
+     * @param array $queryParams
+     * @param array $curlOpts
+     * @return <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
+     */
+    private function _exec(string $method, string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
+    {
+        $req = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?>();
+        $req->method = $method;
+        $req->path = $path;
+        $req->queryParams = $queryParams;
+        $req->options = $curlOpts;
+        return $this->exec($req);
+    }
+
+    /**
      * @param string $path
      * @param array $queryParams
      * @param array $curlOpts
@@ -125,7 +165,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
      */
     public function get(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     {
-        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => self::_METHOD_GET] + $curlOpts);
+        return $this->_exec(self::_METHOD_GET, $path, $queryParams, $curlOpts);
     }
 
     /**
@@ -137,7 +177,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
      */
     public function put(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     {
-        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => self::_METHOD_PUT] + $curlOpts);
+        return $this->_exec(self::_METHOD_PUT, $path, $queryParams, $curlOpts);
     }
 
     /**
@@ -149,7 +189,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
      */
     public function post(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     {
-        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => self::_METHOD_POST] + $curlOpts);
+        return $this->_exec(self::_METHOD_POST, $path, $queryParams, $curlOpts);
     }
 
     /**
@@ -161,7 +201,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
      */
     public function patch(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     {
-        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => self::_METHOD_PATCH] + $curlOpts);
+        return $this->_exec(self::_METHOD_PATCH, $path, $queryParams, $curlOpts);
     }
 
     /**
@@ -173,7 +213,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
      */
     public function delete(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     {
-        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => self::_METHOD_DELETE] + $curlOpts);
+        return $this->_exec(self::_METHOD_DELETE, $path, $queryParams, $curlOpts);
     }
 
     /**
@@ -185,68 +225,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>
      */
     public function head(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     {
-        return $this->_exec($path, $queryParams, [CURLOPT_CUSTOMREQUEST => self::_METHOD_HEAD] + $curlOpts);
-    }
-
-    /**
-     * Execute a read operation for a particular resource.
-     *
-     * @see https://www.hl7.org/fhir/http.html#read
-     *
-     * @param string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_VERSION_ENUM_TYPE); ?> $resourceType
-     * @param string $id
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> $format
-     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
-
-     * @throws \Exception
-     */
-    public function readOne(string|<?php echo PHPFHIR_VERSION_ENUM_TYPE; ?> $resourceType, string $id, <?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
-
-    {
-        if (!is_string($resourceType)) {
-            $resourceType = $resourceType->value;
-        }
-
-        $rc = $this->get(sprintf('/%s/%s', $resourceType, $id), ['_format' => $format->value]);
-
-        if ('' !== $rc->err) {
-            throw new \Exception(sprintf('Error executing "%s": %s', $rc->url, $rc->err));
-        }
-        if (200 !== $rc->code) {
-            throw new \Exception(sprintf('Error executing "%s": Expected 200 OK, saw %d', $rc->url, $rc->code));
-        }
-
-        return $this->parser->parse($rc->resp);
-    }
-
-    /**
-     * Queries for the first available of a given resource
-     *
-     * @see https://www.hl7.org/fhir/http.html#read
-     *
-     * @param string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_VERSION_ENUM_TYPE); ?> $resourceType
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> $format
-     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
-
-     * @throws \Exception
-     */
-    public function readFirst(string|<?php echo PHPFHIR_VERSION_ENUM_TYPE; ?> $resourceType, <?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::JSON): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
-
-    {
-        if (!is_string($resourceType)) {
-            $resourceType = $resourceType->value;
-        }
-
-        $rc = $this->get(sprintf('/%s', $resourceType), ['_format' => $format->value, '_count' => '1']);
-
-        if ('' !== $rc->err) {
-            throw new \Exception(sprintf('Error executing "%s": %s', $rc->url, $rc->err));
-        }
-        if (200 !== $rc->code) {
-            throw new \Exception(sprintf('Error executing "%s": Expected 200 OK, saw %d', $rc->url, $rc->code));
-        }
-
-        return $this->parser->parse($rc->resp);
+        return $this->_exec(self::_METHOD_HEAD, $path, $queryParams, $curlOpts);
     }
 }
 <?php return ob_get_clean();

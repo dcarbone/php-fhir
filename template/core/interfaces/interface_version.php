@@ -66,6 +66,6 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION; ?>
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_TYPE_MAP); ?>
 
      */
-    public static function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>;
+    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>;
 }
 <?php return ob_get_clean();

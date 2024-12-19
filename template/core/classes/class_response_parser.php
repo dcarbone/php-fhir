@@ -33,52 +33,43 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     private const XML_START = ['<'];
     private const JSON_START = ['{', '['];
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version */
-    private <?php echo PHPFHIR_INTERFACE_VERSION; ?> $version;
-
-    /**
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
-     */
-    public function __construct(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version)
-    {
-        $this->version = $version;
-    }
-
     /**
      * Attempts to parse the provided input into FHIR objects.
      *
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
-    public function parse(null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parse(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version, null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if (null === $input) {
             return null;
         } else if (is_string($input)) {
-            return $this->parseString($input);
+            return static::parseString($version, $input);
         } else if (is_array($input)) {
-            return $this->parseArray($input);
+            return static::parseArray($version, $input);
         } else {
-            return $this->parseObject($input);
+            return static::parseObject($version, $input);
         }
     }
 
     /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param array $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
-    public function parseArray(array $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parseArray(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version, array $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if ([] === $input) {
             return null;
         }
         if (isset($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-            $className = $this->version::getTypeMap()->getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+            $className = $version->getTypeMap()::getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
             if (null === $className) {
                 throw new \UnexpectedValueException(sprintf(
                     'Provided input has "%s" value of "%s", but it does not map to any known type.  Other keys: ["%s"]',
@@ -97,105 +88,112 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     }
 
     /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param \stdClass $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
-    public function parseStdClass(\stdClass $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parseStdClass(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,\stdClass $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return $this->parseArray((array)$input);
+        return static::parseArray($version, (array)$input);
     }
 
     /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param \SimpleXMLElement $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
-    public function parseSimpleXMLElement(\SimpleXMLElement $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parseSimpleXMLElement(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,\SimpleXMLElement $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         $elementName = $input->getName();
         /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $fhirType */
-        $fhirType = $this->version::getTypeMap()->getTypeClass($elementName);
+        $fhirType = $version->getTypeMap()::getTypeClass($elementName);
         if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
                 'Unable to locate FHIR type for root XML element "%s". Input seen: %s',
                 $elementName,
-                $this->getPrintableStringInput($input->saveXML())
+                static::getPrintableStringInput($input->saveXML())
             ));
         }
-        return $fhirType::xmlUnserialize($input, null, $this->version->getConfig()->getUnserializeConfig());
+        return $fhirType::xmlUnserialize($input, null, $version->getConfig()->getUnserializeConfig());
     }
 
     /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param \DOMDocument $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
-    public function parseDOMDocument(\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parseDOMDocument(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return $this->parseSimpleXMLElement(simplexml_import_dom($input));
+        return static::parseSimpleXMLElement($version, simplexml_import_dom($input));
     }
 
     /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param \stdClass|\SimpleXMLElement|\DOMDocument $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
-    public function parseObject(\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parseObject(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         if ($input instanceof \stdClass) {
-            return $this->parseStdClass($input);
+            return static::parseStdClass($version, $input);
         } elseif ($input instanceof \SimpleXMLElement) {
-            return $this->parseSimpleXMLElement($input);
+            return static::parseSimpleXMLElement($version, $input);
         } else {
-            return $this->parseDOMDocument($input);
+            return static::parseDOMDocument($version, $input);
         }
     }
 
     /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param string $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
-    public function parseXml(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parseXML(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return $this->parseSimpleXMLElement(new \SimpleXMLElement($input, $this->version->getConfig()->getUnserializeConfig()->getLibxmlOpts()));
+        return static::parseSimpleXMLElement($version, new \SimpleXMLElement($input, $version->getConfig()->getUnserializeConfig()->getLibxmlOpts()));
     }
 
     /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param string $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      */
-    public function parseJson(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parseJSON(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $decoded = json_decode($input, true, $this->version->getConfig()->getUnserializeConfig()->getJsonDecodeMaxDepth());
+        $decoded = json_decode($input, true, $version->getConfig()->getUnserializeConfig()->getJSONDecodeMaxDepth());
         $err = json_last_error();
         if (JSON_ERROR_NONE !== $err) {
             throw new \DomainException(sprintf(
                 'Unable to parse provided input as JSON.  Error: %s; Input: %s',
                 json_last_error_msg(),
-               $this->getPrintableStringInput($input)
+               static::getPrintableStringInput($input)
             ));
         }
 
-        return $this->parseArray($decoded);
+        return static::parseArray($version, $decoded);
     }
 
     /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION); ?> $version
      * @param string $input
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
-    public function parseString(string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+    public static function parseString(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         $input = trim($input);
@@ -204,13 +202,13 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
         }
         $chr = $input[0];
         if (in_array($chr, self::XML_START, true)) {
-            return $this->parseXml($input);
+            return static::parseXML($version, $input);
         } elseif (in_array($chr, self::JSON_START, true)) {
-            return $this->parseJson($input);
+            return static::parseJSON($version, $input);
         }
         throw new \UnexpectedValueException(sprintf(
             'Input string must be either XML or JSON encoded object.  Provided: %s',
-           $this->getPrintableStringInput($input)
+           static::getPrintableStringInput($input)
         ));
     }
 
@@ -218,7 +216,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @param string $input
      * @return string
      */
-    protected function getPrintableStringInput(string $input): string
+    protected static function getPrintableStringInput(string $input): string
     {
         if (strlen($input) > 100) {
             return sprintf('%s[...]', substr($input, 0, 100));

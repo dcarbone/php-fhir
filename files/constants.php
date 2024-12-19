@@ -83,6 +83,7 @@ const PHPFHIR_CLASSNAME_SERIALIZE_CONFIG = 'SerializeConfig';
 const PHPFHIR_CLASSNAME_RESPONSE_PARSER = 'ResponseParser';
 const PHPFHIR_CLASSNAME_CONSTANTS = 'Constants';
 const PHPFHIR_CLASSNAME_API_CLIENT = 'APIClient';
+const PHPFHIR_CLASSNAME_API_CLIENT_CONFIG = 'APIClientConfig';
 const PHPFHIR_CLASSNAME_API_CLIENT_REQUEST = 'APIClientRequest';
 const PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE = 'APIClientResponse';
 const PHPFHIR_CLASSNAME_XML_WRITER = 'XMLWriter';
@@ -95,7 +96,7 @@ const PHPFHIR_INTERFACE_PRIMITIVE_TYPE = 'PrimitiveTypeInterface';
 const PHPFHIR_INTERFACE_VERSION = 'VersionInterface';
 const PHPFHIR_INTERFACE_VERSION_CONFIG = 'VersionConfigInterface';
 const PHPFHIR_INTERFACE_VERSION_TYPE_MAP = 'VersionTypeMapInterface';
-
+const PHPFHIR_INTERFACE_API_CLIENT = 'APIClientInterface';
 
 // Core traits
 const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'CommentContainerTrait';
@@ -114,15 +115,19 @@ const PHPFHIR_ENUM_XML_LOCATION = 'XMLLocationEnum';
 const PHPFHIR_ENUM_API_RESOURCE_LIST = 'APIResourceListEnum';
 const PHPFHIR_ENUM_API_SORT = 'APISortEnum';
 
-// Version Constants
+// Version class names
 const PHPFHIR_CLASSNAME_VERSION = 'Version';
 const PHPFHIR_CLASSNAME_VERSION_CONSTANTS = 'VersionConstants';
-const PHPFHIR_VERSION_ENUM_TYPE = 'VersionTypeEnum';
 const PHPFHIR_CLASSNAME_VERSION_TYPE_MAP = 'VersionTypeMap';
+const PHPFHIR_CLASSNAME_VERSION_API_CLIENT = 'VersionAPIClient';
+
+// Version interface names
 const PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE = 'VersionContainedTypeInterface';
 
+// Version enums
+const PHPFHIR_ENUM_VERSION_TYPE = 'VersionTypeEnum';
 
-// validation constants
+// Validation constants
 const PHPFHIR_VALIDATION_ENUM = 'enum';
 const PHPFHIR_VALIDATION_ENUM_NAME = 'VALIDATE_ENUM';
 const PHPFHIR_VALIDATION_MIN_LENGTH = 'min_length';
@@ -136,7 +141,7 @@ const PHPFHIR_VALIDATION_MIN_OCCURS_NAME = 'VALIDATE_MIN_OCCURS';
 const PHPFHIR_VALIDATION_MAX_OCCURS = 'max_occurs';
 const PHPFHIR_VALIDATION_MAX_OCCURS_NAME = 'VALIDATE_MAX_OCCURS';
 
-// static test type, namespace, and class values.
+// Static test type, namespace, and class values.
 const PHPFHIR_TESTS_NAMESPACE_BASE = 'Tests';
 const PHPFHIR_TESTS_NAMESPACE_UNIT = PHPFHIR_TESTS_NAMESPACE_BASE . '\\Unit';
 const PHPFHIR_TESTS_NAMESPACE_INTEGRATION = PHPFHIR_TESTS_NAMESPACE_BASE . '\\Integration';
@@ -146,7 +151,7 @@ const PHPFHIR_TEST_CLASSNAME_AUTOLOADER = PHPFHIR_CLASSNAME_AUTOLOADER . 'Test';
 const PHPFHIR_TEST_CLASSNAME_TYPE_MAP = PHPFHIR_CLASSNAME_VERSION_TYPE_MAP . 'Test';
 const PHPFHIR_TEST_CLASSNAME_FACTORY_CONFIG = PHPFHIR_CLASSNAME_FACTORY_CONFIG . 'Test';
 
-// date & time formats
+// Date & time formats
 const PHPFHIR_DATE_FORMAT_YEAR = 'Y';
 const PHPFHIR_DATE_FORMAT_YEAR_MONTH = 'Y-m';
 const PHPFHIR_DATE_FORMAT_YEAR_MONTH_DAY = 'Y-m-d';

@@ -70,7 +70,9 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_API_CLIENT); ?>;
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_TYPE); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_API_FORMAT); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION_API_CLIENT); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_ENUM_VERSION_TYPE); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
 use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION); ?>;
 use PHPUnit\Framework\AssertionFailedError;
@@ -84,15 +86,18 @@ use PHPUnit\Framework\TestCase;
  */
 class <?php echo $testClassname; ?> extends TestCase
 {
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> $client;
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_API_CLIENT); ?> */
+    private <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?> $client;
 
     /** @var array */
     private array $_fetchedResources = [];
 
     protected function setUp(): void
     {
-        $this->client = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT ?>('<?php echo rtrim($version->getTestEndpoint(), '/'); ?>');
+        $this->client = new <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT ?>(
+            new <?php echo PHPFHIR_CLASSNAME_API_CLIENT ?>('<?php echo $version->getTestEndpoint(); ?>'),
+            new <?php echo PHPFHIR_CLASSNAME_VERSION ?>()
+        );
     }
 
     /**
@@ -104,10 +109,10 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->client->get(sprintf('/%s', <?php echo PHPFHIR_VERSION_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '5', '_format' => $format]);
+        $rc = $this->client->read(<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>, 5, <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::from($format));
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         if (404 === $rc->code) {
-            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->client->_getBaseUrl(), <?php echo PHPFHIR_VERSION_ENUM_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
+            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->client->_getBaseUrl(), <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
         } else if (500 === $rc->code) {
             $this->markTestSkipped(sprintf('Endpoint "%s" is experiencing issues', $this->client->_getBaseUrl()));
         } else {

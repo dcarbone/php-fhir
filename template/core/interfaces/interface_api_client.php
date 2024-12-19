@@ -16,23 +16,26 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
-$namespace = $version->getFullyQualifiedName(false);
 ob_start();
-echo '<?php'; ?> declare(strict_types=1);
+echo '<?php ';?>declare(strict_types=1);
 
-namespace <?php echo $version->getFullyQualifiedName(false); ?>;
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
+interface <?php echo PHPFHIR_INTERFACE_API_CLIENT; ?>
 
-enum <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> : string
 {
-<?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>
-    case <?php echo $type->getConstName(false); ?> = <?php echo $type->getTypeNameConst(true) ?>;
-<?php endforeach;?>
-}
+    /**
+     * Execute a single request against a FHIR server
+     *
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_REQUEST); ?> $request
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>
 
+     */
+    public function exec(<?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?> $request): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>;
+}
 <?php return ob_get_clean();
