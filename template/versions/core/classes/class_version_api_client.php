@@ -33,6 +33,7 @@ use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_API_CLIEN
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_API_FORMAT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_API_RESOURCE_LIST); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_API_CLIENT_REQUEST); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_API_SORT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>;
