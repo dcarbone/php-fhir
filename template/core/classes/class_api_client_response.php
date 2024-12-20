@@ -54,9 +54,10 @@ final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     /**
      * Response headers.
      *
-     * @var array
+     * @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE_HEADERS); ?>
+
      */
-    public array $headers;
+    public <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE_HEADERS; ?> $headers;
 
     /**
      * Response body.

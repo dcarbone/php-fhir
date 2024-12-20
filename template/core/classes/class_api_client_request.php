@@ -43,6 +43,9 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?>
     /** @var string */
     public string $at;
 
+    /** @var bool */
+    public bool $parseHeaders;
+
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> */
     public <?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format;
 

@@ -50,7 +50,6 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
     private const _BASE_CURL_OPTS = [
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => 1,
         CURLOPT_USERAGENT => 'php-fhir client (build: <?php echo $config->getStandardDate(); ?>;)',
     ];
 
@@ -113,32 +112,21 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
         );
 
         $curlOpts = self::_BASE_CURL_OPTS +
-            [
-                CURLOPT_CUSTOMREQUEST => $request->method,
-                CURLOPT_HEADERFUNCTION => function($ch, string $line) use (&$rc): int
-                    {
-                        $len = strlen($line);
-                        if (0 === $len || !str_contains($line, ':')) {
-                            return $len;
-                        }
-                        $parts = explode(':', $line, 2);
-                        if (2 !== count($parts)) {
-                            return $len;
-                        }
-                        if (!isset($rc->headers)) {
-                            $rc->headers = [];
-                        }
-                        $key = trim($parts[0]);
-                        $value = trim($parts[1]);
-                        if (!isset($rc->headers[$key])) {
-                            $rc->headers[$key] = [$value];
-                        } else {
-                            $rc->headers[$key][] = $value;
-                        }
-                        return $len;
-                    },
-            ] +
+            [CURLOPT_CUSTOMREQUEST => $request->method] +
             array_merge($this->_config->getCurlOpts(), $request->options ?? []);
+
+        $parseHeaders = ($this->_config->getParseHeaders() && (!isset($req->parseHeaders) || $req->parseHeaders)) ||
+            (isset($req->parseHeaders) && $req->parseHeaders);
+
+        if ($parseHeaders) {
+            $curlOpts[CURLOPT_HEADER] = 1;
+            $curlOpts[CURLOPT_HEADERFUNCTION] = function($ch, string $line) use (&$rc): int
+                {
+                    return $rc->headers->addLine($line);
+                };
+        } else {
+            $curlOpts[CURLOPT_HEADER] = 0;
+        }
 
         $ch = curl_init($url);
         if (!curl_setopt_array($ch, $curlOpts)) {
@@ -158,9 +146,14 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
         $rc->method = $request->method;
         $rc->url = $url;
         $rc->code = $code;
-        $rc->resp = $resp;
         $rc->err = $err;
         $rc->errno = $errno;
+
+        if ($parseHeaders) {
+            $rc->resp = substr($resp, $rc->headers->getLength());
+        } else {
+            $rc->resp = $resp;
+        }
 
         return $rc;
     }

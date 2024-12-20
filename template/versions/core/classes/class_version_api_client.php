@@ -31,9 +31,10 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_API_CLIENT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_API_FORMAT); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_API_RESOURCE_LIST); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_API_CLIENT_REQUEST); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_EXCEPTION_API_CURL_ERROR); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_API_SORT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>;
@@ -41,6 +42,8 @@ use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>
 class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
 
 {
+    private const _STATUS_OK = 200;
+
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_API_CLIENT); ?> */
     protected <?php echo PHPFHIR_INTERFACE_API_CLIENT; ?> $_client;
 
@@ -68,6 +71,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @param int $count
      * @param null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort
      * @param null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format
+     * @param null|bool $parseheaders
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>
 
      * @throws \Exception
@@ -75,7 +79,8 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     public function readRaw(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
                          int $count = 1,
                          null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null,
-                         null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+                         null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null,
+                         null|bool $parseheaders = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
 
     {
         if (!is_string($resourceType)) {
@@ -84,13 +89,16 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
 
         $req = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT_REQUEST; ?>();
         $req->method = 'GET';
-        $req->path = sprintf('/%s', $resourceType);
+        $req->path = "/{$resourceType}";
         $req->count = $count;
         if (null !== $sort) {
             $req->sort = $sort;
         }
         if (null !== $format) {
             $req->format = $format;
+        }
+        if (null !== $parseheaders) {
+            $req->parseHeaders = $parseheaders;
         }
 
         return $this->_client->exec($req);
@@ -105,6 +113,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @param int $count
      * @param null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort
      * @param null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format
+     * @param null|bool $parseheaders
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
@@ -112,19 +121,30 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     public function read(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
                          int $count = 1,
                          null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null,
-                         null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                         null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null,
+                         null|bool $parseheaders = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $rc = $this->readRaw($resourceType, $count, $sort, $format);
-
-        if (isset($rc->err)) {
-            throw new <?php echo PHPFHIR_EXCEPTION_API_CURL_ERROR; ?>($rc->err);
-        }
-        if (!isset($rc->code) || 200 !== $rc->code) {
-            throw new <?php echo PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE; ?>($rc->url, 200, $rc->code ?? 0, $rc->resp ?? null);
-        }
-
+        $rc = $this->readRaw($resourceType, $count, $sort, $format, $parseheaders);
+        $this->_requireOK($rc);
         return <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $rc->resp);
+    }
+
+    /**
+     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?> $rc
+     * @throws <?php echo $config->getFullyQualifiedName(true, PHPFHIR_EXCEPTION_API_CURL_ERROR); ?>
+
+     * @throws <?php echo $config->getFullyQualifiedName(true, PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE); ?>
+
+     */
+    protected function _requireOK(<?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?> $rc): void
+    {
+        if (isset($rc->err)) {
+            throw new <?php echo PHPFHIR_EXCEPTION_API_CURL_ERROR; ?>($rc);
+        }
+        if (!isset($rc->code) || self::_STATUS_OK !== $rc->code) {
+            throw new <?php echo PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE; ?>($rc, self::_STATUS_OK);
+        }
     }
 }
 <?php return ob_get_clean();

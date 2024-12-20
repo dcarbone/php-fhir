@@ -45,6 +45,8 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_CONFIG; ?>
     private array $_queryParams;
     /** @var null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> */
     private null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $_defaultFormat;
+    /** @var bool */
+    private bool $_parseHeaders;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_API_CLIENT_CONFIG; ?> Constructor
@@ -53,16 +55,19 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_CONFIG; ?>
      * @param array $curlOpts Base curl options array.  These will be added to every request.  May be overridden by an individual request.
      * @param array $queryParams Base query parameters array.  These will be added to every request.  May be overridden by an individual request.
      * @param null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $defaultFormat Default format to request from server.  If not provided, server default will be used.  May be overridden by an individual request.
+     * @param bool $parseHeaders Whether or not to parse headers from response.  This adds a small amount of overhead, so it is recommended to only set to true if actually used.
      */
     public function __construct(string $address,
                                 array $curlOpts = [],
                                 array $queryParams = [],
-                                null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $defaultFormat = null)
+                                null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $defaultFormat = null,
+                                bool $parseHeaders = false)
     {
         $this->_address = $address;
         $this->_curlOpts = $curlOpts;
         $this->_queryParams = $queryParams;
         $this->_defaultFormat = $defaultFormat;
+        $this->_parseHeaders = $parseHeaders;
     }
 
     /**
@@ -97,6 +102,14 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_CONFIG; ?>
 
     {
         return $this->_defaultFormat;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getParseHeaders(): bool
+    {
+        return $this->_parseHeaders;
     }
 }
 <?php return ob_get_clean();
