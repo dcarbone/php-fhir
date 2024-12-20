@@ -59,7 +59,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     }
 
     /**
-     * Queries for one or more resources of a given type
+     * Queries for one or more resources of a given type, returning the raw response fromm the server.
      *
      * @see https://www.hl7.org/fhir/http.html#read
      *
@@ -67,14 +67,14 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @param int $count
      * @param null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort
      * @param null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format
-     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>
 
      * @throws \Exception
      */
-    public function read(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
+    public function readRaw(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
                          int $count = 1,
                          null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null,
-                         null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                         null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
 
     {
         if (!is_string($resourceType)) {
@@ -92,13 +92,35 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
             $req->format = $format;
         }
 
-        $rc = $this->_client->exec($req);
+        return $this->_client->exec($req);
+    }
 
-        if ('' !== $rc->err) {
-            throw new \Exception(sprintf('Error executing "%s": %s', $rc->url, $rc->err));
+    /**
+     * Queries for one or more resources of a given type, returning the unserialized response from the server.
+     *
+     * @see https://www.hl7.org/fhir/http.html#read
+     *
+     * @param string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType
+     * @param int $count
+     * @param null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort
+     * @param null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
+
+     * @throws \Exception
+     */
+    public function read(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
+                         int $count = 1,
+                         null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null,
+                         null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+
+    {
+        $rc = $this->readRaw($resourceType, $count, $sort, $format);
+
+        if (isset($rc->err)) {
+            throw new <?php echo PHPFHIR_EXCEPTION_API_CURL_ERROR; ?>($rc->err);
         }
-        if (200 !== $rc->code) {
-            throw new \Exception(sprintf('Error executing "%s": Expected 200 OK, saw %d', $rc->url, $rc->code));
+        if (!isset($rc->code) || 200 !== $rc->code) {
+            throw new <?php echo PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE; ?>($rc->url, 200, $rc->code ?? 0, $rc->resp ?? null);
         }
 
         return <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $rc->resp);

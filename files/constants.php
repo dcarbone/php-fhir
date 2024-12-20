@@ -115,6 +115,11 @@ const PHPFHIR_ENUM_XML_LOCATION = 'XMLLocationEnum';
 const PHPFHIR_ENUM_API_RESOURCE_LIST = 'APIResourceListEnum';
 const PHPFHIR_ENUM_API_SORT = 'APISortEnum';
 
+// Core exceptions
+const PHPFHIR_EXCEPTION_ABSTRACT_API_ERROR = 'AbstractAPIErrorException';
+const PHPFHIR_EXCEPTION_API_CURL_ERROR = 'APICURLErrorException';
+const PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE = 'APIUnexpectedResponseCodeException';
+
 // Version class names
 const PHPFHIR_CLASSNAME_VERSION = 'Version';
 const PHPFHIR_CLASSNAME_VERSION_CONSTANTS = 'VersionConstants';

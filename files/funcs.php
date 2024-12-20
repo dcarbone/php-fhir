@@ -95,6 +95,8 @@ function classFilenameFormat(string $bit): string
         'fhir' => 'FHIR',
         'xhtml' => 'XHTML',
         'xml' => 'XML',
+        'http' => 'HTTP',
+        'curl' => 'CURL',
         default => ucfirst($bit),
     };
 }

@@ -86,6 +86,9 @@ use PHPUnit\Framework\TestCase;
  */
 class <?php echo $testClassname; ?> extends TestCase
 {
+    /** <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?> */
+    private <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $version;
+
     /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_API_CLIENT); ?> */
     private <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?> $client;
 
@@ -94,9 +97,10 @@ class <?php echo $testClassname; ?> extends TestCase
 
     protected function setUp(): void
     {
+        $this->version = new <?php echo PHPFHIR_CLASSNAME_VERSION ?>();
         $this->client = new <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT ?>(
             new <?php echo PHPFHIR_CLASSNAME_API_CLIENT ?>('<?php echo $version->getTestEndpoint(); ?>'),
-            new <?php echo PHPFHIR_CLASSNAME_VERSION ?>()
+            $this->version,
         );
     }
 
@@ -109,12 +113,12 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->client->read(<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>, 5, <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::from($format));
+        $rc = $this->client->readRaw(resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>, count: 5, format: <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::from($format));
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         if (404 === $rc->code) {
-            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->client->_getBaseUrl(), <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
+            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', '<?php echo $version->getTestEndpoint(); ?>', <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
         } else if (500 === $rc->code) {
-            $this->markTestSkipped(sprintf('Endpoint "%s" is experiencing issues', $this->client->_getBaseUrl()));
+            $this->markTestSkipped(sprintf('Endpoint "%s" is experiencing issues', '<?php echo $version->getTestEndpoint(); ?>'));
         } else {
             $this->assertEquals(200, $rc->code, 'Expected 200 OK');
         }
@@ -321,9 +325,8 @@ class <?php echo $testClassname; ?> extends TestCase
     public function testResponseParserXML(): void
     {
         $sourceXML = $this->fetchResourceBundle('xml');
-        $parser = new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>());
         try {
-            $bundle = $parser->parse($sourceXML);
+            $bundle = <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->version, $sourceXML);
         } catch(\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(
@@ -379,9 +382,8 @@ class <?php echo $testClassname; ?> extends TestCase
     public function testResponseParserJSON(): void
     {
         $sourceJSON = $this->fetchResourceBundle('json');
-        $parser = new <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>(new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>());
         try {
-            $bundle = $parser->parse($sourceJSON);
+            $bundle = <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->version, $sourceJSON);
         } catch(\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(

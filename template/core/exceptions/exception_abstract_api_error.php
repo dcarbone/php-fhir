@@ -26,57 +26,19 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-
-final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
-
+abstract class <?php echo PHPFHIR_EXCEPTION_ABSTRACT_API_ERROR; ?> extends \Exception
 {
-    /**
-     * Request method.
-     *
-     * @var string
-     */
-    public string $method;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?> */
+    protected <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?> $_rc;
 
     /**
-     * Request URL.
-     *
-     * @var string
-     */
-    public string $url;
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>
 
-    /**
-     * Response status code
-     *
-     * @var int
      */
-    public int $code;
+    public function getResponse(): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
 
-    /**
-     * Response headers.
-     *
-     * @var array
-     */
-    public array $headers;
-
-    /**
-     * Response body.
-     *
-     * @var string
-     */
-    public string $resp;
-
-    /**
-     * CURL error message.
-     *
-     * @var string
-     */
-    public string $err;
-
-    /**
-     * CURL error number.
-     *
-     * @var int
-     */
-    public int $errno;
+    {
+        return $this->_rc;
+    }
 }
 <?php return ob_get_clean();

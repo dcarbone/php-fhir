@@ -50,7 +50,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
     private const _BASE_CURL_OPTS = [
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => 0,
+        CURLOPT_HEADER => 1,
         CURLOPT_USERAGENT => 'php-fhir client (build: <?php echo $config->getStandardDate(); ?>;)',
     ];
 
@@ -103,6 +103,8 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
             $queryParams[self::_PARAM_COUNT] = $request->count;
         }
 
+        $rc = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>();
+
         $url = sprintf(
             '%s%s?%s',
             $this->_config->getAddress(),
@@ -111,7 +113,31 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
         );
 
         $curlOpts = self::_BASE_CURL_OPTS +
-            [CURLOPT_CUSTOMREQUEST => $request->method] +
+            [
+                CURLOPT_CUSTOMREQUEST => $request->method,
+                CURLOPT_HEADERFUNCTION => function($ch, string $line) use (&$rc): int
+                    {
+                        $len = strlen($line);
+                        if (0 === $len || !str_contains($line, ':')) {
+                            return $len;
+                        }
+                        $parts = explode(':', $line, 2);
+                        if (2 !== count($parts)) {
+                            return $len;
+                        }
+                        if (!isset($rc->headers)) {
+                            $rc->headers = [];
+                        }
+                        $key = trim($parts[0]);
+                        $value = trim($parts[1]);
+                        if (!isset($rc->headers[$key])) {
+                            $rc->headers[$key] = [$value];
+                        } else {
+                            $rc->headers[$key][] = $value;
+                        }
+                        return $len;
+                    },
+            ] +
             array_merge($this->_config->getCurlOpts(), $request->options ?? []);
 
         $ch = curl_init($url);
@@ -126,13 +152,15 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $err = curl_error($ch);
+        $errno = curl_errno($ch);
         curl_close($ch);
 
-        $rc = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>();
+        $rc->method = $request->method;
         $rc->url = $url;
         $rc->code = $code;
         $rc->resp = $resp;
         $rc->err = $err;
+        $rc->errno = $errno;
 
         return $rc;
     }
@@ -164,6 +192,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
 
      */
     public function get(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
     {
         return $this->_exec(self::_METHOD_GET, $path, $queryParams, $curlOpts);
     }
@@ -176,6 +205,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
 
      */
     public function put(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
     {
         return $this->_exec(self::_METHOD_PUT, $path, $queryParams, $curlOpts);
     }
@@ -188,6 +218,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
 
      */
     public function post(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
     {
         return $this->_exec(self::_METHOD_POST, $path, $queryParams, $curlOpts);
     }
@@ -200,6 +231,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
 
      */
     public function patch(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
     {
         return $this->_exec(self::_METHOD_PATCH, $path, $queryParams, $curlOpts);
     }
@@ -212,6 +244,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
 
      */
     public function delete(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
     {
         return $this->_exec(self::_METHOD_DELETE, $path, $queryParams, $curlOpts);
     }
@@ -224,6 +257,7 @@ class <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> implements <?php echo PHPFHIR_
 
      */
     public function head(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
     {
         return $this->_exec(self::_METHOD_HEAD, $path, $queryParams, $curlOpts);
     }

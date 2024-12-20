@@ -27,56 +27,21 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+class <?php echo PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE; ?> extends <?php echo PHPFHIR_EXCEPTION_ABSTRACT_API_ERROR; ?>
 
 {
-    /**
-     * Request method.
-     *
-     * @var string
-     */
-    public string $method;
+    /** @var int */
+    private int $_expectedCode;
 
-    /**
-     * Request URL.
-     *
-     * @var string
-     */
-    public string $url;
+    public function __construct(<?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?> $rc, int $expectedCode) {
+        parent::__construct(sprintf('Response returned code %d, expected %d', $rc->errno, $expectedCode));
+        $this->_rc = $rc;
+        $this->_expectedCode = $expectedCode;
+    }
 
-    /**
-     * Response status code
-     *
-     * @var int
-     */
-    public int $code;
-
-    /**
-     * Response headers.
-     *
-     * @var array
-     */
-    public array $headers;
-
-    /**
-     * Response body.
-     *
-     * @var string
-     */
-    public string $resp;
-
-    /**
-     * CURL error message.
-     *
-     * @var string
-     */
-    public string $err;
-
-    /**
-     * CURL error number.
-     *
-     * @var int
-     */
-    public int $errno;
+    public function getExpectedCode(): int
+    {
+        return $this->_expectedCode;
+    }
 }
 <?php return ob_get_clean();
