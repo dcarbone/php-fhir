@@ -20,6 +20,7 @@
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 /** @var int $i */
 
+$config = $version->getConfig();
 $setter = $property->getSetterName();
 $propertyName = $property->getName();
 $propertyConst = $property->getFieldConstantName();
@@ -28,6 +29,6 @@ ob_start();
 if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propertyConst; ?> === $childName) {
                 foreach ($n->children() as $nn) {
                     $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
-                    $type-><?php echo $setter; ?>(new $typeClassName($nn));
+                    $type-><?php echo $setter; ?>($typeClassName::xmlUnserialize($nn, null, $config));
                 }
             }<?php return ob_get_clean();
