@@ -164,7 +164,7 @@ class <?php echo $testClassname; ?> extends TestCase
      * @param string $format Either xml or json
      * @return string
      */
-    protected function fetchResourceBundle(string $format): string
+    protected function fetchResourceBundleBundle(string $format): string
     {
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
@@ -206,7 +206,7 @@ class <?php echo $testClassname; ?> extends TestCase
 
     public function testFHIRValidationXML(): void
     {
-        $sourceXML = $this->fetchResource('xml');
+        $sourceXML = $this->fetchResourceBundle('xml');
         try {
             $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize($sourceXML);
         } catch(\Exception $e) {
@@ -263,7 +263,7 @@ class <?php echo $testClassname; ?> extends TestCase
 
     public function testFHIRValidationJSON()
     {
-        $sourceJSON = $this->fetchResource('json');
+        $sourceJSON = $this->fetchResourceBundle('json');
         $decoded = $this->decodeJson($sourceJSON, true);
         try {
             $bundle = new <?php echo $bundleType->getClassName(); ?>($decoded);
