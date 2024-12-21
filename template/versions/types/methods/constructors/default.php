@@ -38,14 +38,14 @@ ob_start(); ?>
     public function __construct(null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, false); endif; ?> $data = null)
     {
         if (null === $data || [] === $data) {
-<?php if ($type->hasParent()) : ?>
+<?php if ($type->hasConcreteParent()) : ?>
             parent::__construct(null);
 <?php endif; ?>
             return;
         }
 <?php if ($type->isValueContainer()) : ?>
         if (!is_array($data)) {
-<?php if ($type->hasParent()): ?>
+<?php if ($type->hasConcreteParent()) : ?>
             parent::__construct(null);
 <?php endif; ?>
             $this->setValue($data);
