@@ -46,7 +46,7 @@ ob_start(); ?>
             $xw->startDocument();
         }
         if (null === $config) {
-            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>)()->getConfig()->getSerializeConfig();
+            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
         }
 <?php foreach($localProperties as $property) : ?>
         if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
