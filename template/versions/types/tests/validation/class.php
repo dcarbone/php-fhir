@@ -164,14 +164,20 @@ class <?php echo $testClassname; ?> extends TestCase
      * @param string $format Either xml or json
      * @return string
      */
-    protected function fetchResource(string $format): string
+    protected function fetchResourceBundle(string $format): string
     {
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->_client->get(sprintf('/%s', <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '1', '_format' => $format]);
+        $rc = $this->_client->readRaw(resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>, count: 5, format: <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::from($format));
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
-        $this->assertEquals(200, $rc->code, 'Expected 200 OK');
+        if (404 === $rc->code) {
+            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->_testEndpoint, <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
+        } else if (500 === $rc->code) {
+            $this->markTestSkipped(sprintf('Endpoint "%s" is experiencing issues', $this->_testEndpoint));
+        } else {
+            $this->assertEquals(200, $rc->code, 'Expected 200 OK');
+        }
         $this->assertIsString($rc->resp);
         $this->_fetchedResources[$format] = $rc->resp;
         $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
