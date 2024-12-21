@@ -70,22 +70,18 @@ return [
         'DSTU2' => [
             'sourceUrl' => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
             'namespace' => 'Versions\\DSTU2',
-            'testEndpoint' => 'https://hapi.fhir.org/baseDstu2',
         ],
         'STU3' => [
             'sourceUrl' => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
             'namespace' => 'Versions\\STU3',
-            'testEndpoint' => 'https://server.fire.ly/r3',
         ],
         'R4' => [
             'sourceUrl' => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
             'namespace' => 'Versions\\R4',
-            'testEndpoint' => 'https://lforms-fhir.nlm.nih.gov/baseR4',
         ],
         'R5' => [
             'sourceUrl' => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
             'namespace' => 'Versions\\R5',
-            'testEndpoint' => 'https://lforms-fhir.nlm.nih.gov/baseR5',
         ]
 
         //        'Build' => [
