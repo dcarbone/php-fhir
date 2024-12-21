@@ -55,7 +55,7 @@ if (null === $bundleEntryProperty) {
 $testNS = $type->getFullyQualifiedTestNamespace(TestTypeEnum::INTEGRATION, false);
 $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
-$typeClassname = $type->getClassName();
+$typeClassName = $type->getClassName();
 
 ob_start();
 

@@ -54,7 +54,7 @@ if (null === $bundleEntryProperty) {
 $testNS = $type->getFullyQualifiedTestNamespace(TestTypeEnum::VALIDATION, false);
 $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
-$typeClassname = $type->getClassName();
+$typeClassName = $type->getClassName();
 
 ob_start();
 
@@ -164,7 +164,7 @@ class <?php echo $testClassname; ?> extends TestCase
      * @param string $format Either xml or json
      * @return string
      */
-    protected function fetchResourceBundleBundle(string $format): string
+    protected function fetchResourceBundle(string $format): string
     {
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];

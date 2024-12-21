@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 $testNS = $type->getFullyQualifiedTestNamespace(TestTypeEnum::UNIT, false);
 $testClassname = $type->getTestClassName();
 $typeNS = $type->getFullyQualifiedClassName(false);
-$typeClassname = $type->getClassName();
+$typeClassName = $type->getClassName();
 
 ob_start();
 echo '<?php'; ?>

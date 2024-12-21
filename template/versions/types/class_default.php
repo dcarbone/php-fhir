@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 
 // define some common things
 $fqns = $type->getFullyQualifiedNamespace(true);
-$typeClassname = $type->getClassName();
+$typeClassName = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
 $localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
@@ -50,7 +50,7 @@ echo require_with(
 <?php echo $classDocumentation; ?>
  *<?php endif; ?>
 
- * Class <?php echo $typeClassname; ?>
+ * Class <?php echo $typeClassName; ?>
 
  * @package <?php echo $fqns; ?>
 
@@ -185,7 +185,7 @@ if (0 < count($localProperties)) {
             'type'     => $type,
             'typeKind' => $typeKind,
             'parentType' => $parentType,
-            'typeClassName' => $typeClassname,
+            'typeClassName' => $typeClassName,
         ]
     );
 

@@ -19,7 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-$typeClassname = $type->getClassName();
+$typeClassName = $type->getClassName();
 $allProperties = $type->getLocalProperties();
 $localProperties = $allProperties->getLocalSortedPropertiesIterator();
 
@@ -27,7 +27,7 @@ ob_start();
 ?>
     public function testCanConstructTypeNoArgs()
     {
-        $type = new <?php echo $typeClassname; ?>();
+        $type = new <?php echo $typeClassName; ?>();
         $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
     }
 
