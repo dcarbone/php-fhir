@@ -31,7 +31,12 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        fhir-version: [ 'DSTU1', 'DSTU2', 'STU3', 'R4', 'R5' ]
+        fhir-version:
+          - 'DSTU1'
+          - 'DSTU2'
+          - 'STU3'
+          - 'R4'
+          - 'R5'
 
     name: 'Download ${{ matrix.fhir-version }} Source'
     steps:
@@ -58,8 +63,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: [ '8.1', '8.2', '8.3' ]
-        fhir-version: [ 'DSTU1', 'DSTU2', 'STU3', 'R4', 'R5' ]
+        php-version:
+          - '8.1'
+          - '8.2'
+          - '8.3'
+        fhir-version:
+          - 'DSTU1'
+          - 'DSTU2'
+          - 'STU3'
+          - 'R4'
+          - 'R5'
         include:
           - php-version: '8.1'
             phpunit-version: '10.5'
@@ -67,6 +80,7 @@ jobs:
             phpunit-version: '11.1'
           - php-version: '8.3'
             phpunit-version: '11.1'
+
     name: '${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     steps:
       - name: 'Check the stuff out'

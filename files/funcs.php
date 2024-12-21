@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
-
 /**
  * require_with is used to ensure a clean context per required template file.
  *
@@ -38,14 +36,67 @@ function require_with(string $requiredFile, array $vars): mixed
             )
         );
     }
-    if (!isset($config) || !($config instanceof VersionConfig)) {
-        throw new \LogicException(sprintf(
-            'Refusing to require "%s" as you didn\'t provide \'config\' => $config(%s)',
-            $requiredFile,
-            VersionConfig::class,
-        ));
-    }
     // unset vars defined by this func
     unset($vars, $num);
     return require $requiredFile;
+}
+
+/**
+ * Makes array var exporting less terrible.
+ *
+ * @param mixed $var root var
+ * @param int $indent current indent level, only used during array exporting
+ * @param bool $indentFirst if true, indents the first line of the array
+ * @param int $indentSize number of spaces to output per indent level
+ * @return string
+ */
+function pretty_var_export(mixed $var, int $indent = 0, bool $indentFirst = false, int $indentSize = 4): string
+{
+    if (!is_array($var)) {
+        return var_export($var, true);
+    }
+
+    if ([] === $var) {
+        return '[]';
+    }
+
+    $out = sprintf("%s[", str_repeat(' ', $indentFirst ? $indent * $indentSize : 0));
+    foreach ($var as $k => $v) {
+        $literal = false;
+        $indentFirst = is_int($k);
+        // TODO: if it works, is it really a shit idea?  Probably.
+        if ('libxmlOptMask' === $k) {
+            $k = 'libxmlOpts';
+            $literal = true;
+        } else if ('xhtmlLibxmlOptMask' === $k) {
+            $k = 'xhtmlLibxmlOpts';
+            $literal = true;
+        }
+        $out = sprintf("%s\n%s%s => %s,",
+            $out,
+            str_repeat(' ', ($indent + 1) * $indentSize),
+            var_export($k, true),
+            $literal ? $v : pretty_var_export($v, $indent + 1, $indentFirst, $indentSize),
+        );
+    }
+    return sprintf("%s\n%s]", $out, str_repeat(' ', $indent * $indentSize));
+}
+
+/**
+ * Sloppy little function to ensure filenames are consistent or whatever
+ *
+ * @param string $bit
+ * @return string
+ */
+function classFilenameFormat(string $bit): string
+{
+    return match ($bit) {
+        'api' => 'API',
+        'fhir' => 'FHIR',
+        'xhtml' => 'XHTML',
+        'xml' => 'XML',
+        'http' => 'HTTP',
+        'curl' => 'CURL',
+        default => ucfirst($bit),
+    };
 }
