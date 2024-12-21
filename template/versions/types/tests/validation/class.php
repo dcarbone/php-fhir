@@ -95,15 +95,34 @@ class <?php echo $testClassname; ?> extends TestCase
         'If a code for the unit is present, the system SHALL also be present',
     ];
 
-    /** @var <?php echo $config->getFullyQualifiedName(true); ?>\<?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> */
-    private <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> $client;
+    /** @var string */
+    private string $_testEndpoint;
+
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?> */
+    private <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $_version;
+
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT); ?> */
+    private <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?> $_baseClient;
+
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_API_CLIENT); ?> */
+    private <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?> $_client;
 
     /** @var array */
     private array $_fetchedResources = [];
 
     protected function setUp(): void
     {
-        $this->client = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT ?>('<?php echo rtrim($version->getTestEndpoint(), '/'); ?>');
+        $endpoint = trim((string)getenv('PHPFHIR_TEST_INTEGRATION_ENDPOINT'));
+        if ('' === $endpoint) {
+            $this->markTestIncomplete('Environment variable PHPFHIR_TEST_INTEGRATION_ENDPOINT is not defined or empty');
+        }
+        $this->_testEndpoint = $endpoint;
+        $this->_version = new <?php echo PHPFHIR_CLASSNAME_VERSION ?>();
+        $this->_baseClient = new <?php echo PHPFHIR_CLASSNAME_API_CLIENT; ?>($endpoint);
+        $this->_client = new <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT ?>(
+            $this->_baseClient,
+            $this->_version,
+        );
     }
 
     /**
@@ -146,7 +165,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->client->get(sprintf('/%s', <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '1', '_format' => $format]);
+        $rc = $this->_client->get(sprintf('/%s', <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value), ['_count' => '1', '_format' => $format]);
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         $this->assertEquals(200, $rc->code, 'Expected 200 OK');
         $this->assertIsString($rc->resp);
@@ -198,7 +217,8 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
+                'Provided test endpoint "%s" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned xml: %s)',
+                $this->_testEndpoint,
                 $sourceXML
             ));
         }
@@ -255,7 +275,8 @@ class <?php echo $testClassname; ?> extends TestCase
         if (null === $entry) {
 <?php endif; ?>
             $this->markTestSkipped(sprintf(
-                'Provided test endpoint "<?php echo $version->getTestEndpoint(); ?>" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                'Provided test endpoint "%s" does not have any <?php echo $type->getFHIRName(); ?>" entries to test against (returned json: %s)',
+                $this->_testEndpoint,
                 $sourceJSON
             ));
         }

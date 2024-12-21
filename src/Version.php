@@ -46,9 +46,6 @@ class Version
     /** @var string */
     private string $_namespace;
     /** @var string */
-    private string $_testEndpoint;
-
-    /** @var string */
     private string $_constName;
 
     /** @var \DCarbone\PHPFHIR\Version\Definition */
@@ -220,24 +217,6 @@ class Version
             $defaultConfig = new VersionDefaultConfig($defaultConfig);
         }
         $this->_defaultConfig = $defaultConfig;
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getTestEndpoint(): string|null
-    {
-        return $this->_testEndpoint ?? null;
-    }
-
-    /**
-     * @param string $testEndpoint
-     * @return self
-     */
-    public function setTestEndpoint(string $testEndpoint): self
-    {
-        $this->_testEndpoint = $testEndpoint;
         return $this;
     }
 

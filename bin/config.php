@@ -47,8 +47,6 @@ return [
             'sourceUrl' => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
             // Namespace to generate classes into
             'namespace' => 'Versions\\DSTU1',
-            // If defined, enables integration test generation against the provided endpoint.
-            'testEndpoint' => '',
 
             // The default configuration for all instances of this version.  May be overridden per version during
             // instantiation.
@@ -77,17 +75,17 @@ return [
         'STU3' => [
             'sourceUrl' => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
             'namespace' => 'Versions\\STU3',
-            'testEndpoint' => 'https://hapi.fhir.org/baseDstu3',
+            'testEndpoint' => 'https://server.fire.ly/r3',
         ],
         'R4' => [
             'sourceUrl' => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
             'namespace' => 'Versions\\R4',
-            'testEndpoint' => 'https://hapi.fhir.org/baseR4',
+            'testEndpoint' => 'https://lforms-fhir.nlm.nih.gov/baseR4',
         ],
         'R5' => [
             'sourceUrl' => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
             'namespace' => 'Versions\\R5',
-            'testEndpoint' => 'https://hapi.fhir.org/baseR5',
+            'testEndpoint' => 'https://lforms-fhir.nlm.nih.gov/baseR5',
         ]
 
         //        'Build' => [

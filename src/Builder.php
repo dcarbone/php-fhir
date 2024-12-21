@@ -152,11 +152,11 @@ class Builder
 
             $log->startBreak('Test Class Generation');
 
-            $testTypes = [TestTypeEnum::UNIT];
-            if (null !== $version->getTestEndpoint()) {
-                $testTypes[] = TestTypeEnum::INTEGRATION;
-                $testTypes[] = TestTypeEnum::VALIDATION;
-            }
+            $testTypes = [
+                TestTypeEnum::UNIT,
+                TestTypeEnum::INTEGRATION,
+                TestTypeEnum::VALIDATION,
+            ];
             foreach ($types->getIterator() as $type) {
                 if ($type->isAbstract()) {
                     continue;

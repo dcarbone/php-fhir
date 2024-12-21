@@ -22,7 +22,6 @@ enum VersionKeys: string
 {
     case SOURCE_URL = 'sourceUrl';
     case NAMESPACE = 'namespace';
-    case TEST_ENDPOINT = 'testEndpoint';
     case DEFAULT_CONFIG = 'defaultConfig';
 
     /**
