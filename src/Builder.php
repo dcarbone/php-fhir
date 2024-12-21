@@ -155,7 +155,7 @@ class Builder
             $testTypes = [
                 TestTypeEnum::UNIT,
                 TestTypeEnum::INTEGRATION,
-                TestTypeEnum::VALIDATION,
+//                TestTypeEnum::VALIDATION,
             ];
             foreach ($types->getIterator() as $type) {
                 if ($type->isAbstract()) {
