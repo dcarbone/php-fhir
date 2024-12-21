@@ -2,6 +2,7 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" bootstrap="../vendor/autoload.php" colors="true" stopOnFailure="false">
   <php>
     <ini name="memory_limit" value="2048M"/>
+    <env name="PHPFHIR_TEST_INTEGRATION_ENDPOINT" value="https://server.fire.ly/r4" force="true" />
   </php>
   <testsuites>
     <testsuite name="R4">

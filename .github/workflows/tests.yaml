@@ -80,14 +80,6 @@ jobs:
             phpunit-version: '11.1'
           - php-version: '8.3'
             phpunit-version: '11.1'
-          - fhir-version: 'DSTU2'
-            test-endpoint: 'https://hapi.fhir.org/baseDstu2'
-          - fhir-version: 'STU3'
-            test-endpoint: 'https://server.fire.ly/r3'
-          - fhir-version: 'R4'
-            test-endpoint: 'https://server.fire.ly/r4'
-          - fhir-version: 'R5'
-            test-endpoint: 'https://server.fire.ly/r5'
 
     name: '${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     steps:
@@ -152,8 +144,6 @@ jobs:
 #          java-version: 18
 
       - name: 'Run tests'
-        env:
-          PHPFHIR_TEST_INTEGRATION_ENDPOINT: '${{ matrix.test-endpoint }}'
         # language=sh
         run: |
           ./vendor/bin/phpunit -c 'phpunit/${{ matrix.fhir-version }}.xml'
