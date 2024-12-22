@@ -133,7 +133,7 @@ jobs:
           composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: 'Save composer dep cache'
-        if: steps.composer-cache.outputs.cache-hit != 'true' && steps.composer-cache.outputs.cache-hit != true
+        if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
         uses: actions/cache/save@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
