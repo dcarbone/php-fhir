@@ -153,4 +153,4 @@ jobs:
       - name: 'Run tests'
         # language=sh
         run: |
-          ./vendor/bin/phpunit -c 'phpunit/${{ matrix.fhir-version }}.xml'
+          ./vendor/bin/phpunit -c 'phpunit/${{ matrix.fhir-version }}.xml' --display-warnings --display-skipped

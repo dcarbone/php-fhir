@@ -62,12 +62,3 @@ runs:
         java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 4.3.0
         java -jar '${{ github.workspace }}/bin/validator_cli.jar' -version 5.0.0
         echo '::endgroup::'
-        
-    - name: 'Save validator cache'
-      if: steps.validator-cache.outputs.cache-hit != 'true' && steps.validator-cache.outputs.cache-hit != true
-      uses: actions/cache/save@v4
-      with:
-        path: |
-          ${{ github.workspace }}/bin
-          /home/runner/.fhir
-        key: '${{ steps.vars.outputs.cache-key }}'
