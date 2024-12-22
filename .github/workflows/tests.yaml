@@ -27,7 +27,7 @@ on:
 
 jobs:
   load-fhir-source:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: true
       matrix:
@@ -119,18 +119,25 @@ jobs:
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - name: 'Cache Composer Stuff'
+      - name: 'Init composer dep cache'
+        id: cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('composer.lock') }}"
-          save-always: true
 
       - name: 'Install Composer deps'
         # language=sh
         run: |
           rm composer.lock
           composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: 'Save composer dep cache'
+        if: steps.composer-cache.outputs.cache-hit != 'true' && steps.composer-cache.outputs.cache-hit != true
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('composer.lock') }}"
 
       - name: 'Generate code'
         # language=sh
