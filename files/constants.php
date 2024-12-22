@@ -20,8 +20,6 @@
 define('PHPFHIR_ROOT_DIR', realpath(dirname(__DIR__)));
 define('PHPFHIR_BIN_DIR', realpath(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'bin'));
 define('PHPFHIR_DEFAULT_OUTPUT_DIR', realpath(PHPFHIR_ROOT_DIR . DIRECTORY_SEPARATOR . 'output'));
-const PHPFHIR_OUTPUT_TMP_DIR = PHPFHIR_DEFAULT_OUTPUT_DIR . DIRECTORY_SEPARATOR . 'tmp';
-const PHPFHIR_FHIR_VALIDATION_JAR = PHPFHIR_BIN_DIR . DIRECTORY_SEPARATOR . 'validator_cli.jar';
 
 // type suffixes
 const PHPFHIR_PRIMITIVE_SUFFIX = '-primitive';

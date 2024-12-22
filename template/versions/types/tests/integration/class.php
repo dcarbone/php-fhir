@@ -136,8 +136,8 @@ class <?php echo $testClassname; ?> extends TestCase
         }
         $this->assertIsString($rc->resp);
         $this->_fetchedResources[$format] = $rc->resp;
-        $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
-        file_put_contents($fname, $rc->resp);
+        // $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
+        // file_put_contents($fname, $rc->resp);
         return $rc->resp;
     }
 
