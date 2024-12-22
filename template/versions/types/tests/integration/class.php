@@ -125,12 +125,16 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->_client->readRaw(resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>, count: 5, format: <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::from($format));
+        $rc = $this->_client->readRaw(
+            resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>,
+            count: 5,
+            format: <?php echo PHPFHIR_ENUM_API_FORMAT; ?>::from($format),
+        );
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         if (404 === $rc->code) {
-            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->_testEndpoint, <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
+            $this->markTestSkipped(sprintf('Query "%s" returned no resources of type "%s"', $rc->url, <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
         } else if (500 === $rc->code) {
-            $this->markTestSkipped(sprintf('Endpoint "%s" is experiencing issues', $this->_testEndpoint));
+            $this->markTestSkipped(sprintf('Query "%s" returned 500', $rc->url));
         } else {
             $this->assertEquals(200, $rc->code, 'Expected 200 OK');
         }
