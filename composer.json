@@ -52,14 +52,6 @@
       "DCarbone\\PHPFHIR\\": "src/"
     }
   },
-  "autoload-dev": {
-    "psr-4": {
-      "DCarbone\\PHPFHIRGenerated\\": "output/DCarbone/PHPFHIRGenerated"
-    }
-  },
-  "config": {
-    "platform-check": false
-  },
   "suggest": {
     "ext-zip": "To enable unzipping of downloaded source files"
   }

@@ -31,7 +31,7 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 // version autoloaders
 <?php foreach($config->getVersionsIterator() as $version): ?>
 if (!class_exists('<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . <?php echo FileUtils::buildAutoloaderRelativeFilepath(
+    require <?php echo FileUtils::buildAutoloaderRelativeFilepath(
         $config->getFullyQualifiedName(false),
         $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER),
     ); ?>;
@@ -90,7 +90,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function loadClass(string $class): null|bool
     {
         if (isset(self::_CLASS_MAP[$class])) {
-            return (bool)require __DIR__ . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];
+            return (bool)require self::_CLASS_MAP[$class];
         }
         return null;
     }

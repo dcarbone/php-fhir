@@ -34,7 +34,7 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
      * @param string $typeName
      * @return string|null
      */
-    public static function getTypeClass(string $typeName): null|string;
+    public static function getTypeClassName(string $typeName): null|string;
 
     /**
      * Must return the full internal class map

@@ -72,7 +72,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
      * @param string $typeName
      * @return string|null
      */
-    public static function getTypeClass(string $typeName): null|string
+    public static function getTypeClassName(string $typeName): null|string
     {
         return self::_TYPE_MAP[$typeName] ?? null;
     }

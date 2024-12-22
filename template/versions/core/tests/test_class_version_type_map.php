@@ -43,7 +43,14 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_TYPE_MAP; ?> extends TestCase
 {
     public function testGetTypeClassWithNonStringReturnsNull()
     {
-        $this->assertNull(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getTypeClass(1));
+        $this->assertNull(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getTypeClassName(1));
+    }
+
+    public function testGetTypeClassName()
+    {
+<?php foreach($types->getNamespaceSortedIterator() as $type): ?>
+    $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getTypeClassName('<?php echo $type->getFHIRName(); ?>'));
+<?php endforeach; ?>
     }
 
     public function testGetContainedTypeClassName()
@@ -110,13 +117,6 @@ endforeach; ?>
         $this->assertFalse(<?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource($type));
 <?php endif;
 endforeach; ?>
-    }
-
-    public function testGetTypeClass()
-    {
-<?php foreach($types->getNamespaceSortedIterator() as $type): ?>
-        $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getTypeClass('<?php echo $type->getFHIRName(); ?>'));
-<?php endforeach; ?>
     }
 }
 <?php

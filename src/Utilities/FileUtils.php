@@ -105,7 +105,7 @@ final class FileUtils
         if (str_starts_with($classFQN, $baseNS)) {
             $classFQN = ltrim(substr($classFQN, strlen($baseNS)), '\\');
         }
-        return sprintf("'%s.php'", str_replace('\\', "' . DIRECTORY_SEPARATOR . '", $classFQN));
+        return sprintf("__DIR__ . '/%s.php'", str_replace('\\', "/", $classFQN));
     }
 
     /**

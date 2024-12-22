@@ -26,20 +26,21 @@ date_default_timezone_set('UTC');
 // --- autoload setup
 const AUTOLOAD_CLASS_FILEPATH = __DIR__ . '/../vendor/autoload.php';
 
+$autoloadClasspath = realpath(AUTOLOAD_CLASS_FILEPATH);
+
 // ensure composer autoload class exists.
-if (!file_exists(AUTOLOAD_CLASS_FILEPATH)) {
+if (!$autoloadClasspath) {
     echo sprintf("Unable to locate composer autoload file expected at path: %s\n\n", AUTOLOAD_CLASS_FILEPATH);
     echo "Please run \"composer install\" from the root of the project directory\n\n";
     exit(1);
 }
 
-require AUTOLOAD_CLASS_FILEPATH;
+require $autoloadClasspath;
 
-// --- use statements
+// ----- use statements
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Version\Definition;
 use JetBrains\PhpStorm\NoReturn;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
@@ -59,6 +60,7 @@ const FLAG_CONFIG = '--config';
 const FLAG_ONLY_LIBRARY = '--onlyLibrary';
 const FLAG_ONLY_TESTS = '--onlyTests';
 const FLAG_VERSIONS = '--versions';
+const FLAG_USERAGENT = '--userAgent';
 const FLAG_LOG_LEVEL = '--logLevel';
 
 // ----- cli and config opts
@@ -74,6 +76,7 @@ $only_tests = false;
 $versions_to_generate = null;
 $use_existing = false;
 $log_level = LogLevel::WARNING;
+$user_agent = 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
 
 // ----- functions
 
@@ -127,6 +130,7 @@ STRING;
 #[NoReturn] function exit_with_help(bool $err = false): void
 {
     global $config_location_def;
+
     $env_var = ENV_GENERATE_CONFIG_FILE;
     $out = <<<STRING
 
@@ -154,6 +158,8 @@ Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
                         ex: ./bin/generate.sh --config path/to/file
     --versions:     Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions STU3,R4
+    --userAgent:    User-Agent string to use when downloading FHIR schema files
+                        ex: ./bin/generate.sh --userAgent "Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0"
     --logLevel:     Level of verbosity during generation
                         ex: ./bin/generate.sh --logLevel warning
 
@@ -283,6 +289,13 @@ if ($argc > 1) {
 
             case FLAG_ONLY_TESTS:
                 $only_tests = true;
+                break;
+
+            case FLAG_USERAGENT:
+                $user_agent = trim($next);
+                if (!$found_equal) {
+                    $i++;
+                }
                 break;
 
             default:
@@ -420,7 +433,7 @@ foreach ($versions_to_generate as $version_name) {
         curl_setopt_array(
             $ch,
             [
-                CURLOPT_USERAGENT => 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0',
+                CURLOPT_USERAGENT => $user_agent,
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_HEADER => 0,
                 CURLOPT_FILE => $fh,
@@ -436,7 +449,7 @@ foreach ($versions_to_generate as $version_name) {
             exit(1);
         }
         if ($code !== 200) {
-            echo sprintf('Error downlodaing from %s: %d (%s)%s', $version_name, $source_url, $code, $resp, PHP_EOL);
+            echo sprintf('Error downlodaing from %s: %d (%s)%s%s', $version_name, $source_url, $code, $resp, PHP_EOL);
             exit(1);
         }
     }

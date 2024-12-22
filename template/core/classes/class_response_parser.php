@@ -69,7 +69,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return null;
         }
         if (isset($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-            $className = $version->getTypeMap()::getTypeClass($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+            $className = $version->getTypeMap()::getTypeClassName($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
             if (null === $className) {
                 throw new \UnexpectedValueException(sprintf(
                     'Provided input has "%s" value of "%s", but it does not map to any known type.  Other keys: ["%s"]',
@@ -110,7 +110,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     {
         $elementName = $input->getName();
         /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $fhirType */
-        $fhirType = $version->getTypeMap()::getTypeClass($elementName);
+        $fhirType = $version->getTypeMap()::getTypeClassName($elementName);
         if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
                 'Unable to locate FHIR type for root XML element "%s". Input seen: %s',
