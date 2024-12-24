@@ -16,115 +16,40 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Types $types */
-
-$namespace = $config->getFullyQualifiedName(false);
+/** @var \DCarbone\PHPFHIR\Config $config */
 
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
-
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
-
-echo "\n\n"; ?>
-// if this class is used, assume not using Composer...
-
-// constants
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONSTANTS); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>.php';
-}
-
-// config
-if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CONFIG_KEY); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_CONFIG_KEY; ?>.php';
-}
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CONFIG); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_CONFIG; ?>.php';
-}
-
-// xml writer
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>.php';
-}
-
-// interfaces
-if (!interface_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_TYPE; ?>.php';
-}
-if (!interface_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_PRIMITIVE_TYPE); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?>.php';
-}
-if (!interface_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>.php';
-}
-if (!interface_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_COMMENT_CONTAINER); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>.php';
-}
-
-// traits
-if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_COMMENT_CONTAINER); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>.php';
-}
-if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_VALIDATION_ASSERTIONS); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>.php';
-}
-if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_CHANGE_TRACKING); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>.php';
-}
-if (!trait_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_TRAIT_SOURCE_XMLNS); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>.php';
-}
-
-// enums
-if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_TYPE); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_TYPE; ?>.php';
-}
-if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_API_FORMAT; ?>.php';
-}
-if (!enum_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION_ENUM); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_ENUM_XML_LOCATION_ENUM; ?>.php';
-}
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-// parser classes
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_TYPEMAP); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>.php';
+// version autoloaders
+<?php foreach($config->getVersionsIterator() as $version): ?>
+if (!class_exists('<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>', false)) {
+    require <?php echo FileUtils::buildAutoloaderRelativeFilepath(
+        $config->getFullyQualifiedName(false),
+        $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER),
+    ); ?>;
+    <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>::register();
 }
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>.php';
-}
+<?php endforeach; ?>
 
-// debug client
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT_RESPONSE; ?>.php';
-}
-if (!class_exists('<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_DEBUG_CLIENT); ?>', false)) {
-    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_CLASSNAME_DEBUG_CLIENT; ?>.php';
-}
-
-/**
- * Class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
 {
     /** @var array */
     private const _CLASS_MAP = [
-<?php foreach ($types->getNamespaceSortedIterator() as $type) : ?>
-        '<?php echo $type->getFullyQualifiedClassName(false); ?>' => '<?php echo FileUtils::buildAutoloaderRelativeFilepath($config, $type); ?>',
+        // core types
+<?php foreach($config->getCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
+        '<?php echo $coreFile->getFullyQualifiedName(false); ?>' => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
+        $config->getFullyQualifiedName(false),
+        $coreFile->getFullyQualifiedName(false),
+    ); ?>,
 <?php endforeach; ?>    ];
 
     /** @var bool */
@@ -165,9 +90,11 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function loadClass(string $class): null|bool
     {
         if (isset(self::_CLASS_MAP[$class])) {
-            return (bool)require __DIR__ . DIRECTORY_SEPARATOR . self::_CLASS_MAP[$class];
+            return (bool)require self::_CLASS_MAP[$class];
         }
         return null;
     }
 }
+
+<?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>::register();
 <?php return ob_get_clean();

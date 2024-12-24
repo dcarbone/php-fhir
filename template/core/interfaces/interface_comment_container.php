@@ -16,31 +16,16 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
-
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-
-$namespace = $config->getFullyQualifiedName(false);
+/** @var \DCarbone\PHPFHIR\Config $config */
 
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-echo "<?php declare(strict_types=1);\n\n";
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-if ('' !== $namespace) :
-    echo "namespace {$namespace};\n\n";
-endif;
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
 
-echo "\n\n";
-?>
-/**
- * Interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; if ('' !== $namespace) : ?>
-
- * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
- */
 interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>
 
 {

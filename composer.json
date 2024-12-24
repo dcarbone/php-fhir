@@ -22,15 +22,15 @@
     "php": "^8.1",
     "ext-ctype": "*",
     "ext-curl": "*",
+    "ext-dom": "*",
     "ext-json": "*",
     "ext-libxml": "*",
     "ext-simplexml": "*",
+    "ext-xmlreader": "*",
+    "ext-xmlwriter": "*",
     "psr/log": "^3.0"
   },
   "require-dev": {
-    "ext-dom": "*",
-    "ext-xmlreader": "*",
-    "ext-xmlwriter": "*",
     "phpunit/phpunit": "^10.5 || ^11.0",
     "monolog/monolog": "^3.2.0"
   },
@@ -51,14 +51,6 @@
     "psr-4": {
       "DCarbone\\PHPFHIR\\": "src/"
     }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "HL7\\": "output/HL7"
-    }
-  },
-  "config": {
-    "platform-check": false
   },
   "suggest": {
     "ext-zip": "To enable unzipping of downloaded source files"

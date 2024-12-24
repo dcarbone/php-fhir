@@ -16,50 +16,37 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-
-$rootNS = $config->getFullyQualifiedName(false);
+/** @var \DCarbone\PHPFHIR\Config $config */
 
 ob_start();
-echo "<?php declare(strict_types=1);\n\n";
+echo '<?php ';?>declare(strict_types=1);
 
-if ('' !== $rootNS) :
-    echo "namespace {$rootNS};\n\n";
-endif;
+namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 
-echo CopyrightUtils::getFullPHPFHIRCopyrightComment();
+<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-echo "\n\n";
-?>
-/**
- * Trait <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; if ('' !== $rootNS) : ?>
 
- * @package \<?php echo $rootNS; ?>
-<?php endif; ?>
-
- */
 trait <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>
 
 {
     /** @var string */
-    private string $_sourceXmlns;
+    private string $_sourceXMLNS;
 
     /**
      * @param string $xmlns
      */
-    protected function _setSourceXmlns(string $xmlns): void
+    protected function _setSourceXMLNS(string $xmlns): void
     {
-        $this->_sourceXmlns = $xmlns;
+        $this->_sourceXMLNS = $xmlns;
     }
 
     /**
      * @return null|string
      */
-    public function _getSourceXmlns(): null|string
+    public function _getSourceXMLNS(): null|string
     {
-        return $this->_sourceXmlns ?? null;
+        return $this->_sourceXMLNS ?? null;
     }
 }
 <?php return ob_get_clean();
