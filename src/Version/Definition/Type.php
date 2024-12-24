@@ -114,7 +114,7 @@ class Type
         Config $config,
         Version $version,
         string $fhirName,
-        SimpleXMLElement $sourceSXE = null,
+        null|SimpleXMLElement $sourceSXE = null,
         string $sourceFilename = ''
     ) {
         if ('' === ($fhirName = trim($fhirName))) {
