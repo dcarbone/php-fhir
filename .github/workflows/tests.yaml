@@ -31,20 +31,20 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        fhir-version:
+        test-target:
           - 'DSTU1'
           - 'DSTU2'
           - 'STU3'
           - 'R4'
           - 'R5'
 
-    name: 'Download ${{ matrix.fhir-version }} Source'
+    name: 'Download ${{ matrix.test-target }} Source'
     steps:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/load-fhir-xsd
         with:
-          version: '${{ matrix.fhir-version }}'
+          version: '${{ matrix.test-target }}'
 
 
 #  load-fhir-validator:
@@ -68,7 +68,8 @@ jobs:
           - '8.2'
           - '8.3'
           - '8.4'
-        fhir-version:
+        test-target:
+          - 'Core'
           - 'DSTU1'
           - 'DSTU2'
           - 'STU3'
@@ -84,15 +85,15 @@ jobs:
           - php-version: '8.3'
             phpunit-version: '11.1'
 
-    name: '${{ matrix.fhir-version }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
+    name: '${{ matrix.test-target }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     steps:
       - name: 'Check the stuff out'
         uses: actions/checkout@v4
 
-      - name: 'Load FHIR ${{ matrix.fhir-version }} Source'
+      - name: 'Load FHIR ${{ matrix.test-target }} Source'
         uses: ./.github/actions/load-fhir-xsd
         with:
-          version: '${{ matrix.fhir-version }}'
+          version: '${{ matrix.test-target }}'
 
 #      - name: 'Install FHIR validator'
 #        uses: ./.github/actions/load-fhir-validator
@@ -145,7 +146,7 @@ jobs:
       - name: 'Generate code'
         # language=sh
         run: |
-          ./bin/generate.sh --useExisting --versions '${{ matrix.fhir-version }}'
+          ./bin/generate.sh --useExisting --versions '${{ matrix.test-target }}'
 
 #      - name: 'Install Java'
 #        uses: actions/setup-java@v4
@@ -156,4 +157,4 @@ jobs:
       - name: 'Run tests'
         # language=sh
         run: |
-          ./vendor/bin/phpunit -c 'phpunit/${{ matrix.fhir-version }}.xml' --display-warnings --display-skipped
+          ./vendor/bin/phpunit -c 'phpunit/${{ matrix.test-target }}.xml' --display-warnings --display-skipped

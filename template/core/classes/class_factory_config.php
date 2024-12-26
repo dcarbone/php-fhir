@@ -118,5 +118,15 @@ final class <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>
         }
         return $this;
     }
+
+    /**
+     * Return iterator containing all registered versions.
+     *
+     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>[]
+     */
+    public function getVersionsIterator(): \Iterator
+    {
+        return new \ArrayIterator($this->_versions);
+    }
 }
 <?php return ob_get_clean();
