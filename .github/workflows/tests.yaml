@@ -91,6 +91,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 'Load FHIR ${{ matrix.test-target }} Source'
+        if: matrix.test-target != 'Core'
         uses: ./.github/actions/load-fhir-xsd
         with:
           version: '${{ matrix.test-target }}'
