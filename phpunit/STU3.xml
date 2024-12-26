@@ -3,7 +3,13 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
          bootstrap="bootstrap.php"
          colors="true"
-         stopOnFailure="false">
+         stopOnFailure="false"
+         displayDetailsOnIncompleteTests="true"
+         displayDetailsOnSkippedTests="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true">
     <php>
         <ini name="memory_limit" value="2048M"/>
         <env name="PHPFHIR_TEST_INTEGRATION_ENDPOINT" value="https://lforms-fhir.nlm.nih.gov/baseDstu3" force="true"/>

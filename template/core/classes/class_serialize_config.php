@@ -55,7 +55,7 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
      */
     public function setRootXMLNS(string $rootXMLNS): self
     {
-        $this->rootXMLNS = $rootXMLNS;
+        $this->_rootXMLNS = $rootXMLNS;
         return $this;
     }
 
@@ -64,7 +64,7 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
      */
     public function getRootXMLNS(): null|string
     {
-        return $this->rootXMLNS ?? null;
+        return $this->_rootXMLNS ?? null;
     }
 
     /**
@@ -75,7 +75,7 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
      */
     public function setOverrideSourceXMLNS(bool $overrideSourceXMLNS): self
     {
-        $this->overrideSourceXMLNS = $overrideSourceXMLNS;
+        $this->_overrideSourceXMLNS = $overrideSourceXMLNS;
         return $this;
     }
 
@@ -84,7 +84,7 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
      */
     public function getOverrideSourceXMLNS(): bool
     {
-        return $this->overrideSourceXMLNS ?? false;
+        return $this->_overrideSourceXMLNS ?? false;
     }
 
     /**
@@ -93,7 +93,7 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
      */
     public function setXHTMLLibxmlOpts(int $xhtmlLibxmlOpts): self
     {
-        $this->xhtmlLibxmlOpts = $xhtmlLibxmlOpts;
+        $this->_xhtmlLibxmlOpts = $xhtmlLibxmlOpts;
         return $this;
     }
 
@@ -102,7 +102,7 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
      */
     public function getXHTMLLibxmlOpts(): int
     {
-        return $this->xhtmlLibxmlOpts ?? 0;
+        return $this->_xhtmlLibxmlOpts ?? 0;
     }
 }
 <?php return ob_get_clean();

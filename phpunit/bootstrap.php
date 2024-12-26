@@ -21,17 +21,17 @@
 const PHPFHIR_TEST_CONFIG_ROOT_DIR = __DIR__;
 const PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/tests/resources';
 
-echo 'Creating test resource download dir: ' . PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/tests/resources' . PHP_EOL;
+echo 'Creating test resource download dir: ' . PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR . PHP_EOL;
 
-if (!mkdir(PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR, 0755, true)) {
+if (!is_dir(PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR) && !mkdir(PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR, 0755, true)) {
     throw new \RuntimeException(sprintf('Failed to create test resource download directory: %s', PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR));
 }
 
 # define env to be used in tests
 putenv('PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR='.PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR);
 
-const PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH = __DIR__ . '/../vendor/autoload.php';
-const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = __DIR__ . '/../output/DCarbone/PHPFHIRGenerated/Autoloader.php';
+const PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../vendor/autoload.php';
+const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/DCarbone/PHPFHIRGenerated/Autoloader.php';
 
 $composerAutoloader = realpath(PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH);
 $generatedAutoloader = realpath(PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH);

@@ -67,6 +67,7 @@ jobs:
           - '8.1'
           - '8.2'
           - '8.3'
+          - '8.4'
         fhir-version:
           - 'DSTU1'
           - 'DSTU2'
@@ -77,6 +78,8 @@ jobs:
           - php-version: '8.1'
             phpunit-version: '10.5'
           - php-version: '8.2'
+            phpunit-version: '11.1'
+          - php-version: '8.3'
             phpunit-version: '11.1'
           - php-version: '8.3'
             phpunit-version: '11.1'
