@@ -41,11 +41,6 @@ require $autoloadClasspath;
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
-use JetBrains\PhpStorm\NoReturn;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
@@ -57,6 +52,7 @@ const FLAG_HELP = '--help';
 const FLAG_FORCE_DELETE = '--forceDelete';
 const FLAG_USE_EXISTING = '--useExisting';
 const FLAG_CONFIG = '--config';
+const FLAG_ONLY_CORE = '--onlyCore';
 const FLAG_ONLY_LIBRARY = '--onlyLibrary';
 const FLAG_ONLY_TESTS = '--onlyTests';
 const FLAG_VERSIONS = '--versions';
@@ -71,20 +67,21 @@ $config_location_def = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 $config_location_env = getenv(ENV_GENERATE_CONFIG_FILE);
 $config_location_arg = '';
 $config_file = null;
+$only_core = false;
 $only_library = false;
 $only_tests = false;
 $versions_to_generate = null;
 $use_existing = false;
 $log_level = LogLevel::WARNING;
-$user_agent = 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
+$user_agent_def = 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
+$user_agent = $user_agent_def;
 
 // ----- functions
 
 /**
- * @param bool $return
  * @return string
  */
-function missing_config_text(bool $return): string
+function missing_config_text(): string
 {
     global $config_location_env, $config_location_arg, $config_location_def;
     $out = 'Unable to locate generate script configuration file.  I looked in the following locations:' . PHP_EOL;
@@ -116,22 +113,17 @@ Below is an example config file:
 
 STRING;
 
-    if ($return) {
-        return $out;
-    }
-
-    echo $out;
-    exit(1);
+    return $out;
 }
 
 /**
- * @param bool $err
+ * @return string
  */
-#[NoReturn] function exit_with_help(bool $err = false): void
+function help_text(): string
 {
-    global $config_location_def;
+    global $config_location_def, $user_agent_def;
 
-    $env_var = ENV_GENERATE_CONFIG_FILE;
+    $config_env_var = ENV_GENERATE_CONFIG_FILE;
     $out = <<<STRING
 
 PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
@@ -144,39 +136,39 @@ Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
     FHIR:           https://hl7.org/fhir
 
 - Flags:
-    --help:         Print this help text 
+    --help          Print this help text 
                         ex: ./bin/generate.sh --help
-    --forceDelete:  Forcibly delete all pre-existing FHIR schema files and output files without being prompted 
+    --forceDelete   Forcibly delete all pre-existing FHIR schema files and output files without being prompted 
                         ex: ./bin/generate.sh --forceDelete
-    --useExisting:  Do no prompt for any cleanup tasks.  Mutually exclusive with --forceDelete
+    --useExisting   Do no prompt for any cleanup tasks.  Mutually exclusive with --forceDelete
                         ex: ./bin/generate.sh --useExisting
+    --onlyCore      Only gnerate Core classes.  Mutually exclusive with --onlyLibrary and --onlyTests
+                        ex: ./bin/generate.sh --onlyCore
     --onlyLibrary   Only generate Library classes.  Mutually exclusive with --onlyTests
                         ex: ./bin/generate.sh --onlyLibrary
     --onlyTests     Only generate Test classes.  Mutually exclusive with --onlyLibrary
                         ex: ./bin/generate.sh --onlyTests
-    --config:       Specify location of config [default: {$config_location_def}]
+    --config        Specify location of config
+                        default: {$config_location_def}
                         ex: ./bin/generate.sh --config path/to/file
-    --versions:     Comma-separated list of specific versions to parse from config
+    --versions      Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions STU3,R4
-    --userAgent:    User-Agent string to use when downloading FHIR schema files
-                        ex: ./bin/generate.sh --userAgent "Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0"
-    --logLevel:     Level of verbosity during generation
+    --userAgent     User-Agent string to use when downloading FHIR schema files
+                        default: "{$user_agent_def}"
+                        ex: ./bin/generate.sh --userAgent "your custom user agent string"
+    --logLevel      Level of verbosity during generation
                         ex: ./bin/generate.sh --logLevel warning
 
 - Configuration:
     There are 3 possible ways to define a configuration file for this script to use:
-        1. Define env var {$env_var}
+        1. Define env var {$config_env_var}
         2. Pass "--config" flag at run time
         3. Place "config.php" in dir {$config_location_def}
 
 
 STRING;
 
-    echo $out;
-    if ($err) {
-        exit(1);
-    }
-    exit(0);
+    return $out;
 }
 
 /**
@@ -250,6 +242,10 @@ if ($argc > 1) {
             $found_equal = true;
         }
         switch ($arg) {
+            case '?';
+            case '-h':
+            case '-help':
+            case 'help':
             case FLAG_HELP:
                 $print_help = true;
                 break;
@@ -300,7 +296,8 @@ if ($argc > 1) {
 
             default:
                 echo "Unknown argument \"{$arg}\" passed at position {$i}\n";
-                exit_with_help(true);
+                echo help_text();
+                exit(1);
         }
     }
 }
@@ -311,7 +308,8 @@ if ($use_existing && $force_delete) {
         FLAG_FORCE_DELETE,
         FLAG_USE_EXISTING
     );
-    exit_with_help(true);
+    echo help_text();
+    exit(1);
 }
 
 if ($only_library && $only_tests) {
@@ -320,7 +318,8 @@ if ($only_library && $only_tests) {
         FLAG_ONLY_LIBRARY,
         FLAG_ONLY_TESTS
     );
-    exit_with_help(true);
+    echo help_text();
+    exit(1);
 }
 
 // try to determine which config file to use...
@@ -333,11 +332,13 @@ if ('' !== $config_location_arg) {
 }
 
 if ($print_help) {
-    exit_with_help(); // calls exit(0); at end
+    echo help_text();
+    exit(0);
 }
 
 if (!file_exists($config_file)) {
-    missing_config_text(false);
+    echo missing_config_text();
+    exit(1);
 }
 
 if (!is_readable($config_file)) {
@@ -350,11 +351,11 @@ if (!is_readable($config_file)) {
 
 // determine if monolog is present, otherwise use null logger
 if (class_exists('\\Monolog\\Logger')) {
-    $formatter = new LineFormatter(LineFormatter::SIMPLE_FORMAT);
-    $handler = new StreamHandler('php://stdout', $log_level);
+    $formatter = new \Monolog\Formatter\LineFormatter(\Monolog\Formatter\LineFormatter::SIMPLE_FORMAT);
+    $handler = new \Monolog\Handler\StreamHandler('php://stdout', $log_level);
     $handler->setFormatter($formatter);
-    $processor = new PsrLogMessageProcessor(\DateTimeInterface::W3C);
-    $logger = new Logger(
+    $processor = new \Monolog\Processor\PsrLogMessageProcessor(\DateTimeInterface::W3C);
+    $logger = new \Monolog\Logger(
         'php-fhir',
         [$handler],
         [$processor]
