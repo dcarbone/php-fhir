@@ -31,14 +31,14 @@ enum TypeKindEnum: string
 
     // complex types
     case BASE = 'Base';
-    case EXTENSION          = 'Extension';
-    case ELEMENT            = 'Element';
-    case BINARY             = 'Binary';
-    case BACKBONE_ELEMENT   = 'BackboneElement';
-    case RESOURCE           = 'Resource';
+    case EXTENSION = 'Extension';
+    case ELEMENT = 'Element';
+    case BINARY = 'Binary';
+    case BACKBONE_ELEMENT = 'BackboneElement';
+    case RESOURCE = 'Resource';
     case RESOURCE_CONTAINER = 'ResourceContainer';
-    case RESOURCE_INLINE    = 'Resource.Inline';
-    case QUANTITY           = 'Quantity';
+    case RESOURCE_INLINE = 'Resource.Inline';
+    case QUANTITY = 'Quantity';
 
     // this indicates a type that is an immediate child of a resource and not used elsewhere
     case RESOURCE_COMPONENT = 'resource_component';
@@ -83,6 +83,8 @@ enum TypeKindEnum: string
 
     private static function _containerTypeStrings(): array
     {
-        return array_map(function (TypeKindEnum $tk): string { return $tk->value; }, self::CONTAINER_TYPES);
+        return array_map(function (TypeKindEnum $tk): string {
+            return $tk->value;
+        }, self::CONTAINER_TYPES);
     }
 }
