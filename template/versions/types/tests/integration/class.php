@@ -149,7 +149,7 @@ class <?php echo $testClassname; ?> extends TestCase
         $dlDir = trim((string)getenv('<?php echo PHPFHIR_TEST_CONSTANT_RESOURCE_DOWNLOAD_DIR; ?>'));
         if ('' !== $dlDir) {
             $this->assertDirectoryExists($dlDir, sprintf('Configured test resource download directory "%s" does not exist.', $dlDir));
-            $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>-source.%s', $dlDir, DIRECTORY_SEPARATOR, $format);
+            $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersionString(false); ?>-source.%s', $dlDir, DIRECTORY_SEPARATOR, $format);
             file_put_contents($fname, $rc->resp);
             $this->assertFileExists($fname, sprintf('Failed to write fetched resource bundle to "%s"', $fname));
         }

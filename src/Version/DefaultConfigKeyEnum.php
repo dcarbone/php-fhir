@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version;
  * limitations under the License.
  */
 
-enum VersionDefaultConfigKeyEnum: string
+enum DefaultConfigKeyEnum: string
 {
     case UNSERIALIZE_CONFIG = 'unserializeConfig';
     case SERIALIZE_CONFIG = 'serializeConfig';

@@ -18,11 +18,14 @@ namespace DCarbone\PHPFHIR\Version;
  * limitations under the License.
  */
 
+use Composer\Semver\Semver;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 
 class SourceMetadata
 {
+    private const _DSTU1_VERSION_MAX = "0.0.82";
+
     /** @var \DCarbone\PHPFHIR\Config */
     private Config $_config;
     /** @var \DCarbone\PHPFHIR\Version */
@@ -164,9 +167,19 @@ class SourceMetadata
      * @param bool $trimmed
      * @return string
      */
-    public function getFHIRVersion(bool $trimmed): string
+    public function getFHIRVersionString(bool $trimmed): string
     {
         $this->compile();
         return $trimmed ? trim($this->_fhirVersion, 'v') : $this->_fhirVersion;
+    }
+
+    /**
+     * Returns true if the upstream source was generated from, or is based on, DSTU1.
+     *
+     * @return bool
+     */
+    public function isDSTU1(): bool
+    {
+        return Semver::satisfies($this->getFHIRVersionString(false), '<= ' . self::_DSTU1_VERSION_MAX);
     }
 }

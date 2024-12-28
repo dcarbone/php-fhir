@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 $config = $version->getConfig();
 
-$containerType = $types->getContainerType($version->getName());
+$containerType = $types->getContainerType($version);
 if (null === $containerType) {
     throw new \RuntimeException(sprintf(
         'Unable to locate either "%s" or "%s" type',

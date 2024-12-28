@@ -28,7 +28,8 @@
     "ext-simplexml": "*",
     "ext-xmlreader": "*",
     "ext-xmlwriter": "*",
-    "psr/log": "^3.0"
+    "psr/log": "^3.0",
+    "composer/semver": "^3.4"
   },
   "require-dev": {
     "phpunit/phpunit": "^10.5 || ^11.0",

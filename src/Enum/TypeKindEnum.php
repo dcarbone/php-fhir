@@ -18,6 +18,8 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Version;
+
 enum TypeKindEnum: string
 {
     // this represents an actual value: string, int, etc.
@@ -46,20 +48,23 @@ enum TypeKindEnum: string
     // treated a bit different
     case PHPFHIR_XHTML = 'phpfhir_xhtml';
 
-    private const CONTAINER_TYPES = [
-        self::RESOURCE_CONTAINER,
-        self::RESOURCE_INLINE,
-    ];
+    private const _DSTU1_CONTAINER_TYPE = self::RESOURCE_INLINE;
+
+    private const _CONTAINER_TYPE = self::RESOURCE_CONTAINER;
 
     /**
      * Returns true if the provided FHIR type name is the "container" type for the provided version.
      *
+     * @param \DCarbone\PHPFHIR\Version $version
      * @param string $fhirName
      * @return bool
      */
-    public static function isContainerTypeName(string $fhirName): bool
+    public static function isContainerTypeName(Version $version, string $fhirName): bool
     {
-        return in_array($fhirName, self::_containerTypeStrings(), true);
+        if ($version->getSourceMetadata()->isDSTU1()) {
+            return $fhirName === self::_DSTU1_CONTAINER_TYPE->value;
+        }
+        return $fhirName === self::_CONTAINER_TYPE->value;
     }
 
     /**
@@ -74,17 +79,14 @@ enum TypeKindEnum: string
     /**
      * Returns true if this kind is the "container" kind for the provided FHIR version.
      *
+     * @param \DCarbone\PHPFHIR\Version $version
      * @return bool
      */
-    public function isContainer(): bool
+    public function isContainer(Version $version): bool
     {
-        return in_array($this, self::CONTAINER_TYPES, true);
-    }
-
-    private static function _containerTypeStrings(): array
-    {
-        return array_map(function (TypeKindEnum $tk): string {
-            return $tk->value;
-        }, self::CONTAINER_TYPES);
+        if ($version->getSourceMetadata()->isDSTU1()) {
+            return $this === self::_DSTU1_CONTAINER_TYPE;
+        }
+        return $this === self::_CONTAINER_TYPE;
     }
 }

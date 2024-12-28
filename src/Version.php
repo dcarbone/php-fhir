@@ -18,11 +18,12 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use Composer\Semver\Semver;
 use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
-use DCarbone\PHPFHIR\Version\VersionDefaultConfig;
+use DCarbone\PHPFHIR\Version\DefaultConfig;
 
 /**
  * Class Version
@@ -36,8 +37,8 @@ class Version
     /** @var \DCarbone\PHPFHIR\Version\SourceMetadata */
     private SourceMetadata $_sourceMetadata;
 
-    /** @var \DCarbone\PHPFHIR\Version\VersionDefaultConfig */
-    private VersionDefaultConfig $_defaultConfig;
+    /** @var \DCarbone\PHPFHIR\Version\DefaultConfig */
+    private DefaultConfig $_defaultConfig;
 
     /** @var string */
     private string $_name;
@@ -106,7 +107,7 @@ class Version
         }
 
         if (!isset($this->_defaultConfig)) {
-            $this->_defaultConfig = new VersionDefaultConfig([]);
+            $this->_defaultConfig = new DefaultConfig([]);
         }
 
         $this->_sourceMetadata = new SourceMetadata($config, $this);
@@ -200,21 +201,21 @@ class Version
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Version\VersionDefaultConfig
+     * @return \DCarbone\PHPFHIR\Version\DefaultConfig
      */
-    public function getDefaultConfig(): VersionDefaultConfig
+    public function getDefaultConfig(): DefaultConfig
     {
         return $this->_defaultConfig;
     }
 
     /**
-     * @param array|\DCarbone\PHPFHIR\Version\VersionDefaultConfig $defaultConfig
+     * @param array|\DCarbone\PHPFHIR\Version\DefaultConfig $defaultConfig
      * @return $this
      */
-    public function setDefaultConfig(array|VersionDefaultConfig $defaultConfig): self
+    public function setDefaultConfig(array|DefaultConfig $defaultConfig): self
     {
         if (is_array($defaultConfig)) {
-            $defaultConfig = new VersionDefaultConfig($defaultConfig);
+            $defaultConfig = new DefaultConfig($defaultConfig);
         }
         $this->_defaultConfig = $defaultConfig;
         return $this;

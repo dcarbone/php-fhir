@@ -18,11 +18,7 @@ namespace DCarbone\PHPFHIR\Version;
  * limitations under the License.
  */
 
-/**
- * Class VersoinConfig
- * @package DCarbone\PHPFHIR\Version
- */
-class VersionDefaultConfig
+class DefaultConfig
 {
     private const _UNSERIALIZE_CONFIG_KEYS = [
         'libxmlOpts',
@@ -45,7 +41,7 @@ class VersionDefaultConfig
      */
     public function __construct(array $config)
     {
-        foreach (VersionDefaultConfigKeyEnum::cases() as $k) {
+        foreach (DefaultConfigKeyEnum::cases() as $k) {
             if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
                 $this->{"set{$k->value}"}($config[$k->value]);
             }

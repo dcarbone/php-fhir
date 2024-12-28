@@ -138,7 +138,7 @@ class <?php echo $testClassname; ?> extends TestCase
         $output = [];
         $code = -1;
         $cmd = sprintf(
-            'java -jar %s %s -version <?php echo $version->getSourceMetadata()->getFHIRVersion(true); ?>',
+            'java -jar %s %s -version <?php echo $version->getSourceMetadata()->getFHIRVersionString(true); ?>',
             PHPFHIR_FHIR_VALIDATION_JAR,
             $filename
         );
@@ -180,7 +180,7 @@ class <?php echo $testClassname; ?> extends TestCase
         }
         $this->assertIsString($rc->resp);
         $this->_fetchedResources[$format] = $rc->resp;
-        // $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
+        // $fname = sprintf('%s%s<?php echo $type->getFHIRName(); ?>-<?php echo $version->getSourceMetadata()->getFHIRVersionString(false); ?>-source.%s', PHPFHIR_OUTPUT_TMP_DIR, DIRECTORY_SEPARATOR, $format);
         // file_put_contents($fname, $rc->resp);
         return $rc->resp;
     }
@@ -237,7 +237,7 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>.xml';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo $version->getSourceMetadata()->getFHIRVersionString(false); ?>.xml';
         file_put_contents($fname, $bundle->xmlSerialize()->ownerDocument->saveXML());
         $this->assertFileExists($fname);
 
@@ -295,7 +295,7 @@ class <?php echo $testClassname; ?> extends TestCase
 <?php else: ?>
         $resource = $entry->getResource();
 <?php endif; ?>
-        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>.json';
+        $fname = PHPFHIR_OUTPUT_TMP_DIR . DIRECTORY_SEPARATOR . $resource->_getFHIRTypeName() . '-<?php echo $version->getSourceMetadata()->getFHIRVersionString(false); ?>.json';
         file_put_contents($fname, json_encode($bundle));
         $this->assertFileExists($fname);
 

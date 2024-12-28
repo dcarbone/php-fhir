@@ -81,7 +81,7 @@ foreach ($localProperties as $property) :
     if (null !== $pt) :
         $ptk = $pt->getKind();
         // ... and IS a container
-        if ($ptk->isContainer()) :
+        if ($ptk->isContainer($version)) :
             if ($property->isCollection()) : ?>
         foreach($this-><?php echo $property->getGetterName(); ?>() as $v) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);

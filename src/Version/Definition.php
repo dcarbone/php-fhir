@@ -83,7 +83,7 @@ class Definition
         $this->types = TypeExtractor::parseTypes($this->config, $this->version);
 
         $log->info('Finding restriction base types');
-        TypeDecorator::findRestrictionBaseTypes($this->config, $this->types);
+        TypeDecorator::findRestrictionBaseTypes($this->version, $this->types);
 
         $log->info('Finding parent types');
         TypeDecorator::findParentTypes($this->config, $this->types);

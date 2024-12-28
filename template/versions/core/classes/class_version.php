@@ -38,7 +38,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
 {
     public const NAME = '<?php echo $version->getName(); ?>';
     public const SOURCE_URL = '<?php echo $version->getSourceUrl(); ?>';
-    public const SOURCE_VERSION = '<?php echo $version->getSourceMetadata()->getFHIRVersion(false); ?>';
+    public const SOURCE_VERSION = '<?php echo $version->getSourceMetadata()->getFHIRVersionString(false); ?>';
     public const SOURCE_GENERATION_DATE = '<?php echo $version->getSourceMetadata()->getFHIRGenerationDate(); ?>';
 
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;

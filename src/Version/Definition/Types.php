@@ -199,13 +199,14 @@ class Types implements Countable
      *
      * Should be either "Resource.Inline" or "ResourceContainer" types.
      *
+     * @param \DCarbone\PHPFHIR\Version $version
      * @return \DCarbone\PHPFHIR\Version\Definition\Type|null
      */
-    public function getContainerType(): null|Type
+    public function getContainerType(Version $version): null|Type
     {
         if (!isset($this->containerType)) {
             foreach ($this->types as $type) {
-                if ($type->getKind()->isContainer()) {
+                if ($type->getKind()->isContainer($version)) {
                     $this->containerType = $type;
                     break;
                 }
@@ -221,10 +222,10 @@ class Types implements Countable
     public function isContainedType(Type $type): bool
     {
         // only bother with actual Resource types.
-        if ($type->getKind()->isContainer()) {
+        if ($type->getKind()->isContainer($type->getVersion())) {
             return false;
         }
-        $container = $this->getContainerType();
+        $container = $this->getContainerType($type->getVersion());
         if (null === $container) {
             return false;
         }

@@ -61,12 +61,12 @@ abstract class TypeDecorator
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      */
-    public static function findRestrictionBaseTypes(Config $config, Types $types): void
+    public static function findRestrictionBaseTypes(Version $version, Types $types): void
     {
-        $logger = $config->getLogger();
+        $logger = $version->getConfig()->getLogger();
         foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
 
@@ -83,7 +83,10 @@ abstract class TypeDecorator
 
             if (str_starts_with($rbName, 'xs:')) {
                 $rbName = substr($rbName, 3);
-                if ('token' === $rbName || ctype_upper($rbName[0])) {
+                // Found only in the DSTU1 "ResourceNamesPlusBinary" type as a restriction base, "NMTOKEN" is a string
+                // without whitespace.  I do not feel like fussing with special logic around this, so force it to be
+                // a string.
+                if ($version->getSourceMetadata()->isDSTU1() && ('token' === $rbName || ctype_upper($rbName[0]))) {
                     $logger->warning(
                         sprintf(
                             'Type "%s" has restriction base "%s", setting to string...',
@@ -239,10 +242,9 @@ abstract class TypeDecorator
      */
     private static function determineParsedTypeKind(Config $config, Version $version, Types $types, Type $type): void
     {
-        $logger = $config->getLogger();
+        $logger = $version->getConfig()->getLogger();
         $fhirName = $type->getFHIRName();
-
-        $versionName = $version->getName();
+        $sourceMeta = $version->getSourceMetadata();
 
         // there are a few specialty types kinds that are set during the parsing process, most notably for
         // html value types and primitive value types
@@ -258,14 +260,14 @@ abstract class TypeDecorator
         }
 
         // check if this type is a DSTU1-specific primitive
-        if (in_array($fhirName, self::DSTU1_PRIMITIVES, true)) {
+        if ($sourceMeta->isDSTU1() && in_array($fhirName, self::DSTU1_PRIMITIVES, true)) {
             $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE->value));
             $type->setKind(TypeKindEnum::PRIMITIVE);
             return;
         }
 
         // check if type is primitive...
-        if (str_contains($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
+        if (str_ends_with($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
             $logger->debug(sprintf('Type "%s" has primitive suffix, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE->value));
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
             return;
@@ -281,7 +283,7 @@ abstract class TypeDecorator
         $rootType = $type->getRootType();
 
         // if this is the "container" type for this FHIR version
-        if (TypeKindEnum::isContainerTypeName($fhirName)) {
+        if (TypeKindEnum::isContainerTypeName($version, $fhirName)) {
             $logger->debug(sprintf('Type "%s" is a container type, setting kind to "%s"', $type->getFHIRName(), $fhirName));
             self::setTypeKind($config, $types, $type, $fhirName);
             return;
@@ -296,7 +298,7 @@ abstract class TypeDecorator
         }
 
         // check if type is list...
-        if (str_contains($fhirName, PHPFHIR_LIST_SUFFIX)) {
+        if (str_ends_with($fhirName, PHPFHIR_LIST_SUFFIX)) {
             // for all intents and purposes, a List type is a multiple choice primitive type
             $logger->debug(sprintf('Type "%s" has list suffix, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::LIST->value));
             self::setTypeKind($config, $types, $type, TypeKindEnum::LIST);
@@ -306,7 +308,7 @@ abstract class TypeDecorator
         // This block indicates the type is only present as the child of a Resource.  Its name may (and in many
         // cases does) conflict with a top level Element or Resource.  Because of this, they are treated differently
         // and must be marked as such.
-        if (str_contains($fhirName, '.') && TypeKindEnum::RESOURCE_INLINE->value !== $fhirName) {
+        if (str_contains($fhirName, '.') && !$sourceMeta->isDSTU1() && TypeKindEnum::RESOURCE_INLINE->value !== $fhirName) {
             $logger->debug(sprintf('Type "%s" is not "%s" but has dot in name, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::RESOURCE_INLINE->value, TypeKindEnum::RESOURCE_COMPONENT->value));
             self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
             return;

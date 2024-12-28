@@ -116,7 +116,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   endif;
-    elseif ($propertyTypeKind->isContainer()) : ?>
+    elseif ($propertyTypeKind->isContainer($version)) : ?>
 
     /**<?php if ('' !== $documentation) : ?>
 
