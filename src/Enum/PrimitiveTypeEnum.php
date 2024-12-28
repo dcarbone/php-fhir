@@ -26,7 +26,7 @@ class PrimitiveTypeEnum extends AbstractEnum
 {
     const STRING  = 'string';
     const BOOLEAN = 'boolean';
-    const INTEGER = 'integer';
+    const INTEGER   = 'integer';
     const DECIMAL = 'decimal';
 
     const POSITIVE_INTEGER = 'positiveInt';

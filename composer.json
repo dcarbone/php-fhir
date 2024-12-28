@@ -27,6 +27,7 @@
   },
   "require-dev": {
     "ext-curl": "*",
+    "ext-zip": "*",
     "phpunit/phpunit": "@stable"
   },
   "replace": {

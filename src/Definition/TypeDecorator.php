@@ -201,7 +201,7 @@ abstract class TypeDecorator
 
                 // everything else
 
-                $valueFHIRTypeName = $property->getValueFHIRTypeName();
+                $valueFHIRTypeName = (string)$property->getValueFHIRTypeName();
 
                 $pt = $types->getTypeByName($valueFHIRTypeName);
                 if (null === $pt) {
