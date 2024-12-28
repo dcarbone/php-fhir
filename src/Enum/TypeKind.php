@@ -65,6 +65,10 @@ enum TypeKind: string
             self::ELEMENT,
             self::RESOURCE,
         ],
+        'R4B' => [
+            self::ELEMENT,
+            self::RESOURCE,
+        ],
 
         'R5' => [
             self::BASE,
@@ -76,6 +80,7 @@ enum TypeKind: string
         'DSTU2' => self::RESOURCE_CONTAINER,
         'STU3' => self::RESOURCE_CONTAINER,
         'R4' => self::RESOURCE_CONTAINER,
+        'R4B' => self::RESOURCE_CONTAINER,
         'R5' => self::RESOURCE_CONTAINER,
     ];
 

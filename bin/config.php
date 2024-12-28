@@ -61,6 +61,11 @@ return [
             'namespace'    => '\\HL7\\FHIR\\R4',
             'testEndpoint' => 'https://hapi.fhir.org/baseR4',
         ],
+        'R4B'    => [
+            'url'          => 'https://hl7.org/fhir/R4B/fhir-all-xsd.zip',
+            'namespace'    => '\\HL7\\FHIR\\R4B',
+            'testEndpoint' => 'https://hapi.fhir.org/baseR4',
+        ],
         'R5' => [
             'url'          => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
             'namespace'    => '\\HL7\\FHIR\\R5',

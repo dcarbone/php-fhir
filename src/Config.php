@@ -68,7 +68,7 @@ class Config
      * @param array $conf
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(array $conf = [], LoggerInterface $logger = null)
+    public function __construct(array $conf = [], null|LoggerInterface $logger = null)
     {
         if (!isset($conf[self::KEY_SCHEMA_PATH])) {
             throw new \DomainException('Required configuration key "' . self::KEY_SCHEMA_PATH . '" missing');
