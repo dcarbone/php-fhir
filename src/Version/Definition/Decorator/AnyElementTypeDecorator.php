@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -46,13 +46,13 @@ abstract class AnyElementTypeDecorator
         // parse through attributes
         foreach ($any->attributes() as $attribute) {
             switch ($attrName = $attribute->getName()) {
-                case AttributeName::NAMESPACE->value:
+                case AttributeNameEnum::NAMESPACE->value:
                     $property->setNamespace((string)$attribute);
                     break;
-                case AttributeName::MIN_OCCURS->value:
+                case AttributeNameEnum::MIN_OCCURS->value:
                     $property->setMinOccurs(intval((string)$attribute));
                     break;
-                case AttributeName::MAX_OCCURS->value:
+                case AttributeNameEnum::MAX_OCCURS->value:
                     $property->setMaxOccurs((string)$attribute);
                     break;
 

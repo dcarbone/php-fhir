@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Enum\TypeKind;
 
 ob_start();
 
-if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
+if ($type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
         [

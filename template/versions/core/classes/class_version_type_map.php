@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
@@ -27,8 +27,8 @@ $containerType = $types->getContainerType($version->getName());
 if (null === $containerType) {
     throw new \RuntimeException(sprintf(
         'Unable to locate either "%s" or "%s" type',
-        TypeKind::RESOURCE_CONTAINER->value,
-        TypeKind::RESOURCE_INLINE->value
+        TypeKindEnum::RESOURCE_CONTAINER->value,
+        TypeKindEnum::RESOURCE_INLINE->value
     ));
 }
 

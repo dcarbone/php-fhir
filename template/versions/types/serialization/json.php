@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -25,7 +25,7 @@ $localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
 $typeKind = $type->getKind();
 
 ob_start();
-if ($typeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
+if ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'primitive.php',
         [
@@ -34,7 +34,7 @@ if ($typeKind->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
             'typeKind' => $typeKind,
         ]
     );
-elseif ($typeKind->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE)) :
+elseif ($typeKind->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE)) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'resource_container.php',
         [

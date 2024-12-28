@@ -21,8 +21,8 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use SimpleXMLElement;
 
@@ -42,7 +42,7 @@ abstract class SimpleTypeElementTypeDecorator
     {
         foreach ($simpleType->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::NAME->value:
+                case AttributeNameEnum::NAME->value:
                     continue 2;
 
                 default:
@@ -52,10 +52,10 @@ abstract class SimpleTypeElementTypeDecorator
 
         foreach ($simpleType->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::RESTRICTION->value:
+                case ElementNameEnum::RESTRICTION->value:
                     RestrictionElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::UNION->value:
+                case ElementNameEnum::UNION->value:
                     UnionElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

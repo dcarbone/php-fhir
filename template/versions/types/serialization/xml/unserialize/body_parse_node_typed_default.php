@@ -19,7 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 /** @var int $i */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 $propType = $property->getValueFHIRType();
 $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType);
@@ -28,5 +28,5 @@ $setter = $property->getSetterName();
 
 ob_start();
 if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $childName) {
-                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>, <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>, <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
             }<?php return ob_get_clean();

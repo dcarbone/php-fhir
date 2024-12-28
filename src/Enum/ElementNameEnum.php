@@ -17,7 +17,7 @@ namespace DCarbone\PHPFHIR\Enum;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum ElementName : string
+enum ElementNameEnum : string
 {
     case _INCLUDE = 'include';
     case IMPORT   = 'import';
@@ -47,10 +47,10 @@ enum ElementName : string
     case ANY = 'any';
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\ElementName|string ...$other
+     * @param \DCarbone\PHPFHIR\Enum\ElementNameEnum|string ...$other
      * @return bool
      */
-    public function isOneOf(ElementName|string ...$other): bool
+    public function isOneOf(ElementNameEnum|string ...$other): bool
     {
         return in_array($this, $other, true) || in_array($this->value, $other, true);
     }

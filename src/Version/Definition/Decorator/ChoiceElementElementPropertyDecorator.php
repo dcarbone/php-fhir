@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -69,19 +69,19 @@ abstract class ChoiceElementElementPropertyDecorator
 
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::REF->value:
+                case AttributeNameEnum::REF->value:
                     $property->setRef((string)$attribute);
                     break;
-                case AttributeName::NAME->value:
+                case AttributeNameEnum::NAME->value:
                     $property->setName((string)$attribute);
                     break;
-                case AttributeName::TYPE->value:
+                case AttributeNameEnum::TYPE->value:
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
-                case AttributeName::MIN_OCCURS->value:
+                case AttributeNameEnum::MIN_OCCURS->value:
                     $property->setMinOccurs(intval((string)$attribute));
                     break;
-                case AttributeName::MAX_OCCURS->value:
+                case AttributeNameEnum::MAX_OCCURS->value:
                     $property->setMaxOccurs((string)$attribute);
                     break;
 

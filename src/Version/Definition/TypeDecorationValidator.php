@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version;
@@ -65,21 +65,21 @@ abstract class TypeDecorationValidator
                 throw ExceptionUtils::createUnknownTypeKindException($type);
             }
 
-            if ($typeKind === TypeKind::PRIMITIVE) {
+            if ($typeKind === TypeKindEnum::PRIMITIVE) {
                 if (null ===  $type->getPrimitiveType()) {
                     throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
                 }
             }
 
-            if ($typeKind === TypeKind::LIST) {
+            if ($typeKind === TypeKindEnum::LIST) {
                 $rbType = $type->getRestrictionBaseFHIRType();
                 if (null === $rbType) {
                     throw ExceptionUtils::createUndefinedListRestrictionBaseException($type);
                 }
             }
 
-            if ($types->isContainedType($versionName, $type) !== $type->isContainedType()) {
-                throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($versionName, $type), $type);
+            if ($types->isContainedType($type) !== $type->isContainedType()) {
+                throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($type), $type);
             }
 
             foreach ($type->getLocalProperties()->getAllPropertiesIterator() as $property) {

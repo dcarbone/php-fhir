@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
@@ -26,7 +26,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 
 $config = $version->getConfig();
-$isPrimitiveType = $type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST);
+$isPrimitiveType = $type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST);
 
 ob_start();
 foreach ($properties as $property) :
@@ -55,7 +55,7 @@ foreach ($properties as $property) :
     {
         return $this-><?php echo $propertyName; ?>;
     }
-<?php if ($propertyType->hasPrimitiveParent() || $propertyTypeKind->isOneOf(TypeKind::PRIMITIVE_CONTAINER, TypeKind::PRIMITIVE, TypeKind::LIST)) : ?>
+<?php if ($propertyType->hasPrimitiveParent() || $propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE_CONTAINER, TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) : ?>
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -116,7 +116,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   endif;
-    elseif ($propertyTypeKind->isContainer($version->getName())) : ?>
+    elseif ($propertyTypeKind->isContainer()) : ?>
 
     /**<?php if ('' !== $documentation) : ?>
 

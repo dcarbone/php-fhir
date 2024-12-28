@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -49,10 +49,10 @@ abstract class AnnotationElementTypeDecorator
         // parse through child elements
         foreach ($annotation->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::DOCUMENTATION->value:
+                case ElementNameEnum::DOCUMENTATION->value:
                     $type->addDocumentationFragment((string)$child);
                     break;
-                case ElementName::COMPLEX_CONTENT->value:
+                case ElementNameEnum::COMPLEX_CONTENT->value:
                     ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

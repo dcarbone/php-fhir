@@ -18,11 +18,7 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
-/**
- * Class AttributeNameEnum
- * @package DCarbone\PHPFHIR\Enum
- */
-enum AttributeName : string
+enum AttributeNameEnum : string
 {
     case NAME         = 'name';
     case VALUE        = 'value';
@@ -38,10 +34,10 @@ enum AttributeName : string
     case NAMESPACE    = 'namespace';
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\AttributeName|string ...$other
+     * @param \DCarbone\PHPFHIR\Enum\AttributeNameEnum|string ...$other
      * @return bool
      */
-    public function isOneOf(AttributeName|string ...$other): bool
+    public function isOneOf(AttributeNameEnum|string ...$other): bool
     {
         return in_array($this, $other, true) || in_array($this->value, $other, true);
     }

@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 
 use Countable;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Version;
 use InvalidArgumentException;
 use SplFixedArray;
@@ -197,10 +197,10 @@ class Properties implements Countable
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\TypeKind|null ...$kinds
+     * @param \DCarbone\PHPFHIR\Enum\TypeKindEnum|null ...$kinds
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function getLocalPropertiesOfTypeKinds(bool $includeCollections, null|TypeKind... $kinds): iterable
+    public function getLocalPropertiesOfTypeKinds(bool $includeCollections, null|TypeKindEnum... $kinds): iterable
     {
         $out = [];
         foreach ($this->getLocalPropertiesIterator() as $property) {

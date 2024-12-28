@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -44,7 +44,7 @@ foreach ($properties as $property) :
         continue;
     endif;
     $propertyType = $property->getValueFHIRType();
-    if ($propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) :
+    if ($propertyType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'default_property_primitive_list.php',
                 [
@@ -52,7 +52,7 @@ foreach ($properties as $property) :
                     'property' => $property
                 ]
         );
-    elseif ($propertyType->isValueContainer() || $propertyType->getKind() === TypeKind::PRIMITIVE_CONTAINER || $propertyType->hasPrimitiveContainerParent()) :
+    elseif ($propertyType->isValueContainer() || $propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->hasPrimitiveContainerParent()) :
         echo require_with(
             __DIR__ . DIRECTORY_SEPARATOR . 'default_property_value_primitive_container.php',
             [

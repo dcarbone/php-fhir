@@ -22,9 +22,9 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
-use DCarbone\PHPFHIR\Enum\ElementName;
-use DCarbone\PHPFHIR\Enum\PropertyUse;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
+use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -51,16 +51,16 @@ abstract class AttributeElementTypeDecorator
         // parse through attributes
         foreach ($attributeElement->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::NAME->value:
+                case AttributeNameEnum::NAME->value:
                     $property->setName((string)$attribute);
                     break;
-                case AttributeName::TYPE->value:
+                case AttributeNameEnum::TYPE->value:
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
-                case AttributeName::USE->value:
-                    $property->setUse(PropertyUse::from((string)$attribute));
+                case AttributeNameEnum::USE->value:
+                    $property->setUse(PropertyUseEnum::from((string)$attribute));
                     break;
-                case AttributeName::FIXED->value:
+                case AttributeNameEnum::FIXED->value:
                     $property->setFixed((string)$attribute);
                     break;
 
@@ -72,7 +72,7 @@ abstract class AttributeElementTypeDecorator
         // parse through child elements
         foreach ($attributeElement->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::SIMPLE_TYPE->value:
+                case ElementNameEnum::SIMPLE_TYPE->value:
                     SimpleTypeElementPropertyDecorator::decorate($config, $types, $type, $property, $child);
                     break;
 

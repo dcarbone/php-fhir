@@ -21,8 +21,8 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
@@ -43,10 +43,10 @@ abstract class ChoiceElementTypeDecorator
         $maxOccurs = null;
         foreach ($choice->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::MIN_OCCURS->value:
+                case AttributeNameEnum::MIN_OCCURS->value:
                     $minOccurs = (string)$attribute;
                     break;
-                case AttributeName::MAX_OCCURS->value:
+                case AttributeNameEnum::MAX_OCCURS->value:
                     $maxOccurs = (string)$attribute;
                     break;
 
@@ -58,11 +58,11 @@ abstract class ChoiceElementTypeDecorator
         $annotationElement = null;
         foreach ($choice->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::ANNOTATION->value:
+                case ElementNameEnum::ANNOTATION->value:
                     $annotationElement = $child;
                     break;
 
-                case ElementName::ELEMENT->value:
+                case ElementNameEnum::ELEMENT->value:
                     ChoiceElementElementPropertyDecorator::decorate(
                         $config,
                         $types,

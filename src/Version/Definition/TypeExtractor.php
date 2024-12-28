@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Decorator\ComplexTypeElementTypeDecorator;
 use DCarbone\PHPFHIR\Version\Definition\Decorator\ElementElementTypeDecorator;
 use DCarbone\PHPFHIR\Version\Definition\Decorator\SimpleTypeElementTypeDecorator;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DomainException;
 use RuntimeException;
@@ -108,7 +108,7 @@ abstract class TypeExtractor
             $childName = $child->getName();
 
             // skip these root level elements
-            if (ElementName::_INCLUDE->value === $childName || ElementName::IMPORT->value === $childName || ElementName::ANNOTATION->value === $childName) {
+            if (ElementNameEnum::_INCLUDE->value === $childName || ElementNameEnum::IMPORT->value === $childName || ElementNameEnum::ANNOTATION->value === $childName) {
                 continue;
             }
 
@@ -130,7 +130,7 @@ abstract class TypeExtractor
 
             // parse top level elements
             switch ($childName) {
-                case ElementName::SIMPLE_TYPE->value:
+                case ElementNameEnum::SIMPLE_TYPE->value:
                     $logger->debug(sprintf('Parsing "%s" from SimpleType', $fhirName));
                     // build type
                     $type = TypeBuilder::build($config, $version, $fhirName, $child, $sourceFile);
@@ -142,7 +142,7 @@ abstract class TypeExtractor
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
-                case ElementName::COMPLEX_TYPE->value:
+                case ElementNameEnum::COMPLEX_TYPE->value:
                     $logger->debug(sprintf('Parsing "%s" from ComplexType', $fhirName));
                     // build type
                     $type = TypeBuilder::build($config, $version, $fhirName, $child, $sourceFile);
@@ -154,7 +154,7 @@ abstract class TypeExtractor
                     ComplexTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
-                case ElementName::ELEMENT->value:
+                case ElementNameEnum::ELEMENT->value:
                     /* TODO: this is producing some oddities as the result of things like this:
                      * src: R4 bundle.xsd
                      * <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://hl7.org/fhir" xmlns:xhtml="http://www.w3.org/1999/xhtml" targetNamespace="http://hl7.org/fhir" elementFormDefault="qualified" version="1.0">

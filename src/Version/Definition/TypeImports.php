@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /**
  * Class TypeImports
@@ -205,7 +205,7 @@ class TypeImports implements \Countable
             // add root Constants class if this is a comment containing type or has local properties with validations
             if (($this->type->isCommentContainer() && !$this->type->hasCommentContainerParent()) ||
                 $this->type->hasLocalPropertiesWithValidations() ||
-                ($typeKind->isOneOf(typeKind::PRIMITIVE) && !$this->type->hasPrimitiveParent())) {
+                ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$this->type->hasPrimitiveParent())) {
                 $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
             }
         }
@@ -240,18 +240,18 @@ class TypeImports implements \Countable
 
             $ptk = $propertyType->getKind();
 
-            if ($property->isOverloaded() && !$ptk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
+            if ($property->isOverloaded() && !$ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
                 continue;
             }
 
-            if ($ptk->isOneOf(TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE) &&
+            if ($ptk->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE) &&
                 $typeNS !== $configNS) {
                 $this->addImport(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE, $versionNS);
                 $this->addImport(PHPFHIR_CLASSNAME_VERSION_TYPE_MAP, $versionNS);
                 $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
                 $this->addImport(PHPFHIR_CLASSNAME_VERSION, $versionNS);
             } else {
-                if ($ptk === TypeKind::PRIMITIVE_CONTAINER) {
+                if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
                     $primType = $propertyType->getLocalProperties()->getProperty('value')->getValueFHIRType();
                     $this->addImport($primType->getClassName(), $primType->getFullyQualifiedNamespace(false));
                 }

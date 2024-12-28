@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\PropertyUse;
+use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use InvalidArgumentException;
 use SimpleXMLElement;
@@ -55,8 +55,8 @@ class Property
     /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type */
     private ?Type $valueFHIRType = null;
 
-    /** @var \DCarbone\PHPFHIR\Enum\PropertyUse */
-    private PropertyUse $use;
+    /** @var \DCarbone\PHPFHIR\Enum\PropertyUseEnum */
+    private PropertyUseEnum $use;
 
     /** @var string|null */
     private null|string $ref = null;
@@ -81,7 +81,7 @@ class Property
         $this->memberOf = $memberOf;
         $this->sourceSXE = $sxe;
         $this->sourceFilename = $sourceFilename;
-        $this->use = PropertyUse::OPTIONAL;
+        $this->use = PropertyUseEnum::OPTIONAL;
     }
 
     /**
@@ -270,18 +270,18 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\PropertyUse
+     * @return \DCarbone\PHPFHIR\Enum\PropertyUseEnum
      */
-    public function getUse(): PropertyUse
+    public function getUse(): PropertyUseEnum
     {
         return $this->use;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\PropertyUse $use
+     * @param \DCarbone\PHPFHIR\Enum\PropertyUseEnum $use
      * @return \DCarbone\PHPFHIR\Version\Definition\Property
      */
-    public function setUse(PropertyUse $use): Property
+    public function setUse(PropertyUseEnum $use): Property
     {
         $this->use = $use;
         return $this;

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
@@ -32,7 +32,7 @@ $requireArgs = [
 ob_start();
 
 echo match ($propertyTypeKind) {
-    TypeKind::RESOURCE_CONTAINER, TypeKind::RESOURCE_INLINE => require_with(
+    TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE => require_with(
         __DIR__ . DIRECTORY_SEPARATOR . 'body_parse_node_typed_resource_container.php',
         $requireArgs + [
             'property' => $property,

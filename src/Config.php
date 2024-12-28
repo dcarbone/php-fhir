@@ -71,7 +71,7 @@ class Config implements LoggerAwareInterface
      * @param array $params
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(array $params = [], LoggerInterface $logger = null)
+    public function __construct(array $params = [], null|LoggerInterface $logger = null)
     {
         foreach (ConfigKeyEnum::required() as $key) {
             if (!isset($params[$key->value])) {

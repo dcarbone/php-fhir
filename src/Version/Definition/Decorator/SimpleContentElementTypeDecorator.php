@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use SimpleXMLElement;
 
@@ -48,7 +48,7 @@ abstract class SimpleContentElementTypeDecorator
 
         foreach ($simpleContent->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::EXTENSION->value:
+                case ElementNameEnum::EXTENSION->value:
                     ExtensionElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

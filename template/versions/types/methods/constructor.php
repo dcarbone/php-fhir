@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
@@ -34,8 +34,8 @@ $requireArgs = [
 ob_start();
 
 echo match ($typeKind) {
-    TypeKind::PRIMITIVE, TypeKind::LIST => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive.php', $requireArgs),
-    TypeKind::PRIMITIVE_CONTAINER => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive_container.php', $requireArgs),
+    TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive.php', $requireArgs),
+    TypeKindEnum::PRIMITIVE_CONTAINER => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive_container.php', $requireArgs),
     default => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR  . DIRECTORY_SEPARATOR . 'default.php', $requireArgs),
 };
 

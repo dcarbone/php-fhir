@@ -22,7 +22,7 @@ use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 abstract class TypeHintUtils
 {
@@ -112,7 +112,7 @@ abstract class TypeHintUtils
         $tk = $type->getKind();
 
         // if this is an inline resource
-        if ($tk->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
+        if ($tk->isOneOf(TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER)) {
             return sprintf(
                 '%s%s',
                 $nullable ? 'null|' : '',
@@ -139,7 +139,7 @@ abstract class TypeHintUtils
         $tk = $type->getKind();
         $types = $nullable ? ['null'] : [];
 
-        if ($tk === TypeKind::PRIMITIVE_CONTAINER) {
+        if ($tk === TypeKindEnum::PRIMITIVE_CONTAINER) {
             $pt = $type->getLocalProperties()->getProperty('value')->getValueFHIRType();
             $types = array_merge($types, $pt->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
@@ -147,7 +147,7 @@ abstract class TypeHintUtils
                 $pt->getClassName(),
                 $type->getClassName(),
             );
-        } else if ($tk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
+        } else if ($tk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
             $types = array_merge($types, $type->getprimitiveType()->getPHPReceiveValueTypeHints());
         } else {
             $types[] = $type->getClassName();
@@ -172,7 +172,7 @@ abstract class TypeHintUtils
         $tk = $type->getKind();
 
         // if this is an inline resource
-        if ($tk->isOneOf(TypeKind::RESOURCE_INLINE, TypeKind::RESOURCE_CONTAINER)) {
+        if ($tk->isOneOf(TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER)) {
             $types[] = $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
         } else {
             $types[] = $type->getFullyQualifiedClassName(true);
@@ -253,7 +253,7 @@ abstract class TypeHintUtils
 
         $hintTypes = ['null'];
 
-        if ($ptk === TypeKind::PRIMITIVE_CONTAINER) {
+        if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
             $ptp = $pt->getLocalProperties()->getProperty('value')->getValueFHIRType();
             $hintTypes = array_merge($hintTypes, $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
@@ -261,7 +261,7 @@ abstract class TypeHintUtils
                 self::typeTypeDoc($version, $ptp, false, $asCollection),
                 self::typeTypeDoc($version, $pt, false, $asCollection),
             );
-        } else if ($ptk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
+        } else if ($ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
             $hintTypes = array_merge($hintTypes, $pt->getPrimitiveType()->getPHPReceiveValueTypeHints());
             $hintTypes[] = self::typeTypeDoc($version, $pt, false, $asCollection);
         } else {
@@ -284,7 +284,7 @@ abstract class TypeHintUtils
 
         $hint = self::typeSetterTypeHint($version, $pt, $nullable);
 
-        if ($ptk->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) {
+        if ($ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
             return sprintf('%s|%s', $hint, $pt->getClassName());
         }
 

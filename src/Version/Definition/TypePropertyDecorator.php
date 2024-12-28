@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 abstract class TypePropertyDecorator
@@ -38,14 +38,14 @@ abstract class TypePropertyDecorator
 
         // handle primitive and list value properties
         if ($property->isValueProperty()) {
-            if ($typeKind === TypeKind::PRIMITIVE) {
+            if ($typeKind === TypeKindEnum::PRIMITIVE) {
                 $primitiveType = $type->getPrimitiveType();
                 $log->debug(sprintf('Type "%s" is primitive of kind "%s", setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $primitiveType->value, $property->getName(), $primitiveType->getPHPValueTypes()));
                 $property->setRawPHPValue($primitiveType->getPHPValueTypes());
                 return;
             }
 
-            if ($typeKind === TypeKind::LIST) {
+            if ($typeKind === TypeKindEnum::LIST) {
                 $parentPHPValueType = $type->getParentType()->getPrimitiveType()->getPHPValueTypes();
                 $log->debug(sprintf('Type "%s" is list, setting property "%s" raw PHP value type to "%s"', $type->getFHIRName(), $property->getName(), $parentPHPValueType));
                 $property->setRawPHPValue($parentPHPValueType);

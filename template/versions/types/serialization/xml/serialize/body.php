@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -39,7 +39,7 @@ foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property)
     if (null === $pt) {
         continue;
     }
-    if ($pt->hasPrimitiveParent() || $pt->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) : ?>
+    if ($pt->hasPrimitiveParent() || $pt->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) : ?>
         $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php   if ($property->isCollection()) : ?>
         if ([] === $locs && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
@@ -52,7 +52,7 @@ foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property)
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getFormattedValue());
         }
 <?php   endif;
-    elseif ($pt->getKind() === TypeKind::PRIMITIVE_CONTAINER) : ?>
+    elseif ($pt->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER) : ?>
         $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php   if ($property->isCollection()) : ?>
         if ([] === $locs && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
@@ -80,8 +80,8 @@ foreach ($localProperties as $property) :
     // if this property has a "type"...
     if (null !== $pt) :
         $ptk = $pt->getKind();
-        // ... and IS a containe
-        if ($ptk->isContainer($version->getName())) :
+        // ... and IS a container
+        if ($ptk->isContainer()) :
             if ($property->isCollection()) : ?>
         foreach($this-><?php echo $property->getGetterName(); ?>() as $v) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
@@ -99,7 +99,7 @@ foreach ($localProperties as $property) :
             $xw->endElement();
         }
 <?php       endif;
-        elseif ($pt->hasPrimitiveParent() || $ptk->isOneOf(TypeKind::LIST, TypeKind::PRIMITIVE)) : ?>
+        elseif ($pt->hasPrimitiveParent() || $ptk->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE)) : ?>
         $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php        if ($property->isCollection()) : ?>
         if (([] === $locs || in_array(<?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
@@ -118,7 +118,7 @@ foreach ($localProperties as $property) :
             $xw->endElement();
         }
 <?php       endif;
-        elseif ($ptk === TypeKind::PRIMITIVE_CONTAINER) : ?>
+        elseif ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) : ?>
         $locs = $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>] ?? [];
 <?php        if ($property->isCollection()) : ?>
         if (([] === $locs || in_array(<?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT, $locs, true)) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {

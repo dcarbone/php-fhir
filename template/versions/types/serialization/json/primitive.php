@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKind $typeKind */
+/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 
 ob_start(); ?>
     /**
@@ -31,7 +31,7 @@ ob_start(); ?>
      */
     public function jsonSerialize(): mixed
     {
-<?php if ($typeKind === TypeKind::PRIMITIVE && str_contains($type->getFHIRName(), 'unsigned')) : ?>
+<?php if ($typeKind === TypeKindEnum::PRIMITIVE && str_contains($type->getFHIRName(), 'unsigned')) : ?>
         return intval($this->getValue(), 10);
 <?php else : ?>
         return $this->getValue();

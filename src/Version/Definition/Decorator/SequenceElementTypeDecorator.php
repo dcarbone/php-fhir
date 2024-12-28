@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use SimpleXMLElement;
 
@@ -50,16 +50,16 @@ abstract class SequenceElementTypeDecorator
         // parse through child elements
         foreach ($sequence->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::ANNOTATION->value:
+                case ElementNameEnum::ANNOTATION->value:
                     AnnotationElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::ELEMENT->value:
+                case ElementNameEnum::ELEMENT->value:
                     ElementElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::CHOICE->value:
+                case ElementNameEnum::CHOICE->value:
                     ChoiceElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::ANY->value:
+                case ElementNameEnum::ANY->value:
                     AnyElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

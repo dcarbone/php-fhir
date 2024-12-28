@@ -21,7 +21,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TestTypeEnum;
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue;
@@ -50,8 +50,8 @@ class Type
      */
     private string $fhirName;
 
-    /** @var \DCarbone\PHPFHIR\Enum\TypeKind|null */
-    private null|TypeKind $kind = null;
+    /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum|null */
+    private null|TypeKindEnum $kind = null;
 
     /** @var string */
     private string $className;
@@ -207,18 +207,18 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\TypeKind|null
+     * @return \DCarbone\PHPFHIR\Enum\TypeKindEnum|null
      */
-    public function getKind(): null|TypeKind
+    public function getKind(): null|TypeKindEnum
     {
         return $this->kind;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\TypeKind $kind
+     * @param \DCarbone\PHPFHIR\Enum\TypeKindEnum $kind
      * @return \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    public function setKind(TypeKind $kind): Type
+    public function setKind(TypeKindEnum $kind): Type
     {
         if (isset($this->kind) && $this->kind !== $kind) {
             throw new LogicException(
@@ -482,7 +482,7 @@ class Type
     public function hasPrimitiveParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind() === TypeKind::PRIMITIVE) {
+            if ($parentType->getKind() === TypeKindEnum::PRIMITIVE) {
                 return true;
             }
         }
@@ -495,7 +495,7 @@ class Type
     public function hasPrimitiveContainerParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind() === TypeKind::PRIMITIVE_CONTAINER) {
+            if ($parentType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER) {
                 return true;
             }
         }
@@ -763,7 +763,7 @@ class Type
             }
             if ($this->isContainedType()) {
                 $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $this->version->getFullyQualifiedName(false);
-            } else if ($this->getKind() === TypeKind::PRIMITIVE) {
+            } else if ($this->getKind() === TypeKindEnum::PRIMITIVE) {
                 $interfaces[PHPFHIR_INTERFACE_PRIMITIVE_TYPE] = $this->config->getFullyQualifiedName(false);
             } else {
                 $interfaces[PHPFHIR_INTERFACE_TYPE] = $this->config->getFullyQualifiedName(false);

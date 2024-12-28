@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
@@ -207,9 +207,9 @@ if (!$type->hasPrimitiveParent()) : ?>
      */
     public function __toString(): string
     {
-<?php if ($typeKind === TypeKind::PRIMITIVE) : ?>
+<?php if ($typeKind === TypeKindEnum::PRIMITIVE) : ?>
         return $this->getFormattedValue();
-<?php elseif ($typeKind->isOneOf(TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
+<?php elseif ($typeKind->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         return (string)$this->getValue();
 <?php else : ?>
         return self::FHIR_TYPE_NAME;

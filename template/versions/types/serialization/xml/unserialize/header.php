@@ -18,7 +18,7 @@
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKind $typeKind */
+/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type $parentType */
 /** @var string $typeClassName */
 

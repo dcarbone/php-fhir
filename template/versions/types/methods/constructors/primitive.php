@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -30,7 +30,7 @@ $valueProperty = $type->getLocalProperties()->getProperty('value');
 
 if (null !== $parentType) :
     // if this is a primitive that inherits from a parent primitive, there is no reason to define a constructor here.
-    if ($parentType->getKind() === TypeKind::PRIMITIVE || $parentType->isValueContainer()) {
+    if ($parentType->getKind() === TypeKindEnum::PRIMITIVE || $parentType->isValueContainer()) {
         return;
     }
     

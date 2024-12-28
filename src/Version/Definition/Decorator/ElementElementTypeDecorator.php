@@ -22,8 +22,8 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use SimpleXMLElement;
 
@@ -45,9 +45,9 @@ class ElementElementTypeDecorator
     {
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::NAME->value:
+                case AttributeNameEnum::NAME->value:
                     break;
-                case AttributeName::TYPE->value:
+                case AttributeNameEnum::TYPE->value:
                     /*
                      * This is to support weird shit like this:
                      *
@@ -81,7 +81,7 @@ class ElementElementTypeDecorator
 
         foreach ($element->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::ANNOTATION->value:
+                case ElementNameEnum::ANNOTATION->value:
                     AnnotationElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 
@@ -106,21 +106,21 @@ class ElementElementTypeDecorator
         // parse through attributes
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::REF->value:
+                case AttributeNameEnum::REF->value:
                     $property->setRef((string)$attribute);
                     break;
-                case AttributeName::NAME->value:
+                case AttributeNameEnum::NAME->value:
                     $property->setName((string)$attribute);
                     break;
 
-                case AttributeName::MIN_OCCURS->value:
+                case AttributeNameEnum::MIN_OCCURS->value:
                     $property->setMinOccurs(intval((string)$attribute));
                     break;
-                case AttributeName::MAX_OCCURS->value:
+                case AttributeNameEnum::MAX_OCCURS->value:
                     $property->setMaxOccurs((string)$attribute);
                     break;
 
-                case AttributeName::TYPE->value:
+                case AttributeNameEnum::TYPE->value:
                     $property->setValueFHIRTypeName((string)$attribute);
                     break;
 
@@ -132,10 +132,10 @@ class ElementElementTypeDecorator
         // parse through child elements
         foreach ($element->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::ANNOTATION->value:
+                case ElementNameEnum::ANNOTATION->value:
                     AnnotationElementPropertyTypeDecorator::decorate($config, $types, $type, $property, $child);
                     break;
-                case ElementName::COMPLEX_TYPE->value:
+                case ElementNameEnum::COMPLEX_TYPE->value:
                     ComplexTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

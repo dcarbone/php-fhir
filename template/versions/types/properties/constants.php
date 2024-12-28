@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
@@ -33,7 +33,7 @@ if ($memberOf->hasPrimitiveParent()) {
 ob_start(); ?>
     public const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
 <?php if (null !== $propertyType &&
-    ($propertyType->getKind() === TypeKind::PRIMITIVE_CONTAINER || $propertyType->isValueContainer())) :
+    ($propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->isValueContainer())) :
     ?>    public const <?php echo $property->getFieldConstantName(); ?>_EXT = '_<?php echo $property->getName(); ?>';
 <?php endif;
 return ob_get_clean();

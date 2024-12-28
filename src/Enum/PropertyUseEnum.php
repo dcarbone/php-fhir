@@ -18,21 +18,17 @@ namespace DCarbone\PHPFHIR\Enum;
  * limitations under the License.
  */
 
-/**
- * Class PropertyUseEnum
- * @package DCarbone\PHPFHIR\Enum
- */
-enum PropertyUse: string
+enum PropertyUseEnum: string
 {
     case PROHIBITED = 'prohibited';
     case OPTIONAL   = 'optional';
     case REQUIRED   = 'required';
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\PropertyUse|string ...$other
+     * @param \DCarbone\PHPFHIR\Enum\PropertyUseEnum|string ...$other
      * @return bool
      */
-    public function isOneOf(PropertyUse|string ...$other): bool
+    public function isOneOf(PropertyUseEnum|string ...$other): bool
     {
         return in_array($this, $other, true) || in_array($this->value, $other, true);
     }

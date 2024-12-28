@@ -36,6 +36,7 @@ jobs:
           - 'DSTU2'
           - 'STU3'
           - 'R4'
+          - 'R4B'
           - 'R5'
 
     name: 'Download ${{ matrix.test-target }} Source'
@@ -74,6 +75,7 @@ jobs:
           - 'DSTU2'
           - 'STU3'
           - 'R4'
+          - 'R4B'
           - 'R5'
         include:
           - php-version: '8.1'

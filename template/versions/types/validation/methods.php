@@ -19,7 +19,7 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 $typeNameConst = $type->getTypeNameConst(true);
 $typeKind = $type->getKind();
@@ -55,7 +55,7 @@ ob_start(); ?>
 <?php else : ?>
         $errs = [];
 <?php endif; ?>
-<?php if ($type->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST)) : ?>
+<?php if ($type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) : ?>
         $validationRules = $this->_getValidationRules();
 <?php endif; ?>
 <?php foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property) {
@@ -72,7 +72,7 @@ ob_start(); ?>
                 $requireArgs + ['property' => $property]
             );
         }
-    } else if ($propertyType->getKind() === TypeKind::PHPFHIR_XHTML) {
+    } else if ($propertyType->getKind() === TypeKindEnum::PHPFHIR_XHTML) {
         // TODO(@dcarbone): better way to omit validation
         continue;
     } else if ($property->isCollection()) {

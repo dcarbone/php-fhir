@@ -22,8 +22,8 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use SimpleXMLElement;
 
@@ -43,7 +43,7 @@ abstract class RestrictionElementTypeDecorator
     {
         foreach ($restriction->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::BASE->value:
+                case AttributeNameEnum::BASE->value:
                     $type->setRestrictionBaseFHIRName((string)$attribute);
                     break;
 
@@ -55,41 +55,41 @@ abstract class RestrictionElementTypeDecorator
         foreach ($restriction->children('xs', true) as $child) {
             $attrs = $child->attributes();
             switch ($child->getName()) {
-                case ElementName::SIMPLE_TYPE->value:
+                case ElementNameEnum::SIMPLE_TYPE->value:
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::PATTERN->value:
-                    if (isset($attrs[AttributeName::VALUE->value])) {
-                        $type->setpattern((string)$attrs[AttributeName::VALUE->value]);
+                case ElementNameEnum::PATTERN->value:
+                    if (isset($attrs[AttributeNameEnum::VALUE->value])) {
+                        $type->setpattern((string)$attrs[AttributeNameEnum::VALUE->value]);
                     } else if ('' !== ($v = (string)$child)) {
                         $type->setpattern($v);
                     }
                     break;
-                case ElementName::MIN_LENGTH->value:
-                    if (isset($attrs[AttributeName::VALUE->value])) {
-                        $type->setMinLength(intval((string)$attrs[AttributeName::VALUE->value]));
+                case ElementNameEnum::MIN_LENGTH->value:
+                    if (isset($attrs[AttributeNameEnum::VALUE->value])) {
+                        $type->setMinLength(intval((string)$attrs[AttributeNameEnum::VALUE->value]));
                     } else if ('' !== ($v = (string)$child)) {
                         $type->setMinLength(intval($v));
                     }
                     break;
-                case ElementName::MAX_LENGTH->value:
-                    if (isset($attrs[AttributeName::VALUE->value])) {
-                        $type->setMaxLength(intval((string)$attrs[AttributeName::VALUE->value]));
+                case ElementNameEnum::MAX_LENGTH->value:
+                    if (isset($attrs[AttributeNameEnum::VALUE->value])) {
+                        $type->setMaxLength(intval((string)$attrs[AttributeNameEnum::VALUE->value]));
                     } else if ('' !== ($v = (string)$child)) {
                         $type->setMaxLength(intval($v));
                     }
                     break;
-                case ElementName::ENUMERATION->value:
-                    if (isset($attrs[AttributeName::VALUE->value])) {
-                        $type->addEnumerationValue(new EnumerationValue((string)$attrs[AttributeName::VALUE->value], $attrs[AttributeName::VALUE->value]));
+                case ElementNameEnum::ENUMERATION->value:
+                    if (isset($attrs[AttributeNameEnum::VALUE->value])) {
+                        $type->addEnumerationValue(new EnumerationValue((string)$attrs[AttributeNameEnum::VALUE->value], $attrs[AttributeNameEnum::VALUE->value]));
                     } else if ('' !== ($v = (string)$child)) {
                         $type->addEnumerationValue(new EnumerationValue($v, $child));
                     }
                     break;
-                case ElementName::SEQUENCE->value:
+                case ElementNameEnum::SEQUENCE->value:
                     SequenceElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::ATTRIBUTE->value:
+                case ElementNameEnum::ATTRIBUTE->value:
                     AttributeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

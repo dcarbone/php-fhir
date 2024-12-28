@@ -21,8 +21,8 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use SimpleXMLElement;
 
@@ -43,9 +43,9 @@ abstract class ComplexTypeElementTypeDecorator
         // parse through attributes
         foreach ($complexType->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::NAME->value:
+                case AttributeNameEnum::NAME->value:
                     continue 2;
-                case AttributeName::MIXED->value:
+                case AttributeNameEnum::MIXED->value:
                     $type->setMixed(boolval((string)$attribute));
                     break;
 
@@ -56,22 +56,22 @@ abstract class ComplexTypeElementTypeDecorator
 
         foreach ($complexType->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::ANNOTATION->value:
+                case ElementNameEnum::ANNOTATION->value:
                     AnnotationElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::COMPLEX_CONTENT->value:
+                case ElementNameEnum::COMPLEX_CONTENT->value:
                     ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::SEQUENCE->value:
+                case ElementNameEnum::SEQUENCE->value:
                     SequenceElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::ATTRIBUTE->value:
+                case ElementNameEnum::ATTRIBUTE->value:
                     AttributeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::SIMPLE_CONTENT->value:
+                case ElementNameEnum::SIMPLE_CONTENT->value:
                     SimpleContentElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
-                case ElementName::CHOICE->value:
+                case ElementNameEnum::CHOICE->value:
                     ChoiceElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

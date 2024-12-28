@@ -21,8 +21,8 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\AttributeName;
-use DCarbone\PHPFHIR\Enum\ElementName;
+use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
+use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use SimpleXMLElement;
 
@@ -42,7 +42,7 @@ abstract class UnionElementTypeDecorator
     {
         foreach ($union->attributes() as $attribute) {
             switch ($attribute->getName()) {
-                case AttributeName::MEMBER_TYPES->value:
+                case AttributeNameEnum::MEMBER_TYPES->value:
                     $type->setUnionOf(array_filter(array_map('trim', explode(' ', (string)$attribute))));
                     break;
 
@@ -53,7 +53,7 @@ abstract class UnionElementTypeDecorator
 
         foreach ($union->children('xs', true) as $child) {
             switch ($child->getName()) {
-                case ElementName::SIMPLE_TYPE->value:
+                case ElementNameEnum::SIMPLE_TYPE->value:
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
                     break;
 

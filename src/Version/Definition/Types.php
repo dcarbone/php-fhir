@@ -22,7 +22,7 @@ use ArrayIterator;
 use Countable;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /**
  * Class Types
@@ -63,7 +63,7 @@ class Types implements Countable
         // construct and add "XHTML" type
         // TODO(dcarbone): this sucks.
         $xt = new Type($config, $version, PHPFHIR_XHTML_TYPE_NAME);
-        $xt->setKind(TypeKind::PHPFHIR_XHTML);
+        $xt->setKind(TypeKindEnum::PHPFHIR_XHTML);
         $xt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
 
         $this->addType($xt);
@@ -195,18 +195,17 @@ class Types implements Countable
     }
 
     /**
-     * Returns the "container" type used by this particular FHIR spec version.
+     * Returns the "container" type for this version.
      *
      * Should be either "Resource.Inline" or "ResourceContainer" types.
      *
-     * @param string $version
      * @return \DCarbone\PHPFHIR\Version\Definition\Type|null
      */
-    public function getContainerType(string $version): null|Type
+    public function getContainerType(): null|Type
     {
         if (!isset($this->containerType)) {
             foreach ($this->types as $type) {
-                if ($type->getKind()->isContainer($version)) {
+                if ($type->getKind()->isContainer()) {
                     $this->containerType = $type;
                     break;
                 }
@@ -216,17 +215,16 @@ class Types implements Countable
     }
 
     /**
-     * @param string $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return bool
      */
-    public function isContainedType(string $version, Type $type): bool
+    public function isContainedType(Type $type): bool
     {
         // only bother with actual Resource types.
-        if ($type->getKind()->isContainer($version)) {
+        if ($type->getKind()->isContainer()) {
             return false;
         }
-        $container = $this->getContainerType($version);
+        $container = $this->getContainerType();
         if (null === $container) {
             return false;
         }

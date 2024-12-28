@@ -20,7 +20,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Version;
 
@@ -188,7 +188,7 @@ abstract class TypeDecorator
             } elseif ($type->hasPrimitiveParent()) {
                 $ptn = $type->getParentType()->getFHIRName();
                 $logger->debug(sprintf('Type "%s" determined to have a primitive parent', $type->getFHIRName()));
-            } elseif ($type->getKind() === TypeKind::PRIMITIVE) {
+            } elseif ($type->getKind() === TypeKindEnum::PRIMITIVE) {
                 $ptn = $type->getFHIRName();
                 $logger->debug(sprintf('Type "%s" determined to be a primitive itself', $type->getFHIRName()));
             } else {
@@ -214,12 +214,12 @@ abstract class TypeDecorator
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-     * @param TypeKind|string $kind
+     * @param TypeKindEnum|string $kind
      */
-    private static function setTypeKind(Config $config, Types $types, Type $type, TypeKind|string $kind): void
+    private static function setTypeKind(Config $config, Types $types, Type $type, TypeKindEnum|string $kind): void
     {
         if (is_string($kind)) {
-            $kind = TypeKind::from($kind);
+            $kind = TypeKindEnum::from($kind);
         }
         $type->setKind($kind);
         $config->getLogger()->info(
@@ -241,7 +241,6 @@ abstract class TypeDecorator
     {
         $logger = $config->getLogger();
         $fhirName = $type->getFHIRName();
-        $rootType = $type->getRootType();
 
         $versionName = $version->getName();
 
@@ -258,15 +257,31 @@ abstract class TypeDecorator
             return;
         }
 
-        // check if this is a known root and determine kind immediately
-        if (TypeKind::isRootTypeName($versionName, $fhirName)) {
-            $logger->debug(sprintf('Type "%s" is a known root, setting kind to "%s"', $type->getFHIRName(), $fhirName));
-            self::setTypeKind($config, $types, $type, $fhirName);
+        // check if this type is a DSTU1-specific primitive
+        if (in_array($fhirName, self::DSTU1_PRIMITIVES, true)) {
+            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE->value));
+            $type->setKind(TypeKindEnum::PRIMITIVE);
             return;
         }
 
+        // check if type is primitive...
+        if (str_contains($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
+            $logger->debug(sprintf('Type "%s" has primitive suffix, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE->value));
+            self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
+            return;
+        }
+
+        // if this is a root type, i.e. it has no parents, set its kind to itself
+        if ($type->isRootType()) {
+            $logger->debug(sprintf('Type "%s" has no parent, setting kind to itself...', $type->getFHIRName()));
+            self::setTypeKind($config, $types, $type, $fhirName);
+        }
+
+        // otherise, localize root type.
+        $rootType = $type->getRootType();
+
         // if this is the "container" type for this FHIR version
-        if (TypeKind::isContainerTypeName($versionName, $fhirName)) {
+        if (TypeKindEnum::isContainerTypeName($fhirName)) {
             $logger->debug(sprintf('Type "%s" is a container type, setting kind to "%s"', $type->getFHIRName(), $fhirName));
             self::setTypeKind($config, $types, $type, $fhirName);
             return;
@@ -280,48 +295,34 @@ abstract class TypeDecorator
             self::determineParsedTypeKind($config, $version, $types, $rootType);
         }
 
-        // check if this type is a DSTU1-specific primitive
-        if (in_array($fhirName, self::DSTU1_PRIMITIVES, true)) {
-            $logger->debug(sprintf('Setting Type "%s" kind to "%s"', $type->getFHIRName(), TypeKind::PRIMITIVE->value));
-            $type->setKind(TypeKind::PRIMITIVE);
-            return;
-        }
-
-        // check if type is primitive...
-        if (str_contains($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
-            $logger->debug(sprintf('Type "%s" has primitive suffix, setting kind to "%s"', $type->getFHIRName(), TypeKind::PRIMITIVE->value));
-            self::setTypeKind($config, $types, $type, TypeKind::PRIMITIVE);
-            return;
-        }
-
         // check if type is list...
         if (str_contains($fhirName, PHPFHIR_LIST_SUFFIX)) {
             // for all intents and purposes, a List type is a multiple choice primitive type
-            $logger->debug(sprintf('Type "%s" has list suffix, setting kind to "%s"', $type->getFHIRName(), TypeKind::LIST->value));
-            self::setTypeKind($config, $types, $type, TypeKind::LIST);
+            $logger->debug(sprintf('Type "%s" has list suffix, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::LIST->value));
+            self::setTypeKind($config, $types, $type, TypeKindEnum::LIST);
             return;
         }
 
         // This block indicates the type is only present as the child of a Resource.  Its name may (and in many
         // cases does) conflict with a top level Element or Resource.  Because of this, they are treated differently
         // and must be marked as such.
-        if (str_contains($fhirName, '.') && TypeKind::RESOURCE_INLINE->value !== $fhirName) {
-            $logger->debug(sprintf('Type "%s" is not "%s" but has dot in name, setting kind to "%s"', $type->getFHIRName(), TypeKind::RESOURCE_INLINE->value, TypeKind::RESOURCE_COMPONENT->value));
-            self::setTypeKind($config, $types, $type, TypeKind::RESOURCE_COMPONENT);
+        if (str_contains($fhirName, '.') && TypeKindEnum::RESOURCE_INLINE->value !== $fhirName) {
+            $logger->debug(sprintf('Type "%s" is not "%s" but has dot in name, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::RESOURCE_INLINE->value, TypeKindEnum::RESOURCE_COMPONENT->value));
+            self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
             return;
         }
 
         // this is for primitive "wrapper" types, e.g. String -> 'string-primitive'
         if (null !== $types->getTypeByName(sprintf('%s-primitive', $fhirName))) {
-            $logger->debug(sprintf('Type "%s" has primitive counterpart, setting kind to "%s"', $type->getFHIRName(), TypeKind::PRIMITIVE_CONTAINER->value));
-            self::setTypeKind($config, $types, $type, TypeKind::PRIMITIVE_CONTAINER);
+            $logger->debug(sprintf('Type "%s" has primitive counterpart, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE_CONTAINER->value));
+            self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE_CONTAINER);
             return;
         }
 
         // special block for xhtml type
         if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
-            $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKind::PHPFHIR_XHTML->value));
-            self::setTypeKind($config, $types, $type, TypeKind::PHPFHIR_XHTML);
+            $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKindEnum::PHPFHIR_XHTML->value));
+            self::setTypeKind($config, $types, $type, TypeKindEnum::PHPFHIR_XHTML);
             return;
         }
 
@@ -355,7 +356,7 @@ abstract class TypeDecorator
         $versionName = $version->getName();
 
         foreach ($types->getIterator() as $type) {
-            if ($types->isContainedType($versionName, $type)) {
+            if ($types->isContainedType($type)) {
                 $type->setContainedType(true);
             }
         }
@@ -368,9 +369,9 @@ abstract class TypeDecorator
     public static function setValueContainerFlag(Config $config, Types $types): void
     {
         static $skip = [
-            TypeKind::PRIMITIVE,
-            TypeKind::PHPFHIR_XHTML,
-            TypeKind::QUANTITY,
+            TypeKindEnum::PRIMITIVE,
+            TypeKindEnum::PHPFHIR_XHTML,
+            TypeKindEnum::QUANTITY,
         ];
 
         foreach ($types->getIterator() as $type) {
@@ -406,7 +407,7 @@ abstract class TypeDecorator
      */
     public static function setCommentContainerFlag(Config $config, Types $types): void
     {
-        static $skip = [TypeKind::PRIMITIVE, TypeKind::PHPFHIR_XHTML];
+        static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::PHPFHIR_XHTML];
         foreach ($types->getIterator() as $type) {
             $type->setCommentContainer(
                 !$type->hasPrimitiveParent() && !$type->getKind()->isOneOf(...$skip)

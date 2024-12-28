@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKind;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
@@ -27,7 +27,7 @@ $propertyConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
 ob_start();
-if ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isOneOf(TypeKind::PRIMITIVE, TypeKind::LIST, TypeKind::PRIMITIVE_CONTAINER)) : ?>
+if ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         if (isset($attributes[self::<?php echo $propertyConst; ?>])) {
 <?php if ($property->isCollection()) : ?>
             $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propertyConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);

@@ -79,6 +79,10 @@ return [
             'sourceUrl' => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
             'namespace' => 'Versions\\R4',
         ],
+        'R4B' => [
+            'sourceUrl' => 'https://hl7.org/fhir/R4B/fhir-all-xsd.zip',
+            'namespace' => 'Versions\\R4B',
+        ],
         'R5' => [
             'sourceUrl' => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
             'namespace' => 'Versions\\R5',
