@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Generator default configuration file
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +37,7 @@ return [
     // Map of versions and configurations to generate
     // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
     // version, please see http://www.hl7.org/fhir/directory.cfml
-    'versions' => [
+    'versions'    => [
         'DSTU1' => [
             // Source URL
             'url'       => 'http://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
 $typeClassname = $type->getClassName();
+$properties = $type->getProperties();
+$directProperties = $properties->getDirectSortedIterator();
 
 ob_start();
 ?>
@@ -27,5 +29,7 @@ ob_start();
         $type = new <?php echo $typeClassname; ?>();
         $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
     }
+
+
 <?php
 return ob_get_clean();

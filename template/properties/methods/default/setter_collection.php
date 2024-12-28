@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,10 @@ ob_start(); ?>
      */
     public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [])
     {
-        $this-><?php echo $propertyName; ?> = [];
+        if ([] !== $this-><?php echo $propertyName; ?>) {
+            $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));
+            $this-><?php echo $propertyName; ?> = [];
+        }
         if ([] === $<?php echo $propertyName; ?>) {
             return $this;
         }

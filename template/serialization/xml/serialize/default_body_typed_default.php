@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,26 +20,30 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
+$propertyType = $property->getValueFHIRType();
 $propertyConstName = $property->getFieldConstantName();
 $getter = $property->getGetterName();
 
 ob_start();
-if ($property->isCollection()) : ?>
+if ($property->isCollection()) : // collection fields ?>
         if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
             foreach($vs as $v) {
                 if (null === $v) {
                     continue;
                 }
-                $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+                $telement = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
+                $element->appendChild($telement);
+                $v->xmlSerialize($telement);
             }
         }
-<?php else : ?>
+<?php else : // single fields ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-<?php if ($property->isValueProperty() || $property->getValueFHIRType()->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) : ?>
-            $sxe->addAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
-<?php endif;
-if (!$property->getValueFHIRType()->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST])) :?>
-            $v->xmlSerialize($sxe->addChild(self::<?php echo $propertyConstName; ?>, null, $v->_getFHIRXMLNamespace()));
+<?php if ($propertyType->hasPrimitiveParent() || $propertyType->getKind()->isPrimitive()) : ?>
+            $element->setAttribute(self::<?php echo $propertyConstName; ?>, (string)$v);
+<?php else : ?>
+            $telement = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
+            $element->appendChild($telement);
+            $v->xmlSerialize($telement);
 <?php endif; ?>
         }
 <?php endif;

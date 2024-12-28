@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Generator\TemplateBuilder;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
+use RuntimeException;
 
 /**
  * Class Builder
@@ -90,21 +91,22 @@ class Builder
         $log->startBreak('FHIR Class Generation');
         foreach ($types->getIterator() as $type) {
             $log->debug("Generating class for type {$type}...");
-            $classDefinition = TemplateBuilder::generateTypeClass($this->config, $types, $type);
-            if (null !== $classDefinition) {
-                $filepath = FileUtils::buildTypeFilePath($this->config, $type);
-                if (!(bool)file_put_contents($filepath, $classDefinition)) {
-                    throw new \RuntimeException(sprintf(
+
+            // TODO: eventually merge "raw" into typical workflow?
+            if (PHPFHIR_RAW_TYPE_NAME === $type->getFHIRName()) {
+                $classDefinition = TemplateBuilder::generateRawTypeClass($this->config, $types, $type);
+            } else {
+                $classDefinition = TemplateBuilder::generateTypeClass($this->config, $types, $type);
+            }
+            $filepath = FileUtils::buildTypeFilePath($this->config, $type);
+            if (!(bool)file_put_contents($filepath, $classDefinition)) {
+                throw new RuntimeException(
+                    sprintf(
                         'Unable to write Type %s class definition to file %s',
                         $filepath,
                         $type
-                    ));
-                }
-            } else {
-                $log->warning(sprintf(
-                    'Received NULL from generateTypeClass call for type "%s"...',
-                    $type
-                ));
+                    )
+                );
             }
         }
         $log->endBreak('FHIR Class Generation');
@@ -148,11 +150,13 @@ class Builder
             $classDefinition = TemplateBuilder::generateTypeTestClass($this->config, $types, $type);
             $filepath = FileUtils::buildTypeTestFilePath($this->config, $type);
             if (!(bool)file_put_contents($filepath, $classDefinition)) {
-                throw new \RuntimeException(sprintf(
-                    'Unable to write Type %s class definition to file %s',
-                    $filepath,
-                    $type
-                ));
+                throw new RuntimeException(
+                    sprintf(
+                        'Unable to write Type %s class definition to file %s',
+                        $filepath,
+                        $type
+                    )
+                );
             }
         }
 
@@ -199,10 +203,12 @@ class Builder
         $this->log->info(sprintf('Writing %s...', $filePath));
         $b = file_put_contents($filePath, $fileContents);
         if (false === $b) {
-            throw new \RuntimeException(sprintf(
-                'Unable to write "%s"',
-                $filePath
-            ));
+            throw new RuntimeException(
+                sprintf(
+                    'Unable to write "%s"',
+                    $filePath
+                )
+            );
         }
         $this->log->debug(sprintf('%d bytes written to file %s', $b, $filePath));
     }
@@ -284,6 +290,15 @@ class Builder
                 PHPFHIR_TRAIT_VALIDATION_ASSERTIONS
             ),
             TemplateBuilder::generatePHPFHIRValidationAssertionsTrait($this->config, $types)
+        );
+
+        $this->writeClassFile(
+            FileUtils::buildGenericFilePath(
+                $this->config,
+                $this->config->getNamespace(true),
+                PHPFHIR_TRAIT_CHANGE_TRACKING
+            ),
+            TemplateBuilder::generatePHPFHIRChangeTrackingTrait($this->config, $types)
         );
 
         $this->writeClassFile(

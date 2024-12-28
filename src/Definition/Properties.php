@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,29 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use Countable;
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use InvalidArgumentException;
+use SplFixedArray;
 
 /**
  * Class Properties
  * @package DCarbone\PHPFHIR\Definition\Type
  */
-class Properties implements \Countable
+class Properties implements Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
     private $properties = [];
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $sortedProperties;
+    private $_sortedProperties;
+
     /** @var \DCarbone\PHPFHIR\Definition\Property[] */
-    private $directSortedProperties;
+    private $_directProperties;
+    /** @var \DCarbone\PHPFHIR\Definition\Property[] */
+    private $_directSortedProperties;
 
     /** @var bool */
-    private $sorted = false;
+    private $cacheBuilt = false;
 
     /** @var */
     private $config;
@@ -86,10 +92,12 @@ class Properties implements \Countable
         $pname = $property->getName();
         $pref = $property->getRef();
         if (null === $pname && null === $pref) {
-            throw new \InvalidArgumentException(sprintf(
-                'Cannot add Property to Type "%s" as it has no $name or $ref defined',
-                $this->getType()->getFHIRName()
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cannot add Property to Type "%s" as it has no $name or $ref defined',
+                    $this->getType()->getFHIRName()
+                )
+            );
         }
         foreach ($this->properties as $current) {
             if ($property === $current) {
@@ -98,25 +106,29 @@ class Properties implements \Countable
             $cname = $current->getName();
             $cref = $current->getRef();
             if (null !== $pname && null !== $cname && $pname === $cname) {
-                $this->config->getLogger()->notice(sprintf(
-                    'Type "%s" already has Property "%s" (name), probably some duplicate definition nonsense. Keeping original.',
-                    $this->getType()->getFHIRName(),
-                    $property->getName()
-                ));
+                $this->config->getLogger()->notice(
+                    sprintf(
+                        'Type "%s" already has Property "%s" (name), probably some duplicate definition nonsense. Keeping original.',
+                        $this->getType()->getFHIRName(),
+                        $property->getName()
+                    )
+                );
                 $property = $current;
                 return $this;
             } elseif (null !== $pref && null !== $cref && $cref === $pref) {
-                $this->config->getLogger()->notice(sprintf(
-                    'Type "%s" already has Property "%s" (ref), probably some duplicate definition nonsense. Keeping original.',
-                    $this->getType()->getFHIRName(),
-                    $property->getRef()
-                ));
+                $this->config->getLogger()->notice(
+                    sprintf(
+                        'Type "%s" already has Property "%s" (ref), probably some duplicate definition nonsense. Keeping original.',
+                        $this->getType()->getFHIRName(),
+                        $property->getRef()
+                    )
+                );
                 $property = $current;
                 return $this;
             }
         }
         $this->properties[] = $property;
-        $this->sorted = false;
+        $this->cacheBuilt = false;
         return $this;
     }
 
@@ -148,7 +160,7 @@ class Properties implements \Countable
      */
     public function getIterator()
     {
-        return \SplFixedArray::fromArray($this->properties, false);
+        return SplFixedArray::fromArray($this->properties, false);
     }
 
     /**
@@ -156,7 +168,17 @@ class Properties implements \Countable
      */
     public function getSortedIterator()
     {
-        return \SplFixedArray::fromArray($this->_getSortedProperties(), false);
+        $this->_buildLocalCaches();
+        return SplFixedArray::fromArray($this->_sortedProperties, false);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Definition\Property[]
+     */
+    public function getDirectIterator()
+    {
+        $this->_buildLocalCaches();
+        return SplFixedArray::fromArray($this->_directProperties, false);
     }
 
     /**
@@ -164,8 +186,8 @@ class Properties implements \Countable
      */
     public function getDirectSortedIterator()
     {
-        $this->_getSortedProperties();
-        return \SplFixedArray::fromArray($this->directSortedProperties, false);
+        $this->_buildLocalCaches();
+        return SplFixedArray::fromArray($this->_directSortedProperties, false);
     }
 
     /**
@@ -176,27 +198,29 @@ class Properties implements \Countable
         return count($this->properties);
     }
 
-    /**
-     * @return \DCarbone\PHPFHIR\Definition\Property[]
-     */
-    private function _getSortedProperties()
+    private function _buildLocalCaches()
     {
-        if (!$this->sorted) {
-            $this->sortedProperties = $this->properties;
-            $this->directSortedProperties = [];
+        if (!$this->cacheBuilt) {
+            $this->_sortedProperties = $this->properties;
+            $this->_directProperties = [];
+            $this->_directSortedProperties = [];
             usort(
-                $this->sortedProperties,
+                $this->_sortedProperties,
                 function (Property $a, Property $b) {
                     return strnatcmp($a->getName(), $b->getName());
                 }
             );
-            foreach ($this->sortedProperties as $property) {
+            foreach ($this->properties as $property) {
                 if (!$property->isOverloaded()) {
-                    $this->directSortedProperties[] = $property;
+                    $this->_directProperties[] = $property;
                 }
             }
-            $this->sorted = true;
+            foreach ($this->_sortedProperties as $property) {
+                if (!$property->isOverloaded()) {
+                    $this->_directSortedProperties[] = $property;
+                }
+            }
+            $this->cacheBuilt = true;
         }
-        return $this->sortedProperties;
     }
 }

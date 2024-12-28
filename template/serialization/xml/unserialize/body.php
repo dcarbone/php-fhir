@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,50 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
-$directProperties = $type->getProperties()->getDirectSortedIterator();
-
-ob_start();
-foreach ($directProperties as $property) :
+ob_start(); ?>
+        for($i = 0; $i < $element->childNodes->length; $i++) {
+            $n = $element->childNodes->item($i);
+            if (!($n instanceof \DOMElement)) {
+                continue;
+            }
+<?php foreach ($properties as $i => $property) :
     if (null !== $property->getValueFHIRType()) :
         echo require_with(
-            __DIR__ . '/body_parse_typed.php',
+            __DIR__ . '/body_parse_node_typed.php',
             [
                 'property' => $property,
+                'i' => $i,
             ]
         );
     else :
         echo require_with(
-            __DIR__ . '/body_parse_raw.php',
+            __DIR__ . '/body_parse_node_primitive.php',
             [
                 'property' => $property,
+                'i' => $i,
+            ]
+        );
+    endif;
+endforeach; ?>
+
+        }
+<?php foreach ($properties as $i => $property) :
+    if (null !== $property->getValueFHIRType()) :
+        echo require_with(
+            __DIR__ . '/body_parse_attr_typed.php',
+            [
+                'property' => $property,
+                'i' => $i,
+            ]
+        );
+    else :
+        echo require_with(
+            __DIR__ . '/body_parse_attr_primitive.php',
+            [
+                'property' => $property,
+                'i' => $i,
             ]
         );
     endif;

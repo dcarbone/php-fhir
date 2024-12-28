@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\Generator;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /**
  * Class TemplateBuilder
@@ -64,7 +63,17 @@ abstract class TemplateBuilder
      */
     public static function generatePHPFHIRValidationAssertionsTrait(VersionConfig $config, Types $types)
     {
-        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_validation_assertions_trait.php';
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_validation_assertions.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @return string
+     */
+    public static function generatePHPFHIRChangeTrackingTrait(VersionConfig $config, Types $types)
+    {
+        return require PHPFHIR_TEMPLATE_TRAITS_DIR . '/phpfhir_change_tracking.php';
     }
 
     /**
@@ -106,6 +115,17 @@ abstract class TemplateBuilder
     public static function generateTypeClass(VersionConfig $config, Types $types, Type $type)
     {
         return require PHPFHIR_TEMPLATE_TYPES_DIR . '/class.php';
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
+     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @return string
+     */
+    public static function generateRawTypeClass(VersionConfig $config, Types $types, Type $type)
+    {
+        return require PHPFHIR_TEMPLATE_TYPES_DIR . '/raw.php';
     }
 
     /**

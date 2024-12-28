@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
 $isPrimitiveType = $type->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST]);
 
 ob_start();
-foreach ($sortedProperties as $property) :
+foreach ($properties as $property) :
     if ($property->isOverloaded()) :
         continue;
     endif;
@@ -38,7 +38,7 @@ foreach ($sortedProperties as $property) :
             ]
         );
         echo require_with(
-            __DIR__ . '/default/setter_primitive_value.php',
+            __DIR__ . '/default/getter_primitive_value.php',
             [
                 'type' => $type,
                 'property' => $property,

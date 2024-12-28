@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,10 @@ ob_start(); ?>
      */
     public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [])
     {
-        $this-><?php echo $propertyName; ?> = [];
+        if ([] !== $this-><?php echo $propertyName; ?>) {
+            $this->_trackValuesRemoved(count($this-><?php echo $propertyName; ?>));
+            $this-><?php echo $propertyName; ?> = [];
+        }
         if ([] === $<?php echo $propertyName; ?>) {
             return $this;
         }
@@ -61,7 +64,7 @@ ob_start(); ?>
                         get_class($v)
                     ));
                 }
-            } else if (is_array($v)) {
+            } elseif (is_array($v)) {
                 $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($v);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(

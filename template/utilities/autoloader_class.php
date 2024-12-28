@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,9 @@ if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>',
 if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>', false)) {
     require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>.php';
 }
+if (!trait_exists('\<?php echo $nsPrefix . PHPFHIR_TRAIT_CHANGE_TRACKING; ?>', false)) {
+    require __DIR__ . DIRECTORY_SEPARATOR . '<?php echo PHPFHIR_TRAIT_CHANGE_TRACKING; ?>.php';
+}
 
 // common classes
 if (!class_exists('\<?php echo $nsPrefix . PHPFHIR_CLASSNAME_CONSTANTS; ?>', false)) {
@@ -101,7 +104,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
         if (self::$_registered) {
             return self::$_registered;
         }
-        return self::$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
+        return self::$_registered = spl_autoload_register([__CLASS__, 'loadClass'], true);
     }
 
     /**
@@ -110,7 +113,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function unregister()
     {
         if (self::$_registered) {
-            if (spl_autoload_unregister(array(__CLASS__, 'loadClass'))) {
+            if (spl_autoload_unregister([__CLASS__, 'loadClass'])) {
                 self::$_registered = false;
                 return true;
             }
@@ -127,7 +130,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     public static function loadClass($class)
     {
         if (isset(self::$_classMap[$class])) {
-            return (bool)require sprintf('%s/%s', self::ROOT_DIR, self::$_classMap[$class]);
+            return (bool)require self::ROOT_DIR . '/' . self::$_classMap[$class];
         }
         return null;
     }

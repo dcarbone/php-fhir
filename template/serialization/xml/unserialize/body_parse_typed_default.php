@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,15 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+/** @var int $i */
 
-$propertyType = $property->getValueFHIRType();
-$propertyTypeClassName = $property->getMemberOf()->getImports()->getImportByType($propertyType);
-$propertyName = $property->getName();
+$propType = $property->getValueFHIRType();
+$propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType);
+$propConst = $property->getFieldConstantName();
 $setter = $property->getSetterName();
 
-ob_start(); ?>
-        if (isset($children-><?php echo $propertyName; ?>)) {
-<?php if ($property->isCollection()) : ?>
-            foreach($children-><?php echo $propertyName; ?> as $child) {
-                $type-><?php echo $setter; ?>(<?php echo $propertyTypeClassName; ?>::xmlUnserialize($child));
-            }
-<?php else : ?>
-            $type-><?php echo $setter; ?>(<?php echo $propertyTypeClassName; ?>::xmlUnserialize($children-><?php echo $propertyName; ?>));
-<?php endif; ?>
-        }<?php if (!$property->isCollection() && $propertyType->getKind()->isOneOf([TypeKindEnum::PRIMITIVE, TypeKindEnum::_LIST, TypeKindEnum::PRIMITIVE_CONTAINER])) : ?>
-
-        if (isset($attributes-><?php echo $propertyName; ?>)) {
-            $pt = $type-><?php echo $property->getGetterName(); ?>();
-            if (null !== $pt) {
-                $pt->setValue((string)$attributes-><?php echo $propertyName; ?>);
-            } else {
-                $type-><?php echo $setter; ?>((string)$attributes-><?php echo $propertyName; ?>);
-            }
-        }<?php endif; ?>
-
-<?php return ob_get_clean();
+ob_start();
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $n->nodeName) {
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n));
+            }<?php return ob_get_clean();

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ ob_start(); ?>
     {
         if (null === $value) {
             $this->value = null;
-        } else if (is_string($value)) {
+        } elseif (is_string($value)) {
             $this->value = $value;
         } else {
             throw new \InvalidArgumentException(sprintf('Value must be null or string, %s seen', gettype($value)));

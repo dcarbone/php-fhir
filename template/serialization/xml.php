@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Definition\Type $parentType */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
-$directProperties = $type->getProperties()->getDirectSortedIterator();
+$directProperties = $type->getProperties()->getDirectIterator();
+$properties = $type->getAllPropertiesIterator();
 
 ob_start();
 // unserialize portion
@@ -40,11 +41,12 @@ echo require_with(
     ]
 );
 
-if (0 < count($directProperties)) :
+if (0 < count($properties)) :
     echo require_with(
         PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/unserialize/body.php',
         [
             'type' => $type,
+            'properties' => $properties,
         ]
     );
 endif;
@@ -74,7 +76,7 @@ else :
         ]
     );
 
-    $directProperties = $type->getProperties()->getDirectSortedIterator();
+    $properties = $type->getProperties()->getDirectIterator();
     if (0 < count($directProperties)) :
         echo require_with(
             PHPFHIR_TEMPLATE_SERIALIZATION_DIR . '/xml/serialize/default_body.php',
@@ -86,6 +88,6 @@ else :
         );
     endif;
 endif; ?>
-        return $sxe;
+        return $element;
     }
 <?php return ob_get_clean();

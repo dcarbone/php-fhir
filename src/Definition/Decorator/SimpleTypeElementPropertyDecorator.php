@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use SimpleXMLElement;
 
 /**
  * Class SimpleTypeElementPropertyDecorator
@@ -39,16 +40,16 @@ abstract class SimpleTypeElementPropertyDecorator
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @param \SimpleXMLElement $simpleType
      */
-    public static function decorate(VersionConfig $config,
-                                    Types $types,
-                                    Type $type,
-                                    Property $property,
-                                    \SimpleXMLElement $simpleType)
-    {
+    public static function decorate(
+        VersionConfig $config,
+        Types $types,
+        Type $type,
+        Property $property,
+        SimpleXMLElement $simpleType
+    ) {
         // parse through attributes
         foreach ($simpleType->attributes() as $attribute) {
             switch ($attribute->getName()) {
-
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $simpleType, $attribute);
             }
@@ -56,7 +57,6 @@ abstract class SimpleTypeElementPropertyDecorator
 
         foreach ($simpleType->children('xs', true) as $child) {
             switch ($child->getName()) {
-
                 default:
                     throw ExceptionUtils::createUnexpectedElementException($type, $simpleType, $child);
             }

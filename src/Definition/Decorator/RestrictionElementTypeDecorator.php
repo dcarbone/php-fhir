@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
+use SimpleXMLElement;
 
 /**
  * Class RestrictionElementTypeDecorator
@@ -38,7 +39,7 @@ abstract class RestrictionElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $restriction
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $restriction)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $restriction)
     {
         foreach ($restriction->attributes() as $attribute) {
             switch ($attribute->getName()) {

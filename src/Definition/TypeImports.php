@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,15 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use Countable;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use Iterator;
 
 /**
  * Class TypeImports
  * @package DCarbone\PHPFHIR\Definition
  */
-class TypeImports implements \Iterator, \Countable
+class TypeImports implements Iterator, Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Type */
     private $type;
@@ -221,9 +223,7 @@ class TypeImports implements \Iterator, \Countable
         $typeNS = $this->type->getFullyQualifiedNamespace(false);
         $configNS = $this->type->getConfig()->getNamespace(false);
 
-        $sortedProperties = $this->type->getProperties()->getDirectSortedIterator();
-
-        $typeKind = $this->type->getKind();
+        $sortedProperties = $this->type->getAllPropertiesIterator();
 
         // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
         // that may need to be imported to ensure function
@@ -260,10 +260,12 @@ class TypeImports implements \Iterator, \Countable
             if (null === $propertyType) {
                 continue;
             }
-            if ($propertyType->getKind()->isOneOf([
-                    TypeKindEnum::RESOURCE_CONTAINER,
-                    TypeKindEnum::RESOURCE_INLINE,
-                ]) &&
+            if ($propertyType->getKind()->isOneOf(
+                    [
+                        TypeKindEnum::RESOURCE_CONTAINER,
+                        TypeKindEnum::RESOURCE_INLINE,
+                    ]
+                ) &&
                 $typeNS !== $configNS) {
                 $this->addImport(PHPFHIR_INTERFACE_CONTAINED_TYPE, $configNS);
                 $this->addImport(PHPFHIR_CLASSNAME_TYPEMAP, $configNS);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ foreach ($directProperties as $property) :
             ]
         );
     elseif (null === $parentType) :
-        echo require_with(__DIR__ . '/default_body_raw.php', ['parentType' => $parentType]);
+        echo require_with(__DIR__ . '/default_body_untyped.php', []);
     endif;
 endforeach;
 return ob_get_clean();

@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Utilities\TypeBuilderUtils;
+use SimpleXMLElement;
 
 /**
  * Class AnnotationElementTypeDecorator
@@ -39,15 +40,15 @@ abstract class AnnotationElementPropertyTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Property $property
      * @param \SimpleXMLElement $annotation
      */
-    public static function decorate(VersionConfig $config,
-                                    Types $types,
-                                    Type $type,
-                                    Property $property,
-                                    \SimpleXMLElement $annotation)
-    {
+    public static function decorate(
+        VersionConfig $config,
+        Types $types,
+        Type $type,
+        Property $property,
+        SimpleXMLElement $annotation
+    ) {
         foreach ($annotation->attributes() as $attribute) {
             switch ($attribute->getName()) {
-
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $annotation, $attribute);
             }
@@ -60,7 +61,8 @@ abstract class AnnotationElementPropertyTypeDecorator
                         $property,
                         $annotation,
                         $child,
-                        'addDocumentationFragment');
+                        'addDocumentationFragment'
+                    );
                     break;
                 case ElementNameEnum::COMPLEX_CONTENT:
                     ComplexContentElementTypeDecorator::decorate($config, $types, $type, $child);

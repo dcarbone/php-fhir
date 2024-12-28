@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,16 +127,25 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      */
     protected function parseObjectSimpleXMLElementInput(\SimpleXMLElement $input)
     {
-        $elementName = $input->getName();
+        return self::parseObjectDOMDocumentInput(dom_import_simplexml($input));
+    }
+
+    /**
+     * @param \DOMDocument $input
+     * @return \<?php echo ('' === $namespace ? '' : "{$namespace}\\") . PHPFHIR_INTERFACE_TYPE; ?>|null
+     */
+    protected function parseObjectDOMDocumentInput(\DOMDocument $input)
+    {
+        $elementName = $input->documentElement->nodeName;
         $className = <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>::getTypeClass($elementName);
-        if (null === $className) {
+         if (null === $className) {
             throw new \UnexpectedValueException(sprintf(
                 'Unable to locate class for root XML element "%s". Input seen: %s',
                 $elementName,
                 $this->getPrintableStringInput($input->saveXML())
             ));
         }
-        return $className::xmlUnserialize($input);
+        return $className::xmlUnserialize($input->documentElement);
     }
 
     /**
@@ -149,6 +158,8 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
             return $input;
         } elseif ($input instanceof \SimpleXMLElement) {
             return $this->parseObjectSimpleXMLElementInput($input);
+        } elseif ($input instanceof \DOMDocument) {
+            return $this->parseObjectDOMDocumentInput($input);
         }
         throw new \UnexpectedValueException(sprintf(
             'Unable parse provided input object of type "%s"',
@@ -165,11 +176,12 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     protected function parseStringXMLInput($input, $libxmlOpts = <?php echo  null === ($opts = $config->getLibxmlOpts()) ? 'null' : $opts; ?>)
     {
         libxml_use_internal_errors(true);
-        $sxe = new \SimpleXMLElement($input, $libxmlOpts);
+        $dom = new \DOMDocument();
+        $dom->loadXML($input, $libxmlOpts);
         $err = libxml_get_last_error();
         libxml_use_internal_errors(false);
-        if ($sxe instanceof \SimpleXMLElement) {
-            return $this->parseObjectSimpleXMLElementInput($sxe);
+        if ($dom instanceof \DOMDocument) {
+            return $this->parseObjectDOMDocumentInput($dom);
         }
         throw new \DomainException(sprintf(
             'Unable to parse provided input as XML.  Error: %s; Input: %s',

@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Enum\ElementNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use SimpleXMLElement;
 
 /**
  * Class ElementElementTypeDecorator
@@ -40,7 +41,7 @@ class ElementElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function rootDecorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $element)
+    public static function rootDecorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $element)
     {
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
@@ -67,7 +68,7 @@ class ElementElementTypeDecorator
                         // if the "type" value is exactly equivalent to the "name" value, just assume
                         // weirdness and move on.
                         break;
-                    } else if (0 === strpos($v, 'xs:')) {
+                    } elseif (0 === strpos($v, 'xs:')) {
                         break;
                     }
                     $type->setParentTypeName($v);
@@ -98,7 +99,7 @@ class ElementElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Definition\Type $type
      * @param \SimpleXMLElement $element
      */
-    public static function decorate(VersionConfig $config, Types $types, Type $type, \SimpleXMLElement $element)
+    public static function decorate(VersionConfig $config, Types $types, Type $type, SimpleXMLElement $element)
     {
         $property = new Property($type, $element, $type->getSourceFilename());
 

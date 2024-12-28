@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ namespace DCarbone\PHPFHIR\Definition;
  * limitations under the License.
  */
 
+use ArrayIterator;
+use Countable;
 use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
@@ -25,7 +27,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
  * Class Types
  * @package DCarbone\PHPFHIR
  */
-class Types implements \Countable
+class Types implements Countable
 {
     /** @var \DCarbone\PHPFHIR\Definition\Type[] */
     private $types = [];
@@ -46,6 +48,8 @@ class Types implements \Countable
     public function __construct(VersionConfig $config)
     {
         $this->config = $config;
+        $rawType = build_raw_type($config);
+        $this->addType($rawType);
     }
 
     /**
@@ -115,12 +119,14 @@ class Types implements \Countable
             }
             if ($current->getFHIRName() === $tname) {
                 // this happens with FHIR types sometimes...
-                $this->config->getLogger()->notice(sprintf(
-                    'Type "%s" was previously defined in file "%s", found again in "%s".  Keeping original',
-                    $tname,
-                    $current->getSourceFileBasename(),
-                    $type->getSourceFileBasename()
-                ));
+                $this->config->getLogger()->notice(
+                    sprintf(
+                        'Type "%s" was previously defined in file "%s", found again in "%s".  Keeping original',
+                        $tname,
+                        $current->getSourceFileBasename(),
+                        $type->getSourceFileBasename()
+                    )
+                );
                 $type = $current;
                 return $this;
             }
@@ -134,7 +140,7 @@ class Types implements \Countable
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->types);
+        return new ArrayIterator($this->types);
     }
 
     /**
@@ -151,7 +157,7 @@ class Types implements \Countable
                 return strnatcasecmp($t1->getFHIRName(), $t2->getFHIRName());
             }
         );
-        return new \ArrayIterator($tmp);
+        return new ArrayIterator($tmp);
     }
 
     /**
@@ -169,7 +175,7 @@ class Types implements \Countable
                 return strnatcasecmp($t1->getFullyQualifiedClassName(false), $t2->getFullyQualifiedClassName(false));
             }
         );
-        return new \ArrayIterator($tmp);
+        return new ArrayIterator($tmp);
     }
 
     /**

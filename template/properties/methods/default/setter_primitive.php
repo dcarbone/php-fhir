@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,15 +43,11 @@ ob_start();
      */
     public function <?php echo $methodName; ?>($<?php echo $propertyName; ?> = null)
     {
-        if (null === $<?php echo $propertyName; ?>) {
-            $this-><?php echo $propertyName; ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
-            return $this;
+        if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
+            $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         }
-        if ($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>) {
-            $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
-            return $this;
-        }
-        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
+        <?php if ($isCollection) : ?>$this->_trackValueAdded(<?php else : ?>$this->_trackValueSet($this-><?php echo $propertyName; ?>, $<?php echo $propertyName; endif; ?>);
+        $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
     }
 <?php return ob_get_clean();

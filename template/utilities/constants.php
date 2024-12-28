@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
 
 {
     // FHIR source
-    const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(); ?>';
+    const SOURCE_VERSION = '<?php echo CopyrightUtils::getFHIRVersion(false); ?>';
     const SOURCE_GENERATION_DATE = '<?php echo CopyrightUtils::getFHIRGenerationDate(); ?>';
 
     // PHPFHIR

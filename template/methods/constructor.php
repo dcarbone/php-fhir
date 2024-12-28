@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
 
@@ -26,7 +26,7 @@ $typeKind = $type->getKind();
 $requireArgs = [
     'type'             => $type,
     'parentType'       => $parentType,
-    'sortedProperties' => $sortedProperties,
+    'properties' => $properties,
 ];
 
 ob_start();
@@ -37,9 +37,6 @@ switch (true) :
         break;
     case $typeKind->isPrimitiveContainer():
         echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/primitive_container.php', $requireArgs);
-        break;
-    case ($type->isValueContainer() || $type->hasValueContainerParent()):
-        echo require_with(PHPFHIR_TEMPLATE_CONSTRUCTORS_DIR . '/value_container.php', $requireArgs);
         break;
 
     default:

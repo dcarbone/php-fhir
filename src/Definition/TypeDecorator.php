@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
  */
 abstract class TypeDecorator
 {
+    /** @var array */
+    private static $_dstu1Primitives = ['ResourceType', 'xmlIdRef', 'ResourceNamesPlusBinary'];
+
     /**
      * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
      * @param \DCarbone\PHPFHIR\Definition\Types $types
@@ -42,11 +45,13 @@ abstract class TypeDecorator
             }
             $split = explode('.', $fhirName, 2);
             if ($ptype = $types->getTypeByName($split[0])) {
-                $config->getLogger()->debug(sprintf(
-                    'Found Parent Component Type "%s" for Component "%s"',
-                    $ptype,
-                    $type
-                ));
+                $config->getLogger()->debug(
+                    sprintf(
+                        'Found Parent Component Type "%s" for Component "%s"',
+                        $ptype,
+                        $type
+                    )
+                );
                 $type->setComponentOfType($ptype);
             } else {
                 throw ExceptionUtils::createComponentParentTypeNotFoundException($type);
@@ -78,11 +83,13 @@ abstract class TypeDecorator
             if (0 === strpos($rbName, 'xs:')) {
                 $rbName = substr($rbName, 3);
                 if ('token' === $rbName || ctype_upper($rbName[0])) {
-                    $logger->warning(sprintf(
-                        'Type "%s" has restriction base "%s", setting to string...',
-                        $fhirName,
-                        $rbName
-                    ));
+                    $logger->warning(
+                        sprintf(
+                            'Type "%s" has restriction base "%s", setting to string...',
+                            $fhirName,
+                            $rbName
+                        )
+                    );
                     $rbName = 'string';
                 }
                 $rbName = "{$rbName}-primitive";
@@ -96,11 +103,13 @@ abstract class TypeDecorator
 
             $type->setRestrictionBaseFHIRType($rbType);
 
-            $logger->info(sprintf(
-                'Type "%s" has restriction base Type "%s"',
-                $type,
-                $rbType
-            ));
+            $logger->info(
+                sprintf(
+                    'Type "%s" has restriction base Type "%s"',
+                    $type,
+                    $rbType
+                )
+            );
         }
     }
 
@@ -134,21 +143,25 @@ abstract class TypeDecorator
 
             // skip "base" types 'cuz php.
             if (0 === strpos($parentTypeName, 'xs:')) {
-                $logger->warning(sprintf(
-                    'Type "%s" has un-resolvable parent "%s"',
-                    $type,
-                    $parentTypeName
-                ));
+                $logger->warning(
+                    sprintf(
+                        'Type "%s" has un-resolvable parent "%s"',
+                        $type,
+                        $parentTypeName
+                    )
+                );
                 continue;
             }
 
             if ($ptype = $types->getTypeByName($parentTypeName)) {
                 $type->setParentType($ptype);
-                $logger->info(sprintf(
-                    'Type "%s" has parent "%s"',
-                    $type,
-                    $ptype
-                ));
+                $logger->info(
+                    sprintf(
+                        'Type "%s" has parent "%s"',
+                        $type,
+                        $ptype
+                    )
+                );
             } else {
                 throw ExceptionUtils::createTypeParentNotFoundException($type);
             }
@@ -170,12 +183,14 @@ abstract class TypeDecorator
                 if ($property->isValueProperty()) {
                     if ($typeKind->isPrimitive()) {
                         $primitiveType = $type->getPrimitiveType();
-                        $log->info(sprintf(
-                            'Type "%s" Property "%s" as raw PHP value of "%s"',
-                            $type->getFHIRName(),
-                            $property->getName(),
-                            (string)$primitiveType
-                        ));
+                        $log->info(
+                            sprintf(
+                                'Type "%s" Property "%s" as raw PHP value of "%s"',
+                                $type->getFHIRName(),
+                                $property->getName(),
+                                (string)$primitiveType
+                            )
+                        );
                         $property->setRawPHPValue($primitiveType->getPHPValueType());
                         continue; // move on to next property
                     } elseif ($typeKind->isList()) {
@@ -193,13 +208,16 @@ abstract class TypeDecorator
                     if (PHPFHIR_XHTML_DIV === $property->getRef()) {
                         // TODO: come up with "raw" type for things like this?
                         // TODO: XML/HTML values in particular need their own specific type
-                        $property->setValueFHIRType($types->getTypeByName('string-primitive'));
-                        $log->warning(sprintf(
-                            'Type "%s" Property "%s" has Ref "%s", setting Type to "string-primitive"',
-                            $type->getFHIRName(),
-                            $property->getName(),
-                            $property->getRef()
-                        ));
+                        $property->setValueFHIRType($types->getTypeByName(PHPFHIR_RAW_TYPE_NAME));
+                        $log->warning(
+                            sprintf(
+                                'Type "%s" Property "%s" has Ref "%s", setting Type to "%s"',
+                                $type->getFHIRName(),
+                                $property->getName(),
+                                $property->getRef(),
+                                PHPFHIR_RAW_TYPE_NAME
+                            )
+                        );
                         continue; // move on to next property
                     }
 
@@ -215,12 +233,14 @@ abstract class TypeDecorator
 
                 $property->setValueFHIRType($pt);
 
-                $log->info(sprintf(
-                    'Type "%s" Property "%s" has Value Type "%s"',
-                    $type->getFHIRName(),
-                    $property->getName(),
-                    $pt->getFHIRName()
-                ));
+                $log->info(
+                    sprintf(
+                        'Type "%s" Property "%s" has Value Type "%s"',
+                        $type->getFHIRName(),
+                        $property->getName(),
+                        $pt->getFHIRName()
+                    )
+                );
             }
         }
     }
@@ -233,7 +253,9 @@ abstract class TypeDecorator
     {
         $logger = $config->getLogger();
         foreach ($types->getIterator() as $type) {
-            if ($type->getKind()->isPrimitive()) {
+            if (in_array($type->getFHIRName(), self::$_dstu1Primitives, true)) {
+                $ptn = 'string';
+            } elseif ($type->getKind()->isPrimitive()) {
                 $ptn = $type->getFHIRName();
             } elseif ($type->hasPrimitiveParent()) {
                 $ptn = $type->getParentType()->getFHIRName();
@@ -243,11 +265,13 @@ abstract class TypeDecorator
             $ptn = str_replace('-primitive', '', $ptn);
             $pt = new PrimitiveTypeEnum($ptn);
             $type->setPrimitiveType($pt);
-            $logger->info(sprintf(
-                'Type "%s" is a Primitive of type "%s"',
-                $type,
-                $pt
-            ));
+            $logger->info(
+                sprintf(
+                    'Type "%s" is a Primitive of type "%s"',
+                    $type,
+                    $pt
+                )
+            );
         }
     }
 
@@ -263,12 +287,14 @@ abstract class TypeDecorator
                 null !== $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
                 continue;
             }
-            $logger->warning(sprintf(
-                'Type "%s" extends primitive "%s" but is missing "%s" property.  Adding...',
-                $type->getFHIRName(),
-                $type->getParentType()->getFHIRName(),
-                PHPFHIR_VALUE_PROPERTY_NAME
-            ));
+            $logger->warning(
+                sprintf(
+                    'Type "%s" extends primitive "%s" but is missing "%s" property.  Adding...',
+                    $type->getFHIRName(),
+                    $type->getParentType()->getFHIRName(),
+                    PHPFHIR_VALUE_PROPERTY_NAME
+                )
+            );
             $property = new Property($type, $type->getSourceSXE(), $type->getSourceFilename());
             $property->setName(PHPFHIR_VALUE_PROPERTY_NAME);
             $type->getProperties()->addProperty($property);
@@ -285,11 +311,13 @@ abstract class TypeDecorator
     {
         $kind = new TypeKindEnum($kindName);
         $type->setKind($kind);
-        $config->getLogger()->info(sprintf(
-            'Setting Type "%s" to Kind "%s"',
-            $type->getFHIRName(),
-            $type->getKind()
-        ));
+        $config->getLogger()->info(
+            sprintf(
+                'Setting Type "%s" to Kind "%s"',
+                $type->getFHIRName(),
+                $type->getKind()
+            )
+        );
     }
 
     /**
@@ -305,48 +333,69 @@ abstract class TypeDecorator
         // there are a few specialty types kinds that are set during the parsing process, most notably for
         // html value types and primitive value types
         if (null !== $type->getKind()) {
-            $logger->warning(sprintf(
-                'Type "%s" already has Kind "%s", will not set again',
-                $fhirName,
-                $type->getKind()
-            ));
+            $logger->warning(
+                sprintf(
+                    'Type "%s" already has Kind "%s", will not set again',
+                    $fhirName,
+                    $type->getKind()
+                )
+            );
             return;
         }
 
         if (false !== strpos($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
         } elseif (false !== strpos($fhirName, PHPFHIR_LIST_SUFFIX)) {
+            // for all intents and purposes, a List type is a multiple choice primitive type
             self::setTypeKind($config, $types, $type, TypeKindEnum::_LIST);
         } elseif (false !== strpos($fhirName, '.') && TypeKindEnum::RESOURCE_INLINE !== $fhirName) {
+            // This block indicates the type is only present as the child of a Resource.  Its name may (and in many
+            // cases does) conflict with a top level Element or Resource.  Because of this, they are treated differently
+            // and must be marked as such.
             self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
         } elseif ($types->getTypeByName("{$fhirName}-primitive")) {
             self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE_CONTAINER);
         } elseif (null !== ($rootType = $type->getRootType()) && $rootType !== $type) {
+            // this entire block is only hit when generating from DSTU1 sources.
+
+            // DSTU1 is weird.
+
             if (null === $rootType->getKind()) {
                 // ensure root type has kind
+                // this is due to the out-of-order loading that is made possible by looking at all xml files, rather
+                // than just fhir-all or something.
                 self::determineParsedTypeKind($config, $types, $rootType);
             }
+
+            // These are set to primitive through automagic
+            // TODO: maybe set to GENERIC?
+            if (in_array($fhirName, self::$_dstu1Primitives, true)) {
+                $type->setKind(new TypeKindEnum(TypeKindEnum::PRIMITIVE));
+                return;
+            }
+
             $rootTypeKind = $rootType->getKind();
-            if ($rootTypeKind->isPrimitive()) {
-                self::setTypeKind($config, $types, $type, (string)TypeKindEnum::GENERIC);
-            } else {
-                $set = false;
-                if ($rootTypeKind->isElement() && [] !== ($parentTypes = $type->getParentTypes())) {
-                    foreach ($parentTypes as $parentType) {
-                        if ('Resource' === $parentType->getFHIRName()) {
-                            $set = true;
-                            self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE);
-                        }
+
+            // this final block is necessary as in DSTU1 all Resources extend Elements, so we cannot just use the upper-
+            // most parent to determine type as then they would all just be elements.
+            $set = false;
+            if ($rootTypeKind->isElement() && [] !== ($parentTypes = $type->getParentTypes())) {
+                foreach ($parentTypes as $parentType) {
+                    if ('Resource' === $parentType->getFHIRName()) {
+                        $set = true;
+                        self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE);
                     }
                 }
-                if (!$set) {
-                    self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
-                }
+            }
+
+            if (!$set) {
+                self::setTypeKind($config, $types, $type, (string)$rootTypeKind);
             }
         } elseif (TypeKindEnum::isKnownRoot($fhirName)) {
             self::setTypeKind($config, $types, $type, $fhirName);
         } else {
-            self::setTypeKind($config, $types, $type, TypeKindEnum::GENERIC);
+            // this case is only applicable to the DSTU1 type "Binary"
+            self::setTypeKind($config, $types, $type, TypeKindEnum::RAW);
         }
     }
 
@@ -381,12 +430,14 @@ abstract class TypeDecorator
                     $propertyName = $property->getName();
                     foreach ($parent->getProperties()->getIterator() as $parentProperty) {
                         if ($propertyName === $parentProperty->getName()) {
-                            $logger->debug(sprintf(
-                                'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
-                                $property,
-                                $type,
-                                $parent
-                            ));
+                            $logger->debug(
+                                sprintf(
+                                    'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
+                                    $property,
+                                    $type,
+                                    $parent
+                                )
+                            );
                             $property->setOverloaded(true);
                             continue 2;
                         }
@@ -416,11 +467,17 @@ abstract class TypeDecorator
      */
     public static function setValueContainerFlag(VersionConfig $config, Types $types)
     {
+        static $skip = [
+            TypeKindEnum::PRIMITIVE,
+            TypeKindEnum::RAW,
+            TypeKindEnum::QUANTITY,
+        ];
+
         foreach ($types->getIterator() as $type) {
             // TODO: handle valueString, valueQuantity, etc. types?
 
             // skip primitive types and their child types
-            if ($type->getKind()->isPrimitive() || $type->hasPrimitiveParent()) {
+            if ($type->getKind()->isOneOf($skip) || $type->hasPrimitiveParent()) {
                 continue;
             }
 
@@ -449,8 +506,11 @@ abstract class TypeDecorator
      */
     public static function setCommentContainerFlag(VersionConfig $config, Types $types)
     {
+        static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::RAW];
         foreach ($types->getIterator() as $type) {
-            $type->setCommentContainer(!$type->getKind()->isPrimitive() && !$type->hasPrimitiveParent());
+            $type->setCommentContainer(
+                !$type->hasPrimitiveParent() && !$type->getKind()->isOneOf($skip)
+            );
         }
     }
 
@@ -474,11 +534,13 @@ abstract class TypeDecorator
                                 $newName = $split[1];
                             }
                         }
-                        $log->warning(sprintf(
-                            'Setting Type "%s" Property name to "%s"',
-                            $type,
-                            $newName
-                        ));
+                        $log->warning(
+                            sprintf(
+                                'Setting Type "%s" Property name to "%s"',
+                                $type,
+                                $newName
+                            )
+                        );
                         $property->setName($newName);
                     }
                 }
@@ -504,20 +566,24 @@ abstract class TypeDecorator
                 $utype = $types->getTypeByName($v);
                 if (null !== $utype) {
                     if ($extended) {
-                        $log->info(sprintf(
-                            'Type "%s" has union member "%s" but has already been extended, adding properties...',
-                            $type->getFHIRName(),
-                            $utype->getFHIRName()
-                        ));
+                        $log->info(
+                            sprintf(
+                                'Type "%s" has union member "%s" but has already been extended, adding properties...',
+                                $type->getFHIRName(),
+                                $utype->getFHIRName()
+                            )
+                        );
                         foreach ($utype->getProperties()->getIterator() as $property) {
                             $type->addProperty(clone $property);
                         }
                     } else {
-                        $log->info(sprintf(
-                            'Type "%s" has union member "%s", setting it as parent type...',
-                            $type->getFHIRName(),
-                            $utype->getFHIRName()
-                        ));
+                        $log->info(
+                            sprintf(
+                                'Type "%s" has union member "%s", setting it as parent type...',
+                                $type->getFHIRName(),
+                                $utype->getFHIRName()
+                            )
+                        );
                         $type->setParentType($utype);
                         $extended = true;
                     }

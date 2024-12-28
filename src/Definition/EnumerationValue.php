@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ namespace DCarbone\PHPFHIR\Definition;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+use SimpleXMLElement;
 
 /**
  * Class EnumerationValue
@@ -36,7 +38,7 @@ class EnumerationValue
      * @param string $value
      * @param \SimpleXMLElement $sourceSXE
      */
-    public function __construct($value, \SimpleXMLElement $sourceSXE)
+    public function __construct($value, SimpleXMLElement $sourceSXE)
     {
         $this->value = $value;
         $this->sourceSXE = $sourceSXE;

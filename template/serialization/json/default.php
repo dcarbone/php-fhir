@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Definition\Property[] $sortedProperties */
+/** @var \DCarbone\PHPFHIR\Definition\Property[] $properties */
 
 ob_start(); ?>
     /**
@@ -38,7 +38,7 @@ if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
             $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
         }
 <?php endif;
-foreach ($sortedProperties as $property) :
+foreach ($properties as $property) :
     if ($property->isOverloaded()) :
         continue;
     endif;
@@ -48,20 +48,20 @@ foreach ($sortedProperties as $property) :
             __DIR__ . '/default_property_primitive_list.php',
                 ['property' => $property]
         );
-    elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
+    elseif ($propertyType->isValueContainer() || $propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
         echo require_with(
-            __DIR__ . '/default_property_value_container.php',
+            __DIR__ . '/default_property_value_primitive_container.php',
             ['property' => $property]
         );
     else :
         echo require_with(__DIR__ . '/default_property_default.php', ['property' => $property]);
     endif;
 endforeach;
-if ($propertyType->isCommentContainer() || $propertyType->hasCommentContainerParent()) : ?>
+if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
             $a[PHPFHIRConstants::JSON_FIELD_FHIR_COMMENTS] = $vs;
-        }<?php endif; ?>
-
+        }
+<?php endif; ?>
         return <?php if ($type->isContainedType()) : ?>[<?php  echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE => $this->_getResourceType()] + <?php endif; ?>$a;
     }
 <?php return ob_get_clean();

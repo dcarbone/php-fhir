@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,6 @@
  */
 
 ob_start(); ?>
-        if (isset($attributes->value)) {
-            $type->setValue((string)$attributes->value);
-        } elseif (isset($children->value)) {
-            $type->setValue((string)$children->value);
-        } elseif ('' !== ($v = (string)$sxe)) {
-            $type->setValue($v);
-        }
-<?php return ob_get_clean();
+        $element->setAttribute(self::FIELD_VALUE, (string)$this);
+<?php
+return ob_get_clean();

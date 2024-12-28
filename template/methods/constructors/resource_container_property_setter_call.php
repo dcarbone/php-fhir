@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ ob_start(); ?>
                     }
                     $this-><?php echo $setter; ?>(new $typeClass($data[self::<?php echo $propertyFieldConst; ?>]));
                 }
-            } else if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
+            } elseif ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>) {
                 $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
             }
 <?php else : ?>
@@ -54,7 +54,7 @@ ob_start(); ?>
                         get_class($data[self::<?php echo $propertyFieldConst; ?>])
                     ));
                 }
-            } else if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
+            } elseif (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
                 $typeClass = PHPFHIRTypeMap::getContainedTypeFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                 if (null === $typeClass) {
                     throw new \InvalidArgumentException(sprintf(

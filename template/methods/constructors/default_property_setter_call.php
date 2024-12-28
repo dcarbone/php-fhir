@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
 
@@ -31,10 +29,10 @@ if ($propertyType->getKind()->isPrimitive() || $propertyType->hasPrimitiveParent
             __DIR__ . '/property_setter_primitive.php',
             ['property' => $property]
     );
-elseif ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) :
+elseif ($propertyType->getKind()->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent() || $propertyType->isValueContainer()) :
     echo require_with(
-            __DIR__ . '/property_setter_value_container.php',
-            ['property' => $property]
+        __DIR__ . '/property_setter_primitive_container.php',
+        ['property' => $property]
     );
 else :
     echo require_with(

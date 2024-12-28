@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition\Decorator;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ use DCarbone\PHPFHIR\Definition\Type;
 use DCarbone\PHPFHIR\Definition\Types;
 use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use DomainException;
+use SimpleXMLElement;
 
 /**
  * Class ChoiceElementElementPropertyDecorator
@@ -40,14 +42,15 @@ abstract class ChoiceElementElementPropertyDecorator
      * @param int|null $maxOccurs
      * @param \SimpleXMLElement|null $annotationElement
      */
-    public static function decorate(VersionConfig $config,
-                                    Types $types,
-                                    Type $type,
-                                    \SimpleXMLElement $element,
-                                    $minOccurs,
-                                    $maxOccurs,
-                                    \SimpleXMLElement $annotationElement = null)
-    {
+    public static function decorate(
+        VersionConfig $config,
+        Types $types,
+        Type $type,
+        SimpleXMLElement $element,
+        $minOccurs,
+        $maxOccurs,
+        SimpleXMLElement $annotationElement = null
+    ) {
         $properties = $type->getProperties();
         $property = new Property($type, $element, $type->getSourceFilename());
 
@@ -63,7 +66,8 @@ abstract class ChoiceElementElementPropertyDecorator
                 $types,
                 $type,
                 $property,
-                $annotationElement);
+                $annotationElement
+            );
         }
 
         foreach ($element->attributes() as $attribute) {
@@ -91,18 +95,22 @@ abstract class ChoiceElementElementPropertyDecorator
 
         if (null === $property->getName()) {
             if ('' === ($ref = $property->getRef())) {
-                throw new \DomainException(sprintf(
-                    'Unable to determine Property name for Type "%s" in file "%s": %s',
-                    $type->getFHIRName(),
-                    $type->getSourceFileBasename(),
-                    $element->saveXML()
-                ));
+                throw new DomainException(
+                    sprintf(
+                        'Unable to determine Property name for Type "%s" in file "%s": %s',
+                        $type->getFHIRName(),
+                        $type->getSourceFileBasename(),
+                        $element->saveXML()
+                    )
+                );
             }
-            $config->getLogger()->notice(sprintf(
-                'No "name" field found on element, using "ref" value for Type "%s" Property name: %s',
-                $type->getFHIRName(),
-                $element->saveXML()
-            ));
+            $config->getLogger()->notice(
+                sprintf(
+                    'No "name" field found on element, using "ref" value for Type "%s" Property name: %s',
+                    $type->getFHIRName(),
+                    $element->saveXML()
+                )
+            );
             $property->setName($ref);
         }
 

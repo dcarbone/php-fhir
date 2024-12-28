@@ -1,7 +1,7 @@
 <?php namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,7 +151,6 @@ abstract class NameUtils
             $name = sprintf('%sPrimitive', substr($name, 0, $pos));
         } elseif (false !== ($pos = strpos($name, '-list'))) {
             $name = sprintf('%sList', substr($name, 0, $pos));
-
         }
 
         if (preg_match('{^[a-z]}S', $name)) {
@@ -175,8 +174,10 @@ abstract class NameUtils
         $lastUpper = false;
         foreach (str_split($name) as $chr) {
             if (in_array($chr, self::$upper, true) || in_array($chr, self::$nums, true)) {
-                if ('' !== $constName && !$lastUpper && '_' !== substr($constName,
-                        -1)) { // really simplistic abbreviation detection...
+                if ('' !== $constName && !$lastUpper && '_' !== substr(
+                        $constName,
+                        -1
+                    )) { // really simplistic abbreviation detection...
                     $constName .= '_';
                 }
                 $constName .= $chr;

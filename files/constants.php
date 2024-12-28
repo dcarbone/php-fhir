@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@
 
 // conf defaults
 define('PHPFHIR_ROOT_DIR', realpath(dirname(__DIR__)));
-define('PHPFHIR_DEFAULT_OUTPUT_DIR', realpath(PHPFHIR_ROOT_DIR . '/output'));
+define('PHPFHIR_BIN_DIR', realpath(__DIR__ . '/../bin'));
+define('PHPFHIR_DEFAULT_OUTPUT_DIR', realpath(PHPFHIR_ROOT_DIR . DIRECTORY_SEPARATOR . 'output'));
+define('PHPFHIR_OUTPUT_TMP_DIR', PHPFHIR_DEFAULT_OUTPUT_DIR . DIRECTORY_SEPARATOR . 'tmp');
+define('PHPFHIR_FHIR_VALIDATION_JAR', PHPFHIR_BIN_DIR . DIRECTORY_SEPARATOR . 'org.hl7.fhir.validator.jar');
 
 // format regex
 define('PHPFHIR_VARIABLE_NAME_REGEX', '{^[a-zA-Z_][a-zA-Z0-9_]*$}S');
@@ -32,6 +35,10 @@ define('PHPFHIR_LIST_SUFFIX', '-list');
 
 // html property
 define('PHPFHIR_XHTML_DIV', 'xhtml:div');
+
+// raw type
+define('PHPFHIR_RAW_TYPE_NAME', 'raw');
+define('PHPFHIR_RAW_TYPE_DESCRIPTION', 'Raw type used in special cases');
 
 // FHIR XML NS
 define('PHPFHIR_FHIR_XMLNS', 'http://hl7.org/fhir');
@@ -80,6 +87,7 @@ define('PHPFHIR_INTERFACE_COMMENT_CONTAINER', 'PHPFHIRCommentContainerInterface'
 // traits
 define('PHPFHIR_TRAIT_COMMENT_CONTAINER', 'PHPFHIRCommentContainerTrait');
 define('PHPFHIR_TRAIT_VALIDATION_ASSERTIONS', 'PHPFHIRValidationAssertionsTrait');
+define('PHPFHIR_TRAIT_CHANGE_TRACKING', 'PHPFHIRChangeTrackingTrait');
 
 // validation constants
 define('PHPFHIR_VALIDATION_ENUM', 0x1);

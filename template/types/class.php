@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
-
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
+/** @var \DCarbone\PHPFHIR\Config\VersionConfig $config */
 /** @var \DCarbone\PHPFHIR\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
@@ -29,11 +28,8 @@ $fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassname = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
-$fhirName = $type->getFHIRName();
-$directProperties = $type->getProperties()->getDirectSortedIterator();
+$directProperties = $type->getProperties()->getDirectIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
-$isValueContainer = $type->isValueContainer();
-$hasValueContainerParent = $type->hasValueContainerParent();
 
 ob_start();
 
@@ -79,7 +75,7 @@ echo require_with(
 endif; ?>
 
     /** @var string */
-    private $_xmlns = '<?php echo PHPFHIR_FHIR_XMLNS; ?>';
+    private $_xmlns = '';
 
 <?php if (0 !== count($directProperties)) :
     foreach($directProperties as $property) :
@@ -106,7 +102,7 @@ echo require_with(
     PHPFHIR_TEMPLATE_METHODS_DIR . '/constructor.php',
     [
             'type' => $type,
-            'sortedProperties' => $directProperties,
+            'properties' => $directProperties,
             'parentType' => $parentType,
     ]
 );
@@ -135,7 +131,7 @@ endif;
         [
                 'config' => $config,
                 'type' => $type,
-                'sortedProperties' => $directProperties,
+                'properties' => $directProperties,
         ]
     );
 endif; ?>

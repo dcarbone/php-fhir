@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 
-$sortedProperties = $type->getProperties()->getSortedIterator();
+$properties = $type->getProperties()->getSortedIterator();
 
 ob_start(); ?>
     /**
@@ -26,7 +26,7 @@ ob_start(); ?>
 
      * @var array
      */
-    private static $_validationRules = [<?php foreach ($sortedProperties as $property) :
+    private static $_validationRules = [<?php foreach ($properties as $property) :
     $validationMap = $property->buildValidationMap();
     if ([] !== $validationMap) : ?>
 

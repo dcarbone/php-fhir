@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Definition;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ namespace DCarbone\PHPFHIR\Definition;
 
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
+use InvalidArgumentException;
+use SimpleXMLElement;
 
 /**
  * Class Property
@@ -27,7 +29,8 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
  */
 class Property
 {
-    use DocumentationTrait, SourceTrait;
+    use DocumentationTrait;
+    use SourceTrait;
 
     /** @var \DCarbone\PHPFHIR\Definition\Type */
     private $memberOf;
@@ -73,7 +76,7 @@ class Property
      * @param \SimpleXMLElement $sxe
      * @param string $sourceFilename
      */
-    public function __construct(Type $memberOf, \SimpleXMLElement $sxe, $sourceFilename)
+    public function __construct(Type $memberOf, SimpleXMLElement $sxe, $sourceFilename)
     {
         $this->memberOf = $memberOf;
         $this->sourceSXE = $sxe;
@@ -125,10 +128,12 @@ class Property
     public function setName($name)
     {
         if (!is_string($name) || '' === $name) {
-            throw new \InvalidArgumentException(sprintf(
-                'Type "%s" Property $name cannot be empty',
-                $this->valueFHIRType->getFHIRName()
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Type "%s" Property $name cannot be empty',
+                    $this->valueFHIRType->getFHIRName()
+                )
+            );
         }
         $this->name = $name;
         return $this;
@@ -306,10 +311,12 @@ class Property
     public function setRef($ref)
     {
         if (!is_string($ref) || '' === $ref) {
-            throw new \InvalidArgumentException(sprintf(
-                'Type "%s" Property $ref cannot be empty',
-                $this->valueFHIRType->getFHIRName()
-            ));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Type "%s" Property $ref cannot be empty',
+                    $this->valueFHIRType->getFHIRName()
+                )
+            );
         }
         $this->ref = $ref;
         return $this;

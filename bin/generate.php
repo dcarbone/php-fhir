@@ -3,7 +3,7 @@
  * Download and generation script for all major FHIR versions
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ function exit_with_help($err = false)
 
 PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
 
-Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
 
 - Links: 
     Source:         https://github.com/dcarbone/php-fhir
@@ -441,9 +441,15 @@ foreach ($versions_to_generate as $version) {
         } else {
             echo "ext-zip not found, trying \"unzip\" directly...\n";
             $cmd = "unzip -o -qq {$schema_dir}.zip -d {$schema_dir}";
+            $output = [];
+            $code = 0;
             echo "executing: {$cmd}\n";
-            if (null !== ($res = shell_exec($cmd))) {
-                echo "unable to unzip: \"{$res}\".  exiting.\n";
+            exec($cmd, $output, $code);
+            if (0 !== $code) {
+                echo "unzip failed with code {$code}\noutput:\n";
+                foreach($output as $line) {
+                    echo "-----> {$line}\n";
+                }
                 exit(1);
             }
         }

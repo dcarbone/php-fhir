@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,18 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Definition\Property $property */
+/** @var int $i */
 
 $setter = $property->getSetterName();
 $propertyName = $property->getName();
+$propertyConst = $property->getFieldConstantName();
 
-ob_start(); ?>
-        if (isset($children-><?php echo $propertyName; ?>)) {
-            foreach($children-><?php echo $propertyName; ?> as $child) {
-                foreach($child->children() as $babe) {
-                    $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($babe));
-<?php if ($property->isCollection()) : ?>
-                    continue 2;
-<?php else : ?>
-                    break 2;
-<?php endif; ?>
+ob_start();
+if ($i > 0) : ?> else<?php else : ?>            <?php endif; ?>if (self::<?php echo $propertyConst; ?> === $n->nodeName) {
+                for ($ni = 0; $ni < $n->childNodes->length; $ni++) {
+                    $nn = $n->childNodes->item($ni);
+                    if ($nn instanceof \DOMElement) {
+                        $type-><?php echo $setter; ?>(PHPFHIRTypeMap::getContainedTypeFromXML($nn));
+                    }
                 }
-            }
-        }
-<?php return ob_get_clean();
+            }<?php return ob_get_clean();

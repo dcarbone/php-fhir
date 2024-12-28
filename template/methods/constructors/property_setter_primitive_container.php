@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,8 @@ $setter = $property->getSetterName();
 
 ob_start(); ?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>]) || isset($data[self::<?php echo $propertyFieldConstExt; ?>])) {
-            if (isset($data[self::<?php echo $propertyFieldConst; ?>])) {
-                $value = $data[self::<?php echo $propertyFieldConst; ?>];
-            } else {
-                $value = null;
-            }
-            if (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) {
-                $ext = $data[self::<?php echo $propertyFieldConstExt; ?>];
-            } else {
-                $ext = [];
-            }
+            $value = isset($data[self::<?php echo $propertyFieldConst; ?>]) ? $data[self::<?php echo $propertyFieldConst; ?>] : null;
+            $ext = (isset($data[self::<?php echo $propertyFieldConstExt; ?>]) && is_array($data[self::<?php echo $propertyFieldConstExt; ?>])) ? $ext = $data[self::<?php echo $propertyFieldConstExt; ?>] : $ext = [];
             if (null !== $value) {
                 if ($value instanceof <?php echo $propertyTypeClassName; ?>) {
                     $this-><?php echo $setter; ?>($value);
@@ -58,7 +50,7 @@ ob_start(); ?>
                 } else {
                     $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>([<?php echo $propertyTypeClassName; ?>::FIELD_VALUE => $value] + $ext));
                 }
-            } else if ([] !== $ext) {
+            } elseif ([] !== $ext) {
 <?php if ($property->isCollection()) : ?>
                 foreach($ext as $iext) {
                     $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($iext));

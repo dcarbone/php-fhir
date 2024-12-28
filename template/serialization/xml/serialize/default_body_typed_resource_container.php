@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,19 @@ if ($property->isCollection()) : ?>
                 if (null === $v) {
                     continue;
                 }
-                $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
-                $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
+                $e2 = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
+                $element->appendChild($e2);
+                $e3 = $element->ownerDocument->createElement($v->_getFHIRTypeName());
+                $e2->appendChild($e3);
+                $v->xmlSerialize($e3);
             }
         }<?php else : ?>
         if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $tsxe = $sxe->addChild(self::<?php echo $propertyConstName; ?>);
-            $v->xmlSerialize($tsxe->addChild($v->_getFHIRTypeName(), null, $v->_getFHIRXMLNamespace()));
+            $e2 = $element->ownerDocument->createElement(self::<?php echo $propertyConstName; ?>);
+            $element->appendChild($e2);
+            $e3 = $element->ownerDocument->createElement($v->_getFHIRTypeName());
+            $e2->appendChild($e3);
+            $v->xmlSerialize($e3);
         }
 <?php endif;
 return ob_get_clean();

@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Config;
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ class VersionConfig
     }
 
     /**
-     * @param boolean $leadingSlash
+     * @param bool $leadingSlash
      * @return string
      */
     public function getNamespace($leadingSlash)
@@ -100,7 +100,7 @@ class VersionConfig
     }
 
     /**
-     * @param boolean $leadingSlash
+     * @param bool $leadingSlash
      * @return string
      */
     public function getTestsNamespace($leadingSlash)

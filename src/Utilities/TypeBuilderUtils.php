@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Definition\EnumerationValue;
 use DCarbone\PHPFHIR\Definition\Property;
 use DCarbone\PHPFHIR\Definition\Type;
+use DomainException;
+use SimpleXMLElement;
 
 /**
  * Class BuilderUtils
@@ -34,17 +37,20 @@ abstract class TypeBuilderUtils
      * @param string $setterMethod
      * @param mixed $value
      */
-    public static function callTypeSetter(Type $type,
-                                          \SimpleXMLElement $parentElement,
-                                          \SimpleXMLElement $source,
-                                          $setterMethod,
-                                          $value)
-    {
+    public static function callTypeSetter(
+        Type $type,
+        SimpleXMLElement $parentElement,
+        SimpleXMLElement $source,
+        $setterMethod,
+        $value
+    ) {
         if (!method_exists($type, $setterMethod)) {
-            throw ExceptionUtils::createTypeSetterMethodNotFoundException($type,
+            throw ExceptionUtils::createTypeSetterMethodNotFoundException(
+                $type,
                 $parentElement,
                 $source,
-                $setterMethod);
+                $setterMethod
+            );
         }
         $type->{$setterMethod}($value);
     }
@@ -55,11 +61,12 @@ abstract class TypeBuilderUtils
      * @param \SimpleXMLElement $attribute
      * @param string $setterMethod
      */
-    public static function setTypeStringFromAttribute(Type $type,
-                                                      \SimpleXMLElement $parentElement,
-                                                      \SimpleXMLElement $attribute,
-                                                      $setterMethod)
-    {
+    public static function setTypeStringFromAttribute(
+        Type $type,
+        SimpleXMLElement $parentElement,
+        SimpleXMLElement $attribute,
+        $setterMethod
+    ) {
         self::callTypeSetter($type, $parentElement, $attribute, $setterMethod, (string)$attribute);
     }
 
@@ -69,11 +76,12 @@ abstract class TypeBuilderUtils
      * @param string $setterMethod
      * @param string $attributeName
      */
-    public static function setTypeStringFromElementAttribute(Type $type,
-                                                             \SimpleXMLElement $element,
-                                                             $setterMethod,
-                                                             $attributeName = 'value')
-    {
+    public static function setTypeStringFromElementAttribute(
+        Type $type,
+        SimpleXMLElement $element,
+        $setterMethod,
+        $attributeName = 'value'
+    ) {
         $attr = $element->attributes()->{$attributeName};
         if (null === $attr) {
             throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $element, $attributeName);
@@ -87,11 +95,12 @@ abstract class TypeBuilderUtils
      * @param \SimpleXMLElement $source
      * @param string $setterMethod
      */
-    public static function setTypeStringFromElementValue(Type $type,
-                                                         \SimpleXMLElement $parent,
-                                                         \SimpleXMLElement $source,
-                                                         $setterMethod)
-    {
+    public static function setTypeStringFromElementValue(
+        Type $type,
+        SimpleXMLElement $parent,
+        SimpleXMLElement $source,
+        $setterMethod
+    ) {
         self::callTypeSetter($type, $parent, $source, $setterMethod, (string)$source);
     }
 
@@ -102,12 +111,13 @@ abstract class TypeBuilderUtils
      * @param string $setterMethod
      * @param string $delimiter
      */
-    public static function setTypeArrayFromAttribute(Type $type,
-                                                     \SimpleXMLElement $parentElement,
-                                                     \SimpleXMLElement $attribute,
-                                                     $setterMethod,
-                                                     $delimiter = ' ')
-    {
+    public static function setTypeArrayFromAttribute(
+        Type $type,
+        SimpleXMLElement $parentElement,
+        SimpleXMLElement $attribute,
+        $setterMethod,
+        $delimiter = ' '
+    ) {
         self::callTypeSetter(
             $type,
             $parentElement,
@@ -124,12 +134,13 @@ abstract class TypeBuilderUtils
      * @param string $attributeName
      * @param string $delimiter
      */
-    public static function setTypeArrayFromElementAttribute(Type $type,
-                                                            \SimpleXMLElement $element,
-                                                            $setterMethod,
-                                                            $attributeName = 'value',
-                                                            $delimiter = '')
-    {
+    public static function setTypeArrayFromElementAttribute(
+        Type $type,
+        SimpleXMLElement $element,
+        $setterMethod,
+        $attributeName = 'value',
+        $delimiter = ''
+    ) {
         $attr = $element->attributes()->{$attributeName};
         if (null === $attr) {
             throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $element, $attributeName);
@@ -143,20 +154,23 @@ abstract class TypeBuilderUtils
      * @param \SimpleXMLElement $attribute
      * @param string $setterMethod
      */
-    public static function setTypeIntegerFromAttribute(Type $type,
-                                                       \SimpleXMLElement $parentElement,
-                                                       \SimpleXMLElement $attribute,
-                                                       $setterMethod)
-    {
+    public static function setTypeIntegerFromAttribute(
+        Type $type,
+        SimpleXMLElement $parentElement,
+        SimpleXMLElement $attribute,
+        $setterMethod
+    ) {
         $int = (string)$attribute;
         if (!ctype_digit($int)) {
-            throw new \DomainException(sprintf(
-                'Tried to cast Type "%s" in file "%s" attribute "%s" value "%s" as int',
-                $type->getFHIRName(),
-                $type->getSourceFileBasename(),
-                $attribute->getName(),
-                $int
-            ));
+            throw new DomainException(
+                sprintf(
+                    'Tried to cast Type "%s" in file "%s" attribute "%s" value "%s" as int',
+                    $type->getFHIRName(),
+                    $type->getSourceFileBasename(),
+                    $attribute->getName(),
+                    $int
+                )
+            );
         }
         self::callTypeSetter($type, $parentElement, $attribute, $setterMethod, intval($int, 10));
     }
@@ -167,11 +181,12 @@ abstract class TypeBuilderUtils
      * @param string $setterMethod
      * @param string $attributeName
      */
-    public static function setTypeIntegerFromElementAttribute(Type $type,
-                                                              \SimpleXMLElement $element,
-                                                              $setterMethod,
-                                                              $attributeName = 'value')
-    {
+    public static function setTypeIntegerFromElementAttribute(
+        Type $type,
+        SimpleXMLElement $element,
+        $setterMethod,
+        $attributeName = 'value'
+    ) {
         $attr = $element->attributes()->{$attributeName};
         if (null === $attr) {
             throw ExceptionUtils::createExpectedTypeElementAttributeNotFoundException($type, $element, $attributeName);
@@ -184,7 +199,7 @@ abstract class TypeBuilderUtils
      * @param \SimpleXMLElement $parentElement
      * @param \SimpleXMLElement $enum
      */
-    public static function addTypeEnumeratedValue(Type $type, \SimpleXMLElement $parentElement, \SimpleXMLElement $enum)
+    public static function addTypeEnumeratedValue(Type $type, SimpleXMLElement $parentElement, SimpleXMLElement $enum)
     {
         $value = $enum->attributes()->value;
         if (null === $value) {
@@ -195,7 +210,7 @@ abstract class TypeBuilderUtils
             $parentElement,
             $enum,
             'addEnumerationValue',
-            new \DCarbone\PHPFHIR\Definition\EnumerationValue((string)$value, $enum)
+            new EnumerationValue((string)$value, $enum)
         );
     }
 
@@ -206,17 +221,20 @@ abstract class TypeBuilderUtils
      * @param $setterMethod
      * @param $value
      */
-    public static function callPropertySetter(Property $property,
-                                              \SimpleXMLElement $parentElement,
-                                              \SimpleXMLElement $source,
-                                              $setterMethod,
-                                              $value)
-    {
+    public static function callPropertySetter(
+        Property $property,
+        SimpleXMLElement $parentElement,
+        SimpleXMLElement $source,
+        $setterMethod,
+        $value
+    ) {
         if (!method_exists($property, $setterMethod)) {
-            throw ExceptionUtils::createPropertySetterMethodNotFoundException($property,
+            throw ExceptionUtils::createPropertySetterMethodNotFoundException(
+                $property,
                 $parentElement,
                 $source,
-                $setterMethod);
+                $setterMethod
+            );
         }
         $property->{$setterMethod}($value);
     }
@@ -227,11 +245,12 @@ abstract class TypeBuilderUtils
      * @param \SimpleXMLElement $source
      * @param $setterMethod
      */
-    public static function setPropertyStringFromElementValue(Property $property,
-                                                             \SimpleXMLElement $parent,
-                                                             \SimpleXMLElement $source,
-                                                             $setterMethod)
-    {
+    public static function setPropertyStringFromElementValue(
+        Property $property,
+        SimpleXMLElement $parent,
+        SimpleXMLElement $source,
+        $setterMethod
+    ) {
         self::callPropertySetter($property, $parent, $source, $setterMethod, (string)$source);
     }
 }

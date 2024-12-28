@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,14 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Definition\Type|null $parentType */
+/** @var null|bool $skipTypeName */
+/** @var null|bool $skipGetXMLNamespace */
+/** @var null|bool $skipGetXMLDefinition */
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
+$skipTypeName = isset($skipTypeName) ? (bool)$skipTypeName : false;
+$skipGetXMLNamespace = isset($skipGetXMLNamespace) ? (bool)$skipGetXMLNamespace : false;
+$skipGetXMLDefinition = isset($skipGetXMLDefinition) ? (bool)$skipGetXMLDefinition : false;
 
 ob_start(); ?>
     /**
@@ -30,33 +36,30 @@ ob_start(); ?>
     public function _getFHIRTypeName()
     {
         return self::FHIR_TYPE_NAME;
-    }<?php if (null === $parentType) : ?>
-
+    }
+<?php if (null === $parentType) : ?><?php if (!$skipGetXMLNamespace) : ?>
 
     /**
-     * @return string|null
+     * @return string
      */
     public function _getFHIRXMLNamespace()
     {
-        return '' === $this->_xmlns ? null : $this->_xmlns;
+        return $this->_xmlns;
     }
+<?php endif; ?>
 
-    /**
+<?php if (!$skipGetXMLDefinition) : ?>    /**
      * @param null|string $xmlNamespace
      * @return static
      */
     public function _setFHIRXMLNamespace($xmlNamespace)
     {
-        if (null === $xmlNamespace || is_string($xmlNamespace)) {
-            $this->_xmlns = (string)$xmlNamespace;
-            return $this;
-        }
-        throw new \InvalidArgumentException(sprintf(
-            '$xmlNamespace must be a null or string value, %s seen.',
-            gettype($xmlNamespace)
-        ));
-    }<?php endif; ?>
+        $this->_xmlns = trim((string)$xmlNamespace);
+        return $this;
+    }
+<?php endif; ?>
 
+<?php endif; ?>
 
     /**
      * @return string
@@ -64,7 +67,7 @@ ob_start(); ?>
     public function _getFHIRXMLElementDefinition()
     {
         $xmlns = $this->_getFHIRXMLNamespace();
-        if (null !== $xmlns) {
+        if ('' !==  $xmlns) {
             $xmlns = " xmlns=\"{$xmlns}\"";
         }
         return "<<?php echo $xmlName; ?>{$xmlns}></<?php echo $xmlName; ?>>";

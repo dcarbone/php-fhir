@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2018-2019 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2020 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,12 +130,12 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
             if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
                 return in_array('\\'.get_class($type), self::$_containableTypes, true);
             }
-            if ($type instanceof \SimpleXMLElement) {
-                return isset(self::$_containableTypes[$type->getName()]);
+            if ($type instanceof \DOMNode) {
+                return isset(self::$_containableTypes[$type->nodeName]);
             }
             throw new \InvalidArgumentException(sprintf(
                 'Expected "$type" to be instance of "<?php echo $config->getNamespace(true) . '\\' . PHPFHIR_INTERFACE_TYPE; ?>" or "%s", saw "%s"',
-                '\\SimpleXMLElement',
+                '\\DOMNode',
                 get_class($type)
             ));
         }
@@ -156,18 +156,18 @@ abstract class <?php echo PHPFHIR_CLASSNAME_TYPEMAP; ?>
     }
 
     /**
-     * @param \SimpleXMLElement $sxe Parent element containing inline resource
+     * @param \DOMNode $node Parent element containing inline resource
      * @return \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?>|null
      */
-    public static function getContainedTypeFromXML(\SimpleXMLElement $sxe)
+    public static function getContainedTypeFromXML(\DOMNode $node)
     {
-        $typeName = $sxe->getName();
+        $typeName = $node->nodeName;
         $className = self::getContainedTypeClassName($typeName);
         if (null === $className) {
             throw self::createdInvalidContainedTypeException($typeName);
         }
         /** @var \<?php echo ('' !== $namespace ? "{$namespace}\\" : '') . PHPFHIR_INTERFACE_CONTAINED_TYPE ?> $className */
-        return $className::xmlUnserialize($sxe);
+        return $className::xmlUnserialize($node);
     }
 
     /**
