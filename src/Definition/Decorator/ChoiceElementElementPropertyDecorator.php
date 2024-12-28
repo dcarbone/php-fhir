@@ -47,7 +47,7 @@ abstract class ChoiceElementElementPropertyDecorator
         \SimpleXMLElement $element,
         ?string $minOccurs,
         ?string $maxOccurs,
-        \SimpleXMLElement $annotationElement = null
+        null|\SimpleXMLElement $annotationElement = null
     ): void {
         $property = new Property($type, $element, $type->getSourceFilename());
 

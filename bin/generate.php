@@ -495,6 +495,19 @@ foreach ($versions_to_generate as $version) {
                 exit(1);
             }
         }
+
+        # check for macos funtime....
+        if (is_dir($schema_dir . DIRECTORY_SEPARATOR . 'fhir-all-xsd')) {
+            echo "Looks like this archive was created by a MacOS user, moving files up a level...\n";
+            $cmd = "mv {$schema_dir}/fhir-all-xsd/* {$schema_dir}/";
+            exec($cmd, $output, $code);
+            if (0 !== $code) {
+                echo "Unable to move files up a level.  Exiting\n";
+                exit(1);
+            }
+            echo "Files moved, cleaning up mess...\n";
+            rmdir($schema_dir . DIRECTORY_SEPARATOR . 'fhir-all-xsd');
+        }
     }
 
     echo sprintf(

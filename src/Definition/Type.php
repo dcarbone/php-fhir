@@ -107,7 +107,7 @@ class Type
     public function __construct(
         VersionConfig $config,
         string $fhirName,
-        SimpleXMLElement $sourceSXE = null,
+        null|SimpleXMLElement $sourceSXE = null,
         string $sourceFilename = ''
     ) {
         if ('' === ($fhirName = trim($fhirName))) {
