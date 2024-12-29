@@ -146,10 +146,14 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('composer.lock') }}"
 
-      - name: 'Generate code'
+      - name: "Generate ${{ matrix.test-target }} code"
         # language=sh
         run: |
-          ./bin/generate.sh --useExisting --versions '${{ matrix.test-target }}'
+          if [ '${{ matrix.test-target }}' == 'Core' ]; then
+            ./bin/generate.sh --useExisting --onlyCore
+          else
+            ./bin/generate.sh --useExisting --versions '${{ matrix.test-target }}'
+          fi
 
 #      - name: 'Install Java'
 #        uses: actions/setup-java@v4

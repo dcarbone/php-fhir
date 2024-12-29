@@ -47,8 +47,7 @@ class Builder
      * Generate FHIR object classes based on XSD
      *
      * @param bool $coreFiles If true, will generate core PHPFHIR classes, interfaces, traits, and enums.
-     * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions
-     *                                 will be generated.
+     * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
      * @throws \ErrorException
      * @throws \Exception
      */
@@ -207,7 +206,7 @@ class Builder
      * @param array $templateArgs
      * @return void
      */
-    protected function writeCoreFiles(CoreFiles $coreFiles, array $templateArgs): void
+    public function writeCoreFiles(CoreFiles $coreFiles, array $templateArgs): void
     {
         $this->log->startBreak('Core Files');
 

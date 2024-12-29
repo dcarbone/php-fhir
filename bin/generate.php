@@ -30,8 +30,8 @@ $autoloadClasspath = realpath(AUTOLOAD_CLASS_FILEPATH);
 
 // ensure composer autoload class exists.
 if (!$autoloadClasspath) {
-    echo sprintf("Unable to locate composer autoload file expected at path: %s\n\n", AUTOLOAD_CLASS_FILEPATH);
-    echo "Please run \"composer install\" from the root of the project directory\n\n";
+    echo 'Unable to locate composer autoload file expected at path: ' . AUTOLOAD_CLASS_FILEPATH . PHP_EOL . PHP_EOL;
+    echo "Please run \"composer install\" from the root of the project directory" . PHP_EOL . PHP_EOL;
     exit(1);
 }
 
@@ -54,7 +54,6 @@ const FLAG_USE_EXISTING = '--useExisting';
 const FLAG_CONFIG = '--config';
 const FLAG_ONLY_CORE = '--onlyCore';
 const FLAG_ONLY_LIBRARY = '--onlyLibrary';
-const FLAG_ONLY_TESTS = '--onlyTests';
 const FLAG_VERSIONS = '--versions';
 const FLAG_USERAGENT = '--userAgent';
 const FLAG_LOG_LEVEL = '--logLevel';
@@ -69,7 +68,6 @@ $config_location_arg = '';
 $config_file = null;
 $only_core = false;
 $only_library = false;
-$only_tests = false;
 $versions_to_generate = null;
 $use_existing = false;
 $log_level = LogLevel::WARNING;
@@ -146,8 +144,6 @@ Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
                         ex: ./bin/generate.sh --onlyCore
     --onlyLibrary   Only generate Library classes.  Mutually exclusive with --onlyTests
                         ex: ./bin/generate.sh --onlyLibrary
-    --onlyTests     Only generate Test classes.  Mutually exclusive with --onlyLibrary
-                        ex: ./bin/generate.sh --onlyTests
     --config        Specify location of config
                         default: {$config_location_def}
                         ex: ./bin/generate.sh --config path/to/file
@@ -183,7 +179,7 @@ function ask(string $q): bool
     echo "{$q} [enter \"yes\" or \"no\"]: ";
     while (0 !== stream_select($ins, $null, $null, null)) {
         foreach ($ins as $in) {
-            $resp = stream_get_line($in, 8, "\n");
+            $resp = stream_get_line($in, 8, PHP_EOL);
             if (is_string($resp)) {
                 return str_starts_with(strtolower($resp), 'y');
             }
@@ -199,14 +195,14 @@ function ask(string $q): bool
  */
 function nuke_dir(string $dir): void
 {
-    echo "Executing \"rm -rf {$dir}\" ...\n";
+    echo "Executing \"rm -rf {$dir}\" ..." . PHP_EOL;
     shell_exec('rm -rf ' . $dir);
     sleep(1);
     if (file_exists($dir)) {
-        echo "Unable to delete dir {$dir}\n";
+        echo "Unable to delete dir {$dir}" . PHP_EOL;
         exit(1);
     }
-    echo "Done.\n";
+    echo "Done." . PHP_EOL;
 }
 
 /**
@@ -279,12 +275,12 @@ if ($argc > 1) {
                 }
                 break;
 
-            case FLAG_ONLY_LIBRARY:
-                $only_library = true;
+            case FLAG_ONLY_CORE:
+                $only_core = true;
                 break;
 
-            case FLAG_ONLY_TESTS:
-                $only_tests = true;
+            case FLAG_ONLY_LIBRARY:
+                $only_library = true;
                 break;
 
             case FLAG_USERAGENT:
@@ -295,31 +291,17 @@ if ($argc > 1) {
                 break;
 
             default:
-                echo "Unknown argument \"{$arg}\" passed at position {$i}\n";
+                echo "Unknown argument \"{$arg}\" passed at position {$i}" . PHP_EOL;
                 echo help_text();
                 exit(1);
         }
     }
 }
 
-if ($use_existing && $force_delete) {
-    echo sprintf(
-        "Flags %s and %s are mutually exclusive, please specify one or the other.\n",
-        FLAG_FORCE_DELETE,
-        FLAG_USE_EXISTING
-    );
+// check if they want the help text before doing anything else.
+if ($print_help) {
     echo help_text();
-    exit(1);
-}
-
-if ($only_library && $only_tests) {
-    echo sprintf(
-        "Flags %s and %s are mutually exclusive, please specify one or neither.\n",
-        FLAG_ONLY_LIBRARY,
-        FLAG_ONLY_TESTS
-    );
-    echo help_text();
-    exit(1);
+    exit(0);
 }
 
 // try to determine which config file to use...
@@ -331,34 +313,56 @@ if ('' !== $config_location_arg) {
     $config_file = $config_location_def;
 }
 
-if ($print_help) {
-    echo help_text();
-    exit(0);
-}
-
 if (!file_exists($config_file)) {
     echo missing_config_text();
     exit(1);
 }
 
 if (!is_readable($config_file)) {
-    echo sprintf(
-        "Specified config file \"%s\" is not readable by this process, please check permissions and try again\n",
-        $config_file
-    );
+    echo "Specified config file \"{$config_file}\" is not readable by this process, please check permissions and try again" . PHP_EOL;
     exit(1);
 }
 
+// ensure no mutually exclusive flag conflicts exist...
+
+if ($use_existing && $force_delete) {
+    echo help_text();
+    echo PHP_EOL;
+    echo "Flags " . FLAG_FORCE_DELETE . " and " . FLAG_USE_EXISTING . " are mutually exclusive." . PHP_EOL;
+    exit(1);
+}
+
+$only_count = 0;
+if ($only_core) {
+    $only_count++;
+}
+if ($only_library) {
+    $only_count++;
+}
+if ($only_count > 1) {
+    echo help_text();
+    echo PHP_EOL;
+    echo "Flags " . FLAG_ONLY_CORE . " and " . FLAG_ONLY_LIBRARY . " are mutually exclusive." . PHP_EOL;
+    exit(1);
+}
+
+// determine what to generate
+$generate_core = $only_core || (0 === $only_count);
+$generate_library = $only_library || (0 === $only_count);
+
 // determine if monolog is present, otherwise use null logger
 if (class_exists('\\Monolog\\Logger')) {
-    $formatter = new \Monolog\Formatter\LineFormatter(\Monolog\Formatter\LineFormatter::SIMPLE_FORMAT);
-    $handler = new \Monolog\Handler\StreamHandler('php://stdout', $log_level);
-    $handler->setFormatter($formatter);
-    $processor = new \Monolog\Processor\PsrLogMessageProcessor(\DateTimeInterface::W3C);
     $logger = new \Monolog\Logger(
         'php-fhir',
-        [$handler],
-        [$processor]
+        [
+            (new \Monolog\Handler\StreamHandler('php://stdout', $log_level))
+                ->setFormatter(
+                    new \Monolog\Formatter\LineFormatter(\Monolog\Formatter\LineFormatter::SIMPLE_FORMAT),
+                ),
+        ],
+        [
+            new \Monolog\Processor\PsrLogMessageProcessor(\DateTimeInterface::W3C),
+        ]
     );
 } else {
     $logger = new NullLogger();
@@ -375,11 +379,8 @@ if (null === $versions_to_generate) {
 // test specified versions
 foreach ($versions_to_generate as $vg) {
     if (!$config->hasVersion($vg)) {
-        echo sprintf(
-            "Version \"%s\" not found in config.  Available: %s\n\n",
-            $vg,
-            implode(', ', $config->listVersions())
-        );
+        echo 'Version "' . $vg . '" not found in config.  Available: ' .
+            implode(', ', $config->listVersions()) . PHP_EOL . PHP_EOL;
         exit(1);
     }
 }
@@ -387,137 +388,136 @@ foreach ($versions_to_generate as $vg) {
 $ins = [STDIN];
 $null = null;
 
-echo sprintf(
-    "\nLocating source(s) for versions: %s\n\n",
-    implode(', ', $versions_to_generate)
-);
+if (!$only_core) {
+    echo PHP_EOL;
 
-foreach ($versions_to_generate as $version_name) {
-    $version_name = trim($version_name);
+    echo 'Locating source(s) for versions: ' . implode(', ', $versions_to_generate) . PHP_EOL . PHP_EOL;
 
-    $version_config = $config->getVersion($version_name);
+    foreach ($versions_to_generate as $version_name) {
+        $version_name = trim($version_name);
 
-    $source_url = $version_config->getSourceUrl();
-    $schema_dir = $version_config->getSchemaPath();
+        $version_config = $config->getVersion($version_name);
 
-    // Download zip files
-    $zip_file_name = $schema_dir . DIRECTORY_SEPARATOR . $version_name . '.zip';
-    $zip_exists = file_exists($zip_file_name);
+        $source_url = $version_config->getSourceUrl();
+        $schema_dir = $version_config->getSchemaPath();
 
-    $download = $unzip = true;
+        // Download zip files
+        $zip_file_name = $schema_dir . DIRECTORY_SEPARATOR . $version_name . '.zip';
+        $zip_exists = file_exists($zip_file_name);
 
-    if ($zip_exists) {
-        if (!$use_existing && ($force_delete ||
-                ask("ZIP \"{$zip_file_name}\" already exists.\nWould you like to re-download from \"{$source_url}\"?"))
-        ) {
-            echo "Deleting {$zip_file_name} ...\n";
-            unlink($zip_file_name);
-            if (file_exists($zip_file_name)) {
-                echo "Unable to delete file {$zip_file_name}\n";
-                exit(1);
-            }
-            echo "File {$zip_file_name} deleted.\n";
-        } else {
-            echo "Using existing local copy\n";
-            $download = false;
-        }
-    }
+        $download = $unzip = true;
 
-    if ($download) {
-        // Download zip file...
-        echo sprintf('Downloading version %s from %s to %s%s', $version_name, $source_url, $zip_file_name, PHP_EOL);
-        $fh = fopen($zip_file_name, 'w');
-        $ch = curl_init($source_url);
-        curl_setopt_array(
-            $ch,
-            [
-                CURLOPT_USERAGENT => $user_agent,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HEADER => 0,
-                CURLOPT_FILE => $fh,
-            ]
-        );
-        $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err = curl_error($ch);
-        curl_close($ch);
-        fclose($fh);
-        if ('' !== $err) {
-            echo sprintf('Error downloading version %s from %s: %s%s', $version_name, $source_url, $err, PHP_EOL);
-            exit(1);
-        }
-        if ($code !== 200) {
-            echo sprintf('Error downlodaing from %s: %d (%s)%s%s', $version_name, $source_url, $code, $resp, PHP_EOL);
-            exit(1);
-        }
-    }
-
-    if (is_dir($schema_dir)) {
-        if (is_dir_empty($schema_dir)) {
-            // TODO: is this necessary...?
-            echo "Schema dir \"{$schema_dir}\" is empty, will remove and re-create\n";
-            nuke_dir($schema_dir);
-            if (!mkdir($schema_dir, 0755, true)) {
-                echo "Unable to create directory \"{$schema_dir}\. Exiting\n";
-                exit(1);
-            }
-        } elseif (!$download) {
-            echo "Did not download new zip and schema dir \"{$schema_dir}\" already exists, using...\n";
-            $unzip = false;
-        } elseif (!$use_existing) {
-            if ($force_delete || ask("Schema dir \"{$schema_dir}\" already exists, ok to delete?")) {
-                nuke_dir($schema_dir);
-                if (!mkdir($schema_dir, 0755, true)) {
-                    echo "Unable to create directory \"{$schema_dir}\. Exiting\n";
+        if ($zip_exists) {
+            if (!$use_existing && ($force_delete ||
+                    ask("ZIP \"{$zip_file_name}\" already exists." . PHP_EOL . "Would you like to re-download from \"{$source_url}\"?"))
+            ) {
+                echo "Deleting {$zip_file_name} ..." . PHP_EOL;
+                unlink($zip_file_name);
+                if (file_exists($zip_file_name)) {
+                    echo "Unable to delete file {$zip_file_name}" . PHP_EOL;
                     exit(1);
                 }
+                echo "File {$zip_file_name} deleted." . PHP_EOL;
             } else {
-                echo "Exiting\n";
-                exit(0);
+                echo "Using existing local copy" . PHP_EOL;
+                $download = false;
             }
         }
-    }
 
-    if ($unzip) {
-        if (class_exists('\\ZipArchive')) {
-            echo "ext-zip found\n";
-
-            $zip = new \ZipArchive();
-
-            if (true !== ($res = $zip->open($schema_dir . '.zip'))) {
-                echo "Unable to open file {$schema_dir}.zip.  ZipArchive err: {$res}\n";
+        if ($download) {
+            // Download zip file...
+            echo "Downloading FHIR schema for version {$version_name} from {$source_url} to {$zip_file_name}" . PHP_EOL;
+            $fh = fopen($zip_file_name, 'w');
+            $ch = curl_init($source_url);
+            curl_setopt_array(
+                $ch,
+                [
+                    CURLOPT_USERAGENT => $user_agent,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HEADER => 0,
+                    CURLOPT_FILE => $fh,
+                ]
+            );
+            $resp = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $err = curl_error($ch);
+            curl_close($ch);
+            fclose($fh);
+            if ('' !== $err) {
+                echo "Error downloading version {$version_name} from {$source_url}: {$err}" . PHP_EOL;
                 exit(1);
             }
-
-            // Extract Zip
-            $zip->extractTo($schema_dir);
-            $zip->close();
-        } else {
-            echo "ext-zip not found, trying \"unzip\" directly...\n";
-            $cmd = "unzip -o -qq {$schema_dir}.zip -d {$schema_dir}";
-            $output = [];
-            $code = 0;
-            echo "executing: {$cmd}\n";
-            exec($cmd, $output, $code);
-            if (0 !== $code) {
-                echo "unzip failed with code {$code}\noutput:\n";
-                foreach ($output as $line) {
-                    echo "-----> {$line}\n";
-                }
+            if ($code !== 200) {
+                echo "Error downloading version {$version_name} from {$source_url}: {$code} ({$resp})" . PHP_EOL;
                 exit(1);
+            }
+        }
+
+        if (is_dir($schema_dir)) {
+            if (is_dir_empty($schema_dir)) {
+                // TODO: is this necessary...?
+                echo "Schema dir \"{$schema_dir}\" is empty, will remove and re-create" . PHP_EOL;
+                nuke_dir($schema_dir);
+                if (!mkdir($schema_dir, 0755, true)) {
+                    echo "Unable to create directory \"{$schema_dir}\. Exiting" . PHP_EOL;
+                    exit(1);
+                }
+            } elseif (!$download) {
+                echo "Did not download new zip and schema dir \"{$schema_dir}\" already exists, using..." . PHP_EOL;
+                $unzip = false;
+            } elseif (!$use_existing) {
+                if ($force_delete || ask("Schema dir \"{$schema_dir}\" already exists, ok to delete?")) {
+                    nuke_dir($schema_dir);
+                    if (!mkdir($schema_dir, 0755, true)) {
+                        echo "Unable to create directory \"{$schema_dir}\. Exiting" . PHP_EOL;
+                        exit(1);
+                    }
+                } else {
+                    echo "Exiting" . PHP_EOL;
+                    exit(0);
+                }
+            }
+        }
+
+        if ($unzip) {
+            if (class_exists('\\ZipArchive')) {
+                echo "ext-zip found" . PHP_EOL;
+
+                $zip = new \ZipArchive();
+
+                if (true !== ($res = $zip->open($schema_dir . '.zip'))) {
+                    echo "Unable to open file {$schema_dir}.zip.  ZipArchive err: {$res}" . PHP_EOL;
+                    exit(1);
+                }
+
+                // Extract Zip
+                $zip->extractTo($schema_dir);
+                $zip->close();
+            } else {
+                echo "ext-zip not found, trying \"unzip\" directly..." . PHP_EOL;
+                $cmd = "unzip -o -qq {$schema_dir}.zip -d {$schema_dir}";
+                $output = [];
+                $code = 0;
+                echo "executing: {$cmd}" . PHP_EOL;
+                exec($cmd, $output, $code);
+                if (0 !== $code) {
+                    echo "unzip failed with code {$code}" . PHP_EOL . "output:" . PHP_EOL;
+                    foreach ($output as $line) {
+                        echo "-----> {$line}" . PHP_EOL;
+                    }
+                    exit(1);
+                }
             }
         }
     }
 }
 
+echo PHP_EOL;
+
 // create builder
 $builder = new Builder($config);
 
-echo sprintf(
-    "\nGenerating classes for versions: %s\n\n",
-    implode(', ', $versions_to_generate)
-);
-
-$builder->render(true, $versions_to_generate);
+// render entities based on flags.
+$builder->render($generate_core, $generate_library ? $versions_to_generate : []);
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;
