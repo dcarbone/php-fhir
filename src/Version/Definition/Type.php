@@ -792,20 +792,12 @@ class Type
 
             // these must only be added if the type has local properties
             if ($this->hasLocalProperties()) {
-                array_push(
-                    $traits,
-                    PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
-                    PHPFHIR_TRAIT_SOURCE_XMLNS,
-                );
+                $traits[] = PHPFHIR_TRAIT_SOURCE_XMLNS;
             }
         } else if (!$parentType->hasLocalProperties()) {
             // if this type _does_ have a parent, only add these traits if the parent does not have local properties
 
-            array_push(
-                $traits,
-                PHPFHIR_TRAIT_VALIDATION_ASSERTIONS,
-                PHPFHIR_TRAIT_SOURCE_XMLNS,
-            );
+            $traits[] = PHPFHIR_TRAIT_SOURCE_XMLNS;
         }
 
         return $traits;

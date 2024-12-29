@@ -56,8 +56,7 @@ echo require_with(
 class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFACE_TYPE ?>
 
 {
-    use <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>,
-        <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>;
+    use <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>;
 
     /** @var null|string */
     private null|string $_xhtml = null;

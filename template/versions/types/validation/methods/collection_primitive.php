@@ -21,7 +21,7 @@
 ob_start(); ?>
         if (isset($validationRules[self::FIELD_VALUE]) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             foreach($vs as $i => $v) {
-                $err = $this->_performValidation(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::performValidation(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
                 if (null !== $err) {
                     $key = sprintf('%s.%d', self::<?php echo $property->getFieldConstantName(); ?>, $i);
                     if (!isset($errs[$key])) {

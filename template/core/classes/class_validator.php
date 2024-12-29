@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2022-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
+class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
 
 {
     /**
@@ -37,7 +37,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param null|array|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $value
      * @return null|string
      */
-    protected function _assertMinOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $value): null|string
+    public static function assertMinOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $value): null|string
     {
         if (0 >= $expected || (1 === $expected && $value instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>)) {
             return null;
@@ -60,7 +60,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param null|array|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $value
      * @return null|string
      */
-    protected function _assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $value): null|string
+    public static function assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $value): null|string
     {
         if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || [] === $value || $value instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
             return null;
@@ -80,7 +80,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param null|string $value
      * @return null|string
      */
-    protected function _assertMinLength(string $typeName, string $fieldName, int $expected, null|string $value): null|string
+    public static function assertMinLength(string $typeName, string $fieldName, int $expected, null|string $value): null|string
     {
         if (0 >= $expected) {
             return null;
@@ -103,7 +103,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param null|string $value
      * @return null|string
      */
-    protected function _assertMaxLength(string $typeName, string $fieldName, int $expected, null|string $value): null|string
+    public static function assertMaxLength(string $typeName, string $fieldName, int $expected, null|string $value): null|string
     {
         if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || '' === $value) {
             return null;
@@ -123,7 +123,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param mixed $value
      * @return null|string
      */
-    protected function _assertValueInEnum(string $typeName, string $fieldName, array $expected, mixed $value): null|string
+    public static function assertValueInEnum(string $typeName, string $fieldName, array $expected, mixed $value): null|string
     {
         if ([] === $expected || in_array($value, $expected, true)) {
             return null;
@@ -151,7 +151,7 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param null|string|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_PRIMITIVE_TYPE); ?> $value
      * @return null|string
      */
-    protected function _assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|string|<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE ?> $value): null|string
+    public static function assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|string|<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE ?> $value): null|string
     {
         if ('' === $pattern || null === $value) {
             return null;
@@ -173,18 +173,17 @@ trait <?php echo PHPFHIR_TRAIT_VALIDATION_ASSERTIONS; ?>
      * @param mixed $value
      * @return null|string
      */
-    protected function _performValidation(string $typeName, string $fieldName, string $ruleName, mixed $constraint, mixed $value): null|string
+    public static function performValidation(string $typeName, string $fieldName, string $ruleName, mixed $constraint, mixed $value): null|string
     {
         return match ($ruleName) {
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_ENUM => $this->_assertValueInEnum($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MIN_LENGTH => $this->_assertMinLength($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MAX_LENGTH => $this->_assertMaxLength($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MIN_OCCURS => $this->_assertMinOccurs($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MAX_OCCURS => $this->_assertMaxOccurs($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_PATTERN => $this->_assertPatternMatch($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_ENUM => static::assertValueInEnum($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MIN_LENGTH => static::assertMinLength($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MAX_LENGTH => static::assertMaxLength($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MIN_OCCURS => static::assertMinOccurs($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MAX_OCCURS => static::assertMaxOccurs($typeName, $fieldName, $constraint, $value),
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_PATTERN => static::assertPatternMatch($typeName, $fieldName, $constraint, $value),
             default => sprintf('Type "%s" specifies unknown validation for field "%s": Name "%s"; Constraint "%s"', $typeName, $fieldName, $ruleName, var_export($constraint, true)),
         };
     }
 }
-<?php
-return ob_get_clean();
+<?php return ob_get_clean();

@@ -94,7 +94,7 @@ if (null !== $type->getParentType()) :
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {
-                $err = $this->_performValidation(<?php echo $ptype->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::performValidation(<?php echo $ptype->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
                 if (null !== $err) {
                     if (!isset($errs[self::<?php echo $property->getFieldConstantName(); ?>])) {
                         $errs[self::<?php echo $property->getFieldConstantName(); ?>] = [];
