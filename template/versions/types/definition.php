@@ -29,9 +29,7 @@ ob_start(); ?>
 
 {<?php if ([] !== $traits) : ?>
 
-<?php foreach ($traits as $trait) : ?>
-    use <?php echo $trait;?>;
-<?php endforeach;
-endif;
+    use <?php echo implode(",\n        ", $traits); ?>;
+<?php endif;
 
 return ob_get_clean();
