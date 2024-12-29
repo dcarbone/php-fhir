@@ -25,7 +25,6 @@ enum ConfigKeyEnum: string
     case ROOT_NAMESPACE = 'rootNamespace';
     case VERSIONS = 'versions';
     case SILENT = 'silent';
-    case SKIP_TESTS = 'skipTests';
     case LIBXML_OPTS = 'libxmlOpts';
 
     /**

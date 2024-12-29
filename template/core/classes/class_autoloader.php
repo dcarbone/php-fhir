@@ -28,22 +28,22 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-// version autoloaders
-<?php foreach($config->getVersionsIterator() as $version): ?>
-if (!class_exists('<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>', false)) {
-    require <?php echo FileUtils::buildAutoloaderRelativeFilepath(
-        $config->getFullyQualifiedName(false),
-        $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER),
-    ); ?>;
-    <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>::register();
-}
-<?php endforeach; ?>
-
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
 {
+    private const _VERSION_AUTOLOADER_MAP = [
+<?php foreach($config->getVersionsIterator() as $version): ?>
+        '<?php echo $version->getFullyQualifiedName(false); ?>\\' => [
+            '<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>',
+            <?php echo FileUtils::buildAutoloaderRelativeFilepath(
+                $config->getFullyQualifiedName(false),
+                $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER),
+            ); ?>,
+        ],
+<?php endforeach; ?>    ];
+
     /** @var array */
-    private const _CLASS_MAP = [
+    private const _CORE_CLASS_MAP = [
         // core types
 <?php foreach($config->getCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
         '<?php echo $coreFile->getFullyQualifiedName(false); ?>' => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
@@ -89,8 +89,19 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
      */
     public static function loadClass(string $class): null|bool
     {
-        if (isset(self::_CLASS_MAP[$class])) {
-            return (bool)require self::_CLASS_MAP[$class];
+        if (isset(self::_CORE_CLASS_MAP[$class])) {
+            return (bool)require self::_CORE_CLASS_MAP[$class];
+        }
+        foreach (self::_VERSION_AUTOLOADER_MAP as $vns => $map) {
+            if (str_starts_with($class, $vns)) {
+                if (!class_exists($map[0], false)) {
+                    if ((bool)require $map[1]) {
+                        return $map[0]::register();
+                    }
+                    return false;
+                }
+                return null;
+            }
         }
         return null;
     }

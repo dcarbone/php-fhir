@@ -47,8 +47,6 @@ class Config implements LoggerAwareInterface
 
     /** @var bool */
     private bool $_silent = false;
-    /** @var bool */
-    private bool $_skipTests = false;
     /** @var null|int */
     private null|int $_libxmlOpts;
 
@@ -213,24 +211,6 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @return bool
-     */
-    public function isSkipTests(): bool
-    {
-        return $this->_skipTests;
-    }
-
-    /**
-     * @param bool $skipTests
-     * @return static
-     */
-    public function setSkipTests(bool $skipTests): self
-    {
-        $this->_skipTests = $skipTests;
-        return $this;
-    }
-
-    /**
      * @return null|int
      */
     public function getLibxmlOpts(): null|int
@@ -307,19 +287,11 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @param bool $limit If true, limits return to only versions that are set to be generated
      * @return \DCarbone\PHPFHIR\Version[]
      */
-    public function getVersionsIterator(bool $limit = true): iterable
+    public function getVersionsIterator(): iterable
     {
-        if (!$limit) {
-            return \SplFixedArray::fromArray(array_values($this->_versions));
-        }
-        $out = [];
-        foreach ($this->_versionsToGenerate as $vn) {
-            $out[] = $this->_versions[$vn];
-        }
-        return \SplFixedArray::fromArray($out);
+        return new \ArrayIterator($this->_versions);
     }
 
     /**
@@ -354,27 +326,6 @@ class Config implements LoggerAwareInterface
     public function listVersions(): array
     {
         return array_keys($this->_versions);
-    }
-
-    /**
-     * Specify which versions are being generated this run.  An empty array assumes all.
-     *
-     * @param array $versionNames
-     * @return $this
-     */
-    public function setVersionsToGenerate(array $versionNames): self
-    {
-        $this->_versionsToGenerate = [];
-        if ([] === $versionNames) {
-            return $this;
-        }
-        foreach (array_unique($versionNames, SORT_STRING) as $vn) {
-            // test if this version is defined
-            $this->getVersion($vn);
-            // add to list.
-            $this->_versionsToGenerate[] = $vn;
-        }
-        return $this;
     }
 
     /**

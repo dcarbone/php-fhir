@@ -45,10 +45,14 @@ class Builder
 
     /**
      * Generate FHIR object classes based on XSD
+     *
+     * @param bool $coreFiles If true, will generate core PHPFHIR classes, interfaces, traits, and enums.
+     * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions
+     *                                 will be generated.
      * @throws \ErrorException
      * @throws \Exception
      */
-    public function render(): void
+    public function render(bool $coreFiles = true, null|array $versionNames = null): void
     {
         // register custom error handler to force explosions.
         set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
@@ -56,17 +60,23 @@ class Builder
         });
 
         // write php-fhir core files
-        $this->writeCoreFiles(
-            $this->config->getCoreFiles(),
-            ['config' => $this->config]
-        );
+        if ($coreFiles) {
+            $this->writeCoreFiles(
+                $this->config->getCoreFiles(),
+                ['config' => $this->config]
+            );
+        }
+
+        // if null, default to all versions.
+        if (null === $versionNames) {
+            $versionNames = $this->config->listVersions();
+        }
 
         // write fhir version files
-        $this->writeFHIRVersionFiles();
+        $this->writeFHIRVersionFiles(...$versionNames);
 
-        if (!$this->config->isSkipTests()) {
-            $this->writeFHIRVersionTestFiles();
-        }
+        // write fhir version test classes
+        $this->writeFHIRVersionTestFiles(...$versionNames);
     }
 
     /**
@@ -74,11 +84,13 @@ class Builder
      *
      * @throws \Exception
      */
-    public function writeFHIRVersionFiles(): void
+    public function writeFHIRVersionFiles(string ...$versionNames): void
     {
         $log = $this->config->getLogger();
 
-        foreach ($this->config->getVersionsIterator() as $version) {
+        foreach ($versionNames as $versionName) {
+            $version = $this->config->getVersion($versionName);
+
             $log->startBreak(sprintf('FHIR Version %s Code Generation', $version->getName()));
 
             // write version fhir type files
@@ -133,11 +145,13 @@ class Builder
      *
      * @throws \Exception
      */
-    public function writeFHIRVersionTestFiles(): void
+    public function writeFHIRVersionTestFiles(string ...$versionNames): void
     {
         $log = $this->config->getLogger();
 
-        foreach ($this->config->getVersionsIterator() as $version) {
+        foreach ($versionNames as $versionName) {
+            $version = $this->config->getVersion($versionName);
+
             $log->startBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
 
             $definition = $version->getDefinition();
