@@ -43,8 +43,6 @@ echo require_with(
     ]
 );
 
-// when unserializing, each type handles _every_ field directly.  this includes fields inherited from parents.
-
 if (0 < count($properties)) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'body.php',

@@ -221,8 +221,11 @@ class TypeImports implements \Countable
             $pns = $parentType->getFullyQualifiedNamespace(false);
             $this->addImport($parentType->getClassName(), $pns);
         } else {
-            $this->addImport(PHPFHIR_CLASSNAME_VALIDATOR, $configNS);
             $this->addImport(PHPFHIR_TRAIT_SOURCE_XMLNS, $configNS);
+        }
+
+        if ($this->type->hasLocalPropertiesWithValidations()) {
+            $this->addImport(PHPFHIR_CLASSNAME_VALIDATOR, $configNS);
         }
 
         // determine if we need to import a restriction base

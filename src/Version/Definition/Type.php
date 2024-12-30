@@ -377,7 +377,7 @@ class Type
                 }
             }
         }
-        return new \ArrayIterator($properties);
+        return \SplFixedArray::fromArray($properties, preserveKeys: false);
     }
 
     /**
