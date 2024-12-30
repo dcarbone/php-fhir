@@ -164,4 +164,4 @@ jobs:
       - name: 'Run tests'
         # language=sh
         run: |
-          ./vendor/bin/phpunit -c 'phpunit/${{ matrix.test-target }}.xml' --display-warnings --display-skipped
+          ./vendor/bin/phpunit -c 'phpunit/${{ matrix.test-target }}.xml'
