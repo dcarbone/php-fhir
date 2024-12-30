@@ -86,6 +86,8 @@ jobs:
             phpunit-version: '11.1'
           - php-version: '8.3'
             phpunit-version: '11.1'
+          - php-version: '8.4'
+            phpunit-version: '11.1'
 
     name: '${{ matrix.test-target }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     steps:
