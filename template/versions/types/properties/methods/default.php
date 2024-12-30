@@ -29,7 +29,7 @@ $config = $version->getConfig();
 $isPrimitiveType = $type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST);
 
 ob_start();
-foreach ($properties as $property) :
+foreach ($properties as $i => $property) :
     if ($property->isOverloaded()) {
         continue;
     }
@@ -41,6 +41,10 @@ foreach ($properties as $property) :
     $propertyType = $property->getValueFHIRType();
     $propertyTypeClassName = $propertyType->getClassName();
     $propertyTypeKind = $propertyType->getKind();
+
+    if ($i > 0) {
+        echo "\n";
+    }
 ?>
     /**<?php if ('' !== $documentation) : ?>
 
@@ -54,8 +58,33 @@ foreach ($properties as $property) :
 
     {
         return $this-><?php echo $propertyName; ?>;
+    }<?php if ($isCollection) : ?>
+
+
+    /**
+     * @return \ArrayIterator<<?php echo $propertyType->getFullyQualifiedClassName(true); ?>>
+     */
+    public function get<?php echo ucfirst($propertyName); ?>Iterator(): iterable
+    {
+        if (null === $this-><?php echo $propertyName; ?> || [] === $this-><?php echo $propertyName; ?>) {
+            return new \EmptyIterator();
+        }
+        return new \ArrayIterator($this-><?php echo $propertyName; ?>);
     }
-<?php if ($propertyType->hasPrimitiveParent() || $propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE_CONTAINER, TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) : ?>
+
+    /**
+     * @return \Generator<<?php echo $propertyType->getFullyQualifiedClassName(true); ?>>
+     */
+    public function get<?php echo ucfirst($propertyName); ?>Generator(): \Generator
+    {
+        foreach ((array)$this-><?php echo $propertyName; ?> as $v) {
+            yield $v;
+        }
+    }
+<?php
+    endif;
+    if ($propertyType->hasPrimitiveParent() || $propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE_CONTAINER, TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) : ?>
+
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -86,6 +115,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   if ($isCollection) : ?>
+
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -118,6 +148,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php   endif;
     elseif ($propertyTypeKind->isContainer($version)) : ?>
 
+
     /**<?php if ('' !== $documentation) : ?>
 
 <?php echo $documentation; ?>
@@ -133,6 +164,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   if ($isCollection) : ?>
+
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -177,6 +209,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php   endif;
     else : ?>
 
+
     /**<?php if ('' !== $documentation) : ?>
 
 <?php echo $documentation; ?>
@@ -195,6 +228,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   if ($isCollection) : ?>
+
 
     /**<?php if ('' !== $documentation) : ?>
 

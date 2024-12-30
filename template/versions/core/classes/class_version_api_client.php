@@ -75,12 +75,13 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      *
      * @see https://www.hl7.org/fhir/http.html#read
      *
-     * @param string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType
+     * @param string|<?php echo $version->getFullyQualifiedName(true, PHPFHIR_ENUM_VERSION_TYPE); ?> $resourceType
      * @param null|string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
      * @param null|int $count
-     * @param null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort
-     * @param null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format
-     * @param null|bool $parseheaders
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_SORT); ?> $sort
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> $format
+     * @param null|array $queryParams
+     * @param null|bool $parseHeaders
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>
 
      * @throws \Exception
@@ -90,7 +91,8 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
                             null|int $count = null,
                             null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null,
                             null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null,
-                            null|bool $parseheaders = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+                            null|array $queryParams = null,
+                            null|bool $parseHeaders = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
 
     {
         if (!is_string($resourceType)) {
@@ -112,8 +114,11 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
         if (null !== $format) {
             $req->format = $format;
         }
-        if (null !== $parseheaders) {
-            $req->parseHeaders = $parseheaders;
+        if (null !== $parseHeaders) {
+            $req->parseHeaders = $parseHeaders;
+        }
+        if (null !== $queryParams) {
+            $req->queryParams = $queryParams;
         }
 
         return $this->_client->exec($req);
@@ -124,12 +129,13 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      *
      * @see https://www.hl7.org/fhir/http.html#read
      *
-     * @param string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType
+     * @param string|<?php echo $version->getFullyQualifiedName(true, PHPFHIR_ENUM_VERSION_TYPE); ?> $resourceType
      * @param null|string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
      * @param null|int $count
-     * @param null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort
-     * @param null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format
-     * @param null|bool $parseheaders
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_SORT); ?> $sort
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> $format
+     * @param null|array $queryParams
+     * @param null|bool $parseHeaders
      * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
@@ -139,10 +145,11 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
                          null|int $count = null,
                          null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null,
                          null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null,
-                         null|bool $parseheaders = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                         null|array $queryParams = null,
+                         null|bool $parseHeaders = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $parseheaders);
+        $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseHeaders);
         $this->_requireOK($rc);
         return <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $rc->resp);
     }
@@ -165,24 +172,31 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     }
 <?php foreach($types->getChildrenOf('Resource') as $rsc) :
     $typeKind = $rsc->getKind();
-    if ($rsc->isRootType() || $typeKind->isContainer($version) || $typeKind->isOneOf(TypeKindEnum::RESOURCE_COMPONENT)) { continue; } ?>
+    if ($typeKind->isContainer($version) || $rsc->getFHIRName() === 'Bundle') { continue; }
+
+    $rscName = $rsc->getFHIRName();
+    $rscNameLen = strlen($rscName);
+    $rscNameIndent = str_repeat(' ', $rscNameLen);
+    ?>
 
     /**
-     * Query for one or more <?php echo $rsc->getFHIRName(); ?> resources.
+     * Read one <?php echo $rsc->getFHIRName(); ?> resource.
      *
-     * @param null|string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
-     * @param null|int $count
-     * @param null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort
-     * @param null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format
-     * @param null|bool $parseheaders
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE); ?>
+     * @param string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
+     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_API_FORMAT); ?> $format
+     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
 
      * @throws \Exception
      */
-    public function read<?php echo $rsc->getFHIRName(); ?>Raw(null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null, null|int $count = null, null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null, null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null, null|bool $parseheaders = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+    public function read<?php echo $rsc->getFHIRName(); ?>(string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID,
+                        <?php echo $rscNameIndent; ?> null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        return $this->readRaw(<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $rsc->getConstName(false); ?>, $resourceID, $count, $sort, $format, $parseheaders);
+        $rc = $this->readRaw(resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $rsc->getConstName(false); ?>,
+                             resourceID: $resourceID,
+                             format: $format);
+        $this->_requireOK($rc);
+        return <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $rc->resp);
     }
 <?php endforeach; ?>
 

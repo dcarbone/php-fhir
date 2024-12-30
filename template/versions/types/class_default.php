@@ -101,7 +101,7 @@ if (0 !== count($localProperties)) {
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'field_map.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'const.php',
         [
             'version' => $version,
             'type' => $type,

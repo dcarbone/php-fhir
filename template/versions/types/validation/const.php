@@ -22,11 +22,11 @@ $properties = $type->getLocalProperties()->getAllSortedPropertiesIterator();
 
 ob_start(); ?>
     /**
-     * Validation map for fields in type <?php echo $type->getFHIRName(); ?>
+     * Default validation map for fields in type <?php echo $type->getFHIRName(); ?>
 
      * @var array
      */
-    private const _VALIDATION_RULES = [<?php if (!$type->hasLocalPropertiesWithValidations()): ?>];
+    private const _DEFAULT_VALIDATION_RULES = [<?php if (!$type->hasLocalPropertiesWithValidations()): ?>];
 <?php else: foreach ($properties as $property) :
     $validationMap = $property->buildValidationMap();
     if ([] !== $validationMap) : ?>

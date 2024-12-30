@@ -39,7 +39,7 @@ ob_start(); ?>
      */
     public function _getValidationRules(): array
     {
-        return self::_VALIDATION_RULES;
+        return self::_DEFAULT_VALIDATION_RULES;
     }
 
     /**
@@ -55,38 +55,60 @@ ob_start(); ?>
 <?php else : ?>
         $errs = [];
 <?php endif; ?>
-<?php if ($type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) : ?>
         $validationRules = $this->_getValidationRules();
-<?php endif; ?>
-<?php foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property) {
-    $propertyType = $property->getValueFHIRType();
-    if (null === $propertyType) {
-        if ($property->isCollection()) {
-            echo require_with(
-                PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
-                $requireArgs + ['property' => $property]
-            );
-        } else {
-            echo require_with(
-                PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
-                $requireArgs + ['property' => $property]
-            );
-        }
-    } else if ($propertyType->getKind() === TypeKindEnum::PHPFHIR_XHTML) {
-        // TODO(@dcarbone): better way to omit validation
+<?php foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property) :
+    $validations = $property->buildValidationMap();
+    if ([] === $validations) {
         continue;
-    } else if ($property->isCollection()) {
-        echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'collection_typed.php',
-            $requireArgs + ['property' => $property]
-        );
-    } else {
-        echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'typed.php',
-            $requireArgs + ['property' => $property]
-        );
     }
-}
+    $propertyType = $property->getValueFHIRType();
+    if (null === $propertyType) :
+        if ($property->isCollection()) : ?>
+        if (isset($validationRules[self::FIELD_VALUE]) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
+            foreach($vs as $i => $v) {
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::performValidation(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
+                if (null !== $err) {
+                    $key = sprintf('%s.%d', self::<?php echo $property->getFieldConstantName(); ?>, $i);
+                    if (!isset($errs[$key])) {
+                        $errs[$key] = [];
+                    }
+                    $errs[$key][$rule] = $err;
+                }
+            }
+        }
+<?php
+        else : ?>
+        if (isset($validationRules[self::FIELD_VALUE]) && null !== $this->value) {
+            foreach($validationRules[self::FIELD_VALUE] as $rule => $constraint) {
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::performValidation(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $this->getFormattedValue());
+                if (null !== $err) {
+                    if (!isset($errs[self::FIELD_VALUE])) {
+                        $errs[self::FIELD_VALUE] = [];
+                    }
+                    $errs[self::FIELD_VALUE][$rule] = $err;
+                }
+            }
+        }
+<?php
+        endif;
+    elseif ($property->isCollection()) : ?>
+        if ([] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
+            foreach($vs as $i => $v) {
+                if ([] !== ($fieldErrs = $v->_getValidationErrors())) {
+                    $errs[sprintf('%s.%d', self::<?php echo $property->getFieldConstantName(); ?>, $i)] = $fieldErrs;
+                }
+            }
+        }
+<?php
+    else : ?>
+        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+            if ([] !== ($fieldErrs = $v->_getValidationErrors())) {
+                $errs[self::<?php echo $property->getFieldConstantName(); ?>] = $fieldErrs;
+            }
+        }
+<?php
+    endif;
+endforeach;
 if (null !== $type->getParentType()) :
     $ptype = $type;
     while (null !== $ptype) :

@@ -22,7 +22,6 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 
 $config = $version->getConfig();
-$namespace = $version->getFullyQualifiedName(false);
 
 $containerType = $types->getContainerType($version);
 if (null === $containerType) {
@@ -48,9 +47,6 @@ use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_CONTAINED
 
  *
  * This interface is applied to any class that is containable within a <?php echo $version->getName(); ?> <?php echo $containerType->getClassName(); ?> instance
-<?php if ('' !== $namespace) : ?> * @package \<?php echo $namespace; ?>
-<?php endif; ?>
-
  */
 interface <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 

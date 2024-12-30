@@ -27,11 +27,11 @@ namespace <?php echo $config->getFullyQualifiedName(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
 
 {
     /**
-     * Request method.
+     * HTTP request method.
      *
      * @var string
      */
@@ -45,14 +45,14 @@ final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     public string $url;
 
     /**
-     * Response status code
+     * HTTP response status code.
      *
      * @var int
      */
     public int $code;
 
     /**
-     * Response headers.
+     * HTTP response headers.
      *
      * @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE_HEADERS); ?>
 
@@ -60,24 +60,60 @@ final class <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
     public <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE_HEADERS; ?> $headers;
 
     /**
-     * Response body.
+     * HTTP response body.
      *
      * @var string
      */
     public string $resp;
 
     /**
-     * CURL error message.
+     * Client error.
      *
      * @var string
      */
     public string $err;
 
     /**
-     * CURL error number.
+     * Client error number.
      *
      * @var int
      */
     public int $errno;
+
+    public function getMethod(): null|string
+    {
+        return $this->method ?? null;
+    }
+
+    public function getUrl(): null|string
+    {
+        return $this->url ?? null;
+    }
+
+    public function getCode(): null|int
+    {
+        return $this->code ?? null;
+    }
+
+    public function getHeaders(): null|<?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE_HEADERS; ?>
+
+    {
+        return $this->headers ?? null;
+    }
+
+    public function getResp(): null|string
+    {
+        return $this->resp ?? null;
+    }
+
+    public function getErr(): null|string
+    {
+        return $this->err ?? null;
+    }
+
+    public function getErrno(): null|int
+    {
+        return $this->errno ?? null;
+    }
 }
 <?php return ob_get_clean();

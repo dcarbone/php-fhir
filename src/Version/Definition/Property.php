@@ -397,7 +397,6 @@ class Property
         $map = [];
         $memberOf = $this->getMemberOf();
 
-
         $pattern = $this->getPattern();
         if (null === $pattern) {
             $pattern = $memberOf->getPattern();
@@ -432,8 +431,6 @@ class Property
                 $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
             }
         }
-
-
 
         return $map;
     }
