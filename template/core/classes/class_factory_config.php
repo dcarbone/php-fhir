@@ -124,7 +124,7 @@ final class <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>
      *
      * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONFIG); ?>[]
      */
-    public function getVersionsIterator(): \Iterator
+    public function getVersionsIterator(): iterable
     {
         return new \ArrayIterator($this->_versions);
     }
