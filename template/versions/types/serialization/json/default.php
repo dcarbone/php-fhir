@@ -40,34 +40,79 @@ if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         }
 <?php endif;
 foreach ($properties as $property) :
+    $propConst = $property->getFieldConstantName();
+    $propConstExt = $property->getFieldConstantExtensionName();
+    $getter = $property->getGetterName();
+
     if ($property->isOverloaded()) :
         continue;
     endif;
     $propertyType = $property->getValueFHIRType();
     if ($propertyType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
-        echo require_with(
-            __DIR__ . DIRECTORY_SEPARATOR . 'default_property_primitive_list.php',
-                [
-                    'version' => $version,
-                    'property' => $property
-                ]
-        );
+        if ($property->isCollection()) : ?>
+        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
+            $out->{self::<?php echo $propConst; ?>} = $vs;
+        }
+<?php else : ?>
+        if (null !== ($v = $this-><?php echo $getter; ?>())) {
+            $out->{self::<?php echo $propConst; ?>} = $v;
+        }
+<?php endif;
+
     elseif ($propertyType->isValueContainer() || $propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->hasPrimitiveContainerParent()) :
-        echo require_with(
-            __DIR__ . DIRECTORY_SEPARATOR . 'default_property_value_primitive_container.php',
-            [
-                'version' => $version,
-                'property' => $property
-            ]
-        );
+        $propTypeClassname = $property->getValueFHIRType()->getClassName();
+
+        if ($property->isCollection()) : ?>
+        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
+            $vals = [];
+            $exts = [];
+            foreach ($vs as $v) {
+                if (null === $v) {
+                    continue;
+                }
+                $val = $v->getValue();
+                $ext = $v->jsonSerialize();
+                unset($ext->{<?php echo $propTypeClassname; ?>::FIELD_VALUE});
+                if (null !== $val) {
+                    $vals[] = $val;
+                }
+                if ([] !== $ext) {
+                    $exts[] = $ext;
+                }
+            }
+            if ([] !== $vals) {
+                $out->{self::<?php echo $propConst; ?>} = $vals;
+            }
+            if (count((array)$ext) > 0) {
+                $out->{self::<?php echo $propConstExt; ?>} = $exts;
+            }
+        }
+<?php else : ?>
+        if (null !== ($v = $this-><?php echo $getter; ?>())) {
+            if (null !== ($val = $v->getValue())) {
+                $out->{self::<?php echo $propConst; ?>} = $val;
+            }
+            $ext = $v->jsonSerialize();
+            unset($ext->{<?php echo $propTypeClassname; ?>::FIELD_VALUE});
+            if (count((array)$ext) > 0) {
+                $out->{self::<?php echo $propConstExt; ?>} = $ext;
+            }
+        }
+<?php endif;
+
     else :
-        echo require_with(
-                __DIR__ . DIRECTORY_SEPARATOR . 'default_property_default.php',
-                [
-                    'version' => $version,
-                    'property' => $property
-                ]
-        );
+        if ($property->isCollection()) : ?>
+        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
+            $out->{self::<?php echo $propConst; ?>} = [];
+            foreach($vs as $v) {
+                $out->{self::<?php echo $propConst; ?>}[] = $v;
+            }
+        }
+<?php else : ?>
+        if (null !== ($v = $this-><?php echo $getter; ?>())) {
+            $out->{self::<?php echo $propConst; ?>} = $v;
+        }
+<?php endif;
     endif;
 endforeach;
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
