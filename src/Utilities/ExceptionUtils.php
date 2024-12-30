@@ -25,7 +25,7 @@ use DCarbone\PHPFHIR\Version\Definition\Type;
  * Class ExceptionUtils
  * @package DCarbone\PHPFHIR\Utilities
  */
-abstract class ExceptionUtils
+class ExceptionUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type

@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIR\Render;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;

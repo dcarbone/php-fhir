@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Version\Definition\Type;
  * Class NameUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class NameUtils
+class NameUtils
 {
     public const VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
     public const FUNCTION_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';

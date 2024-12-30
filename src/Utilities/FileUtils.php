@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Enum\TestTypeEnum;
@@ -28,7 +27,7 @@ use RuntimeException;
  * Class FileUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-final class FileUtils
+class FileUtils
 {
     public const REGEX_SLASH_SEARCH = '{\\\}S';
     public const REGEX_SLASH_SEARCH_CLEANUP = '{/{2,}}S';

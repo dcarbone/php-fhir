@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-abstract class TypeHintUtils
+class TypeHintUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Version $version

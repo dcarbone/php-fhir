@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Version\Definition\Property;
  * Class DocumentationUtils
  * @package DCarbone\PHPFHIR\Utilities
  */
-abstract class DocumentationUtils
+class DocumentationUtils
 {
     /**
      * @param \DCarbone\PHPFHIR\Version\Definition\Property $property

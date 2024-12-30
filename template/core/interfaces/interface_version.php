@@ -43,12 +43,6 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION; ?>
     public function getSourceVersion(): string;
 
     /**
-     * Must return the source this version was generated from
-     * @return string
-     */
-    public function getSourceUrl(): string;
-
-    /**
      * Must return the date this FHIR version's source was generated
      * @return string
      */
