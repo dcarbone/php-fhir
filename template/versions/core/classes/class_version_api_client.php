@@ -19,7 +19,9 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 
 $config = $version->getConfig();
+$types = $version->getDefinition()->getTypes();
 $namespace = $version->getFullyQualifiedName(false);
+$bundleType = $types->getBundleType();
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
@@ -77,10 +79,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @throws \Exception
      */
     public function readRaw(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
-                         int $count = 1,
-                         null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null,
-                         null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null,
-                         null|bool $parseheaders = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+                            int $count = 1,
+                            null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null,
+                            null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null,
+                            null|bool $parseheaders = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
 
     {
         if (!is_string($resourceType)) {
@@ -146,5 +148,14 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
             throw new <?php echo PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE; ?>($rc, self::_STATUS_OK);
         }
     }
+<?php foreach($types->getChildrenOf('Resource') as $rsc) : if ($rsc->isAbstract()) { continue; } ?>
+
+    public function read<?php echo $rsc->getFHIRName(); ?>Raw(int $count = 1, null|<?php echo PHPFHIR_ENUM_API_SORT; ?> $sort = null, null|<?php echo PHPFHIR_ENUM_API_FORMAT; ?> $format = null, null|bool $parseheaders = null): <?php echo PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE; ?>
+
+    {
+        return $this->readRaw(<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $rsc->getConstName(false); ?>, $count, $sort, $format, $parseheaders);
+    }
+<?php endforeach; ?>
+
 }
 <?php return ob_get_clean();

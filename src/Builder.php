@@ -112,7 +112,7 @@ class Builder
                 ]
             );
 
-            foreach ($types->getIterator() as $type) {
+            foreach ($types->getGenerator() as $type) {
                 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
                 $log->debug("Generating class for type {$type}...");
 
@@ -170,7 +170,7 @@ class Builder
                 TestTypeEnum::INTEGRATION,
 //                TestTypeEnum::VALIDATION,
             ];
-            foreach ($types->getIterator() as $type) {
+            foreach ($types->getGenerator() as $type) {
                 if ($type->isAbstract()) {
                     continue;
                 }

@@ -39,7 +39,7 @@ abstract class TypeDecorator
      */
     public static function findComponentOfTypes(Config $config, Types $types): void
     {
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             $fhirName = $type->getFHIRName();
             if (!str_contains($fhirName, '.')) {
                 continue;
@@ -67,7 +67,7 @@ abstract class TypeDecorator
     public static function findRestrictionBaseTypes(Version $version, Types $types): void
     {
         $logger = $version->getConfig()->getLogger();
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             $fhirName = $type->getFHIRName();
 
             // skip primitive types as they are already as base as they can go
@@ -128,7 +128,7 @@ abstract class TypeDecorator
         static $knownInteger = ['totalResults'];
 
         $logger = $config->getLogger();
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             $fhirName = $type->getFHIRName();
 
             // try to locate parent type name...
@@ -184,7 +184,7 @@ abstract class TypeDecorator
     public static function determinePrimitiveTypes(Config $config, Types $types): void
     {
         $logger = $config->getLogger();
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             if (in_array($type->getFHIRName(), self::DSTU1_PRIMITIVES, true)) {
                 $ptn = PrimitiveTypeEnum::STRING->value;
                 $logger->debug(sprintf('(DSTU1 suppport) Type "%s" determined to be DSTU1 primitive', $type->getFHIRName()));
@@ -343,7 +343,7 @@ abstract class TypeDecorator
      */
     public static function determineParsedTypeKinds(Config $config, Version $version, Types $types): void
     {
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             self::determineParsedTypeKind($config, $version, $types, $type);
         }
     }
@@ -357,7 +357,7 @@ abstract class TypeDecorator
     {
         $versionName = $version->getName();
 
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             if ($types->isContainedType($type)) {
                 $type->setContainedType(true);
             }
@@ -376,7 +376,7 @@ abstract class TypeDecorator
             TypeKindEnum::QUANTITY,
         ];
 
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             // TODO: handle valueString, valueQuantity, etc. types?
 
             // skip primitive types and their child types
@@ -410,7 +410,7 @@ abstract class TypeDecorator
     public static function setCommentContainerFlag(Config $config, Types $types): void
     {
         static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::PHPFHIR_XHTML];
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             $type->setCommentContainer(
                 !$type->hasPrimitiveParent() && !$type->getKind()->isOneOf(...$skip)
             );
@@ -424,7 +424,7 @@ abstract class TypeDecorator
     public static function parseUnionMemberTypes(Config $config, Types $types): void
     {
         $log = $config->getLogger();
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             $unionOf = $type->getUnionOf();
             if ([] === $unionOf) {
                 continue;

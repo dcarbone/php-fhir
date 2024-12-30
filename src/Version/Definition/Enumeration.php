@@ -73,7 +73,7 @@ class Enumeration implements \Countable
      */
     public function getIterator(): iterable
     {
-        return \SplFixedArray::fromArray($this->values);
+        return new \ArrayIterator($this->values);
     }
 
     /**

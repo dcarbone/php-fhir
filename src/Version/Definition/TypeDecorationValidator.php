@@ -40,7 +40,7 @@ abstract class TypeDecorationValidator
         $versionName = $version->getName();
 
         $seenClasses = [];
-        foreach ($types->getIterator() as $type) {
+        foreach ($types->getGenerator() as $type) {
             $typeKind = $type->getKind();
 
             if ($type->isRootType()) {

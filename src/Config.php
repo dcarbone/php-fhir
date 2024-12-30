@@ -291,7 +291,9 @@ class Config implements LoggerAwareInterface
      */
     public function getVersionsIterator(): iterable
     {
-        return new \ArrayIterator($this->_versions);
+        foreach ($this->_versions as $v) {
+            yield $v;
+        }
     }
 
     /**

@@ -157,7 +157,17 @@ class Types implements Countable
      */
     public function getIterator(): iterable
     {
-        return new ArrayIterator($this->types);
+        return new \ArrayIterator($this->types);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Version\Definition\Type[]
+     */
+    public function getGenerator(): iterable
+    {
+        foreach($this->types as $type) {
+            yield $type;
+        }
     }
 
     /**
@@ -251,6 +261,25 @@ class Types implements Countable
             }
         }
         return $this->bundleType ?? null;
+    }
+
+    /**
+     * @param string|\DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @return \DCarbone\PHPFHIR\Version\Definition\Type[]
+     */
+    public function getChildrenOf(string|Type $type): iterable
+    {
+        if (is_string($type)) {
+            $type = $this->getTypeByName($type);
+            if (null === $type) {
+                return;
+            }
+        }
+        foreach ($this->types as $t) {
+            if (in_array($type, $t->getParentTypes(), true)) {
+                yield $t;
+            }
+        }
     }
 
     /**

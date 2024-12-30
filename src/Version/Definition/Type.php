@@ -111,12 +111,13 @@ class Type
      * @param string $sourceFilename
      */
     public function __construct(
-        Config $config,
-        Version $version,
-        string $fhirName,
+        Config                $config,
+        Version               $version,
+        string                $fhirName,
         null|SimpleXMLElement $sourceSXE = null,
-        string $sourceFilename = ''
-    ) {
+        string                $sourceFilename = ''
+    )
+    {
         if ('' === ($fhirName = trim($fhirName))) {
             throw new DomainException('$fhirName must be defined');
         }
@@ -299,7 +300,7 @@ class Type
      */
     public function getFullyQualifiedTestNamespace(TestTypeEnum $testType, bool $leadingSlash): string
     {
-        return $this->getVersion()->getFullyQualifiedTestsName($testType, $leadingSlash,$this->getTypeNamespace());
+        return $this->getVersion()->getFullyQualifiedTestsName($testType, $leadingSlash, $this->getTypeNamespace());
     }
 
     /**
@@ -352,7 +353,7 @@ class Type
      */
     public function hasLocalPropertiesWithValidations(): bool
     {
-        foreach($this->getlocalProperties()->getAllSortedPropertiesIterator() as $property) {
+        foreach ($this->getlocalProperties()->getAllSortedPropertiesIterator() as $property) {
             if ([] !== $property->buildValidationMap()) {
                 return true;
             }
@@ -366,17 +367,17 @@ class Type
     public function getAllPropertiesIterator(): iterable
     {
         $properties = [];
-        foreach($this->getLocalProperties()->getLocalPropertiesIterator() as $property) {
+        foreach ($this->getLocalProperties()->getLocalPropertiesIterator() as $property) {
             $properties[$property->getName()] = $property;
         }
-        foreach($this->getParentTypes() as $parentType) {
-            foreach($parentType->getAllPropertiesIterator() as $property) {
+        foreach ($this->getParentTypes() as $parentType) {
+            foreach ($parentType->getAllPropertiesIterator() as $property) {
                 if (!isset($properties[$property->getName()])) {
                     $properties[$property->getName()] = $property;
                 }
             }
         }
-        return \SplFixedArray::fromArray($properties, false);
+        return new \ArrayIterator($properties);
     }
 
     /**

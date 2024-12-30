@@ -44,7 +44,7 @@ class Properties implements Countable
     /** @var bool */
     private bool $cacheBuilt = false;
 
-    /** @var \DCarbone\PHPFHIR\Config*/
+    /** @var \DCarbone\PHPFHIR\Config */
     private Config $config;
 
     /** @var \DCarbone\PHPFHIR\Version */
@@ -160,7 +160,7 @@ class Properties implements Countable
      */
     public function getAllPropertiesIterator(): iterable
     {
-        return SplFixedArray::fromArray($this->properties, preserveKeys: false);
+        return new \ArrayIterator($this->properties);
     }
 
     /**
@@ -171,7 +171,7 @@ class Properties implements Countable
     public function getAllSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
-        return SplFixedArray::fromArray($this->_sortedProperties, preserveKeys: false);
+        return new \ArrayIterator($this->_sortedProperties);
     }
 
     /**
@@ -182,7 +182,7 @@ class Properties implements Countable
     public function getLocalPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
-        return SplFixedArray::fromArray($this->_localProperties, preserveKeys: false);
+        return new \ArrayIterator($this->_localProperties);
     }
 
     /**
@@ -193,14 +193,14 @@ class Properties implements Countable
     public function getLocalSortedPropertiesIterator(): iterable
     {
         $this->_buildLocalCaches();
-        return SplFixedArray::fromArray($this->_localSortedProperties, preserveKeys: false);
+        return new \ArrayIterator($this->_localSortedProperties);
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Enum\TypeKindEnum|null ...$kinds
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function getLocalPropertiesOfTypeKinds(bool $includeCollections, null|TypeKindEnum... $kinds): iterable
+    public function getLocalPropertiesOfTypeKinds(bool $includeCollections, null|TypeKindEnum...$kinds): iterable
     {
         $out = [];
         foreach ($this->getLocalPropertiesIterator() as $property) {
@@ -212,7 +212,7 @@ class Properties implements Countable
                 $out[] = $property;
             }
         }
-        return SplFixedArray::fromArray($out, preserveKeys: false);
+        return new \ArrayIterator($out);
     }
 
     /**
