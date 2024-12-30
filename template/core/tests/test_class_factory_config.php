@@ -47,7 +47,9 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_FACTORY_CONFIG; ?> extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $config = new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>([
             'versions' => [
-                'class' => 'some class',
+                [
+                    'class' => 'some class',
+                ],
             ]
         ]);
     }
@@ -57,7 +59,9 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_FACTORY_CONFIG; ?> extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $config = new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>([
             'versions' => [
-                'name' => 'FHIRTEST',
+                [
+                    'name' => 'FHIRTEST',
+                ],
             ]
         ]);
     }
@@ -67,8 +71,10 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_FACTORY_CONFIG; ?> extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $config = new <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>([
             'versions' => [
-                'name' => 'FHIRTEST',
-                'class' => \stdClass::class,
+                [
+                    'name' => 'FHIRTEST',
+                    'class' => '\\mygreatclass',
+                ],
             ]
         ]);
     }
