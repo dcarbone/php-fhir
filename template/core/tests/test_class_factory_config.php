@@ -21,9 +21,7 @@
 
 $coreFiles = $config->getCoreFiles();
 
-$constsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $factConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FACTORY_CONFIG);
-$enumFactConfigKeyClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_FACTORY_CONFIG_KEY);
 
 ob_start();
 
@@ -34,9 +32,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-use <?php echo $constsClass->getFullyQualifiedName(false); ?>;
 use <?php echo $factConfigClass->getFullyQualifiedName(false); ?>;
-use <?php echo $enumFactConfigKeyClass->getFullyQualifiedName(false); ?>;
 use PHPUnit\Framework\TestCase;
 
 class <?php echo $coreFile->getEntityName(); ?> extends TestCase
