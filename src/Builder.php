@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
@@ -104,13 +103,7 @@ class Builder
             $types = $definition->getTypes();
 
             // write version core files
-            $this->writeCoreFiles(
-                $version->getCoreFiles(),
-                [
-                    'version' => $version,
-                    'types' => $definition->getTypes(),
-                ]
-            );
+            $this->writeCoreFiles($version->getCoreFiles(), ['version' => $version]);
 
             foreach ($types->getGenerator() as $type) {
                 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -146,57 +139,57 @@ class Builder
      */
     public function writeFHIRVersionTestFiles(string ...$versionNames): void
     {
-        $log = $this->config->getLogger();
-
-        foreach ($versionNames as $versionName) {
-            $version = $this->config->getVersion($versionName);
-
-            $log->startBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
-
-            $definition = $version->getDefinition();
-
-            if (!$definition->isDefined()) {
-                $log->startBreak('XSD Parsing');
-                $definition->buildDefinition();
-                $log->endBreak('XSD Parsing');
-            }
-
-            $types = $definition->getTypes();
-
-            $log->startBreak('Test Class Generation');
-
-            $testTypes = [
-                TestTypeEnum::UNIT,
-                TestTypeEnum::INTEGRATION,
-//                TestTypeEnum::VALIDATION,
-            ];
-            foreach ($types->getGenerator() as $type) {
-                if ($type->isAbstract()) {
-                    continue;
-                }
-
-                foreach ($testTypes as $testType) {
-                    // only render integration and validation tests if this is a "resource" type
-                    if (!$type->isResourceType() && $testType->isOneOf(TestTypeEnum::INTEGRATION, TestTypeEnum::VALIDATION)) {
-                        continue;
-                    }
-
-                    $log->debug("Generated {$testType->value} test class for type {$type}...");
-                    $classDefinition = Templates::renderVersionTypeClassTest($version, $types, $type, $testType);
-                    $filepath = FileUtils::buildTypeTestFilePath($version, $type, $testType);
-                    if (false === file_put_contents($filepath, $classDefinition)) {
-                        throw new \RuntimeException(
-                            sprintf(
-                                'Unable to write Type %s class definition to file %s',
-                                $filepath,
-                                $type
-                            )
-                        );
-                    }
-                }
-            }
-            $log->endBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
-        }
+//        $log = $this->config->getLogger();
+//
+//        foreach ($versionNames as $versionName) {
+//            $version = $this->config->getVersion($versionName);
+//
+//            $log->startBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
+//
+//            $definition = $version->getDefinition();
+//
+//            if (!$definition->isDefined()) {
+//                $log->startBreak('XSD Parsing');
+//                $definition->buildDefinition();
+//                $log->endBreak('XSD Parsing');
+//            }
+//
+//            $types = $definition->getTypes();
+//
+//            $log->startBreak('Test Class Generation');
+//
+//            $testTypes = [
+//                TestTypeEnum::UNIT,
+//                TestTypeEnum::INTEGRATION,
+////                TestTypeEnum::VALIDATION,
+//            ];
+//            foreach ($types->getGenerator() as $type) {
+//                if ($type->isAbstract()) {
+//                    continue;
+//                }
+//
+//                foreach ($testTypes as $testType) {
+//                    // only render integration and validation tests if this is a "resource" type
+//                    if (!$type->isResourceType() && $testType->isOneOf(TestTypeEnum::INTEGRATION, TestTypeEnum::VALIDATION)) {
+//                        continue;
+//                    }
+//
+//                    $log->debug("Generated {$testType->value} test class for type {$type}...");
+//                    $classDefinition = Templates::renderVersionTypeClassTest($version, $types, $type, $testType);
+//                    $filepath = FileUtils::buildTypeTestFilePath($version, $type, $testType);
+//                    if (false === file_put_contents($filepath, $classDefinition)) {
+//                        throw new \RuntimeException(
+//                            sprintf(
+//                                'Unable to write Type %s class definition to file %s',
+//                                $filepath,
+//                                $type
+//                            )
+//                        );
+//                    }
+//                }
+//            }
+//            $log->endBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
+//        }
     }
 
     /**
@@ -211,11 +204,11 @@ class Builder
         $this->log->startBreak('Core Files');
 
         // render each core file
-        foreach ($coreFiles->getIterator() as $coreFile) {
-            /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+        foreach ($coreFiles->getGenerator() as $coreFile) {
+            FileUtils::mkdirRecurse($coreFile->getFilepath());
             $this->writeFile(
                 $coreFile->getFilepath(),
-                Templates::renderCoreTemplate($coreFile->getTemplateFile(), $templateArgs)
+                Templates::renderCoreFile($this->config, $coreFile),
             );
         }
 

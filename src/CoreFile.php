@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 class CoreFile
@@ -34,7 +33,9 @@ class CoreFile
     /** @var string */
     private string $_namespace;
     /** @var string */
-    private string $_classname;
+    private string $_entityName;
+    /** @var bool */
+    private bool $_isAbstract = false;
     /** @var bool */
     private bool $_isTest = false;
     /** @var bool */
@@ -44,12 +45,9 @@ class CoreFile
      * @param string $templateFile
      * @param string $outDir
      * @param string $baseNS
-     * @param string $testNS
      */
-    public function __construct(string $templateFile, string $outDir, string $baseNS, string $testNS)
+    public function __construct(string $templateFile, string $outDir, string $baseNS)
     {
-        /** @var $fi \SplFileInfo */
-
         $this->_templateFile = $templateFile;
 
         // get filename
@@ -57,39 +55,29 @@ class CoreFile
         // store "type"
         $this->_type = substr($this->_filename, 0, strpos($this->_filename, '_'));
         // trim "type" and ".php"
-        $this->_filename = strstr(substr($this->_filename, strpos($this->_filename, '_') + 1), '.', true);
+        $this->_filename = strstr(substr($this->_filename, strlen($this->_type) + 1), '.', true);
         // classname suffix
-        $suffix = ucfirst($this->_type);
+        $suffix = NameUtils::phpNameFormat($this->_type);
 
-        // define "default" namespace
-        $this->_namespace = ltrim($baseNS, '\\');
+        $this->_namespace = ltrim($baseNS, NAMESPACE_SEPARATOR);
 
         if ('class' === $this->_type) {
             // 'class' types do have suffix
             $suffix = '';
             $this->_isAutoloader = str_starts_with($this->_filename, 'autoloader');
+            $this->_isAbstract = str_starts_with($this->_filename, 'abstract');
         } else if ('test' === $this->_type) {
             // mark this as a test file
             $this->_isTest = true;
-            // test classes have different namespace
-            $this->_namespace = $testNS;
             // trim subtype
-            $this->_filename = substr($this->_filename, strpos($this->_filename, '_') + 1);
+            $this->_filename = substr($this->_filename, 6);
         }
 
         // construct class filename
-        $this->_classname = sprintf(
-            '%s%s',
-            implode('', array_map('classFilenameFormat', explode('_', $this->_filename))),
-            $suffix
-        );
+        $this->_entityName = NameUtils::templateFilenameToPHPName($this->_filename) . $suffix;
 
         // build full filepath
-        $this->_filepath = FileUtils::buildCoreFilePath(
-            $outDir,
-            $this->_namespace,
-            $this->_classname,
-        );
+        $this->_filepath = $outDir . DIRECTORY_SEPARATOR . "{$this->_entityName}.php";
     }
 
     /**
@@ -135,19 +123,30 @@ class CoreFile
     /**
      * @return string
      */
-    public function getClassname(): string
+    public function getEntityName(): string
     {
-        return $this->_classname;
+        return $this->_entityName;
     }
 
+    /**
+     * @param bool $leadingSlash
+     * @return string
+     */
+    public function getFullyQualifiedNamespace(bool $leadingSlash): string
+    {
+        return match ($leadingSlash) {
+            true => NAMESPACE_SEPARATOR . $this->_namespace,
+            default => $this->_namespace,
+        };
+    }
+
+    /**
+     * @param bool $leadingSlash
+     * @return string
+     */
     public function getFullyQualifiedName(bool $leadingSlash): string
     {
-        if ('' === $this->_namespace) {
-            $ns = $this->_classname;
-        } else {
-            $ns = sprintf('%s\\%s', $this->_namespace, $this->_classname);
-        }
-        return $leadingSlash ? sprintf('\\%s', $ns) : $ns;
+        return $this->getFullyQualifiedNamespace($leadingSlash) . NAMESPACE_SEPARATOR . $this->_entityName;
     }
 
     /**
@@ -164,5 +163,13 @@ class CoreFile
     public function isAutoloader(): bool
     {
         return $this->_isAutoloader;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAbstract(): bool
+    {
+        return $this->_isAbstract;
     }
 }

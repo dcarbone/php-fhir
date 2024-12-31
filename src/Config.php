@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -125,7 +124,6 @@ class Config implements LoggerAwareInterface
             $this->getOutputPath(),
             PHPFHIR_TEMPLATE_CORE_DIR,
             $this->getFullyQualifiedName(true),
-            $this->getFullyQualifiedTestsName(TestTypeEnum::BASE, true)
         );
     }
 
@@ -351,17 +349,6 @@ class Config implements LoggerAwareInterface
             return $ns;
         }
         return sprintf('%s\\%s', $ns, implode('\\', $bits));
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
-     * @param bool $leadingSlash
-     * @param string ...$bits
-     * @return string
-     */
-    public function getFullyQualifiedTestsName(TestTypeEnum $testType, bool $leadingSlash, string...$bits): string
-    {
-        return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
     }
 
     /**

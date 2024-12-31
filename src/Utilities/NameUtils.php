@@ -111,6 +111,15 @@ class NameUtils
         '-' => '_HYPHEN_',
     ];
 
+    private const _NAME_REPLACE_MAP = [
+        'api' => 'API',
+        'fhir' => 'FHIR',
+        'xhtml' => 'XHTML',
+        'xml' => 'XML',
+        'http' => 'HTTP',
+        'curl' => 'CURL',
+    ];
+
     /** @var array */
     private static array $constNameMap = [];
 
@@ -183,7 +192,8 @@ class NameUtils
         $lastUpper = false;
         foreach (str_split($name) as $chr) {
             if (in_array($chr, self::_UPPER, true) || in_array($chr, self::_NUMS, true)) {
-                if ('' !== $constName && !$lastUpper && !str_ends_with($constName, '_')) { // really simplistic abbreviation detection...
+                // really simplistic abbreviation detection...
+                if ('' !== $constName && !$lastUpper && !str_ends_with($constName, '_')) {
                     $constName .= '_';
                 }
                 $constName .= $chr;
@@ -212,5 +222,25 @@ class NameUtils
     public static function getTypeXMLElementName(Type $type): string
     {
         return str_replace(self::$classNameSearch, self::$classNameReplace, $type->getFHIRName());
+    }
+
+    /**
+     * This is a horrendously named function.
+     *
+     * @param string $bit
+     * @return string
+     */
+    public static function phpNameFormat(string $bit): string
+    {
+        return self::_NAME_REPLACE_MAP[$bit] ?? ucfirst($bit);
+    }
+
+    public static function templateFilenameToPHPName(string $filename, string $explode = '_', string $join = ''): string
+    {
+        $parts = [];
+        foreach (explode($explode, $filename) as $bit) {
+            $parts[] = self::phpNameFormat($bit);
+        }
+        return implode($join, array_filter($parts));
     }
 }

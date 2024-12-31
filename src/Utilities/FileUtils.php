@@ -35,34 +35,15 @@ class FileUtils
     public const REGEX_SLASH_REPLACE = '/';
 
     /**
-     * @param string ...$bits
-     * @return string
+     * @param string $path
+     * @param int $dirPermMask
      */
-    public static function mkdirRecurse(string ...$bits): string
+    public static function mkdirRecurse(string $path, int $dirPermMask = 0777): void
     {
-        $path = '';
-        foreach (preg_split(self::REGEX_DIR_SPLIT, implode(DIRECTORY_SEPARATOR, $bits)) as $dir) {
-            $dir = trim($dir);
-            if ('' === $dir) {
-                continue;
-            }
-            $path .= DIRECTORY_SEPARATOR . $dir;
-        }
-        if (!is_dir($path) && !mkdir($path, 0777, true)) {
+        $dirPath = pathinfo($path, PATHINFO_DIRNAME);
+        if (!is_dir($dirPath) && !mkdir($dirPath, $dirPermMask, true)) {
             throw new RuntimeException(sprintf('Unable to create directory at path "%s"', $path));
         }
-        return realpath($path);
-    }
-
-    /**
-     * @param string $baseDir
-     * @param string $namespace
-     * @param string $filename
-     * @return string
-     */
-    public static function buildCoreFilePath(string $baseDir, string $namespace, string $filename): string
-    {
-        return self::mkdirRecurse($baseDir, self::cleanupPath($namespace)) . DIRECTORY_SEPARATOR . "{$filename}.php";
     }
 
     /**
@@ -111,7 +92,7 @@ class FileUtils
      * @param string $namespace
      * @return string
      */
-    protected static function cleanupPath(string $namespace): string
+    public static function cleanupPath(string $namespace): string
     {
         $namespace = rtrim($namespace, '\\/');
         return preg_replace(

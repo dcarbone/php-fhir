@@ -18,6 +18,8 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+
 class CoreFiles
 {
     /** @var string */
@@ -32,16 +34,27 @@ class CoreFiles
      * @param string $outputDir
      * @param string $templateDir
      * @param string $baseNS
-     * @param string $testNS
      */
-    public function __construct(string $outputDir, string $templateDir, string $baseNS, string $testNS)
+    public function __construct(string $outputDir, string $templateDir, string $baseNS)
     {
-        $this->_outputDir = $outputDir;
-        $this->_templateDir = $templateDir;
+        $this->_outputDir = realpath($outputDir);
+        $this->_templateDir = realpath($templateDir);
+        $rootLen = strlen($this->_templateDir);
 
         foreach ($this->getTemplateFileIterator() as $fpath => $fi) {
             /** @var $fi \SplFileInfo */
-            $this->_files[] = new CoreFile($fpath, $outputDir, $baseNS, $testNS);
+
+            $outDir = $this->_outputDir;
+            $outNS = $baseNS;
+
+            $sub = substr($fi->getPath(), $rootLen);
+            if ('' !== $sub) {
+                $outNS .= NAMESPACE_SEPARATOR . NameUtils::templateFilenameToPHPName($sub, DIRECTORY_SEPARATOR, NAMESPACE_SEPARATOR);
+            }
+
+            $outDir .= DIRECTORY_SEPARATOR . NameUtils::templateFilenameToPHPName($outNS, NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR);
+
+            $this->_files[] = new CoreFile($fpath, $outDir, $outNS);
         }
     }
 
@@ -61,6 +74,16 @@ class CoreFiles
         return $this->_templateDir;
     }
 
+    public function getCoreFileByEntityName(string $name): CoreFile
+    {
+        foreach ($this->_files as $file) {
+            if ($file->getEntityName() === $name) {
+                return $file;
+            }
+        }
+        throw new \OutOfBoundsException(sprintf('Unable to locate CoreFile for entity name "%s"', $name));
+    }
+
     /**
      * @return \RecursiveIteratorIterator
      */
@@ -78,26 +101,18 @@ class CoreFiles
     /**
      * @return \DCarbone\PHPFHIR\CoreFile[]
      */
-    public function getIterator(): \SplFixedArray
+    public function getIterator(): iterable
     {
-        $files = $this->_files;
-        usort($files, function(CoreFile $a, CoreFile $b): int {
-            return strnatcasecmp($a->getClassname(), $b->getClassname());
-        });
-        return \SplFixedArray::fromArray($files, false);
+        return new \ArrayIterator($this->_files);
     }
 
-    public function getAutoloadersIterator(): \SplFixedArray
+    /**
+     * @return \Generator<\DCarbone\PHPFHIR\CoreFile>
+     */
+    public function getGenerator(): \Generator
     {
-        $autoloaders = [];
-        foreach ($this->_files as $file) {
-            if ($file->isAutoloader()) {
-                $autoloaders[] = $file;
-            }
+        foreach($this->_files as $file) {
+            yield $file;
         }
-        usort($autoloaders, function(CoreFile $a, CoreFile $b): int {
-            return strnatcasecmp($a->getClassname(), $b->getClassname());
-        });
-        return \SplFixedArray::fromArray($autoloaders, false);
     }
 }

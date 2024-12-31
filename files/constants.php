@@ -21,6 +21,8 @@ define('PHPFHIR_ROOT_DIR', realpath(dirname(__DIR__)));
 define('PHPFHIR_BIN_DIR', realpath(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'bin'));
 define('PHPFHIR_DEFAULT_OUTPUT_DIR', realpath(PHPFHIR_ROOT_DIR . DIRECTORY_SEPARATOR . 'output'));
 
+const NAMESPACE_SEPARATOR = '\\';
+
 // type suffixes
 const PHPFHIR_PRIMITIVE_SUFFIX = '-primitive';
 const PHPFHIR_LIST_SUFFIX = '-list';
@@ -80,11 +82,6 @@ const PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG = 'UnserializeConfig';
 const PHPFHIR_CLASSNAME_SERIALIZE_CONFIG = 'SerializeConfig';
 const PHPFHIR_CLASSNAME_RESPONSE_PARSER = 'ResponseParser';
 const PHPFHIR_CLASSNAME_CONSTANTS = 'Constants';
-const PHPFHIR_CLASSNAME_API_CLIENT = 'APIClient';
-const PHPFHIR_CLASSNAME_API_CLIENT_CONFIG = 'APIClientConfig';
-const PHPFHIR_CLASSNAME_API_CLIENT_REQUEST = 'APIClientRequest';
-const PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE = 'APIClientResponse';
-const PHPFHIR_CLASSNAME_API_CLIENT_RESPONSE_HEADERS = 'APIClientResponseHeaders';
 const PHPFHIR_CLASSNAME_XML_WRITER = 'XMLWriter';
 const PHPFHIR_CLASSNAME_VALIDATOR = 'Validator';
 
@@ -96,7 +93,6 @@ const PHPFHIR_INTERFACE_PRIMITIVE_TYPE = 'PrimitiveTypeInterface';
 const PHPFHIR_INTERFACE_VERSION = 'VersionInterface';
 const PHPFHIR_INTERFACE_VERSION_CONFIG = 'VersionConfigInterface';
 const PHPFHIR_INTERFACE_VERSION_TYPE_MAP = 'VersionTypeMapInterface';
-const PHPFHIR_INTERFACE_API_CLIENT = 'APIClientInterface';
 
 // Core traits
 const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'CommentContainerTrait';
@@ -109,15 +105,23 @@ const PHPFHIR_ENUM_VERSION_CONFIG_KEY = 'VersionConfigKeyEnum';
 const PHPFHIR_ENUM_UNSERIALIZE_CONFIG_KEY = 'UnserializeConfigKeyEnum';
 const PHPFHIR_ENUM_SERIALIZE_CONFIG_KEY = 'SerializeConfigKeyEnum';
 const PHPFHIR_ENUM_VERSION = 'VersionEnum';
-const PHPFHIR_ENUM_API_FORMAT = 'APIFormatEnum';
 const PHPFHIR_ENUM_XML_LOCATION = 'XMLLocationEnum';
-const PHPFHIR_ENUM_API_RESOURCE_LIST = 'APIResourceListEnum';
-const PHPFHIR_ENUM_API_SORT = 'APISortEnum';
 
 // Core exceptions
-const PHPFHIR_EXCEPTION_ABSTRACT_API_ERROR = 'AbstractAPIErrorException';
-const PHPFHIR_EXCEPTION_API_CURL_ERROR = 'APICURLErrorException';
-const PHPFHIR_EXCEPTION_API_UNEXPECTED_RESPONSE_CODE = 'APIUnexpectedResponseCodeException';
+const PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT = 'AbstractClientException';
+const PHPFHIR_EXCEPTION_CLIENT_NETWORK_ERROR = 'ClientErrorException';
+const PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE = 'UnexpectedResponseCodeException';
+
+// Core client entities
+const PHPFHIR_INTERFACE_CLIENT_CLIENT = 'ClientInterface';
+const PHPFHIR_CLASSNAME_CLIENT_CLIENT = 'Client';
+const PHPFHIR_CLASSNAME_CLIENT_CONFIG = 'Config';
+const PHPFHIR_CLASSNAME_CLIENT_REQUEST = 'Request';
+const PHPFHIR_CLASSNAME_CLIENT_RESPONSE = 'Response';
+const PHPFHIR_CLASSNAME_CLIENT_RESPONSE_HEADERS = 'ResponseHeaders';
+const PHPFHIR_ENUM_CLIENT_HTTP_METHOD = 'HTTPMethodEnum';
+const PHPFHIR_ENUM_CLIENT_SORT = 'SortDirectionEnum';
+const PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT = 'ResponseFormatEnum';
 
 // Version class names
 const PHPFHIR_CLASSNAME_VERSION = 'Version';

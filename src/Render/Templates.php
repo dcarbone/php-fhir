@@ -18,10 +18,11 @@ namespace DCarbone\PHPFHIR\Render;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\CoreFile;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 
 /**
  * Class TemplateBuilder
@@ -29,15 +30,10 @@ use DCarbone\PHPFHIR\Enum\TestTypeEnum;
  */
 abstract class Templates
 {
-    /**
-     * @param string $coreFilename
-     * @param array $templateArgs
-     * @return string
-     */
-    public static function renderCoreTemplate(string $coreFilename, array $templateArgs): string
+    public static function renderCoreFile(Config $config, CoreFile $coreFile, array $templateArgs = []): string
     {
         extract($templateArgs);
-        return require $coreFilename;
+        return require $coreFile->getTemplateFile();
     }
 
     /**
@@ -62,15 +58,14 @@ abstract class Templates
         return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_default.php';
     }
 
-    /**
-     * @param \DCarbone\PHPFHIR\Version $version
-     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
-     * @return string
-     */
-    public static function renderVersionTypeClassTest(Version $version, Types $types, Type $type, TestTypeEnum $testType): string
-    {
-        return require PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'class.php';
-    }
+//    /**
+//     * @param \DCarbone\PHPFHIR\Version $version
+//     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
+//     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+//     * @return string
+//     */
+//    public static function renderVersionTypeClassTest(Version $version, Types $types, Type $type): string
+//    {
+//        return require PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'class.php';
+//    }
 }
