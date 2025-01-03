@@ -18,16 +18,16 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Property;
+use DCarbone\PHPFHIR\Version\Definition\Property;
 
 /**
  * Class DocumentationUtils
  * @package DCarbone\PHPFHIR\Utilities
  */
-abstract class DocumentationUtils
+class DocumentationUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param int $spaces
      * @param bool $trailingNewline
      * @return string
