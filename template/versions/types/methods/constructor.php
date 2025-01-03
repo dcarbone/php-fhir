@@ -17,26 +17,168 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Type|null $parentType */
 
 $typeKind = $type->getKind();
-$requireArgs = [
-    'version' => $version,
-    'type' => $type,
-    'parentType' => $parentType,
-    'properties' => $properties,
-];
+$typeClassName = $type->getClassName();
+$typeImports = $type->getImports();
+
+$parentType = $type->getParentType();
+
+$localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
+
+// used in a few places below.
+$valueProperty = $type->getLocalProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
 
 ob_start();
 
-echo match ($typeKind) {
-    TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive.php', $requireArgs),
-    TypeKindEnum::PRIMITIVE_CONTAINER => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'primitive_container.php', $requireArgs),
-    default => require_with(PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR  . DIRECTORY_SEPARATOR . 'default.php', $requireArgs),
-};
+if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
+    $primitiveType = $type->getPrimitiveType();
+
+    if (null !== $parentType) :
+        // only define constructor if this parent has more than just a "value" property.
+
+        if ($parentType->getKind() !== TypeKindeNum::PRIMITIVE && !$parentType->isValueContainer()) : ?>
+    /**
+     * <?php echo $type->getClassName(); ?> Constructor
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?>|array $value
+     */
+    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($version, $valueProperty, true); ?>|array $value = null)
+    {
+        if (null === $value) {
+            parent::__construct(null);
+        } elseif (is_scalar($value)) {
+            parent::__construct(null);
+            $this->setValue($value);
+        } elseif (is_array($value)) {
+            parent::__construct($value);
+            if (array_key_exists(self::FIELD_VALUE, $value)) {
+                $this->setValue($value[self::FIELD_VALUE]);
+            }
+        } else {
+             throw new \InvalidArgumentException(sprintf(
+                '<?php echo $typeClassName; ?>::__construct - $data expected to be null, <?php echo $primitiveType->getPHPValueTypes(); ?>, or array, %s seen',
+                gettype($value)
+            ));
+        }
+    }
+<?php
+        endif;
+    else :
+        // in all other cases, just set value and move on.
+        ?>
+    /**
+     * <?php echo $typeClassName; ?> Constructor
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
+     */
+    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value = null)
+    {
+        $this->setValue($value);
+    }
+<?php
+    endif;
+
+elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
+    $valuePropertyType = $valueProperty->getValueFHIRType();
+    $valuePropertyPrimitiveType = $valuePropertyType->getPrimitiveType();
+?>
+    /**
+     * <?php echo $typeClassName; ?> Constructor
+     * @param <?php echo TypeHintUtils::typeSetterTypeHint($version, $valuePropertyType, true); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
+     */
+    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true); ?>|array $data = null)
+    {
+        if (null === $data) {
+            return;
+        }
+        if (is_scalar($data) || $data instanceof <?php echo $typeImports->getImportByType($valuePropertyType); ?>) {
+            $this->setValue($data);
+            return;
+        }<?php if (null !== $parentType) : ?>
+
+        parent::__construct($data);
+<?php endif; ?><?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+
+        if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+            if (is_array($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_setFHIRComments($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
+            } elseif (is_string($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_addFHIRComment($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
+            }
+        }<?php endif; ?>
+<?php foreach ($localProperties as $property) :
+    if ($property->isOverloaded()) {
+        continue;
+    }
+
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
+        [
+            'version' => $version,
+            'type' => $type,
+            'property' => $property,
+        ]
+    );
+endforeach; ?>
+    }
+<?php else : ?>
+    /**
+     * <?php echo $typeClassName; ?> Constructor
+     * @param null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, false); endif; ?> $data
+     */
+    public function __construct(null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, false); endif; ?> $data = null)
+    {
+        if (null === $data || [] === $data) {
+<?php if ($type->hasConcreteParent()) : ?>
+            parent::__construct(null);
+<?php endif; ?>
+            return;
+        }
+<?php if ($type->isValueContainer()) : ?>
+        if (!is_array($data)) {
+<?php if ($type->hasConcreteParent()) : ?>
+            parent::__construct(null);
+<?php endif; ?>
+            $this->setValue($data);
+            return;
+        }
+<?php endif; if ($type->hasParentWithLocalProperties()) : // add parent constructor call ?>
+        parent::__construct($data);<?php endif; ?><?php if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : // only parse comments if parent isn't already doing it. ?>
+
+        if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+            if (is_array($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_setFHIRComments($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
+            } elseif (is_string($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+                $this->_addFHIRComment($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
+            }
+        }<?php endif; ?>
+
+<?php foreach($localProperties as $property) :
+    if ($property->isOverloaded()) {
+        continue;
+    }
+    if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf(TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER)) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'resource_container_property_setter_call.php',
+            [
+                'type' => $type,
+                'property' => $property,
+            ]
+        );
+    else :
+        echo require_with(
+            PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
+            [
+                'type' => $type,
+                'property' => $property
+            ]
+        );
+    endif;
+endforeach; ?>
+    }
+<?php endif;
 
 return ob_get_clean();

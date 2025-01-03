@@ -20,17 +20,11 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
-use InvalidArgumentException;
-use SimpleXMLElement;
 
-/**
- * Class Property
- * @package DCarbone\PHPFHIR\Definition
- */
 class Property
 {
-    use DocumentationTrait;
-    use SourceTrait;
+    use DocumentationTrait,
+        SourceTrait;
 
     /** @var \DCarbone\PHPFHIR\Version\Definition\Type */
     private Type $memberOf;
@@ -76,7 +70,7 @@ class Property
      * @param \SimpleXMLElement $sxe
      * @param string $sourceFilename
      */
-    public function __construct(Type $memberOf, SimpleXMLElement $sxe, string $sourceFilename)
+    public function __construct(Type $memberOf, \SimpleXMLElement $sxe, string $sourceFilename)
     {
         $this->memberOf = $memberOf;
         $this->sourceSXE = $sxe;
@@ -122,13 +116,24 @@ class Property
     }
 
     /**
+     * @return string|null
+     */
+    public function getExtName(): null|string
+    {
+        if (null === $this->name) {
+            return null;
+        }
+        return "_{$this->name}";
+    }
+
+    /**
      * @param string $name
      * @return \DCarbone\PHPFHIR\Version\Definition\Property
      */
     public function setName(string $name): Property
     {
         if ('' === $name) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Type "%s" Property $name cannot be empty',
                     $this->valueFHIRType->getFHIRName()
@@ -302,7 +307,7 @@ class Property
     public function setRef(string $ref): Property
     {
         if ('' === $ref) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Type "%s" Property $ref cannot be empty',
                     $this->valueFHIRType->getFHIRName()

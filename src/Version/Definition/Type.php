@@ -757,20 +757,32 @@ class Type
     {
         $interfaces = [];
         $parentType = $this->getParentType();
+        $coreFiles = $this->version->getConfig()->getCoreFiles();
+        $versionCoreFiles = $this->version->getCoreFiles();
 
         if (null === $parentType) {
             if ($this->isCommentContainer()) {
-                $interfaces[PHPFHIR_INTERFACE_COMMENT_CONTAINER] = $this->config->getFullyQualifiedName(false);
+                $interfaces[PHPFHIR_INTERFACE_COMMENT_CONTAINER] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_INTERFACE_COMMENT_CONTAINER)
+                    ->getFullyQualifiedNamespace(false);
             }
             if ($this->isContainedType()) {
-                $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $this->version->getFullyQualifiedName(false);
+                $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $versionCoreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE)
+                    ->getFullyQualifiedNamespace(false);
             } else if ($this->getKind() === TypeKindEnum::PRIMITIVE) {
-                $interfaces[PHPFHIR_INTERFACE_PRIMITIVE_TYPE] = $this->config->getFullyQualifiedName(false);
+                $interfaces[PHPFHIR_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_INTERFACE_PRIMITIVE_TYPE)
+                    ->getFullyQualifiedNamespace(false);
             } else {
-                $interfaces[PHPFHIR_INTERFACE_TYPE] = $this->config->getFullyQualifiedName(false);
+                $interfaces[PHPFHIR_INTERFACE_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE)
+                    ->getFullyQualifiedNamespace(false);
             }
         } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
-            $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $this->version->getFullyQualifiedName(false);
+            $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $versionCoreFiles
+                ->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE)
+                ->getFullyQualifiedNamespace(false);
         }
 
         return $interfaces;
@@ -783,22 +795,28 @@ class Type
     {
         $traits = [];
         $parentType = $this->getParentType();
+        $coreFiles = $this->version->getConfig()->getCoreFiles();
 
         if (null === $parentType) {
             // if this type has no parent(s), try to add all traits
 
             if ($this->isCommentContainer()) {
-                $traits[] = PHPFHIR_TRAIT_COMMENT_CONTAINER;
+                $traits[PHPFHIR_TRAIT_COMMENT_CONTAINER] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TRAIT_COMMENT_CONTAINER)
+                    ->getFullyQualifiedNamespace(false);
             }
 
             // these must only be added if the type has local properties
             if ($this->hasLocalProperties()) {
-                $traits[] = PHPFHIR_TRAIT_SOURCE_XMLNS;
+                $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
+                    ->getFullyQualifiedNamespace(false);
             }
         } else if (!$parentType->hasLocalProperties()) {
             // if this type _does_ have a parent, only add these traits if the parent does not have local properties
-
-            $traits[] = PHPFHIR_TRAIT_SOURCE_XMLNS;
+            $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
+                ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
+                ->getFullyQualifiedNamespace(false);
         }
 
         return $traits;

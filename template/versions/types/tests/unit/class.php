@@ -16,42 +16,74 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType */
 
 $typeKind = $type->getKind();
+$testNS = $type->getFullyQualifiedTestNamespace(TestTypeEnum::UNIT, false);
+$testClassname = $type->getTestClassName();
+$typeNS = $type->getFullyQualifiedClassName(false);
+$typeClassName = $type->getClassName();
 
 ob_start();
 
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'header.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
+echo '<?php'; ?>
 
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_base.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
+namespace <?php echo $testNS; ?>;
 
-if ($typeKind === TypeKindEnum::PRIMITIVE) {
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'body_primitive.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
+
+
+use PHPUnit\Framework\TestCase;
+use <?php echo $type->getFullyQualifiedClassName(false); ?>;
+
+class <?php echo $testClassname; ?> extends TestCase
+{
+
+    public function testCanConstructTypeNoArgs()
+    {
+        $type = new <?php echo $typeClassName; ?>();
+        $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
+    }
+<?php if ($typeKind === TypeKindEnum::PRIMITIVE) :
+    $primitiveType = $type->getPrimitiveType();
+
+    // TODO: more different types of strvals...
+    $strVals = match ($primitiveType) {
+        PrimitiveTypeEnum::INTEGER, PrimitiveTypeEnum::POSITIVE_INTEGER, PrimitiveTypeEnum::INTEGER64 => ['10', '1,000'],
+        PrimitiveTypeEnum::NEGATIVE_INTEGER => ['-10', '-1,000'],
+        PrimitiveTypeEnum::DECIMAL => ['10.5', '1,000.3333'],
+        PrimitiveTypeEnum::UNSIGNED_INTEGER => [(string)PHP_INT_MAX, '1,000'],
+        PrimitiveTypeEnum::BOOLEAN => ['true'],
+        default => ['randomstring'],
+    };
+?>
+
+    public function testCanConstructWithString()
+    {
+<?php foreach($strVals as $strVal) : ?>
+        {
+            $n = new <?php echo $type->getClassName(); ?>('<?php echo $strVal; ?>');
+            $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+        }
+<?php endforeach; ?>
+    }
+
+    public function testCanSetValueFromString()
+    {
+<?php foreach($strVals as $strVal) : ?>
+        {
+            $n = new <?php echo $type->getClassName(); ?>;
+            $n->setValue('<?php echo $strVal; ?>');
+            $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+        }
+<?php endforeach; ?>
+    }
+<?php endif; ?>
+
 }
-
-echo "}\n";
-return ob_get_clean();
+<?php return ob_get_clean();

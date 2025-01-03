@@ -37,8 +37,6 @@ abstract class TypeDecorationValidator
      */
     public static function validateDecoration(Config $config, Version $version, Types $types): void
     {
-        $versionName = $version->getName();
-
         $seenClasses = [];
         foreach ($types->getGenerator() as $type) {
             $typeKind = $type->getKind();
@@ -75,6 +73,13 @@ abstract class TypeDecorationValidator
                 $rbType = $type->getRestrictionBaseFHIRType();
                 if (null === $rbType) {
                     throw ExceptionUtils::createUndefinedListRestrictionBaseException($type);
+                }
+            }
+
+            if ($typeKind === TypeKindenum::PRIMITIVE_CONTAINER) {
+                $valueProperty = $type->getLocalProperties()->getProperty('value');
+                if (null === $valueProperty) {
+                    throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
                 }
             }
 

@@ -70,7 +70,9 @@ class TypeHintUtils
         $hintTypes = $primitiveType->getPHPReceiveValueTypeHints();
 
         if ($asCollection) {
-            $hintTypes[] = array_map(function(string $v) { return sprintf('%s[]', $v); }, $hintTypes);
+            $hintTypes[] = array_map(function (string $v) {
+                return sprintf('%s[]', $v);
+            }, $hintTypes);
         } else if ($nullable) {
             array_unshift($hintTypes, 'null');
         }

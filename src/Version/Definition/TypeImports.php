@@ -44,12 +44,57 @@ class TypeImports implements \Countable
     }
 
     /**
+     * @param string $classname
+     * @param string $namespace
+     */
+    public function addImport(string $classname, string $namespace): void
+    {
+        $requiresImport = !str_starts_with($classname, '\\') &&
+            ltrim($namespace, '\\') !== $this->type->getFullyQualifiedNamespace(false);
+
+        if (isset($this->imports[$classname])) {
+            // if we have already seen this type, move on.
+            if ($this->imports[$classname]->getNamespace() === $namespace) {
+                return;
+            }
+
+            // if there is a conflicting imported type here...
+            $aliasName = $this->findNextAliasName($classname, $namespace);
+            $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName, $requiresImport);
+            return;
+        }
+
+        if ($classname === $this->type->getClassName() &&
+            $namespace !== $this->type->getFullyQualifiedNamespace(false)) {
+            // if the imported type has the same class name as the direct type, but a different namespace
+            $aliasName = $this->findNextAliasName($classname, $namespace);
+            $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName, $requiresImport);
+            return;
+        }
+
+        // otherwise, go ahead and add to map.
+        $this->imports[$classname] = new TypeImport($classname, $namespace, false, '', $requiresImport);
+    }
+
+    public function addCoreFileImport(string $entityName): void
+    {
+        $coreFile = $this->type->getVersion()->getConfig()->getCoreFiles()->getCoreFileByEntityName($entityName);
+        $this->addImport($coreFile->getEntityName(), $coreFile->getNamespace());
+    }
+
+    public function addVersionCoreFileImport(string $entityName): void
+    {
+        $coreFile = $this->type->getVersion()->getCoreFiles()->getCoreFileByEntityName($entityName);
+        $this->addImport($coreFile->getEntityName(), $coreFile->getNamespace());
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\Version\Definition\TypeImport[]
      */
-    public function getIterator(): \Iterator
+    public function getIterator(): iterable
     {
         $this->buildImports();
-        return new \ArrayIterator($this->imports, \ArrayIterator::STD_PROP_LIST);
+        return new \ArrayIterator($this->imports);
     }
 
     /**
@@ -121,39 +166,6 @@ class TypeImports implements \Countable
     }
 
     /**
-     * @param string $classname
-     * @param string $namespace
-     */
-    private function addImport(string $classname, string $namespace): void
-    {
-        $requiresImport = !str_starts_with($classname, '\\') &&
-            ltrim($namespace, '\\') !== $this->type->getFullyQualifiedNamespace(false);
-
-        if (isset($this->imports[$classname])) {
-            // if we have already seen this type, move on.
-            if ($this->imports[$classname]->getNamespace() === $namespace) {
-                return;
-            }
-
-            // if there is a conflicting imported type here...
-            $aliasName = $this->findNextAliasName($classname, $namespace);
-            $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName, $requiresImport);
-            return;
-        }
-
-        if ($classname === $this->type->getClassName() &&
-            $namespace !== $this->type->getFullyQualifiedNamespace(false)) {
-            // if the imported type has the same class name as the direct type, but a different namespace
-            $aliasName = $this->findNextAliasName($classname, $namespace);
-            $this->imports[$aliasName] = new TypeImport($classname, $namespace, true, $aliasName, $requiresImport);
-            return;
-        }
-
-        // otherwise, go ahead and add to map.
-        $this->imports[$classname] = new TypeImport($classname, $namespace, false, '', $requiresImport);
-    }
-
-    /**
      * Attempts to build succinct list of imports used by this type.  Currently flawed, results in some unused imports
      * to be defined.  Will need to be revisited.
      *
@@ -164,8 +176,6 @@ class TypeImports implements \Countable
         if ($this->parsed) {
             return;
         }
-
-        // immediately set to true so we don't recurse ourselves to death.
         $this->parsed = true;
 
         // immediately add self
@@ -173,68 +183,51 @@ class TypeImports implements \Countable
 
         $typeNS = $this->type->getFullyQualifiedNamespace(false);
         $configNS = $this->type->getConfig()->getFullyQualifiedName(false);
-        $versionNS = $this->type->getVersion()->getFullyQualifiedName(false);
 
         $typeKind = $this->type->getKind();
 
         $allProperties = $this->type->getAllPropertiesIterator();
 
-        // non-abstract types must import config and xml writer
         if (!$this->type->isAbstract()) {
-            $this->addImport(PHPFHIR_CLASSNAME_XML_WRITER, $configNS);
-            $this->addImport(PHPFHIR_ENUM_XML_LOCATION, $configNS);
+            $this->addCoreFileImport(PHPFHIR_CLASSNAME_XML_WRITER);
+            $this->addCoreFileImport(PHPFHIR_ENUM_XML_LOCATION);
         }
 
-        // if this type is in a nested namespace, there are  a few base interfaces, classes, and traits
-        // that may need to be imported to ensure function
-        if ($typeNS !== $configNS) {
-            $this->addImport(PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG, $configNS);
-            $this->addImport(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG, $configNS);
+        $this->addVersionCoreFileImport(PHPFHIR_CLASSNAME_VERSION);
+        $this->addVersionCoreFileImport(PHPFHIR_CLASSNAME_VERSION_CONSTANTS);
+        $this->addCoreFileImport(PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG);
+        $this->addCoreFileImport(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
 
-            // always add the base type interface
-            $this->addImport(PHPFHIR_INTERFACE_TYPE, $configNS);
+        $this->addCoreFileImport(PHPFHIR_INTERFACE_TYPE);
 
-            // add directly implemented interfaces
-            foreach ($this->type->getDirectlyImplementedInterfaces() as $interface => $namespace) {
-                $this->addImport($interface, $namespace);
-            }
-            // add directly implemented traits
-            foreach ($this->type->getDirectlyUsedTraits() as $trait) {
-                $this->addImport($trait, $configNS);
-            }
-            // add root Constants class if this is a comment containing type or has local properties with validations
-            if (($this->type->isCommentContainer() && !$this->type->hasCommentContainerParent()) ||
-                $this->type->hasLocalPropertiesWithValidations() ||
-                ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$this->type->hasPrimitiveParent())) {
-                $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
-            }
+        foreach ($this->type->getDirectlyImplementedInterfaces() as $interface => $namespace) {
+            $this->addImport($interface, $namespace);
         }
 
-        if ($typeNS !== $versionNS) {
-            // add a few imports used during unserialization.
-            $this->addImport(PHPFHIR_CLASSNAME_VERSION, $versionNS);
-            $this->addImport(PHPFHIR_CLASSNAME_VERSION_CONSTANTS, $versionNS);
+        foreach ($this->type->getDirectlyUsedTraits() as $trait => $namespace) {
+            $this->addImport($trait, $namespace);
         }
 
-        // determine if we need to import our parent type
+        if (($this->type->isCommentContainer() && !$this->type->hasCommentContainerParent()) ||
+            $this->type->hasLocalPropertiesWithValidations() ||
+            ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$this->type->hasPrimitiveParent())) {
+            $this->addCoreFileImport(PHPFHIR_CLASSNAME_CONSTANTS);
+        }
+
         if ($parentType = $this->type->getParentType()) {
             $pns = $parentType->getFullyQualifiedNamespace(false);
             $this->addImport($parentType->getClassName(), $pns);
-        } else {
-            $this->addImport(PHPFHIR_TRAIT_SOURCE_XMLNS, $configNS);
         }
 
         if ($this->type->hasLocalPropertiesWithValidations()) {
-            $this->addImport(PHPFHIR_CLASSNAME_VALIDATOR, $configNS);
+            $this->addCoreFileImport(PHPFHIR_CLASSNAME_VALIDATOR);
         }
 
-        // determine if we need to import a restriction base
         if ($restrictionBaseType = $this->type->getRestrictionBaseFHIRType()) {
             $rns = $restrictionBaseType->getFullyQualifiedNamespace(false);
             $this->addImport($restrictionBaseType->getClassName(), $rns);
         }
 
-        // add property types to import statement
         foreach ($allProperties as $property) {
             $propertyType = $property->getValueFHIRType();
             if (null === $propertyType) {
@@ -249,10 +242,10 @@ class TypeImports implements \Countable
 
             if ($ptk->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE) &&
                 $typeNS !== $configNS) {
-                $this->addImport(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE, $versionNS);
-                $this->addImport(PHPFHIR_CLASSNAME_VERSION_TYPE_MAP, $versionNS);
-                $this->addImport(PHPFHIR_CLASSNAME_CONSTANTS, $configNS);
-                $this->addImport(PHPFHIR_CLASSNAME_VERSION, $versionNS);
+                $this->addCoreFileImport(PHPFHIR_CLASSNAME_CONSTANTS);
+                $this->addVersionCoreFileImport(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
+                $this->addVersionCoreFileImport(PHPFHIR_CLASSNAME_VERSION_TYPE_MAP);
+                $this->addVersionCoreFileImport(PHPFHIR_CLASSNAME_VERSION);
             } else {
                 if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
                     $primType = $propertyType->getLocalProperties()->getProperty('value')->getValueFHIRType();
@@ -264,7 +257,6 @@ class TypeImports implements \Countable
             }
         }
 
-        // sort the imported class list
         uasort(
             $this->imports,
             function (TypeImport $a, TypeImport $b) {

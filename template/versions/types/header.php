@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,29 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-ob_start(); ?>
-    /** @var array */
-    private array $_xmlLocations = [];
-<?php return ob_get_clean();
+// start output buffer
+ob_start();
+echo '<?php'; ?> declare(strict_types=1);
+
+namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
+
+<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
+
+
+<?php
+$imported = 0;
+foreach ($type->getImports()->getIterator() as $import) {
+    if ($import->isRequiresImport()) {
+        echo $import->getUseStatement();
+        $imported++;
+    }
+}
+if (0 !== $imported) {
+    echo "\n";
+}
+
+return ob_get_clean();

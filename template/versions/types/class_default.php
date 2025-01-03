@@ -17,123 +17,132 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
+use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 // define some common things
-$fqns = $type->getFullyQualifiedNamespace(true);
 $typeClassName = $type->getClassName();
 $typeKind = $type->getKind();
 $parentType = $type->getParentType();
 $localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
+$interfaces = $type->getDirectlyImplementedInterfaces();
+$traits = $type->getDirectlyUsedTraits();
 
 ob_start();
 
 // build file header
 echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'header_type.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'header.php',
     [
         'version' => $version,
-        'fqns' => $fqns,
         'skipImports' => false,
         'type' => $type,
         'types' => $types,
     ]
 );
 
-// build class header ?>
-/**<?php if ('' !== $classDocumentation) : ?>
+?>
+<?php if ('' !== $classDocumentation) : ?>/**
 
 <?php echo $classDocumentation; ?>
- *<?php endif; ?>
-
- * Class <?php echo $typeClassName; ?>
-
- * @package <?php echo $fqns; ?>
 
  */
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'definition.php',
-    [
-        'version' => $version,
-        'type' => $type,
-        'parentType' => $parentType
-    ]
-);
+<?php endif;
+// -- class definition
+if ($type->isAbstract()) : ?>abstract <?php endif; ?>class <?php echo $type->getClassName(); ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName(); endif; ?>
+<?php if ([] !== $interfaces) : ?> implements <?php echo implode(', ', array_keys($interfaces)); endif; ?>
+
+{<?php if ([] !== $traits) : ?>
+
+    use <?php echo implode(",\n        ", array_keys($traits)); ?>;
+<?php endif;
 ?>
 
     // name of FHIR type this class describes
     public const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 <?php
 
-if (0 !== count($localProperties)) {
+// -- property field name constants
+if (0 !== count($localProperties)) :
     echo "\n";
+    foreach ($localProperties as $property) :
+        if ($property->getMemberOf()->hasPrimitiveParent()) {
+            continue;
+        }
 
-    foreach ($localProperties as $property) {
-        echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'constants.php',
-            [
-                'version' => $version,
-                'property' => $property,
-            ]
-        );
-    }
-
-}
-
-if (0 !== count($localProperties)) {
-    echo "\n";
-
-    foreach ($localProperties as $property) {
-        echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'declaration.php',
-            [
-                'version' => $version,
-                'property' => $property,
-            ]
-        );
-    }
+        $propertyType = $property->getValueFHIRType(); ?>
+        public const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
+<?php   if (null !== $propertyType &&
+    ($propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->isValueContainer())) :
+    ?>    public const <?php echo $property->getFieldConstantName(); ?>_EXT = '<?php echo $property->getExtName(); ?>';
+<?php   endif;
+    endforeach;
+// -- end property field name constants
 
     echo "\n";
 
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'const.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
+// -- directly implemented properties
+    foreach ($localProperties as $property) : ?>
+    /**
+<?php echo DocumentationUtils::compilePropertyDocumentation($property, 5, true);; ?>
+     * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
 
-    echo "\n";
+     */
+    protected <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
+<?php
+// -- end directly implemented properties
+    endforeach; ?>
 
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'primitive_xml_location_map.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
 
-    echo "\n";
+    /** Default validation map for fields in type <?php echo $type->getFHIRName(); ?> */
+    private const _DEFAULT_VALIDATION_RULES = [<?php if (!$type->hasLocalPropertiesWithValidations()): ?>];
+<?php else:
+// -- local property validation rules
 
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
-        [
-            'version' => $version,
-            'type' => $type,
-            'properties' => $localProperties,
-            'parentType' => $parentType,
-        ]
-    );
-}
+    foreach ($localProperties as $property) :
+        $validationMap = $property->buildValidationMap();
+        if ([] !== $validationMap) : ?>
 
-echo "\n";
+        self::<?php echo $property->getFieldConstantName(); ?> => [
+<?php       foreach($validationMap as $k => $v) : ?>
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::<?php echo $k; ?> => <?php pretty_var_export($v, 3,false); ?>,
+<?php       endforeach; ?>
+        ],<?php
+        endif;
+endforeach; ?>
 
-echo require_with(
+    ];
+<?php
+endif;
+// -- end local property validation rules
+
+endif;
+
+// -- end field properties
+?>
+
+
+    /** @var array */
+    private array $_xmlLocations = [];
+
+
+<?php echo require_with(
+    PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
+    [
+        'version' => $version,
+        'type' => $type,
+        'properties' => $localProperties,
+        'parentType' => $parentType,
+    ]
+); ?>
+
+
+<?php echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
     [
         'version' => $version,

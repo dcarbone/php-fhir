@@ -23,36 +23,32 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 $config = $version->getConfig();
-$fqns = $type->getFullyQualifiedNamespace(true);
+$coreFiles = $config->getCoreFiles();
+
+$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_XML_WRITER);
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
+
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
-$namespace = trim($fqns, PHPFHIR_NAMESPACE_TRIM_CUTSET);
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start();
 
 // build file header
 echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'header_type.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'header.php',
     [
         'version' => $version,
-        'fqns' => $fqns,
-        'skipImports' => false,
         'type' => $type,
         'types' => $types,
     ]
 );
 
 // build class header ?>
-/**<?php if ('' !== $classDocumentation) : ?>
+<?php if ('' !== $classDocumentation) : ?>/**
 
 <?php echo $classDocumentation; ?>
- *<?php endif; ?>
-
- * Class <?php echo $type->getClassName(); ?>
-
- * @package <?php echo $fqns; ?>
-
  */
+<?php endif; ?>
 class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFACE_TYPE ?>
 
 {
@@ -183,9 +179,9 @@ echo require_with(
     }
 
     /**
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> $config
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
+     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
     public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
