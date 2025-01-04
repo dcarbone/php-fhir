@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Enum\TestTypeEnum;
@@ -29,11 +30,6 @@ use RuntimeException;
  */
 class FileUtils
 {
-    public const REGEX_SLASH_SEARCH = '{\\\}S';
-    public const REGEX_SLASH_SEARCH_CLEANUP = '{/{2,}}S';
-    public const REGEX_DIR_SPLIT = '{[/\\\]}';
-    public const REGEX_SLASH_REPLACE = '/';
-
     /**
      * @param string $path
      * @param int $dirPermMask
@@ -47,16 +43,27 @@ class FileUtils
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param string $namespace
+     * @return string
+     */
+    public static function compilePath(Config $config, string $namespace): string
+    {
+        $base = rtrim($config->getOutputPath(), '\\/');
+        $nsPath = trim(str_replace(PHPFHIR_NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $namespace), DIRECTORY_SEPARATOR);
+        return $base . DIRECTORY_SEPARATOR . $nsPath;
+    }
+
+    /**
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function buildTypeFilePath(Version $version, Type $type): string
+    public static function buildTypeClassFilepath(Version $version, Type $type): string
     {
-        return self::mkdirRecurse(
-                $version->getClassesPath(),
-                self::cleanupPath($type->getFullyQualifiedNamespace(false))
-            ) . DIRECTORY_SEPARATOR . "{$type->getClassName()}.php";
+        return self::compilePath($version->getConfig(), $type->getFullyQualifiedNamespace(false))
+            . DIRECTORY_SEPARATOR
+            . "{$type->getClassName()}.php";
     }
 
     /**
@@ -68,7 +75,7 @@ class FileUtils
     public static function buildTypeTestFilePath(Version $version, Type $type, TestTypeEnum $testType): string
     {
         return self::mkdirRecurse(
-                $version->getClassesPath(),
+                $version->getOutputPath(),
                 self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
             ) . DIRECTORY_SEPARATOR . "{$type->getTestClassName()}.php";
     }
@@ -86,19 +93,5 @@ class FileUtils
             $classFQN = ltrim(substr($classFQN, strlen($baseNS)), '\\');
         }
         return sprintf("__DIR__ . '/%s.php'", str_replace('\\', "/", $classFQN));
-    }
-
-    /**
-     * @param string $namespace
-     * @return string
-     */
-    public static function cleanupPath(string $namespace): string
-    {
-        $namespace = rtrim($namespace, '\\/');
-        return preg_replace(
-            [self::REGEX_SLASH_SEARCH, self::REGEX_SLASH_SEARCH_CLEANUP],
-            self::REGEX_SLASH_REPLACE,
-            $namespace
-        );
     }
 }

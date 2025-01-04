@@ -17,6 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $namespace = $version->getFullyQualifiedName(false);
 

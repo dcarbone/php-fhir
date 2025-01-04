@@ -37,6 +37,10 @@ abstract class TypeDecorationValidator
      */
     public static function validateDecoration(Config $config, Version $version, Types $types): void
     {
+        if (!NameUtils::isValidNSName($version->getFullyQualifiedName(false))) {
+            throw ExceptionUtils::createInvalidVersionNamespaceException($version);
+        }
+        
         $seenClasses = [];
         foreach ($types->getGenerator() as $type) {
             $typeKind = $type->getKind();
@@ -50,12 +54,12 @@ abstract class TypeDecorationValidator
             }
 
             $fqns = $type->getFullyQualifiedNamespace(false);
-            if (false === NameUtils::isValidNSName($fqns)) {
+            if (!NameUtils::isValidNSName($fqns)) {
                 throw ExceptionUtils::createInvalidTypeNamespaceException($type);
             }
 
             $typeClassName = $type->getClassName();
-            if (false === NameUtils::isValidClassName($typeClassName)) {
+            if (!NameUtils::isValidClassName($typeClassName)) {
                 throw ExceptionUtils::createInvalidTypeClassNameException($type);
             }
 

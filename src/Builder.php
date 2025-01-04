@@ -59,10 +59,7 @@ class Builder
 
         // write php-fhir core files
         if ($coreFiles) {
-            $this->writeCoreFiles(
-                $this->config->getCoreFiles(),
-                ['config' => $this->config]
-            );
+            $this->writeCoreFiles($this->config->getCoreFiles(), ['config' => $this->config]);
         }
 
         // if null, default to all versions.
@@ -70,11 +67,37 @@ class Builder
             $versionNames = $this->config->listVersions();
         }
 
+        $this->writeFHIRVersionCoreFiles(...$versionNames);
+
         // write fhir version files
-        $this->writeFHIRVersionFiles(...$versionNames);
+        $this->writeFHIRVersionTypeClasses(...$versionNames);
 
         // write fhir version test classes
         $this->writeFHIRVersionTestFiles(...$versionNames);
+    }
+
+    public function writeFHIRVersionCoreFiles(string ...$versionNames): void
+    {
+        $log = $this->config->getLogger();
+
+        foreach ($versionNames as $versionName) {
+            $version = $this->config->getVersion($versionName);
+
+            $log->startBreak("FHIR Version {$version->getName()} Core File Generation");
+
+            $definition = $version->getDefinition();
+
+            if (!$definition->isDefined()) {
+                $log->startBreak("Parsing XSD Source for {$version->getName()}");
+                $definition->buildDefinition();
+                $log->endBreak("Parsing XSD Source for {$version->getName()}");
+            }
+
+            // write version core files
+            $this->writeCoreFiles($version->getCoreFiles(), ['version' => $version]);
+
+            $log->endBreak("FHIR Version {$version->getName()} Core File Generation");
+        }
     }
 
     /**
@@ -82,28 +105,25 @@ class Builder
      *
      * @throws \Exception
      */
-    public function writeFHIRVersionFiles(string ...$versionNames): void
+    public function writeFHIRVersionTypeClasses(string ...$versionNames): void
     {
         $log = $this->config->getLogger();
 
         foreach ($versionNames as $versionName) {
             $version = $this->config->getVersion($versionName);
 
-            $log->startBreak(sprintf('FHIR Version %s Code Generation', $version->getName()));
+            $log->startBreak("FHIR Version {$version->getName()} Type Class Generation");
 
             // write version fhir type files
             $definition = $version->getDefinition();
 
             if (!$definition->isDefined()) {
-                $log->startBreak('XSD Parsing');
+                $log->startBreak("Parsing XSD Source for {$version->getName()}");
                 $definition->buildDefinition();
-                $log->endBreak('XSD Parsing');
+                $log->endBreak("Parsing XSD Source for {$version->getName()}");
             }
 
             $types = $definition->getTypes();
-
-            // write version core files
-            $this->writeCoreFiles($version->getCoreFiles(), ['version' => $version]);
 
             foreach ($types->getGenerator() as $type) {
                 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -115,7 +135,8 @@ class Builder
                 } else {
                     $classDefinition = Templates::renderVersionTypeClass($version, $types, $type);
                 }
-                $filepath = FileUtils::buildTypeFilePath($version, $type);
+                $filepath = FileUtils::buildTypeClassFilepath($version, $type);
+                FileUtils::mkdirRecurse($filepath);
                 if (!file_put_contents($filepath, $classDefinition)) {
                     throw new \RuntimeException(
                         sprintf(
@@ -126,10 +147,8 @@ class Builder
                     );
                 }
             }
-            $log->endBreak(sprintf('FHIR Version %s Code Generation', $version->getName()));
+            $log->endBreak("FHIR Version {$version->getName()} Type Class Generation");
         }
-
-        restore_error_handler();
     }
 
     /**
@@ -208,7 +227,7 @@ class Builder
             FileUtils::mkdirRecurse($coreFile->getFilepath());
             $this->writeFile(
                 $coreFile->getFilepath(),
-                Templates::renderCoreFile($this->config, $coreFile),
+                Templates::renderCoreFile($this->config, $coreFile, $templateArgs),
             );
         }
 

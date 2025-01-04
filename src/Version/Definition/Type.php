@@ -260,17 +260,18 @@ class Type
      */
     public function getTypeNamespace(): string
     {
-        if ($this->isRootType()) {
-            return '';
-        }
-        $ns = [];
+        $bits = [];
         foreach ($this->getParentTypes() as $parent) {
-            array_unshift($ns, $parent->getClassName());
+            array_unshift($bits, $parent->getClassName());
         }
         if ($ctype = $this->getComponentOfType()) {
-            $ns[] = $ctype->getClassName();
+            $bits[] = $ctype->getClassName();
         }
-        return implode('\\', $ns);
+        $ns = PHPFHIR_NAMESPACE_VERSION_TYPES;
+        if ([] !== $bits) {
+            $ns .= PHPFHIR_NAMESPACE_SEPARATOR . implode(PHPFHIR_NAMESPACE_SEPARATOR, $bits);
+        }
+        return $ns;
     }
 
     /**
@@ -291,6 +292,11 @@ class Type
     public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
         return $this->getVersion()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace());
+    }
+
+    public function get()
+    {
+
     }
 
     /**

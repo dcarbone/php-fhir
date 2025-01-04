@@ -19,6 +19,7 @@
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $config = $version->getConfig();
 $namespace = $version->getFullyQualifiedName(false);

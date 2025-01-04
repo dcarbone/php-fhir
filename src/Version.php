@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
@@ -174,9 +175,9 @@ class Version
      *
      * @return string
      */
-    public function getClassesPath(): string
+    public function getOutputPath(): string
     {
-        return $this->_config->getOutputPath();
+        return FileUtils::compilePath($this->_config, $this->_namespace);
     }
 
     /**
@@ -226,17 +227,6 @@ class Version
     public function getFullyQualifiedName(bool $leadingSlash, string ...$bits): string
     {
         return $this->_config->getFullyQualifiedName($leadingSlash, ...array_merge([$this->_namespace], $bits));
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
-     * @param bool $leadingSlash
-     * @param string ...$bits
-     * @return string
-     */
-    public function getFullyQualifiedTestsName(TestTypeEnum $testType, bool $leadingSlash, string ...$bits): string
-    {
-        return $this->getFullyQualifiedName($leadingSlash, $testType->namespaceSlug(), ...$bits);
     }
 
     /**

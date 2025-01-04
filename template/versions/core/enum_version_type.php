@@ -17,9 +17,10 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-$namespace = $version->getFullyQualifiedName(false);
+$types = $version->getDefinition()->getTypes();
+
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
 

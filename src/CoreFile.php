@@ -59,7 +59,7 @@ class CoreFile
         // classname suffix
         $suffix = NameUtils::phpNameFormat($this->_type);
 
-        $this->_namespace = ltrim($baseNS, NAMESPACE_SEPARATOR);
+        $this->_namespace = ltrim($baseNS, PHPFHIR_NAMESPACE_SEPARATOR);
 
         if ('class' === $this->_type) {
             // 'class' types do have suffix
@@ -134,10 +134,7 @@ class CoreFile
      */
     public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
-        return match ($leadingSlash) {
-            true => NAMESPACE_SEPARATOR . $this->_namespace,
-            default => $this->_namespace,
-        };
+        return $leadingSlash ? PHPFHIR_NAMESPACE_SEPARATOR . $this->_namespace : $this->_namespace;
     }
 
     /**
@@ -146,7 +143,7 @@ class CoreFile
      */
     public function getFullyQualifiedName(bool $leadingSlash): string
     {
-        return $this->getFullyQualifiedNamespace($leadingSlash) . NAMESPACE_SEPARATOR . $this->_entityName;
+        return $this->getFullyQualifiedNamespace($leadingSlash) . PHPFHIR_NAMESPACE_SEPARATOR . $this->_entityName;
     }
 
     /**

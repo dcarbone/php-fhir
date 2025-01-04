@@ -49,10 +49,10 @@ class CoreFiles
 
             $sub = substr($fi->getPath(), $rootLen);
             if ('' !== $sub) {
-                $outNS .= NAMESPACE_SEPARATOR . NameUtils::templateFilenameToPHPName($sub, DIRECTORY_SEPARATOR, NAMESPACE_SEPARATOR);
+                $outNS .= PHPFHIR_NAMESPACE_SEPARATOR . NameUtils::templateFilenameToPHPName($sub, DIRECTORY_SEPARATOR, PHPFHIR_NAMESPACE_SEPARATOR);
             }
 
-            $outDir .= DIRECTORY_SEPARATOR . NameUtils::templateFilenameToPHPName($outNS, NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR);
+            $outDir .= DIRECTORY_SEPARATOR . NameUtils::templateFilenameToPHPName($outNS, PHPFHIR_NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR);
 
             $this->_files[] = new CoreFile($fpath, $outDir, $outNS);
         }

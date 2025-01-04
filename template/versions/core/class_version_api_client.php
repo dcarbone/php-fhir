@@ -17,8 +17,7 @@
  */
 
 /** @var \DCarbone\PHPFHIR\Version $version */
-
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $config = $version->getConfig();
 $types = $version->getDefinition()->getTypes();

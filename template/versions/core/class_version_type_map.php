@@ -19,9 +19,10 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $config = $version->getConfig();
+$types = $version->getDefinition()->getTypes();
 
 $containerType = $types->getContainerType($version);
 if (null === $containerType) {

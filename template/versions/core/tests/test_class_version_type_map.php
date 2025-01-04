@@ -16,29 +16,25 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
-
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-$rootNS = $version->getFullyQualifiedName(false);
-$testNS = $version->getFullyQualifiedTestsName(TestTypeEnum::BASE, false);
+$types = $version->getDefinition()->getTypes();
+
+$coreFiles = $version->getCoreFiles();
 
 ob_start();
 echo "<?php\n\n"; ?>
-namespace <?php echo $testNS; ?>;
+namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-use <?php echo $rootNS; ?>\<?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>;
+
+use <?php echo $coreFiles
+    ->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERSION_TYPE_MAP)
+    ->getFullyQualifiedName(false); ?>;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class <?php echo PHPFHIR_TEST_CLASSNAME_TYPE_MAP; ?>
-
- * @package \<?php echo $testNS; ?>
-
- */
 class <?php echo PHPFHIR_TEST_CLASSNAME_TYPE_MAP; ?> extends TestCase
 {
     public function testGetTypeClassWithNonStringReturnsNull()

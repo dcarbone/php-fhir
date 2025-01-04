@@ -30,7 +30,7 @@ use DCarbone\PHPFHIR\Version\Definition\Types;
  */
 abstract class Templates
 {
-    public static function renderCoreFile(Config $config, CoreFile $coreFile, array $templateArgs = []): string
+    public static function renderCoreFile(Config $config, CoreFile $coreFile, array $templateArgs): string
     {
         extract($templateArgs);
         return require $coreFile->getTemplateFile();

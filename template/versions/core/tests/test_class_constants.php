@@ -16,17 +16,15 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
+/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-$rootNS = $version->getFullyQualifiedName(false);
-$testNS = $version->getFullyQualifiedTestsName(TestTypeEnum::BASE, false);
+$types = $version->getDefinition()->getTypes()->getNameSortedIterator();
 
 ob_start();
 echo "<?php\n\n";?>
-namespace <?php echo $testNS; ?>;
+namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
@@ -35,7 +33,7 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo PHPFHIR_TEST_CLASSNAME_CONSTANTS; ?> extends TestCase
 {
-<?php foreach($types->getNameSortedIterator() as $type) : ?>
+<?php foreach($types as $type) : ?>
     public function testTypeConstantsDefined<?php echo str_replace('\\', '_', $type->getFullyQualifiedClassName(false)); ?>()
     {
         $this->assertEquals('<?php echo $type->getFHIRName(); ?>', <?php echo $type->getTypeNameConst(true); ?>);

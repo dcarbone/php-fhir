@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
@@ -158,6 +159,21 @@ class ExceptionUtils
                 'Type "%s" has invalid class name "%s"',
                 $type->getFHIRName(),
                 $type->getFullyQualifiedClassName(true)
+            )
+        );
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @return \DomainException
+     */
+    public static function createInvalidVersionNamespaceException(Version $version): \DomainException
+    {
+        return new \DomainException(
+            sprintf(
+                'Version "%s" has invalid namespace "%s"',
+                $version->getName(),
+                $version->getFullyQualifiedName(true)
             )
         );
     }
