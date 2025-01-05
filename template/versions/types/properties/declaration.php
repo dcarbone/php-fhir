@@ -22,7 +22,6 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
-$isCollection = $property->isCollection();
 $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
 ob_start();
@@ -35,5 +34,5 @@ if ('' === $documentation) : ?>
 
      */
 <?php endif; ?>
-    protected <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $isCollection ? '[]' : 'null'; ?>;
+    protected <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
 <?php return ob_get_clean();

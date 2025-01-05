@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-enum <?php echo PHPFHIR_ENUM_CLIENT_HTTP_METHOD; ?> : string
+enum <?php echo PHPFHIR_CLIENT_ENUM_HTTP_METHOD; ?> : string
 {
     case GET = 'GET';
     case PUT = 'PUT';

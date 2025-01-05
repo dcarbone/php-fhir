@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Version;
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\TypeDecorationValidator;
 use DCarbone\PHPFHIR\Version\Definition\TypeDecorator;
@@ -118,6 +119,9 @@ class Definition
 
         $log->info('Setting comment container flags');
         TypeDecorator::setCommentContainerFlag($this->config, $this->types);
+
+        $log->info('Compiling type imports');
+        TypeDecorator::buildTypeImports($this->config, $this->types);
 
         $log->info('Performing some sanity checking');
         TypeDecorationValidator::validateDecoration($this->config, $this->version, $this->types);

@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
+class <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>
 
 {
     /** @var bool */
@@ -39,7 +39,7 @@ class <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
 
     public function __construct(array $config)
     {
-        foreach(<?php echo PHPFHIR_ENUM_SERIALIZE_CONFIG_KEY; ?>::cases() as $k) {
+        foreach(<?php echo PHPFHIR_ENCODING_ENUM_SERIALIZE_CONFIG_KEY; ?>::cases() as $k) {
             if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
                 $this->{"set{$k->value}"}($config[$k->value]);
             }

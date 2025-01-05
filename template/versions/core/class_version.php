@@ -23,7 +23,7 @@ $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 $versionCoreFiles = $version->getCoreFiles();
 
-$clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_CLIENT_CLIENT);
+$clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_INTERFACE_CLIENT);
 $versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
 $versionConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERSION_CONFIG);
 $versionConfigInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONFIG);

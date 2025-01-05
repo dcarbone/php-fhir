@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-enum <?php echo PHPFHIR_ENUM_UNSERIALIZE_CONFIG_KEY; ?> : string
+enum <?php echo PHPFHIR_ENCODING_ENUM_UNSERIALIZE_CONFIG_KEY; ?> : string
 {
     case LIBXML_OPTS = 'libxmlOpts';
     case JSON_DECODE_MAX_DEPTH = 'jsonDecodeMaxDepth';

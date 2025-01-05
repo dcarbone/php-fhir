@@ -21,7 +21,7 @@
 
 $coreFiles = $config->getCoreFiles();
 
-$respClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_RESPONSE);
+$respClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -33,13 +33,13 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 abstract class <?php echo PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT; ?> extends \Exception
 {
     /** @var <?php echo $respClass->getFullyQualifiedName(true); ?> */
-    protected <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?> $_rc;
+    protected <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?> $_rc;
 
     /**
      * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
 
      */
-    public function getResponse(): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
+    public function getResponse(): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
 
     {
         return $this->_rc;

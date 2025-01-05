@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Builder;
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
@@ -147,9 +148,9 @@ class Imports implements \Countable
 
     /**
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-     * @return \DCarbone\PHPFHIR\Builder\Import|null
+     * @return \DCarbone\PHPFHIR\Builder\Import
      */
-    public function getImportByType(Type $type): ?Import
+    public function getImportByType(Type $type): Import
     {
         $fqn = $type->getFullyQualifiedClassName(false);
         foreach ($this->_imports as $import) {
@@ -157,7 +158,7 @@ class Imports implements \Countable
                 return $import;
             }
         }
-        return null;
+        throw ExceptionUtils::createMissingExpectedImportException($type->getFullyQualifiedClassName(false));
     }
 
     /**

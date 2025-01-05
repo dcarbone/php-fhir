@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-enum <?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?> : string
+enum <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> : string
 {
     case XML = 'xml';
     case JSON = 'json';

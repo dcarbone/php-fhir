@@ -128,11 +128,6 @@ class Type
         $this->sourceFilename = $sourceFilename;
         $this->localProperties = new Properties($config, $version, $this);
         $this->enumeration = new Enumeration();
-        $this->imports = new Imports(
-            $config,
-            $this->getFullyQualifiedNamespace(false),
-            $this->getClassName(),
-        );
     }
 
     /**
@@ -174,6 +169,14 @@ class Type
      */
     public function getImports(): Imports
     {
+        // TODO: implement "extraction done" mechanic
+        if (!isset($this->imports)) {
+            $this->imports = new Imports(
+                $this->config,
+                $this->getFullyQualifiedNamespace(false),
+                $this->getClassName(),
+            );
+        }
         return $this->imports;
     }
 
@@ -296,11 +299,6 @@ class Type
     public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
         return $this->getVersion()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace());
-    }
-
-    public function get()
-    {
-
     }
 
     /**

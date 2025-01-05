@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
 use DCarbone\PHPFHIR\Version;
 
 /**
@@ -458,6 +459,13 @@ abstract class TypeDecorator
                     }
                 }
             }
+        }
+    }
+
+    public static function buildTypeImports(Config $config, Types $types): void
+    {
+        foreach ($types->getGenerator() as $type) {
+            ImportUtils::buildVersionTypeImports($type);
         }
     }
 }

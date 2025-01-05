@@ -22,21 +22,23 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 $config = $version->getConfig();
-$namespace = $version->getFullyQualifiedName(false);
-$localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
+$coreFiles = $config->getCoreFiles();
+
+$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
 ob_start(); ?>
     /**
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> $config
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
+     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>
 
     {
         if (null === $xw) {
-            $xw = new <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>();
+            $xw = new <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>();
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();
@@ -48,7 +50,7 @@ ob_start(); ?>
         if (null === $config) {
             $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
         }
-<?php foreach($localProperties as $property) : ?>
+<?php foreach($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) : ?>
         if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
             return $v->xmlSerialize($xw, $config);
         }

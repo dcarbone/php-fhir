@@ -117,8 +117,6 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
         [
-            'version' => $version,
-            'type' => $type,
             'property' => $property,
         ]
     );

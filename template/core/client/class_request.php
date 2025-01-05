@@ -21,8 +21,8 @@
 
 $coreFiles = $config->getCoreFiles();
 
-$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT);
-$sortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_CLIENT_SORT);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$sortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -32,7 +32,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-class <?php echo PHPFHIR_CLASSNAME_CLIENT_REQUEST; ?>
+class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
 
 {
     /** @var string */
@@ -52,10 +52,10 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_REQUEST; ?>
     public bool $parseHeaders;
 
     /** @var <?php echo $formatEnum->getFullyQualifiedName(true); ?> */
-    public <?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?> $format;
+    public <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format;
 
     /** @var <?php echo $sortEnum->getFullyQualifiedName(true); ?> */
-    public <?php echo PHPFHIR_ENUM_CLIENT_SORT; ?> $sort;
+    public <?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort;
 
     /**
      * Extra query parameters.

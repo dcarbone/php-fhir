@@ -25,13 +25,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 // define some common things
-$typeClassName = $type->getClassName();
 $typeKind = $type->getKind();
-$parentType = $type->getParentType();
-$localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
-$classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
-$interfaces = $type->getDirectlyImplementedInterfaces();
-$traits = $type->getDirectlyUsedTraits();
 
 ob_start();
 
@@ -40,37 +34,18 @@ echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'header.php',
     [
         'version' => $version,
-        'skipImports' => false,
         'type' => $type,
-        'types' => $types,
     ]
-);
-
-?>
-<?php if ('' !== $classDocumentation) : ?>/**
-
-<?php echo $classDocumentation; ?>
-
- */
-<?php endif;
-// -- class definition
-if ($type->isAbstract()) : ?>abstract <?php endif; ?>class <?php echo $type->getClassName(); ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName(); endif; ?>
-<?php if ([] !== $interfaces) : ?> implements <?php echo implode(', ', array_keys($interfaces)); endif; ?>
-
-{<?php if ([] !== $traits) : ?>
-
-    use <?php echo implode(",\n        ", array_keys($traits)); ?>;
-<?php endif;
-?>
+); ?>
 
     // name of FHIR type this class describes
     public const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 <?php
 
 // -- property field name constants
-if (0 !== count($localProperties)) :
+if ($type->hasLocalProperties()) :
     echo "\n";
-    foreach ($localProperties as $property) :
+    foreach ($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) :
         if ($property->getMemberOf()->hasPrimitiveParent()) {
             continue;
         }
@@ -87,7 +62,7 @@ if (0 !== count($localProperties)) :
     echo "\n";
 
 // -- directly implemented properties
-    foreach ($localProperties as $property) : ?>
+    foreach ($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) : ?>
     /**
 <?php echo DocumentationUtils::compilePropertyDocumentation($property, 5, true);; ?>
      * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
@@ -104,7 +79,7 @@ if (0 !== count($localProperties)) :
 <?php else:
 // -- local property validation rules
 
-    foreach ($localProperties as $property) :
+    foreach ($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) :
         $validationMap = $property->buildValidationMap();
         if ([] !== $validationMap) : ?>
 
@@ -136,44 +111,54 @@ endif;
     [
         'version' => $version,
         'type' => $type,
-        'properties' => $localProperties,
-        'parentType' => $parentType,
     ]
 ); ?>
 
+    /**
+     * @return string
+     */
+    public function _getFHIRTypeName(): string
+    {
+        return self::FHIR_TYPE_NAME;
+    }
+<?php 
 
-<?php echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'common.php',
-    [
-        'version' => $version,
-        'type' => $type,
-        'parentType' => $type->getParentType(),
-    ]
-);
+if ($type->isContainedType()) : ?>
 
-if ($type->isContainedType()) {
+    /**
+     * @return string
+     */
+    public function _getResourceType(): string
+    {
+        return static::FHIR_TYPE_NAME;
+    }
+<?php
+endif;
+
+if ($type->hasLocalProperties()) {
     echo "\n";
 
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'contained_type.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
-}
+    // --- property methods
 
-if (0 < count($localProperties)) {
-    echo "\n";
+    if ($type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
+            [
+                'version' => $version,
+                'type' => $type
+            ]
+        );
+    else :
+        echo require_with(
+            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'default.php',
+            [
+                'version' => $version,
+                'type' => $type,
+            ]
+        );
+    endif;
 
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods.php',
-        [
-            'version' => $version,
-            'type' => $type,
-            'properties' => $localProperties,
-        ]
-    );
+    // --- end property methods
 
     echo "\n";
 
@@ -192,9 +177,6 @@ if (0 < count($localProperties)) {
         [
             'version' => $version,
             'type'     => $type,
-            'typeKind' => $typeKind,
-            'parentType' => $parentType,
-            'typeClassName' => $typeClassName,
         ]
     );
 

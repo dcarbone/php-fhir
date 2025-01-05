@@ -34,13 +34,12 @@ abstract class TypeBuilder
      * @param string $sourceFilename
      * @return \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    private static function buildDefaultType(
-        Config $config,
-        Version $version,
-        string $fhirName,
-        SimpleXMLElement $sxe,
-        string $sourceFilename
-    ): Type {
+    private static function buildDefaultType(Config           $config,
+                                             Version          $version,
+                                             string           $fhirName,
+                                             SimpleXMLElement $sxe,
+                                             string           $sourceFilename): Type
+    {
         return new Type($config, $version, $fhirName, $sxe, $sourceFilename);
     }
 
@@ -52,13 +51,12 @@ abstract class TypeBuilder
      * @param string $sourceFilename
      * @return \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    private static function buildPrimitiveType(
-        Config $config,
-        Version $version,
-        string $fhirName,
-        SimpleXMLElement $sxe,
-        string $sourceFilename
-    ): Type {
+    private static function buildPrimitiveType(Config           $config,
+                                               Version          $version,
+                                               string           $fhirName,
+                                               SimpleXMLElement $sxe,
+                                               string           $sourceFilename): Type
+    {
         $type = self::buildDefaultType($config, $version, $fhirName, $sxe, $sourceFilename);
         $value = new Property($type, $sxe, $sourceFilename);
         $value->setName(PHPFHIR_VALUE_PROPERTY_NAME);
@@ -74,7 +72,11 @@ abstract class TypeBuilder
      * @param string $sourceFilename
      * @return \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    public static function build(Config $config, Version $version, string $fhirName, SimpleXMLElement $sxe, string $sourceFilename): Type
+    public static function build(Config           $config,
+                                 Version          $version,
+                                 string           $fhirName,
+                                 SimpleXMLElement $sxe,
+                                 string           $sourceFilename): Type
     {
         if (str_contains($fhirName, PHPFHIR_PRIMITIVE_SUFFIX) || str_contains($fhirName, PHPFHIR_LIST_SUFFIX)) {
             return self::buildPrimitiveType($config, $version, $fhirName, $sxe, $sourceFilename);

@@ -22,13 +22,19 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
+$imports = $type->getImports();
+
+$imports->addCoreFileImportsByName(
+    PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
+    PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
+);
+
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 
-$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_XML_WRITER);
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
+$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
-$classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start();
@@ -39,20 +45,8 @@ echo require_with(
     [
         'version' => $version,
         'type' => $type,
-        'types' => $types,
     ]
-);
-
-// build class header ?>
-<?php if ('' !== $classDocumentation) : ?>/**
-
-<?php echo $classDocumentation; ?>
- */
-<?php endif; ?>
-class <?php echo $type->getClassName(); ?> implements <?php echo PHPFHIR_INTERFACE_TYPE ?>
-
-{
-    use <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>;
+); ?>
 
     /** @var null|string */
     private null|string $_xhtml = null;
@@ -184,11 +178,11 @@ echo require_with(
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>
 
     {
         if (null === $xw) {
-            $xw = new <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>();
+            $xw = new <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>();
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();

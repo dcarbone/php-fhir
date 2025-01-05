@@ -19,8 +19,6 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 $typeNameConst = $type->getTypeNameConst(true);
 $typeKind = $type->getKind();
 
@@ -66,7 +64,7 @@ ob_start(); ?>
         if ($property->isCollection()) : ?>
         if (isset($validationRules[self::FIELD_VALUE]) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             foreach($vs as $i => $v) {
-                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::performValidation(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
                 if (null !== $err) {
                     $key = sprintf('%s.%d', self::<?php echo $property->getFieldConstantName(); ?>, $i);
                     if (!isset($errs[$key])) {
@@ -80,7 +78,7 @@ ob_start(); ?>
         else : ?>
         if (isset($validationRules[self::FIELD_VALUE]) && null !== $this->value) {
             foreach($validationRules[self::FIELD_VALUE] as $rule => $constraint) {
-                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::performValidation(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $this->getFormattedValue());
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $this->getFormattedValue());
                 if (null !== $err) {
                     if (!isset($errs[self::FIELD_VALUE])) {
                         $errs[self::FIELD_VALUE] = [];
@@ -116,7 +114,7 @@ if (null !== $type->getParentType()) :
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {
-                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::performValidation(<?php echo $ptype->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(<?php echo $ptype->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
                 if (null !== $err) {
                     if (!isset($errs[self::<?php echo $property->getFieldConstantName(); ?>])) {
                         $errs[self::<?php echo $property->getFieldConstantName(); ?>] = [];

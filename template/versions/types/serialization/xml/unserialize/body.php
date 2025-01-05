@@ -16,20 +16,15 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
-
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-$requireArgs = [
-    'version' => $version,
-];
+/** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 ob_start(); ?>
         foreach ($element->children() as $n) {
             $childName = $n->getName();
-<?php foreach ($properties as $i => $property) :
+<?php foreach ($type->getAllPropertiesIndexedIterator() as $i => $property) :
     $propConst = $property->getFieldConstantName();
     $propType = $property->getValueFHIRType();
     $setter = $property->getSetterName();
@@ -47,7 +42,7 @@ ob_start(); ?>
                 }
             }<?php
         else : ?>if (self::<?php echo $propConst; ?> === $childName) {
-                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>, <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>, <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
             }<?php
         endif;
     else : ?>if (self::<?php echo $propConst; ?> === $childName) {
@@ -65,7 +60,7 @@ endforeach; ?>
 
         }
         $attributes = $element->attributes();
-<?php foreach ($properties as $i => $property) :
+<?php foreach ($type->getAllPropertiesIndexedIterator() as $i => $property) :
     $propConst = $property->getFieldConstantName();
     $propType = $property->getValueFHIRType();
     $setter = $property->getSetterName();
@@ -77,20 +72,20 @@ endforeach; ?>
         if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         if (isset($attributes[self::<?php echo $propConst; ?>])) {
 <?php if ($property->isCollection()) : ?>
-            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
 <?php else : ?>
             $pt = $type-><?php echo $property->getGetterName(); ?>();
             if (null !== $pt) {
-                $pt->setValue((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+                $pt->setValue((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
             } else {
-                $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+                $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
             }
 <?php endif; ?>
         }
 <?php endif;
     else : ?>
         if (isset($attributes[self::<?php echo $property->getFieldConstantName(); ?>])) {
-            $type->setValue((string)$attributes[self::<?php echo $property->getFieldConstantName(); ?>], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+            $type->setValue((string)$attributes[self::<?php echo $property->getFieldConstantName(); ?>], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
         }
 <?php
     endif;

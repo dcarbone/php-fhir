@@ -30,7 +30,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo PHPFHIR_EXCEPTION_CLIENT_ERROR; ?> extends <?php echo PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT; ?>
 
 {
-    public function __construct(<?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?> $rc) {
+    public function __construct(<?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?> $rc) {
         parent::__construct($rc->err, $rc->errno);
         $this->_rc = $rc;
     }

@@ -21,7 +21,7 @@
 
 $coreFiles = $config->getCoreFiles();
 
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -37,7 +37,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
  * This class is intended specifically for internal use within the PHPFHIR library.  Use outside this scope is not
  * promoted or supported.
  */
-final class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
+final class <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
 {
     private const _MEM = 'memory';
 
@@ -165,7 +165,7 @@ final class <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> extends \XMLWriter
      * @param string|null $sourceXMLNS
      * @return bool
      */
-    public function openRootNode(<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config, string $name, null|string $sourceXMLNS): bool
+    public function openRootNode(<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config, string $name, null|string $sourceXMLNS): bool
     {
         if (null === $this->_open) {
             throw new \LogicException('Must open write destination before writing root node');

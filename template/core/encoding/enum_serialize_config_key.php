@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-enum <?php echo PHPFHIR_ENUM_SERIALIZE_CONFIG_KEY; ?> : string
+enum <?php echo PHPFHIR_ENCODING_ENUM_SERIALIZE_CONFIG_KEY; ?> : string
 {
     case OVERRIDE_SOURCE_XMLNS = 'overrideSourceXMLNS';
     case ROOT_XMLNS = 'rootXMLNS';

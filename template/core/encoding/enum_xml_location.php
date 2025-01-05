@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-enum <?php echo PHPFHIR_ENUM_XML_LOCATION; ?> : string
+enum <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?> : string
 {
     case ATTRIBUTE = 'attribute';
     case ELEMENT = 'element';

@@ -21,8 +21,8 @@
 
 $coreFiles = $config->getCoreFiles();
 
-$reqClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_REQUEST);
-$respClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_RESPONSE);
+$reqClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
+$respClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -32,7 +32,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-interface <?php echo PHPFHIR_INTERFACE_CLIENT_CLIENT; ?>
+interface <?php echo PHPFHIR_CLIENT_INTERFACE_CLIENT; ?>
 
 {
     /**
@@ -42,6 +42,6 @@ interface <?php echo PHPFHIR_INTERFACE_CLIENT_CLIENT; ?>
      * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
 
      */
-    public function exec(<?php echo PHPFHIR_CLASSNAME_CLIENT_REQUEST; ?> $request): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>;
+    public function exec(<?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?> $request): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>;
 }
 <?php return ob_get_clean();

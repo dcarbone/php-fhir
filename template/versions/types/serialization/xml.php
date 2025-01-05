@@ -17,17 +17,11 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-use DCarbone\PHPFHIR\Utilities\NameUtils;
 
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Type $parentType */
-/** @var string $typeClassName */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type; */
 
-$xmlName = NameUtils::getTypeXMLElementName($type);
-$localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
-$properties = $type->getAllPropertiesIndexedIterator();
+$typeKind = $type->getKind();
 
 ob_start();
 
@@ -37,19 +31,15 @@ echo require_with(
     [
         'version' => $version,
         'type' => $type,
-        'typeKind' => $typeKind,
-        'parentType' => $parentType,
-        'typeClassName' => $typeClassName
     ]
 );
 
-if (0 < count($properties)) :
+if (count($type->getAllPropertiesIndexedIterator()) > 0) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'body.php',
         [
             'version' => $version,
             'type' => $type,
-            'properties' => $properties,
         ]
     );
 endif;
@@ -75,18 +65,15 @@ if ($typeKind->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_
         [
             'version' => $version,
             'type' => $type,
-            'parentType' => $parentType,
         ]
     );
 
-    if (0 < count($localProperties)) {
+    if ($type->hasLocalProperties()) {
         echo require_with(
             PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'serialize' . DIRECTORY_SEPARATOR . 'body.php',
             [
                 'version' => $version,
                 'type' => $type,
-                'parentType' => $parentType,
-                'localProperties' => $localProperties,
             ]
         );
     }

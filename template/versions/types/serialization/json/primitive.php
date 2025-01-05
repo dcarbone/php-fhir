@@ -19,10 +19,10 @@
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
+
+$typeKind = $type->getKind();
 
 ob_start(); ?>
     /**

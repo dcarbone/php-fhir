@@ -512,4 +512,18 @@ class ExceptionUtils
             )
         );
     }
+
+    /**
+     * @param string $expectedImport
+     * @return \DomainException
+     */
+    public static function createMissingExpectedImportException(string $expectedImport): \DomainException
+    {
+        return new \DomainException(
+            sprintf(
+                'Missing expected import: %s',
+                $expectedImport,
+            )
+        );
+    }
 }

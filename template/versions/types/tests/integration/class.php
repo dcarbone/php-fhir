@@ -67,9 +67,9 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 ?>
 
 
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CLIENT_CLIENT); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CLIENT_CONFIG); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CLIENT); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CONFIG); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
@@ -93,11 +93,11 @@ class <?php echo $testClassname; ?> extends TestCase
     /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?> */
     private <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $_version;
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CLIENT_CONFIG); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?> $_clientConfig;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLIENT_CLASSNAME_CONFIG); ?> */
+    private <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> $_clientConfig;
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CLIENT_CLIENT); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_CLIENT_CLIENT; ?> $_baseClient;
+    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLIENT_CLASSNAME_CLIENT); ?> */
+    private <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> $_baseClient;
 
     /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_API_CLIENT); ?> */
     private <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?> $_client;
@@ -113,8 +113,8 @@ class <?php echo $testClassname; ?> extends TestCase
         }
         $this->_testEndpoint = $endpoint;
         $this->_version = new <?php echo PHPFHIR_CLASSNAME_VERSION ?>();
-        $this->_clientConfig = new <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG ?>(address: $endpoint);
-        $this->_baseClient = new <?php echo PHPFHIR_CLASSNAME_CLIENT_CLIENT; ?>($this->_clientConfig);
+        $this->_clientConfig = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG ?>(address: $endpoint);
+        $this->_baseClient = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?>($this->_clientConfig);
         $this->_client = new <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT ?>(
             $this->_baseClient,
             $this->_version,
@@ -134,7 +134,7 @@ class <?php echo $testClassname; ?> extends TestCase
         $rc = $this->_client->readRaw(
             resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
-            format: <?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?>::from($format),
+            format: <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?>::from($format),
         );
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         if (404 === $rc->code) {

@@ -23,14 +23,14 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
-    PHPFHIR_CLASSNAME_SERIALIZE_CONFIG,
-    PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
+    PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
 );
 
 $coreFiles = $config->getCoreFiles();
 
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
-$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG);
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
+$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -57,10 +57,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     ];
 
     /** @var <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?> $unserializeConfig;
+    private <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $unserializeConfig;
 
     /** @var <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $serializeConfig;
+    private <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $serializeConfig;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> constructor.
@@ -86,10 +86,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
      * @param array|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return self
      */
-    public function setUnserializeConfig(array|<?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?> $config): self
+    public function setUnserializeConfig(array|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $config): self
     {
         if (is_array($config)) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?>($config);
+            $config = new <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>($config);
         }
         $this->unserializeConfig = $config;
         return $this;
@@ -99,7 +99,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
      * @return <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?>
 
      */
-    public function getUnserializeConfig(): <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?>
+    public function getUnserializeConfig(): <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
 
     {
         return $this->unserializeConfig;
@@ -109,10 +109,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
      * @param array|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return self
      */
-    public function setSerializeConfig(array|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config): self
+    public function setSerializeConfig(array|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config): self
     {
         if (is_array($config)) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>($config);
+            $config = new <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>($config);
         }
         $this->serializeConfig = $config;
         return $this;
@@ -122,7 +122,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
      * @return <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?>
 
      */
-    public function getSerializeConfig(): <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>
+    public function getSerializeConfig(): <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>
 
     {
         return $this->serializeConfig;

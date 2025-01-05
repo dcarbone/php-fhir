@@ -25,16 +25,16 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $imports = $coreFile->getImports();
 
 $imports->addCoreFileImportsByName(
-    PHPFHIR_CLASSNAME_SERIALIZE_CONFIG,
-    PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG,
-    PHPFHIR_CLASSNAME_XML_WRITER,
+    PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
+    PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
 );
 
 $coreFiles = $config->getCoreFiles();
 
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
-$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG);
-$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_XML_WRITER);
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
+$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -81,7 +81,7 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return null|static
      */
-    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self;
+    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self;
 
     /**
      * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
@@ -89,7 +89,7 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>;
+    public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>;
 
     /**
      * @return string

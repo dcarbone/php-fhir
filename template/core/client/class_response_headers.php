@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-class <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE_HEADERS; ?> implements \Countable
+class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?> implements \Countable
 {
     /** @var array */
     private array $_headerLines = [];

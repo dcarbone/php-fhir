@@ -18,10 +18,13 @@
 
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
+
+$parentType = $type->getParentType();
+$classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
+$interfaces = $type->getDirectlyImplementedInterfaces();
+$traits = $type->getDirectlyUsedTraits();
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
@@ -32,10 +35,21 @@ namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
 
 
 <?php
-ImportUtils::buildVersionTypeImports($type);
-
 echo ImportUtils::compileImportStatements($type->getImports());
 
 echo "\n";
+
+if ('' !== $classDocumentation) : ?>/**
+<?php echo $classDocumentation; ?>
+ */
+<?php endif;
+// -- class definition
+if ($type->isAbstract()) : ?>abstract <?php endif; ?>class <?php echo $type->getClassName(); ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName(); endif; ?>
+<?php if ([] !== $interfaces) : ?> implements <?php echo implode(', ', array_keys($interfaces)); endif; ?>
+
+{<?php if ([] !== $traits) : ?>
+
+    use <?php echo implode(",\n        ", array_keys($traits)); ?>;
+<?php endif;
 
 return ob_get_clean();

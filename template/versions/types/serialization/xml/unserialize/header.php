@@ -18,24 +18,22 @@
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum $typeKind */
-/** @var null|\DCarbone\PHPFHIR\Version\Definition\Type $parentType */
-/** @var string $typeClassName */
 
 $config = $version->getConfig();
-$namespace = $version->getFullyQualifiedName(false);
-$versionName = $version->getName();
+$coreFiles = $config->getCoreFiles();
+
+$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
 ob_start(); ?>
     /**
      * @param null|string|\SimpleXMLElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG); ?> $config
+     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      * @throws \Exception
      */
-    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self
+    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self
     {
         if (null === $element) {
             return null;
@@ -52,7 +50,7 @@ ob_start(); ?>
         }<?php else : ?>
         if (null === $type) {
             $type = new static(null);
-        }<?php endif; ?> else if (!($type instanceof <?php echo $typeClassName; ?>)) {
+        }<?php endif; ?> else if (!($type instanceof <?php echo $type->getClassName(); ?>)) {
             throw new \RuntimeException(sprintf(
                 '%s::xmlUnserialize - $type must be instance of \\%s or null, %s seen.',
                 ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),

@@ -21,7 +21,7 @@
 
 $coreFiles = $config->getCoreFiles();
 
-$respHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_RESPONSE_HEADERS);
+$respHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -31,7 +31,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-class <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
+class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
 
 {
     /**
@@ -61,7 +61,7 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
      * @var <?php echo $respHeaderClass->getFullyQualifiedName(true); ?>
 
      */
-    public <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE_HEADERS; ?> $headers;
+    public <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?> $headers;
 
     /**
      * HTTP response body.
@@ -99,7 +99,7 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
         return $this->code ?? null;
     }
 
-    public function getHeaders(): null|<?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE_HEADERS; ?>
+    public function getHeaders(): null|<?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?>
 
     {
         return $this->headers ?? null;

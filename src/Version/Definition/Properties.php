@@ -22,8 +22,6 @@ use Countable;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Version;
-use InvalidArgumentException;
-use SplFixedArray;
 
 /**
  * Class Properties
@@ -90,7 +88,7 @@ class Properties implements Countable
         $pname = $property->getName();
         $pref = $property->getRef();
         if (null === $pname && null === $pref) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Cannot add Property to Type "%s" as it has no $name or $ref defined',
                     $this->getType()->getFHIRName()
@@ -175,7 +173,18 @@ class Properties implements Countable
     }
 
     /**
-     * Returns an iterator containing only properties local to this type
+     * Returns an indexed iterator containing only properties local to this type.
+     *
+     * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
+     */
+    public function getIndexedLocalPropertiesIterator(): iterable
+    {
+        $this->_buildLocalCaches();
+        return \SplFixedArray::fromArray($this->_localProperties, preserveKeys: false);
+    }
+
+    /**
+     * Returns an iterator containing only properties local to this type.
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
@@ -183,6 +192,17 @@ class Properties implements Countable
     {
         $this->_buildLocalCaches();
         return new \ArrayIterator($this->_localProperties);
+    }
+
+    /**
+     * @return \Generator<\DCarbone\PHPFHIR\Version\Definition\Property>
+     */
+    public function getLocalPropertiesGenerator(): \Generator
+    {
+        $this->_buildLocalCaches();
+        foreach($this->_localProperties as $p) {
+            yield $p;
+        }
     }
 
     /**

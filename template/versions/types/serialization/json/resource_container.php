@@ -16,14 +16,15 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
+/** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 ob_start(); ?>
     /**
      * @return null|object
      */
     public function jsonSerialize(): mixed
-    {<?php foreach($properties as $property) : ?>
+    {<?php foreach($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) : ?>
 
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
             return $v;

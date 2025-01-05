@@ -41,6 +41,7 @@ class ImportUtils
     public static function buildVersionTypeImports(Type $type): void
     {
         $imports = $type->getImports();
+
         // immediately add self
         $imports->addImport($type->getFullyQualifiedNamespace(false), $type->getClassName());
 
@@ -49,17 +50,15 @@ class ImportUtils
 
         $typeKind = $type->getKind();
 
-        $allProperties = $type->getAllPropertiesIndexedIterator();
-
         if (!$type->isAbstract()) {
-            $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_XML_WRITER);
-            $imports->addCoreFileImportsByName(PHPFHIR_ENUM_XML_LOCATION);
+            $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
+            $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_ENUM_XML_LOCATION);
         }
 
         $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION);
         $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION_CONSTANTS);
-        $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG);
-        $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
+        $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+        $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
         $imports->addCoreFileImportsByName(PHPFHIR_INTERFACE_TYPE);
 
@@ -78,8 +77,10 @@ class ImportUtils
         }
 
         if ($parentType = $type->getParentType()) {
-            $pns = $parentType->getFullyQualifiedNamespace(false);
-            $imports->addImport($pns, $parentType->getClassName());
+            $imports->addImport(
+                $parentType->getFullyQualifiedNamespace(false),
+                $parentType->getClassName(),
+            );
         }
 
         if ($type->hasLocalPropertiesWithValidations()) {
@@ -87,11 +88,13 @@ class ImportUtils
         }
 
         if ($restrictionBaseType = $type->getRestrictionBaseFHIRType()) {
-            $rns = $restrictionBaseType->getFullyQualifiedNamespace(false);
-            $imports->addImport($rns, $restrictionBaseType->getClassName());
+            $imports->addImport(
+                $restrictionBaseType->getFullyQualifiedNamespace(false),
+                $restrictionBaseType->getClassName(),
+            );
         }
 
-        foreach ($allProperties as $property) {
+        foreach ($type->getAllPropertiesIndexedIterator() as $property) {
             $propertyType = $property->getValueFHIRType();
             if (null === $propertyType) {
                 continue;
@@ -111,12 +114,14 @@ class ImportUtils
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION);
             } else {
                 if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
-                    $primType = $propertyType->getLocalProperties()->getProperty('value')->getValueFHIRType();
+                    $primType = $propertyType->getLocalProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
                     $imports->addImport($primType->getFullyQualifiedNamespace(false), $primType->getClassName());
                 }
 
-                $propertyTypeNS = $propertyType->getFullyQualifiedNamespace(false);
-                $imports->addImport($propertyTypeNS, $propertyType->getClassName());
+                $imports->addImport(
+                    $propertyType->getFullyQualifiedNamespace(false),
+                    $propertyType->getClassName(),
+                );
             }
         }
     }

@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-enum <?php echo PHPFHIR_ENUM_CLIENT_SORT; ?> : string
+enum <?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> : string
 {
     case LAST_UPDATED_DESC = '-_lastUpdated';
     case LAST_UPDATED_ASC = '_lastUpdated';

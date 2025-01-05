@@ -20,16 +20,22 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
-/** @var \DCarbone\PHPFHIR\Config $version */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 
 $config = $version->getConfig();
+$coreFiles = $config->getCoreFiles();
+
+$xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_XML_LOCATION);
+
+$versionCoreFiles = $version->getCoreFiles();
+
+$versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
+
 $isPrimitiveType = $type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST);
 
 ob_start();
-foreach ($properties as $i => $property) :
+foreach ($type->getLocalProperties()->getIndexedLocalPropertiesIterator() as $i => $property) :
     if ($property->isOverloaded()) {
         continue;
     }
@@ -93,10 +99,10 @@ foreach ($properties as $i => $property) :
 
      * @param <?php echo TypeHintUtils::propertySetterTypeDoc($version, $property, false); ?> $<?php echo $propertyName; ?>
 
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION); ?> $xmlLocation
+     * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENUM_XML_LOCATION; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property; ?> = null, <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?> $xmlLocation = <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
     {
         if (null !== $<?php echo $propertyName; ?> && !($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
@@ -107,7 +113,7 @@ foreach ($properties as $i => $property) :
         <?php if ($isCollection) : ?>if ([] === $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]) {
             $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] = $xmlLocation;
         } else {
-            $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][] = <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::ELEMENT;
+            $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][] = <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT;
         }<?php else : ?>
 $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] = $xmlLocation;<?php endif; ?>
 
@@ -124,10 +130,10 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 
      * @param <?php echo $propertyType->getFullyQualifiedClassName(true);?>[] $<?php echo $propertyName; ?>
 
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_XML_LOCATION); ?> $xmlLocation
+     * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
      * @return static
      */
-    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENUM_XML_LOCATION; ?> $xmlLocation = <?php echo PHPFHIR_ENUM_XML_LOCATION; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
+    public function set<?php echo ucfirst($propertyName); ?>(array $<?php echo $propertyName; ?> = [], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?> $xmlLocation = <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::<?php if ($propertyType->isValueContainer()): ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>): self
     {
         unset($this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>]);
         if ([] !== $this-><?php echo $propertyName; ?>) {
@@ -171,7 +177,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>[] $<?php echo $propertyName; ?>
+     * @param <?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?>[] $<?php echo $propertyName; ?>
 
      * @return static
      */

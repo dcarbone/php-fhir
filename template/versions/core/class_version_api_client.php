@@ -29,11 +29,11 @@ $idPrimitiveType = $types->getTypeByName('id-primitive');
 $imports = $coreFile->getImports();
 $imports
     ->addCoreFileImportsByName(
-        PHPFHIR_INTERFACE_CLIENT_CLIENT,
-        PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT,
-        PHPFHIR_ENUM_CLIENT_SORT,
-        PHPFHIR_CLASSNAME_CLIENT_REQUEST,
-        PHPFHIR_CLASSNAME_CLIENT_RESPONSE,
+        PHPFHIR_CLIENT_INTERFACE_CLIENT,
+        PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT,
+        PHPFHIR_CLIENT_ENUM_SORT_DIRECTION,
+        PHPFHIR_CLIENT_CLASSNAME_REQUEST,
+        PHPFHIR_CLIENT_CLASSNAME_RESPONSE,
         PHPFHIR_EXCEPTION_CLIENT_ERROR,
         PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE,
         PHPFHIR_CLASSNAME_RESPONSE_PARSER,
@@ -47,11 +47,11 @@ $imports
 $config = $version->getConfig();
 
 $coreFiles = $config->getCoreFiles();
-$clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_CLIENT_CLIENT);
-$clientResponseFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT);
-$clientSortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_CLIENT_SORT);
-$clientRequestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_REQUEST);
-$clientResponseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_RESPONSE);
+$clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_INTERFACE_CLIENT);
+$clientResponseFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$clientSortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
+$clientRequestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
+$clientResponseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 $clientErrorException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_ERROR);
 $clientUnexpectedResponseCodeException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE);
 $responseParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_RESPONSE_PARSER);
@@ -75,7 +75,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
 {
     private const _STATUS_OK = 200;
 
-    protected <?php echo PHPFHIR_INTERFACE_CLIENT_CLIENT; ?> $_client;
+    protected <?php echo PHPFHIR_CLIENT_INTERFACE_CLIENT; ?> $_client;
     protected <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $_version;
 
     /**
@@ -84,7 +84,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @param <?php echo $clientInterface->getFullyQualifiedName(true); ?> $client
      * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?> $version
      */
-    public function __construct(<?php echo PHPFHIR_INTERFACE_CLIENT_CLIENT; ?> $client, <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $version)
+    public function __construct(<?php echo PHPFHIR_CLIENT_INTERFACE_CLIENT; ?> $client, <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $version)
     {
         $this->_client = $client;
         $this->_version = $version;
@@ -109,17 +109,17 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     public function readRaw(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
                             null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null,
                             null|int $count = null,
-                            null|<?php echo PHPFHIR_ENUM_CLIENT_SORT; ?> $sort = null,
-                            null|<?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?> $format = null,
+                            null|<?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort = null,
+                            null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null,
                             null|array $queryParams = null,
-                            null|bool $parseHeaders = null): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
+                            null|bool $parseHeaders = null): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
 
     {
         if (!is_string($resourceType)) {
             $resourceType = $resourceType->value;
         }
 
-        $req = new <?php echo PHPFHIR_CLASSNAME_CLIENT_REQUEST; ?>();
+        $req = new <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>();
         $req->method = 'GET';
         $req->path = "/{$resourceType}";
         if (null !== $resourceID) {
@@ -163,8 +163,8 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     public function read(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
                          null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null,
                          null|int $count = null,
-                         null|<?php echo PHPFHIR_ENUM_CLIENT_SORT; ?> $sort = null,
-                         null|<?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?> $format = null,
+                         null|<?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort = null,
+                         null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null,
                          null|array $queryParams = null,
                          null|bool $parseHeaders = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
@@ -181,7 +181,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @throws <?php echo $clientUnexpectedResponseCodeException->getFullyQualifiedName(true); ?>
 
      */
-    protected function _requireOK(<?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?> $rc): void
+    protected function _requireOK(<?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?> $rc): void
     {
         if (isset($rc->err)) {
             throw new <?php echo PHPFHIR_EXCEPTION_CLIENT_ERROR; ?>($rc);
@@ -209,7 +209,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @throws \Exception
      */
     public function read<?php echo $rsc->getFHIRName(); ?>(string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID,
-                        <?php echo $rscNameIndent; ?> null|<?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?> $format = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                        <?php echo $rscNameIndent; ?> null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
         $rc = $this->readRaw(resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $rsc->getConstName(false); ?>,

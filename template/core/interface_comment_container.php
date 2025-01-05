@@ -39,15 +39,13 @@ interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>
     /**
      * Set internal fhir_comments list, overwriting any previous value(s)
      * @param array $fhirComments
-     * @return static
      */
-    public function _setFHIRComments(array $fhirComments): self;
+    public function _setFHIRComments(array $fhirComments): void;
 
     /**
      * Append comment string to internal fhir_comments list
      * @param string $fhirComment
-     * @return static
      */
-    public function _addFHIRComment(string $fhirComment): self;
+    public function _addFHIRComment(string $fhirComment): void;
 }
 <?php return ob_get_clean();

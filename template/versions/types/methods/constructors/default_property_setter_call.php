@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
-/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
 $propertyType = $property->getValueFHIRType();

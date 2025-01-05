@@ -190,7 +190,7 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
      * @param mixed $value
      * @return null|string
      */
-    public static function performValidation(string $typeName, string $fieldName, string $ruleName, mixed $constraint, mixed $value): null|string
+    public static function validateField(string $typeName, string $fieldName, string $ruleName, mixed $constraint, mixed $value): null|string
     {
         return match ($ruleName) {
             <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_ENUM => static::assertValueInEnum($typeName, $fieldName, $constraint, $value),

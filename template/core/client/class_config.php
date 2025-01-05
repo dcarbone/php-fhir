@@ -21,7 +21,7 @@
 
 $coreFiles = $config->getCoreFiles();
 
-$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -32,13 +32,13 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 
 /**
- * Class <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?>
+ * Class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
 
  *
  * Configuration class for built-in FHIR API client.  If you are not using the built-in client,
  * you can ignore this class.
  */
-class <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?>
+class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
 
 {
     /** @var string */
@@ -48,12 +48,12 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?>
     /** @var array */
     private array $_queryParams;
     /** @var null|<?php echo $formatEnum->getFullyQualifiedName(true); ?> */
-    private null|<?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?> $_defaultFormat;
+    private null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $_defaultFormat;
     /** @var bool */
     private bool $_parseHeaders;
 
     /**
-     * <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?> Constructor
+     * <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> Constructor
      *
      * @param string $address Fully qualified address of FHIR server, including scheme, port, and any path prefix.
      * @param array $curlOpts Base curl options array.  These will be added to every request.  May be overridden by an individual request.
@@ -64,7 +64,7 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?>
     public function __construct(string $address,
                                 array $curlOpts = [],
                                 array $queryParams = [],
-                                null|<?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?> $defaultFormat = null,
+                                null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $defaultFormat = null,
                                 bool $parseHeaders = false)
     {
         $this->_address = $address;
@@ -102,7 +102,7 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?>
      * @return null|<?php echo $formatEnum->getFullyQualifiedName(true); ?>
 
      */
-    public function getDefaultFormat(): null|<?php echo PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT; ?>
+    public function getDefaultFormat(): null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?>
 
     {
         return $this->_defaultFormat;

@@ -23,14 +23,14 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
-    PHPFHIR_CLASSNAME_SERIALIZE_CONFIG,
-    PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
+    PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
 );
 
 $coreFiles = $config->getCoreFiles();
 
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
-$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG);
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
+$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -50,12 +50,12 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
      * @return <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?>
 
      */
-    public function getUnserializeConfig(): <?php echo PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG; ?>;
+    public function getUnserializeConfig(): <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>;
 
     /**
      * Must return the serialization config to use for this version
      * @return <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?>
      */
-    public function getSerializeConfig(): <?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?>;
+    public function getSerializeConfig(): <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>;
 }
 <?php return ob_get_clean();

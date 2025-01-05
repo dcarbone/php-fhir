@@ -33,7 +33,7 @@ class <?php echo PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE; ?> extends <
     /** @var int */
     private int $_expectedCode;
 
-    public function __construct(<?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?> $rc, int $expectedCode) {
+    public function __construct(<?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?> $rc, int $expectedCode) {
         parent::__construct(sprintf('Response returned code %d, expected %d', $rc->errno, $expectedCode));
         $this->_rc = $rc;
         $this->_expectedCode = $expectedCode;

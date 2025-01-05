@@ -20,25 +20,25 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Type $parentType */
 
 $config = $version->getConfig();
-$namespace = $version->getFullyQualifiedName(false);
-$typeKind = $type->getKind();
-$xmlName = NameUtils::getTypeXMLElementName($type);
+$coreFiles = $config->getCoreFiles();
+
+$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
 ob_start(); ?>
     /**
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?> $xw
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_SERIALIZE_CONFIG); ?> $config
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_XML_WRITER); ?>
+     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
+     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>
 
     {
         if (null === $xw) {
-            $xw = new <?php echo PHPFHIR_CLASSNAME_XML_WRITER; ?>();
+            $xw = new <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>();
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();

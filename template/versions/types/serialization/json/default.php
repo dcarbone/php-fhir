@@ -20,7 +20,6 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Property[] $properties */
 
 ob_start(); ?>
     /**
@@ -39,7 +38,7 @@ if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
             $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS} = $vs;
         }
 <?php endif;
-foreach ($properties as $property) :
+foreach ($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) :
     $propConst = $property->getFieldConstantName();
     $propConstExt = $property->getFieldConstantExtensionName();
     $getter = $property->getGetterName();
