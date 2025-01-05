@@ -45,23 +45,19 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
     /**
      * Set internal fhir_comments list, overwriting any previous value(s)
      * @param array $fhirComments
-     * @return self
      */
-    public function _setFHIRComments(array $fhirComments): self
+    public function _setFHIRComments(array $fhirComments): void
     {
         $this->_fhirComments = $fhirComments;
-        return $this;
     }
 
     /**
      * Append comment string to internal fhir_comments list
      * @param string $fhirComment
-     * @return self
      */
-    public function _addFHIRComment(string $fhirComment): self
+    public function _addFHIRComment(string $fhirComment): void
     {
         $this->_fhirComments[] = $fhirComment;
-        return $this;
     }
 }
 <?php

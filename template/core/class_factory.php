@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $imports = $coreFile->getImports();
 
-$imports->addCoreFileImports(
+$imports->addCoreFileImportsByName(
     PHPFHIR_CLASSNAME_FACTORY_CONFIG,
     PHPFHIR_INTERFACE_VERSION,
 );

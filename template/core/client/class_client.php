@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
-$imports->addCoreFileImports(
+$imports->addCoreFileImportsByName(
     PHPFHIR_CLASSNAME_CLIENT_CONFIG,
     PHPFHIR_CLASSNAME_CLIENT_REQUEST,
     PHPFHIR_CLASSNAME_CLIENT_RESPONSE,

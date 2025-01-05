@@ -17,11 +17,24 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImportsByName(
+    PHPFHIR_CLASSNAME_CONSTANTS,
+    PHPFHIR_INTERFACE_TYPE,
+    PHPFHIR_INTERFACE_VERSION_TYPE_MAP,
+);
+
 $config = $version->getConfig();
+$coreFiles = $config->getCoreFiles();
+
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
+
 $types = $version->getDefinition()->getTypes();
 
 $containerType = $types->getContainerType($version);
@@ -51,9 +64,7 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CONSTANTS); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_VERSION_TYPE_MAP); ?>;
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
@@ -108,7 +119,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
 
     /**
      * Will attempt to determine if the provided value is or describes a containable resource type
-     * @param string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type
+     * @param string|array|\SimpleXMLElement|<?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
      * @return bool
      * @throws \InvalidArgumentException
      */

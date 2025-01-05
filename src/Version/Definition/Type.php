@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Version\VersionImports;
+use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TestTypeEnum;
@@ -99,8 +99,8 @@ class Type
     private bool $valueContainer = false;
     /** @var bool */
     private bool $commentContainer = false;
-    /** @var \DCarbone\PHPFHIR\Version\VersionImports */
-    private VersionImports $imports;
+    /** @var \DCarbone\PHPFHIR\Builder\Imports */
+    private Imports $imports;
 
     /**
      * Type constructor.
@@ -128,8 +128,8 @@ class Type
         $this->sourceFilename = $sourceFilename;
         $this->localProperties = new Properties($config, $version, $this);
         $this->enumeration = new Enumeration();
-        $this->imports = new VersionImports(
-            $version,
+        $this->imports = new Imports(
+            $config,
             $this->getFullyQualifiedNamespace(false),
             $this->getClassName(),
         );
@@ -170,9 +170,9 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Version\VersionImports
+     * @return \DCarbone\PHPFHIR\Builder\Imports
      */
-    public function getImports(): VersionImports
+    public function getImports(): Imports
     {
         return $this->imports;
     }

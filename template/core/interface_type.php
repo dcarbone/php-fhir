@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $imports = $coreFile->getImports();
 
-$imports->addCoreFileImports(
+$imports->addCoreFileImportsByName(
     PHPFHIR_CLASSNAME_SERIALIZE_CONFIG,
     PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG,
     PHPFHIR_CLASSNAME_XML_WRITER,

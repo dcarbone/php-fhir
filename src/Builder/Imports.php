@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Builder;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
 class Imports implements \Countable
@@ -93,11 +93,28 @@ class Imports implements \Countable
         return $this;
     }
 
-    public function addCoreFileImports(string ...$entityNames): self
+    public function addCoreFileImportsByName(string ...$entityNames): self
     {
         foreach ($entityNames as $en) {
             $coreFile = $this->_config->getCoreFiles()->getCoreFileByEntityName($en);
             $this->addImport($coreFile->getFullyQualifiedNamespace(false), $coreFile->getEntityName());
+        }
+        return $this;
+    }
+
+    public function addVersionCoreFileImportsByName(Version $version, string ...$entityNames): self
+    {
+        foreach ($entityNames as $en) {
+            $coreFile = $version->getCoreFiles()->getCoreFileByEntityName($en);
+            $this->addImport($coreFile->getNamespace(), $coreFile->getEntityName());
+        }
+        return $this;
+    }
+
+    public function addVersionTypeImports(Type ...$types): self
+    {
+        foreach($types as $type) {
+            $this->addImport($type->getFullyQualifiedNamespace(false), $type->getClassName());
         }
         return $this;
     }

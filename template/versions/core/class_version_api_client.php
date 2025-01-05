@@ -16,10 +16,36 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+$types = $version->getDefinition()->getTypes();
+
+$idType = $types->getTypeByName('id');
+$idPrimitiveType = $types->getTypeByName('id-primitive');
+
+$imports = $coreFile->getImports();
+$imports
+    ->addCoreFileImportsByName(
+        PHPFHIR_INTERFACE_CLIENT_CLIENT,
+        PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT,
+        PHPFHIR_ENUM_CLIENT_SORT,
+        PHPFHIR_CLASSNAME_CLIENT_REQUEST,
+        PHPFHIR_CLASSNAME_CLIENT_RESPONSE,
+        PHPFHIR_EXCEPTION_CLIENT_ERROR,
+        PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE,
+        PHPFHIR_CLASSNAME_RESPONSE_PARSER,
+        PHPFHIR_INTERFACE_TYPE,
+    )
+    ->addVersionTypeImports(
+        $idType,
+        $idPrimitiveType,
+    );
+
 $config = $version->getConfig();
+
 $coreFiles = $config->getCoreFiles();
 $clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_CLIENT_CLIENT);
 $clientResponseFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT);
@@ -32,11 +58,7 @@ $responseParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_RES
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
 
 $versionCoreFiles = $version->getCoreFiles();
-
-$types = $version->getDefinition()->getTypes();
-
-$idType = $types->getTypeByName('id');
-$idPrimitiveType = $types->getTypeByName('id-primitive');
+$versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION_TYPE);
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
@@ -46,33 +68,20 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
-use <?php echo $clientInterface->getFullyQualifiedName(false); ?>;
-use <?php echo $clientResponseFormatEnum->getFullyQualifiedName(false); ?>;
-use <?php echo $clientRequestClass->getFullyQualifiedName(false); ?>;
-use <?php echo $clientResponseClass->getFullyQualifiedName(false); ?>;
-use <?php echo $clientErrorException->getFullyQualifiedName(false); ?>;
-use <?php echo $clientUnexpectedResponseCodeException->getFullyQualifiedName(false); ?>;
-use <?php echo $clientSortEnum->getFullyQualifiedName(false); ?>;
-use <?php echo $responseParserClass->getFullyQualifiedName(false); ?>;
-use <?php echo $typeInterface->getFullyQualifiedName(false); ?>;
-use <?php echo $idType->getFullyQualifiedClassName(false); ?>;
-use <?php echo $idPrimitiveType->getFullyQualifiedClassName(false); ?>;
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
 
 {
     private const _STATUS_OK = 200;
 
-    /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_CLIENT_CLIENT); ?> */
     protected <?php echo PHPFHIR_INTERFACE_CLIENT_CLIENT; ?> $_client;
-
-    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?> */
     protected <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $_version;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?> Constructor
      *
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_CLIENT_CLIENT); ?> $client
+     * @param <?php echo $clientInterface->getFullyQualifiedName(true); ?> $client
      * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?> $version
      */
     public function __construct(<?php echo PHPFHIR_INTERFACE_CLIENT_CLIENT; ?> $client, <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $version)
@@ -86,14 +95,14 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      *
      * @see https://www.hl7.org/fhir/http.html#read
      *
-     * @param string|<?php echo $version->getFullyQualifiedName(true, PHPFHIR_ENUM_VERSION_TYPE); ?> $resourceType
+     * @param string|<?php echo $versionTypeEnum->getFullyQualifiedName(true); ?> $resourceType
      * @param null|string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
      * @param null|int $count
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CLIENT_SORT); ?> $sort
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT); ?> $format
+     * @param null|<?php echo $clientSortEnum->getFullyQualifiedName(true); ?> $sort
+     * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
      * @param null|array $queryParams
      * @param null|bool $parseHeaders
-     * @return <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CLIENT_RESPONSE); ?>
+     * @return <?php echo $clientResponseClass->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */
@@ -140,14 +149,14 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      *
      * @see https://www.hl7.org/fhir/http.html#read
      *
-     * @param string|<?php echo $version->getFullyQualifiedName(true, PHPFHIR_ENUM_VERSION_TYPE); ?> $resourceType
+     * @param string|<?php echo $versionTypeEnum->getFullyQualifiedName(true); ?> $resourceType
      * @param null|string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
      * @param null|int $count
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CLIENT_SORT); ?> $sort
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT); ?> $format
+     * @param null|<?php echo $clientSortEnum->getFullyQualifiedName(true); ?> $sort
+     * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
      * @param null|array $queryParams
      * @param null|bool $parseHeaders
-     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
+     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */
@@ -166,10 +175,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     }
 
     /**
-     * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CLIENT_RESPONSE); ?> $rc
-     * @throws <?php echo $config->getFullyQualifiedName(true, PHPFHIR_EXCEPTION_CLIENT_ERROR); ?>
+     * @param <?php echo $clientResponseClass->getFullyQualifiedName(true); ?> $rc
+     * @throws <?php echo $clientErrorException->getFullyQualifiedName(true); ?>
 
-     * @throws <?php echo $config->getFullyQualifiedName(true, PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE); ?>
+     * @throws <?php echo $clientUnexpectedResponseCodeException->getFullyQualifiedName(true); ?>
 
      */
     protected function _requireOK(<?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?> $rc): void
@@ -194,8 +203,8 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * Read one <?php echo $rsc->getFHIRName(); ?> resource.
      *
      * @param string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
-     * @param null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT); ?> $format
-     * @return null|<?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?>
+     * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
+     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */

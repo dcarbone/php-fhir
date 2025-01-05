@@ -17,9 +17,14 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImportsByName(PHPFHIR_INTERFACE_CONTAINED_TYPE);
 
 $config = $version->getConfig();
 $types = $version->getDefinition()->getTypes();
@@ -41,7 +46,7 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_CONTAINED_TYPE); ?>;
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
  * Interface <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>
