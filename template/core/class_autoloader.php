@@ -23,8 +23,6 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 $coreFiles = $config->getCoreFiles();
 
-$constsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
-
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
@@ -32,8 +30,6 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
-
-use <?php echo $constsClass->getFullyQualifiedName(false); ?>;
 
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 

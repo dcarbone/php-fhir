@@ -20,9 +20,20 @@
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $config = $version->getConfig();
+$coreFiles = $config->getCoreFiles();
+$clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_CLIENT_CLIENT);
+$clientResponseFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT);
+$clientSortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_CLIENT_SORT);
+$clientRequestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_REQUEST);
+$clientResponseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_RESPONSE);
+$clientErrorException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_ERROR);
+$clientUnexpectedResponseCodeException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE);
+$responseParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_RESPONSE_PARSER);
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
+
+$versionCoreFiles = $version->getCoreFiles();
+
 $types = $version->getDefinition()->getTypes();
-$namespace = $version->getFullyQualifiedName(false);
-$bundleType = $types->getBundleType();
 
 $idType = $types->getTypeByName('id');
 $idPrimitiveType = $types->getTypeByName('id-primitive');
@@ -35,16 +46,17 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_CLIENT_CLIENT); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_CLIENT_RESPONSE_FORMAT); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CLIENT_REQUEST); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_CLIENT_RESPONSE); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_EXCEPTION_CLIENT_NETWORK_ERROR); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENUM_CLIENT_SORT); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_INTERFACE_TYPE); ?>;
+use <?php echo $clientInterface->getFullyQualifiedName(false); ?>;
+use <?php echo $clientResponseFormatEnum->getFullyQualifiedName(false); ?>;
+use <?php echo $clientRequestClass->getFullyQualifiedName(false); ?>;
+use <?php echo $clientResponseClass->getFullyQualifiedName(false); ?>;
+use <?php echo $clientErrorException->getFullyQualifiedName(false); ?>;
+use <?php echo $clientUnexpectedResponseCodeException->getFullyQualifiedName(false); ?>;
+use <?php echo $clientSortEnum->getFullyQualifiedName(false); ?>;
+use <?php echo $responseParserClass->getFullyQualifiedName(false); ?>;
+use <?php echo $typeInterface->getFullyQualifiedName(false); ?>;
 use <?php echo $idType->getFullyQualifiedClassName(false); ?>;
+use <?php echo $idPrimitiveType->getFullyQualifiedClassName(false); ?>;
 
 class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
 
@@ -155,7 +167,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
 
     /**
      * @param <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_CLIENT_RESPONSE); ?> $rc
-     * @throws <?php echo $config->getFullyQualifiedName(true, PHPFHIR_EXCEPTION_CLIENT_NETWORK_ERROR); ?>
+     * @throws <?php echo $config->getFullyQualifiedName(true, PHPFHIR_EXCEPTION_CLIENT_ERROR); ?>
 
      * @throws <?php echo $config->getFullyQualifiedName(true, PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE); ?>
 
@@ -163,7 +175,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     protected function _requireOK(<?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?> $rc): void
     {
         if (isset($rc->err)) {
-            throw new <?php echo PHPFHIR_EXCEPTION_CLIENT_NETWORK_ERROR; ?>($rc);
+            throw new <?php echo PHPFHIR_EXCEPTION_CLIENT_ERROR; ?>($rc);
         }
         if (!isset($rc->code) || self::_STATUS_OK !== $rc->code) {
             throw new <?php echo PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE; ?>($rc, self::_STATUS_OK);

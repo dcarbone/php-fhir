@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DCarbone\PHPFHIR\Version\Definition;
+namespace DCarbone\PHPFHIR\Builder;
 
 /*
  * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,41 +18,33 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  * limitations under the License.
  */
 
-/**
- * Class TypeImport
- * @package DCarbone\PHPFHIR\Definition
- */
-class TypeImport
+class Import
 {
     /** @var string */
-    private string $classname;
+    private string $_classname;
     /** @var string */
-    private string $namespace;
+    private string $_namespace;
     /** @var string */
-    private string $fqcn;
+    private string $_fqn;
+    /** @var string */
+    private string $_aliasName;
     /** @var bool */
-    private bool $aliased;
-    /** @var string */
-    private string $aliasName;
-    /** @var bool */
-    private bool $requiresImport;
+    private bool $_requiresImport;
 
     /**
      * TypeImport constructor.
      * @param string $classname
      * @param string $namespace
-     * @param bool $aliased
      * @param string $aliasName
      * @param bool $requiresImport
      */
-    public function __construct(string $classname, string $namespace, bool $aliased, string $aliasName, bool $requiresImport)
+    public function __construct(string $classname, string $namespace, string $aliasName, bool $requiresImport)
     {
-        $this->classname = $classname;
-        $this->namespace = $namespace;
-        $this->fqcn = ('' === $namespace ? $classname : "{$namespace}\\{$classname}");
-        $this->aliased = $aliased;
-        $this->aliasName = $aliasName;
-        $this->requiresImport = $requiresImport;
+        $this->_classname = $classname;
+        $this->_namespace = trim($namespace, PHPFHIR_NAMESPACE_SEPARATOR);
+        $this->_fqn = ('' === $this->_namespace ? $classname : "{$this->_namespace}\\{$classname}");
+        $this->_aliasName = $aliasName;
+        $this->_requiresImport = $requiresImport;
     }
 
     /**
@@ -60,7 +52,7 @@ class TypeImport
      */
     public function getClassname(): string
     {
-        return $this->classname;
+        return $this->_classname;
     }
 
     /**
@@ -68,7 +60,7 @@ class TypeImport
      */
     public function getNamespace(): string
     {
-        return $this->namespace;
+        return $this->_namespace;
     }
 
     /**
@@ -76,7 +68,7 @@ class TypeImport
      */
     public function isAliased(): bool
     {
-        return $this->aliased;
+        return isset($this->_aliasName) && '' !== $this->_aliasName;
     }
 
     /**
@@ -84,7 +76,7 @@ class TypeImport
      */
     public function getAliasName(): string
     {
-        return $this->aliasName;
+        return $this->_aliasName;
     }
 
     /**
@@ -104,24 +96,24 @@ class TypeImport
      */
     public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
-        return $leadingSlash ? "\\{$this->namespace}" : $this->namespace;
+        return $leadingSlash ? "\\{$this->_namespace}" : $this->_namespace;
     }
 
     /**
      * @param bool $leadingSlash
      * @return string
      */
-    public function getFullyQualifiedClassname(bool $leadingSlash): string
+    public function getFullyQualifiedName(bool $leadingSlash): string
     {
-        return $leadingSlash ? "\\{$this->fqcn}" : $this->fqcn;
+        return $leadingSlash ? "\\{$this->_fqn}" : $this->_fqn;
     }
 
     /**
      * @return bool
      */
-    public function isRequiresImport(): bool
+    public function requiresImport(): bool
     {
-        return $this->requiresImport;
+        return $this->_requiresImport;
     }
 
     /**
@@ -129,7 +121,7 @@ class TypeImport
      */
     public function getUseStatement(): string
     {
-        $use = "use {$this->getFullyQualifiedClassname(false)}";
+        $use = "use {$this->getFullyQualifiedName(false)}";
         if ($this->isAliased()) {
             $use .= " as {$this->getAliasName()}";
         }

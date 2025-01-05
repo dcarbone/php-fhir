@@ -38,7 +38,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     /** @var array */
     private const _CLASS_MAP = [
         // version core types
-<?php foreach($version->getCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
+<?php foreach($version->getCoreFiles()->getGenerator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
         '<?php echo $coreFile->getFullyQualifiedName(false); ?>' => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
             $version->getFullyQualifiedName(false),
             $coreFile->getFullyQualifiedName(false),

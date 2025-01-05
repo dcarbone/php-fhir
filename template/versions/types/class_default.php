@@ -110,7 +110,7 @@ if (0 !== count($localProperties)) :
 
         self::<?php echo $property->getFieldConstantName(); ?> => [
 <?php       foreach($validationMap as $k => $v) : ?>
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::<?php echo $k; ?> => <?php pretty_var_export($v, 3,false); ?>,
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::<?php echo $k; ?> => <?php echo pretty_var_export($v, 3,false); ?>,
 <?php       endforeach; ?>
         ],<?php
         endif;

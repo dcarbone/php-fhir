@@ -121,6 +121,7 @@ class Config implements LoggerAwareInterface
         );
 
         $this->_coreFiles = new CoreFiles(
+            $this,
             $this->getOutputPath(),
             PHPFHIR_TEMPLATE_CORE_DIR,
             $this->getFullyQualifiedName(true),

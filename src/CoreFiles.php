@@ -31,11 +31,12 @@ class CoreFiles
     private array $_files;
 
     /**
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string $outputDir
      * @param string $templateDir
      * @param string $baseNS
      */
-    public function __construct(string $outputDir, string $templateDir, string $baseNS)
+    public function __construct(Config $config, string $outputDir, string $templateDir, string $baseNS)
     {
         $this->_outputDir = realpath($outputDir);
         $this->_templateDir = realpath($templateDir);
@@ -54,7 +55,7 @@ class CoreFiles
 
             $outDir .= DIRECTORY_SEPARATOR . NameUtils::templateFilenameToPHPName($outNS, PHPFHIR_NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR);
 
-            $this->_files[] = new CoreFile($fpath, $outDir, $outNS);
+            $this->_files[] = new CoreFile($config, $fpath, $outDir, $outNS);
         }
     }
 

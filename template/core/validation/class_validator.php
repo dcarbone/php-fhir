@@ -19,9 +19,17 @@
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-$coreFiles = $config->getCoreFiles();
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
-$constsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
+$coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImports(
+    PHPFHIR_CLASSNAME_CONSTANTS,
+    PHPFHIR_INTERFACE_TYPE,
+    PHPFHIR_INTERFACE_PRIMITIVE_TYPE,
+);
+
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
 $pimitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_PRIMITIVE_TYPE);
 
@@ -33,9 +41,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-use <?php echo $constsClass->getFullyQualifiedName(false); ?>;
-use <?php echo $typeInterface->getFullyQualifiedName(false); ?>;
-use <?php echo $pimitiveTypeInterface->getFullyQualifiedName(false); ?>;
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
 

@@ -112,6 +112,7 @@ class Version
         $this->_sourceMetadata = new SourceMetadata($config, $this);
 
         $this->_coreFiles = new CoreFiles(
+            $this->_config,
             $config->getOutputPath(),
             PHPFHIR_TEMPLATE_VERSIONS_CORE_DIR,
             $this->getFullyQualifiedName(true),

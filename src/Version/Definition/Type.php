@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Version\VersionImports;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TestTypeEnum;
@@ -98,9 +99,8 @@ class Type
     private bool $valueContainer = false;
     /** @var bool */
     private bool $commentContainer = false;
-
-    /** @var \DCarbone\PHPFHIR\Version\Definition\TypeImports */
-    private TypeImports $imports;
+    /** @var \DCarbone\PHPFHIR\Version\VersionImports */
+    private VersionImports $imports;
 
     /**
      * Type constructor.
@@ -128,7 +128,11 @@ class Type
         $this->sourceFilename = $sourceFilename;
         $this->localProperties = new Properties($config, $version, $this);
         $this->enumeration = new Enumeration();
-        $this->imports = new TypeImports($this);
+        $this->imports = new VersionImports(
+            $version,
+            $this->getFullyQualifiedNamespace(false),
+            $this->getClassName(),
+        );
     }
 
     /**
@@ -166,9 +170,9 @@ class Type
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Version\Definition\TypeImports
+     * @return \DCarbone\PHPFHIR\Version\VersionImports
      */
-    public function getImports(): TypeImports
+    public function getImports(): VersionImports
     {
         return $this->imports;
     }
@@ -370,19 +374,20 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function getAllPropertiesIterator(): iterable
+    public function getAllPropertiesIndexedIterator(): iterable
     {
         $properties = [];
         foreach ($this->getLocalProperties()->getLocalPropertiesIterator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach ($this->getParentTypes() as $parentType) {
-            foreach ($parentType->getAllPropertiesIterator() as $property) {
+            foreach ($parentType->getAllPropertiesIndexedIterator() as $property) {
                 if (!isset($properties[$property->getName()])) {
                     $properties[$property->getName()] = $property;
                 }
             }
         }
+        // this returns an \SplFixedArray to provide an indexed iterator
         return \SplFixedArray::fromArray($properties, preserveKeys: false);
     }
 

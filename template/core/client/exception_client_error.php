@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-class <?php echo PHPFHIR_EXCEPTION_CLIENT_NETWORK_ERROR; ?> extends <?php echo PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT; ?>
+class <?php echo PHPFHIR_EXCEPTION_CLIENT_ERROR; ?> extends <?php echo PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT; ?>
 
 {
     public function __construct(<?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?> $rc) {

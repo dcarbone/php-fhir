@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-// start output buffer
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
 
@@ -31,15 +32,10 @@ namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
 
 
 <?php
-$imported = 0;
-foreach ($type->getImports()->getIterator() as $import) {
-    if ($import->isRequiresImport()) {
-        echo $import->getUseStatement();
-        $imported++;
-    }
-}
-if (0 !== $imported) {
-    echo "\n";
-}
+ImportUtils::buildVersionTypeImports($type);
+
+echo ImportUtils::compileImportStatements($type->getImports());
+
+echo "\n";
 
 return ob_get_clean();

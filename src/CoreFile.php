@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 class CoreFile
@@ -41,12 +42,16 @@ class CoreFile
     /** @var bool */
     private bool $_isAutoloader = false;
 
+    /** @var \DCarbone\PHPFHIR\Builder\Imports */
+    private Imports $_imports;
+
     /**
+     * @param \DCarbone\PHPFHIR\Config $config
      * @param string $templateFile
      * @param string $outDir
-     * @param string $baseNS
+     * @param string $namespace
      */
-    public function __construct(string $templateFile, string $outDir, string $baseNS)
+    public function __construct(Config $config, string $templateFile, string $outDir, string $namespace)
     {
         $this->_templateFile = $templateFile;
 
@@ -59,7 +64,7 @@ class CoreFile
         // classname suffix
         $suffix = NameUtils::phpNameFormat($this->_type);
 
-        $this->_namespace = ltrim($baseNS, PHPFHIR_NAMESPACE_SEPARATOR);
+        $this->_namespace = trim($namespace, PHPFHIR_NAMESPACE_SEPARATOR);
 
         if ('class' === $this->_type) {
             // 'class' types do have suffix
@@ -78,6 +83,16 @@ class CoreFile
 
         // build full filepath
         $this->_filepath = $outDir . DIRECTORY_SEPARATOR . "{$this->_entityName}.php";
+
+        $this->_imports = new Imports($config, $this->_namespace, $this->_entityName);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Builder\Imports
+     */
+    public function getImports(): Imports
+    {
+        return $this->_imports;
     }
 
     /**

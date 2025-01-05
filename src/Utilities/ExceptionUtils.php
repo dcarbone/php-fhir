@@ -22,10 +22,6 @@ use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
-/**
- * Class ExceptionUtils
- * @package DCarbone\PHPFHIR\Utilities
- */
 class ExceptionUtils
 {
     /**

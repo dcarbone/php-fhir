@@ -16,10 +16,20 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImports(
+    PHPFHIR_CLASSNAME_CLIENT_CONFIG,
+    PHPFHIR_CLASSNAME_CLIENT_REQUEST,
+    PHPFHIR_CLASSNAME_CLIENT_RESPONSE,
+    PHPFHIR_ENUM_CLIENT_HTTP_METHOD,
+);
 
 $confClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_CONFIG);
 $reqClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CLIENT_REQUEST);
@@ -33,6 +43,8 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
+
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
  * Class <?php echo PHPFHIR_CLASSNAME_CLIENT_CLIENT; ?>
@@ -53,7 +65,6 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_CLIENT; ?> implements <?php echo PHPFH
         CURLOPT_USERAGENT => 'php-fhir client (build: <?php echo $config->getStandardDate(); ?>;)',
     ];
 
-    /** @var <?php echo $confClass->getFullyQualifiedName(true); ?> */
     protected <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?> $_config;
 
     /**
@@ -69,12 +80,6 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_CLIENT; ?> implements <?php echo PHPFH
         $this->_config = $config;
     }
 
-    /**
-     * Return configuration used by this client.
-     *
-     * @return <?php echo $confClass->getFullyQualifiedName(true); ?>
-
-     */
     public function getConfig(): <?php echo PHPFHIR_CLASSNAME_CLIENT_CONFIG; ?>
 
     {
@@ -152,14 +157,6 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_CLIENT; ?> implements <?php echo PHPFH
         return $rc;
     }
 
-    /**
-     * @param string|<?php echo $htMethodEnum->getFullyQualifiedName(true); ?> $method
-     * @param string $path
-     * @param array $queryParams
-     * @param array $curlOpts
-     * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
-
-     */
     private function _exec(string|<?php echo $htMethodEnum->getEntityName(); ?> $method, string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
 
     {
@@ -171,78 +168,36 @@ class <?php echo PHPFHIR_CLASSNAME_CLIENT_CLIENT; ?> implements <?php echo PHPFH
         return $this->exec($req);
     }
 
-    /**
-     * @param string $path
-     * @param array $queryParams
-     * @param array $curlOpts
-     * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
-
-     */
     public function get(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
 
     {
         return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::GET, $path, $queryParams, $curlOpts);
     }
 
-    /**
-     * @param string $path
-     * @param array $queryParams
-     * @param array $curlOpts
-     * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
-
-     */
     public function put(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
 
     {
         return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::PUT, $path, $queryParams, $curlOpts);
     }
 
-    /**
-     * @param string $path
-     * @param array $queryParams
-     * @param array $curlOpts
-     * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
-
-     */
     public function post(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
 
     {
         return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::POST, $path, $queryParams, $curlOpts);
     }
 
-    /**
-     * @param string $path
-     * @param array $queryParams
-     * @param array $curlOpts
-     * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
-
-     */
     public function patch(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
 
     {
         return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::PATCH, $path, $queryParams, $curlOpts);
     }
 
-    /**
-     * @param string $path
-     * @param array $queryParams
-     * @param array $curlOpts
-     * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
-
-     */
     public function delete(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
 
     {
         return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::DELETE, $path, $queryParams, $curlOpts);
     }
 
-    /**
-     * @param string $path
-     * @param array $queryParams
-     * @param array $curlOpts
-     * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
-
-     */
     public function head(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLASSNAME_CLIENT_RESPONSE; ?>
 
     {

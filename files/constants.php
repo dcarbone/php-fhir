@@ -111,7 +111,7 @@ const PHPFHIR_ENUM_XML_LOCATION = 'XMLLocationEnum';
 
 // Core exceptions
 const PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT = 'AbstractClientException';
-const PHPFHIR_EXCEPTION_CLIENT_NETWORK_ERROR = 'ClientErrorException';
+const PHPFHIR_EXCEPTION_CLIENT_ERROR = 'ClientErrorException';
 const PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE = 'UnexpectedResponseCodeException';
 
 // Core client entities

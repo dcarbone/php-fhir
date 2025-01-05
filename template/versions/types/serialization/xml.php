@@ -27,7 +27,7 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 $localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
-$properties = $type->getAllPropertiesIterator();
+$properties = $type->getAllPropertiesIndexedIterator();
 
 ob_start();
 

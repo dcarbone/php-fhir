@@ -40,7 +40,7 @@ if (null === $bundleType) {
     throw ExceptionUtils::createBundleTypeNotFoundException($type);
 }
 
-foreach($bundleType->getAllPropertiesIterator() as $prop) {
+foreach($bundleType->getAllPropertiesIndexedIterator() as $prop) {
     if ($prop->getName() === 'entry') {
         $bundleEntryProperty = $prop;
         break;

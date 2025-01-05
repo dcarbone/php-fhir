@@ -20,6 +20,16 @@
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImports(
+    PHPFHIR_CLASSNAME_SERIALIZE_CONFIG,
+    PHPFHIR_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_CLASSNAME_XML_WRITER,
+);
+
 $coreFiles = $config->getCoreFiles();
 
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_SERIALIZE_CONFIG);
@@ -34,9 +44,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-use <?php echo $serializeConfigClass->getFullyQualifiedName(false); ?>;
-use <?php echo $unserializeConfigClass->getFullyQualifiedName(false); ?>;
-use <?php echo $xmlWriterClass->getFullyQualifiedName(false); ?>;
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
 {
