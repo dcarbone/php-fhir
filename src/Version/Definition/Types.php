@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Version\Definition;
 
 /*
- * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,7 +216,7 @@ class Types implements Countable
     {
         if (!isset($this->containerType)) {
             foreach ($this->types as $type) {
-                if ($type->getKind()->isContainer($version)) {
+                if ($type->getKind()->isResourceContainer($version)) {
                     $this->containerType = $type;
                     break;
                 }
@@ -232,7 +232,7 @@ class Types implements Countable
     public function isContainedType(Type $type): bool
     {
         // only bother with actual Resource types.
-        if ($type->getKind()->isContainer($type->getVersion())) {
+        if ($type->getKind()->isResourceContainer($type->getVersion())) {
             return false;
         }
         $container = $this->getContainerType($type->getVersion());

@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Render;
 
 /*
- * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ abstract class Templates
      */
     public static function renderVersionTypeClass(Version $version, Types $types, Type $type): string
     {
+        if ($type->getKind()->isResourceContainer($version)) {
+            return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_resource_container.php';
+        }
         return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_default.php';
     }
 

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ ob_start(); ?>
     if (null !== $propType) :
         $propTypeKind = $propType->getKind();
 
-        if ($propTypeKind->isContainer($version)) : ?>
+        if ($propTypeKind->isResourceContainer($version)) : ?>
             if (self::<?php echo $propConst; ?> === $childName) {
                 foreach ($n->children() as $nn) {
                     $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);

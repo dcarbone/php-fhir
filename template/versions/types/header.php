@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,11 @@ if ($type->isAbstract()) : ?>abstract <?php endif; ?>class <?php echo $type->get
 {<?php if ([] !== $traits) : ?>
 
     use <?php echo implode(",\n        ", array_keys($traits)); ?>;
-<?php endif;
+<?php endif; ?>
 
+
+    // name of FHIR type this class describes
+    public const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
+
+<?php
 return ob_get_clean();

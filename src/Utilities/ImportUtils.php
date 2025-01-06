@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,16 +48,11 @@ class ImportUtils
         $typeKind = $type->getKind();
 
         if (!$type->isAbstract()) {
-            $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
-            $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_ENUM_XML_LOCATION);
+            $imports->addCoreFileImportsByName(
+                PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
+                PHPFHIR_ENCODING_ENUM_XML_LOCATION,
+            );
         }
-
-        $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION);
-        $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION_CONSTANTS);
-        $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
-        $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
-
-        $imports->addCoreFileImportsByName(PHPFHIR_INTERFACE_TYPE);
 
         foreach ($type->getDirectlyImplementedInterfaces() as $interface => $namespace) {
             $imports->addImport($namespace, $interface);
@@ -67,10 +62,31 @@ class ImportUtils
             $imports->addImport($namespace, $trait);
         }
 
+        $imports->addVersionCoreFileImportsByName(
+            $type->getVersion(),
+            PHPFHIR_CLASSNAME_VERSION,
+            PHPFHIR_CLASSNAME_VERSION_CONSTANTS,
+        );
+
+        $imports->addCoreFileImportsByName(
+            PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
+            PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
+            PHPFHIR_INTERFACE_TYPE,
+        );
+
         if (($type->isCommentContainer() && !$type->hasCommentContainerParent()) ||
             $type->hasLocalPropertiesWithValidations() ||
             ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$type->hasPrimitiveParent())) {
             $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
+        }
+
+        if ($typeKind->isResourceContainer($type->getVersion())) {
+            $imports->addVersionCoreFileImportsByName(
+                $type->getVersion(),
+                PHPFHIR_CLASSNAME_VERSION_TYPE_MAP,
+                PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE,
+            );
+            return;
         }
 
         if ($parentType = $type->getParentType()) {

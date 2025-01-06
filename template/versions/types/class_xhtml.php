@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,6 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-
-$imports = $type->getImports();
-
-$imports->addCoreFileImportsByName(
-    PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
-    PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
-);
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
@@ -162,9 +155,6 @@ echo require_with(
     [
         'version' => $version,
         'type' => $type,
-        'typeKind' => $type->getKind(),
-        'parentType' => null,
-        'typeClassName' => $type->getClassName()
     ]
 );
 ?>

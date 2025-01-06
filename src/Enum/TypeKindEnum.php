@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Enum;
 
 /*
- * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,8 @@ enum TypeKindEnum: string
     // treated a bit different
     case PHPFHIR_XHTML = 'phpfhir_xhtml';
 
-    private const _DSTU1_CONTAINER_TYPE = self::RESOURCE_INLINE;
-
-    private const _CONTAINER_TYPE = self::RESOURCE_CONTAINER;
+    private const _DSTU1_RESOURCE_CONTAINER_TYPE = self::RESOURCE_INLINE;
+    private const _RESOURCE_CONTAINER_TYPE = self::RESOURCE_CONTAINER;
 
     /**
      * Returns true if the provided FHIR type name is the "container" type for the provided version.
@@ -62,9 +61,9 @@ enum TypeKindEnum: string
     public static function isContainerTypeName(Version $version, string $fhirName): bool
     {
         if ($version->getSourceMetadata()->isDSTU1()) {
-            return $fhirName === self::_DSTU1_CONTAINER_TYPE->value;
+            return $fhirName === self::_DSTU1_RESOURCE_CONTAINER_TYPE->value;
         }
-        return $fhirName === self::_CONTAINER_TYPE->value;
+        return $fhirName === self::_RESOURCE_CONTAINER_TYPE->value;
     }
 
     /**
@@ -77,16 +76,16 @@ enum TypeKindEnum: string
     }
 
     /**
-     * Returns true if this kind is the "container" kind for the provided FHIR version.
+     * Returns true if this kind is the "resource container" kind for the provided FHIR version.
      *
      * @param \DCarbone\PHPFHIR\Version $version
      * @return bool
      */
-    public function isContainer(Version $version): bool
+    public function isResourceContainer(Version $version): bool
     {
         if ($version->getSourceMetadata()->isDSTU1()) {
-            return $this === self::_DSTU1_CONTAINER_TYPE;
+            return $this === self::_DSTU1_RESOURCE_CONTAINER_TYPE;
         }
-        return $this === self::_CONTAINER_TYPE;
+        return $this === self::_RESOURCE_CONTAINER_TYPE;
     }
 }

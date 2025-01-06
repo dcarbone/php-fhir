@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +146,6 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
      * @return string Fully qualified class name of contained resource type
      */
     public static function getContainedTypeClassNameFromXML(\SimpleXMLElement $node): string
-
     {
         $typeName = $node->getName();
         $className = self::getContainedTypeClassName($typeName);
@@ -161,7 +160,6 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
      * @return string Fully qualified class name of contained resource type
      */
     public static function getContainedTypeClassNameFromArray(array $data): string
-
     {
         $resourceType = null;
         if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {

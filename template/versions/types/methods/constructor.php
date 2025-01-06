@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,7 @@ $typeClassName = $type->getClassName();
 $typeImports = $type->getImports();
 
 $parentType = $type->getParentType();
-
-$localProperties = $type->getProperties()->getLocalPropertiesIterator();
+$properties = $type->getProperties();
 
 // used in a few places below.
 $valueProperty = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
@@ -109,7 +108,7 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
                 $this->_addFHIRComment($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
             }
         }<?php endif; ?>
-<?php foreach ($localProperties as $property) :
+<?php foreach ($properties->getLocalPropertiesGenerator() as $property) :
     if ($property->isOverloaded()) {
         continue;
     }
@@ -130,20 +129,20 @@ endforeach; ?>
     public function __construct(null|array<?php if ($type->isValueContainer()) : ?>|<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, false); endif; ?> $data = null)
     {
         if (null === $data || [] === $data) {
-<?php if ($type->hasConcreteParent()) : ?>
+<?php if ($type->hasParent()) : ?>
             parent::__construct(null);
 <?php endif; ?>
             return;
-        }
-<?php if ($type->isValueContainer()) : ?>
+        }<?php if ($type->isValueContainer()) : ?>
+
         if (!is_array($data)) {
-<?php if ($type->hasConcreteParent()) : ?>
+<?php if ($type->hasParent()) : ?>
             parent::__construct(null);
 <?php endif; ?>
             $this->setValue($data);
             return;
-        }
-<?php endif; if ($type->hasParentWithLocalProperties()) : // add parent constructor call ?>
+        }<?php endif; if ($type->hasParentWithLocalProperties() || $type->hasCommentContainerParent()) : // add parent constructor call ?>
+
         parent::__construct($data);<?php endif; ?><?php if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : // only parse comments if parent isn't already doing it. ?>
 
         if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
@@ -154,7 +153,7 @@ endforeach; ?>
             }
         }<?php endif; ?>
 
-<?php foreach($localProperties as $property) :
+<?php foreach($properties->getLocalPropertiesGenerator() as $property) :
     if ($property->isOverloaded()) {
         continue;
     }

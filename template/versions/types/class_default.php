@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,7 @@ echo require_with(
         'version' => $version,
         'type' => $type,
     ]
-); ?>
-
-    // name of FHIR type this class describes
-    public const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
-<?php
+);
 
 // -- property field name constants
 if ($type->hasLocalProperties()) :
@@ -99,10 +95,10 @@ endif;
 
 // -- end field properties
 ?>
-
+<?php if ($type->hasLocalProperties()) : ?>
     /** @var array */
     private array $_xmlLocations = [];
-
+<?php endif; ?>
 <?php echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
     [

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,7 +192,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
     }
 <?php foreach($types->getChildrenOf('Resource') as $rsc) :
     $typeKind = $rsc->getKind();
-    if ($typeKind->isContainer($version) || $rsc->getFHIRName() === 'Bundle') { continue; }
+    if ($typeKind->isResourceContainer($version) || $rsc->getFHIRName() === 'Bundle') { continue; }
 
     $rscName = $rsc->getFHIRName();
     $rscNameLen = strlen($rscName);
