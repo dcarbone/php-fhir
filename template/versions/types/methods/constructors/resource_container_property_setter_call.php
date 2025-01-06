@@ -55,7 +55,7 @@ ob_start(); ?>
                 $typeClass = new $typeClassName($d);
             } else if (!is_object($data[self::<?php echo $propertyFieldConst; ?>]) || !($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>)) {
                 throw new \InvalidArgumentException(sprintf(
-                    '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an object implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE); ?>, object of type %s seen',
+                    '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an array or object implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE); ?>, %s seen',
                     is_object($data[self::<?php echo $propertyFieldConst; ?>]) ? get_class($data[self::<?php echo $propertyFieldConst; ?>]) : gettype($data[self::<?php echo $propertyFieldConst; ?>])
                 ));
             } else {
