@@ -51,10 +51,10 @@ if ($type->hasLocalProperties()) :
         }
 
         $propertyType = $property->getValueFHIRType(); ?>
-        public const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
+    public const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
 <?php   if (null !== $propertyType &&
     ($propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->isValueContainer())) :
-    ?>        public const <?php echo $property->getFieldConstantName(); ?>_EXT = '<?php echo $property->getExtName(); ?>';
+    ?>    public const <?php echo $property->getFieldConstantName(); ?>_EXT = '<?php echo $property->getExtName(); ?>';
 <?php   endif;
     endforeach;
 // -- end property field name constants
@@ -72,7 +72,6 @@ if ($type->hasLocalProperties()) :
 <?php
 // -- end directly implemented properties
     endforeach; ?>
-
 
     /** Default validation map for fields in type <?php echo $type->getFHIRName(); ?> */
     private const _DEFAULT_VALIDATION_RULES = [<?php if (!$type->hasLocalPropertiesWithValidations()): ?>];
@@ -101,10 +100,8 @@ endif;
 // -- end field properties
 ?>
 
-
     /** @var array */
     private array $_xmlLocations = [];
-
 
 <?php echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',

@@ -64,8 +64,8 @@ foreach ($type->getProperties()->getIndexedLocalPropertiesIterator() as $i => $p
 
     {
         return $this-><?php echo $propertyName; ?>;
-    }<?php if ($isCollection) : ?>
-
+    }
+<?php if ($isCollection) : ?>
 
     /**
      * @return \ArrayIterator<<?php echo $propertyType->getFullyQualifiedClassName(true); ?>>
@@ -90,7 +90,6 @@ foreach ($type->getProperties()->getIndexedLocalPropertiesIterator() as $i => $p
 <?php
     endif;
     if ($propertyType->hasPrimitiveParent() || $propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE_CONTAINER, TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) : ?>
-
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -121,7 +120,6 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   if ($isCollection) : ?>
-
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -154,7 +152,6 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php   endif;
     elseif ($propertyTypeKind->isContainer($version)) : ?>
 
-
     /**<?php if ('' !== $documentation) : ?>
 
 <?php echo $documentation; ?>
@@ -170,7 +167,6 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   if ($isCollection) : ?>
-
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -215,7 +211,6 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php   endif;
     else : ?>
 
-
     /**<?php if ('' !== $documentation) : ?>
 
 <?php echo $documentation; ?>
@@ -234,7 +229,6 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         return $this;
     }
 <?php   if ($isCollection) : ?>
-
 
     /**<?php if ('' !== $documentation) : ?>
 
