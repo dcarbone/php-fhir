@@ -30,7 +30,7 @@ $xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_XML
 
 $versionCoreFiles = $version->getCoreFiles();
 
-$versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
+$versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
 
 $isPrimitiveType = $type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST);
 
@@ -157,11 +157,11 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param null|<?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
+     * @param null|<?php echo $version->getFullyQualifiedName(true) . '\\' . PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $property->getSetterName() ?>(null|<?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?> = null): self
+    public function <?php echo $property->getSetterName() ?>(null|<?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?> $<?php echo $propertyName; ?> = null): self
     {
         $this-><?php echo $propertyName; ?><?php echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
@@ -187,16 +187,16 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
         }
         foreach($<?php echo $propertyName; ?> as $v) {
             if (is_object($v)) {
-                if ($v instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>) {
+                if ($v instanceof <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>) {
                     $this-><?php echo $property->getSetterName(); ?>($v);
                 } else {
                     throw new \InvalidArgumentException(sprintf(
-                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE); ?>, object of type %s seen',
+                        '<?php echo $type->getClassName(); ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE); ?>, object of type %s seen',
                         get_class($v)
                     ));
                 }
             } elseif (is_array($v)) {
-                $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($v);
+                $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($v);
                 unset($v[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
                 $this-><?php echo $property->getSetterName(); ?>(new $typeClassName($v));
             } else {

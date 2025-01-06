@@ -31,7 +31,7 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
-abstract class <?php echo PHPFHIR_CLASSNAME_VERSION_CONSTANTS; ?>
+abstract class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS; ?>
 
 {
 <?php foreach($types->getNameSortedIterator() as $type) : ?>

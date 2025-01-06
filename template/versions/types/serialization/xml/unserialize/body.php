@@ -36,7 +36,7 @@ ob_start(); ?>
         if ($propTypeKind->isResourceContainer($version)) : ?>
             if (self::<?php echo $propConst; ?> === $childName) {
                 foreach ($n->children() as $nn) {
-                    $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
+                    $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
                     $type-><?php echo $setter; ?>($typeClassName::xmlUnserialize($nn, null, $config));
                 }
             }<?php

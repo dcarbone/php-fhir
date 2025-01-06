@@ -29,7 +29,7 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
-enum <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> : string
+enum <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPE; ?> : string
 {
 <?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>
     case <?php echo $type->getConstName(false); ?> = <?php echo $type->getTypeNameConst(true) ?>;

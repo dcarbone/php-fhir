@@ -115,10 +115,10 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> implements <?php echo PHPFH
             + [CURLOPT_CUSTOMREQUEST => $request->method]
             + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
 
-        $parseHeaders = ($this->_config->getParseHeaders() && (!isset($req->parseHeaders) || $req->parseHeaders))
-            || (isset($req->parseHeaders) && $req->parseHeaders);
+        $parseResponseHeaders = ($this->_config->getParseHeaders() && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders))
+            || (isset($req->parseResponseHeaders) && $req->parseResponseHeaders);
 
-        if ($parseHeaders) {
+        if ($parseResponseHeaders) {
             $curlOpts[CURLOPT_HEADER] = 1;
             $curlOpts[CURLOPT_HEADERFUNCTION] = function($ch, string $line) use (&$rc): int {
                     return $rc->headers->addLine($line);
@@ -148,7 +148,7 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> implements <?php echo PHPFH
         $rc->err = $err;
         $rc->errno = $errno;
 
-        if ($parseHeaders) {
+        if ($parseResponseHeaders) {
             $rc->resp = substr($resp, $rc->headers->getLength());
         } else {
             $rc->resp = $resp;

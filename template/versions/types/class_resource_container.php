@@ -31,8 +31,8 @@ $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_C
 
 $versionCoreFiles = $version->getCoreFiles();
 
-$versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
-$versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERSION_TYPE_MAP);
+$versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
+$versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
 
 ob_start();
 
@@ -159,7 +159,7 @@ echo require_with(
             $xw->startDocument();
         }
         if (null === $config) {
-            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
+            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
         }
         if (!$xw->isRootOpen()) {
             $rootOpened = true;

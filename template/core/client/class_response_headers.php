@@ -75,7 +75,7 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?> implements \Count
      */
     public function get(string $name): null|array
     {
-        $this->_parseHeaders();
+        $this->_parseResponseHeaders();
         return $this->_headers[strtolower($name)] ?? null;
     }
 
@@ -92,11 +92,11 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?> implements \Count
      */
     public function getParsedIterator(): iterable
     {
-        $this->_parseHeaders();
+        $this->_parseResponseHeaders();
         return new \ArrayIterator($this->_headers);
     }
 
-    protected function _parseHeaders(): void
+    protected function _parseResponseHeaders(): void
     {
         if ($this->_parsed) {
             return;

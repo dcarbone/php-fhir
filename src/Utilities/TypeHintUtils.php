@@ -118,7 +118,7 @@ class TypeHintUtils
             return sprintf(
                 '%s%s',
                 $nullable ? 'null|' : '',
-                PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE
+                PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE
             );
         }
 
@@ -175,7 +175,7 @@ class TypeHintUtils
 
         // if this is an inline resource
         if ($tk->isOneOf(TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER)) {
-            $types[] = $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
+            $types[] = $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
         } else {
             $types[] = $type->getFullyQualifiedClassName(true);
         }

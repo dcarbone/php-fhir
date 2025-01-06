@@ -28,7 +28,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 
 <?php foreach($config->getVersionsIterator() as $version) : ?>
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION); ?> as <?php echo $version->getEnumImportName(); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION); ?> as <?php echo $version->getEnumImportName(); ?>;
 <?php endforeach; ?>
 
 enum <?php echo PHPFHIR_ENUM_VERSION; ?> : string

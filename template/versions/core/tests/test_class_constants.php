@@ -28,7 +28,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION_CONSTANTS); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS); ?>;
 use PHPUnit\Framework\TestCase;
 
 class <?php echo PHPFHIR_TEST_CLASSNAME_CONSTANTS; ?> extends TestCase

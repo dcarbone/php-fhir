@@ -49,12 +49,12 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>
+ * Interface <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>
 
  *
  * This interface is applied to any class that is containable within a <?php echo $version->getName(); ?> <?php echo $containerType->getClassName(); ?> instance
  */
-interface <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+interface <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
 
 {
 

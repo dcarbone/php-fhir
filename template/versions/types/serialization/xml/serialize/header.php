@@ -48,7 +48,7 @@ ob_start(); ?>
             $xw->startDocument();
         }
         if (null === $config) {
-            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
+            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
         }
         if (!$xw->isRootOpen()) {
             $rootOpened = true;

@@ -21,8 +21,10 @@
 
 $coreFiles = $config->getCoreFiles();
 
+$clientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
 $formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
 $sortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
+$responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -48,9 +50,6 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
     /** @var string */
     public string $at;
 
-    /** @var bool */
-    public bool $parseHeaders;
-
     /** @var <?php echo $formatEnum->getFullyQualifiedName(true); ?> */
     public <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format;
 
@@ -65,8 +64,19 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
     public array $queryParams;
 
     /**
-     * Extra options.  Possible values depends on what client you are using.  If using the base API client, these
-     * must be valid PHP curl options.
+     * If true, headers from the response must be returned and defined in the response object.
+     *
+     * @see <?php echo $responseClass->getFullyQualifiedName(true); ?>::$headers
+     *
+     * @var bool
+     */
+    public bool $parseResponseHeaders;
+
+    /**
+     * Extra client options.  Possible entries will vary depending on what client implementation you are using.
+     *
+     * If using the provided client (@see <?php echo $clientClass->getFullyQualifiedName(true); ?> class),
+     * these must be valid PHP curl options.
      *
      * @var array
      */

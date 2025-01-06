@@ -34,14 +34,14 @@ ob_start(); ?>
                 if (is_int(key($data[self::<?php echo $propertyFieldConst; ?>]))) {
                     $this->set<?php echo ucfirst($propertyName); ?>($data[self::<?php echo $propertyFieldConst; ?>]);
                 } else {
-                    $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
+                    $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                     $d = $data[self::<?php echo $propertyFieldConst; ?>];
                     unset($d[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
                     $this-><?php echo $setter; ?>(new $typeClassName($d));
                 }
-            } elseif (!is_object($data[self::<?php echo $propertyFieldConst; ?>]) || !($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>)) {
+            } elseif (!is_object($data[self::<?php echo $propertyFieldConst; ?>]) || !($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>)) {
                 throw new \InvalidArgumentException(sprintf(
-                    '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE); ?>, value of type %s seen',
+                    '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an array of objects implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE); ?>, value of type %s seen',
                     is_object($data[self::<?php echo $propertyFieldConst; ?>]) ? get_class($data[self::<?php echo $propertyFieldConst; ?>]) : gettype($data[self::<?php echo $propertyFieldConst; ?>])
                 ));
             } else {
@@ -49,13 +49,13 @@ ob_start(); ?>
             }
 <?php else : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
-                $typeClassName = <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
+                $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($data[self::<?php echo $propertyFieldConst; ?>]);
                 $d = $data[self::<?php echo $propertyFieldConst; ?>];
                 unset($d[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
                 $typeClass = new $typeClassName($d);
-            } else if (!is_object($data[self::<?php echo $propertyFieldConst; ?>]) || !($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>)) {
+            } else if (!is_object($data[self::<?php echo $propertyFieldConst; ?>]) || !($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>)) {
                 throw new \InvalidArgumentException(sprintf(
-                    '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an array or object implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE); ?>, %s seen',
+                    '<?php echo $typeClassName; ?> - Field "<?php echo $propertyName; ?>" must be an array or object implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE); ?>, %s seen',
                     is_object($data[self::<?php echo $propertyFieldConst; ?>]) ? get_class($data[self::<?php echo $propertyFieldConst; ?>]) : gettype($data[self::<?php echo $propertyFieldConst; ?>])
                 ));
             } else {

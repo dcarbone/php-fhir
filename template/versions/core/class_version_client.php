@@ -58,7 +58,7 @@ $responseParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_RES
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
 
 $versionCoreFiles = $version->getCoreFiles();
-$versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION_TYPE);
+$versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_ENUM_VERSION_TYPE);
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
@@ -70,21 +70,21 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
+class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
 
 {
     private const _STATUS_OK = 200;
 
     protected <?php echo PHPFHIR_CLIENT_INTERFACE_CLIENT; ?> $_client;
-    protected <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $_version;
+    protected <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> $_version;
 
     /**
-     * <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?> Constructor
+     * <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?> Constructor
      *
      * @param <?php echo $clientInterface->getFullyQualifiedName(true); ?> $client
-     * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?> $version
+     * @param <?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_CLASSNAME_VERSION); ?> $version
      */
-    public function __construct(<?php echo PHPFHIR_CLIENT_INTERFACE_CLIENT; ?> $client, <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $version)
+    public function __construct(<?php echo PHPFHIR_CLIENT_INTERFACE_CLIENT; ?> $client, <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> $version)
     {
         $this->_client = $client;
         $this->_version = $version;
@@ -101,24 +101,23 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @param null|<?php echo $clientSortEnum->getFullyQualifiedName(true); ?> $sort
      * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
      * @param null|array $queryParams
-     * @param null|bool $parseHeaders
+     * @param null|bool $parseResponseHeaders
      * @return <?php echo $clientResponseClass->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */
-    public function readRaw(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
+    public function readRaw(string|<?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPE; ?> $resourceType,
                             null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null,
                             null|int $count = null,
                             null|<?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort = null,
                             null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null,
                             null|array $queryParams = null,
-                            null|bool $parseHeaders = null): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
+                            null|bool $parseResponseHeaders = null): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
 
     {
         if (!is_string($resourceType)) {
             $resourceType = $resourceType->value;
         }
-
         $req = new <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>();
         $req->method = 'GET';
         $req->path = "/{$resourceType}";
@@ -134,13 +133,12 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
         if (null !== $format) {
             $req->format = $format;
         }
-        if (null !== $parseHeaders) {
-            $req->parseHeaders = $parseHeaders;
+        if (null !== $parseResponseHeaders) {
+            $req->parseResponseHeaders = $parseResponseHeaders;
         }
         if (null !== $queryParams) {
             $req->queryParams = $queryParams;
         }
-
         return $this->_client->exec($req);
     }
 
@@ -155,21 +153,21 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
      * @param null|<?php echo $clientSortEnum->getFullyQualifiedName(true); ?> $sort
      * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
      * @param null|array $queryParams
-     * @param null|bool $parseHeaders
+     * @param null|bool $parseResponseHeaders
      * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */
-    public function read(string|<?php echo PHPFHIR_ENUM_VERSION_TYPE; ?> $resourceType,
+    public function read(string|<?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPE; ?> $resourceType,
                          null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null,
                          null|int $count = null,
                          null|<?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort = null,
                          null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null,
                          null|array $queryParams = null,
-                         null|bool $parseHeaders = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                         null|bool $parseResponseHeaders = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseHeaders);
+        $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseResponseHeaders);
         $this->_requireOK($rc);
         return <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $rc->resp);
     }
@@ -212,7 +210,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?>
                         <?php echo $rscNameIndent; ?> null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
 
     {
-        $rc = $this->readRaw(resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $rsc->getConstName(false); ?>,
+        $rc = $this->readRaw(resourceType: <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPE; ?>::<?php echo $rsc->getConstName(false); ?>,
                              resourceID: $resourceID,
                              format: $format);
         $this->_requireOK($rc);

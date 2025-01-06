@@ -64,8 +64,8 @@ class ImportUtils
 
         $imports->addVersionCoreFileImportsByName(
             $type->getVersion(),
-            PHPFHIR_CLASSNAME_VERSION,
-            PHPFHIR_CLASSNAME_VERSION_CONSTANTS,
+            PHPFHIR_VERSION_CLASSNAME_VERSION,
+            PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS,
         );
 
         $imports->addCoreFileImportsByName(
@@ -83,8 +83,8 @@ class ImportUtils
         if ($typeKind->isResourceContainer($type->getVersion())) {
             $imports->addVersionCoreFileImportsByName(
                 $type->getVersion(),
-                PHPFHIR_CLASSNAME_VERSION_TYPE_MAP,
-                PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE,
+                PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP,
+                PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE,
             );
             return;
         }
@@ -121,9 +121,9 @@ class ImportUtils
 
             if ($ptk->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE)) {
                 $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
-                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
-                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION_TYPE_MAP);
-                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION);
+                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
+                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
+                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION);
             } else {
                 if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
                     $primType = $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();

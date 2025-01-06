@@ -50,28 +50,29 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
     /** @var null|<?php echo $formatEnum->getFullyQualifiedName(true); ?> */
     private null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $_defaultFormat;
     /** @var bool */
-    private bool $_parseHeaders;
+    private bool $_parseResponseHeaders;
 
     /**
      * <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> Constructor
      *
      * @param string $address Fully qualified address of FHIR server, including scheme, port, and any path prefix.
-     * @param array $curlOpts Base curl options array.  These will be added to every request.  May be overridden by an individual request.
-     * @param array $queryParams Base query parameters array.  These will be added to every request.  May be overridden by an individual request.
      * @param null|<?php echo $formatEnum->getFullyQualifiedName(true); ?> $defaultFormat Default format to request from server.  If not provided, server default will be used.  May be overridden by an individual request.
-     * @param bool $parseHeaders Whether or not to parse headers from response.  This adds a small amount of overhead, so it is recommended to only set to true if actually used.
+     * @param array $queryParams Base query parameters array.  These will be added to every request.  May be overridden by an individual request.
+     * @param array $curlOpts Base curl options array.  These will be added to every request.  May be overridden by an individual request.
+     * @param bool $parseResponseHeaders Whether or not to parse headers from response.  This adds a small amount of overhead, so it is recommended to only set to true if actually used.
      */
     public function __construct(string $address,
-                                array $curlOpts = [],
-                                array $queryParams = [],
                                 null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $defaultFormat = null,
-                                bool $parseHeaders = false)
+                                array $queryParams = [],
+                                array $requestHeaders = [],
+                                array $curlOpts = [],
+                                bool $parseResponseHeaders = false)
     {
         $this->_address = $address;
-        $this->_curlOpts = $curlOpts;
-        $this->_queryParams = $queryParams;
         $this->_defaultFormat = $defaultFormat;
-        $this->_parseHeaders = $parseHeaders;
+        $this->_queryParams = $queryParams;
+        $this->_curlOpts = $curlOpts;
+        $this->_parseResponseHeaders = $parseResponseHeaders;
     }
 
     /**
@@ -80,22 +81,6 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
     public function getAddress(): string
     {
         return $this->_address;
-    }
-
-    /**
-     * @return array
-     */
-    public function getCurlOpts(): array
-    {
-        return $this->_curlOpts;
-    }
-
-    /**
-     * @return array
-     */
-    public function getQueryParams(): array
-    {
-        return $this->_queryParams;
     }
 
     /**
@@ -109,11 +94,27 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
     }
 
     /**
+     * @return array
+     */
+    public function getQueryParams(): array
+    {
+        return $this->_queryParams;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCurlOpts(): array
+    {
+        return $this->_curlOpts;
+    }
+
+    /**
      * @return bool
      */
     public function getParseHeaders(): bool
     {
-        return $this->_parseHeaders;
+        return $this->_parseResponseHeaders;
     }
 }
 <?php return ob_get_clean();

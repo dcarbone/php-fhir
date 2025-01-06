@@ -186,7 +186,7 @@ class Type
     public function getConstName(bool $withConstClass, string $prefix = ''): string
     {
         if ($withConstClass) {
-            $cn = sprintf('%s::', PHPFHIR_CLASSNAME_VERSION_CONSTANTS);
+            $cn = sprintf('%s::', PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS);
         } else {
             $cn = '';
         }
@@ -776,8 +776,8 @@ class Type
                     ->getFullyQualifiedNamespace(false);
             }
             if ($this->isContainedType()) {
-                $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $versionCoreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE)
+                $interfaces[PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE] = $versionCoreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE)
                     ->getFullyQualifiedNamespace(false);
             } else if ($this->getKind() === TypeKindEnum::PRIMITIVE) {
                 $interfaces[PHPFHIR_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
@@ -789,8 +789,8 @@ class Type
                     ->getFullyQualifiedNamespace(false);
             }
         } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
-            $interfaces[PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE] = $versionCoreFiles
-                ->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE)
+            $interfaces[PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE] = $versionCoreFiles
+                ->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE)
                 ->getFullyQualifiedNamespace(false);
         }
 

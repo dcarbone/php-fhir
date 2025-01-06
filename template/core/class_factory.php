@@ -57,7 +57,7 @@ final class <?php echo PHPFHIR_CLASSNAME_FACTORY; ?>
 <?php foreach ($config->getVersionsIterator() as $version): ?>
             [
                 'name' => '<?php echo $version->getName(); ?>',
-                'class' => '<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?>',
+                'class' => '<?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_CLASSNAME_VERSION); ?>',
             ],
 <?php endforeach; ?>
         ]

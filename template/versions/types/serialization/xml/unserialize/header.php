@@ -39,7 +39,7 @@ ob_start(); ?>
             return null;
         }
         if (null === $config) {
-            $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
+            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
         }
         if (is_string($element)) {
             $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());

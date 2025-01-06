@@ -73,9 +73,9 @@ use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_ENUM_RESPONS
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION_API_CLIENT); ?>;
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_ENUM_VERSION_TYPE); ?>;
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_VERSION); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_VERSION_TYPE); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION); ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
@@ -90,8 +90,8 @@ class <?php echo $testClassname; ?> extends TestCase
     /** @var string */
     private string $_testEndpoint;
 
-    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_VERSION; ?> $_version;
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_CLASSNAME_VERSION); ?> */
+    private <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> $_version;
 
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLIENT_CLASSNAME_CONFIG); ?> */
     private <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> $_clientConfig;
@@ -99,8 +99,8 @@ class <?php echo $testClassname; ?> extends TestCase
     /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_CLIENT_CLASSNAME_CLIENT); ?> */
     private <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> $_baseClient;
 
-    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_VERSION_API_CLIENT); ?> */
-    private <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT; ?> $_client;
+    /** @var <?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT); ?> */
+    private <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?> $_client;
 
     /** @var array */
     private array $_fetchedResources = [];
@@ -112,10 +112,10 @@ class <?php echo $testClassname; ?> extends TestCase
             $this->markTestIncomplete('Environment variable <?php echo PHPFHIR_TEST_CONSTANT_INTEGRATION_ENDPOINT; ?> is not defined or empty');
         }
         $this->_testEndpoint = $endpoint;
-        $this->_version = new <?php echo PHPFHIR_CLASSNAME_VERSION ?>();
+        $this->_version = new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION ?>();
         $this->_clientConfig = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG ?>(address: $endpoint);
         $this->_baseClient = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?>($this->_clientConfig);
-        $this->_client = new <?php echo PHPFHIR_CLASSNAME_VERSION_API_CLIENT ?>(
+        $this->_client = new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT ?>(
             $this->_baseClient,
             $this->_version,
         );
@@ -132,13 +132,13 @@ class <?php echo $testClassname; ?> extends TestCase
             return $this->_fetchedResources[$format];
         }
         $rc = $this->_client->readRaw(
-            resourceType: <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>,
+            resourceType: <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
             format: <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?>::from($format),
         );
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         if (404 === $rc->code) {
-            $this->markTestSkipped(sprintf('Query "%s" returned no resources of type "%s"', $rc->url, <?php echo PHPFHIR_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
+            $this->markTestSkipped(sprintf('Query "%s" returned no resources of type "%s"', $rc->url, <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
         } else if (500 === $rc->code) {
             $this->markTestSkipped(sprintf('Query "%s" returned 500', $rc->url));
         } else {

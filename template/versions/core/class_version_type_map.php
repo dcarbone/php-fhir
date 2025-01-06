@@ -66,7 +66,7 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
+class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
 {
     private const _TYPE_MAP = [
@@ -128,7 +128,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php echo PH
         $tt = gettype($type);
         if ('object' === $tt) {
             if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
-                return ($type instanceof <?php echo PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE; ?>);
+                return ($type instanceof <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>);
             }
             return isset(self::_CONTAINABLE_TYPES[$type->getName()]);
         }

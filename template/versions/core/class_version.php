@@ -29,7 +29,7 @@ $versionConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERS
 $versionConfigInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONFIG);
 $versionTypeMapInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_TYPE_MAP);
 
-$versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERSION_TYPE_MAP);
+$versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -44,7 +44,7 @@ use <?php echo $versionConfigClass->getFullyQualifiedName(false); ?>;
 use <?php echo $versionConfigInterface->getFullyQualifiedName(false); ?>;
 use <?php echo $versionTypeMapInterface->getFullyQualifiedName(false); ?>;
 
-class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION; ?>
+class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION; ?>
 
 {
     public const NAME = '<?php echo $version->getName(); ?>';
@@ -57,10 +57,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
     private <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $_config;
 
     /** @var <?php echo $versionTypeMapClass->getFullyQualifiedName(true); ?> */
-    private static <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?> $_typeMap;
+    private static <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?> $_typeMap;
 
     /**
-     * <?php echo PHPFHIR_CLASSNAME_VERSION; ?> Constructor
+     * <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> Constructor
      * @param null|array|<?php echo $versionConfigInterface->getFullyQualifiedName(true); ?> $config
      */
     public function __construct(null|array|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $config = null)
@@ -119,7 +119,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INT
 
     {
         if (!isset(self::$_typeMap)) {
-            self::$_typeMap = new <?php echo PHPFHIR_CLASSNAME_VERSION_TYPE_MAP; ?>();
+            self::$_typeMap = new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>();
         }
         return self::$_typeMap;
     }
