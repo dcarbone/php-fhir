@@ -27,11 +27,11 @@ ob_start();
 
 // this is only used in primitive types.  they have no other fields, and I am just going to assume you want it
 // as an attribute if marshalled directly.
-foreach ($type->getLocalProperties()->getLocalPropertiesOfTypeKinds(includeCollections: false, kinds: null) as $property) : ?>
+foreach ($type->getProperties()->getLocalPropertiesOfTypeKinds(includeCollections: false, kinds: null) as $property) : ?>
         $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
 <?php endforeach;
 
-foreach ($type->getLocalProperties()->getLocalPropertiesIterator() as $property) :
+foreach ($type->getProperties()->getLocalPropertiesIterator() as $property) :
     $pt = $property->getValueFHIRType();
     if (null === $pt) {
         continue;
@@ -71,7 +71,7 @@ if ($type->hasParentWithLocalProperties()) : ?>
 <?php endif;
 
 // finally, marshal local element values
-foreach ($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) :
+foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) :
     $pt = $property->getValueFHIRType();
 
     // if this property has a "type"...

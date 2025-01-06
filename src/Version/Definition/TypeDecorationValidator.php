@@ -81,7 +81,7 @@ abstract class TypeDecorationValidator
             }
 
             if ($typeKind === TypeKindenum::PRIMITIVE_CONTAINER) {
-                $valueProperty = $type->getLocalProperties()->getProperty('value');
+                $valueProperty = $type->getProperties()->getProperty('value');
                 if (null === $valueProperty) {
                     throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
                 }
@@ -91,7 +91,7 @@ abstract class TypeDecorationValidator
                 throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($type), $type);
             }
 
-            foreach ($type->getLocalProperties()->getAllPropertiesIterator() as $property) {
+            foreach ($type->getProperties()->getAllPropertiesIterator() as $property) {
                 $name = $property->getName();
                 if (null === $name || '' === $name) {
                     throw ExceptionUtils::createPropertyMissingNameException($type, $property);

@@ -29,10 +29,9 @@ ob_start(); ?>
     $propType = $property->getValueFHIRType();
     $setter = $property->getSetterName();
 
-    if ($i > 0) : ?> else<?php else : ?>            <?php endif;     
+    if ($i > 0) : ?> else <?php else : ?>            <?php endif;
     if (null !== $propType) :
         $propTypeKind = $propType->getKind();
-        $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType);
 
         if ($propTypeKind->isContainer($version)) : ?>
             if (self::<?php echo $propConst; ?> === $childName) {
@@ -41,7 +40,9 @@ ob_start(); ?>
                     $type-><?php echo $setter; ?>($typeClassName::xmlUnserialize($nn, null, $config));
                 }
             }<?php
-        else : ?>if (self::<?php echo $propConst; ?> === $childName) {
+        else :
+            $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType);
+            ?>if (self::<?php echo $propConst; ?> === $childName) {
                 $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>, <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
             }<?php
         endif;
@@ -67,7 +68,6 @@ endforeach; ?>
 
     if (null !== $propType) :
         $propTypeKind = $propType->getKind();
-        $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType);
 
         if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         if (isset($attributes[self::<?php echo $propConst; ?>])) {

@@ -24,7 +24,7 @@ ob_start(); ?>
      * @return null|object
      */
     public function jsonSerialize(): mixed
-    {<?php foreach($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) : ?>
+    {<?php foreach($type->getProperties()->getLocalPropertiesGenerator() as $property) : ?>
 
         if (null !== ($v = $this->get<?php echo ucfirst($property->getName()); ?>())) {
             return $v;

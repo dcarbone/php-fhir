@@ -28,10 +28,10 @@ $typeImports = $type->getImports();
 
 $parentType = $type->getParentType();
 
-$localProperties = $type->getLocalProperties()->getLocalPropertiesIterator();
+$localProperties = $type->getProperties()->getLocalPropertiesIterator();
 
 // used in a few places below.
-$valueProperty = $type->getLocalProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+$valueProperty = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
 
 ob_start();
 

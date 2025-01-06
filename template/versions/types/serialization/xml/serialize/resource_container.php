@@ -50,7 +50,7 @@ ob_start(); ?>
         if (null === $config) {
             $config = (new <?php echo PHPFHIR_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
         }
-<?php foreach($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) : ?>
+<?php foreach($type->getProperties()->getLocalPropertiesGenerator() as $property) : ?>
         if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
             return $v->xmlSerialize($xw, $config);
         }

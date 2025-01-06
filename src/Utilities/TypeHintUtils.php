@@ -142,7 +142,7 @@ class TypeHintUtils
         $types = $nullable ? ['null'] : [];
 
         if ($tk === TypeKindEnum::PRIMITIVE_CONTAINER) {
-            $pt = $type->getLocalProperties()->getProperty('value')->getValueFHIRType();
+            $pt = $type->getProperties()->getProperty('value')->getValueFHIRType();
             $types = array_merge($types, $pt->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
                 $types,
@@ -256,7 +256,7 @@ class TypeHintUtils
         $hintTypes = ['null'];
 
         if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
-            $ptp = $pt->getLocalProperties()->getProperty('value')->getValueFHIRType();
+            $ptp = $pt->getProperties()->getProperty('value')->getValueFHIRType();
             $hintTypes = array_merge($hintTypes, $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
                 $hintTypes,

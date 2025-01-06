@@ -45,9 +45,6 @@ class ImportUtils
         // immediately add self
         $imports->addImport($type->getFullyQualifiedNamespace(false), $type->getClassName());
 
-        $typeNS = $type->getFullyQualifiedNamespace(false);
-        $configNS = $type->getConfig()->getFullyQualifiedName(false);
-
         $typeKind = $type->getKind();
 
         if (!$type->isAbstract()) {
@@ -106,15 +103,14 @@ class ImportUtils
                 continue;
             }
 
-            if ($ptk->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE) &&
-                $typeNS !== $configNS) {
+            if ($ptk->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE)) {
                 $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_INTERFACE_VERSION_CONTAINED_TYPE);
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION_TYPE_MAP);
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_CLASSNAME_VERSION);
             } else {
                 if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
-                    $primType = $propertyType->getLocalProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
+                    $primType = $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
                     $imports->addImport($primType->getFullyQualifiedNamespace(false), $primType->getClassName());
                 }
 

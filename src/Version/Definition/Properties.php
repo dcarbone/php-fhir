@@ -18,19 +18,16 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  * limitations under the License.
  */
 
-use Countable;
-use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-use DCarbone\PHPFHIR\Version;
 
 /**
  * Class Properties
  * @package DCarbone\PHPFHIR\Version\Definition\Type
  */
-class Properties implements Countable
+class Properties
 {
     /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] */
-    private array $properties = [];
+    private array $_properties = [];
     /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] */
     private array $_sortedProperties;
 
@@ -40,27 +37,17 @@ class Properties implements Countable
     private array $_localSortedProperties;
 
     /** @var bool */
-    private bool $cacheBuilt = false;
-
-    /** @var \DCarbone\PHPFHIR\Config */
-    private Config $config;
-
-    /** @var \DCarbone\PHPFHIR\Version */
-    private Version $version;
+    private bool $_cacheBuilt = false;
 
     /** @var \DCarbone\PHPFHIR\Version\Definition\Type */
-    private Type $type;
+    private Type $_type;
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      */
-    public function __construct(Config $config, Version $version, Type $type)
+    public function __construct(Type $type)
     {
-        $this->config = $config;
-        $this->version = $version;
-        $this->type = $type;
+        $this->_type = $type;
     }
 
     /**
@@ -68,7 +55,7 @@ class Properties implements Countable
      */
     public function __debugInfo()
     {
-        return ['properties' => $this->properties];
+        return ['properties' => $this->_properties];
     }
 
     /**
@@ -76,7 +63,7 @@ class Properties implements Countable
      */
     public function getType(): Type
     {
-        return $this->type;
+        return $this->_type;
     }
 
     /**
@@ -95,14 +82,14 @@ class Properties implements Countable
                 )
             );
         }
-        foreach ($this->properties as $current) {
+        foreach ($this->_properties as $current) {
             if ($property === $current) {
                 return $this;
             }
             $cname = $current->getName();
             $cref = $current->getRef();
             if (null !== $pname && null !== $cname && $pname === $cname) {
-                $this->config->getLogger()->notice(
+                $this->_type->getConfig()->getLogger()->notice(
                     sprintf(
                         'Type "%s" already has Property "%s" (name), probably some duplicate definition nonsense. Keeping original.',
                         $this->getType()->getFHIRName(),
@@ -112,7 +99,7 @@ class Properties implements Countable
                 $property = $current;
                 return $this;
             } elseif (null !== $pref && null !== $cref && $cref === $pref) {
-                $this->config->getLogger()->notice(
+                $this->_type->getConfig()->getLogger()->notice(
                     sprintf(
                         'Type "%s" already has Property "%s" (ref), probably some duplicate definition nonsense. Keeping original.',
                         $this->getType()->getFHIRName(),
@@ -123,8 +110,8 @@ class Properties implements Countable
                 return $this;
             }
         }
-        $this->properties[] = $property;
-        $this->cacheBuilt = false;
+        $this->_properties[] = $property;
+        $this->_cacheBuilt = false;
         return $this;
     }
 
@@ -134,7 +121,7 @@ class Properties implements Countable
      */
     public function getProperty(string $name): ?Property
     {
-        foreach ($this->properties as $property) {
+        foreach ($this->_properties as $property) {
             if ($property->getName() === $name) {
                 return $property;
             }
@@ -152,13 +139,48 @@ class Properties implements Countable
     }
 
     /**
+     * @return int
+     */
+    public function allPropertyCount(): int
+    {
+        return count($this->_properties);
+    }
+
+    /**
+     * @return int
+     */
+    public function localPropertyCount(): int
+    {
+        $this->_buildCaches();
+        return count($this->_localProperties);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasLocalProperties(): bool
+    {
+        return $this->localPropertyCount() > 0;
+    }
+
+    /**
      * Returns an iterator containing all properties, including those inherited from parent types
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
     public function getAllPropertiesIterator(): iterable
     {
-        return new \ArrayIterator($this->properties);
+        return new \ArrayIterator($this->_properties);
+    }
+
+    /**
+     * @return \Generator
+     */
+    public function getAllPropertiesGenerator(): \Generator
+    {
+        foreach ($this->_properties as $p) {
+            yield $p;
+        }
     }
 
     /**
@@ -168,7 +190,7 @@ class Properties implements Countable
      */
     public function getAllSortedPropertiesIterator(): iterable
     {
-        $this->_buildLocalCaches();
+        $this->_buildCaches();
         return new \ArrayIterator($this->_sortedProperties);
     }
 
@@ -179,7 +201,7 @@ class Properties implements Countable
      */
     public function getIndexedLocalPropertiesIterator(): iterable
     {
-        $this->_buildLocalCaches();
+        $this->_buildCaches();
         return \SplFixedArray::fromArray($this->_localProperties, preserveKeys: false);
     }
 
@@ -190,7 +212,7 @@ class Properties implements Countable
      */
     public function getLocalPropertiesIterator(): iterable
     {
-        $this->_buildLocalCaches();
+        $this->_buildCaches();
         return new \ArrayIterator($this->_localProperties);
     }
 
@@ -199,8 +221,8 @@ class Properties implements Countable
      */
     public function getLocalPropertiesGenerator(): \Generator
     {
-        $this->_buildLocalCaches();
-        foreach($this->_localProperties as $p) {
+        $this->_buildCaches();
+        foreach ($this->_localProperties as $p) {
             yield $p;
         }
     }
@@ -212,7 +234,7 @@ class Properties implements Countable
      */
     public function getLocalSortedPropertiesIterator(): iterable
     {
-        $this->_buildLocalCaches();
+        $this->_buildCaches();
         return new \ArrayIterator($this->_localSortedProperties);
     }
 
@@ -235,18 +257,10 @@ class Properties implements Countable
         return new \ArrayIterator($out);
     }
 
-    /**
-     * @return int
-     */
-    public function count(): int
+    private function _buildCaches(): void
     {
-        return count($this->properties);
-    }
-
-    private function _buildLocalCaches(): void
-    {
-        if (!$this->cacheBuilt) {
-            $this->_sortedProperties = $this->properties;
+        if (!$this->_cacheBuilt) {
+            $this->_sortedProperties = $this->_properties;
             $this->_localProperties = [];
             $this->_localSortedProperties = [];
             usort(
@@ -255,7 +269,7 @@ class Properties implements Countable
                     return strnatcmp($a->getName(), $b->getName());
                 }
             );
-            foreach ($this->properties as $property) {
+            foreach ($this->_properties as $property) {
                 if (!$property->isOverloaded()) {
                     $this->_localProperties[] = $property;
                 }
@@ -265,7 +279,7 @@ class Properties implements Countable
                     $this->_localSortedProperties[] = $property;
                 }
             }
-            $this->cacheBuilt = true;
+            $this->_cacheBuilt = true;
         }
     }
 }

@@ -35,7 +35,7 @@ $versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPF
 $isPrimitiveType = $type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST);
 
 ob_start();
-foreach ($type->getLocalProperties()->getIndexedLocalPropertiesIterator() as $i => $property) :
+foreach ($type->getProperties()->getIndexedLocalPropertiesIterator() as $i => $property) :
     if ($property->isOverloaded()) {
         continue;
     }

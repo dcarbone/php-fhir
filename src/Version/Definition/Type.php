@@ -36,71 +36,71 @@ use SimpleXMLElement;
  */
 class Type
 {
-    use DocumentationTrait;
-    use SourceTrait;
+    use DocumentationTrait,
+        SourceTrait;
 
     /** @var \DCarbone\PHPFHIR\Config */
-    private Config $config;
+    private Config $_config;
 
     /** @var \DCarbone\PHPFHIR\Version */
-    private Version $version;
+    private Version $_version;
 
     /**
      * The raw name of the FHIR element this type was created from
      * @var string
      */
-    private string $fhirName;
+    private string $_fhirName;
 
     /** @var \DCarbone\PHPFHIR\Enum\TypeKindEnum|null */
-    private null|TypeKindEnum $kind = null;
+    private null|TypeKindEnum $_kind = null;
 
     /** @var string */
-    private string $className;
+    private string $_className;
 
     /** @var \DCarbone\PHPFHIR\Version\Definition\Properties */
-    private Properties $localProperties;
+    private Properties $_properties;
 
     /** @var null|string */
-    private null|string $parentTypeName = null;
+    private null|string $_parentTypeName = null;
     /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type */
-    private null|Type $parentType = null;
+    private null|Type $_parentType = null;
 
     /** @var int */
-    private int $minLength = 0;
+    private int $_minLength = 0;
     /** @var int */
-    private int $maxLength = PHPFHIR_UNLIMITED;
+    private int $_maxLength = PHPFHIR_UNLIMITED;
     /** @var null|string */
-    private null|string $pattern = null;
+    private null|string $_pattern = null;
 
     /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type */
-    private null|Type $componentOfType = null;
+    private null|Type $_componentOfType = null;
 
     /** @var \DCarbone\PHPFHIR\Version\Definition\Enumeration */
-    private Enumeration $enumeration;
+    private Enumeration $_enumeration;
 
     /** @var array */
-    private array $unionOf = [];
+    private array $_unionOf = [];
 
     /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum */
-    private PrimitiveTypeEnum $primitiveType;
+    private PrimitiveTypeEnum $_primitiveType;
 
     /** @var null|string */
-    private null|string $restrictionBaseFHIRName = null;
+    private null|string $_restrictionBaseFHIRName = null;
 
     /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type */
-    private null|Type $restrictionBaseFHIRType = null;
+    private null|Type $_restrictionBaseFHIRType = null;
 
     /** @var bool */ // TODO: what the hell is this...?
-    private bool $mixed = false;
+    private bool $_mixed = false;
 
     /** @var bool */
-    private bool $containedType = false;
+    private bool $_containedType = false;
     /** @var bool */
-    private bool $valueContainer = false;
+    private bool $_valueContainer = false;
     /** @var bool */
-    private bool $commentContainer = false;
+    private bool $_commentContainer = false;
     /** @var \DCarbone\PHPFHIR\Builder\Imports */
-    private Imports $imports;
+    private Imports $_imports;
 
     /**
      * Type constructor.
@@ -110,24 +110,22 @@ class Type
      * @param \SimpleXMLElement|null $sourceSXE
      * @param string $sourceFilename
      */
-    public function __construct(
-        Config                $config,
-        Version               $version,
-        string                $fhirName,
-        null|SimpleXMLElement $sourceSXE = null,
-        string                $sourceFilename = ''
-    )
+    public function __construct(Config                $config,
+                                Version               $version,
+                                string                $fhirName,
+                                null|SimpleXMLElement $sourceSXE = null,
+                                string                $sourceFilename = '')
     {
         if ('' === ($fhirName = trim($fhirName))) {
             throw new DomainException('$fhirName must be defined');
         }
-        $this->config = $config;
-        $this->version = $version;
-        $this->fhirName = $fhirName;
+        $this->_config = $config;
+        $this->_version = $version;
+        $this->_fhirName = $fhirName;
         $this->sourceSXE = $sourceSXE;
         $this->sourceFilename = $sourceFilename;
-        $this->localProperties = new Properties($config, $version, $this);
-        $this->enumeration = new Enumeration();
+        $this->_properties = new Properties($this);
+        $this->_enumeration = new Enumeration();
     }
 
     /**
@@ -145,7 +143,7 @@ class Type
      */
     public function getConfig(): Config
     {
-        return $this->config;
+        return $this->_config;
     }
 
     /**
@@ -153,7 +151,7 @@ class Type
      */
     public function getVersion(): Version
     {
-        return $this->version;
+        return $this->_version;
     }
 
     /**
@@ -161,7 +159,7 @@ class Type
      */
     public function getFHIRName(): string
     {
-        return $this->fhirName;
+        return $this->_fhirName;
     }
 
     /**
@@ -170,14 +168,14 @@ class Type
     public function getImports(): Imports
     {
         // TODO: implement "extraction done" mechanic
-        if (!isset($this->imports)) {
-            $this->imports = new Imports(
-                $this->config,
+        if (!isset($this->_imports)) {
+            $this->_imports = new Imports(
+                $this->_config,
                 $this->getFullyQualifiedNamespace(false),
                 $this->getClassName(),
             );
         }
-        return $this->imports;
+        return $this->_imports;
     }
 
     /**
@@ -219,7 +217,7 @@ class Type
      */
     public function getKind(): null|TypeKindEnum
     {
-        return $this->kind;
+        return $this->_kind;
     }
 
     /**
@@ -228,17 +226,17 @@ class Type
      */
     public function setKind(TypeKindEnum $kind): Type
     {
-        if (isset($this->kind) && $this->kind !== $kind) {
+        if (isset($this->_kind) && $this->_kind !== $kind) {
             throw new LogicException(
                 sprintf(
                     'Cannot overwrite Type % s Kind from %s to %s',
                     $this->getFHIRName(),
-                    $this->kind->value,
+                    $this->_kind->value,
                     $kind->value
                 )
             );
         }
-        $this->kind = $kind;
+        $this->_kind = $kind;
         return $this;
     }
 
@@ -248,17 +246,17 @@ class Type
      */
     public function setPrimitiveType(PrimitiveTypeEnum $primitiveType): Type
     {
-        if (isset($this->primitiveType) && $this->primitiveType === $primitiveType) {
+        if (isset($this->_primitiveType) && $this->_primitiveType === $primitiveType) {
             throw new LogicException(
                 sprintf(
                     'Cannot overwrite Type "%s" PrimitiveType from "%s" to "%s"',
                     $this->getFHIRName(),
-                    $this->primitiveType->value,
+                    $this->_primitiveType->value,
                     $primitiveType->value
                 )
             );
         }
-        $this->primitiveType = $primitiveType;
+        $this->_primitiveType = $primitiveType;
         return $this;
     }
 
@@ -286,10 +284,10 @@ class Type
      */
     public function getClassName(): string
     {
-        if (!isset($this->className)) {
-            $this->className = NameUtils::getTypeClassName($this->getFHIRName());
+        if (!isset($this->_className)) {
+            $this->_className = NameUtils::getTypeClassName($this->getFHIRName());
         }
-        return $this->className;
+        return $this->_className;
     }
 
     /**
@@ -317,7 +315,9 @@ class Type
      */
     public function getFullyQualifiedClassName(bool $leadingSlash): string
     {
-        return $this->getVersion()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace(), $this->getClassName());
+        return $this
+            ->getVersion()
+            ->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace(), $this->getClassName());
     }
 
     /**
@@ -341,9 +341,9 @@ class Type
     /**
      * @return \DCarbone\PHPFHIR\Version\Definition\Properties
      */
-    public function getLocalProperties(): Properties
+    public function getProperties(): Properties
     {
-        return $this->localProperties;
+        return $this->_properties;
     }
 
     /**
@@ -353,7 +353,7 @@ class Type
      */
     public function hasLocalProperties(): bool
     {
-        return count($this->localProperties) > 0;
+        return $this->_properties->hasLocalProperties();
     }
 
     /**
@@ -361,7 +361,7 @@ class Type
      */
     public function hasLocalPropertiesWithValidations(): bool
     {
-        foreach ($this->getlocalProperties()->getAllSortedPropertiesIterator() as $property) {
+        foreach ($this->getProperties()->getAllSortedPropertiesIterator() as $property) {
             if ([] !== $property->buildValidationMap()) {
                 return true;
             }
@@ -375,11 +375,11 @@ class Type
     public function getAllPropertiesIndexedIterator(): iterable
     {
         $properties = [];
-        foreach ($this->getLocalProperties()->getLocalPropertiesIterator() as $property) {
+        foreach ($this->getProperties()->getAllPropertiesGenerator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach ($this->getParentTypes() as $parentType) {
-            foreach ($parentType->getAllPropertiesIndexedIterator() as $property) {
+            foreach ($parentType->getProperties()->getAllPropertiesGenerator() as $property) {
                 if (!isset($properties[$property->getName()])) {
                     $properties[$property->getName()] = $property;
                 }
@@ -428,7 +428,7 @@ class Type
      */
     public function getParentType(): null|Type
     {
-        return $this->parentType;
+        return $this->_parentType;
     }
 
     /**
@@ -455,7 +455,7 @@ class Type
      */
     public function setParentType(Type $type): Type
     {
-        $this->parentType = $type;
+        $this->_parentType = $type;
         $this->setParentTypeName($type->getFHIRName());
         return $this;
     }
@@ -465,7 +465,7 @@ class Type
      */
     public function getParentTypeName(): null|string
     {
-        return $this->parentTypeName;
+        return $this->_parentTypeName;
     }
 
     /**
@@ -474,7 +474,7 @@ class Type
      */
     public function setParentTypeName(null|string $parentTypeName): Type
     {
-        $this->parentTypeName = $parentTypeName;
+        $this->_parentTypeName = $parentTypeName;
         return $this;
     }
 
@@ -525,7 +525,7 @@ class Type
      */
     public function getMinLength(): int
     {
-        return $this->minLength;
+        return $this->_minLength;
     }
 
     /**
@@ -534,7 +534,7 @@ class Type
      */
     public function setMinLength(int $minLength): Type
     {
-        $this->minLength = $minLength;
+        $this->_minLength = $minLength;
         return $this;
     }
 
@@ -543,7 +543,7 @@ class Type
      */
     public function getMaxLength(): int
     {
-        return $this->maxLength;
+        return $this->_maxLength;
     }
 
     /**
@@ -552,7 +552,7 @@ class Type
      */
     public function setMaxLength(int $maxLength): Type
     {
-        $this->maxLength = $maxLength;
+        $this->_maxLength = $maxLength;
         return $this;
     }
 
@@ -561,7 +561,7 @@ class Type
      */
     public function getPattern(): null|string
     {
-        return $this->pattern;
+        return $this->_pattern;
     }
 
     /**
@@ -570,7 +570,7 @@ class Type
      */
     public function setPattern(null|string $pattern): Type
     {
-        $this->pattern = $pattern;
+        $this->_pattern = $pattern;
         return $this;
     }
 
@@ -579,7 +579,7 @@ class Type
      */
     public function getComponentOfType(): null|Type
     {
-        return $this->componentOfType;
+        return $this->_componentOfType;
     }
 
     /**
@@ -588,7 +588,7 @@ class Type
      */
     public function setComponentOfType(Type $type): Type
     {
-        $this->componentOfType = $type;
+        $this->_componentOfType = $type;
         return $this;
     }
 
@@ -597,7 +597,7 @@ class Type
      */
     public function getEnumeration(): Enumeration
     {
-        return $this->enumeration;
+        return $this->_enumeration;
     }
 
     /**
@@ -606,7 +606,7 @@ class Type
      */
     public function addEnumerationValue(EnumerationValue $enumValue): Type
     {
-        $this->enumeration->addValue($enumValue);
+        $this->_enumeration->addValue($enumValue);
         return $this;
     }
 
@@ -623,7 +623,7 @@ class Type
      */
     public function getPrimitiveType(): PrimitiveTypeEnum
     {
-        return $this->primitiveType;
+        return $this->_primitiveType;
     }
 
     /**
@@ -631,7 +631,7 @@ class Type
      */
     public function hasPrimitiveType(): bool
     {
-        return isset($this->primitiveType);
+        return isset($this->_primitiveType);
     }
 
     /**
@@ -639,7 +639,7 @@ class Type
      */
     public function getUnionOf(): array
     {
-        return $this->unionOf;
+        return $this->_unionOf;
     }
 
     /**
@@ -648,7 +648,7 @@ class Type
      */
     public function setUnionOf(array $unionOf): Type
     {
-        $this->unionOf = $unionOf;
+        $this->_unionOf = $unionOf;
         return $this;
     }
 
@@ -657,7 +657,7 @@ class Type
      */
     public function getRestrictionBaseFHIRName(): null|string
     {
-        return $this->restrictionBaseFHIRName;
+        return $this->_restrictionBaseFHIRName;
     }
 
     /**
@@ -666,7 +666,7 @@ class Type
      */
     public function setRestrictionBaseFHIRName(string $restrictionBaseFHIRName): Type
     {
-        $this->restrictionBaseFHIRName = $restrictionBaseFHIRName;
+        $this->_restrictionBaseFHIRName = $restrictionBaseFHIRName;
         return $this;
     }
 
@@ -675,7 +675,7 @@ class Type
      */
     public function getRestrictionBaseFHIRType(): null|Type
     {
-        return $this->restrictionBaseFHIRType;
+        return $this->_restrictionBaseFHIRType;
     }
 
     /**
@@ -684,7 +684,7 @@ class Type
      */
     public function setRestrictionBaseFHIRType(Type $type): Type
     {
-        $this->restrictionBaseFHIRType = $type;
+        $this->_restrictionBaseFHIRType = $type;
         return $this;
     }
 
@@ -693,7 +693,7 @@ class Type
      */
     public function isMixed(): bool
     {
-        return $this->mixed;
+        return $this->_mixed;
     }
 
     /**
@@ -702,7 +702,7 @@ class Type
      */
     public function setMixed(bool $mixed): Type
     {
-        $this->mixed = $mixed;
+        $this->_mixed = $mixed;
         return $this;
     }
 
@@ -711,7 +711,7 @@ class Type
      */
     public function isContainedType(): bool
     {
-        return $this->containedType;
+        return $this->_containedType;
     }
 
     /**
@@ -720,7 +720,7 @@ class Type
      */
     public function setContainedType(bool $containedType): Type
     {
-        $this->containedType = $containedType;
+        $this->_containedType = $containedType;
         return $this;
     }
 
@@ -729,7 +729,7 @@ class Type
      */
     public function isValueContainer(): bool
     {
-        return $this->valueContainer;
+        return $this->_valueContainer;
     }
 
     /**
@@ -738,7 +738,7 @@ class Type
      */
     public function setValueContainer(bool $valueContainer): Type
     {
-        $this->valueContainer = $valueContainer;
+        $this->_valueContainer = $valueContainer;
         return $this;
     }
 
@@ -766,8 +766,8 @@ class Type
     {
         $interfaces = [];
         $parentType = $this->getParentType();
-        $coreFiles = $this->version->getConfig()->getCoreFiles();
-        $versionCoreFiles = $this->version->getCoreFiles();
+        $coreFiles = $this->_version->getConfig()->getCoreFiles();
+        $versionCoreFiles = $this->_version->getCoreFiles();
 
         if (null === $parentType) {
             if ($this->isCommentContainer()) {
@@ -804,7 +804,7 @@ class Type
     {
         $traits = [];
         $parentType = $this->getParentType();
-        $coreFiles = $this->version->getConfig()->getCoreFiles();
+        $coreFiles = $this->_version->getConfig()->getCoreFiles();
 
         if (null === $parentType) {
             // if this type has no parent(s), try to add all traits
@@ -850,7 +850,7 @@ class Type
      */
     public function setCommentContainer(bool $commentContainer): Type
     {
-        $this->commentContainer = $commentContainer;
+        $this->_commentContainer = $commentContainer;
         return $this;
     }
 
@@ -859,7 +859,7 @@ class Type
      */
     public function isCommentContainer(): bool
     {
-        return $this->commentContainer;
+        return $this->_commentContainer;
     }
 
     /**

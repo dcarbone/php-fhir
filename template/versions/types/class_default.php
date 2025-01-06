@@ -45,7 +45,7 @@ echo require_with(
 // -- property field name constants
 if ($type->hasLocalProperties()) :
     echo "\n";
-    foreach ($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) :
+    foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) :
         if ($property->getMemberOf()->hasPrimitiveParent()) {
             continue;
         }
@@ -54,7 +54,7 @@ if ($type->hasLocalProperties()) :
         public const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
 <?php   if (null !== $propertyType &&
     ($propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->isValueContainer())) :
-    ?>    public const <?php echo $property->getFieldConstantName(); ?>_EXT = '<?php echo $property->getExtName(); ?>';
+    ?>        public const <?php echo $property->getFieldConstantName(); ?>_EXT = '<?php echo $property->getExtName(); ?>';
 <?php   endif;
     endforeach;
 // -- end property field name constants
@@ -62,7 +62,7 @@ if ($type->hasLocalProperties()) :
     echo "\n";
 
 // -- directly implemented properties
-    foreach ($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) : ?>
+    foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) : ?>
     /**
 <?php echo DocumentationUtils::compilePropertyDocumentation($property, 5, true);; ?>
      * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
@@ -79,7 +79,7 @@ if ($type->hasLocalProperties()) :
 <?php else:
 // -- local property validation rules
 
-    foreach ($type->getLocalProperties()->getLocalPropertiesGenerator() as $property) :
+    foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) :
         $validationMap = $property->buildValidationMap();
         if ([] !== $validationMap) : ?>
 

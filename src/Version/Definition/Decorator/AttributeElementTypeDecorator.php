@@ -82,6 +82,6 @@ abstract class AttributeElementTypeDecorator
         }
 
         // add property to type
-        $type->getLocalProperties()->addProperty($property);
+        $type->getProperties()->addProperty($property);
     }
 }

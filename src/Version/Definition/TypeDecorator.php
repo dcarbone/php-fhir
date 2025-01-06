@@ -385,10 +385,10 @@ abstract class TypeDecorator
                 continue;
             }
 
-            $properties = $type->getLocalProperties();
+            $properties = $type->getProperties();
 
             // only target types with a single field on them with the name "value"
-            if (1 !== count($properties) || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+            if (1 !== $properties->localPropertyCount() || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
                 continue;
             }
 
@@ -443,8 +443,8 @@ abstract class TypeDecorator
                                 $utype->getFHIRName()
                             )
                         );
-                        foreach ($utype->getLocalProperties()->getAllPropertiesIterator() as $property) {
-                            $type->getLocalProperties()->addProperty(clone $property);
+                        foreach ($utype->getProperties()->getAllPropertiesIterator() as $property) {
+                            $type->getProperties()->addProperty(clone $property);
                         }
                     } else {
                         $log->info(
@@ -462,6 +462,10 @@ abstract class TypeDecorator
         }
     }
 
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
+     */
     public static function buildTypeImports(Config $config, Types $types): void
     {
         foreach ($types->getGenerator() as $type) {
