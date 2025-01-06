@@ -74,7 +74,7 @@ if ($type->hasLocalProperties()) :
 <?php else:
 // -- local property validation rules
 
-    foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) :
+    foreach ($type->getProperties()->getAllPropertiesGenerator() as $property) :
         $validationMap = $property->buildValidationMap();
         if ([] !== $validationMap) : ?>
 
