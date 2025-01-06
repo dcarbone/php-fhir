@@ -70,6 +70,8 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?> implements \Count
     }
 
     /**
+     * Return all parsed values for a given response header, if it exists.
+     *
      * @param string $name
      * @return null|array
      */
@@ -80,6 +82,22 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?> implements \Count
     }
 
     /**
+     * Return the first value for a given response header, if it exists.
+     *
+     * @return null|string
+     */
+    public function getFirst(string $name): null|string
+    {
+        $v = $this->get($name);
+        if (null === $v || [] === $v) {
+            return null;
+        }
+        return $v[0];
+    }
+
+    /**
+     * Returns an iterator containing the raw header lines extracted from the repsonse.
+     *
      * @return iterable
      */
     public function getLinesIterator(): iterable
@@ -88,6 +106,8 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?> implements \Count
     }
 
     /**
+     * Returns an iterator containing the parsed header lines from the response.
+     *
      * @return iterable
      */
     public function getParsedIterator(): iterable
