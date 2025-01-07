@@ -141,7 +141,9 @@ class TypeHintUtils
         $tk = $type->getKind();
         $types = $nullable ? ['null'] : [];
 
-        if ($tk === TypeKindEnum::PRIMITIVE_CONTAINER) {
+        if ($tk->isResourceContainer($version)) {
+            $types[] = PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE;
+        } else if ($tk === TypeKindEnum::PRIMITIVE_CONTAINER) {
             $pt = $type->getProperties()->getProperty('value')->getValueFHIRType();
             $types = array_merge($types, $pt->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
