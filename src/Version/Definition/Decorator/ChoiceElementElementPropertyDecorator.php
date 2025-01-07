@@ -44,14 +44,14 @@ abstract class ChoiceElementElementPropertyDecorator
                                     Types                  $types,
                                     Type                   $type,
                                     \SimpleXMLElement      $element,
-                                    string            $minOccurs,
-                                    string            $maxOccurs,
+                                    string                 $minOccurs = '',
+                                    string                 $maxOccurs = '',
                                     null|\SimpleXMLElement $annotationElement = null): void
     {
 
         $name = '';
         $ref = '';
-        $fhirTypeName = '';
+        $valueFHIRTypeName = '';
 
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
@@ -62,7 +62,7 @@ abstract class ChoiceElementElementPropertyDecorator
                     $name = (string)$attribute;
                     break;
                 case AttributeNameEnum::TYPE->value:
-                    $fhirTypeName = (string)$attribute;
+                    $valueFHIRTypeName = (string)$attribute;
                     break;
                 case AttributeNameEnum::MIN_OCCURS->value:
                     $minOccurs = (string)$attribute;
@@ -76,24 +76,19 @@ abstract class ChoiceElementElementPropertyDecorator
             }
         }
 
-        if ('' === $name) {
-            throw new \DomainException(sprintf(
-                'Unable to determine name of property for type %s: %s',
-                $type->getFHIRName(),
-                $annotationElement->asXML()
-            ));
-        }
-
         $property = $type
             ->getProperties()
-            ->addOrReturnProperty(new Property($name, $type, $element, $type->getSourceFilename()));
+            ->addOrReturnProperty(new Property(
+                memberOf: $type,
+                sxe: $element,
+                sourceFilename: $type->getSourceFilename(),
+                name: $name,
+                ref: $ref,
+                minOccurs: $minOccurs,
+                maxOccurs: $maxOccurs,
+                valueFHIRTypeName: $valueFHIRTypeName,
+            ));
 
-        if (null !== $minOccurs) {
-            $property->setMinOccurs(intval($minOccurs));
-        }
-        if (null !== $maxOccurs) {
-            $property->setMaxOccurs($maxOccurs);
-        }
         if (null !== $annotationElement) {
             AnnotationElementPropertyTypeDecorator::decorate(
                 $config,
@@ -104,34 +99,11 @@ abstract class ChoiceElementElementPropertyDecorator
             );
         }
 
-        if (null === $property->getName()) {
-            if ('' === ($ref = $property->getRef())) {
-                throw new \DomainException(
-                    sprintf(
-                        'Unable to determine Property name for Type "%s" in file "%s": %s',
-                        $type->getFHIRName(),
-                        $type->getSourceFileBasename(),
-                        $element->saveXML()
-                    )
-                );
-            }
-            $config->getLogger()->notice(
-                sprintf(
-                    'No "name" field found on element, using "ref" value for Type "%s" Property name: %s',
-                    $type->getFHIRName(),
-                    $element->saveXML()
-                )
-            );
-            $property->setName($ref);
-        }
-
         foreach ($element->children('xs', true) as $child) {
             switch ($element->getName()) {
                 default:
                     throw ExceptionUtils::createUnexpectedElementException($type, $element, $child);
             }
         }
-
-        $type->getProperties()->addOrReturnProperty($property);
     }
 }

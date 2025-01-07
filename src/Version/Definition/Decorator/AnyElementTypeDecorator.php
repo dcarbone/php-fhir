@@ -40,6 +40,7 @@ abstract class AnyElementTypeDecorator
     {
         $namespace = '';
         $minOccurs = '';
+        $maxOccurs = '';
 
         // parse through attributes
         foreach ($any->attributes() as $attribute) {
@@ -50,6 +51,9 @@ abstract class AnyElementTypeDecorator
                 case AttributeNameEnum::MIN_OCCURS->value:
                     $minOccurs = (string)$attribute;
                     break;
+                case AttributeNameEnum::MAX_OCCURS->value:
+                    $maxOccurs = (string)$attribute;
+                    break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $any, $attribute);
@@ -58,15 +62,15 @@ abstract class AnyElementTypeDecorator
 
         $property = $type
             ->getProperties()
-            ->addOrReturnProperty(new Property(PHPFHIR_VALUE_PROPERTY_NAME, $type, $any, $type->getSourceFilename()));
-
-        $property->setValueFHIRTypeName(PHPFHIR_XHTML_TYPE_NAME);
-        if ('' !== $namespace) {
-            $property->setNamespace($namespace);
-        }
-        if ('' !== $minOccurs) {
-            $property->setMaxOccurs(intval($minOccurs));
-        }
+            ->addOrReturnProperty(new Property(
+                memberOf: $type,
+                sxe: $any,
+                sourceFilename: $type->getSourceFilename(),
+                name: PHPFHIR_VALUE_PROPERTY_NAME,
+                minOccurs: $minOccurs,
+                maxOccurs: $maxOccurs,
+                namespace: $namespace,
+            ));
 
         // parse through child elements
         foreach ($any->children('xs', true) as $child) {

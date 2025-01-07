@@ -34,6 +34,26 @@ abstract class TypeDecorator
     /** @var array */
     private const DSTU1_PRIMITIVES = ['ResourceType', 'xmlIdRef', 'ResourceNamesPlusBinary'];
 
+    // These are here to enable backwards compatibility with dstu1 and 2
+    private const _KNOWN_DECIMAL = ['score'];
+    private const _KNOWN_INTEGER = ['totalResults'];
+
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
+     */
+    public static function findNamelessProperties(Config $config, Types $types): void
+    {
+        foreach($types->getGenerator() as $type) {
+            foreach($type->getProperties()->getGenerator() as $property) {
+                $name = $property->getName();
+                if ('' === $name || null === $name) {
+                    $property->setName($property->getRef());
+                }
+            }
+        }
+    }
+
     /**
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
@@ -124,10 +144,6 @@ abstract class TypeDecorator
      */
     public static function findParentTypes(Config $config, Types $types): void
     {
-        // These are here to enable backwards compatibility with dstu1 and 2
-        static $knownDecimal = ['score'];
-        static $knownInteger = ['totalResults'];
-
         $logger = $config->getLogger();
         foreach ($types->getGenerator() as $type) {
             $fhirName = $type->getFHIRName();
@@ -135,9 +151,9 @@ abstract class TypeDecorator
             // try to locate parent type name...
             $parentTypeName = $type->getParentTypeName();
             if (null === $parentTypeName) {
-                if (in_array($fhirName, $knownDecimal, true)) {
+                if (in_array($fhirName, self::_KNOWN_DECIMAL, true)) {
                     $parentTypeName = 'decimal';
-                } elseif (in_array($fhirName, $knownInteger, true)) {
+                } elseif (in_array($fhirName, self::_KNOWN_INTEGER, true)) {
                     $parentTypeName = 'integer';
                 } elseif ($rbType = $type->getRestrictionBaseFHIRType()) {
                     $parentTypeName = $rbType->getFHIRName();
@@ -388,7 +404,7 @@ abstract class TypeDecorator
             $properties = $type->getProperties();
 
             // only target types with a single field on them with the name "value"
-            if (1 !== $properties->localPropertyCount() || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+            if (1 !== count($properties) || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
                 continue;
             }
 

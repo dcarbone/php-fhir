@@ -108,7 +108,7 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
                 $this->_addFHIRComment($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
             }
         }<?php endif; ?>
-<?php foreach ($properties->getLocalPropertiesGenerator() as $property) :
+<?php foreach ($properties->getGenerator() as $property) :
     if ($property->getOverloadedProperty()) {
         continue;
     }
@@ -153,7 +153,7 @@ endforeach; ?>
             }
         }<?php endif; ?>
 
-<?php foreach($properties->getLocalPropertiesGenerator() as $property) :
+<?php foreach($properties->getGenerator() as $property) :
     if ($property->getOverloadedProperty()) {
         continue;
     }

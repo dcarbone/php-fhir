@@ -31,7 +31,7 @@ foreach ($type->getProperties()->getIteratorOfTypeKinds(includeCollections: fals
         $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
 <?php endforeach;
 
-foreach ($type->getProperties()->getLocalPropertiesIterator() as $property) :
+foreach ($type->getProperties()->getGenerator() as $property) :
     $pt = $property->getValueFHIRType();
     if (null === $pt) {
         continue;
@@ -71,7 +71,7 @@ if ($type->hasParentWithLocalProperties()) : ?>
 <?php endif;
 
 // finally, marshal local element values
-foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) :
+foreach ($type->getProperties()->getGenerator() as $property) :
     $pt = $property->getValueFHIRType();
 
     // if this property has a "type"...

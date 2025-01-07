@@ -135,23 +135,25 @@ abstract class TypePropertyDecorator
             if (!$type->hasParent()) {
                 continue;
             }
+            $typeProperties = $type->getProperties();
             $parent = $type->getParentType();
             while (null !== $parent) {
-                foreach ($type->getProperties()->getIterator() as $property) {
-                    $propertyName = $property->getName();
-                    foreach ($parent->getProperties()->getIterator() as $parentProperty) {
-                        if ($propertyName === $parentProperty->getName()) {
-                            $logger->debug(
-                                sprintf(
-                                    'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
-                                    $property,
-                                    $type,
-                                    $parent
-                                )
-                            );
-                            $property->setOverloads(true);
-                            continue 2;
-                        }
+                foreach($parent->getProperties()->getGenerator() as $parentProp) {
+                    $typeProp = $typeProperties->getProperty($parentProp->getName());
+                    if (null === $typeProp) {
+                        continue;
+                    }
+                    // for now, we only care about the most immediate overload
+                    if (null === $typeProp->getOverloadedProperty()) {
+                        $logger->debug(
+                            sprintf(
+                                'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
+                                $parentProp,
+                                $type,
+                                $parent
+                            )
+                        );
+                        $typeProp->setOverloadedProperty($parentProp);
                     }
                 }
                 $parent = $parent->getParentType();

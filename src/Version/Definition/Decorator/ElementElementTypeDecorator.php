@@ -101,33 +101,50 @@ class ElementElementTypeDecorator
      */
     public static function decorate(Config $config, Types $types, Type $type, SimpleXMLElement $element): void
     {
-        $property = new Property($type, $element, $type->getSourceFilename());
+        $name = '';
+        $ref = '';
+        $minOccurs = '';
+        $maxOccurs = '';
+        $valueFHIRTypeNamme = '';
 
         // parse through attributes
         foreach ($element->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::REF->value:
-                    $property->setRef((string)$attribute);
+                    $ref = (string)$attribute;
                     break;
                 case AttributeNameEnum::NAME->value:
-                    $property->setName((string)$attribute);
+                    $name = (string)$attribute;
                     break;
 
                 case AttributeNameEnum::MIN_OCCURS->value:
-                    $property->setMinOccurs(intval((string)$attribute));
+                    $minOccurs = (string)$attribute;
                     break;
                 case AttributeNameEnum::MAX_OCCURS->value:
-                    $property->setMaxOccurs((string)$attribute);
+                    $maxOccurs = (string)$attribute;
                     break;
 
                 case AttributeNameEnum::TYPE->value:
-                    $property->setValueFHIRTypeName((string)$attribute);
+                    $valueFHIRTypeNamme = (string)$attribute;
                     break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $element, $attribute);
             }
         }
+
+        $property = $type
+            ->getProperties()
+            ->addOrReturnProperty(new Property(
+                memberOf: $type,
+                sxe: $element,
+                sourceFilename: $type->getSourceFilename(),
+                name: $name,
+                ref: $ref,
+                minOccurs: $minOccurs,
+                maxOccurs: $maxOccurs,
+                valueFHIRTypeName: $valueFHIRTypeNamme,
+            ));
 
         // parse through child elements
         foreach ($element->children('xs', true) as $child) {
@@ -143,7 +160,5 @@ class ElementElementTypeDecorator
                     throw ExceptionUtils::createUnexpectedElementException($type, $element, $child);
             }
         }
-
-        $type->getProperties()->addOrReturnProperty($property);
     }
 }

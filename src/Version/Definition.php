@@ -99,6 +99,9 @@ class Definition
         $log->info('Determining Primitive Type kinds');
         TypeDecorator::determinePrimitiveTypes($this->config, $this->types);
 
+        $log->info('Finding properties without names');
+        TypeDecorator::findNamelessProperties($this->config, $this->types);
+
         $log->info('Finding property types');
         TypePropertyDecorator::findPropertyTypes($this->config, $this->types);
 

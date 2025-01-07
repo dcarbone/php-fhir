@@ -346,11 +346,6 @@ class Type
         return $this->_properties;
     }
 
-    public function getAllProperties(): Properties
-    {
-
-    }
-
     /**
      * Returns true if this type has any locally defined properties.
      *
@@ -358,7 +353,7 @@ class Type
      */
     public function hasLocalProperties(): bool
     {
-        return $this->_properties->hasLocalProperties();
+        return 0 !== count($this->_properties);
     }
 
     /**
@@ -378,20 +373,22 @@ class Type
     }
 
     /**
+     * Returns an indexed iterator containing all properties defined on this type and all parent types.
+     *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
     public function getAllPropertiesIndexedIterator(): iterable
     {
         $properties = [];
-        foreach ($this->getProperties()->getGenerator() as $property) {
-            $properties[$property->getName()] = $property;
-        }
         foreach ($this->getParentTypes() as $parentType) {
             foreach ($parentType->getProperties()->getGenerator() as $property) {
                 if (!isset($properties[$property->getName()])) {
                     $properties[$property->getName()] = $property;
                 }
             }
+        }
+        foreach ($this->getProperties()->getGenerator() as $property) {
+            $properties[$property->getName()] = $property;
         }
         // this returns an \SplFixedArray to provide an indexed iterator
         return \SplFixedArray::fromArray($properties, preserveKeys: false);

@@ -112,7 +112,7 @@ endforeach;
 if (null !== $type->getParentType()) :
     $ptype = $type;
     while (null !== $ptype) :
-        foreach($ptype->getProperties()->getLocalPropertiesIterator() as $property) : ?>
+        foreach($ptype->getProperties()->getGenerator() as $property) : ?>
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {

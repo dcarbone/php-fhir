@@ -58,8 +58,12 @@ abstract class TypeBuilder
                                                string           $sourceFilename): Type
     {
         $type = self::buildDefaultType($config, $version, $fhirName, $sxe, $sourceFilename);
-        $value = new Property($type, $sxe, $sourceFilename);
-        $value->setName(PHPFHIR_VALUE_PROPERTY_NAME);
+        $value = new Property(
+            memberOf: $type,
+            sxe: $sxe,
+            sourceFilename: $sourceFilename,
+            name: PHPFHIR_VALUE_PROPERTY_NAME,
+        );
         $type->getProperties()->addOrReturnProperty($value);
         return $type;
     }

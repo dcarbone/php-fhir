@@ -41,7 +41,7 @@ echo require_with(
 // -- property field name constants
 if ($type->hasLocalProperties()) :
     echo "\n";
-    foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) :
+    foreach ($type->getProperties()->getGenerator() as $property) :
         if ($property->getMemberOf()->hasPrimitiveParent()) {
             continue;
         }
@@ -58,9 +58,9 @@ if ($type->hasLocalProperties()) :
     echo "\n";
 
 // -- directly implemented properties
-    foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) : ?>
+    foreach ($type->getProperties()->getGenerator() as $property) : ?>
     /**
-<?php echo DocumentationUtils::compilePropertyDocumentation($property, 5, true);; ?>
+<?php echo DocumentationUtils::compilePropertyDocumentation($property, 5, true); ?>
      * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
 
      */
@@ -75,8 +75,7 @@ endif; ?>
 <?php else:
 // -- property validation rules
 
-    foreach ($type->getProperties()->getGenerator() as $property) :
-        var_dump($property->getName());
+    foreach ($type->getAllPropertiesIndexedIterator() as $property) :
         $validationMap = $property->buildValidationMap($type);
         if ([] !== $validationMap) : ?>
 
@@ -91,12 +90,12 @@ endforeach; ?>
     ];
 <?php
 // -- end property validation rules
-
 endif;
 
 // -- end field properties
 ?>
 <?php if ($type->hasLocalProperties()) : ?>
+
     /** @var array */
     private array $_xmlLocations = [];
 <?php endif; ?>

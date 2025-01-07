@@ -21,7 +21,6 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-$localProperties = $type->getProperties()->getLocalPropertiesIterator();
 $typeKind = $type->getKind();
 
 ob_start();

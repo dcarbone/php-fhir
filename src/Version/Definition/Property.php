@@ -26,48 +26,39 @@ class Property
     use DocumentationTrait,
         SourceTrait;
 
-    /** @var \DCarbone\PHPFHIR\Version\Definition\Type */
-    private Type $memberOf;
-
-    /** @var string|null */
-    private null|string $name = null;
-
-    /** @var string|null */
-    private null|string $valueFHIRTypeName = null;
-
-    /** @var null|string */
-    private null|string $rawPHPValue = null;
-
-    /** @var int */
-    private int $minOccurs = 0;
-    /** @var null|int */
-    private null|int $maxOccurs = null;
-
-    /** @var null|string */
-    private null|string $pattern = null;
-
-    /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type */
-    private ?Type $valueFHIRType = null;
-
-    /** @var \DCarbone\PHPFHIR\Enum\PropertyUseEnum */
-    private PropertyUseEnum $use;
-
-    /** @var string|null */
-    private null|string $ref = null;
-
-    /** @var null|string */ // TODO: what the hell is this...?
-    private null|string $fixed = null;
-
-    /** @var null|string */ // NOTE: not a php namespace
-    private null|string $namespace = null;
-
+    private Type $_memberOf;
     private Property $_overloads;
 
-    public function __construct(Type $memberOf,
-                                \SimpleXMLElement $sxe,
-                                string $sourceFilename,
-                                string $name = '',
-                                string $ref = '')
+    private null|string $_name = null;
+    private null|string $_ref = null;
+
+    private null|string $valueFHIRTypeName = null;
+    private ?Type $valueFHIRType = null;
+    private null|string $rawPHPValue = null;
+
+    private int $minOccurs = 0;
+    private null|int $maxOccurs = null;
+
+    private null|string $pattern = null;
+
+    private PropertyUseEnum $use;
+
+    private null|string $fixed = null; // TODO: what the hell is this...?
+
+    private null|string $namespace = null;// NOTE: not a php namespace
+
+
+    public function __construct(Type                   $memberOf,
+                                \SimpleXMLElement      $sxe,
+                                string                 $sourceFilename,
+                                string                 $name = '',
+                                string                 $ref = '',
+                                string|PropertyUseEnum $use = PropertyUseEnum::OPTIONAL,
+                                string|int             $minOccurs = 0,
+                                string|int             $maxOccurs = '',
+                                string                 $valueFHIRTypeName = '',
+                                string                 $fixed = '',
+                                string                 $namespace = '')
     {
         if ('' === $name && '' === $ref) {
             throw new \InvalidArgumentException(sprintf(
@@ -76,16 +67,24 @@ class Property
                 $sxe->saveXML(),
             ));
         }
-        if ('' !== $name) {
-            $this->name = $name;
-        }
-        if ('' !== $ref) {
-            $this->ref = $ref;
-        }
-        $this->memberOf = $memberOf;
+
+        $this->_memberOf = $memberOf;
         $this->sourceSXE = $sxe;
         $this->sourceFilename = $sourceFilename;
-        $this->use = PropertyUseEnum::OPTIONAL;
+
+        if ('' !== $name) {
+            $this->_name = $name;
+        }
+        if ('' !== $ref) {
+            $this->_ref = $ref;
+        }
+
+        $this->setUse($use);
+        $this->setMinOccurs($minOccurs);
+        $this->setMaxOccurs($maxOccurs);
+        $this->setValueFHIRTypeName($valueFHIRTypeName);
+        $this->setFixed($fixed);
+        $this->setNamespace($namespace);
     }
 
     /**
@@ -114,7 +113,7 @@ class Property
      */
     public function getMemberOf(): Type
     {
-        return $this->memberOf;
+        return $this->_memberOf;
     }
 
     /**
@@ -122,7 +121,21 @@ class Property
      */
     public function getName(): null|string
     {
-        return $this->name;
+        return $this->_name;
+    }
+
+    public function setName(string $name): self
+    {
+        if ('' === $name) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Type "%s" Property $name cannot be empty',
+                    $this->valueFHIRType->getFHIRName()
+                )
+            );
+        }
+        $this->_name = $name;
+        return $this;
     }
 
     /**
@@ -130,10 +143,10 @@ class Property
      */
     public function getExtName(): null|string
     {
-        if (null === $this->name) {
+        if (null === $this->_name) {
             return null;
         }
-        return "_{$this->name}";
+        return "_{$this->_name}";
     }
 
     /**
@@ -150,6 +163,9 @@ class Property
      */
     public function setValueFHIRTypeName(string $valueFHIRTypeName): Property
     {
+        if ('' === $valueFHIRTypeName) {
+            $valueFHIRTypeName = null;
+        }
         $this->valueFHIRTypeName = $valueFHIRTypeName;
         return $this;
     }
@@ -205,11 +221,14 @@ class Property
      */
     public function setMaxOccurs(int|string $maxOccurs): Property
     {
-        if (is_string($maxOccurs) && 'unbounded' === strtolower($maxOccurs)) {
-            $this->maxOccurs = PHPFHIR_UNLIMITED;
-        } else {
-            $this->maxOccurs = intval($maxOccurs);
+        if (is_string($maxOccurs)) {
+            $maxOccurs = match ($maxOccurs) {
+                'unbounded' => PHPFHIR_UNLIMITED,
+                '' => null,
+                default => intval($maxOccurs),
+            };
         }
+        $this->maxOccurs = intval($maxOccurs);
         return $this;
     }
 
@@ -222,11 +241,17 @@ class Property
     }
 
     /**
-     * @param int $minOccurs
+     * @param string|int $minOccurs
      * @return \DCarbone\PHPFHIR\Version\Definition\Property
      */
-    public function setMinOccurs(int $minOccurs): Property
+    public function setMinOccurs(string|int $minOccurs): Property
     {
+        if (is_string($minOccurs)) {
+            $minOccurs = match ($minOccurs) {
+                '' => 0,
+                default => intval($minOccurs),
+            };
+        }
         $this->minOccurs = $minOccurs;
         return $this;
     }
@@ -275,11 +300,17 @@ class Property
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\PropertyUseEnum $use
+     * @param string|\DCarbone\PHPFHIR\Enum\PropertyUseEnum $use
      * @return \DCarbone\PHPFHIR\Version\Definition\Property
      */
-    public function setUse(PropertyUseEnum $use): Property
+    public function setUse(string|PropertyUseEnum $use): Property
     {
+        if (is_string($use)) {
+            $use = match ($use) {
+                '' => PropertyUseEnum::OPTIONAL,
+                default => PropertyUseEnum::from($use),
+            };
+        }
         $this->use = $use;
         return $this;
     }
@@ -289,7 +320,7 @@ class Property
      */
     public function getRef(): null|string
     {
-        return $this->ref;
+        return $this->_ref;
     }
 
     /**
@@ -306,7 +337,7 @@ class Property
                 )
             );
         }
-        $this->ref = $ref;
+        $this->_ref = $ref;
         return $this;
     }
 
@@ -324,6 +355,9 @@ class Property
      */
     public function setFixed(?string $fixed): Property
     {
+        if ('' === $fixed) {
+            $fixed = null;
+        }
         $this->fixed = $fixed;
         return $this;
     }
@@ -342,6 +376,9 @@ class Property
      */
     public function setNamespace(?string $namespace): Property
     {
+        if ('' === $namespace) {
+            $namespace = null;
+        }
         $this->namespace = $namespace;
         return $this;
     }
@@ -442,18 +479,18 @@ class Property
      * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @return $this
      */
-    public function setOverloads(Property $property): Property
+    public function setOverloadedProperty(Property $property): Property
     {
         $this->_overloads = $property;
         return $this;
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Version\Definition\Property
+     * @return \DCarbone\PHPFHIR\Version\Definition\Property|null
      */
-    public function getOverloadedProperty(): Property
+    public function getOverloadedProperty(): null|Property
     {
-        return $this->_overloads;
+        return $this->_overloads ?? null;
     }
 
     /**

@@ -45,7 +45,7 @@ abstract class AttributeElementTypeDecorator
                                     \SimpleXMLElement $attributeElement): void
     {
         $name = '';
-        $fhirTypeName = '';
+        $valueFHIRTypeName = '';
         $use = '';
         $fixed = '';
 
@@ -56,10 +56,10 @@ abstract class AttributeElementTypeDecorator
                     $name = (string)$attribute;
                     break;
                 case AttributeNameEnum::TYPE->value:
-                    $fhirTypeName = (string)$attribute;
+                    $valueFHIRTypeName = (string)$attribute;
                     break;
                 case AttributeNameEnum::USE->value:
-                    $use = (string)$attribute;
+                    $use = PropertyUseEnum::from((string)$attribute);
                     break;
                 case AttributeNameEnum::FIXED->value:
                     $fixed = (string)$attribute;
@@ -70,35 +70,18 @@ abstract class AttributeElementTypeDecorator
             }
         }
 
-        if ('' === $name) {
-            throw new \DomainException(sprintf(
-                'Unable to determine name of property for type %s: %s',
-                $type->getFHIRName(),
-                $attributeElement->asXML()
-            ));
-        }
-
         // either create new or get existing property definition on type.
         $property = $type
             ->getProperties()
-            ->addOrReturnProperty(
-                new Property(
-                    memberOf: $type,
-                    sxe: $attributeElement,
-                    sourceFilename: $type->getSourceFilename(),
-                    name: $name,
-                ),
-            );
-
-        if ('' !== $fhirTypeName) {
-            $property->setValueFHIRTypeName($fhirTypeName);
-        }
-        if ('' !== $use) {
-            $property->setUse(PropertyUseEnum::from($use));
-        }
-        if ('' !== $fixed) {
-            $property->setFixed($fixed);
-        }
+            ->addOrReturnProperty(new Property(
+                memberOf: $type,
+                sxe: $attributeElement,
+                sourceFilename: $type->getSourceFilename(),
+                name: $name,
+                use: $use,
+                valueFHIRTypeName: $valueFHIRTypeName,
+                fixed: $fixed,
+            ));
 
         // parse through child elements
         foreach ($attributeElement->children('xs', true) as $child) {

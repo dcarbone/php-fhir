@@ -113,9 +113,9 @@ class ImportUtils
 
             $ptk = $propertyType->getKind();
 
-            if ($property->getOverloadedProperty() && !$ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
-                continue;
-            }
+//            if (null !== $property->getOverloadedProperty() && !$ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
+//                continue;
+//            }
 
             if ($ptk->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE)) {
                 $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
