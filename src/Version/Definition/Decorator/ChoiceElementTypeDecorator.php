@@ -39,8 +39,8 @@ abstract class ChoiceElementTypeDecorator
      */
     public static function decorate(Config $config, Types $types, Type $type, \SimpleXMLElement $choice): void
     {
-        $minOccurs = null;
-        $maxOccurs = null;
+        $minOccurs = '';
+        $maxOccurs = '';
         foreach ($choice->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::MIN_OCCURS->value:

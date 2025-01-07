@@ -109,7 +109,7 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
             }
         }<?php endif; ?>
 <?php foreach ($properties->getLocalPropertiesGenerator() as $property) :
-    if ($property->isOverloaded()) {
+    if ($property->getOverloadedProperty()) {
         continue;
     }
 
@@ -154,7 +154,7 @@ endforeach; ?>
         }<?php endif; ?>
 
 <?php foreach($properties->getLocalPropertiesGenerator() as $property) :
-    if ($property->isOverloaded()) {
+    if ($property->getOverloadedProperty()) {
         continue;
     }
     if (($propType = $property->getValueFHIRType()) && $propType->getKind()->isOneOf(TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER)) :

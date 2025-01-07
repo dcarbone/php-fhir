@@ -41,21 +41,23 @@ ob_start(); ?>
     }
 
     /**
-     * Validates that this type conforms to the specifications set forth for it by FHIR.  An empty array must be seen as
-     * passing.
+     * Validates that this type conforms to the specifications set forth for it by the FHIR specification this type
+     * was generated from.
+     *
+     * An empty array indicates no validation errors occurred.
      *
      * @return array
      */
     public function _getValidationErrors(): array
     {
-<?php if ($type->hasParentWithLocalProperties()) : ?>
+<?php if ($type->hasParent()) : ?>
         $errs = parent::_getValidationErrors();
 <?php else : ?>
         $errs = [];
 <?php endif; ?>
         $validationRules = $this->_getValidationRules();
-<?php foreach ($type->getProperties()->getLocalPropertiesIterator() as $property) :
-    $validations = $property->buildValidationMap();
+<?php foreach ($type->getProperties()->getGenerator() as $property) :
+    $validations = $property->buildValidationMap($type);
     if ([] === $validations) {
         continue;
     }
@@ -64,7 +66,7 @@ ob_start(); ?>
         if ($property->isCollection()) : ?>
         if (isset($validationRules[self::FIELD_VALUE]) && [] !== ($vs = $this-><?php echo $property->getGetterName(); ?>())) {
             foreach($vs as $i => $v) {
-                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(self::FHIR_TYPE_NAME, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
                 if (null !== $err) {
                     $key = sprintf('%s.%d', self::<?php echo $property->getFieldConstantName(); ?>, $i);
                     if (!isset($errs[$key])) {
@@ -78,7 +80,7 @@ ob_start(); ?>
         else : ?>
         if (isset($validationRules[self::FIELD_VALUE]) && null !== $this->value) {
             foreach($validationRules[self::FIELD_VALUE] as $rule => $constraint) {
-                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(<?php echo $property->getMemberOf()->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $this->getFormattedValue());
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(self::FHIR_TYPE_NAME, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $this->getFormattedValue());
                 if (null !== $err) {
                     if (!isset($errs[self::FIELD_VALUE])) {
                         $errs[self::FIELD_VALUE] = [];
@@ -114,7 +116,7 @@ if (null !== $type->getParentType()) :
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {
-                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(<?php echo $ptype->getTypeNameConst(true); ?>, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(self::FHIR_TYPE_NAME, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $v);
                 if (null !== $err) {
                     if (!isset($errs[self::<?php echo $property->getFieldConstantName(); ?>])) {
                         $errs[self::<?php echo $property->getFieldConstantName(); ?>] = [];

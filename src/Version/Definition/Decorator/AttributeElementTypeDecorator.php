@@ -39,34 +39,65 @@ abstract class AttributeElementTypeDecorator
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $attributeElement
      */
-    public static function decorate(
-        Config $config,
-        Types $types,
-        Type $type,
-        \SimpleXMLElement $attributeElement
-    ): void {
-        // create property object
-        $property = new Property($type, $attributeElement, $type->getSourceFilename());
+    public static function decorate(Config            $config,
+                                    Types             $types,
+                                    Type              $type,
+                                    \SimpleXMLElement $attributeElement): void
+    {
+        $name = '';
+        $fhirTypeName = '';
+        $use = '';
+        $fixed = '';
 
         // parse through attributes
         foreach ($attributeElement->attributes() as $attribute) {
             switch ($attribute->getName()) {
                 case AttributeNameEnum::NAME->value:
-                    $property->setName((string)$attribute);
+                    $name = (string)$attribute;
                     break;
                 case AttributeNameEnum::TYPE->value:
-                    $property->setValueFHIRTypeName((string)$attribute);
+                    $fhirTypeName = (string)$attribute;
                     break;
                 case AttributeNameEnum::USE->value:
-                    $property->setUse(PropertyUseEnum::from((string)$attribute));
+                    $use = (string)$attribute;
                     break;
                 case AttributeNameEnum::FIXED->value:
-                    $property->setFixed((string)$attribute);
+                    $fixed = (string)$attribute;
                     break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $attributeElement, $attribute);
             }
+        }
+
+        if ('' === $name) {
+            throw new \DomainException(sprintf(
+                'Unable to determine name of property for type %s: %s',
+                $type->getFHIRName(),
+                $attributeElement->asXML()
+            ));
+        }
+
+        // either create new or get existing property definition on type.
+        $property = $type
+            ->getProperties()
+            ->addOrReturnProperty(
+                new Property(
+                    memberOf: $type,
+                    sxe: $attributeElement,
+                    sourceFilename: $type->getSourceFilename(),
+                    name: $name,
+                ),
+            );
+
+        if ('' !== $fhirTypeName) {
+            $property->setValueFHIRTypeName($fhirTypeName);
+        }
+        if ('' !== $use) {
+            $property->setUse(PropertyUseEnum::from($use));
+        }
+        if ('' !== $fixed) {
+            $property->setFixed($fixed);
         }
 
         // parse through child elements
@@ -80,8 +111,5 @@ abstract class AttributeElementTypeDecorator
                     throw ExceptionUtils::createUnexpectedElementException($type, $attributeElement, $child);
             }
         }
-
-        // add property to type
-        $type->getProperties()->addProperty($property);
     }
 }

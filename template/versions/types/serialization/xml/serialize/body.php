@@ -27,7 +27,7 @@ ob_start();
 
 // this is only used in primitive types.  they have no other fields, and I am just going to assume you want it
 // as an attribute if marshalled directly.
-foreach ($type->getProperties()->getLocalPropertiesOfTypeKinds(includeCollections: false, kinds: null) as $property) : ?>
+foreach ($type->getProperties()->getIteratorOfTypeKinds(includeCollections: false, kinds: null) as $property) : ?>
         $xw->writeAttribute(self::FIELD_VALUE, $this->getFormattedValue());
 <?php endforeach;
 

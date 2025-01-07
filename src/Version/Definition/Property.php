@@ -61,17 +61,27 @@ class Property
     /** @var null|string */ // NOTE: not a php namespace
     private null|string $namespace = null;
 
-    /** @var bool */
-    private bool $overloaded = false;
+    private Property $_overloads;
 
-    /**
-     * Property constructor.
-     * @param \DCarbone\PHPFHIR\Version\Definition\Type $memberOf
-     * @param \SimpleXMLElement $sxe
-     * @param string $sourceFilename
-     */
-    public function __construct(Type $memberOf, \SimpleXMLElement $sxe, string $sourceFilename)
+    public function __construct(Type $memberOf,
+                                \SimpleXMLElement $sxe,
+                                string $sourceFilename,
+                                string $name = '',
+                                string $ref = '')
     {
+        if ('' === $name && '' === $ref) {
+            throw new \InvalidArgumentException(sprintf(
+                'At least one of $name or $ref must be provided for new property on type %s: %s',
+                $memberOf->getFHIRName(),
+                $sxe->saveXML(),
+            ));
+        }
+        if ('' !== $name) {
+            $this->name = $name;
+        }
+        if ('' !== $ref) {
+            $this->ref = $ref;
+        }
         $this->memberOf = $memberOf;
         $this->sourceSXE = $sxe;
         $this->sourceFilename = $sourceFilename;
@@ -124,24 +134,6 @@ class Property
             return null;
         }
         return "_{$this->name}";
-    }
-
-    /**
-     * @param string $name
-     * @return \DCarbone\PHPFHIR\Version\Definition\Property
-     */
-    public function setName(string $name): Property
-    {
-        if ('' === $name) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Type "%s" Property $name cannot be empty',
-                    $this->valueFHIRType->getFHIRName()
-                )
-            );
-        }
-        $this->name = $name;
-        return $this;
     }
 
     /**
@@ -395,9 +387,10 @@ class Property
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $local
      * @return array
      */
-    public function buildValidationMap(): array
+    public function buildValidationMap(Type $local): array
     {
         $map = [];
         $memberOf = $this->getMemberOf();
@@ -432,7 +425,12 @@ class Property
 
         if ($memberOf->isEnumerated()) {
             $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
-            foreach ($memberOf->getEnumeration()->getIterator() as $enum) {
+            foreach ($memberOf->getEnumeration()->getGenerator() as $enum) {
+                $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
+            }
+        } else if ($this->isValueProperty() && $local->isEnumerated()) {
+            $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
+            foreach ($local->getEnumeration()->getGenerator() as $enum) {
                 $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
             }
         }
@@ -441,21 +439,21 @@ class Property
     }
 
     /**
-     * @param bool $overloaded
-     * @return \DCarbone\PHPFHIR\Version\Definition\Property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
+     * @return $this
      */
-    public function setOverloaded(bool $overloaded): Property
+    public function setOverloads(Property $property): Property
     {
-        $this->overloaded = $overloaded;
+        $this->_overloads = $property;
         return $this;
     }
 
     /**
-     * @return bool
+     * @return \DCarbone\PHPFHIR\Version\Definition\Property
      */
-    public function isOverloaded(): bool
+    public function getOverloadedProperty(): Property
     {
-        return $this->overloaded;
+        return $this->_overloads;
     }
 
     /**

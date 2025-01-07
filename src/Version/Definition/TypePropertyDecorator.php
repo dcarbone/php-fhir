@@ -118,7 +118,7 @@ abstract class TypePropertyDecorator
     public static function findPropertyTypes(Config $config, Types $types): void
     {
         foreach ($types->getGenerator() as $type) {
-            foreach ($type->getProperties()->getAllPropertiesIterator() as $property) {
+            foreach ($type->getProperties()->getIterator() as $property) {
                 self::findPropertyType($config, $types, $type, $property);
             }
         }
@@ -137,9 +137,9 @@ abstract class TypePropertyDecorator
             }
             $parent = $type->getParentType();
             while (null !== $parent) {
-                foreach ($type->getProperties()->getAllPropertiesIterator() as $property) {
+                foreach ($type->getProperties()->getIterator() as $property) {
                     $propertyName = $property->getName();
-                    foreach ($parent->getProperties()->getAllPropertiesIterator() as $parentProperty) {
+                    foreach ($parent->getProperties()->getIterator() as $parentProperty) {
                         if ($propertyName === $parentProperty->getName()) {
                             $logger->debug(
                                 sprintf(
@@ -149,7 +149,7 @@ abstract class TypePropertyDecorator
                                     $parent
                                 )
                             );
-                            $property->setOverloaded(true);
+                            $property->setOverloads(true);
                             continue 2;
                         }
                     }
@@ -167,7 +167,7 @@ abstract class TypePropertyDecorator
     {
         $log = $config->getLogger();
         foreach ($types->getGenerator() as $type) {
-            foreach ($type->getProperties()->getAllPropertiesIterator() as $property) {
+            foreach ($type->getProperties()->getIterator() as $property) {
                 $propName = $property->getName();
                 if ('' === $propName || null === $propName) {
                     $ref = $property->getRef();

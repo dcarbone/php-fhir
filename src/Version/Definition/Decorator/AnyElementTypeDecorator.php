@@ -26,8 +26,7 @@ use DCarbone\PHPFHIR\Enum\AttributeNameEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /**
- * Class AnyElementTypeDecorator
- * @package DCarbone\PHPFHIR\Version\Definition\Decorator
+ * This decorator is seemingly only used within DSTU1.  It creates a new property and sets it to the XHTML type.
  */
 abstract class AnyElementTypeDecorator
 {
@@ -39,26 +38,34 @@ abstract class AnyElementTypeDecorator
      */
     public static function decorate(Config $config, Types $types, Type $type, \SimpleXMLElement $any): void
     {
-        $property = new Property($type, $any, $type->getSourceFilename());
-
-        $property->setValueFHIRTypeName('string-primitive');
+        $namespace = '';
+        $minOccurs = '';
 
         // parse through attributes
         foreach ($any->attributes() as $attribute) {
-            switch ($attrName = $attribute->getName()) {
+            switch ($attribute->getName()) {
                 case AttributeNameEnum::NAMESPACE->value:
-                    $property->setNamespace((string)$attribute);
+                    $namespace = (string)$attribute;
                     break;
                 case AttributeNameEnum::MIN_OCCURS->value:
-                    $property->setMinOccurs(intval((string)$attribute));
-                    break;
-                case AttributeNameEnum::MAX_OCCURS->value:
-                    $property->setMaxOccurs((string)$attribute);
+                    $minOccurs = (string)$attribute;
                     break;
 
                 default:
                     throw ExceptionUtils::createUnexpectedAttributeException($type, $any, $attribute);
             }
+        }
+
+        $property = $type
+            ->getProperties()
+            ->addOrReturnProperty(new Property(PHPFHIR_VALUE_PROPERTY_NAME, $type, $any, $type->getSourceFilename()));
+
+        $property->setValueFHIRTypeName(PHPFHIR_XHTML_TYPE_NAME);
+        if ('' !== $namespace) {
+            $property->setNamespace($namespace);
+        }
+        if ('' !== $minOccurs) {
+            $property->setMaxOccurs(intval($minOccurs));
         }
 
         // parse through child elements

@@ -36,20 +36,57 @@ abstract class ChoiceElementElementPropertyDecorator
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param \SimpleXMLElement $element
-     * @param string|null $minOccurs
-     * @param string|null $maxOccurs
+     * @param string $minOccurs
+     * @param string $maxOccurs
      * @param \SimpleXMLElement|null $annotationElement
      */
-    public static function decorate(
-        Config $config,
-        Types $types,
-        Type $type,
-        \SimpleXMLElement $element,
-        null|string $minOccurs,
-        null|string $maxOccurs,
-        null|\SimpleXMLElement $annotationElement = null
-    ): void {
-        $property = new Property($type, $element, $type->getSourceFilename());
+    public static function decorate(Config                 $config,
+                                    Types                  $types,
+                                    Type                   $type,
+                                    \SimpleXMLElement      $element,
+                                    string            $minOccurs,
+                                    string            $maxOccurs,
+                                    null|\SimpleXMLElement $annotationElement = null): void
+    {
+
+        $name = '';
+        $ref = '';
+        $fhirTypeName = '';
+
+        foreach ($element->attributes() as $attribute) {
+            switch ($attribute->getName()) {
+                case AttributeNameEnum::REF->value:
+                    $ref = (string)$attribute;
+                    break;
+                case AttributeNameEnum::NAME->value:
+                    $name = (string)$attribute;
+                    break;
+                case AttributeNameEnum::TYPE->value:
+                    $fhirTypeName = (string)$attribute;
+                    break;
+                case AttributeNameEnum::MIN_OCCURS->value:
+                    $minOccurs = (string)$attribute;
+                    break;
+                case AttributeNameEnum::MAX_OCCURS->value:
+                    $maxOccurs = (string)$attribute;
+                    break;
+
+                default:
+                    throw ExceptionUtils::createUnexpectedAttributeException($type, $element, $attribute);
+            }
+        }
+
+        if ('' === $name) {
+            throw new \DomainException(sprintf(
+                'Unable to determine name of property for type %s: %s',
+                $type->getFHIRName(),
+                $annotationElement->asXML()
+            ));
+        }
+
+        $property = $type
+            ->getProperties()
+            ->addOrReturnProperty(new Property($name, $type, $element, $type->getSourceFilename()));
 
         if (null !== $minOccurs) {
             $property->setMinOccurs(intval($minOccurs));
@@ -65,29 +102,6 @@ abstract class ChoiceElementElementPropertyDecorator
                 $property,
                 $annotationElement
             );
-        }
-
-        foreach ($element->attributes() as $attribute) {
-            switch ($attribute->getName()) {
-                case AttributeNameEnum::REF->value:
-                    $property->setRef((string)$attribute);
-                    break;
-                case AttributeNameEnum::NAME->value:
-                    $property->setName((string)$attribute);
-                    break;
-                case AttributeNameEnum::TYPE->value:
-                    $property->setValueFHIRTypeName((string)$attribute);
-                    break;
-                case AttributeNameEnum::MIN_OCCURS->value:
-                    $property->setMinOccurs(intval((string)$attribute));
-                    break;
-                case AttributeNameEnum::MAX_OCCURS->value:
-                    $property->setMaxOccurs((string)$attribute);
-                    break;
-
-                default:
-                    throw ExceptionUtils::createUnexpectedAttributeException($type, $element, $attribute);
-            }
         }
 
         if (null === $property->getName()) {
@@ -118,6 +132,6 @@ abstract class ChoiceElementElementPropertyDecorator
             }
         }
 
-        $type->getProperties()->addProperty($property);
+        $type->getProperties()->addOrReturnProperty($property);
     }
 }

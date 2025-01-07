@@ -346,6 +346,11 @@ class Type
         return $this->_properties;
     }
 
+    public function getAllProperties(): Properties
+    {
+
+    }
+
     /**
      * Returns true if this type has any locally defined properties.
      *
@@ -359,10 +364,13 @@ class Type
     /**
      * @return bool
      */
-    public function hasLocalPropertiesWithValidations(): bool
+    public function hasPropertiesWithValidations(): bool
     {
-        foreach ($this->getProperties()->getAllSortedPropertiesIterator() as $property) {
-            if ([] !== $property->buildValidationMap()) {
+        if ($this->isEnumerated()) {
+            return true;
+        }
+        foreach ($this->getProperties()->getGenerator() as $property) {
+            if ([] !== $property->buildValidationMap($this)) {
                 return true;
             }
         }
@@ -375,11 +383,11 @@ class Type
     public function getAllPropertiesIndexedIterator(): iterable
     {
         $properties = [];
-        foreach ($this->getProperties()->getAllPropertiesGenerator() as $property) {
+        foreach ($this->getProperties()->getGenerator() as $property) {
             $properties[$property->getName()] = $property;
         }
         foreach ($this->getParentTypes() as $parentType) {
-            foreach ($parentType->getProperties()->getAllPropertiesGenerator() as $property) {
+            foreach ($parentType->getProperties()->getGenerator() as $property) {
                 if (!isset($properties[$property->getName()])) {
                     $properties[$property->getName()] = $property;
                 }

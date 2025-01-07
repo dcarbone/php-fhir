@@ -43,7 +43,7 @@ foreach ($type->getProperties()->getLocalPropertiesGenerator() as $property) :
     $propConstExt = $property->getFieldConstantExtensionName();
     $getter = $property->getGetterName();
 
-    if ($property->isOverloaded()) :
+    if ($property->getOverloadedProperty()) :
         continue;
     endif;
     $propertyType = $property->getValueFHIRType();

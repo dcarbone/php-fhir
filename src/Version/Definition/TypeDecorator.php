@@ -443,8 +443,8 @@ abstract class TypeDecorator
                                 $utype->getFHIRName()
                             )
                         );
-                        foreach ($utype->getProperties()->getAllPropertiesIterator() as $property) {
-                            $type->getProperties()->addProperty(clone $property);
+                        foreach ($utype->getProperties()->getGenerator() as $property) {
+                            $type->getProperties()->addOrReturnProperty(clone $property);
                         }
                     } else {
                         $log->info(

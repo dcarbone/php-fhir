@@ -24,20 +24,15 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
  * Class Properties
  * @package DCarbone\PHPFHIR\Version\Definition\Type
  */
-class Properties
+class Properties implements \Countable
 {
     /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] */
     private array $_properties = [];
     /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] */
     private array $_sortedProperties;
 
-    /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] */
-    private array $_localProperties;
-    /** @var \DCarbone\PHPFHIR\Version\Definition\Property[] */
-    private array $_localSortedProperties;
-
     /** @var bool */
-    private bool $_cacheBuilt = false;
+    private bool $_sorted = false;
 
     /** @var \DCarbone\PHPFHIR\Version\Definition\Type */
     private Type $_type;
@@ -58,6 +53,11 @@ class Properties
         return ['properties' => $this->_properties];
     }
 
+    public function count(): int
+    {
+        return count($this->_properties);
+    }
+
     /**
      * @return \DCarbone\PHPFHIR\Version\Definition\Type
      */
@@ -67,10 +67,13 @@ class Properties
     }
 
     /**
+     * Add a property to this type's property list.  The returned property instance MAY NOT be the one you provide!  If
+     * the type already has a property of this same name, the original property instance will be returned.
+     *
      * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
-     * @return \DCarbone\PHPFHIR\Version\Definition\Properties
+     * @return \DCarbone\PHPFHIR\Version\Definition\Property
      */
-    public function addProperty(Property &$property): Properties
+    public function addOrReturnProperty(Property $property): Property
     {
         $pname = $property->getName();
         $pref = $property->getRef();
@@ -82,9 +85,9 @@ class Properties
                 )
             );
         }
-        foreach ($this->_properties as $current) {
+        foreach ($this->_properties as $i => $current) {
             if ($property === $current) {
-                return $this;
+                return $property;
             }
             $cname = $current->getName();
             $cref = $current->getRef();
@@ -96,8 +99,7 @@ class Properties
                         $property->getName()
                     )
                 );
-                $property = $current;
-                return $this;
+                return $current;
             } elseif (null !== $pref && null !== $cref && $cref === $pref) {
                 $this->_type->getConfig()->getLogger()->notice(
                     sprintf(
@@ -106,13 +108,12 @@ class Properties
                         $property->getRef()
                     )
                 );
-                $property = $current;
-                return $this;
+                return $current;
             }
         }
         $this->_properties[] = $property;
-        $this->_cacheBuilt = false;
-        return $this;
+        $this->_sorted = false;
+        return $property;
     }
 
     /**
@@ -147,28 +148,11 @@ class Properties
     }
 
     /**
-     * @return int
-     */
-    public function localPropertyCount(): int
-    {
-        $this->_buildCaches();
-        return count($this->_localProperties);
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasLocalProperties(): bool
-    {
-        return $this->localPropertyCount() > 0;
-    }
-
-    /**
      * Returns an iterator containing all properties, including those inherited from parent types
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function getAllPropertiesIterator(): iterable
+    public function getIterator(): iterable
     {
         return new \ArrayIterator($this->_properties);
     }
@@ -176,7 +160,7 @@ class Properties
     /**
      * @return \Generator
      */
-    public function getAllPropertiesGenerator(): \Generator
+    public function getGenerator(): \Generator
     {
         foreach ($this->_properties as $p) {
             yield $p;
@@ -188,9 +172,9 @@ class Properties
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function getAllSortedPropertiesIterator(): iterable
+    public function getSortedIterator(): iterable
     {
-        $this->_buildCaches();
+        $this->_sort();
         return new \ArrayIterator($this->_sortedProperties);
     }
 
@@ -199,53 +183,20 @@ class Properties
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function getIndexedLocalPropertiesIterator(): iterable
+    public function getIndexedIterator(): iterable
     {
-        $this->_buildCaches();
-        return \SplFixedArray::fromArray($this->_localProperties, preserveKeys: false);
-    }
-
-    /**
-     * Returns an iterator containing only properties local to this type.
-     *
-     * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
-     */
-    public function getLocalPropertiesIterator(): iterable
-    {
-        $this->_buildCaches();
-        return new \ArrayIterator($this->_localProperties);
-    }
-
-    /**
-     * @return \Generator<\DCarbone\PHPFHIR\Version\Definition\Property>
-     */
-    public function getLocalPropertiesGenerator(): \Generator
-    {
-        $this->_buildCaches();
-        foreach ($this->_localProperties as $p) {
-            yield $p;
-        }
-    }
-
-    /**
-     * Returns an iterator containing only properties local to this type, sorted ascending by name
-     *
-     * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
-     */
-    public function getLocalSortedPropertiesIterator(): iterable
-    {
-        $this->_buildCaches();
-        return new \ArrayIterator($this->_localSortedProperties);
+        $this->_sort();
+        return \SplFixedArray::fromArray($this->_properties, preserveKeys: false);
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Enum\TypeKindEnum|null ...$kinds
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function getLocalPropertiesOfTypeKinds(bool $includeCollections, null|TypeKindEnum...$kinds): iterable
+    public function getIteratorOfTypeKinds(bool $includeCollections, null|TypeKindEnum...$kinds): iterable
     {
         $out = [];
-        foreach ($this->getLocalPropertiesIterator() as $property) {
+        foreach ($this->getGenerator() as $property) {
             if (!$includeCollections && $property->isCollection()) {
                 continue;
             }
@@ -257,29 +208,19 @@ class Properties
         return new \ArrayIterator($out);
     }
 
-    private function _buildCaches(): void
+    private function _sort(): void
     {
-        if (!$this->_cacheBuilt) {
-            $this->_sortedProperties = $this->_properties;
-            $this->_localProperties = [];
-            $this->_localSortedProperties = [];
-            usort(
-                $this->_sortedProperties,
-                function (Property $a, Property $b) {
-                    return strnatcmp($a->getName(), $b->getName());
-                }
-            );
-            foreach ($this->_properties as $property) {
-                if (!$property->isOverloaded()) {
-                    $this->_localProperties[] = $property;
-                }
-            }
-            foreach ($this->_sortedProperties as $property) {
-                if (!$property->isOverloaded()) {
-                    $this->_localSortedProperties[] = $property;
-                }
-            }
-            $this->_cacheBuilt = true;
+        if ($this->_sorted) {
+            return;
         }
+
+        $this->_sortedProperties = $this->_properties;
+        usort(
+            $this->_sortedProperties,
+            function (Property $a, Property $b) {
+                return strnatcmp($a->getName(), $b->getName());
+            }
+        );
+        $this->_sorted = true;
     }
 }

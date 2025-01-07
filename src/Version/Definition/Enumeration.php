@@ -20,14 +20,10 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 
 use DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue;
 
-/**
- * Class Enumeration
- * @package DCarbone\PHPFHIR\Definition
- */
 class Enumeration implements \Countable
 {
     /** @var \DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue[] */
-    private array $values = [];
+    private array $_values = [];
 
     /**
      * @param \DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue $value
@@ -36,12 +32,12 @@ class Enumeration implements \Countable
     public function addValue(EnumerationValue $value): Enumeration
     {
         $eval = $value->getValue();
-        foreach ($this->values as $cval) {
+        foreach ($this->_values as $cval) {
             if ($value === $cval || $cval->getValue() === $eval) {
                 return $this;
             }
         }
-        $this->values[] = $value;
+        $this->_values[] = $value;
         return $this;
     }
 
@@ -51,7 +47,7 @@ class Enumeration implements \Countable
      */
     public function hasRawValue(mixed $rawValue): bool
     {
-        foreach ($this->values as $value) {
+        foreach ($this->_values as $value) {
             if ($value->getValue() === $rawValue) {
                 return true;
             }
@@ -65,7 +61,7 @@ class Enumeration implements \Countable
      */
     public function hasValue(EnumerationValue $value): bool
     {
-        return in_array($value, $this->values, true);
+        return in_array($value, $this->_values, true);
     }
 
     /**
@@ -73,7 +69,17 @@ class Enumeration implements \Countable
      */
     public function getIterator(): iterable
     {
-        return new \ArrayIterator($this->values);
+        return new \ArrayIterator($this->_values);
+    }
+
+    /**
+     * @return \Generator<\DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue>
+     */
+    public function getGenerator(): \Generator
+    {
+        foreach($this->_values as $value) {
+            yield $value;
+        }
     }
 
     /**
@@ -81,6 +87,6 @@ class Enumeration implements \Countable
      */
     public function count(): int
     {
-        return count($this->values);
+        return count($this->_values);
     }
 }

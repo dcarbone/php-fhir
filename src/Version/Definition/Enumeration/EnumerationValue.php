@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Version\Definition\Enumeration;
  */
 
 use DCarbone\PHPFHIR\Version\Definition\DocumentationTrait;
-use SimpleXMLElement;
 
 /**
  * Class EnumerationValue
@@ -31,18 +30,10 @@ class EnumerationValue
 
     /** @var mixed mixed */
     private mixed $value;
-    /** @var \SimpleXMLElement */
-    private \SimpleXMLElement $sourceSXE;
 
-    /**
-     * Enumeration constructor.
-     * @param string $value
-     * @param \SimpleXMLElement $sourceSXE
-     */
-    public function __construct(string $value, SimpleXMLElement $sourceSXE)
+    public function __construct(string $value)
     {
         $this->value = $value;
-        $this->sourceSXE = $sourceSXE;
     }
 
     /**
@@ -51,14 +42,6 @@ class EnumerationValue
     public function getValue(): mixed
     {
         return $this->value;
-    }
-
-    /**
-     * @return \SimpleXMLElement
-     */
-    public function getSourceSXE(): \SimpleXMLElement
-    {
-        return $this->sourceSXE;
     }
 
     /**

@@ -67,15 +67,17 @@ if ($type->hasLocalProperties()) :
     protected <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
 <?php
 // -- end directly implemented properties
-    endforeach; ?>
+    endforeach;
+endif; ?>
 
     /** Default validation map for fields in type <?php echo $type->getFHIRName(); ?> */
-    private const _DEFAULT_VALIDATION_RULES = [<?php if (!$type->hasLocalPropertiesWithValidations()): ?>];
+    private const _DEFAULT_VALIDATION_RULES = [<?php if (!$type->hasPropertiesWithValidations()): ?>];
 <?php else:
-// -- local property validation rules
+// -- property validation rules
 
-    foreach ($type->getProperties()->getAllPropertiesGenerator() as $property) :
-        $validationMap = $property->buildValidationMap();
+    foreach ($type->getProperties()->getGenerator() as $property) :
+        var_dump($property->getName());
+        $validationMap = $property->buildValidationMap($type);
         if ([] !== $validationMap) : ?>
 
         self::<?php echo $property->getFieldConstantName(); ?> => [
@@ -88,8 +90,7 @@ endforeach; ?>
 
     ];
 <?php
-endif;
-// -- end local property validation rules
+// -- end property validation rules
 
 endif;
 
@@ -128,7 +129,7 @@ if ($type->isContainedType()) : ?>
 <?php
 endif;
 
-if ($type->hasLocalProperties()) {
+if ($type->hasLocalProperties()) :
     echo "\n";
 
     // --- property methods
@@ -152,17 +153,19 @@ if ($type->hasLocalProperties()) {
     endif;
 
     // --- end property methods
+endif;
 
-    echo "\n";
+echo "\n";
 
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
+echo require_with(
+    PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
+    [
+        'version' => $version,
+        'type' => $type,
+    ]
+);
 
+if ($type->hasLocalProperties()) :
     echo "\n";
 
     echo require_with(
@@ -182,7 +185,7 @@ if ($type->hasLocalProperties()) {
             'type' => $type,
         ]
     );
-}
+endif;
 
 if (!$type->hasPrimitiveParent()) : ?>
 

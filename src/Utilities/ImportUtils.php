@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ class ImportUtils
         );
 
         if (($type->isCommentContainer() && !$type->hasCommentContainerParent()) ||
-            $type->hasLocalPropertiesWithValidations() ||
+            $type->hasPropertiesWithValidations() ||
             ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$type->hasPrimitiveParent())) {
             $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
         }
@@ -89,15 +89,13 @@ class ImportUtils
             return;
         }
 
+        $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_VALIDATOR);
+
         if ($parentType = $type->getParentType()) {
             $imports->addImport(
                 $parentType->getFullyQualifiedNamespace(false),
                 $parentType->getClassName(),
             );
-        }
-
-        if ($type->hasLocalPropertiesWithValidations()) {
-            $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_VALIDATOR);
         }
 
         if ($restrictionBaseType = $type->getRestrictionBaseFHIRType()) {
@@ -115,7 +113,7 @@ class ImportUtils
 
             $ptk = $propertyType->getKind();
 
-            if ($property->isOverloaded() && !$ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
+            if ($property->getOverloadedProperty() && !$ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
                 continue;
             }
 
