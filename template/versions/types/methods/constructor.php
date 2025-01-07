@@ -84,11 +84,26 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
     $valuePropertyType = $valueProperty->getValueFHIRType();
     $valuePropertyPrimitiveType = $valuePropertyType->getPrimitiveType();
 ?>
+
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param <?php echo TypeHintUtils::typeSetterTypeHint($version, $valuePropertyType, true); ?>|<?php echo $valuePropertyType->getClassName(); ?>|array $data
-     */
-    public function __construct(<?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true); ?>|array $data = null)
+     * @param null|array $data
+     * @param <?php echo TypeHintUtils::typeSetterTypeHint($version, $valuePropertyType, true); ?>|<?php echo $valuePropertyType->getClassName(); ?> $value
+<?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
+    if ($property->isValueProperty()) {
+        continue;
+    }
+    ?>
+     * @param null|<?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
+
+<?php endforeach; ?>     */
+    public function __construct(null|array $data = null,
+                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true); ?> $value = null<?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
+    if ($property->isValueProperty()) {
+        continue;
+    }
+    ?>,
+                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach; ?>)
     {
         if (null === $data) {
             return;

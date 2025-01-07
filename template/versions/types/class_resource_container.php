@@ -50,16 +50,18 @@ echo require_with(
 
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param null|array|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $data
+     * @param null|array $data
+     * @param null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $containedType
      */
-    public function __construct(null|array|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $data = null)
+    public function __construct(null|array $data = null,
+                                null|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $containedType = null)
     {
-        if (null === $data || [] === $data) {
+        if (null !== $containedType) {
+            $this->setContainedType($containedType);
             return;
         }
 
-        if ($data instanceof <?php echo $versionContainedTypeInterface->getEntityName(); ?>) {
-            $this->setContainedType($data);
+        if (null === $data || [] === $data) {
             return;
         }
 
@@ -70,6 +72,7 @@ echo require_with(
                 $this->_addFHIRComment($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
             }
         }
+
         $class = <?php echo $versionTypeMapClass->getEntityName(); ?>::getContainedTypeClassNameFromArray($data);
         $this->setContainedType(new $class($data[$class::FHIR_TYPE_NAME]));
     }
