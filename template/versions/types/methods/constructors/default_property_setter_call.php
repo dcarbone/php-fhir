@@ -34,12 +34,15 @@ $requireArgs = [
 ob_start(); ?>
         if (null !== <?php echo $propertyVarName; if ($property->isCollection()) : ?> && [] !== <?php echo $propertyVarName; endif; ?>) {
 <?php if ($property->isCollection()) : ?>
+            $_values = [];
             foreach(<?php echo $propertyVarName; ?> as $i => $v) {
                 if (!($v instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>)) {
-                    <?php echo $propertyVarName; ?>[$i] = new <?php echo $property->getValueFHIRType()->getClassName(); ?>($v);
+                    $_values[] = new <?php echo $property->getValueFHIRType()->getClassName(); ?>($v);
+                } else {
+                    $_values[] = $v;
                 }
             }
-            $this->set<?php echo $property->getName(); ?>(...$v);
+            $this->set<?php echo $property->getName(); ?>(...$_values);
 <?php else : ?>
             $this-><?php echo $setter; ?>(<?php echo $propertyVarName; ?>);
 <?php endif; ?>

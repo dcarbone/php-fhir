@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  */
 
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 class Property
@@ -491,6 +492,37 @@ class Property
     public function getOverloadedProperty(): null|Property
     {
         return $this->_overloads ?? null;
+    }
+
+    /**
+     * This method will panic if this is a primitive type.  Deal with it, also make it better later.
+     *
+     * @return bool
+     */
+    public function requiresXMLLocation(): bool
+    {
+        return $this->_memberOf->hasPrimitiveParent()
+            || $this->_memberOf->getKind()->isOneOf(
+                TypeKindEnum::PRIMITIVE_CONTAINER,
+                TypeKindEnum::PRIMITIVE,
+                TypeKindEnum::LIST,
+            );
+    }
+
+    /**
+     * @return string
+     */
+    public function defaultXMLLocationEnumValue(): string
+    {
+        if (!$this->requiresXMLLocation()) {
+            throw new \RuntimeException(sprintf(
+                'Type "%s" property "%s" does not support XML location setting',
+                $this->getMemberOf()->getFHIRName(),
+                $this->getName(),
+            ));
+        }
+
+        return $this->_memberOf->isValueContainer() ? 'ELEMENT' : 'ATTRIBUTE';
     }
 
     /**

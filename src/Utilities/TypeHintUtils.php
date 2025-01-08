@@ -188,16 +188,13 @@ class TypeHintUtils
      */
     public static function propertyDeclarationHint(Version $version, Property $property, bool $nullable): string
     {
-        // if this proprety is a collection, the type hint must be a potentially nullable array
         if ($property->isCollection()) {
-            return sprintf('%sarray', $nullable ? 'null|' : '');
+            return $nullable ? 'null|array' : 'array';
         }
 
-        // first, check to see if there is a FHIR type for this property value
-        $t = $property->getValueFHIRType();
+        $pt = $property->getValueFHIRType();
 
-        // if null, the (hopefully) only possibility is that this is a value property for a primitive type
-        if (null === $t) {
+        if (null === $pt) {
             return self::primitivePHPValueTypeHint(
                 $version,
                 $property->getMemberOf()->getPrimitiveType(),
@@ -205,8 +202,7 @@ class TypeHintUtils
             );
         }
 
-        // otherwise, hint as the underlying type
-        return self::typeHint($version, $t, $nullable);
+        return ($nullable ? 'null|' : '') . $pt->getClassName();
     }
 
     /**
@@ -217,12 +213,13 @@ class TypeHintUtils
      * @param bool $nullable
      * @return string
      */
-    public static function propertyGetterTypeDocHint(Version  $version,
-                                                     Property $property,
-                                                     bool     $nullable): string
+    public static function propertyGetterDocHint(Version  $version,
+                                                 Property $property,
+                                                 bool     $nullable): string
     {
-        $t = $property->getValueFHIRType();
-        if (null === $t) {
+        $pt = $property->getValueFHIRType();
+
+        if (null === $pt) {
             return self::primitivePHPValueTypeHint(
                 $version,
                 $property->getMemberOf()->getPrimitiveType(),
@@ -230,17 +227,13 @@ class TypeHintUtils
             );
         }
 
-        $hintTypes = self::buildBaseHintParts($version, $t, false);
+        $hint = ($nullable ? 'null|' : '') . $pt->getFullyQualifiedClassName(true);
 
         if ($property->isCollection()) {
-            $hintTypes = array_map(fn(string $n) => "{$n}[]", $hintTypes);
+            return "{$hint}[]";
         }
 
-        if ($nullable) {
-            array_unshift($hintTypes, 'null');
-        }
-
-        return implode('|', $hintTypes);
+        return $hint;
     }
 
     /**
@@ -249,65 +242,16 @@ class TypeHintUtils
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param bool $nullable
+     * @param bool $ignoreCollection
      * @return string
      */
-    public static function buildConstructorParameterDocHint(Version  $version,
-                                                            Property $property,
-                                                            bool     $nullable): string
+    public static function buildSetterParameterDocHint(Version  $version,
+                                                       Property $property,
+                                                       bool     $nullable,
+                                                       bool     $ignoreCollection = false): string
     {
         $pt = $property->getValueFHIRType();
 
-        if ($property->isValueProperty()) {
-            if ($property->getMemberOf()->getKind() !== TypeKindEnum::PRIMITIVE_CONTAINER) {
-                return self::primitivePHPValueTypeHint(
-                    version: $version,
-                    primitiveType: $property->getMemberOf()->getPrimitiveType(),
-                    nullable: $nullable,
-                    stringable: true,
-                );
-            }
-            $hintTypes = [
-                'null',
-            ];
-        } else {
-            $hintTypes = self::buildBaseHintParts($version, $pt, true);
-        }
-
-
-
-        $ptk = $pt->getKind();
-
-        if ($ptk->isOneOf(TypeKindEnum::PRIMITIVE_CONTAINER)) {
-            $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
-            array_push(
-                $hintTypes,
-                $vp->getValueFHIRType()->getFullyQualifiedClassName(true),
-                $pt->getFullyQualifiedClassName(true),
-            );
-        }
-
-        if ($property->isCollection()) {
-            $hintTypes = array_map(fn(string $n) => "{$n}[]", $hintTypes);
-        }
-
-        if ($nullable) {
-            array_unshift($hintTypes, 'null');
-        }
-
-        return implode('|', $hintTypes);
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Version $version
-     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
-     * @param bool $nullable
-     * @return string
-     */
-    public static function buildConstructorParameterHint(Version  $version,
-                                                         Property $property,
-                                                         bool     $nullable): string
-    {
-        $pt = $property->getValueFHIRType();
         if (null === $pt) {
             return self::primitivePHPValueTypeHint(
                 version: $version,
@@ -317,24 +261,24 @@ class TypeHintUtils
             );
         }
 
-        if ($property->isCollection()) {
-            return $nullable ? 'null|array' : 'array';
-        }
-
-        $hintTypes = self::buildBaseHintParts($version, $pt, false);
+        $hintTypes = self::buildBaseHintParts($version, $pt, true);
 
         $ptk = $pt->getKind();
 
-        if ($ptk->isOneOf(TypeKindEnum::PRIMITIVE_CONTAINER)) {
+        if ($property->isValueProperty() || $ptk->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE)) {
+            $hintTypes[] = $pt->getFullyQualifiedClassName(true);
+        }
+
+        if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
             $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
             array_push(
                 $hintTypes,
-                $vp->getValueFHIRType()->getClassName(),
-                $pt->getClassName(),
+                $vp->getValueFHIRType()->getFullyQualifiedClassName(true),
+                $pt->getFullyQualifiedClassName(true),
             );
         }
 
-        if ($property->isCollection()) {
+        if (!$ignoreCollection && $property->isCollection()) {
             $hintTypes = array_map(fn(string $n) => "{$n}[]", $hintTypes);
         }
 
@@ -349,19 +293,50 @@ class TypeHintUtils
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param bool $nullable
+     * @param bool $ignoreCollection
      * @return string
      */
-    public static function propertySetterTypeHint(Version $version, Property $property, bool $nullable): string
+    public static function buildSetterParameterHint(Version  $version,
+                                                    Property $property,
+                                                    bool     $nullable,
+                                                    bool     $ignoreCollection = false): string
     {
         $pt = $property->getValueFHIRType();
-        $ptk = $pt->getKind();
 
-        $hint = self::typeSetterTypeHint($version, $pt, $nullable);
-
-        if ($ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
-            return sprintf('%s|%s', $hint, $pt->getClassName());
+        if (null === $pt) {
+            return self::primitivePHPValueTypeHint(
+                version: $version,
+                primitiveType: $property->getMemberOf()->getPrimitiveType(),
+                nullable: $nullable,
+                stringable: true,
+            );
         }
 
-        return $hint;
+        if (!$ignoreCollection && $property->isCollection()) {
+            return $nullable ? 'null|iterable' : 'iterable';
+        }
+
+        $hintTypes = self::buildBaseHintParts($version, $pt, false);
+
+        $ptk = $pt->getKind();
+
+        if ($property->isValueProperty() || $ptk->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE)) {
+            $hintTypes[] = $pt->getClassName();
+        }
+
+        if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
+            $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+            array_push(
+                $hintTypes,
+                $vp->getValueFHIRType()->getClassName(),
+                $pt->getClassName(),
+            );
+        }
+
+        if ($nullable) {
+            array_unshift($hintTypes, 'null');
+        }
+
+        return implode('|', $hintTypes);
     }
 }

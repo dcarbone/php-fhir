@@ -26,11 +26,11 @@ $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, 
 
 ob_start();
 if ('' === $documentation) : ?>
-    /** @var <?php echo TypeHintUtils::propertyGetterTypeDocHint($version, $property, true); ?> */
+    /** @var <?php echo TypeHintUtils::propertyGetterDocHint($version, $property, true); ?> */
 <?php else : ?>
     /**
 <?php echo $documentation; ?>
-     * @var <?php echo TypeHintUtils::propertyGetterTypeDocHint($version, $property, true); ?>
+     * @var <?php echo TypeHintUtils::propertyGetterDocHint($version, $property, true); ?>
 
      */
 <?php endif; ?>
