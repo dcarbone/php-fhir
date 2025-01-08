@@ -379,19 +379,38 @@ class Type
      */
     public function getAllPropertiesIndexedIterator(): iterable
     {
-        $properties = [];
+        $p = [];
         foreach ($this->getParentTypes() as $parentType) {
             foreach ($parentType->getProperties()->getGenerator() as $property) {
-                if (!isset($properties[$property->getName()])) {
-                    $properties[$property->getName()] = $property;
+                if (!isset($p[$property->getName()])) {
+                    $p[$property->getName()] = $property;
                 }
             }
         }
         foreach ($this->getProperties()->getGenerator() as $property) {
-            $properties[$property->getName()] = $property;
+            $p[$property->getName()] = $property;
         }
         // this returns an \SplFixedArray to provide an indexed iterator
-        return \SplFixedArray::fromArray($properties, preserveKeys: false);
+        return \SplFixedArray::fromArray($p, preserveKeys: false);
+    }
+
+    /**
+     * Returns an indexed iterator containing all properties defined on parents of this type.  Locally overloaded
+     * properties are omitted.
+     *
+     * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
+     */
+    public function getParentPropertiesIterator(): iterable
+    {
+        $p = [];
+        foreach ($this->getParentTypes() as $parentType) {
+            foreach ($parentType->getProperties()->getGenerator() as $property) {
+                if (!$this->_properties->hasProperty($property->getName()) && !isset($p[$property->getName()])) {
+                    $p[$property->getName()] = $property;
+                }
+            }
+        }
+        return \SplFixedArray::fromArray($p, preserveKeys: false);
     }
 
     /**

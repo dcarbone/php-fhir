@@ -96,15 +96,23 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
     ?>
      * @param <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
 
-<?php endforeach; ?>     */
+<?php endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>
+     * @param null|array $fhirComments
+<?php endif; ?>     */
     public function __construct(null|array $data = null,
                                 <?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true); ?> $value = null<?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
     if ($property->isValueProperty()) {
         continue;
     }
     ?>,
-                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach; ?>)
+                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>,
+                                null|array $fhirComments = null<?php endif; ?>)
     {
+<?php if (null !== $parentType) : ?>
+        parent::__construct(data: $data<?php foreach($type->getParentPropertiesIterator() as $property) : ?>,
+                            <?php echo $property->getName(); ?>: $<?php echo $property->getName(); ?><?php endforeach; ?><?php if ($type->hasCommentContainerParent()) : ?>,
+                            fhirComments: $fhirComments<?php endif; ?>);
+<?php endif; ?>
         if (null === $data) {
             return;
         }
@@ -116,7 +124,9 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
         parent::__construct($data);
 <?php endif; ?><?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
 
-        if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
+        if (null !== $fhirComments && [] !== $fhirComments) {
+            $this->_setFHIRComments($fhirComments);
+        } else if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
             if (is_array($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
                 $this->_setFHIRComments($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
             } elseif (is_string($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
@@ -137,6 +147,7 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
 endforeach; ?>
     }
 <?php else : ?>
+
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param null|array $data
@@ -152,7 +163,9 @@ endforeach; ?>
         ?>
      * @param <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
 
-<?php endforeach; ?>     */
+<?php endforeach; if ($type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+     * @param null|array $fhirComments
+<?php endif; ?>     */
     public function __construct(null|array $data = null<?php if ($type->isValueContainer()) : ?>,
                                 <?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true);?> $value = null<?php endif; ?>
 <?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
@@ -160,8 +173,8 @@ endforeach; ?>
             continue;
         }
     ?>,
-                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
-<?php endforeach; ?>)
+                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach; if ($type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>,
+                                null|array $fhirComments = null<?php endif; ?>)
     {
         if (null === $data || [] === $data) {
 <?php if ($type->hasParent()) : ?>
