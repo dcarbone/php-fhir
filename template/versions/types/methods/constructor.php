@@ -37,43 +37,14 @@ ob_start();
 if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
     $primitiveType = $type->getPrimitiveType();
 
-    if (null !== $parentType) :
-        // only define constructor if this parent has more than just a "value" property.
+    // only define constructor if this primitive does not have a parent.
+    if (null === $parentType) : ?>
 
-        if ($parentType->getKind() !== TypeKindeNum::PRIMITIVE && !$parentType->isValueContainer()) : ?>
-    /**
-     * <?php echo $type->getClassName(); ?> Constructor
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?>|array $value
-     */
-    public function __construct(<?php echo TypeHintUtils::primitiveValuePropertyTypeHint($version, $valueProperty, true); ?>|array $value = null)
-    {
-        if (null === $value) {
-            parent::__construct(null);
-        } elseif (is_scalar($value)) {
-            parent::__construct(null);
-            $this->setValue($value);
-        } elseif (is_array($value)) {
-            parent::__construct($value);
-            if (array_key_exists(self::FIELD_VALUE, $value)) {
-                $this->setValue($value[self::FIELD_VALUE]);
-            }
-        } else {
-             throw new \InvalidArgumentException(sprintf(
-                '<?php echo $typeClassName; ?>::__construct - $data expected to be null, <?php echo $primitiveType->getPHPValueTypes(); ?>, or array, %s seen',
-                gettype($value)
-            ));
-        }
-    }
-<?php
-        endif;
-    else :
-        // in all other cases, just set value and move on.
-        ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
      */
-    public function __construct(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value = null)
+    public function __construct(<?php echo TypeHintUtils::buildConstructorParameterHint($version, $valueProperty, true); ?> $value = null)
     {
         $this->setValue($value);
     }
@@ -86,58 +57,37 @@ elseif ($typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) :
 ?>
 
     /**
-     * <?php echo $typeClassName; ?> Constructor
-     * @param null|array $data
-     * @param <?php echo TypeHintUtils::typeSetterTypeHint($version, $valuePropertyType, true); ?>|<?php echo $valuePropertyType->getClassName(); ?> $value
+     * <?php echo $typeClassName; ?> Constructor BOOTY
+     * @param <?php echo TypeHintUtils::buildConstructorParameterDocHint($version, $valueProperty, true); ?> $value
 <?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
     if ($property->isValueProperty()) {
         continue;
     }
     ?>
-     * @param <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
+     * @param <?php echo TypeHintUtils::buildConstructorParameterDocHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
 
 <?php endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>
      * @param null|array $fhirComments
 <?php endif; ?>     */
-    public function __construct(null|array $data = null,
-                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true); ?> $value = null<?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
+    public function __construct(<?php echo TypeHintUtils::buildConstructorParameterHint($version, $valueProperty, true); ?> $value = null<?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
     if ($property->isValueProperty()) {
         continue;
     }
     ?>,
-                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>,
+                                <?php echo TypeHintUtils::buildConstructorParameterHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>,
                                 null|array $fhirComments = null<?php endif; ?>)
     {
 <?php if (null !== $parentType) : ?>
-        parent::__construct(data: $data<?php foreach($type->getParentPropertiesIterator() as $property) : ?>,
-                            <?php echo $property->getName(); ?>: $<?php echo $property->getName(); ?><?php endforeach; ?><?php if ($type->hasCommentContainerParent()) : ?>,
+        parent::__construct(<?php foreach($type->getParentPropertiesIterator() as $i => $property) : if ($i > 0) : ?>,
+                            <?php endif; echo $property->getName(); ?>: $<?php echo $property->getName(); ?><?php endforeach; ?><?php if ($type->hasCommentContainerParent()) : ?>,
                             fhirComments: $fhirComments<?php endif; ?>);
-<?php endif; ?>
-        if (null === $data) {
-            return;
-        }
-        if (is_scalar($data) || $data instanceof <?php echo $typeImports->getImportByType($valuePropertyType); ?>) {
-            $this->setValue($data);
-            return;
-        }<?php if (null !== $parentType) : ?>
-
-        parent::__construct($data);
-<?php endif; ?><?php if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+<?php endif;
+if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
 
         if (null !== $fhirComments && [] !== $fhirComments) {
             $this->_setFHIRComments($fhirComments);
-        } else if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
-            if (is_array($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
-                $this->_setFHIRComments($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
-            } elseif (is_string($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
-                $this->_addFHIRComment($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
-            }
         }<?php endif; ?>
 <?php foreach ($properties->getGenerator() as $property) :
-    if ($property->getOverloadedProperty()) {
-        continue;
-    }
-
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . DIRECTORY_SEPARATOR . 'default_property_setter_call.php',
         [
@@ -150,10 +100,9 @@ endforeach; ?>
 
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param null|array $data
 <?php if ($type->isValueContainer()) : ?>
 
-     * @param <?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true); ?> $value = null
+     * @param <?php echo TypeHintUtils::buildConstructorParameterDocHint($version, $valueProperty, true); ?> $value = null
 <?php endif; ?>
 <?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
         $pt = $property->getValueFHIRType();
@@ -161,19 +110,17 @@ endforeach; ?>
             continue;
         }
         ?>
-     * @param <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
+     * @param <?php echo TypeHintUtils::buildConstructorParameterDocHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
 
 <?php endforeach; if ($type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
      * @param null|array $fhirComments
 <?php endif; ?>     */
-    public function __construct(null|array $data = null<?php if ($type->isValueContainer()) : ?>,
-                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true);?> $value = null<?php endif; ?>
-<?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
+    public function __construct(<?php if ($type->isValueContainer()) : echo TypeHintUtils::propertySetterTypeHint($version, $valueProperty, true);?> $value = null<?php endif; foreach($type->getAllPropertiesIndexedIterator() as $i => $property) :
         if ($type->isValueContainer() && $property->isValueProperty()) {
             continue;
         }
-    ?>,
-                                <?php echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach; if ($type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>,
+        if ($type->isValueContainer() || $i > 0) : ?>,
+                                <?php endif; echo TypeHintUtils::propertySetterTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach; if ($type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>,
                                 null|array $fhirComments = null<?php endif; ?>)
     {
         if (null === $data || [] === $data) {

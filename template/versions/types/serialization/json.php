@@ -26,7 +26,13 @@ $typeKind = $type->getKind();
 ob_start();
 if ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'primitive.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR
+        . DIRECTORY_SEPARATOR
+        . 'json'
+        . DIRECTORY_SEPARATOR
+        . 'serialize'
+        . DIRECTORY_SEPARATOR
+        . 'primitive.php',
         [
             'version' => $version,
             'type'     => $type,
@@ -34,7 +40,13 @@ if ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
     );
 else:
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'default.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR
+        . DIRECTORY_SEPARATOR
+        . 'json'
+        . DIRECTORY_SEPARATOR
+        . 'serialize'
+        . DIRECTORY_SEPARATOR
+        . 'default.php',
         [
             'version' => $version,
             'type' => $type,

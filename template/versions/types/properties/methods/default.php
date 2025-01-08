@@ -57,10 +57,10 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @return <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
+     * @return <?php echo TypeHintUtils::propertyGetterTypeDocHint($version, $property, true); ?>
 
      */
-    public function get<?php echo ucfirst($propertyName); ?>(): <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?>
+    public function get<?php echo ucfirst($propertyName); ?>(): <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, true); ?>
 
     {
         return $this-><?php echo $propertyName; ?>;
@@ -96,7 +96,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo TypeHintUtils::propertySetterTypeDoc($version, $property, false); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::buildConstructorParameterDocHint($version, $property, false); ?> $<?php echo $propertyName; ?>
 
      * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
      * @return static
@@ -216,7 +216,7 @@ $this->_xmlLocations[self::<?php echo $property->getFieldConstantName(); ?>][0] 
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo TypeHintUtils::propertySetterTypeDoc($version, $property, false); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::buildConstructorParameterDocHint($version, $property, false); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */

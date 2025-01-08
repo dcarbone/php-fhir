@@ -27,7 +27,7 @@ $primitiveType = $type->getPrimitiveType();
 
 ob_start(); ?>
     /**
-     * @return <?php echo TypeHintUtils::primitivePHPReturnValueTypeDoc($version, $primitiveType, true, false); ?>
+     * @return <?php echo TypeHintUtils::primitivePHPValueTypeHint($version, $primitiveType, true); ?>
 
      */
     public function getValue(): <?php echo TypeHintUtils::primitivePHPValueTypeHint($version, $primitiveType, true); ?>

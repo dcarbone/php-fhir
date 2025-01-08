@@ -21,29 +21,28 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
 $propertyType = $property->getValueFHIRType();
-$fieldConstantName = $property->getFieldConstantName();
+$propertyVarName = "\${$property->getName()}";
+$propertyTypeClassName = $propertyType->getClassName();
+$propertyFieldConst = $property->getFieldConstantName();
+$propertyFieldConstExt = $property->getFieldConstantExtensionName();
+$setter = $property->getSetterName();
 
 $requireArgs = [
     'property' => $property
 ];
 
-ob_start();
-
-if ($propertyType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST) || $propertyType->hasPrimitiveParent()) :
-    echo require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'property_setter_primitive.php',
-        $requireArgs
-    );
-elseif ($propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->hasPrimitiveContainerParent() || $propertyType->isValueContainer()) :
-    echo require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'property_setter_primitive_container.php',
-        $requireArgs
-    );
-else :
-    echo require_with(
-        __DIR__ . DIRECTORY_SEPARATOR . 'property_setter_default.php',
-        $requireArgs
-    );
-endif;
-
+ob_start(); ?>
+        if (null !== <?php echo $propertyVarName; if ($property->isCollection()) : ?> && [] !== <?php echo $propertyVarName; endif; ?>) {
+<?php if ($property->isCollection()) : ?>
+            foreach(<?php echo $propertyVarName; ?> as $i => $v) {
+                if (!($v instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>)) {
+                    <?php echo $propertyVarName; ?>[$i] = new <?php echo $property->getValueFHIRType()->getClassName(); ?>($v);
+                }
+            }
+            $this->set<?php echo $property->getName(); ?>(...$v);
+<?php else : ?>
+            $this-><?php echo $setter; ?>(<?php echo $propertyVarName; ?>);
+<?php endif; ?>
+        }
+<?php
 return ob_get_clean();

@@ -16,12 +16,23 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
+$propertyType = $property->getValueFHIRType();
+$propertyTypeClassName = $propertyType->getClassName();
 $propertyFieldConst = $property->getFieldConstantName();
+$propertyFieldConstExt = $property->getFieldConstantExtensionName();
 $setter = $property->getSetterName();
 
-ob_start(); ?>
+$requireArgs = [
+    'property' => $property
+];
+
+ob_start();
+
+if ($propertyType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST) || $propertyType->hasPrimitiveParent()) :?>
         if (isset($data[self::<?php echo $propertyFieldConst; ?>]) || array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data)) {
 <?php if ($property->isCollection()) : ?>
             if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
@@ -45,4 +56,36 @@ ob_start(); ?>
 <?php endif; ?>
         }
 <?php
+elseif ($propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->hasPrimitiveContainerParent() || $propertyType->isValueContainer()) :
+    echo require_with(
+        __DIR__ . DIRECTORY_SEPARATOR . 'property_setter_primitive_container.php',
+        $requireArgs
+    );
+else : ?>
+        if (isset($data[self::<?php echo $propertyFieldConst; ?>]) || array_key_exists(self::<?php echo $propertyFieldConst; ?>, $data)) {
+<?php if ($property->isCollection()) : ?>
+            if (is_array($data[self::<?php echo $propertyFieldConst; ?>])) {
+                foreach($data[self::<?php echo $propertyFieldConst; ?>] as $v) {
+                    if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
+                        $this-><?php echo $setter; ?>($v);
+                    } else {
+                        $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($v));
+                    }
+                }
+            } elseif ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
+                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+            } else {
+                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
+            }
+<?php else : ?>
+            if ($data[self::<?php echo $propertyFieldConst; ?>] instanceof <?php echo $propertyTypeClassName; ?>) {
+                $this-><?php echo $setter; ?>($data[self::<?php echo $propertyFieldConst; ?>]);
+            } else {
+                $this-><?php echo $setter; ?>(new <?php echo $propertyTypeClassName; ?>($data[self::<?php echo $propertyFieldConst; ?>]));
+            }
+<?php endif; ?>
+        }
+<?php
+endif;
+
 return ob_get_clean();

@@ -61,10 +61,10 @@ if ($type->hasLocalProperties()) :
     foreach ($type->getProperties()->getGenerator() as $property) : ?>
     /**
 <?php echo DocumentationUtils::compilePropertyDocumentation($property, 5, true); ?>
-     * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
+     * @var <?php echo TypeHintUtils::propertyGetterTypeDocHint($version, $property, true); ?>
 
      */
-    protected <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
+    protected <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
 <?php
 // -- end directly implemented properties
     endforeach;

@@ -26,7 +26,7 @@ $typeKind = $type->getKind();
 
 ob_start(); ?>
     /**
-     * @return <?php echo TypeHintUtils::primitivePHPReturnValueTypeDoc($version, $type->getPrimitiveType(), true, false); ?>
+     * @return <?php echo TypeHintUtils::primitivePHPValueTypeHint($version, $type->getPrimitiveType(), true); ?>
 
      */
     public function jsonSerialize(): mixed

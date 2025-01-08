@@ -26,13 +26,13 @@ $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, 
 
 ob_start();
 if ('' === $documentation) : ?>
-    /** @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?> */
+    /** @var <?php echo TypeHintUtils::propertyGetterTypeDocHint($version, $property, true); ?> */
 <?php else : ?>
     /**
 <?php echo $documentation; ?>
-     * @var <?php echo TypeHintUtils::propertyGetterTypeDoc($version, $property, true); ?>
+     * @var <?php echo TypeHintUtils::propertyGetterTypeDocHint($version, $property, true); ?>
 
      */
 <?php endif; ?>
-    protected <?php echo TypeHintUtils::propertyTypeHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
+    protected <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
 <?php return ob_get_clean();
