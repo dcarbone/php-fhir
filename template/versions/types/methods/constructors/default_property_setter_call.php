@@ -20,31 +20,12 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 
 /** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
 
-$propertyType = $property->getValueFHIRType();
-$propertyVarName = "\${$property->getName()}";
-$propertyTypeClassName = $propertyType->getClassName();
-$propertyFieldConst = $property->getFieldConstantName();
-$propertyFieldConstExt = $property->getFieldConstantExtensionName();
-$setter = $property->getSetterName();
-
-$requireArgs = [
-    'property' => $property
-];
-
 ob_start(); ?>
-        if (null !== <?php echo $propertyVarName; if ($property->isCollection()) : ?> && [] !== <?php echo $propertyVarName; endif; ?>) {
+        if (null !== $<?php echo $property->getName(); ?>) {
 <?php if ($property->isCollection()) : ?>
-            $_values = [];
-            foreach(<?php echo $propertyVarName; ?> as $i => $v) {
-                if (!($v instanceof <?php echo $property->getValueFHIRType()->getClassName(); ?>)) {
-                    $_values[] = new <?php echo $property->getValueFHIRType()->getClassName(); ?>($v);
-                } else {
-                    $_values[] = $v;
-                }
-            }
-            $this->set<?php echo $property->getName(); ?>(...$_values);
+            $this->set<?php echo $property->getName(); ?>(...$<?php echo $property->getName(); ?>);
 <?php else : ?>
-            $this-><?php echo $setter; ?>(<?php echo $propertyVarName; ?>);
+            $this-><?php echo $property->getSetterName(); ?>($<?php echo $property->getName(); ?>);
 <?php endif; ?>
         }
 <?php

@@ -102,8 +102,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
      */
     public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, false, true); ?> $<?php echo $property; ?>): self
     {
-<?php if ($propertyType->isValueContainer() || $propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
-    ?>
+<?php if ($propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
         }
@@ -124,17 +123,18 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
      */
     public function set<?php echo ucfirst($propertyName); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, false, true); ?> ...$<?php echo $propertyName; ?>): self
     {
-        if ([] !== $this-><?php echo $propertyName; ?>) {
-            $this-><?php echo $propertyName; ?> = [];
-        }
+<?php if ($propertyType->isValueContainer()) : ?>
+        $this-><?php echo $propertyName; ?> = [];
         foreach($<?php echo $propertyName; ?> as $v) {
-<?php if ($propertyType->isValueContainer()) : ?>            if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
-    <?php endif; ?>            $this-><?php echo $propertyName; echo $isCollection ? '[]' : ''; ?> = $v;
-<?php if ($propertyType->isValueContainer()) : ?>            } else {
-                $this-><?php echo $propertyName; echo $isCollection ? '[]' : ''; ?> = new <?php echo $propertyTypeClassName; ?>($v);
+            if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
+                $this-><?php echo $propertyName; ?>[] = $v;
+            } else {
+                $this-><?php echo $propertyName; ?>[] = new <?php echo $propertyTypeClassName; ?>($v);
             }
-<?php endif; ?>
         }
+<?php else : ?>
+        $this-><?php echo $propertyName; ?> = $<?php echo $propertyName; ?>;
+<?php endif; ?>
         return $this;
     }
 <?php   endif;

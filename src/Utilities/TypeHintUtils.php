@@ -159,7 +159,7 @@ class TypeHintUtils
             $ptp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
             $hintTypes = $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints();
             array_merge($hintTypes, self::buildBaseHintParts($version, $ptp, $fullyQualified));
-        } else if ($tk->isOneOf(TypeKindEnum::RESOURCE_INLINE, TypeKindEnum::RESOURCE_CONTAINER)) {
+        } else if ($tk->isResourceContainer($version)) {
             $hintTypes = [
                 match ($fullyQualified) {
                     true => $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE),
@@ -202,6 +202,10 @@ class TypeHintUtils
             );
         }
 
+        if ($pt->getKind()->isResourceContainer($version)) {
+            return ($nullable ? 'null|' : '') . PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE;
+        }
+
         return ($nullable ? 'null|' : '') . $pt->getClassName();
     }
 
@@ -225,6 +229,14 @@ class TypeHintUtils
                 $property->getMemberOf()->getPrimitiveType(),
                 $nullable,
             );
+        }
+
+        if ($pt->getKind()->isResourceContainer($version)) {
+            $versionCoreFiles = $version->getCoreFiles();
+            $containedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
+            return ($nullable ? 'null|' : '')
+                . $containedTypeInterface->getFullyQualifiedName(true)
+                . ($property->isCollection() ? '[]' : '');
         }
 
         $hint = ($nullable ? 'null|' : '') . $pt->getFullyQualifiedClassName(true);
