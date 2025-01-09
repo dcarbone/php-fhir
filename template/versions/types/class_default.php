@@ -64,11 +64,11 @@ if ($type->hasLocalProperties()) :
 
 <?php echo $documentation; ?>
      *
-     *<?php endif; ?> @var <?php echo TypeHintUtils::propertyGetterDocHint($version, $property, true); ?> <?php
+     *<?php endif; ?> @var <?php echo TypeHintUtils::propertyGetterDocHint($version, $property, false); ?> <?php
         if ('' !== $documentation) : ?>
 
      <?php endif; ?>*/
-    protected <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
+    protected <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, false); ?> $<?php echo $property->getName(); ?>;
 <?php
 // -- end directly implemented properties
     endforeach;
@@ -85,7 +85,7 @@ endif; ?>
 
         self::<?php echo $property->getFieldConstantName(); ?> => [
 <?php       foreach($validationMap as $k => $v) : ?>
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::<?php echo $k; ?> => <?php echo pretty_var_export($v, 3,false); ?>,
+            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::<?php echo $k; ?> => <?php echo pretty_var_export($v, 3); ?>,
 <?php       endforeach; ?>
         ],<?php
         endif;

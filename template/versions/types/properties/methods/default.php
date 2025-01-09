@@ -63,7 +63,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
     public function get<?php echo ucfirst($propertyName); ?>(): <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, true); ?>
 
     {
-        return $this-><?php echo $propertyName; ?>;
+        return $this-><?php echo $propertyName; ?> ?? <?php if ($property->isCollection()) : ?>[]<?php else : ?>null<?php endif; ?>;
     }
 <?php if ($isCollection) : ?>
 
@@ -72,7 +72,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
      */
     public function get<?php echo ucfirst($propertyName); ?>Iterator(): iterable
     {
-        if ([] === $this-><?php echo $propertyName; ?>) {
+        if (!isset($this-><?php echo $propertyName; ?>) || [] === $this-><?php echo $propertyName; ?>) {
             return new \EmptyIterator();
         }
         return new \ArrayIterator($this-><?php echo $propertyName; ?>);
@@ -86,15 +86,26 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 <?php echo $documentation; ?>
      *<?php endif; ?>
 
-     * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, false, true); ?> $<?php echo $propertyName; ?>
+     * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $propertyName; ?>
 
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, false, true); ?> $<?php echo $property; ?>): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $property; ?>): self
     {
-<?php if ($propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
+<?php if (!$property->isCollection()) : ?>
+        if (null === $<?php echo $propertyName; ?>) {
+            unset($this-><?php echo $propertyName; ?>);
+            return $this;
+        }
+<?php endif;
+if ($propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>(value: $<?php echo $propertyName; ?>);
+        }
+<?php endif;
+    if ($property->isCollection()) : ?>
+        if (!isset($this-><?php echo $propertyName; ?>)) {
+            $this-><?php echo $propertyName; ?> = [];
         }
 <?php endif; ?>
         $this-><?php echo $propertyName; echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;

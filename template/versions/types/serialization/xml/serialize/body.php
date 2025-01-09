@@ -38,28 +38,32 @@ foreach ($type->getProperties()->getIterator() as $property) :
     }
     if ($pt->hasPrimitiveParent() || $pt->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
         if ($property->isCollection()) : ?>
-        foreach($this-><?php echo $property->getGetterName(); ?>() as $v) {
-            if ($v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE) {
-                $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getFormattedValue());
-                break;
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            foreach($this-><?php echo $property->getName(); ?> as $v) {
+                if ($v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE) {
+                    $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getFormattedValue());
+                    break;
+                }
             }
         }
 <?php   else : ?>
-        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>()) && $v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE) {
-            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getFormattedValue());
+        if (isset($this-><?php echo $property->getName(); ?>) && $this-><?php echo $property->getName(); ?>->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE) {
+            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->getFormattedValue());
         }
 <?php   endif;
     elseif ($pt->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER) :
         if ($property->isCollection()) : ?>
-        foreach($this-><?php echo $property->getGetterName(); ?>() as $v) {
-            if ($v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE) {
-                $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getValue()?->getFormattedValue());
-                break;
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+           foreach($this-><?php echo $property->getName(); ?> as $v) {
+                if ($v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE) {
+                    $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getValue()?->getFormattedValue());
+                    break;
+                }
             }
         }
 <?php   else: ?>
-        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>()) && $v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE) {
-            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->getValue()?->getFormattedValue());
+        if (isset($this-><?php echo $property->getName(); ?>) && $this-><?php echo $property->getName(); ?>->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE) {
+            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->getValue()?->getFormattedValue());
         }
 <?php   endif;
     endif;
@@ -80,64 +84,72 @@ foreach ($type->getProperties()->getIterator() as $property) :
         // ... and IS a container
         if ($ptk->isResourceContainer($version)) :
             if ($property->isCollection()) : ?>
-        foreach($this-><?php echo $property->getGetterName(); ?>() as $v) {
-            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $xw->startElement($v->_getFHIRTypeName());
-            $v->xmlSerialize($xw, $config);
-            $xw->endElement();
-            $xw->endElement();
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            foreach($this-><?php echo $property->getName(); ?> as $v) {
+                $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+                $xw->startElement($v->_getFHIRTypeName());
+                $v->xmlSerialize($xw, $config);
+                $xw->endElement();
+                $xw->endElement();
+            }
         }
 <?php       else : ?>
-        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+        if (isset($this-><?php echo $property->getName(); ?>)) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $xw->startElement($v->_getFHIRTypeName());
-            $v->xmlSerialize($xw, $config);
+            $xw->startElement($this-><?php echo $property->getName(); ?>->_getFHIRTypeName());
+            $this-><?php echo $property->getName(); ?>->xmlSerialize($xw, $config);
             $xw->endElement();
             $xw->endElement();
         }
 <?php       endif;
         elseif ($pt->hasPrimitiveParent() || $ptk->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE)) : ?>
 <?php        if ($property->isCollection()) : ?>
-        foreach($this-><?php echo $property->getGetterName(); ?> as $v) {
-            if ($v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT) {
-                $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-                $v->xmlSerialize($xw, $config);
-                $xw->endElement();
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            foreach($this-><?php echo $property->getName(); ?> as $v) {
+                if ($v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT) {
+                    $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+                    $v->xmlSerialize($xw, $config);
+                    $xw->endElement();
+                }
             }
         }
 <?php       else : ?>
-        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>()) && $v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT) {
+        if (isset($this-><?php echo $property->getName(); ?>) && $this-><?php echo $property->getName(); ?>->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $v->xmlSerialize($xw, $config);
+            $this-><?php echo $property->getName(); ?>->xmlSerialize($xw, $config);
             $xw->endElement();
         }
 <?php       endif;
         elseif ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) : ?>
 <?php        if ($property->isCollection()) : ?>
-        foreach($this-><?php echo $property->getGetterName(); ?> as $v) {
-            if ($v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT) {
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            foreach($this-><?php echo $property->getName(); ?> as $v) {
+                if ($v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT) {
+                    $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+                    $v->xmlSerialize($xw, $config);
+                    $xw->endElement();
+                }
+            }
+        }
+<?php       else : ?>
+        if (isset($this-><?php echo $property->getName(); ?>) && $this-><?php echo $property->getName(); ?>->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT) {
+            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+            $this-><?php echo $property->getName(); ?>->xmlSerialize($xw, $config);
+            $xw->endElement();
+        }
+<?php       endif; 
+        elseif ($property->isCollection()) : ?>
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            foreach ($this-><?php echo $property->getName(); ?> as $v) {
                 $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
                 $v->xmlSerialize($xw, $config);
                 $xw->endElement();
             }
         }
-<?php       else : ?>
-        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>()) && $v->getXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT) {
-            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $v->xmlSerialize($xw, $config);
-            $xw->endElement();
-        }
-<?php       endif; 
-        elseif ($property->isCollection()) : ?>
-        foreach ($this-><?php echo $property->getGetterName(); ?>() as $v) {
-            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $v->xmlSerialize($xw, $config);
-            $xw->endElement();
-        }
 <?php  else: ?>
-        if (null !== ($v = $this-><?php echo $property->getGetterName(); ?>())) {
+        if (isset($this-><?php echo $property->getName(); ?>)) {
             $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
-            $v->xmlSerialize($xw, $config);
+            $this-><?php echo $property->getName(); ?>->xmlSerialize($xw, $config);
             $xw->endElement();
         }
 <?php   endif;
