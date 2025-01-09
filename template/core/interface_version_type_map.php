@@ -35,7 +35,8 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
 {
     /**
-     * Must return the fully qualified class name for FHIR Type name.  Must return null if type not found
+     * Must return the fully qualified class name for FHIR Type name.  Must return null if type not found.
+     *
      * @param string $typeName
      * @return string|null
      */
@@ -43,12 +44,14 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
     /**
      * Must return the full internal class map
+     *
      * @return array
      */
     public static function getMap(): array;
 
     /**
      * Must return the full list of containable resource types
+     *
      * @return array
      */
     public static function getContainableTypes(): array;
@@ -61,6 +64,7 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
     /**
      * Must attempt to determine if the provided value is or describes a containable resource type
+     *
      * @param string|array|\SimpleXMLElement|<?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
      * @return bool
      * @throws \InvalidArgumentException

@@ -31,19 +31,22 @@ interface <?php echo PHPFHIR_INTERFACE_COMMENT_CONTAINER; ?>
 
 {
     /**
-     * Arbitrary comments of a hopefully useful nature
-     * @return array
+     * Return any / all comments set on this type.
+     *
+     * @return string[]
      */
     public function _getFHIRComments(): array;
 
     /**
      * Set internal fhir_comments list, overwriting any previous value(s)
+     *
      * @param array $fhirComments
      */
     public function _setFHIRComments(array $fhirComments): void;
 
     /**
      * Append comment string to internal fhir_comments list
+     *
      * @param string $fhirComment
      */
     public function _addFHIRComment(string $fhirComment): void;

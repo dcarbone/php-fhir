@@ -50,7 +50,6 @@ class ImportUtils
         if (!$type->isAbstract()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
-                PHPFHIR_ENCODING_ENUM_XML_LOCATION,
             );
         }
 
@@ -96,6 +95,16 @@ class ImportUtils
                 $parentType->getFullyQualifiedNamespace(false),
                 $parentType->getClassName(),
             );
+        }
+
+        if ($type->isValueContainer()
+            || $type->hasValueContainerParent()
+            || $type->hasPrimitiveContainerParent()
+            || $typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) {
+            $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_ENUM_XML_LOCATION);
+            if (!$type->hasValueContainerParent() && !$type->hasPrimitiveContainerParent()) {
+                $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_TRAIT_XML_LOCATION);
+            }
         }
 
         if ($restrictionBaseType = $type->getRestrictionBaseFHIRType()) {

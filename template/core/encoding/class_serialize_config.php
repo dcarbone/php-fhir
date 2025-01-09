@@ -37,12 +37,18 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>
     /** @var int */
     private int $_xhtmlLibxmlOpts;
 
-    public function __construct(array $config)
+    public function __construct(null|bool $overrideSourceXMLNS = null,
+                                null|string $rootXMLNS = null,
+                                null|int $xhtmlLibxmlOpts = null)
     {
-        foreach(<?php echo PHPFHIR_ENCODING_ENUM_SERIALIZE_CONFIG_KEY; ?>::cases() as $k) {
-            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
-                $this->{"set{$k->value}"}($config[$k->value]);
-            }
+        if (null !== $overrideSourceXMLNS) {
+            $this->setOverrideSourceXMLNS($overrideSourceXMLNS);
+        }
+        if (null !== $rootXMLNS) {
+            $this->setRootXMLNS($rootXMLNS);
+        }
+        if (null !== $xhtmlLibxmlOpts) {
+            $this->setXHTMLLibxmlOpts($xhtmlLibxmlOpts);
         }
     }
 

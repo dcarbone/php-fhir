@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 ob_start(); ?>
         if (null !== $<?php echo $property->getName(); ?>) {
 <?php if ($property->isCollection()) : ?>
-            $this->set<?php echo $property->getName(); ?>(...$<?php echo $property->getName(); ?>);
+            $this->set<?php echo ucfirst($property->getName()); ?>(...$<?php echo $property->getName(); ?>);
 <?php else : ?>
             $this-><?php echo $property->getSetterName(); ?>($<?php echo $property->getName(); ?>);
 <?php endif; ?>

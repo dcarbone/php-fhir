@@ -38,9 +38,11 @@ class TypeHintUtils
                                                      bool              $nullable,
                                                      bool              $stringable = false): string
     {
-        return ($nullable ? 'null|' : '')
-            . ($stringable ? 'string|' : '')
-            . $primitiveType->getPHPReturnValueTypeHint();
+        $base = $primitiveType->getPHPReturnValueTypeHint();
+        if ($stringable && !str_contains($base, 'string')) {
+            $base = "string|{$base}";
+        }
+        return $nullable ? "null|{$base}" : $base;
     }
 
     /**
@@ -349,6 +351,6 @@ class TypeHintUtils
             array_unshift($hintTypes, 'null');
         }
 
-        return implode('|', $hintTypes);
+        return implode('|', array_unique($hintTypes));
     }
 }

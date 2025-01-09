@@ -57,27 +57,27 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     ];
 
     /** @var <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> */
-    private <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $unserializeConfig;
+    private <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $_unserializeConfig;
 
     /** @var <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> */
-    private <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $serializeConfig;
+    private <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $_serializeConfig;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> constructor.
-     * @param array $config
+     * @param null|array|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $serializeConfig
+     * @param null|array|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $unserializeConfig
      */
-    public function __construct(array $config = [])
+    public function __construct(null|array|<?php echo $unserializeConfigClass->getEntityName(); ?> $unserializeConfig = null,
+                                null|array|<?php echo $serializeConfigClass->getEntityName(); ?> $serializeConfig = null)
     {
-        foreach(<?php echo PHPFHIR_ENUM_VERSION_CONFIG_KEY; ?>::cases() as $k) {
-            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
-                $this->{"set{$k->value}"}($config[$k->value]);
-            }
-        }
-
-        if (!isset($this->_unserializeConfig)) {
+        if (null !== $unserializeConfig) {
+            $this->setUnserializeConfig($unserializeConfig);
+        } else {
             $this->setUnserializeConfig(self::_DEFAULT_UNSERIALIZE_CONFIG);
         }
-        if (!isset($this->_serializeConfig)) {
+        if (null !== $serializeConfig) {
+            $this->setSerializeConfig($serializeConfig);
+        } else {
             $this->setSerializeConfig(self::_DEFAULT_SERIALIZE_CONFIG);
         }
     }
@@ -89,9 +89,12 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     public function setUnserializeConfig(array|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $config): self
     {
         if (is_array($config)) {
-            $config = new <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>($config);
+            $config = new <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>(
+                libxmlOpts: $config['libxmlOpts'] ?? null,
+                jsonDecodeMaxDepth: $config['jsonDecodeMaxDepth'] ?? null,
+            );
         }
-        $this->unserializeConfig = $config;
+        $this->_unserializeConfig = $config;
         return $this;
     }
 
@@ -102,7 +105,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     public function getUnserializeConfig(): <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
 
     {
-        return $this->unserializeConfig;
+        return $this->_unserializeConfig;
     }
 
     /**
@@ -112,9 +115,13 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     public function setSerializeConfig(array|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config): self
     {
         if (is_array($config)) {
-            $config = new <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>($config);
+            $config = new <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>(
+                overrideSourceXMLNS: $config['overrideSourceXMLNS'] ?? null,
+                rootXMLNS: $config['rootXMLNS'] ?? null,
+                libxmlOpts: $config['libxmlOpts'] ?? null,
+            );
         }
-        $this->serializeConfig = $config;
+        $this->_serializeConfig = $config;
         return $this;
     }
 
@@ -125,7 +132,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     public function getSerializeConfig(): <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>
 
     {
-        return $this->serializeConfig;
+        return $this->_serializeConfig;
     }
 }
 <?php return ob_get_clean();

@@ -16,10 +16,16 @@
  * limitations under the License.
  */
 
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+$coreFiles = $config->getCoreFiles();
+
+$xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_XML_LOCATION);
+
 ob_start();
+
 echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
@@ -27,9 +33,29 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
 
 
-enum <?php echo PHPFHIR_ENUM_FACTORY_CONFIG_KEY; ?> : string
-{
-    case VERSIONS = 'versions';
-}
+trait <?php echo PHPFHIR_ENCODING_TRAIT_XML_LOCATION; ?>
 
+{
+    private <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?> $_xmlLocation;
+
+    /**
+     * Set the XML location of this element's value when serializing
+     *
+     * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
+     */
+    public function setXMLLocation(<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?> $xmlLocation): void
+    {
+        $this->_xmlLocation = $xmlLocation;
+    }
+
+    /**
+     * @return null|<?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?>
+
+     */
+    public function getXMLLocation(): null|<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>
+
+    {
+        return $this->_xmlLocation ?? null;
+    }
+}
 <?php return ob_get_clean();

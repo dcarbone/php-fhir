@@ -50,11 +50,15 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
     /** @var string */
     public string $at;
 
-    /** @var <?php echo $formatEnum->getFullyQualifiedName(true); ?> */
-    public <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format;
+    /**
+     * The serialization type to request from the server.  Typically this is 'json' or 'xml'.
+     *
+     * @var string
+     */
+    public string $format;
 
-    /** @var <?php echo $sortEnum->getFullyQualifiedName(true); ?> */
-    public <?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort;
+    /** @var string */
+    public string $sort;
 
     /**
      * Extra query parameters.
@@ -81,5 +85,44 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
      * @var array
      */
     public array $options;
+
+    public function __construct(string|<?php echo PHPFHIR_CLIENT_ENUM_HTTP_METHOD; ?> $method,
+                                string $path,
+                                null|int $count = null,
+                                null|string $since = null,
+                                null|string $at = null,
+                                null|string|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null,
+                                null|string|<?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort = null,
+                                null|array $queryParams = null,
+                                null|bool $parseResponseHeaders = null,
+                                null|array $options = null)
+    {
+        $this->method = (string)$method;
+        $this->path = $path;
+        if (null !== $count) {
+            $this->count = $count;
+        }
+        if (null !== $since) {
+            $this->since = $since;
+        }
+        if (null !== $at) {
+            $this->at = $at;
+        }
+        if (null !== $format) {
+            $this->format = (string)$format;
+        }
+        if (null !== $sort) {
+            $this->sort = (string)$sort;
+        }
+        if (null !== $queryParams) {
+            $this->queryParams = $queryParams;
+        }
+        if (null !== $parseResponseHeaders) {
+            $this->parseResponseHeaders = $parseResponseHeaders;
+        }
+        if (null !== $options) {
+            $this->options = $options;
+        }
+    }
 }
 <?php return ob_get_clean();

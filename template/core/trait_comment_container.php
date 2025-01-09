@@ -34,8 +34,9 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
     private array $_fhirComments = [];
 
     /**
-     * Arbitrary comments of a hopefully useful nature
-     * @return array
+     * Return any / all comments set on this type.
+     *
+     * @return string[]
      */
     public function _getFHIRComments(): array
     {
@@ -44,6 +45,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
 
     /**
      * Set internal fhir_comments list, overwriting any previous value(s)
+     *
      * @param array $fhirComments
      */
     public function _setFHIRComments(array $fhirComments): void
@@ -53,6 +55,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
 
     /**
      * Append comment string to internal fhir_comments list
+     *
      * @param string $fhirComment
      */
     public function _addFHIRComment(string $fhirComment): void

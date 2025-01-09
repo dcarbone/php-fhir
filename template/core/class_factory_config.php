@@ -48,12 +48,10 @@ final class <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>
      * <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?> Constructor
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(null|iterable $versions = null)
     {
-        foreach(<?php echo PHPFHIR_ENUM_FACTORY_CONFIG_KEY; ?>::cases() as $k) {
-            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
-                $this->{"set{$k->value}"}($config[$k->value]);
-            }
+        if (null !== $versions) {
+            $this->setVersions(...$versions);
         }
     }
 
@@ -111,10 +109,10 @@ final class <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>
     /**
      * Define all versions at once.  Will overwrite any existing versions.
      *
-     * @param array|<?php echo $factVersionConfigClass->getFullyQualifiedName(true); ?>[] $versions Array of version configurations.
+     * @param array|<?php echo $factVersionConfigClass->getFullyQualifiedName(true); ?> ...$versions Array of version configurations.
      * @return self
      */
-    public function setVersions(array $versions): self
+    public function setVersions(array|<?php echo PHPFHIR_CLASSNAME_FACTORY_VERSION_CONFIG; ?> ...$versions): self
     {
         $this->_versions = [];
         foreach($versions as $config) {
@@ -124,15 +122,23 @@ final class <?php echo PHPFHIR_CLASSNAME_FACTORY_CONFIG; ?>
     }
 
     /**
-     * Return iterator containing all registered versions.
+     * Returns iterator containing all registered versions.
      *
      * @return \ArrayIterator<<?php echo $factVersionConfigClass->getFullyQualifiedName(true); ?>>
      */
     public function getVersionsIterator(): iterable
     {
+        if ([] === $this->_versions) {
+            return new \EmptyIterator();
+        }
         return new \ArrayIterator($this->_versions);
     }
 
+    /**
+     * Produces generator over all registered versions.
+     *
+     * @return \Generator<?php echo $factVersionConfigClass->getFullyQualifiedName(true); ?>>
+     */
     public function getVersionsGenerator(): \Generator
     {
         foreach($this->_versions as $version) {

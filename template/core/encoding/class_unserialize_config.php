@@ -35,12 +35,14 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     /** @var int */
     private int $_jsonDecodeMaxDepth;
 
-    public function __construct(array $config)
+    public function __construct(null|int $libxmlOpts = null,
+                                null|int $jsonDecodeMaxDepth = null)
     {
-        foreach(<?php echo PHPFHIR_ENCODING_ENUM_UNSERIALIZE_CONFIG_KEY; ?>::cases() as $k) {
-            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
-                $this->{"set{$k->value}"}($config[$k->value]);
-            }
+        if (null !== $libxmlOpts) {
+            $this->setLibxmlOpts($libxmlOpts);
+        }
+        if (null !== $jsonDecodeMaxDepth) {
+            $this->setJsonDecodeMaxDepth($jsonDecodeMaxDepth);
         }
     }
 

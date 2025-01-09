@@ -93,13 +93,8 @@ endforeach; ?>
 endif;
 
 // -- end field properties
-?>
-<?php if ($type->hasLocalProperties()) : ?>
 
-    /** @var array */
-    private array $_xmlLocations = [];
-<?php endif; ?>
-<?php echo require_with(
+echo require_with(
     PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
     [
         'version' => $version,

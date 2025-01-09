@@ -47,6 +47,7 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
 {
     /**
      * Must return the unserialization config to use for this version
+     *
      * @return <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?>
 
      */
@@ -54,6 +55,7 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
 
     /**
      * Must return the serialization config to use for this version
+     *
      * @return <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?>
      */
     public function getSerializeConfig(): <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>;

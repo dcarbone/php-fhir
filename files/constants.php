@@ -98,9 +98,6 @@ const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'CommentContainerTrait';
 const PHPFHIR_TRAIT_SOURCE_XMLNS = 'SourceXMLNamespaceTrait';
 
 // Core enums
-const PHPFHIR_ENUM_FACTORY_VERSION_CONFIG_KEY = 'FactoryVersionConfigKey';
-const PHPFHIR_ENUM_FACTORY_CONFIG_KEY = 'FactoryConfigKeyEnum';
-const PHPFHIR_ENUM_VERSION_CONFIG_KEY = 'VersionConfigKeyEnum';
 const PHPFHIR_ENUM_VERSION = 'VersionEnum';
 
 // Core exceptions
@@ -111,11 +108,9 @@ const PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE = 'UnexpectedResponseCod
 // Core encoding entities
 const PHPFHIR_ENCODING_CLASSNAME_XML_WRITER = 'XMLWriter';
 const PHPFHIR_ENCODING_ENUM_XML_LOCATION = 'XMLLocationEnum';
-const PHPFHIR_ENCODING_ENUM_SERIALIZE_CONFIG_KEY = 'SerializeConfigKeyEnum';
+const PHPFHIR_ENCODING_TRAIT_XML_LOCATION = 'XMLLocationTrait';
 const PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG = 'SerializeConfig';
-const PHPFHIR_ENCODING_ENUM_UNSERIALIZE_CONFIG_KEY = 'UnserializeConfigKeyEnum';
 const PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG = 'UnserializeConfig';
-
 
 // Core client entities
 const PHPFHIR_CLIENT_INTERFACE_CLIENT = 'ClientInterface';

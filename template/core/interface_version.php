@@ -48,24 +48,28 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION; ?>
 {
     /**
      * Must return the "name" of this version, e.g. DSTU1, STU3, R5, etc.
+     *
      * @return string
      */
     public function getName(): string;
 
     /**
      * Must return source's reported version of FHIR
+     *
      * @return string
      */
     public function getSourceVersion(): string;
 
     /**
      * Must return the date this FHIR version's source was generated
+     *
      * @return string
      */
     public function getSourceGenerationDate(): string;
 
     /**
      * Must return config for this version
+     *
      * @return <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?>
 
      */
@@ -73,6 +77,7 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION; ?>
 
     /**
      * Must return the type map class for this version
+     *
      * @return <?php echo $versionTypeMapInterface->getFullyQualifiedName(true); ?>
 
      */

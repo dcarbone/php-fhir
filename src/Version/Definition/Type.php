@@ -380,11 +380,9 @@ class Type
     public function getAllPropertiesIndexedIterator(): iterable
     {
         $p = [];
-        foreach ($this->getParentTypes() as $parentType) {
+        foreach ($this->getRootFirstParentTypes() as $parentType) {
             foreach ($parentType->getProperties()->getGenerator() as $property) {
-                if (!isset($p[$property->getName()])) {
-                    $p[$property->getName()] = $property;
-                }
+                $p[$property->getName()] = $property;
             }
         }
         foreach ($this->getProperties()->getGenerator() as $property) {
@@ -403,8 +401,9 @@ class Type
     public function getParentPropertiesIterator(): iterable
     {
         $p = [];
-        foreach ($this->getParentTypes() as $parentType) {
+        foreach ($this->getRootFirstParentTypes() as $parentType) {
             foreach ($parentType->getProperties()->getGenerator() as $property) {
+                // do not include properties that are overloaded by this type
                 if (!$this->_properties->hasProperty($property->getName()) && !isset($p[$property->getName()])) {
                     $p[$property->getName()] = $property;
                 }
@@ -425,6 +424,14 @@ class Type
             $p = $p->getParentType();
         }
         return $parents;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Version\Definition\Type[]
+     */
+    public function getRootFirstParentTypes(): array
+    {
+        return array_reverse($this->getParentTypes());
     }
 
     /**
@@ -849,6 +856,14 @@ class Type
             // if this type _does_ have a parent, only add these traits if the parent does not have local properties
             $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
                 ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
+                ->getFullyQualifiedNamespace(false);
+        }
+
+        if (($this->isValueContainer()
+                || $this->getKind()->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER))
+            && !($this->hasValueContainerParent() || $this->hasPrimitiveContainerParent() || $this->hasPrimitiveParent())) {
+            $traits[PHPFHIR_ENCODING_TRAIT_XML_LOCATION] = $coreFiles
+                ->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_XML_LOCATION)
                 ->getFullyQualifiedNamespace(false);
         }
 

@@ -32,6 +32,7 @@ interface <?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?> extends <?php echo PHP
 {
     /**
      * Must return the appropriate "formatted" stringified version of this primitive type's value
+     *
      * @return string
      */
     public function getFormattedValue(): string;
