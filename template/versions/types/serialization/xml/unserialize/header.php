@@ -19,6 +19,8 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 
@@ -26,18 +28,17 @@ $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_C
 
 ob_start(); ?>
     /**
-     * @param null|string|\SimpleXMLElement $element
+     * @param string|\SimpleXMLElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
 
      * @throws \Exception
      */
-    public static function xmlUnserialize(null|string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self
+    public static function xmlUnserialize(string|\SimpleXMLElement $element,
+                                          null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
+                                          null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self
     {
-        if (null === $element) {
-            return null;
-        }
         if (null === $config) {
             $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
         }
@@ -49,7 +50,7 @@ ob_start(); ?>
             throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
         }<?php else : ?>
         if (null === $type) {
-            $type = new static(null);
+            $type = new static();
         }<?php endif; ?> else if (!($type instanceof <?php echo $type->getClassName(); ?>)) {
             throw new \RuntimeException(sprintf(
                 '%s::xmlUnserialize - $type must be instance of \\%s or null, %s seen.',

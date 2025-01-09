@@ -104,7 +104,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
     {
 <?php if ($propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
-            $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>($<?php echo $propertyName; ?>);
+            $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>(value: $<?php echo $propertyName; ?>);
         }
 <?php endif; ?>
         $this-><?php echo $propertyName; echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
@@ -129,7 +129,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
             if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
                 $this-><?php echo $propertyName; ?>[] = $v;
             } else {
-                $this-><?php echo $propertyName; ?>[] = new <?php echo $propertyTypeClassName; ?>($v);
+                $this-><?php echo $propertyName; ?>[] = new <?php echo $propertyTypeClassName; ?>(value: $v);
             }
         }
 <?php else : ?>

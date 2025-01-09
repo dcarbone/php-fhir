@@ -29,34 +29,37 @@ ob_start(); ?>
     $propType = $property->getValueFHIRType();
     $setter = $property->getSetterName();
 
-    if ($i > 0) : ?> else <?php else : ?>            <?php endif;
-    if (null !== $propType) :
-        $propTypeKind = $propType->getKind();
+    $requiresXMLLocation = $propType === null
+        || $propType->isValueContainer()
+        || $propType->getKind()->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER)
+        || $propType->hasPrimitiveParent()
+        || $propType->hasValueContainerParent()
+        || $propType->hasPrimitiveContainerParent();
 
-        if ($propTypeKind->isResourceContainer($version)) : ?>
-            if (self::<?php echo $propConst; ?> === $childName) {
+    if ($i > 0) : ?> else <?php else : ?>            <?php endif;
+
+    // TODO: if there are suddenly missing primitive type values, check here.
+
+    if (null !== $propType) :
+        $propTypeKind = $propType->getKind(); ?>if (self::<?php echo $propConst; ?> === $childName) {
+<?php   if ($propTypeKind->isResourceContainer($version)) : ?>
                 foreach ($n->children() as $nn) {
                     $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
                     $type-><?php echo $setter; ?>($typeClassName::xmlUnserialize($nn, null, $config));
                 }
-            }<?php
-        else :
-            $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType);
-            ?>if (self::<?php echo $propConst; ?> === $childName) {
-                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>, <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
-            }<?php
-        endif;
-    else : ?>if (self::<?php echo $propConst; ?> === $childName) {
-                $valueAttr = $n->attributes()[self::FIELD_VALUE] ?? null;
-                if (null !== $valueAttr) {
-                    $type->setValue((string)$valueAttr);
-                } elseif ($n->hasChildren()) {
-                    $type->setValue($n->saveXML());
-                } else {
-                    $type->setValue((string)$n);
-                }
-            }<?php
-    endif;
+<?php   else :
+            $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>
+                $v = new <?php echo $propTypeClassname; ?>(<?php if ($requiresXMLLocation) : ?>xmlLocation: <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, $v, $config));
+<?php   endif; ?>
+            }<?php else : ?>$valueAttr = $n->attributes()[self::FIELD_VALUE] ?? null;
+             if (null !== $valueAttr) {
+                $type->setValue((string)$valueAttr);
+            } else if ($n->hasChildren()) {
+                $type->setValue($n->saveXML());
+            } else {
+                $type->setValue((string)$n);
+            }<?php endif;
 endforeach; ?>
 
         }
@@ -66,26 +69,42 @@ endforeach; ?>
     $propType = $property->getValueFHIRType();
     $setter = $property->getSetterName();
 
+    $requiresXMLLocation = $propType === null
+        || $propType->isValueContainer()
+        || $propType->getKind()->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER)
+        || $propType->hasPrimitiveParent()
+        || $propType->hasValueContainerParent()
+        || $propType->hasPrimitiveContainerParent();
+
     if (null !== $propType) :
         $propTypeKind = $propType->getKind();
 
-        if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
+        if ($propType->hasPrimitiveParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) :
+            $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>
         if (isset($attributes[self::<?php echo $propConst; ?>])) {
-<?php if ($property->isCollection()) : ?>
-            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+<?php if ($property->isCollection()) :
+                // TODO: this logic is a bit iffy, it will currently overwrite any existing values defined through elements on collection propreties.  Not sure what else do o about this.
+                ?>
+            $v = new <?php echo $propTypeClassname; ?>(value: (string)$attributes[self::<?php echo $propConst; ?>],
+                                                       xmlLocation: <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+            $type-><?php echo $setter; ?>($v);
 <?php else : ?>
             $pt = $type-><?php echo $property->getGetterName(); ?>();
             if (null !== $pt) {
-                $pt->setValue((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+                $pt->setValue((string)$attributes[self::<?php echo $propConst; ?>]);
+                $pt->setXMLLocation(<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
             } else {
-                $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+                $type-><?php echo $setter; ?>(new <?php echo $propTypeClassname; ?>(
+                    value: (string)$attributes[self::<?php echo $propConst; ?>],
+                    xmlLocation: <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE,
+                ));
             }
 <?php endif; ?>
         }
 <?php endif;
     else : ?>
         if (isset($attributes[self::<?php echo $property->getFieldConstantName(); ?>])) {
-            $type->setValue((string)$attributes[self::<?php echo $property->getFieldConstantName(); ?>], <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+            $type->setValue((string)$attributes[self::<?php echo $property->getFieldConstantName(); ?>]);
         }
 <?php
     endif;
