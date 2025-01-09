@@ -69,7 +69,7 @@ else : ?>
      * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
 
 <?php endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>
-     * @param null|iterable $fhirComments
+     * @param null|string[] $fhirComments
 <?php endif;
 if ($type->isValueContainer() || $type->hasValueContainerParent() || $type->hasPrimitiveContainerParent() || $typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) : ?>
     * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
@@ -94,12 +94,13 @@ if ($type->isValueContainer() || $type->hasValueContainerParent() || $type->hasP
 if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         if (null !== $fhirComments && [] !== $fhirComments) {
             $this->_setFHIRComments($fhirComments);
-        }<?php endif;
+        }
+<?php endif;
 if (($type->isValueContainer() || $typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) && !($type->hasPrimitiveContainerParent() || $type->hasValueContainerParent())) : ?>
         $this->setXMLLocation($xmlLocation);
 <?php endif;
 
-foreach($properties->getGenerator() as $property) :
+foreach($properties->getIterator() as $property) :
     if ($property->getOverloadedProperty()) {
         continue;
     }

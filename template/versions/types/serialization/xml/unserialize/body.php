@@ -21,6 +21,8 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
+$containedTypeInterface = $version->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
+
 ob_start(); ?>
         foreach ($element->children() as $n) {
             $childName = $n->getName();
@@ -44,8 +46,9 @@ ob_start(); ?>
         $propTypeKind = $propType->getKind(); ?>if (self::<?php echo $propConst; ?> === $childName) {
 <?php   if ($propTypeKind->isResourceContainer($version)) : ?>
                 foreach ($n->children() as $nn) {
-                    $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
-                    $type-><?php echo $setter; ?>($typeClassName::xmlUnserialize($nn, null, $config));
+                    /** @var <?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $cn */
+                    $cn = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
+                    $type-><?php echo $setter; ?>($cn::xmlUnserialize($nn, null, $config));
                 }
 <?php   else :
             $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>

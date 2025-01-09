@@ -106,14 +106,4 @@ class CoreFiles
     {
         return new \ArrayIterator($this->_files);
     }
-
-    /**
-     * @return \Generator<\DCarbone\PHPFHIR\CoreFile>
-     */
-    public function getGenerator(): \Generator
-    {
-        foreach($this->_files as $file) {
-            yield $file;
-        }
-    }
 }

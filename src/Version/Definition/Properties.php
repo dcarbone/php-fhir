@@ -158,16 +158,6 @@ class Properties implements \Countable
     }
 
     /**
-     * @return \Generator
-     */
-    public function getGenerator(): \Generator
-    {
-        foreach ($this->_properties as $p) {
-            yield $p;
-        }
-    }
-
-    /**
      * Returns an iterator contanining all properties, including those inherited from parent types, sorted ascending by name
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
@@ -196,7 +186,7 @@ class Properties implements \Countable
     public function getIteratorOfTypeKinds(bool $includeCollections, null|TypeKindEnum...$kinds): iterable
     {
         $out = [];
-        foreach ($this->getGenerator() as $property) {
+        foreach ($this->getIterator() as $property) {
             if (!$includeCollections && $property->isCollection()) {
                 continue;
             }

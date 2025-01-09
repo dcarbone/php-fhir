@@ -77,16 +77,6 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
         }
         return new \ArrayIterator($this-><?php echo $propertyName; ?>);
     }
-
-    /**
-     * @return \Generator<<?php echo $propertyType->getFullyQualifiedClassName(true); ?>>
-     */
-    public function get<?php echo ucfirst($propertyName); ?>Generator(): \Generator
-    {
-        foreach ($this-><?php echo $propertyName; ?> as $v) {
-            yield $v;
-        }
-    }
 <?php
     endif;
      ?>

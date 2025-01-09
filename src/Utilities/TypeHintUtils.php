@@ -191,7 +191,7 @@ class TypeHintUtils
     public static function propertyDeclarationHint(Version $version, Property $property, bool $nullable): string
     {
         if ($property->isCollection()) {
-            return $nullable ? 'null|array' : 'array';
+            return 'array';
         }
 
         $pt = $property->getValueFHIRType();
@@ -229,25 +229,24 @@ class TypeHintUtils
             return self::primitivePHPValueTypeHint(
                 $version,
                 $property->getMemberOf()->getPrimitiveType(),
-                $nullable,
+                !$property->isCollection(),
             );
         }
 
         if ($pt->getKind()->isResourceContainer($version)) {
             $versionCoreFiles = $version->getCoreFiles();
             $containedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
-            return ($nullable ? 'null|' : '')
-                . $containedTypeInterface->getFullyQualifiedName(true)
-                . ($property->isCollection() ? '[]' : '');
+            if ($property->isCollection()) {
+                return "{$containedTypeInterface->getFullyQualifiedName(true)}[]";
+            }
+            return ($nullable ? 'null|' : '') . $containedTypeInterface->getFullyQualifiedName(true);
         }
-
-        $hint = ($nullable ? 'null|' : '') . $pt->getFullyQualifiedClassName(true);
 
         if ($property->isCollection()) {
-            return "{$hint}[]";
+            return "{$pt->getFullyQualifiedClassName(true)}[]";
         }
 
-        return $hint;
+        return ($nullable ? 'null|' : '') . $pt->getFullyQualifiedClassName(true);
     }
 
     /**

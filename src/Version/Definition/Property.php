@@ -463,12 +463,12 @@ class Property
 
         if ($memberOf->isEnumerated()) {
             $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
-            foreach ($memberOf->getEnumeration()->getGenerator() as $enum) {
+            foreach ($memberOf->getEnumeration()->getIterator() as $enum) {
                 $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
             }
         } else if ($this->isValueProperty() && $local->isEnumerated()) {
             $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
-            foreach ($local->getEnumeration()->getGenerator() as $enum) {
+            foreach ($local->getEnumeration()->getIterator() as $enum) {
                 $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
             }
         }

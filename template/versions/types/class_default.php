@@ -41,7 +41,7 @@ echo require_with(
 // -- property field name constants
 if ($type->hasLocalProperties()) :
     echo "\n";
-    foreach ($type->getProperties()->getGenerator() as $property) :
+    foreach ($type->getProperties()->getIterator() as $property) :
         if ($property->getMemberOf()->hasPrimitiveParent()) {
             continue;
         }
@@ -58,12 +58,16 @@ if ($type->hasLocalProperties()) :
     echo "\n";
 
 // -- directly implemented properties
-    foreach ($type->getProperties()->getGenerator() as $property) : ?>
-    /**
-<?php echo DocumentationUtils::compilePropertyDocumentation($property, 5, true); ?>
-     * @var <?php echo TypeHintUtils::propertyGetterDocHint($version, $property, true); ?>
+    foreach ($type->getProperties()->getIterator() as $property) :
+        $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true); ?>
+    /**<?php if ('' !== $documentation) : ?>
 
-     */
+<?php echo $documentation; ?>
+     *
+     *<?php endif; ?> @var <?php echo TypeHintUtils::propertyGetterDocHint($version, $property, true); ?> <?php
+        if ('' !== $documentation) : ?>
+
+     <?php endif; ?>*/
     protected <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = <?php echo $property->isCollection() ? '[]' : 'null'; ?>;
 <?php
 // -- end directly implemented properties
@@ -149,15 +153,17 @@ if ($type->hasLocalProperties()) :
     // --- end property methods
 endif;
 
-echo "\n";
+if (!$type->isAbstract()) :
+    echo "\n";
 
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
+        [
+            'version' => $version,
+            'type' => $type,
+        ]
+    );
+endif;
 
 if ($type->hasLocalProperties()) :
     echo "\n";

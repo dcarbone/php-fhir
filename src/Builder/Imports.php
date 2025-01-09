@@ -129,16 +129,6 @@ class Imports implements \Countable
     }
 
     /**
-     * @return \Generator<\DCarbone\PHPFHIR\Builder\Import>
-     */
-    public function getGenerator(): \Generator
-    {
-        foreach ($this->_imports as $import) {
-            yield $import;
-        }
-    }
-
-    /**
      * @return int
      */
     public function requiredImportCount(): int

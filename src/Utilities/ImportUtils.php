@@ -27,7 +27,7 @@ class ImportUtils
     public static function compileImportStatements(Imports $imports): string
     {
         $stmts = [];
-        foreach ($imports->getGenerator() as $import) {
+        foreach ($imports->getIterator() as $import) {
             if ($import->requiresImport()) {
                 $stmts[] = "use {$import->getFullyQualifiedName(false)};";
             }
@@ -50,6 +50,10 @@ class ImportUtils
         if (!$type->isAbstract()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
+                PHPFHIR_ENCODING_ENUM_XML_LOCATION,
+                PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
+                PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
+                PHPFHIR_INTERFACE_TYPE,
             );
         }
 
@@ -65,12 +69,6 @@ class ImportUtils
             $type->getVersion(),
             PHPFHIR_VERSION_CLASSNAME_VERSION,
             PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS,
-        );
-
-        $imports->addCoreFileImportsByName(
-            PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
-            PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
-            PHPFHIR_INTERFACE_TYPE,
         );
 
         if (($type->isCommentContainer() && !$type->hasCommentContainerParent()) ||
@@ -101,7 +99,6 @@ class ImportUtils
             || $type->hasValueContainerParent()
             || $type->hasPrimitiveContainerParent()
             || $typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) {
-            $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_ENUM_XML_LOCATION);
             if (!$type->hasValueContainerParent() && !$type->hasPrimitiveContainerParent()) {
                 $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_TRAIT_XML_LOCATION);
             }

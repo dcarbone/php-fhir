@@ -36,9 +36,11 @@ class DocumentationUtils
     {
         $propValueType = $property->getValueFHIRType();
 
-        $typeDoc = null === $propValueType ?
-            '' :
-            trim($propValueType->getDocBlockDocumentationFragment($spaces, false));
+        $typeDoc = match($propValueType) {
+            null => '',
+            default => trim($propValueType->getDocBlockDocumentationFragment($spaces, false)),
+        };
+
         $propDoc = trim($property->getDocBlockDocumentationFragment($spaces, false));
 
         if ('' === $typeDoc && '' === $propDoc) {

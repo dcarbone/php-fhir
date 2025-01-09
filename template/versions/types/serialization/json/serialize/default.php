@@ -38,7 +38,7 @@ if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
             $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS} = $vs;
         }
 <?php endif;
-foreach ($type->getProperties()->getGenerator() as $property) :
+foreach ($type->getProperties()->getIterator() as $property) :
     $propConst = $property->getFieldConstantName();
     $propConstExt = $property->getFieldConstantExtensionName();
     $getter = $property->getGetterName();

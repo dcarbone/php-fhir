@@ -364,7 +364,7 @@ class Type
         if ($this->isEnumerated()) {
             return true;
         }
-        foreach ($this->getProperties()->getGenerator() as $property) {
+        foreach ($this->getProperties()->getIterator() as $property) {
             if ([] !== $property->buildValidationMap($this)) {
                 return true;
             }
@@ -381,11 +381,11 @@ class Type
     {
         $p = [];
         foreach ($this->getRootFirstParentTypes() as $parentType) {
-            foreach ($parentType->getProperties()->getGenerator() as $property) {
+            foreach ($parentType->getProperties()->getIterator() as $property) {
                 $p[$property->getName()] = $property;
             }
         }
-        foreach ($this->getProperties()->getGenerator() as $property) {
+        foreach ($this->getProperties()->getIterator() as $property) {
             $p[$property->getName()] = $property;
         }
         // this returns an \SplFixedArray to provide an indexed iterator
@@ -402,7 +402,7 @@ class Type
     {
         $p = [];
         foreach ($this->getRootFirstParentTypes() as $parentType) {
-            foreach ($parentType->getProperties()->getGenerator() as $property) {
+            foreach ($parentType->getProperties()->getIterator() as $property) {
                 // do not include properties that are overloaded by this type
                 if (!$this->_properties->hasProperty($property->getName()) && !isset($p[$property->getName()])) {
                     $p[$property->getName()] = $property;

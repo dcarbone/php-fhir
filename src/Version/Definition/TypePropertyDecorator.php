@@ -117,7 +117,7 @@ abstract class TypePropertyDecorator
      */
     public static function findPropertyTypes(Config $config, Types $types): void
     {
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
                 self::findPropertyType($config, $types, $type, $property);
             }
@@ -131,14 +131,14 @@ abstract class TypePropertyDecorator
     public static function findOverloadedProperties(Config $config, Types $types): void
     {
         $logger = $config->getLogger();
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             if (!$type->hasParent()) {
                 continue;
             }
             $typeProperties = $type->getProperties();
             $parent = $type->getParentType();
             while (null !== $parent) {
-                foreach($parent->getProperties()->getGenerator() as $parentProp) {
+                foreach($parent->getProperties()->getIterator() as $parentProp) {
                     $typeProp = $typeProperties->getProperty($parentProp->getName());
                     if (null === $typeProp) {
                         continue;
@@ -168,7 +168,7 @@ abstract class TypePropertyDecorator
     public static function setMissingPropertyNames(Config $config, Types $types): void
     {
         $log = $config->getLogger();
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             foreach ($type->getProperties()->getIterator() as $property) {
                 $propName = $property->getName();
                 if ('' === $propName || null === $propName) {

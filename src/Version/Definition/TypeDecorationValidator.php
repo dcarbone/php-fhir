@@ -42,7 +42,7 @@ abstract class TypeDecorationValidator
         }
         
         $seenClasses = [];
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             $typeKind = $type->getKind();
 
             if ($type->isRootType()) {
@@ -91,7 +91,7 @@ abstract class TypeDecorationValidator
                 throw ExceptionUtils::createContainedTypeFlagMismatchException($types->isContainedType($type), $type);
             }
 
-            foreach ($type->getProperties()->getGenerator() as $property) {
+            foreach ($type->getProperties()->getIterator() as $property) {
                 $name = $property->getName();
                 if (null === $name || '' === $name) {
                     throw ExceptionUtils::createPropertyMissingNameException($type, $property);

@@ -125,7 +125,7 @@ class Builder
 
             $types = $definition->getTypes();
 
-            foreach ($types->getGenerator() as $type) {
+            foreach ($types->getIterator() as $type) {
                 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
                 $log->debug("Generating class for type {$type}...");
 
@@ -182,7 +182,7 @@ class Builder
 //                TestTypeEnum::INTEGRATION,
 ////                TestTypeEnum::VALIDATION,
 //            ];
-//            foreach ($types->getGenerator() as $type) {
+//            foreach ($types->getIterator() as $type) {
 //                if ($type->isAbstract()) {
 //                    continue;
 //                }
@@ -223,7 +223,7 @@ class Builder
         $this->log->startBreak('Core Files');
 
         // render each core file
-        foreach ($coreFiles->getGenerator() as $coreFile) {
+        foreach ($coreFiles->getIterator() as $coreFile) {
             FileUtils::mkdirRecurse($coreFile->getFilepath());
             $this->writeFile(
                 $coreFile->getFilepath(),

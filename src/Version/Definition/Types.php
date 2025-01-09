@@ -161,16 +161,6 @@ class Types implements Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Version\Definition\Type[]
-     */
-    public function getGenerator(): iterable
-    {
-        foreach($this->types as $type) {
-            yield $type;
-        }
-    }
-
-    /**
      * Returns iterator of types natcase sorted by FHIR type name
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Type[]

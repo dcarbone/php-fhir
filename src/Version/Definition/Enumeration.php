@@ -73,16 +73,6 @@ class Enumeration implements \Countable
     }
 
     /**
-     * @return \Generator<\DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue>
-     */
-    public function getGenerator(): \Generator
-    {
-        foreach($this->_values as $value) {
-            yield $value;
-        }
-    }
-
-    /**
      * @return int
      */
     public function count(): int

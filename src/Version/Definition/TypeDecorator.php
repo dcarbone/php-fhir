@@ -44,8 +44,8 @@ abstract class TypeDecorator
      */
     public static function findNamelessProperties(Config $config, Types $types): void
     {
-        foreach($types->getGenerator() as $type) {
-            foreach($type->getProperties()->getGenerator() as $property) {
+        foreach($types->getIterator() as $type) {
+            foreach($type->getProperties()->getIterator() as $property) {
                 $name = $property->getName();
                 if ('' === $name || null === $name) {
                     $property->setName($property->getRef());
@@ -60,7 +60,7 @@ abstract class TypeDecorator
      */
     public static function findComponentOfTypes(Config $config, Types $types): void
     {
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
             if (!str_contains($fhirName, '.')) {
                 continue;
@@ -88,7 +88,7 @@ abstract class TypeDecorator
     public static function findRestrictionBaseTypes(Version $version, Types $types): void
     {
         $logger = $version->getConfig()->getLogger();
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
 
             // skip primitive types as they are already as base as they can go
@@ -145,7 +145,7 @@ abstract class TypeDecorator
     public static function findParentTypes(Config $config, Types $types): void
     {
         $logger = $config->getLogger();
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             $fhirName = $type->getFHIRName();
 
             // try to locate parent type name...
@@ -201,7 +201,7 @@ abstract class TypeDecorator
     public static function determinePrimitiveTypes(Config $config, Types $types): void
     {
         $logger = $config->getLogger();
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             if (in_array($type->getFHIRName(), self::DSTU1_PRIMITIVES, true)) {
                 $ptn = PrimitiveTypeEnum::STRING->value;
                 $logger->debug(sprintf('(DSTU1 suppport) Type "%s" determined to be DSTU1 primitive', $type->getFHIRName()));
@@ -360,7 +360,7 @@ abstract class TypeDecorator
      */
     public static function determineParsedTypeKinds(Config $config, Version $version, Types $types): void
     {
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             self::determineParsedTypeKind($config, $version, $types, $type);
         }
     }
@@ -374,7 +374,7 @@ abstract class TypeDecorator
     {
         $versionName = $version->getName();
 
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             if ($types->isContainedType($type)) {
                 $type->setContainedType(true);
             }
@@ -393,7 +393,7 @@ abstract class TypeDecorator
             TypeKindEnum::QUANTITY,
         ];
 
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             // TODO: handle valueString, valueQuantity, etc. types?
 
             // skip primitive types and their child types
@@ -427,7 +427,7 @@ abstract class TypeDecorator
     public static function setCommentContainerFlag(Config $config, Types $types): void
     {
         static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::PHPFHIR_XHTML];
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             $type->setCommentContainer(
                 !$type->hasPrimitiveParent() && !$type->getKind()->isOneOf(...$skip)
             );
@@ -441,7 +441,7 @@ abstract class TypeDecorator
     public static function parseUnionMemberTypes(Config $config, Types $types): void
     {
         $log = $config->getLogger();
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             $unionOf = $type->getUnionOf();
             if ([] === $unionOf) {
                 continue;
@@ -459,7 +459,7 @@ abstract class TypeDecorator
                                 $utype->getFHIRName()
                             )
                         );
-                        foreach ($utype->getProperties()->getGenerator() as $property) {
+                        foreach ($utype->getProperties()->getIterator() as $property) {
                             $type->getProperties()->addOrReturnProperty(clone $property);
                         }
                     } else {
@@ -484,7 +484,7 @@ abstract class TypeDecorator
      */
     public static function buildTypeImports(Config $config, Types $types): void
     {
-        foreach ($types->getGenerator() as $type) {
+        foreach ($types->getIterator() as $type) {
             ImportUtils::buildVersionTypeImports($type);
         }
     }

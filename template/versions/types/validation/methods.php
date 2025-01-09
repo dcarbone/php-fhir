@@ -50,13 +50,13 @@ ob_start(); ?>
      */
     public function _getValidationErrors(): array
     {
-<?php if ($type->hasParent()) : ?>
+<?php if ($type->hasConcreteParent()) : ?>
         $errs = parent::_getValidationErrors();
 <?php else : ?>
         $errs = [];
 <?php endif; ?>
         $validationRules = $this->_getValidationRules();
-<?php foreach ($type->getProperties()->getGenerator() as $property) :
+<?php foreach ($type->getProperties()->getIterator() as $property) :
     $validations = $property->buildValidationMap($type);
     if ([] === $validations) {
         continue;
@@ -112,7 +112,7 @@ endforeach;
 if (null !== $type->getParentType()) :
     $ptype = $type;
     while (null !== $ptype) :
-        foreach($ptype->getProperties()->getGenerator() as $property) : ?>
+        foreach($ptype->getProperties()->getIterator() as $property) : ?>
         if (isset($validationRules[self::<?php echo $property->getFieldConstantName(); ?>])) {
             $v = $this-><?php echo $property->getGetterName(); ?>();
             foreach($validationRules[self::<?php echo $property->getFieldConstantName(); ?>] as $rule => $constraint) {
