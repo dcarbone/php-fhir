@@ -82,9 +82,9 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @param null|string|\SimpleXMLElement $element
      * @param null|static $type
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return null|static
+     * @return static
      */
-    public static function xmlUnserialize(string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self;
+    public static function xmlUnserialize(string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self;
 
     /**
      * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw

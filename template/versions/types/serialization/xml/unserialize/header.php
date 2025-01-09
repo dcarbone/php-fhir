@@ -31,13 +31,13 @@ ob_start(); ?>
      * @param string|\SimpleXMLElement $element
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return null|<?php echo $type->getFullyQualifiedClassName(true); ?>
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      * @throws \Exception
      */
     public static function xmlUnserialize(string|\SimpleXMLElement $element,
                                           null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
-                                          null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): null|self
+                                          null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self
     {
         if (null === $config) {
             $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
