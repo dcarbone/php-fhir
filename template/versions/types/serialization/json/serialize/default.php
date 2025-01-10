@@ -35,13 +35,12 @@ ob_start(); ?>
 
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS} = $vs;
+            $out->fhir_comments = $vs;
         }
 <?php endif;
 foreach ($type->getProperties()->getIterator() as $property) :
     $propConst = $property->getFieldConstantName();
     $propConstExt = $property->getFieldConstantExtensionName();
-    $getter = $property->getGetterName();
 
     if ($property->getOverloadedProperty()) :
         continue;
@@ -49,12 +48,12 @@ foreach ($type->getProperties()->getIterator() as $property) :
     $propertyType = $property->getValueFHIRType();
     if ($propertyType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
         if ($property->isCollection()) : ?>
-        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-            $out->{self::<?php echo $propConst; ?>} = $vs;
+        if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
+            $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
         }
 <?php else : ?>
-        if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $out->{self::<?php echo $propConst; ?>} = $v;
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
         }
 <?php endif;
 
@@ -62,16 +61,13 @@ foreach ($type->getProperties()->getIterator() as $property) :
         $propTypeClassname = $property->getValueFHIRType()->getClassName();
 
         if ($property->isCollection()) : ?>
-        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
+        if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
             $vals = [];
             $exts = [];
-            foreach ($vs as $v) {
-                if (null === $v) {
-                    continue;
-                }
+            foreach (<?php echo $property->getName(); ?> as $v) {
                 $val = $v->getValue();
                 $ext = $v->jsonSerialize();
-                unset($ext->{<?php echo $propTypeClassname; ?>::FIELD_VALUE});
+                unset($ext->value);
                 if (null !== $val) {
                     $vals[] = $val;
                 }
@@ -80,49 +76,44 @@ foreach ($type->getProperties()->getIterator() as $property) :
                 }
             }
             if ([] !== $vals) {
-                $out->{self::<?php echo $propConst; ?>} = $vals;
+                $out-><?php echo $property->getName(); ?> = $vals;
             }
             if (count((array)$ext) > 0) {
-                $out->{self::<?php echo $propConstExt; ?>} = $exts;
+                $out-><?php echo $property->getExtName(); ?> = $exts;
             }
         }
 <?php else : ?>
-        if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            if (null !== ($val = $v->getValue())) {
-                $out->{self::<?php echo $propConst; ?>} = $val;
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            if (null !== ($val = $this-><?php echo $property->getName(); ?>->getValue())) {
+                $out-><?php echo $property->getName(); ?> = $val;
             }
-            $ext = $v->jsonSerialize();
-            unset($ext->{<?php echo $propTypeClassname; ?>::FIELD_VALUE});
+            $ext = $this-><?php echo $property->getName(); ?>->jsonSerialize();
+            unset($ext->value);
             if (count((array)$ext) > 0) {
-                $out->{self::<?php echo $propConstExt; ?>} = $ext;
+                $out-><?php echo $property->getExtName(); ?> = $ext;
             }
         }
 <?php endif;
 
     else :
         if ($property->isCollection()) : ?>
-        if ([] !== ($vs = $this-><?php echo $getter; ?>())) {
-            $out->{self::<?php echo $propConst; ?>} = [];
-            foreach($vs as $v) {
-                $out->{self::<?php echo $propConst; ?>}[] = $v;
-            }
+        if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
+            $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
         }
 <?php else : ?>
-        if (null !== ($v = $this-><?php echo $getter; ?>())) {
-            $out->{self::<?php echo $propConst; ?>} = $v;
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
         }
 <?php endif;
     endif;
 endforeach;
 if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         if ([] !== ($vs = $this->_getFHIRComments())) {
-            $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS} = $vs;
+            $out->fhir_comments = $vs;
         }
-<?php endif; ?>
-
-<?php if ($type->isContainedType()) : ?>
-        $out->{<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE} = $this->_getResourceType();
-
+<?php endif;
+    if ($type->isContainedType()) : ?>
+        $out->resourceType = $this->_getResourceType();
 <?php endif; ?>
         return $out;
     }
