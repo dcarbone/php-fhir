@@ -127,6 +127,11 @@ class Property
 
     public function setName(string $name): self
     {
+        // this is a very sloppy way to handle "xhtml:div".
+        $idx = strpos($name, ':');
+        if ($idx > 0) {
+            $name = substr($name, $idx + 1);
+        }
         if ('' === $name) {
             throw new \InvalidArgumentException(
                 sprintf(
