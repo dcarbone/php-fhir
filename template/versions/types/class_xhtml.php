@@ -41,8 +41,8 @@ echo require_with(
     ]
 ); ?>
 
-    /** @var null|string */
-    private null|string $_xhtml = null;
+    /** @var string */
+    private string $_xhtml;
 
     /**
      * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
@@ -82,7 +82,7 @@ echo require_with(
      */
     public function getXHTML(): null|string
     {
-        return $this->_xhtml;
+        return $this->_xhtml ?? null;
     }
 
     /**
@@ -111,11 +111,10 @@ echo require_with(
      */
     public function getSimpleXMLElement(int $libxmlOpts): null|\SimpleXMLElement
     {
-        $xhtml = $this->getXHTML();
-        if (null === $xhtml) {
+        if (!isset($this->_xhtml)) {
             return null;
         }
-        return new \SimpleXMLElement($xhtml, $libxmlOpts);
+        return new \SimpleXMLElement($this->_xhtml, $libxmlOpts);
     }
 
     /**
@@ -124,12 +123,11 @@ echo require_with(
      */
     public function getDOMDocument(int $libxmlOpts): null|\DOMDocument
     {
-        $xhtml = $this->getXHTML();
-        if (null === $xhtml) {
+        if (!isset($this->_xhtml)) {
             return null;
         }
         $dom = new \DOMDocument('1.0', 'UTF-8');
-        $dom->loadXML($xhtml, $libxmlOpts);
+        $dom->loadXML($this->_xhtml, $libxmlOpts);
         return $dom;
     }
 
@@ -139,11 +137,10 @@ echo require_with(
      */
     public function getXMLReader(int $libxmlOpts): null|\XMLReader
     {
-        $xhtml = $this->getXHTML();
-        if (null === $xhtml) {
+        if (!isset($this->_xhtml)) {
             return null;
         }
-        $xr = \XMLReader::XML($xhtml, 'UTF-8', $libxmlOpts);
+        $xr = \XMLReader::XML($this->_xhtml, 'UTF-8', $libxmlOpts);
         $xr->read();
         return $xr;
     }
@@ -210,11 +207,10 @@ echo require_with(
      */
     public function jsonSerialize(): mixed
     {
-        $xhtml = $this->getXHTML();
-        if (null === $xhtml) {
+        if (!isset($this->_xhtml)) {
             return null;
         }
-        return (string)$xhtml;
+        return (string)$this->_xhtml;
     }
 
     /**

@@ -124,34 +124,6 @@ final class <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> extends \XMLWri
     }
 
     /**
-     * @see https://www.php.net/manual/en/xmlwriter.startattribute.php
-     *
-     * @param string $name Attribute name
-     * @param string $value Attribute value
-     * @return bool
-     */
-    public function writeAttribute(string $name, string $value): bool
-    {
-        return $this->startAttribute($name)
-            && $this->text($value)
-            && $this->endAttribute();
-    }
-
-    /**
-     * Write a complete element with a text value
-     *
-     * @param string $name Element name
-     * @param string $value Element text value
-     * @return bool
-     */
-    public function writeSimpleElement(string $name, string $value): bool
-    {
-        return $this->startElement($name)
-            && $this->text($value)
-            && $this->endElement();
-    }
-
-    /**
      * @return bool
      */
     public function isRootOpen(): bool
