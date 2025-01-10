@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type; */
 
 $typeKind = $type->getKind();
 
 ob_start(); ?>
+    public static function jsonUnserialize(string|array|\stdClass $data
 
 <?php return ob_get_clean();
