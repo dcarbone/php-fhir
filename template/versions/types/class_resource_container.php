@@ -48,33 +48,15 @@ echo require_with(
     /** @var null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> */
     private null|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $containedType = null;
 
-    /**
-     * <?php echo $type->getClassName(); ?> Constructor
-     * @param null|array $data
-     * @param null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $containedType
-     */
-    public function __construct(null|array $data = null,
-                                null|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $containedType = null)
+    public function __construct(null|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $containedType = null,
+                                null|iterable $fhirComments = null)
     {
         if (null !== $containedType) {
             $this->setContainedType($containedType);
-            return;
         }
-
-        if (null === $data || [] === $data) {
-            return;
+        if (null !== $fhirComments) {
+            $this->_setFHIRComments($fhirComments);
         }
-
-        if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
-            if (is_array($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
-                $this->_setFHIRComments($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
-            } elseif (is_string($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
-                $this->_addFHIRComment($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
-            }
-        }
-
-        $class = <?php echo $versionTypeMapClass->getEntityName(); ?>::getContainedTypeClassNameFromArray($data);
-        $this->setContainedType(new $class($data[$class::FHIR_TYPE_NAME]));
     }
 
 
@@ -106,7 +88,7 @@ echo require_with(
     public function getContainedType(): null|<?php echo $versionContainedTypeInterface->getEntityName(); ?>
 
     {
-        return $this->containedType;
+        return $this->containedType ?? null;
     }
 
     /**
@@ -115,12 +97,15 @@ echo require_with(
      */
     public function setContainedType(null|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $containedType): self
     {
+        if (null === $containedType) {
+            unset($this->containedType);
+            return $this;
+        }
         $this->containedType = $containedType;
         return $this;
     }
 
 <?php
-// unserialize portion
 echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
     [
@@ -175,6 +160,18 @@ echo require_with(
             $xw->endDocument();
         }
         return $xw;
+    }
+
+<?php
+// unserialize portion
+echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
+    [
+        'version' => $version,
+        'type' => $type,
+    ]
+);
+?>
     }
 
     public function __toString(): string

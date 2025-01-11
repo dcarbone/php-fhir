@@ -31,7 +31,7 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
 
 {
     /** @var array */
-    private array $_fhirComments = [];
+    private array $_fhirComments;
 
     /**
      * Return any / all comments set on this type.
@@ -40,27 +40,34 @@ trait <?php echo PHPFHIR_TRAIT_COMMENT_CONTAINER; ?>
      */
     public function _getFHIRComments(): array
     {
-        return $this->_fhirComments;
+        return $this->_fhirComments ?? [];
     }
 
     /**
      * Set internal fhir_comments list, overwriting any previous value(s)
      *
      * @param array $fhirComments
+     * @return static
      */
-    public function _setFHIRComments(array $fhirComments): void
+    public function _setFHIRComments(iterable $fhirComments): self
     {
         $this->_fhirComments = $fhirComments;
+        return $this;
     }
 
     /**
      * Append comment string to internal fhir_comments list
      *
      * @param string $fhirComment
+     * @return static
      */
-    public function _addFHIRComment(string $fhirComment): void
+    public function _addFHIRComment(string $fhirComment): self
     {
+        if (!isset($this->_fhirComments)) {
+            $this->_fhirComments = [];
+        }
         $this->_fhirComments[] = $fhirComment;
+        return $this;
     }
 }
 <?php

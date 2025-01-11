@@ -39,12 +39,6 @@ ob_start(); ?>
                                           null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
                                           null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self
     {
-        if (null === $config) {
-            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
-        }
-        if (is_string($element)) {
-            $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());
-        }
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
             throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
@@ -58,6 +52,12 @@ ob_start(); ?>
                 static::class,
                 get_class($type)
             ));
+        }
+        if (null === $config) {
+            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
+        }
+        if (is_string($element)) {
+            $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());
         }
         if (null !== ($ns = $element->getNamespaces()[''] ?? null)) {
             $type->_setSourceXMLNS((string)$ns);

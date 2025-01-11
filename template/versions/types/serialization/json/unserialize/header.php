@@ -15,12 +15,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type; */
 
-$typeKind = $type->getKind();
+/** @var \DCarbone\PHPFHIR\Version $version */
+/** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
+
+use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+
+$config = $version->getConfig();
+$coreFiles = $config->getCoreFiles();
+
+$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
 ob_start(); ?>
-    public static function jsonUnserialize(string|array|\stdClass $data
+    /**
+     * @param string|array|\stdClass $json
+     * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
+     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
+     * @throws \Exception
+     */
+    public static function jsonUnserialize(string|array|\stdClass $json,
+                                           null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
+                                           null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self
+    {
+<?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
+        if (null === $type) {
+            throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
+        }<?php else : ?>
+        if (null === $type) {
+            $type = new static();
+        }<?php endif; ?> else if (!($type instanceof <?php echo $type->getClassName(); ?>)) {
+            throw new \RuntimeException(sprintf(
+                '%s::jsonUnserialize - $type must be instance of \\%s or null, %s seen.',
+                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                static::class,
+                get_class($type)
+            ));
+        }
+        if (null === $config) {
+            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
+        }
+        if (is_string($json)) {
+            $json = json_decode($json, true);
+        } else if (is_object($json)) {
+            $json = (array)$json;
+        }
 <?php return ob_get_clean();
