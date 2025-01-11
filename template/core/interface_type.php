@@ -80,11 +80,13 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
 
     /**
      * @param null|string|\SimpleXMLElement $element
-     * @param null|static $type
+     * @param null|static $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return static
      */
-    public static function xmlUnserialize(string|\SimpleXMLElement $element, null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self;
+    public static function xmlUnserialize(string|\SimpleXMLElement $element,
+                                          null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
+                                          null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self;
 
     /**
      * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
@@ -92,7 +94,18 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>;
+    public function xmlSerialize(<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, 
+                                 null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>;
+
+    /**
+     * @param string|array|\stdClass $json Raw or already un-encoded JSON
+     * @param null|static $type Instance of this class to unserialize into.  If left null, a new instance will be created.
+     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @return static
+     */
+    public static function jsonUnserialize(string|array|\stdClass $json,
+                                           null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
+                                           null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $config = null): self;
 
     /**
      * @return string
