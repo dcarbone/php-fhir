@@ -43,7 +43,7 @@ trait <?php echo PHPFHIR_ENCODING_TRAIT_XML_LOCATION; ?>
      *
      * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
      */
-    public function setXMLLocation(<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?> $xmlLocation): void
+    public function _setXMLLocation(<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?> $xmlLocation): void
     {
         $this->_xmlLocation = $xmlLocation;
     }
@@ -52,7 +52,7 @@ trait <?php echo PHPFHIR_ENCODING_TRAIT_XML_LOCATION; ?>
      * @return null|<?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?>
 
      */
-    public function getXMLLocation(): null|<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>
+    public function _getXMLLocation(): null|<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>
 
     {
         return $this->_xmlLocation ?? null;

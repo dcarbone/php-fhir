@@ -95,7 +95,7 @@ endforeach; ?>
             $pt = $type-><?php echo $property->getGetterName(); ?>();
             if (null !== $pt) {
                 $pt->setValue((string)$attributes[self::<?php echo $propConst; ?>]);
-                $pt->setXMLLocation(<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
+                $pt->_setXMLLocation(<?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?>::ATTRIBUTE);
             } else {
                 $type-><?php echo $setter; ?>(new <?php echo $propTypeClassname; ?>(
                     value: (string)$attributes[self::<?php echo $propConst; ?>],

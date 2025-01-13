@@ -56,7 +56,7 @@ if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
                                 <?php echo $xmlLocationEnum->getEntityName(); ?> $xmlLocation = <?php echo $xmlLocationEnum->getEntityName(); ?>::ATTRIBUTE)
     {
         $this->setValue(value: $value);
-        $this->setXMLLocation($xmlLocation);
+        $this->_setXMLLocation($xmlLocation);
     }
 <?php
     endif;
@@ -97,7 +97,7 @@ if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         }
 <?php endif;
 if (($type->isValueContainer() || $typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) && !($type->hasPrimitiveContainerParent() || $type->hasValueContainerParent())) : ?>
-        $this->setXMLLocation($xmlLocation);
+        $this->_setXMLLocation($xmlLocation);
 <?php endif;
 
 foreach($properties->getIterator() as $property) :
