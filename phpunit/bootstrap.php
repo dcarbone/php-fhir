@@ -19,33 +19,40 @@
  */
 
 const PHPFHIR_TEST_CONFIG_ROOT_DIR = __DIR__;
+const PHPFHIR_TEST_CONFIG_FILE = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/config.php';
+const PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../vendor/autoload.php';
 const PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/tests/resources';
+const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/DCarbone/PHPFHIRGenerated/Autoloader.php';
 
+putenv('PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR='.PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR);
+
+// require generator autoloader
+(function() {
+    $composer_autoloader = realpath(PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH);
+    echo "Requiring composer autoloader: {$composer_autoloader}\n";
+    require $composer_autoloader;
+})();
+
+// generate code for test target
+(function() {
+    $phpfhir_test_target = getenv('PHPFHIR_TEST_TARGET');
+    echo "Generating code for target: {$phpfhir_test_target}\n";
+    $config = \DCarbone\PHPFHIR\Config::fromArray(require PHPFHIR_TEST_CONFIG_FILE);
+    $builder = new DCarbone\PHPFHIR\Builder($config);
+    $builder->render();
+})();
+
+// ensure test resource download directory exists
 echo 'Creating test resource download dir: ' . PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR . PHP_EOL;
-
 if (!is_dir(PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR) && !mkdir(PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR, 0755, true)) {
     throw new \RuntimeException(sprintf('Failed to create test resource download directory: %s', PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR));
 }
 
-# define env to be used in tests
-putenv('PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR='.PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR);
+// require generated autoloader
+(function() {
+    $generated_autoloader = realpath(PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH);
+    echo "Requiring generated autoloader: {$generated_autoloader}\n";
+    require $generated_autoloader;
+})();
 
-const PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../vendor/autoload.php';
-const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/DCarbone/PHPFHIRGenerated/Autoloader.php';
-
-$composerAutoloader = realpath(PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH);
-$generatedAutoloader = realpath(PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH);
-
-if (!$composerAutoloader) {
-    throw new \RuntimeException(sprintf('Copmoser autoloader class file not found at expected path: %s', PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH));
-}
-if (!$generatedAutoloader) {
-    throw new \RuntimeException(sprintf('Generated autoloader class file not found at expected path: %s', PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH));
-}
-
-echo "Requiring composer autoloader: {$composerAutoloader}\n";
-require $composerAutoloader;
-echo "Requiring generated autoloader: {$generatedAutoloader}\n";
-require $generatedAutoloader;
-
-unset($composerAutoloader, $generatedAutoloader);
+// bootstrap complete

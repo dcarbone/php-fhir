@@ -11,6 +11,7 @@
          displayDetailsOnTestsThatTriggerNotices="true">
     <php>
         <ini name="memory_limit" value="2048M"/>
+        <env name="PHPFHIR_TEST_TARGET" value="R5"/>
         <env name="PHPFHIR_TEST_INTEGRATION_ENDPOINT" value="https://server.fire.ly/r5" force="true"/>
     </php>
     <testsuites>

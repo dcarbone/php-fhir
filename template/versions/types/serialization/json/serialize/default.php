@@ -64,7 +64,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
         if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
             $vals = [];
             $exts = [];
-            foreach (<?php echo $property->getName(); ?> as $v) {
+            foreach ($this-><?php echo $property->getName(); ?> as $v) {
                 $val = $v->getValue();
                 $ext = $v->jsonSerialize();
                 unset($ext->value);

@@ -31,7 +31,7 @@ ob_start(); ?>
     public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value): self
     {
         if (null === $value) {
-            $this->value = null;
+            unset($this->value);
             return $this;
         }
         if (is_string($value)) {
@@ -50,13 +50,12 @@ ob_start(); ?>
      */
     public function getDateTime(): null|\DateTimeInterface
     {
-        $value = $this->getValue();
-        if (null === $value) {
+        if (!isset($this->value)) {
             return null;
         }
-        $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT, $value);
+        $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT, $this->value);
         if (!($dt instanceof \DateTime)) {
-            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT));
+            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $this->value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT));
         }
         return $dt;
     }

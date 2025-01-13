@@ -31,7 +31,7 @@ ob_start(); ?>
     public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value): self
     {
         if (null === $value) {
-            $this->value = null;
+            unset($this->value);
         } else {
             $this->value = $value;
         }
@@ -46,11 +46,10 @@ ob_start(); ?>
      */
     public function writeToFile($fileHandle): int|bool
     {
-        $v = $this->getValue();
-        if (null === $v) {
+        if (!isset($this->value)) {
             return 0;
         }
-        return fwrite($fileHandle, base64_decode($v));
+        return fwrite($fileHandle, base64_decode($this->value));
     }
 
     /**

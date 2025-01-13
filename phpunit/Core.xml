@@ -11,6 +11,7 @@
          displayDetailsOnTestsThatTriggerNotices="true">
     <php>
         <ini name="memory_limit" value="2048M"/>
+        <env name="PHPFHIR_TEST_TARGET" value="Core"/>
     </php>
     <testsuites>
         <testsuite name="Core">

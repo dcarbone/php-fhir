@@ -89,7 +89,7 @@ if ($type->isValueContainer() || $type->hasValueContainerParent() || $type->hasP
                             <?php endif; ?>fhirComments: $fhirComments<?php endif;
                             if ($type->hasValueContainerParent() || $type->hasPrimitiveContainerParent()) :
                                if ($parentPropertyCount > 0) : ?>,
-                                   <?php endif; echo $xmlLocationEnum->getEntityName(); ?>: $xmlLocation<?php endif; ?>);
+                            <?php endif; ?>xmlLocation: $xmlLocation<?php endif; ?>);
 <?php endif;
 if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         if (null !== $fhirComments && [] !== $fhirComments) {

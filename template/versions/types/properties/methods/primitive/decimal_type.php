@@ -37,7 +37,7 @@ ob_start(); ?>
     public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value): self
     {
         if (null === $value) {
-            $this->value = null;
+            unset($this->value);
             $this->_decimals = 1;
             $this->_commas = false;
             return $this;

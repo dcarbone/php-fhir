@@ -31,7 +31,7 @@ ob_start(); ?>
     public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value = null): self
     {
         if (null === $value) {
-            $this->value = null;
+            unset($this->value);
         } elseif (is_string($value)) {
             $this->value = <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_TRUE === strtolower($value);
         } else {

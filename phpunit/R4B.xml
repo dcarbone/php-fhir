@@ -11,6 +11,7 @@
          displayDetailsOnTestsThatTriggerNotices="true">
     <php>
         <ini name="memory_limit" value="2048M"/>
+        <env name="PHPFHIR_TEST_TARGET" value="R4B"/>
         <env name="PHPFHIR_TEST_INTEGRATION_ENDPOINT" value="https://lforms-fhir.nlm.nih.gov/baseR4" force="true"/>
     </php>
     <testsuites>
