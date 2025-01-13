@@ -133,7 +133,7 @@ const PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT = 'VersionClient';
 const PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE = 'VersionContainedTypeInterface';
 
 // Version enums
-const PHPFHIR_VERSION_ENUM_VERSION_TYPE = 'VersionTypeEnum';
+const PHPFHIR_VERSION_ENUM_VERSION_TYPES = 'VersionTypesEnum';
 
 // Validation constants
 const PHPFHIR_VALIDATION_ENUM = 'enum';

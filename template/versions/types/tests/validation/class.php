@@ -70,7 +70,7 @@ use <?php echo $type->getFullyQualifiedClassName(false); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CLIENT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT); ?>;
 use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT); ?>;
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_VERSION_TYPE); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_VERSION_TYPES); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
 use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION); ?>;
 use PHPUnit\Framework\AssertionFailedError;
@@ -169,10 +169,10 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->_client->readRaw(resourceType: <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>, count: 5, format: <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?>::from($format));
+        $rc = $this->_client->readRaw(resourceType: <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPES; ?>::<?php echo $type->getConstName(false); ?>, count: 5, format: <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?>::from($format));
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         if (404 === $rc->code) {
-            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->_testEndpoint, <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
+            $this->markTestSkipped(sprintf('Endpoint "%s" has no resources of type "%s"', $this->_testEndpoint, <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPES; ?>::<?php echo $type->getConstName(false); ?>->value));
         } else if (500 === $rc->code) {
             $this->markTestSkipped(sprintf('Endpoint "%s" is experiencing issues', $this->_testEndpoint));
         } else {
