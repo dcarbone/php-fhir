@@ -39,9 +39,6 @@ class Type
     use DocumentationTrait,
         SourceTrait;
 
-    /** @var \DCarbone\PHPFHIR\Config */
-    private Config $_config;
-
     /** @var \DCarbone\PHPFHIR\Version */
     private Version $_version;
 
@@ -104,14 +101,12 @@ class Type
 
     /**
      * Type constructor.
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version $version
      * @param string $fhirName
      * @param \SimpleXMLElement|null $sourceSXE
      * @param string $sourceFilename
      */
-    public function __construct(Config                $config,
-                                Version               $version,
+    public function __construct(Version               $version,
                                 string                $fhirName,
                                 null|SimpleXMLElement $sourceSXE = null,
                                 string                $sourceFilename = '')
@@ -119,7 +114,6 @@ class Type
         if ('' === ($fhirName = trim($fhirName))) {
             throw new DomainException('$fhirName must be defined');
         }
-        $this->_config = $config;
         $this->_version = $version;
         $this->_fhirName = $fhirName;
         $this->sourceSXE = $sourceSXE;
@@ -143,7 +137,7 @@ class Type
      */
     public function getConfig(): Config
     {
-        return $this->_config;
+        return $this->_version->getConfig();
     }
 
     /**
@@ -170,7 +164,7 @@ class Type
         // TODO: implement "extraction done" mechanic
         if (!isset($this->_imports)) {
             $this->_imports = new Imports(
-                $this->_config,
+                $this->_version->getConfig(),
                 $this->getFullyQualifiedNamespace(false),
                 $this->getClassName(),
             );

@@ -31,38 +31,33 @@ use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 class Types implements Countable
 {
     /** @var \DCarbone\PHPFHIR\Version\Definition\Type[] */
-    private array $types = [];
-
-    /** @var \DCarbone\PHPFHIR\Config */
-    private Config $config;
+    private array $_types = [];
 
     /** @var \DCarbone\PHPFHIR\Version */
-    private Version $version;
+    private Version $_version;
 
     /**
      * This is the type that is used as a proxy type for a multitude of other types!
      * @var \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    private Type $containerType;
+    private Type $_containerType;
 
     /**
      * This will eventually be the "Bundle" type seen
      * @var \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    private Type $bundleType;
+    private Type $_bundleType;
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version $version
      */
-    public function __construct(Config $config, Version $version)
+    public function __construct(Version $version)
     {
-        $this->config = $config;
-        $this->version = $version;
+        $this->_version = $version;
 
-        // construct and add "XHTML" type
+        // construct "XHTML" type
         // TODO(dcarbone): this sucks.
-        $xt = new Type($config, $version, PHPFHIR_XHTML_TYPE_NAME);
+        $xt = new Type($version, PHPFHIR_XHTML_TYPE_NAME);
         $xt->setKind(TypeKindEnum::PHPFHIR_XHTML);
         $xt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
 
@@ -74,7 +69,7 @@ class Types implements Countable
      */
     public function __debugInfo()
     {
-        return ['types' => $this->types];
+        return ['types' => $this->_types];
     }
 
     /**
@@ -83,7 +78,7 @@ class Types implements Countable
      */
     public function getTypeByName(string $name): null|Type
     {
-        foreach ($this->types as $type) {
+        foreach ($this->_types as $type) {
             if ($type->getFHIRName() === $name) {
                 return $type;
             }
@@ -97,7 +92,7 @@ class Types implements Countable
      */
     public function getTypeByClassName(string $name): null|Type
     {
-        foreach ($this->types as $type) {
+        foreach ($this->_types as $type) {
             if ($type->getClassName() === $name) {
                 return $type;
             }
@@ -112,7 +107,7 @@ class Types implements Countable
      */
     public function getTypeByFQN(string $fqn, bool $leadingSlash): null|Type
     {
-        foreach ($this->types as $type) {
+        foreach ($this->_types as $type) {
             if ($type->getFullyQualifiedClassName($leadingSlash) === $fqn) {
                 return $type;
             }
@@ -130,13 +125,13 @@ class Types implements Countable
     public function addType(Type &$type): Types
     {
         $tname = $type->getFHIRName();
-        foreach ($this->types as $current) {
+        foreach ($this->_types as $current) {
             if ($type === $current) {
                 return $this;
             }
             if ($current->getFHIRName() === $tname) {
                 // this happens with FHIR types sometimes...
-                $this->config->getLogger()->notice(
+                $this->_version->getConfig()->getLogger()->notice(
                     sprintf(
                         'Type "%s" was previously defined in file "%s", found again in "%s".  Keeping original',
                         $tname,
@@ -148,7 +143,7 @@ class Types implements Countable
                 return $this;
             }
         }
-        $this->types[] = $type;
+        $this->_types[] = $type;
         return $this;
     }
 
@@ -157,7 +152,7 @@ class Types implements Countable
      */
     public function getIterator(): iterable
     {
-        return new \ArrayIterator($this->types);
+        return new \ArrayIterator($this->_types);
     }
 
     /**
@@ -167,7 +162,7 @@ class Types implements Countable
      */
     public function getNameSortedIterator(): iterable
     {
-        $tmp = $this->types;
+        $tmp = $this->_types;
         usort(
             $tmp,
             function (Type $t1, Type $t2) {
@@ -184,7 +179,7 @@ class Types implements Countable
      */
     public function getNamespaceSortedIterator(): iterable
     {
-        $tmp = $this->types;
+        $tmp = $this->_types;
         usort(
             $tmp,
             function (Type $t1, Type $t2) {
@@ -199,20 +194,19 @@ class Types implements Countable
      *
      * Should be either "Resource.Inline" or "ResourceContainer" types.
      *
-     * @param \DCarbone\PHPFHIR\Version $version
      * @return \DCarbone\PHPFHIR\Version\Definition\Type|null
      */
-    public function getContainerType(Version $version): null|Type
+    public function getContainerType(): null|Type
     {
-        if (!isset($this->containerType)) {
-            foreach ($this->types as $type) {
-                if ($type->getKind()->isResourceContainer($version)) {
-                    $this->containerType = $type;
+        if (!isset($this->_containerType)) {
+            foreach ($this->_types as $type) {
+                if ($type->getKind()->isResourceContainer($this->_version)) {
+                    $this->_containerType = $type;
                     break;
                 }
             }
         }
-        return $this->containerType ?? null;
+        return $this->_containerType ?? null;
     }
 
     /**
@@ -242,15 +236,15 @@ class Types implements Countable
      */
     public function getBundleType(): null|Type
     {
-        if (!isset($this->bundleType)) {
-            foreach($this->types as $type) {
+        if (!isset($this->_bundleType)) {
+            foreach ($this->_types as $type) {
                 if ($type->getFHIRName() === 'Bundle') {
-                    $this->bundleType = $type;
+                    $this->_bundleType = $type;
                     break;
                 }
             }
         }
-        return $this->bundleType ?? null;
+        return $this->_bundleType ?? null;
     }
 
     /**
@@ -265,7 +259,7 @@ class Types implements Countable
                 return;
             }
         }
-        foreach ($this->types as $t) {
+        foreach ($this->_types as $t) {
             if (in_array($type, $t->getParentTypes(), true)) {
                 yield $t;
             }
@@ -277,6 +271,6 @@ class Types implements Countable
      */
     public function count(): int
     {
-        return count($this->types);
+        return count($this->_types);
     }
 }

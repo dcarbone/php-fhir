@@ -40,7 +40,7 @@ abstract class TypeBuilder
                                              SimpleXMLElement $sxe,
                                              string           $sourceFilename): Type
     {
-        return new Type($config, $version, $fhirName, $sxe, $sourceFilename);
+        return new Type($version, $fhirName, $sxe, $sourceFilename);
     }
 
     /**

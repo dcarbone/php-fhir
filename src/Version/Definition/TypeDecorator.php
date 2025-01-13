@@ -479,13 +479,13 @@ abstract class TypeDecorator
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      */
-    public static function buildTypeImports(Config $config, Types $types): void
+    public static function buildTypeImports(Version $version, Types $types): void
     {
         foreach ($types->getIterator() as $type) {
-            ImportUtils::buildVersionTypeImports($type);
+            ImportUtils::buildVersionTypeImports($version, $type);
         }
     }
 }

@@ -229,7 +229,7 @@ class Version
     public function getDefinition(): Definition
     {
         if (!isset($this->_definition)) {
-            $this->_definition = new Definition($this->_config, $this);
+            $this->_definition = new Definition($this);
         }
         return $this->_definition;
     }

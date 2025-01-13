@@ -35,25 +35,24 @@ use DCarbone\PHPFHIR\Version\Definition\Types;
 class Definition
 {
     /** @var \DCarbone\PHPFHIR\Config */
-    private Config $config;
-    /** @var \DCarbone\PHPFHIR\Version  */
-    private Version $version;
+    private Config $_config;
+    /** @var \DCarbone\PHPFHIR\Version */
+    private Version $_version;
 
     /** @var \DCarbone\PHPFHIR\Version\Definition\Types|null */
-    private null|Types $types = null;
+    private null|Types $_types = null;
 
     /** @var \DCarbone\PHPFHIR\Builder */
-    private Builder $builder;
+    private Builder $_builder;
 
     /**
      * Definition constructor.
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version $version
      */
-    public function __construct(Config $config, Version $version)
+    public function __construct(Version $version)
     {
-        $this->config = $config;
-        $this->version = $version;
+        $this->_config = $version->getConfig();
+        $this->_version = $version;
     }
 
     /**
@@ -62,7 +61,7 @@ class Definition
     public function __debugInfo()
     {
         return [
-            'types' => $this->types,
+            'types' => $this->_types,
         ];
     }
 
@@ -76,60 +75,60 @@ class Definition
             return;
         }
 
-        $log = $this->config->getLogger();
+        $log = $this->_config->getLogger();
 
         $log->startBreak('Extracting defined types');
 
         $log->info('Parsing types');
-        $this->types = TypeExtractor::parseTypes($this->config, $this->version);
+        $this->_types = TypeExtractor::parseTypes($this->_config, $this->_version);
 
         $log->info('Finding restriction base types');
-        TypeDecorator::findRestrictionBaseTypes($this->version, $this->types);
+        TypeDecorator::findRestrictionBaseTypes($this->_version, $this->_types);
 
         $log->info('Finding parent types');
-        TypeDecorator::findParentTypes($this->config, $this->types);
+        TypeDecorator::findParentTypes($this->_config, $this->_types);
 
         $log->info('Finding component types');
-        TypeDecorator::findComponentOfTypes($this->config, $this->types);
+        TypeDecorator::findComponentOfTypes($this->_config, $this->_types);
 
         // TODO: order of operations issue here, ideally this would be first...
         $log->info('Determining type kinds');
-        TypeDecorator::determineParsedTypeKinds($this->config, $this->version, $this->types);
+        TypeDecorator::determineParsedTypeKinds($this->_config, $this->_version, $this->_types);
 
         $log->info('Determining Primitive Type kinds');
-        TypeDecorator::determinePrimitiveTypes($this->config, $this->types);
+        TypeDecorator::determinePrimitiveTypes($this->_config, $this->_types);
 
         $log->info('Finding properties without names');
-        TypeDecorator::findNamelessProperties($this->config, $this->types);
+        TypeDecorator::findNamelessProperties($this->_config, $this->_types);
 
         $log->info('Finding property types');
-        TypePropertyDecorator::findPropertyTypes($this->config, $this->types);
+        TypePropertyDecorator::findPropertyTypes($this->_config, $this->_types);
 
         $log->info('Finding overloaded properties in child types');
-        TypePropertyDecorator::findOverloadedProperties($this->config, $this->types);
+        TypePropertyDecorator::findOverloadedProperties($this->_config, $this->_types);
 
         $log->info('Manually setting some property names');
-        TypePropertyDecorator::setMissingPropertyNames($this->config, $this->types);
+        TypePropertyDecorator::setMissingPropertyNames($this->_config, $this->_types);
 
         $log->info('Parsing union memberOf Types');
-        TypeDecorator::parseUnionMemberTypes($this->config, $this->types);
+        TypeDecorator::parseUnionMemberTypes($this->_config, $this->_types);
 
         $log->info('Setting contained type flags');
-        TypeDecorator::setContainedTypeFlag($this->config, $this->version, $this->types);
+        TypeDecorator::setContainedTypeFlag($this->_config, $this->_version, $this->_types);
 
         $log->info('Setting value container flags');
-        TypeDecorator::setValueContainerFlag($this->config, $this->types);
+        TypeDecorator::setValueContainerFlag($this->_config, $this->_types);
 
         $log->info('Setting comment container flags');
-        TypeDecorator::setCommentContainerFlag($this->config, $this->types);
+        TypeDecorator::setCommentContainerFlag($this->_config, $this->_types);
 
         $log->info('Compiling type imports');
-        TypeDecorator::buildTypeImports($this->config, $this->types);
+        TypeDecorator::buildTypeImports($this->_version, $this->_types);
 
         $log->info('Performing some sanity checking');
-        TypeDecorationValidator::validateDecoration($this->config, $this->version, $this->types);
+        TypeDecorationValidator::validateDecoration($this->_config, $this->_version, $this->_types);
 
-        $log->info(count($this->types) . ' types extracted.');
+        $log->info(count($this->_types) . ' types extracted.');
         $log->endBreak('Extracting defined types');
     }
 
@@ -138,7 +137,7 @@ class Definition
      */
     public function getConfig(): Config
     {
-        return $this->config;
+        return $this->_config;
     }
 
     /**
@@ -146,7 +145,7 @@ class Definition
      */
     public function getVersion(): Version
     {
-        return $this->version;
+        return $this->_version;
     }
 
     /**
@@ -158,7 +157,7 @@ class Definition
         if (!$this->isDefined()) {
             $this->buildDefinition();
         }
-        return $this->types;
+        return $this->_types;
     }
 
     /**
@@ -167,7 +166,7 @@ class Definition
      */
     public function isDefined(): bool
     {
-        return isset($this->types);
+        return isset($this->_types);
     }
 
     /**
@@ -175,9 +174,9 @@ class Definition
      */
     public function getBuilder(): Builder
     {
-        if (!isset($this->builder)) {
-            $this->builder = new Builder($this->config);
+        if (!isset($this->_builder)) {
+            $this->_builder = new Builder($this->_config);
         }
-        return $this->builder;
+        return $this->_builder;
     }
 }

@@ -194,7 +194,7 @@ abstract class TypeExtractor
      */
     public static function parseTypes(Config $config, Version $version): Types
     {
-        $types = new Types($config, $version);
+        $types = new Types($version);
         $logger = $config->getLogger();
 
         // first, parse all .xsd files without the "fhir-" prefix

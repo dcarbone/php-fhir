@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
 class ImportUtils
@@ -38,7 +39,7 @@ class ImportUtils
         return implode("\n", $stmts) . "\n";
     }
 
-    public static function buildVersionTypeImports(Type $type): void
+    public static function buildVersionTypeImports(Version $version, Type $type): void
     {
         $imports = $type->getImports();
 
@@ -123,7 +124,13 @@ class ImportUtils
 //                continue;
 //            }
 
-            if ($ptk->isOneOf(TypeKindEnum::RESOURCE_CONTAINER, TypeKindEnum::RESOURCE_INLINE)) {
+            if ($ptk->isResourceContainer($type->getVersion())) {
+                $containerType = $version->getDefinition()->getTypes()->getContainerType();
+                $imports->addImport(
+                    $containerType->getFullyQualifiedNamespace(false),
+                    $containerType->getClassName(),
+                );
+
                 $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);

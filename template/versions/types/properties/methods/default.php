@@ -30,9 +30,11 @@ $xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_XML
 
 $versionCoreFiles = $version->getCoreFiles();
 
+$versionContainerType = $version->getDefinition()->getTypes()->getContainerType();
 $versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
 
 $isPrimitiveType = $type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST);
+
 
 ob_start();
 foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
@@ -101,6 +103,10 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 if ($propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>(value: $<?php echo $propertyName; ?>);
+        }
+<?php elseif ($propertyTypeKind->isResourceContainer($version)) : ?>
+        if ($<?php echo $propertyName; ?> instanceof <?php echo $versionContainerType->getClassName(); ?>) {
+            $<?php echo $propertyName; ?> = $<?php echo $propertyName; ?>->getContainedType();
         }
 <?php endif;
     if ($property->isCollection()) : ?>

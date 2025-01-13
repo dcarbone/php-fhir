@@ -149,6 +149,7 @@ class TypeHintUtils
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param bool $fullyQualified
      * @return array
+     * @throws \Exception
      */
     public static function buildBaseHintParts(Version $version, Type $type, bool $fullyQualified): array
     {
@@ -162,12 +163,18 @@ class TypeHintUtils
             $hintTypes = $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints();
             array_merge($hintTypes, self::buildBaseHintParts($version, $ptp, $fullyQualified));
         } else if ($tk->isResourceContainer($version)) {
-            $hintTypes = [
-                match ($fullyQualified) {
-                    true => $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE),
-                    false => PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE,
-                },
-            ];
+            $containerType = $version->getDefinition()->getTypes()->getContainerType();
+
+            $hintTypes = match ($fullyQualified) {
+                true => [
+                    $containerType->getFullyQualifiedClassName(true),
+                    $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE),
+                ],
+                false => [
+                    $containerType->getClassName(),
+                    PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE,
+                ],
+            };
         } else {
             $hintTypes = [
                 match ($fullyQualified) {
