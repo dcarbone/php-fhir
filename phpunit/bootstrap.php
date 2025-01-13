@@ -3,7 +3,7 @@
 /**
  * PHPUnit bootstrap script
  *
- * Copyright 2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ const PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/.
 const PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/tests/resources';
 const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/DCarbone/PHPFHIRGenerated/Autoloader.php';
 
-putenv('PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR='.PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR);
+putenv('PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR=' . PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR);
 
 // require generator autoloader
-(function() {
+(function () {
     $composer_autoloader = realpath(PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH);
     echo "Requiring composer autoloader: {$composer_autoloader}\n";
     require $composer_autoloader;
 })();
 
 // generate code for test target
-(function() {
+(function () {
     $phpfhir_test_target = getenv('PHPFHIR_TEST_TARGET');
     echo "Generating code for target: {$phpfhir_test_target}\n";
     $config = \DCarbone\PHPFHIR\Config::fromArray(require PHPFHIR_TEST_CONFIG_FILE);
@@ -49,7 +49,7 @@ if (!is_dir(PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR) && !mkdir(PHPFHIR_TEST_RESOURCE_
 }
 
 // require generated autoloader
-(function() {
+(function () {
     $generated_autoloader = realpath(PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH);
     echo "Requiring generated autoloader: {$generated_autoloader}\n";
     require $generated_autoloader;
