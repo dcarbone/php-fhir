@@ -92,9 +92,10 @@ runs:
       shell: bash -e {0}
       # language=sh
       run: |
-        echo "::group::Listing files in '${{ steps.vars.outputs.version-xsd-cache-dir }}'"
-        echo "Cache directory contents:"
+        echo "::group::Listing files in '${{ steps.vars.outputs.cache-dir }}'"
         ls -l '${{ steps.vars.outputs.cache-dir}}'
-        echo "XSD directory contents:"
+        echo "::endgroup::"
+        
+        echo "::group::Listing  files in '${{ steps.vars.outputs.version-xsd-cache-dir }}'"
         ls -l '${{ steps.vars.outputs.version-xsd-cache-dir }}'
         echo "::endgroup::"
