@@ -37,15 +37,14 @@ class DefaultConfig
     private array $_serializeConfig = [];
 
     /**
-     * @param array $config
+     * @param array $unserializeConfig
+     * @param array $serializeConfig
      */
-    public function __construct(array $config)
+    public function __construct(array $unserializeConfig = [],
+                                array $serializeConfig = [])
     {
-        foreach (DefaultConfigKeyEnum::cases() as $k) {
-            if (isset($config[$k->value]) || array_key_exists($k->value, $config)) {
-                $this->{"set{$k->value}"}($config[$k->value]);
-            }
-        }
+        $this->setUnserializeConfig($unserializeConfig);
+        $this->setSerializeConfig($serializeConfig);
     }
 
     /**

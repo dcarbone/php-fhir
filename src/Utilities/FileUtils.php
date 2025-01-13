@@ -47,7 +47,7 @@ class FileUtils
      * @param string $namespace
      * @return string
      */
-    public static function compilePath(Config $config, string $namespace): string
+    public static function compileNamespaceFilepath(Config $config, string $namespace): string
     {
         $base = rtrim($config->getOutputPath(), '\\/');
         $nsPath = trim(str_replace(PHPFHIR_NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $namespace), DIRECTORY_SEPARATOR);
@@ -61,7 +61,7 @@ class FileUtils
      */
     public static function buildTypeClassFilepath(Version $version, Type $type): string
     {
-        return self::compilePath($version->getConfig(), $type->getFullyQualifiedNamespace(false))
+        return self::compileNamespaceFilepath($version->getConfig(), $type->getFullyQualifiedNamespace(false))
             . DIRECTORY_SEPARATOR
             . "{$type->getClassName()}.php";
     }

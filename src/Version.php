@@ -24,14 +24,12 @@ use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
 use DCarbone\PHPFHIR\Version\DefaultConfig;
 
-/**
- * Class Version
- * @package DCarbone\PHPFHIR\Config
- */
 class Version
 {
     /** @var \DCarbone\PHPFHIR\Config */
     private Config $_config;
+    /** @var string */
+    private string $_schemaPath;
 
     /** @var \DCarbone\PHPFHIR\Version\SourceMetadata */
     private SourceMetadata $_sourceMetadata;
@@ -41,8 +39,6 @@ class Version
 
     /** @var string */
     private string $_name;
-    /** @var string */
-    private string $_sourceUrl;
     /** @var string */
     private string $_namespace;
     /** @var string */
@@ -57,42 +53,23 @@ class Version
     /**
      * @param \DCarbone\PHPFHIR\Config $config
      * @param string $name
-     * @param array $params
+     * @param string $namespace
+     * @param string $schemaPath
+     * @param \DCarbone\PHPFHIR\Version\DefaultConfig|null $defaultConfig
      */
-    public function __construct(Config $config, string $name, array $params = [])
+    public function __construct(Config             $config,
+                                string             $name,
+                                string             $namespace,
+                                string             $schemaPath,
+                                null|DefaultConfig $defaultConfig = null)
     {
         $this->_config = $config;
         $this->_name = $name;
+        $this->setNamespace($namespace);
+        $this->setSchemaPath($schemaPath);
 
         if ('' === trim($this->_name)) {
             throw new \DomainException('Version name cannot be empty.');
-        }
-
-        // attempt to set each required key
-        foreach (VersionKeys::required() as $key) {
-            if (!isset($params[$key->value])) {
-                throw new \DomainException(sprintf(
-                    'Version %s is missing required configuration key "%s"',
-                    $name,
-                    $key->value
-                ));
-            }
-            $this->{"set$key->value"}($params[$key->value]);
-        }
-
-        if ((!isset($this->_sourceUrl) || '' === $this->_sourceUrl)) {
-            throw new \DomainException(sprintf(
-                'Version %s missing required configuration key "%s"',
-                $name,
-                VersionKeys::SOURCE_URL->value,
-            ));
-        }
-
-        // attempt to set all "optional" keys
-        foreach (VersionKeys::optional() as $key) {
-            if (isset($params[$key->value])) {
-                $this->{"set$key->value"}($params[$key->value]);
-            }
         }
 
         // ensure namespace is valid
@@ -105,9 +82,10 @@ class Version
             );
         }
 
-        if (!isset($this->_defaultConfig)) {
-            $this->_defaultConfig = new DefaultConfig([]);
+        if (null === $defaultConfig) {
+            $defaultConfig = new DefaultConfig();
         }
+        $this->setDefaultConfig($defaultConfig);
 
         $this->_sourceMetadata = new SourceMetadata($config, $this);
 
@@ -146,29 +124,25 @@ class Version
     /**
      * @return string
      */
-    public function getSourceUrl(): string
-    {
-        return $this->_sourceUrl;
-    }
-
-    /**
-     * @param string $sourceUrl
-     * @return self
-     */
-    public function setSourceUrl(string $sourceUrl): self
-    {
-        $this->_sourceUrl = $sourceUrl;
-        return $this;
-    }
-
-    /**
-     * Returns the specific schema path for this version's XSD's
-     *
-     * @return string
-     */
     public function getSchemaPath(): string
     {
-        return $this->_config->getSchemaPath() . DIRECTORY_SEPARATOR . $this->_name;
+        return $this->_schemaPath;
+    }
+
+    /**
+     * @param string $schemaPath
+     * @return $this
+     */
+    public function setSchemaPath(string $schemaPath): self
+    {
+        if (!is_dir($schemaPath) || !is_readable($schemaPath)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Specified schema path "%s" either does not exist or is not readable',
+                $schemaPath
+            ));
+        }
+        $this->_schemaPath = $schemaPath;
+        return $this;
     }
 
     /**
@@ -178,7 +152,7 @@ class Version
      */
     public function getOutputPath(): string
     {
-        return FileUtils::compilePath($this->_config, $this->_namespace);
+        return FileUtils::compileNamespaceFilepath($this->_config, $this->_namespace);
     }
 
     /**

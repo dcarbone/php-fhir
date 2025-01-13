@@ -64,7 +64,7 @@ class Builder
 
         // if null, default to all versions.
         if (null === $versionNames) {
-            $versionNames = $this->config->listVersions();
+            $versionNames = $this->config->getVersionNames();
         }
 
         $this->writeFHIRVersionCoreFiles(...$versionNames);

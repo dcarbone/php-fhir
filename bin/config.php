@@ -4,7 +4,7 @@
  * Generator default configuration file
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,14 +39,17 @@ return [
     //
     // For a list of base versions, see here: https://www.hl7.org/fhir/directory.html
     'versions' => [
-        'DSTU1' => [
-            // Source URL
-            'sourceUrl' => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
-            // Namespace to generate classes into
+        [
+            // Unique-to-you name of this version
+            'name' => 'DSTU1',
+
+            // Namespace to generate classes into.  This is nested under the value provided to rootNamespace.
             'namespace' => 'Versions\\DSTU1',
 
-            // The default configuration for all instances of this version.  May be overridden per version during
-            // instantiation.
+            // Local path to un-compressed source schema files for this version
+            'schemaPath' => __DIR__ . '/../input/DSTU1',
+
+            // The default configuration for all instances of this version.  May be overridden during use.
             'defaultConfig' => [
                 'unserializeConfig' => [
                     // Libxml options to use when unserializing types from XML
@@ -64,30 +67,30 @@ return [
                 ]
             ]
         ],
-        'DSTU2' => [
-            'sourceUrl' => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
+        [
+            'name' => 'DSTU2',
+            'schemaPath' => __DIR__ . '/../input/DSTU2',
             'namespace' => 'Versions\\DSTU2',
         ],
-        'STU3' => [
-            'sourceUrl' => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
+        [
+            'name' => 'STU3',
+            'schemaPath' => __DIR__ . '/../input/STU3',
             'namespace' => 'Versions\\STU3',
         ],
-        'R4' => [
-            'sourceUrl' => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
+        [
+            'name' => 'R4',
+            'schemaPath' => __DIR__ . '/../input/R4',
             'namespace' => 'Versions\\R4',
         ],
-        'R4B' => [
-            'sourceUrl' => 'https://hl7.org/fhir/R4B/fhir-all-xsd.zip',
+        [
+            'name' => 'R4B',
+            'schemaPath' => __DIR__ . '/../input/R4B',
             'namespace' => 'Versions\\R4B',
         ],
-        'R5' => [
-            'sourceUrl' => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
+        [
+            'name' => 'R5',
+            'schemaPath' => __DIR__ . '/../input/R5',
             'namespace' => 'Versions\\R5',
-        ]
-
-        //        'Build' => [
-        //            'url'       => 'https://build.fhir.org/fhir-all-xsd.zip',
-        //            'namespace' => '\\HL7\\FHIR\\Build',
-        //        ],
+        ],
     ],
 ];

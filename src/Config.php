@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Version\DefaultConfig;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -29,11 +30,10 @@ use Psr\Log\NullLogger;
  */
 class Config implements LoggerAwareInterface
 {
+    private const _DEFAULT_LIBXML_OPTS = LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL;
+
     /** @var \DCarbone\PHPFHIR\Logger */
     private Logger $_log;
-
-    /** @var string */
-    private string $_schemaPath;
 
     /** @var string */
     private string $_outputPath;
@@ -60,28 +60,23 @@ class Config implements LoggerAwareInterface
     /** @var \DCarbone\PHPFHIR\CoreFiles */
     private CoreFiles $_coreFiles;
 
-    /** @var array */
-    private array $_versionsToGenerate;
-
     /**
-     * Config constructor.
-     * @param array $params
+     * @param string $outputPath
+     * @param string $rootNamespace
+     * @param iterable $versions
+     * @param int $libxmlOpts
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(array $params = [], null|LoggerInterface $logger = null)
+    public function __construct(string $outputPath,
+                                string $rootNamespace,
+                                iterable $versions,
+                                int $libxmlOpts = self::_DEFAULT_LIBXML_OPTS,
+                                null|LoggerInterface $logger = null)
     {
-        foreach (ConfigKeyEnum::required() as $key) {
-            if (!isset($params[$key->value])) {
-                throw new \DomainException(sprintf('Missing required configuration key "%s"', $key->value));
-            }
-            $this->{"set$key->value"}($params[$key->value]);
-        }
-
-        foreach (ConfigKeyEnum::optional() as $key) {
-            if (isset($params[$key->value])) {
-                $this->{"set$key->value"}($params[$key->value]);
-            }
-        }
+        $this->setOutputPath($outputPath);
+        $this->setRootNamespace($rootNamespace);
+        $this->setVersions($versions);
+        $this->setLibxmlOpts($libxmlOpts);
 
         if (null !== $logger && !$this->isSilent()) {
             $this->setLogger(new Logger($logger));
@@ -128,6 +123,27 @@ class Config implements LoggerAwareInterface
         );
     }
 
+    public static function fromArray(array $data): Config
+    {
+        if (!isset($data['outputPath'])) {
+            throw new \InvalidArgumentException('Key "outputPath" is required.');
+        }
+        if (!isset($data['rootNamespace'])) {
+            throw new \InvalidArgumentException('Key "rootNamespace" is required.');
+        }
+        if (!isset($data['versions']) || !is_iterable($data['versions'])) {
+            throw new \InvalidArgumentException('Key "versions" is required and must be iterable.');
+        }
+        if (isset($data['logger']) && !($data['logger'] instanceof LoggerInterface)) {
+            throw new \InvalidArgumentException('Key "logger" must be an instance of Psr\Log\LoggerInterface');
+        }
+        return new Config(outputPath: $data['outputPath'],
+            rootNamespace: $data['rootNamespace'],
+            versions: $data['versions'],
+            libxmlOpts: $data['libxmlOpts'] ?? self::_DEFAULT_LIBXML_OPTS,
+            logger: $data['logger'] ?? null);
+    }
+
     /**
      * @param \Psr\Log\LoggerInterface $logger
      * @return void
@@ -139,24 +155,6 @@ class Config implements LoggerAwareInterface
         } else {
             $this->_log = new Logger($logger);
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getSchemaPath(): string
-    {
-        return $this->_schemaPath;
-    }
-
-    /**
-     * @param string $schemaPath
-     * @return $this
-     */
-    public function setSchemaPath(string $schemaPath): self
-    {
-        $this->_schemaPath = $schemaPath;
-        return $this;
     }
 
     /**
@@ -273,14 +271,59 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @param array $versions
-     * @return $this
+     * @param array|\DCarbone\PHPFHIR\Version $version
+     * @return self
      */
-    public function setVersions(array $versions): self
+    public function addVersion(array|Version $version): self
+    {
+        if (is_array($version)) {
+            if (!isset($version['name'])) {
+                throw new \InvalidArgumentException('Version name is required');
+            }
+            if (!isset($version['namespace'])) {
+                throw new \InvalidArgumentException('Version namespace is required');
+            }
+            if (!isset($version['schemaPath'])) {
+                throw new \InvalidArgumentException('Path to schemas for version is required');
+            }
+            $defaultConfig = null;
+            if (isset($version['defaultConfig'])) {
+                if ($version['defaultConfig'] instanceof DefaultConfig) {
+                    $defaultConfig = $version['defaultConfig'];
+                } else if (is_array($version['defaultConfig'])) {
+                    $defaultConfig = new Version\DefaultConfig($version['defaultConfig']);
+                } else {
+                    throw new \InvalidArgumentException(sprintf(
+                        'key "defaultConfig" must either be instance of "%s", array, or null, %s seen.',
+                        DefaultConfig::class,
+                        gettype($version['defaultConfig'])
+                    ));
+                }
+            }
+            $version = new Version(
+                config: $this,
+                name: $version['name'],
+                namespace: $version['namespace'],
+                schemaPath: $version['schemaPath'],
+                defaultConfig: $defaultConfig,
+            );
+        }
+        if (isset($this->_versions[$version->getName()])) {
+            throw new \InvalidArgumentException(sprintf('Version "%s" has already been added', $version->getName()));
+        }
+        $this->_versions[$version->getName()] = $version;
+        return $this;
+    }
+
+    /**
+     * @param iterable<array|\DCarbone\PHPFHIR\Version> $versions Iterable containing Versions or Version configuration maps.
+     * @return self
+     */
+    public function setVersions(iterable $versions): self
     {
         $this->_versions = [];
-        foreach ($versions as $name => $data) {
-            $this->_versions[$name] = ($data instanceof Version) ? $data : new Version($this, $name, $data);
+        foreach ($versions as $version) {
+            $this->addVersion($version);
         }
         return $this;
     }
@@ -324,7 +367,7 @@ class Config implements LoggerAwareInterface
     /**
      * @return array
      */
-    public function listVersions(): array
+    public function getVersionNames(): array
     {
         return array_keys($this->_versions);
     }
