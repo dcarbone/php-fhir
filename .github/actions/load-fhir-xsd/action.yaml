@@ -96,6 +96,6 @@ runs:
         ls -l '${{ steps.vars.outputs.cache-dir}}'
         echo "::endgroup::"
         
-        echo "::group::Listing  files in '${{ steps.vars.outputs.version-xsd-cache-dir }}'"
+        echo "::group::Listing files in '${{ steps.vars.outputs.version-xsd-cache-dir }}'"
         ls -l '${{ steps.vars.outputs.version-xsd-cache-dir }}'
         echo "::endgroup::"

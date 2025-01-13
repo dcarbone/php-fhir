@@ -131,8 +131,8 @@ class Config implements LoggerAwareInterface
         if (!isset($data['rootNamespace'])) {
             throw new \InvalidArgumentException('Key "rootNamespace" is required.');
         }
-        if (!isset($data['versions']) || !is_iterable($data['versions'])) {
-            throw new \InvalidArgumentException('Key "versions" is required and must be iterable.');
+        if (isset($data['versions']) && !is_iterable($data['versions'])) {
+            throw new \InvalidArgumentException('Key "versions" must be iterable.');
         }
         if (isset($data['logger']) && !($data['logger'] instanceof LoggerInterface)) {
             throw new \InvalidArgumentException('Key "logger" must be an instance of Psr\Log\LoggerInterface');
