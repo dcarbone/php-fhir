@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-/**
- * PHPUnit bootstrap script
- *
+/*
  * Copyright 2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
