@@ -57,13 +57,28 @@ class DefaultConfig
         if ([] === $config) {
             return $this;
         }
-        if (isset($config['libxmlOpts']) && isset($config['libxmlOptMask'])) {
+        if (array_key_exists('libxmlOpts', $config) && array_key_exists('libxmlOptMask', $config)) {
             throw new \DomainException('Cannot specify both "libxmlOpts" and "libxmlOptMask" keys.');
         }
         foreach (self::_UNSERIALIZE_CONFIG_KEYS as $k) {
-            if (isset($config[$k]) || array_key_exists($k, $config)) {
-                $this->_unserializeConfig[$k] = $config[$k];
+            if (!array_key_exists($k, $config)) {
+                continue;
             }
+            $this->_unserializeConfig[$k] = match ($k) {
+                'libxmlOpts' => intval($config[$k]),
+                'libxmlOptMask' => is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+}$}', $config[$k])
+                    ? $config[$k]
+                    : throw new \InvalidArgumentException(sprintf(
+                        'Value provided to "libxmlOptMask" is either not a string or is an invalid options mask: %s',
+                        $config[$k],
+                    )),
+                'jsonDecodeMaxDepth' => intval($config[$k]),
+
+                default => throw new \UnexpectedValueException(sprintf(
+                    'Unknown unserialize config key "%s"',
+                    $k,
+                ))
+            };
         }
         return $this;
     }
@@ -87,8 +102,22 @@ class DefaultConfig
             return $this;
         }
         foreach (self::_SERIALIZE_CONFIG_KEYS as $k) {
-            if (isset($config[$k]) || array_key_exists($k, $config)) {
-                $this->_serializeConfig[$k] = $config[$k];
+            if (!array_key_exists($k, $config)) {
+                continue;
+            }
+            $this->_serializeConfig[$k] = match ($k) {
+                'overrideSourceXMLNS' => (bool)$config[$k],
+                'rootXMLNS' => null === $config[$k] ? null : (string)$config[$k],
+
+                default => throw new \UnexpectedValueException(sprintf(
+                    'Unknown serialize config key "%s"',
+                    $k,
+                ))
+            };
+            if ($this->_serializeConfig['overrideSourceXMLNS'] ?? false) {
+                if (!isset($this->_serializeConfig['rootXMLNS']) || '' === $this->_serializeConfig['rootXMLNS']) {
+                    throw new \DomainException('Must specify rootXMLNS if overrideSourceXMLNS is true');
+                }
             }
         }
         return $this;

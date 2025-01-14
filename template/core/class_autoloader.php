@@ -36,6 +36,19 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 {
     private const _ROOT_NAMESPACE = '<?php echo $config->getFullyQualifiedName(false); ?>\\';
 
+    private const _VERSION_AUTOLOADER_MAP = [
+<?php foreach($config->getVersionsIterator() as $i => $version): ?>
+        <?php echo $i; ?> => [
+            '<?php echo $version->getFullyQualifiedName(false); ?>\\',
+            '<?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER); ?>',
+            <?php echo FileUtils::buildAutoloaderRelativeFilepath(
+                $config->getFullyQualifiedName(false),
+                $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER),
+            ); ?>,
+        ],
+<?php endforeach; ?>
+    ];
+
     private const _CORE_CLASS_MAP = [
         // core types
 <?php foreach($config->getCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
@@ -47,10 +60,16 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
     private static bool $_registered = false;
 
+    private static array $_versionRegistered = [
+<?php foreach($config->getVersionsIterator() as $i => $version) : ?>
+        <?php echo $i; ?> => false,
+<?php endforeach; ?>
+    ];
+
     public static function register(): bool
     {
         if (!self::$_registered) {
-            self::$_registered = spl_autoload_register(__CLASS__ . '::loadClass', true);
+            self::$_registered = spl_autoload_register(__CLASS__ . '::loadClass');
         }
         return self::$_registered;
     }
@@ -72,22 +91,18 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
             return (bool)require self::_CORE_CLASS_MAP[$class];
         } else if (!str_starts_with($class, self::_ROOT_NAMESPACE)) {
             return null;
-        }<?php foreach($config->getVersionsIterator() as $version): ?> else if (str_starts_with($class, '<?php echo $version->getFullyQualifiedName(false); ?>\\')) {
-            if (!class_exists('<?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>', false)) {
-                if (((bool)require <?php echo FileUtils::buildAutoloaderRelativeFilepath(
-                    $config->getFullyQualifiedName(false),
-                    $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER),
-                ); ?>) && <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>::register()) {
-                    if ($class !== '<?php echo $version->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_AUTOLOADER); ?>') {
-                        return <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>::loadClass($class);
-                    } else {
-                        return true;
-                    }
-                } else {
-                    return false;
-                }
+        }<?php foreach($config->getVersionsIterator() as $i => $version): ?> else if (str_starts_with($class, self::_VERSION_AUTOLOADER_MAP[<?php echo $i; ?>][0])) {
+            if (self::$_versionRegistered[<?php echo $i; ?>]) {
+                return null;
             }
-            return null;
+            require self::_VERSION_AUTOLOADER_MAP[<?php echo $i; ?>][2];
+            <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>::register();
+            self::$_versionRegistered[<?php echo $i; ?>] = true;
+            if ($class !== self::_VERSION_AUTOLOADER_MAP[<?php echo $i; ?>][1]) {
+                return <?php echo $version->getFullyQualifiedName(true, PHPFHIR_CLASSNAME_AUTOLOADER); ?>::loadClass($class);
+            } else {
+                return true;
+            }
         }<?php endforeach; ?> else {
             return null;
         }
