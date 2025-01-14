@@ -162,9 +162,13 @@ output directory.
 
 ## TODO
 
-- Implement event or pull-based XML parsing for large responses
+- Refactor template system to use Twig.
+- Improve template loading and iteration system, too squirrely right now.
+- Implement serialization abstraction, allowing for more flexible serialization options.
+  - XMLReader / XMLParser pull or event parsing
+  - Something like [pcrov/JSONReader](https://github.com/pcrov/JsonReader) for larger JSON responses
+- Improved client implementation
+  - Allow for persisting to, and parsing from, disk.
 
 ## Suggestions and help
 
-If you have some suggestions for how this lib could be made more useful, more applicable, easier to use, etc, please
-let me know.

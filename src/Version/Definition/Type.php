@@ -20,9 +20,10 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\CoreFiles;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\TypeTestKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue;
@@ -128,7 +129,7 @@ class Type
     public function __debugInfo()
     {
         $vars = get_object_vars($this);
-        unset($vars['config']);
+        unset($vars['_version']);
         return $vars;
     }
 
@@ -257,7 +258,7 @@ class Type
     /**
      * @return string
      */
-    public function getTypeNamespace(): string
+    public function getNamespace(): string
     {
         $bits = [];
         foreach ($this->getParentTypes() as $parent) {
@@ -266,11 +267,10 @@ class Type
         if ($ctype = $this->getComponentOfType()) {
             $bits[] = $ctype->getClassName();
         }
-        $ns = PHPFHIR_NAMESPACE_VERSION_TYPES;
-        if ([] !== $bits) {
-            $ns .= PHPFHIR_NAMESPACE_SEPARATOR . implode(PHPFHIR_NAMESPACE_SEPARATOR, $bits);
+        if ([] === $bits) {
+            return '';
         }
-        return $ns;
+        return implode(PHPFHIR_NAMESPACE_SEPARATOR, $bits);
     }
 
     /**
@@ -290,17 +290,13 @@ class Type
      */
     public function getFullyQualifiedNamespace(bool $leadingSlash): string
     {
-        return $this->getVersion()->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace());
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
-     * @param bool $leadingSlash
-     * @return string
-     */
-    public function getFullyQualifiedTestNamespace(TestTypeEnum $testType, bool $leadingSlash): string
-    {
-        return $this->getVersion()->getFullyQualifiedTestsName($testType, $leadingSlash, $this->getTypeNamespace());
+        return $this
+            ->getVersion()
+            ->getFullyQualifiedName(
+                $leadingSlash,
+                PHPFHIR_NAMESPACE_VERSION_TYPES,
+                $this->getNamespace(),
+            );
     }
 
     /**
@@ -311,25 +307,21 @@ class Type
     {
         return $this
             ->getVersion()
-            ->getFullyQualifiedName($leadingSlash, $this->getTypeNamespace(), $this->getClassName());
+            ->getFullyQualifiedName(
+                $leadingSlash,
+                PHPFHIR_NAMESPACE_VERSION_TYPES,
+                $this->getNamespace(),
+                $this->getClassName(),
+            );
     }
 
     /**
+     * @param \DCarbone\PHPFHIR\Enum\TypeTestKindEnum $testKind
      * @return string
      */
-    public function getTestClassName(): string
+    public function getTestClassName(TypeTestKindEnum $testKind): string
     {
-        return sprintf('%sTest', $this->getClassName());
-    }
-
-    /**
-     * @param $testType
-     * @param bool $leadingSlash
-     * @return string
-     */
-    public function getFullyQualifiedTestClassName($testType, bool $leadingSlash): string
-    {
-        return $this->getVersion()->getFullyQualifiedTestsName($testType, $leadingSlash, $this->getTypeNamespace(), $this->getTestClassName());
+        return sprintf('%s%sTest', $this->getClassName(), $testKind->value);
     }
 
     /**

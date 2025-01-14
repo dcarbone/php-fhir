@@ -21,7 +21,6 @@ namespace DCarbone\PHPFHIR\Utilities;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
 use RuntimeException;
 
 /**
@@ -64,20 +63,6 @@ class FileUtils
         return self::compileNamespaceFilepath($version->getConfig(), $type->getFullyQualifiedNamespace(false))
             . DIRECTORY_SEPARATOR
             . "{$type->getClassName()}.php";
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Version $version
-     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Enum\TestTypeEnum $testType
-     * @return string
-     */
-    public static function buildTypeTestFilePath(Version $version, Type $type, TestTypeEnum $testType): string
-    {
-        return self::mkdirRecurse(
-                $version->getOutputPath(),
-                self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
-            ) . DIRECTORY_SEPARATOR . "{$type->getTestClassName()}.php";
     }
 
     /**

@@ -177,15 +177,21 @@ class Builder
 //
 //            $log->startBreak('Test Class Generation');
 //
-//            $testTypes = [
-//                TestTypeEnum::UNIT,
-//                TestTypeEnum::INTEGRATION,
-////                TestTypeEnum::VALIDATION,
-//            ];
 //            foreach ($types->getIterator() as $type) {
 //                if ($type->isAbstract()) {
 //                    continue;
 //                }
+//
+//                // every type gets a unit test
+//
+//                $ns = sprintf('%s\\Types\\Tests\\Unit', $version->getNamespace());
+//                $typeNS = $type->getNamespace();
+//
+//                $coreFile = new CoreFile(
+//                    $this->config,
+//                    PHPFHIR_TEMPLATE_VERSION_TYPES_TESTS_DIR . DIRECTORY_SEPARATOR . 'unit' . DIRECTORY_SEPARATOR . 'class.php',
+//                    $type->getVersion()->getOutputPath() . DIRECTORY_SEPARATOR . 'Types' . DIRECTORY_SEPARATOR
+//                )
 //
 //                foreach ($testTypes as $testType) {
 //                    // only render integration and validation tests if this is a "resource" type

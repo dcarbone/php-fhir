@@ -137,11 +137,13 @@ class Config implements LoggerAwareInterface
         if (isset($data['logger']) && !($data['logger'] instanceof LoggerInterface)) {
             throw new \InvalidArgumentException('Key "logger" must be an instance of Psr\Log\LoggerInterface');
         }
-        return new Config(outputPath: $data['outputPath'],
+        return new Config(
+            outputPath: $data['outputPath'],
             rootNamespace: $data['rootNamespace'],
             versions: $data['versions'],
             libxmlOpts: $data['libxmlOpts'] ?? self::_DEFAULT_LIBXML_OPTS,
-            logger: $data['logger'] ?? null);
+            logger: $data['logger'] ?? null,
+        );
     }
 
     /**
