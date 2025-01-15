@@ -31,9 +31,9 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
 
 {
     /** @var int */
-    private int $_libxmlOpts;
+    private int $_libxmlOpts = <?php echo PHPFHIR_DEFAULT_LIBXML_OPT_MASK; ?>;
     /** @var int */
-    private int $_jsonDecodeMaxDepth;
+    private int $_jsonDecodeMaxDepth = 512;
 
     public function __construct(null|int $libxmlOpts = null,
                                 null|int $jsonDecodeMaxDepth = null)
@@ -61,7 +61,7 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
      */
     public function getLibxmlOpts(): int
     {
-        return $this->_libxmlOpts ?? 0;
+        return $this->_libxmlOpts;
     }
 
     /**
@@ -79,7 +79,7 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
      */
     public function getJSONDecodeMaxDepth(): int
     {
-        return $this->_jsonDecodeMaxDepth ?? 0;
+        return $this->_jsonDecodeMaxDepth;
     }
 }
 <?php return ob_get_clean();

@@ -31,11 +31,11 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>
 
 {
     /** @var bool */
-    private bool $_overrideSourceXMLNS;
+    private bool $_overrideSourceXMLNS = false;
     /** @var string */
     private string $_rootXMLNS;
     /** @var int */
-    private int $_xhtmlLibxmlOpts;
+    private int $_xhtmlLibxmlOpts = <?php echo PHPFHIR_DEFAULT_LIBXML_OPT_MASK; ?>;
 
     public function __construct(null|bool $overrideSourceXMLNS = null,
                                 null|string $rootXMLNS = null,
@@ -53,11 +53,15 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>
     }
 
     /**
-     * @param string $rootXMLNS
+     * @param null|string $rootXMLNS
      * @return self
      */
-    public function setRootXMLNS(string $rootXMLNS): self
+    public function setRootXMLNS(null|string $rootXMLNS): self
     {
+        if (null === $rootXMLNS) {
+            unset($this->_rootXMLNS);
+            return $this;
+        }
         $this->_rootXMLNS = $rootXMLNS;
         return $this;
     }

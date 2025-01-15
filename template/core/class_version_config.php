@@ -45,18 +45,6 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
 
 {
-    // These are used when no default configuration was provided during version code genreation
-
-    protected const _DEFAULT_UNSERIALIZE_CONFIG = [
-        'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
-        'jsonDecodeMaxDepth' => 512,
-    ];
-    protected const _DEFAULT_SERIALIZE_CONFIG = [
-        'overrideRootXMLNS' => false,
-        'rootXMLNS' => '<?php echo PHPFHIR_FHIR_XMLNS; ?>',
-        'xhtmlLibxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
-    ];
-
     /** @var <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> */
     private <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $_unserializeConfig;
 
@@ -71,16 +59,14 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     public function __construct(null|array|<?php echo $unserializeConfigClass->getEntityName(); ?> $unserializeConfig = null,
                                 null|array|<?php echo $serializeConfigClass->getEntityName(); ?> $serializeConfig = null)
     {
-        if (null !== $unserializeConfig) {
-            $this->setUnserializeConfig($unserializeConfig);
-        } else {
-            $this->setUnserializeConfig(self::_DEFAULT_UNSERIALIZE_CONFIG);
+        if (null === $unserializeConfig) {
+            $unserializeConfig = new <?php echo $unserializeConfigClass->getEntityName(); ?>();
         }
-        if (null !== $serializeConfig) {
-            $this->setSerializeConfig($serializeConfig);
-        } else {
-            $this->setSerializeConfig(self::_DEFAULT_SERIALIZE_CONFIG);
+        $this->setUnserializeConfig($unserializeConfig);
+        if (null === $serializeConfig) {
+            $serializeConfig = new <?php echo $serializeConfigClass->getEntityName(); ?>();
         }
+        $this->setSerializeConfig($serializeConfig);
     }
 
     /**
