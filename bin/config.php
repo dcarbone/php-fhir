@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
- * Generator default configuration file
+ * Builder default configuration file
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
  * Copyright 2017-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,17 +19,11 @@
  * limitations under the License.
  */
 return [
-    // The path to look look for and optionally download source XSD files to
-    'schemaPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'input' . DIRECTORY_SEPARATOR,
-
     // The path to place generated files
     'outputPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output' . DIRECTORY_SEPARATOR,
 
     // The root namespace for all generated classes
     'rootNamespace' => '\\DCarbone\\PHPFHIRGenerated',
-
-    // If true, will use a noop null logger
-    'silent' => false,
 
     // The libxml opts to use for parsing source XSD's.
     'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
