@@ -833,7 +833,7 @@ class Type
             }
 
             // these must only be added if the type has local properties
-            if ($this->hasLocalProperties()) {
+            if ($this->hasLocalProperties() || $this->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
                 $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
                     ->getFullyQualifiedNamespace(false);

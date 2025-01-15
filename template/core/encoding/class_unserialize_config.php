@@ -42,7 +42,7 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
             $this->setLibxmlOpts($libxmlOpts);
         }
         if (null !== $jsonDecodeMaxDepth) {
-            $this->setJsonDecodeMaxDepth($jsonDecodeMaxDepth);
+            $this->setJSONDecodeMaxDepth($jsonDecodeMaxDepth);
         }
     }
 
@@ -68,7 +68,7 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
      * @param int $jsonDecodeMaxDepth
      * @return self
      */
-    public function setJsonDecodeMaxDepth(int $jsonDecodeMaxDepth): self
+    public function setJSONDecodeMaxDepth(int $jsonDecodeMaxDepth): self
     {
         $this->_jsonDecodeMaxDepth = $jsonDecodeMaxDepth;
         return $this;
@@ -77,7 +77,7 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     /**
      * @return int
      */
-    public function getJsonDecodeMaxDepth(): int
+    public function getJSONDecodeMaxDepth(): int
     {
         return $this->_jsonDecodeMaxDepth ?? 0;
     }

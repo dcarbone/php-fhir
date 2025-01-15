@@ -79,7 +79,7 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
     public function _getValidationErrors(): array;
 
     /**
-     * @param null|string|\SimpleXMLElement $element
+     * @param string|\SimpleXMLElement $element
      * @param null|static $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return static

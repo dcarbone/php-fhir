@@ -29,6 +29,8 @@ class DefaultConfig
     private const _SERIALIZE_CONFIG_KEYS = [
         'overrideSourceXMLNS',
         'rootXMLNS',
+        'xhtmlLibxmlOpts',
+        'xhtmlLibxmlOptMask',
     ];
 
     /** @var array */
@@ -101,6 +103,9 @@ class DefaultConfig
         if ([] === $config) {
             return $this;
         }
+        if (array_key_exists('xhtmlLibxmlOpts', $config) && array_key_exists('xhtmlLibxmlOptMask', $config)) {
+            throw new \DomainException('Cannot specify both "xhtmlLibxmlOpts" and "xhtmlLibxmlOptMask" keys.');
+        }
         foreach (self::_SERIALIZE_CONFIG_KEYS as $k) {
             if (!array_key_exists($k, $config)) {
                 continue;
@@ -108,6 +113,13 @@ class DefaultConfig
             $this->_serializeConfig[$k] = match ($k) {
                 'overrideSourceXMLNS' => (bool)$config[$k],
                 'rootXMLNS' => null === $config[$k] ? null : (string)$config[$k],
+                'xhtmlLibxmlOpts' => intval($config[$k]),
+                'xhtmlLibxmlOptMask' => is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+}$}', $config[$k])
+                    ? $config[$k]
+                    : throw new \InvalidArgumentException(sprintf(
+                        'Value provided to "xhtmlLibxmlOptMask" is either not a string or is an invalid options mask: %s',
+                        $config[$k],
+                    )),
 
                 default => throw new \UnexpectedValueException(sprintf(
                     'Unknown serialize config key "%s"',
@@ -133,9 +145,13 @@ class DefaultConfig
 
     public function toArray(): array
     {
-        return [
-            'serializeConfig' => $this->getSerializeConfig(),
-            'unserializeConfig' => $this->getUnserializeConfig(),
-        ];
+        $out = [];
+        if ([] !== $this->_unserializeConfig) {
+            $out['unserializeConfig'] = $this->_unserializeConfig;
+        }
+        if ([] !== $this->_serializeConfig) {
+            $out['serializeConfig'] = $this->_serializeConfig;
+        }
+        return $out;
     }
 }

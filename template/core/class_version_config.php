@@ -53,7 +53,8 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     ];
     protected const _DEFAULT_SERIALIZE_CONFIG = [
         'overrideRootXMLNS' => false,
-        'rootXMLNS' => PHPFHIR_FHIR_XMLNS,
+        'rootXMLNS' => '<?php echo PHPFHIR_FHIR_XMLNS; ?>',
+        'xhtmlLibxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
     ];
 
     /** @var <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> */
@@ -118,7 +119,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
             $config = new <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>(
                 overrideSourceXMLNS: $config['overrideSourceXMLNS'] ?? null,
                 rootXMLNS: $config['rootXMLNS'] ?? null,
-                libxmlOpts: $config['libxmlOpts'] ?? null,
+                xhtmlLibxmlOpts: $config['xhtmlLibxmlOpts'] ?? null,
             );
         }
         $this->_serializeConfig = $config;

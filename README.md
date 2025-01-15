@@ -14,26 +14,31 @@ Version 4 of this libary constitutes a near-complete rewrite of the builder and 
 of this rewrite were to:
 
 1. Make constructing types easier / less tedious:
-   * Type constructors now have a parameter per field, rather than accepting an nested assocative array of values.
-   * Promoting use of PHP 8.0+ named parameters (https://www.php.net/manual/en/functions.arguments.php#functions.named-arguments).
+    * Type constructors now have a parameter per field, rather than accepting an nested assocative array of values.
+    * Promoting use of PHP 8.0+ named parameters (https://www.php.net/manual/en/functions.arguments.php#functions.named-arguments).
 2. Improve performance of generated code.
-   * Type properties no longer carry a "default" value of null or empty array.  They are now either set to a non-empty
+    * Type properties no longer carry a "default" value of null or empty array.  They are now either set to a non-empty
      value or are not set at all.
-   * JSON serialization in particular no longer uses `$out->{self::FIELD_ID} = $v;` syntax for setting fields, favoring setting
+    * JSON serialization in particular no longer uses `$out->{self::FIELD_ID} = $v;` syntax for setting fields, favoring setting
      the field directly via `$out->id = $v;`.  In general, more direct use of properties is made.
 3. Separate core classes, interfaces, traits, enums, etc., from FHIR resource classes.
-   * "Core" classes are now present under the root namespace, with each generated version in a separate sub-namespace.
-   * "Version Type" classes are further sub-namespaced under each version namespace to separate them from "Version Core" classes.
-4. Provide a basic API client
-   * This is still very much a work in progress, but the goal is to provide a simple, easy-to-use API client for FHIR servers.
+    * "Core" classes are now present under the root namespace, with each generated version in a separate sub-namespace.
+    * "Version Type" classes are further sub-namespaced under each version namespace to separate them from "Version Core" classes.
+4. Provide a basic API client:
+    * This is still very much a work in progress, but the goal is to provide a simple, easy-to-use API client for FHIR servers.
 5. Separate "Core" entities into their own namespace
-   * "Core" entities are now separated into common-purpose namespaces, such as `Encoding`, `Client`, `Validation`, etc.
-6. Improve and simplify runtime configuration
-   * I have created two core config classes:
+    * "Core" entities are now separated into common-purpose namespaces, such as `Encoding`, `Client`, `Validation`, etc.
+6. Improve and simplify runtime configuration:
+    * I have created two core config classes:
        * `Encoding\UnserializeConfig` - Configures both JSON and XML unserialization options
        * `Encoding\SerializeConfig` - Configures both JSON and XML serialization options
-7. Simplify templates
-   * This is still a work in progress, and will probably drastically change again.
+7. Simplify templates:
+    * Many template files have been merged into common files or outright removed.
+    * This is still a work in progress, and will probably drastically change again.
+8. Remove "change tracking" concept:
+    * It added complexity without actual benefit.
+9. Remove `PHPFHIR` prefix from classes:
+    * This was only necessary as "Core" entities were in the same namespace as FHIR entities.
 
 ## Parsing Example
 

@@ -57,7 +57,7 @@ ob_start(); ?>
             $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
         }
         if (is_string($json)) {
-            $json = json_decode($json, true);
+            $json = json_decode(json: $json, associative: true, depth: $config->getJSONDecodeMaxDepth());
         } else if (is_object($json)) {
             $json = (array)$json;
         }

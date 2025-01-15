@@ -202,6 +202,31 @@ echo require_with(
         return $xw;
     }
 
+<?php echo require_with(
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR
+    . DIRECTORY_SEPARATOR
+    . 'json'
+    . DIRECTORY_SEPARATOR
+    . 'unserialize'
+    . DIRECTORY_SEPARATOR
+    . 'header.php',
+    [
+        'version' => $version,
+        'type'     => $type,
+    ]
+);
+
+// TODO: Right now this assumes a single string value.  Need an example use case.
+?>
+        if ([] !== $json) {
+            $v = reset($json);
+            if (is_string($v)) {
+                $type->setXHTML($v);
+            }
+        }
+        return $type;
+    }
+
     /**
      * @return mixed
      */
@@ -210,7 +235,7 @@ echo require_with(
         if (!isset($this->_xhtml)) {
             return null;
         }
-        return (string)$this->_xhtml;
+        return $this->_xhtml;
     }
 
     /**
