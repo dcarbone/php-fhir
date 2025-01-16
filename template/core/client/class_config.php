@@ -28,8 +28,7 @@ echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
-
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
 /**
  * Class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
@@ -64,7 +63,6 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
     public function __construct(string $address,
                                 null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $defaultFormat = null,
                                 array $queryParams = [],
-                                array $requestHeaders = [],
                                 array $curlOpts = [],
                                 bool $parseResponseHeaders = false)
     {
@@ -112,7 +110,7 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
     /**
      * @return bool
      */
-    public function getParseHeaders(): bool
+    public function getParseResponseHeaders(): bool
     {
         return $this->_parseResponseHeaders;
     }

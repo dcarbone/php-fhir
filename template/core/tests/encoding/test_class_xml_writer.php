@@ -36,8 +36,7 @@ ob_start();
 echo "<?php\n\n";?>
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
-
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 use PHPUnit\Framework\TestCase;
 

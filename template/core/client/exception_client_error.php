@@ -24,8 +24,7 @@ echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
-
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
 class <?php echo PHPFHIR_EXCEPTION_CLIENT_ERROR; ?> extends <?php echo PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT; ?>
 

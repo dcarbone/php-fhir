@@ -41,8 +41,7 @@ echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
-
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
@@ -75,7 +74,7 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> implements <?php echo PHPFH
     public function __construct(string|<?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> $config)
     {
         if (is_string($config)) {
-            $config = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>($config);
+            $config = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>(address: $config);
         }
         $this->_config = $config;
     }
@@ -115,7 +114,7 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> implements <?php echo PHPFH
             + [CURLOPT_CUSTOMREQUEST => $request->method]
             + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
 
-        $parseResponseHeaders = ($this->_config->getParseHeaders() && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders))
+        $parseResponseHeaders = ($this->_config->getParseResponseHeaders() && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders))
             || (isset($req->parseResponseHeaders) && $req->parseResponseHeaders);
 
         if ($parseResponseHeaders) {

@@ -24,8 +24,7 @@ echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
-
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
 <?php foreach($config->getVersionsIterator() as $version) : ?>
 use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION); ?> as <?php echo $version->getEnumImportName(); ?>;

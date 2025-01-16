@@ -25,8 +25,7 @@ echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
-
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
 trait <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>
 

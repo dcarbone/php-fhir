@@ -28,8 +28,7 @@ echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $config->getBasePHPFHIRCopyrightComment(false); ?>
-
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 abstract class <?php echo PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT; ?> extends \Exception
 {
     /** @var <?php echo $respClass->getFullyQualifiedName(true); ?> */

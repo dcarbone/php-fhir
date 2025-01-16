@@ -23,36 +23,37 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
-    PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_CLIENT_CLASSNAME_CONFIG,
+    PHPFHIR_CLIENT_CLASSNAME_CLIENT,
 );
 
 $coreFiles = $config->getCoreFiles();
 
-$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+$clientClientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
+$clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 
 ob_start();
 echo "<?php\n\n";?>
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 use PHPUnit\Framework\TestCase;
 
-class <?php echo PHPFHIR_TEST_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> extends TestCase
+class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
 {
-    public function testCanConstructWithoutParams()
+    public function testCanConstructWithOnlyAddress()
     {
-        $uc = new <?php echo $unserializeConfigClass->getEntityName(); ?>();
-        $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $uc->getLibxmlOpts());
-        $this->assertEquals(512, $uc->getJSONDecodeMaxDepth());
+        $cl = new <?php echo $clientClientClass->getEntityName(); ?>('http://example.com');
+        $this->assertEquals('http://example.com', $cl->getConfig()->getAddress());
     }
 
-    public function testCanConstructWithValidValues()
+    public function testCanConstructWithConfig()
     {
-        $uc = new <?php echo $unserializeConfigClass->getEntityName(); ?>(libxmlOpts: 123, jsonDecodeMaxDepth: 456);
-        $this->assertEquals(123, $uc->getLibxmlOpts());
-        $this->assertEquals(456, $uc->getJSONDecodeMaxDepth());
+        $c = new <?php echo $clientConfigClass->getEntityName(); ?>('http://example.com');
+        $cl = new <?php echo $clientClientClass->getEntityName(); ?>($c);
+        $this->assertEquals('http://example.com', $cl->getConfig()->getAddress());
     }
 }
-
 <?php return ob_get_clean();
