@@ -37,7 +37,7 @@ putenv('PHPFHIR_TEST_RESOURCE_DOWNLOAD_DIR=' . PHPFHIR_TEST_RESOURCE_DOWNLOAD_DI
     echo "Generating code for target: {$phpfhir_test_target}\n";
     $config = \DCarbone\PHPFHIR\Config::fromArray(require PHPFHIR_TEST_CONFIG_FILE);
     $builder = new DCarbone\PHPFHIR\Builder($config);
-    $builder->render();
+    $builder->render(true, $phpfhir_test_target);
 })();
 
 // ensure test resource download directory exists

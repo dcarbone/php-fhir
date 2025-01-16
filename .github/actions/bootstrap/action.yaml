@@ -63,7 +63,7 @@ runs:
       # language=sh
       run: |
         rm composer.lock
-        composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        composer update --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
     - name: 'Save composer dep cache'
       if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
