@@ -26,7 +26,6 @@ return array_merge(
                 [
                     'name' => getenv('PHPFHIR_TEST_TARGET'),
                     'schemaPath' => __DIR__ . '/../input/' . getenv('PHPFHIR_TEST_TARGET'),
-                    'namespace' => 'Versions\\' . getenv('PHPFHIR_TEST_TARGET'),
                 ],
             ],
         },
