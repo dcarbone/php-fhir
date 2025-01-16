@@ -46,7 +46,7 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo PHPFHIR_TEST_CLASSNAME_VERSION_CONFIG; ?> extends TestCase
 {
-    public function testEmptyConstruct()
+    public function testCanConstructWithoutParams()
     {
         $vc = new <?php echo $versionConfigClass->getEntityName(); ?>();
         $uc = $vc->getUnserializeConfig();
@@ -60,7 +60,7 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_VERSION_CONFIG; ?> extends TestCase
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $sc->getXHTMLLibxmlOpts());
     }
 
-    public function testArrayConstruct()
+    public function testCanConstructWithValidMapParams()
     {
         $vc = new <?php echo $versionConfigClass->getEntityName(); ?>(
             unserializeConfig: ['libxmlOpts' => 456, 'jsonDecodeMaxDepth' => 789],
@@ -77,7 +77,7 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_VERSION_CONFIG; ?> extends TestCase
         $this->assertEquals(123, $sc->getXHTMLLibxmlOpts());
     }
 
-    public function testValuedConstruct()
+    public function testCanConstructWithValidObjectParams()
     {
         $vc = new <?php echo $versionConfigClass->getEntityName(); ?>(
             unserializeConfig: new <?php echo $unserializeConfigClass->getEntityName(); ?>(),

@@ -41,12 +41,20 @@ final class <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> extends \XMLWri
 {
     private const _MEM = 'memory';
 
-    /** @var bool */
+    private <?php echo $serializeConfigClass->getEntityName(); ?> $_config;
     private bool $_docStarted = false;
-    /** @var bool */
     private bool $_rootOpen = false;
-    /** @var null|string */
     private null|string $_open = null;
+
+    /**
+     * <?php echo $coreFile->getEntityName(); ?> constructor.
+     *
+     * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     */
+    public function __construct(<?php echo $serializeConfigClass->getEntityName(); ?> $config)
+    {
+        $this->_config = $config;
+    }
 
     /**
      * @see https://www.php.net/manual/en/xmlwriter.openmemory.php
@@ -132,23 +140,24 @@ final class <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> extends \XMLWri
     }
 
     /**
-     * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param string $name
      * @param string|null $sourceXMLNS
      * @return bool
      */
-    public function openRootNode(<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config, string $name, null|string $sourceXMLNS): bool
+    public function openRootNode(string $name, null|string $sourceXMLNS): bool
     {
         if (null === $this->_open) {
             throw new \LogicException('Must open write destination before writing root node');
         } else if (!$this->_docStarted) {
             throw new \LogicException('Document must be started before writing root node');
+        } else if ($this->_rootOpen) {
+            throw new \LogicException('Root node is already open');
         }
         if (!$this->startElement($name)) {
             return false;
         }
-        if ($config->getOverrideSourceXMLNS() || null === $sourceXMLNS) {
-            $ns = (string)$config->getRootXMLNS();
+        if ($this->_config->getOverrideSourceXMLNS() || null === $sourceXMLNS) {
+            $ns = (string)$this->_config->getRootXMLNS();
         } else {
             $ns = $sourceXMLNS;
         }

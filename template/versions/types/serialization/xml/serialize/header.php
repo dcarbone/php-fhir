@@ -37,8 +37,11 @@ ob_start(); ?>
     public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>
 
     {
+        if (null === $config) {
+            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
+        }
         if (null === $xw) {
-            $xw = new <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>();
+            $xw = new <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>($config);
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();
@@ -47,11 +50,8 @@ ob_start(); ?>
             $docStarted = true;
             $xw->startDocument();
         }
-        if (null === $config) {
-            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
-        }
         if (!$xw->isRootOpen()) {
             $rootOpened = true;
-            $xw->openRootNode($config, '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
+            $xw->openRootNode('<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
         }
 <?php return ob_get_clean();

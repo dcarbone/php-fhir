@@ -26,13 +26,7 @@ $typeKind = $type->getKind();
 ob_start();
 
 echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR
-    . DIRECTORY_SEPARATOR
-    . 'json'
-    . DIRECTORY_SEPARATOR
-    . 'unserialize'
-    . DIRECTORY_SEPARATOR
-    . 'header.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/header.php',
     [
         'version' => $version,
         'type'     => $type,
@@ -42,13 +36,7 @@ echo require_with(
 echo "\n";
 
 echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR
-    . DIRECTORY_SEPARATOR
-    . 'json'
-    . DIRECTORY_SEPARATOR
-    . 'unserialize'
-    . DIRECTORY_SEPARATOR
-    . 'body.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/body.php',
     [
         'version' => $version,
         'type'     => $type,
@@ -59,13 +47,7 @@ echo "\n";
 
 if ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR
-        . DIRECTORY_SEPARATOR
-        . 'json'
-        . DIRECTORY_SEPARATOR
-        . 'serialize'
-        . DIRECTORY_SEPARATOR
-        . 'primitive.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/serialize/primitive.php',
         [
             'version' => $version,
             'type'     => $type,
@@ -73,13 +55,7 @@ if ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
     );
 else:
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR
-        . DIRECTORY_SEPARATOR
-        . 'json'
-        . DIRECTORY_SEPARATOR
-        . 'serialize'
-        . DIRECTORY_SEPARATOR
-        . 'default.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/serialize/default.php',
         [
             'version' => $version,
             'type' => $type,

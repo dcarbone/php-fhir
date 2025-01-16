@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -42,14 +41,14 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo PHPFHIR_TEST_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> extends TestCase
 {
-    public function testEmptyConstruct()
+    public function testCanConstructWithoutParams()
     {
         $uc = new <?php echo $unserializeConfigClass->getEntityName(); ?>();
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $uc->getLibxmlOpts());
         $this->assertEquals(512, $uc->getJSONDecodeMaxDepth());
     }
 
-    public function testValuedConstruct()
+    public function testCanConstructWithValidValues()
     {
         $uc = new <?php echo $unserializeConfigClass->getEntityName(); ?>(libxmlOpts: 123, jsonDecodeMaxDepth: 456);
         $this->assertEquals(123, $uc->getLibxmlOpts());

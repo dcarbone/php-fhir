@@ -34,7 +34,7 @@ ob_start();
 
 // build file header
 echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'header.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . '/header.php',
     [
         'version' => $version,
         'type' => $type,
@@ -148,7 +148,7 @@ echo require_with(
 <?php
 // unserialize portion
 echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'unserialize' . DIRECTORY_SEPARATOR . 'header.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/unserialize/header.php',
     [
         'version' => $version,
         'type' => $type,
@@ -159,32 +159,15 @@ echo require_with(
         return $type;
     }
 
-    /**
-     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
-     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
-
-     */
-    public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>
-
-    {
-        if (null === $xw) {
-            $xw = new <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>();
-        }
-        if (!$xw->isOpen()) {
-            $xw->openMemory();
-        }
-        if (!$xw->isDocStarted()) {
-            $docStarted = true;
-            $xw->startDocument();
-        }
-        if (null === $config) {
-            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
-        }
-        if (!$xw->isRootOpen()) {
-            $rootOpened = true;
-            $xw->openRootNode($config, 'XHTML', $this->_getSourceXMLNS());
-        }
+<?php
+echo require_with(
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/serialize/header.php',
+        [
+        'version' => $version,
+        'type' => $type,
+    ]
+);
+?>
         $xr = $this->getXMLReader($config->getXHTMLLibxmlOpts());
         if (null === $xr) {
             return $xw;
@@ -203,13 +186,7 @@ echo require_with(
     }
 
 <?php echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR
-    . DIRECTORY_SEPARATOR
-    . 'json'
-    . DIRECTORY_SEPARATOR
-    . 'unserialize'
-    . DIRECTORY_SEPARATOR
-    . 'header.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/header.php',
     [
         'version' => $version,
         'type'     => $type,

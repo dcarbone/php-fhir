@@ -31,7 +31,7 @@ ob_start();
 
 // build file header
 echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'header.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . '/header.php',
     [
         'version' => $version,
         'type' => $type,
@@ -99,7 +99,7 @@ endif;
 // -- end field properties
 
 echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . DIRECTORY_SEPARATOR . 'constructor.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . '/constructor.php',
     [
         'version' => $version,
         'type' => $type,
@@ -134,7 +134,7 @@ if ($type->hasLocalProperties()) :
 
     if ($type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
         echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'primitive.php',
+            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . '/methods/primitive.php',
             [
                 'version' => $version,
                 'type' => $type
@@ -142,7 +142,7 @@ if ($type->hasLocalProperties()) :
         );
     else :
         echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . DIRECTORY_SEPARATOR . 'methods' . DIRECTORY_SEPARATOR . 'default.php',
+            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . '/methods/default.php',
             [
                 'version' => $version,
                 'type' => $type,
@@ -157,7 +157,7 @@ if (!$type->isAbstract()) :
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . DIRECTORY_SEPARATOR . 'methods.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . '/methods.php',
         [
             'version' => $version,
             'type' => $type,
@@ -169,7 +169,7 @@ if ($type->hasLocalProperties()) :
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'xml.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
         [
             'version' => $version,
             'type'     => $type,
@@ -179,7 +179,7 @@ if ($type->hasLocalProperties()) :
     echo "\n";
 
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . DIRECTORY_SEPARATOR . 'json.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',
         [
             'version' => $version,
             'type' => $type,

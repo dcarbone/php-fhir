@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -43,7 +42,7 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo PHPFHIR_TEST_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> extends TestCase
 {
-    public function testEmptyConstruct()
+    public function testCanConstructWithoutParams()
     {
         $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
         $this->assertFalse($sc->getOverrideSourceXMLNS());
@@ -51,7 +50,7 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> extends Te
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS ?>, $sc->getXHTMLLibxmlOpts());
     }
 
-    public function testValuedConstruct()
+    public function testCanConstructWithValidValues()
     {
         $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>(overrideSourceXMLNS: true, rootXMLNS: 'urn:foo:bar', xhtmlLibxmlOpts: 123);
         $this->assertTrue($sc->getOverrideSourceXMLNS());
