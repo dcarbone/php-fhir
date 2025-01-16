@@ -339,7 +339,7 @@ class Config implements LoggerAwareInterface
         if ([] === $this->_versions) {
             return new \EmptyIterator();
         }
-        return new \ArrayIterator($this->_versions);
+        return \SplFixedArray::fromArray($this->_versions, preserveKeys: false);
     }
 
     /**
