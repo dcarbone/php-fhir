@@ -40,6 +40,16 @@ of this rewrite were to:
 9. Remove `PHPFHIR` prefix from classes:
     * This was only necessary as "Core" entities were in the same namespace as FHIR entities.
 
+#### The included [./bin/generate.php](./bin/generate.php) script NO LONGER DOWNLOADS FHIR SHCHEMA FILES!
+
+This was done as I suspect many people were _always_ redownloading the schema files _every_ time they generated code.
+This seems to have put such an unwelcome load onto the FHIR documentation servers that they have implemented blocking
+UserAgent blocking on their servers.
+
+I never intended for the script to be abused in this way, and therefore now require you to download and extract the
+schema XSD's yourself.  I have put instructions on how to do this in the
+[wiki](https://github.com/dcarbone/php-fhir/wiki/Builder-Usage).
+
 ## Parsing Example
 
 ```php
@@ -87,21 +97,3 @@ $object->xmlSerialize($xw, $yourConfigInstance);
 ```
 
 XML Serialization utilizes [XMLWriter](https://www.php.net/manual/en/book.xmlwriter.php).
-
-# Testing
-
-As part of class generation, a directory & namespace called `PHPFHIRTests` is created under the root namespace and
-output directory.
-
-## TODO
-
-- Refactor template system to use Twig.
-- Improve template loading and iteration system, too squirrely right now.
-- Implement serialization abstraction, allowing for more flexible serialization options.
-  - XMLReader / XMLParser pull or event parsing
-  - Something like [pcrov/JSONReader](https://github.com/pcrov/JsonReader) for larger JSON responses
-- Improved client implementation
-  - Allow for persisting to, and parsing from, disk.
-
-## Suggestions and help
-
