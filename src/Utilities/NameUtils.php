@@ -151,12 +151,12 @@ class NameUtils
     }
 
     /**
-     * @param string|null $name
+     * @param string $name
      * @return bool
      */
-    public static function isValidNSName(?string $name): bool
+    public static function isValidNSName(string $name): bool
     {
-        return null === $name || '' === $name || preg_match(self::NAMESPACE_REGEX, $name);
+        return '' !== $name && preg_match(self::NAMESPACE_REGEX, $name);
     }
 
     /**

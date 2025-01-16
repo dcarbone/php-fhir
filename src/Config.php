@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Utilities\NameUtils;
-use DCarbone\PHPFHIR\Version\DefaultConfig;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -44,6 +43,9 @@ class Config implements LoggerAwareInterface
     /** @var \DCarbone\PHPFHIR\Version[] */
     private array $_versions = [];
 
+    /** @var string[] */
+    private array $_versionNamespaces = [];
+
     /** @var bool */
     private bool $_silent = false;
     /** @var null|int */
@@ -67,10 +69,10 @@ class Config implements LoggerAwareInterface
      * @param int $libxmlOpts
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(string $outputPath,
-                                string $rootNamespace,
-                                iterable $versions,
-                                int $libxmlOpts = self::_DEFAULT_LIBXML_OPTS,
+    public function __construct(string               $outputPath,
+                                string               $rootNamespace,
+                                iterable             $versions,
+                                int                  $libxmlOpts = self::_DEFAULT_LIBXML_OPTS,
                                 null|LoggerInterface $logger = null)
     {
         $this->setOutputPath($outputPath);
@@ -245,7 +247,7 @@ class Config implements LoggerAwareInterface
 
     /**
      * @param string $outputPath
-     * @return $this
+     * @return self
      */
     public function setOutputPath(string $outputPath): self
     {
@@ -282,38 +284,37 @@ class Config implements LoggerAwareInterface
             if (!isset($version['name'])) {
                 throw new \InvalidArgumentException('Version name is required');
             }
-            if (!isset($version['namespace'])) {
-                throw new \InvalidArgumentException('Version namespace is required');
-            }
             if (!isset($version['schemaPath'])) {
                 throw new \InvalidArgumentException('Path to schemas for version is required');
-            }
-            $defaultConfig = null;
-            if (isset($version['defaultConfig'])) {
-                if ($version['defaultConfig'] instanceof DefaultConfig) {
-                    $defaultConfig = $version['defaultConfig'];
-                } else if (is_array($version['defaultConfig'])) {
-                    $defaultConfig = new Version\DefaultConfig($version['defaultConfig']);
-                } else {
-                    throw new \InvalidArgumentException(sprintf(
-                        'key "defaultConfig" must either be instance of "%s", array, or null, %s seen.',
-                        DefaultConfig::class,
-                        gettype($version['defaultConfig'])
-                    ));
-                }
             }
             $version = new Version(
                 config: $this,
                 name: $version['name'],
-                namespace: $version['namespace'],
                 schemaPath: $version['schemaPath'],
-                defaultConfig: $defaultConfig,
+                namespace: $version['namespace'] ?? null,
+                defaultConfig: $version['defaultConfig'] ?? null,
             );
         }
+
+        // ensure unique version name
         if (isset($this->_versions[$version->getName()])) {
-            throw new \InvalidArgumentException(sprintf('Version "%s" has already been added', $version->getName()));
+            throw new \InvalidArgumentException(sprintf('Version "%s" has already been added.', $version->getName()));
         }
+
+        // ensure unique version namespace
+        $namespace = $version->getNamespace();
+        if (false !== ($idx = array_search($namespace, $this->_versionNamespaces))) {
+            throw new \DomainException(sprintf(
+                'Version "%s" namespace "%s" conflicts with existing version "%s".',
+                $version->getName(),
+                $namespace,
+                $idx,
+            ));
+        }
+
+        $this->_versionNamespaces[$version->getName()] = $namespace;
         $this->_versions[$version->getName()] = $version;
+
         return $this;
     }
 
@@ -335,9 +336,10 @@ class Config implements LoggerAwareInterface
      */
     public function getVersionsIterator(): iterable
     {
-        foreach ($this->_versions as $v) {
-            yield $v;
+        if ([] === $this->_versions) {
+            return new \EmptyIterator();
         }
+        return new \ArrayIterator($this->_versions);
     }
 
     /**

@@ -53,37 +53,39 @@ class Version
     /**
      * @param \DCarbone\PHPFHIR\Config $config
      * @param string $name
-     * @param string $namespace
      * @param string $schemaPath
-     * @param \DCarbone\PHPFHIR\Version\DefaultConfig|null $defaultConfig
+     * @param null|string $namespace
+     * @param null|array|\DCarbone\PHPFHIR\Version\DefaultConfig $defaultConfig
      */
     public function __construct(Config             $config,
                                 string             $name,
-                                string             $namespace,
                                 string             $schemaPath,
-                                null|DefaultConfig $defaultConfig = null)
+                                null|string        $namespace = null,
+                                null|array|DefaultConfig $defaultConfig = null)
     {
         $this->_config = $config;
         $this->_name = $name;
-        $this->setNamespace($namespace);
         $this->setSchemaPath($schemaPath);
 
         if ('' === trim($this->_name)) {
             throw new \DomainException('Version name cannot be empty.');
         }
 
-        // ensure namespace is valid
-        if (!NameUtils::isValidNSName($this->_namespace)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    '"%s" is not a valid PHP namespace.',
-                    $this->_namespace
-                )
-            );
+        // if no specific namespace is set, try to use the name
+        if (null === $namespace) {
+            if (!NameUtils::isValidNSName($name)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Version namespace not set and version name "%s" is not a valid PHP namespace value.  Please set a namespace value, or change the name.',
+                    $name
+                ));
+            }
+            $namespace = $name;
         }
 
-        if (null === $defaultConfig) {
-            $defaultConfig = new DefaultConfig();
+        $this->setNamespace($namespace);
+
+        if (!is_object($defaultConfig)) {
+            $defaultConfig = new Version\DefaultConfig((array)$defaultConfig);
         }
         $this->setDefaultConfig($defaultConfig);
 
@@ -131,7 +133,7 @@ class Version
 
     /**
      * @param string $schemaPath
-     * @return $this
+     * @return self
      */
     public function setSchemaPath(string $schemaPath): self
     {
@@ -169,7 +171,11 @@ class Version
      */
     public function setNamespace(string $namespace): self
     {
-        $this->_namespace = $namespace;
+        // ensure namespace is valid
+        if (!NameUtils::isValidNSName($namespace)) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not a valid PHP namespace.', $namespace));
+        }
+        $this->_namespace = PHPFHIR_NAMESPACE_VERSIONS . PHPFHIR_NAMESPACE_SEPARATOR . $namespace;
         return $this;
     }
 
@@ -183,7 +189,7 @@ class Version
 
     /**
      * @param array|\DCarbone\PHPFHIR\Version\DefaultConfig $defaultConfig
-     * @return $this
+     * @return self
      */
     public function setDefaultConfig(array|DefaultConfig $defaultConfig): self
     {

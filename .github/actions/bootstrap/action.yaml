@@ -1,0 +1,70 @@
+name: 'Bootstrap'
+description: 'Bootstraps the GHA runner for Builder tests'
+
+inputs:
+  php-version:
+    required: true
+    description: 'PHP version to use for tests'
+
+runs:
+  using: composite
+  steps:
+    - name: 'Define vars'
+      id: vars
+      shell: bash -e {0}
+      # language=sh
+      run: |
+        _phpunit_version=
+        case "${{ inputs.php-version }}" in
+          8.1) _phpunit_version='10.5' ;;
+          8.2) _phpunit_version='11.1' ;;
+          8.3) _phpunit_version='11.1' ;;
+          8.4) _phpunit_version='11.1' ;;
+          *) echo "Unsupported PHP version: ${{ inputs.php-version }}" && exit 1 ;;
+        esac
+        echo "phpunit-version=${_phpunit_version}" >> $GITHUB_OUTPUT
+
+    - name: 'Install PHP'
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: libxml simplexml json zip
+        ini-values: precision=20
+
+    - name: 'Install jq'
+      uses: dcarbone/install-jq-action@v3
+      with:
+        force: true
+
+    - name: 'Set composer dep versions'
+      # language=sh
+      run: |
+        tmpf="$(mktemp)"
+        jq -rcM '."require-dev"."phpunit/phpunit" = "^${{ steps.vars.outputs.phpunit-version }}"' composer.json > "${tmpf}"
+        mv "${tmpf}" composer.json
+
+    - name: 'Get composer cache directory'
+      id: composer-cache
+      # language=sh
+      run: |
+        echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: 'Init composer dep cache'
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"
+
+    - name: 'Install composer deps'
+      # language=sh
+      run: |
+        rm composer.lock
+        composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    - name: 'Save composer dep cache'
+      if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"

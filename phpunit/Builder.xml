@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-         bootstrap="bootstrap.php"
+         bootstrap="../vendor/autoload.php"
          colors="true"
          stopOnFailure="false"
          displayDetailsOnIncompleteTests="true"
@@ -11,12 +11,10 @@
          displayDetailsOnTestsThatTriggerNotices="true">
     <php>
         <ini name="memory_limit" value="2048M"/>
-        <env name="PHPFHIR_TEST_TARGET" value="R5"/>
-        <env name="PHPFHIR_TEST_INTEGRATION_ENDPOINT" value="https://server.fire.ly/r5" force="true"/>
     </php>
     <testsuites>
-        <testsuite name="R5">
-            <directory>../output/DCarbone/PHPFHIRGenerated/Versions/R5/Tests</directory>
+        <testsuite name="Builder">
+            <directory>../tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

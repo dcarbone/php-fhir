@@ -28,7 +28,7 @@ class TypeTestFiles extends CoreFiles
     {
         $baseNS = $type->getVersion()->getFullyQualifiedName(
             true,
-            PHPFHIR_NAMESPACE_VERSION_TYPES,
+            PHPFHIR_NAMESPACE_TYPES,
             PHPFHIR_NAMESPACE_TESTS,
             $type->getRelativeNamespace(),
         );

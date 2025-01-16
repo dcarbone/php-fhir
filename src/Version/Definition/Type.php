@@ -294,7 +294,7 @@ class Type
             ->getVersion()
             ->getFullyQualifiedName(
                 $leadingSlash,
-                PHPFHIR_NAMESPACE_VERSION_TYPES,
+                PHPFHIR_NAMESPACE_TYPES,
                 $this->getNamespace(),
             );
     }
@@ -309,7 +309,7 @@ class Type
             ->getVersion()
             ->getFullyQualifiedName(
                 $leadingSlash,
-                PHPFHIR_NAMESPACE_VERSION_TYPES,
+                PHPFHIR_NAMESPACE_TYPES,
                 $this->getNamespace(),
                 $this->getClassName(),
             );

@@ -219,7 +219,7 @@ class Types implements Countable
         if ($type->getKind()->isResourceContainer($type->getVersion())) {
             return false;
         }
-        $container = $this->getContainerType($type->getVersion());
+        $container = $this->getContainerType();
         if (null === $container) {
             return false;
         }
@@ -249,9 +249,9 @@ class Types implements Countable
 
     /**
      * @param string|\DCarbone\PHPFHIR\Version\Definition\Type $type
-     * @return \DCarbone\PHPFHIR\Version\Definition\Type[]
+     * @return \Generator<\DCarbone\PHPFHIR\Version\Definition\Type>
      */
-    public function getChildrenOf(string|Type $type): iterable
+    public function getChildrenOfGenerator(string|Type $type): \Generator
     {
         if (is_string($type)) {
             $type = $this->getTypeByName($type);

@@ -33,7 +33,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^10.5 || ^11.0",
-    "monolog/monolog": "^3.2.0"
+    "monolog/monolog": "^3.2.0",
+    "spatie/temporary-directory": "^1.0"
   },
   "replace": {
     "php-fhir/parser": "*",
@@ -51,6 +52,11 @@
     ],
     "psr-4": {
       "DCarbone\\PHPFHIR\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "DCarbone\\PHPFHIRTests\\": "tests/"
     }
   },
   "suggest": {

@@ -483,7 +483,7 @@ class Property
 
     /**
      * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
-     * @return $this
+     * @return self
      */
     public function setOverloadedProperty(Property $property): Property
     {

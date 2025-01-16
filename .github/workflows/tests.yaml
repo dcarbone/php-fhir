@@ -26,6 +26,27 @@ on:
       - 'phpunit.xml'
 
 jobs:
+  builder-tests:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - '8.1'
+          - '8.2'
+          - '8.3'
+          - '8.4'
+    name: 'Builder Tests - PHP ${{ matrix.php-version }}'
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Bootstrap'
+        uses: ./.github/actions/bootstrap
+        with:
+          php-version: ${{ matrix.php-version }}
+      - name: 'Run tests'
+        # language=sh
+        run: ./vendor/bin/phpunit -c 'phpunit/Builder.xml'
+
   load-fhir-source:
     runs-on: ubuntu-22.04
     strategy:
@@ -38,29 +59,17 @@ jobs:
           - 'R4'
           - 'R4B'
           - 'R5'
-
     name: 'Download ${{ matrix.test-target }} Source'
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./.github/actions/load-fhir-xsd
         with:
           version: '${{ matrix.test-target }}'
-
-
-#  load-fhir-validator:
-#    runs-on: ubuntu-22.04
-#    name: 'Download FHIR Validator'
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - uses: ./.github/actions/load-fhir-validator
 
   run:
     runs-on: ubuntu-22.04
     needs:
       - load-fhir-source
-#      - load-fhir-validator
     strategy:
       fail-fast: false
       matrix:
@@ -77,82 +86,19 @@ jobs:
           - 'R4'
           - 'R4B'
           - 'R5'
-        include:
-          - php-version: '8.1'
-            phpunit-version: '10.5'
-          - php-version: '8.2'
-            phpunit-version: '11.1'
-          - php-version: '8.3'
-            phpunit-version: '11.1'
-          - php-version: '8.4'
-            phpunit-version: '11.1'
-
     name: '${{ matrix.test-target }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     steps:
-      - name: 'Check the stuff out'
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      - name: 'Bootstrap'
+        uses: ./.github/actions/bootstrap
+        with:
+            php-version: ${{ matrix.php-version }}
       - name: 'Load FHIR ${{ matrix.test-target }} Source'
         id: fhir-source
         if: matrix.test-target != 'Core'
         uses: ./.github/actions/load-fhir-xsd
         with:
           version: '${{ matrix.test-target }}'
-
-#      - name: 'Install FHIR validator'
-#        uses: ./.github/actions/load-fhir-validator
-
-      - name: 'Install PHP'
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          extensions: libxml simplexml json zip
-          ini-values: precision=20
-
-      - name: 'Install jq'
-        uses: dcarbone/install-jq-action@v3
-        with:
-          force: true
-
-      - name: 'Set Composer Dep Versions'
-        # language=sh
-        run: |
-          tmpf="$(mktemp)"
-          jq -rcM '."require-dev"."phpunit/phpunit" = "^${{ matrix.phpunit-version }}"' composer.json > "${tmpf}"
-          mv "${tmpf}" composer.json
-
-      - name: 'Get Composer Cache Directory'
-        id: composer-cache
-        # language=sh
-        run: |
-          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: 'Init composer dep cache'
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('composer.lock') }}"
-
-      - name: 'Install Composer deps'
-        # language=sh
-        run: |
-          rm composer.lock
-          composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: 'Save composer dep cache'
-        if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: "composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.phpunit-version }}-${{ hashFiles('composer.lock') }}"
-
-#      - name: 'Install Java'
-#        uses: actions/setup-java@v4
-#        with:
-#          distribution: 'zulu'
-#          java-version: 18
-
       - name: 'Run tests'
         # language=sh
         run: |

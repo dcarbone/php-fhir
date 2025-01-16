@@ -38,7 +38,7 @@ return [
             'name' => 'DSTU1',
 
             // Namespace to generate classes into.  This is nested under the value provided to rootNamespace.
-            'namespace' => 'Versions\\DSTU1',
+            'namespace' => 'DSTU1',
 
             // Local path to un-compressed source schema files for this version
             'schemaPath' => __DIR__ . '/../input/DSTU1',
@@ -64,27 +64,22 @@ return [
         [
             'name' => 'DSTU2',
             'schemaPath' => __DIR__ . '/../input/DSTU2',
-            'namespace' => 'Versions\\DSTU2',
         ],
         [
             'name' => 'STU3',
             'schemaPath' => __DIR__ . '/../input/STU3',
-            'namespace' => 'Versions\\STU3',
         ],
         [
             'name' => 'R4',
             'schemaPath' => __DIR__ . '/../input/R4',
-            'namespace' => 'Versions\\R4',
         ],
         [
             'name' => 'R4B',
             'schemaPath' => __DIR__ . '/../input/R4B',
-            'namespace' => 'Versions\\R4B',
         ],
         [
             'name' => 'R5',
             'schemaPath' => __DIR__ . '/../input/R5',
-            'namespace' => 'Versions\\R5',
         ],
     ],
 ];
