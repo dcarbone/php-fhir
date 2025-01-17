@@ -64,7 +64,7 @@ ob_start(); ?>
 <?php if ($type->hasConcreteParent()) : ?>
         parent::jsonUnserialize($json, $type, $config);<?php elseif (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
-            $this->_setFHIRComments((array)$data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
+            $type->_setFHIRComments((array)$data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
         }
 <?php endif;
 

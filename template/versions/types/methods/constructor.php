@@ -49,7 +49,7 @@ if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
 
     /**
      * <?php echo $typeClassName; ?> Constructor
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true); ?> $value
      * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
      */
     public function __construct(<?php echo TypeHintUtils::buildSetterParameterHint($version, $valueProperty, true); ?> $value = null,

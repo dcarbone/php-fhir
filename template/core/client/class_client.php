@@ -114,7 +114,8 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> implements <?php echo PHPFH
             + [CURLOPT_CUSTOMREQUEST => $request->method]
             + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
 
-        $parseResponseHeaders = ($this->_config->getParseResponseHeaders() && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders))
+        $parseResponseHeaders = ($this->_config->getParseResponseHeaders()
+            && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders))
             || (isset($req->parseResponseHeaders) && $req->parseResponseHeaders);
 
         if ($parseResponseHeaders) {
