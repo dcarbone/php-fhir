@@ -26,7 +26,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 
-$xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_XML_LOCATION);
+$valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 
 $versionCoreFiles = $version->getCoreFiles();
 
@@ -42,13 +42,14 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
         continue;
     }
 
+    $propType = $property->getValueFHIRType();
+    $propTypeKind = $propType->getKind();
+    $propTypeClassname = $propType->getClassName();
+
     $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true);
 
     $propertyName = $property->getName();
     $isCollection = $property->isCollection();
-    $propertyType = $property->getValueFHIRType();
-    $propertyTypeClassName = $propertyType->getClassName();
-    $propertyTypeKind = $propertyType->getKind();
 
     if ($i > 0) {
         echo "\n";
@@ -70,7 +71,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 <?php if ($isCollection) : ?>
 
     /**
-     * @return \ArrayIterator<<?php echo $propertyType->getFullyQualifiedClassName(true); ?>>
+     * @return \ArrayIterator<<?php echo $propType->getFullyQualifiedClassName(true); ?>>
      */
     public function get<?php echo ucfirst($propertyName); ?>Iterator(): iterable
     {
@@ -90,9 +91,13 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 
      * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $propertyName; ?>
 
+<?php if (!$property->isCollection() && ($propType->isPrimitiveOrListType() || $propType->isPrimitiveContainer())) : ?>
+     * @param null|<?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation
+<?php endif; ?>
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $property; ?>): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $property; if (!$property->isCollection() && ($propType->isPrimitiveOrListType() || $propType->isPrimitiveContainer())) : ?>,
+                     <?php echo str_repeat(' ', strlen($property->getSetterName()));?>null|<?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = null<?php endif; ?>): self
     {
 <?php if (!$property->isCollection()) : ?>
         if (null === $<?php echo $propertyName; ?>) {
@@ -100,11 +105,18 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
             return $this;
         }
 <?php endif;
-if ($propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
-        if (!($<?php echo $propertyName; ?> instanceof <?php echo $propertyTypeClassName; ?>)) {
-            $<?php echo $propertyName; ?> = new <?php echo $propertyTypeClassName; ?>(value: $<?php echo $propertyName; ?>);
+if ($propType->isPrimitiveContainer() || $propType->isPrimitiveOrListType()) : ?>
+        if (!($<?php echo $propertyName; ?> instanceof <?php echo $propTypeClassname; ?>)) {
+            $<?php echo $propertyName; ?> = new <?php echo $propTypeClassname; ?>(value: $<?php echo $propertyName; ?>);
         }
-<?php elseif ($propertyTypeKind->isResourceContainer($version)) : ?>
+<?php if (!$property->isCollection()) : ?>
+        if (null !== $valueXMLLocation) {
+            $<?php echo $propertyName; ?>->_setValueXMLLocation($valueXMLLocation);
+        } else if (null === $<?php echo $propertyName; ?>->_getValueXMLLocation()) {
+            $<?php echo $propertyName; ?>->_setValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?>::<?php if ($propType->isValueContainer()) : ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>);
+        }
+<?php endif;
+elseif ($propTypeKind->isResourceContainer($version)) : ?>
         if ($<?php echo $propertyName; ?> instanceof <?php echo $versionContainerType->getClassName(); ?>) {
             $<?php echo $propertyName; ?> = $<?php echo $propertyName; ?>->getContainedType();
         }
@@ -130,13 +142,13 @@ if ($propertyTypeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, Type
      */
     public function set<?php echo ucfirst($propertyName); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, false, true); ?> ...$<?php echo $propertyName; ?>): self
     {
-<?php if ($propertyType->isValueContainer()) : ?>
+<?php if ($propType->isValueContainer()) : ?>
         $this-><?php echo $propertyName; ?> = [];
         foreach($<?php echo $propertyName; ?> as $v) {
-            if ($v instanceof <?php echo $propertyTypeClassName; ?>) {
+            if ($v instanceof <?php echo $propTypeClassname; ?>) {
                 $this-><?php echo $propertyName; ?>[] = $v;
             } else {
-                $this-><?php echo $propertyName; ?>[] = new <?php echo $propertyTypeClassName; ?>(value: $v);
+                $this-><?php echo $propertyName; ?>[] = new <?php echo $propTypeClassname; ?>(value: $v);
             }
         }
 <?php else : ?>

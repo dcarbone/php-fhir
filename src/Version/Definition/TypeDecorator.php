@@ -205,7 +205,7 @@ abstract class TypeDecorator
             if (in_array($type->getFHIRName(), self::DSTU1_PRIMITIVES, true)) {
                 $ptn = PrimitiveTypeEnum::STRING->value;
                 $logger->debug(sprintf('(DSTU1 suppport) Type "%s" determined to be DSTU1 primitive', $type->getFHIRName()));
-            } elseif ($type->hasPrimitiveParent()) {
+            } elseif ($type->hasPrimitiveOrListParent()) {
                 $ptn = $type->getParentType()->getFHIRName();
                 $logger->debug(sprintf('Type "%s" determined to have a primitive parent', $type->getFHIRName()));
             } elseif ($type->getKind() === TypeKindEnum::PRIMITIVE) {
@@ -397,7 +397,7 @@ abstract class TypeDecorator
             // TODO: handle valueString, valueQuantity, etc. types?
 
             // skip primitive types and their child types
-            if ($type->getKind()->isOneOf(...$skip) || $type->hasPrimitiveParent()) {
+            if ($type->getKind()->isOneOf(...$skip) || $type->hasPrimitiveOrListParent()) {
                 continue;
             }
 
@@ -429,7 +429,7 @@ abstract class TypeDecorator
         static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::PHPFHIR_XHTML];
         foreach ($types->getIterator() as $type) {
             $type->setCommentContainer(
-                !$type->hasPrimitiveParent() && !$type->getKind()->isOneOf(...$skip)
+                !$type->hasPrimitiveOrListParent() && !$type->getKind()->isOneOf(...$skip)
             );
         }
     }

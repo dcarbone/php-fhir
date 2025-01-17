@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,19 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Version\Definition\Property $property */
+/** @var \DCarbone\PHPFHIR\Config $config */
+/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-ob_start(); ?>
-        if (null !== $<?php echo $property->getName(); ?>) {
-<?php if ($property->isCollection()) : ?>
-            $this->set<?php echo ucfirst($property->getName()); ?>(...$<?php echo $property->getName(); ?>);
-<?php else : ?>
-            $this-><?php echo $property->getSetterName(); ?>($<?php echo $property->getName(); ?>);
-<?php endif; ?>
-        }
-<?php
-return ob_get_clean();
+ob_start();
+echo '<?php ';?>declare(strict_types=1);
+
+namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
+
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
+enum <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?> : string
+{
+    case ATTRIBUTE = 'attribute';
+    case ELEMENT = 'element';
+}
+<?php return ob_get_clean();

@@ -41,7 +41,7 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function getFormattedValue(): string
+    public function _getFormattedValue(): string
     {
         return (string)$this->getValue();
     }

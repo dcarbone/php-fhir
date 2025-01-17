@@ -506,14 +506,27 @@ class Type
     /**
      * @return bool
      */
-    public function hasPrimitiveParent(): bool
+    public function isPrimitiveOrListType(): bool
+    {
+        return $this->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPrimitiveOrListParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind() === TypeKindEnum::PRIMITIVE) {
+            if ($parentType->isPrimitiveOrListType()) {
                 return true;
             }
         }
         return false;
+    }
+
+    public function isPrimitiveContainer(): bool
+    {
+        return $this->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER;
     }
 
     /**
@@ -522,7 +535,7 @@ class Type
     public function hasPrimitiveContainerParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER) {
+            if ($parentType->isPrimitiveContainer()) {
                 return true;
             }
         }
@@ -530,6 +543,8 @@ class Type
     }
 
     /**
+     * TODO: this is a really poor way to implement this...
+     *
      * @return bool
      */
     public function isResourceType(): bool
@@ -845,11 +860,10 @@ class Type
                 ->getFullyQualifiedNamespace(false);
         }
 
-        if (($this->isValueContainer()
-                || $this->getKind()->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER))
-            && !($this->hasValueContainerParent() || $this->hasPrimitiveContainerParent() || $this->hasPrimitiveParent())) {
-            $traits[PHPFHIR_ENCODING_TRAIT_XML_LOCATION] = $coreFiles
-                ->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_XML_LOCATION)
+        if (($this->isValueContainer() || $this->isPrimitiveOrListType() || $this->isPrimitiveContainer())
+            && !($this->hasValueContainerParent() || $this->hasPrimitiveContainerParent() || $this->hasPrimitiveOrListParent())) {
+            $traits[PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION] = $coreFiles
+                ->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION)
                 ->getFullyQualifiedNamespace(false);
         }
 

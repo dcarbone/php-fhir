@@ -506,7 +506,7 @@ class Property
      */
     public function requiresXMLLocation(): bool
     {
-        return $this->_memberOf->hasPrimitiveParent()
+        return $this->_memberOf->hasPrimitiveOrListParent()
             || $this->_memberOf->getKind()->isOneOf(
                 TypeKindEnum::PRIMITIVE_CONTAINER,
                 TypeKindEnum::PRIMITIVE,

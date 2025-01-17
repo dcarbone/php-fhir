@@ -42,7 +42,7 @@ echo require_with(
 if ($type->hasLocalProperties()) :
     echo "\n";
     foreach ($type->getProperties()->getIterator() as $property) :
-        if ($property->getMemberOf()->hasPrimitiveParent()) {
+        if ($property->getMemberOf()->hasPrimitiveOrListParent()) {
             continue;
         }
 
@@ -165,7 +165,7 @@ if (!$type->isAbstract()) :
     );
 endif;
 
-if ($type->hasLocalProperties()) :
+if (!$type->isPrimitiveOrListType() && $type->hasLocalProperties()) :
     echo "\n";
 
     echo require_with(
@@ -187,7 +187,7 @@ if ($type->hasLocalProperties()) :
     );
 endif;
 
-if (!$type->hasPrimitiveParent()) : ?>
+if (!$type->hasPrimitiveOrListParent()) : ?>
 
     /**
      * @return string
@@ -195,7 +195,7 @@ if (!$type->hasPrimitiveParent()) : ?>
     public function __toString(): string
     {
 <?php if ($typeKind === TypeKindEnum::PRIMITIVE) : ?>
-        return $this->getFormattedValue();
+        return $this->_getFormattedValue();
 <?php elseif ($typeKind->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
         return (string)$this->getValue();
 <?php else : ?>

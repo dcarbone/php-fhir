@@ -59,7 +59,7 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function getFormattedValue(): string
+    public function _getFormattedValue(): string
     {
         $v = $this->getValue();
         if (null === $v) {

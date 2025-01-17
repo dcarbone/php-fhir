@@ -80,7 +80,7 @@ ob_start(); ?>
         else : ?>
         if (isset($validationRules[self::FIELD_VALUE]) && null !== $this->value) {
             foreach($validationRules[self::FIELD_VALUE] as $rule => $constraint) {
-                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(self::FHIR_TYPE_NAME, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $this->getFormattedValue());
+                $err = <?php echo PHPFHIR_CLASSNAME_VALIDATOR ?>::validateField(self::FHIR_TYPE_NAME, self::<?php echo $property->getFieldConstantName(); ?>, $rule, $constraint, $this->_getFormattedValue());
                 if (null !== $err) {
                     if (!isset($errs[self::FIELD_VALUE])) {
                         $errs[self::FIELD_VALUE] = [];

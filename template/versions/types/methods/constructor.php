@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 $coreFiles = $version->getConfig()->getCoreFiles();
-$xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_XML_LOCATION);
+$valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 
 $typeKind = $type->getKind();
 $typeClassName = $type->getClassName();
@@ -50,13 +50,13 @@ if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true); ?> $value
-     * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
+     * @param <?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation
      */
     public function __construct(<?php echo TypeHintUtils::buildSetterParameterHint($version, $valueProperty, true); ?> $value = null,
-                                <?php echo $xmlLocationEnum->getEntityName(); ?> $xmlLocation = <?php echo $xmlLocationEnum->getEntityName(); ?>::ATTRIBUTE)
+                                <?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ATTRIBUTE)
     {
         $this->setValue(value: $value);
-        $this->_setXMLLocation($xmlLocation);
+        $this->_setValueXMLLocation($valueXMLLocation);
     }
 <?php
     endif;
@@ -65,21 +65,21 @@ else : ?>
     /**
      * <?php echo $typeClassName; ?> Constructor
 <?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
-        $pt = $property->getValueFHIRType(); ?>
-     * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
+        $propType = $property->getValueFHIRType();
+        $propTypeKind = $propType->getKind();
+?>
+     * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, true); ?> $<?php echo $property->getName(); if ($property->isValueProperty()) : ?>
+
+     * @param null|<?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation<?php endif; ?>
 
 <?php endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>
      * @param null|string[] $fhirComments
-<?php endif;
-if ($type->isValueContainer() || $type->hasValueContainerParent() || $type->hasPrimitiveContainerParent() || $typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) : ?>
-    * @param <?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $xmlLocation
 <?php endif; ?>     */
     public function __construct(<?php foreach($type->getAllPropertiesIndexedIterator() as $i => $property) : if ($i > 0) : ?>,
-                                <?php endif; echo TypeHintUtils::buildSetterParameterHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php endforeach;
+                                <?php endif; echo TypeHintUtils::buildSetterParameterHint($version, $property, true); ?> $<?php echo $property->getName(); ?> = null<?php if ($property->isValueProperty()) : ?>,
+                                null|<?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = null<?php endif; endforeach;
                                 if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : if ($totalPropertyCount > 0) : ?>,
-                                <?php endif; ?>null|iterable $fhirComments = null<?php endif;
-                                if ($type->isValueContainer() || $type->hasValueContainerParent() || $type->hasPrimitiveContainerParent() || $typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) : ?>,
-                                <?php echo $xmlLocationEnum->getEntityName(); ?> $xmlLocation = <?php echo $xmlLocationEnum->getEntityName(); ?>::<?php if ($type->isValueContainer()) : ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; endif; ?>)
+                                <?php endif; ?>null|iterable $fhirComments = null<?php endif; ?>)
     {
 <?php if (null !== $parentType) : ?>
         parent::__construct(<?php foreach($type->getParentPropertiesIterator() as $i => $property) : if ($i > 0) : ?>,
@@ -89,28 +89,26 @@ if ($type->isValueContainer() || $type->hasValueContainerParent() || $type->hasP
                             <?php endif; ?>fhirComments: $fhirComments<?php endif;
                             if ($type->hasValueContainerParent() || $type->hasPrimitiveContainerParent()) :
                                if ($parentPropertyCount > 0) : ?>,
-                            <?php endif; ?>xmlLocation: $xmlLocation<?php endif; ?>);
+                            <?php endif; ?>valueXMLLocation: $valueXMLLocation<?php endif; ?>);
 <?php endif;
 if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         if (null !== $fhirComments && [] !== $fhirComments) {
             $this->_setFHIRComments($fhirComments);
         }
 <?php endif;
-if (($type->isValueContainer() || $typeKind === TypeKindEnum::PRIMITIVE_CONTAINER) && !($type->hasPrimitiveContainerParent() || $type->hasValueContainerParent())) : ?>
-        $this->_setXMLLocation($xmlLocation);
-<?php endif;
 
 foreach($properties->getIterator() as $property) :
     if ($property->getOverloadedProperty()) {
         continue;
-    }
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_CONSTRUCTORS_DIR . '/default_property_setter_call.php',
-        [
-            'type' => $type,
-            'property' => $property
-        ]
-    );
+    } ?>
+        if (null !== $<?php echo $property->getName(); ?>) {
+<?php if ($property->isCollection()) : ?>
+            $this->set<?php echo ucfirst($property->getName()); ?>(...$<?php echo $property->getName(); ?>);
+<?php else : ?>
+            $this-><?php echo $property->getSetterName(); ?>($<?php echo $property->getName(); if ($property->isValueProperty() && ($type->isValueContainer() || $type->isPrimitiveContainer())) : ?>, valueXMLLocation: $valueXMLLocation<?php endif; ?>);
+<?php endif; ?>
+        }
+<?php
 endforeach; ?>
     }
 <?php endif;

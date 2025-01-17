@@ -51,7 +51,7 @@ class ImportUtils
         if (!$type->isAbstract()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
-                PHPFHIR_ENCODING_ENUM_XML_LOCATION,
+                PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION,
                 PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
                 PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
                 PHPFHIR_INTERFACE_TYPE,
@@ -74,7 +74,7 @@ class ImportUtils
 
         if (($type->isCommentContainer() && !$type->hasCommentContainerParent()) ||
             $type->hasPropertiesWithValidations() ||
-            ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$type->hasPrimitiveParent())) {
+            ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$type->hasPrimitiveOrListParent())) {
             $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
         }
 
@@ -101,7 +101,7 @@ class ImportUtils
             || $type->hasPrimitiveContainerParent()
             || $typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) {
             if (!$type->hasValueContainerParent() && !$type->hasPrimitiveContainerParent()) {
-                $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_TRAIT_XML_LOCATION);
+                $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION);
             }
         }
 

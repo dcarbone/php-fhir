@@ -204,7 +204,7 @@ class TypeHintUtils
             return self::primitivePHPValueTypeHint(
                 $version,
                 $property->getMemberOf()->getPrimitiveType(),
-                !$property->isCollection(),
+                $nullable && !$property->isCollection(),
             );
         }
 

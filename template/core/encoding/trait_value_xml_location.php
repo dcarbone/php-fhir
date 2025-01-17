@@ -19,16 +19,41 @@
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+$coreFiles = $config->getCoreFiles();
+
+$valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
+
 ob_start();
+
 echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-enum <?php echo PHPFHIR_ENCODING_ENUM_XML_LOCATION; ?> : string
+trait <?php echo PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION; ?>
+
 {
-    case ATTRIBUTE = 'attribute';
-    case ELEMENT = 'element';
+    private <?php echo $valueXMLLocationEnum->getEntityName(); ?> $_valueLoc;
+
+    /**
+     * Set the XML location of this element's value when serializing
+     *
+     * @param <?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation
+     */
+    public function _setValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation): void
+    {
+        $this->_valueLoc = $valueXMLLocation;
+    }
+
+    /**
+     * @return null|<?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?>
+
+     */
+    public function _getValueXMLLocation(): null|<?php echo $valueXMLLocationEnum->getEntityName(); ?>
+
+    {
+        return $this->_valueLoc ?? null;
+    }
 }
 <?php return ob_get_clean();

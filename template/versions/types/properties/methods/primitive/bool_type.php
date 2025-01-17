@@ -43,7 +43,7 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function getFormattedValue(): string
+    public function _getFormattedValue(): string
     {
         return $this->getValue() ? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_TRUE : <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_FALSE;
     }
