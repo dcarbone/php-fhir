@@ -16,8 +16,16 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImportsByName(
+    PHPFHIR_INTERFACE_TYPE
+);
 
 $coreFiles = $config->getCoreFiles();
 
@@ -29,6 +37,8 @@ echo '<?php ';?>declare(strict_types=1);
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
 
