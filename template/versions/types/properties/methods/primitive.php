@@ -33,7 +33,7 @@ ob_start(); ?>
     public function getValue(): <?php echo TypeHintUtils::primitivePHPValueTypeHint($version, $primitiveType, true); ?>
 
     {
-        return $this->value;
+        return $this->value ?? null;
     }
 
 <?php

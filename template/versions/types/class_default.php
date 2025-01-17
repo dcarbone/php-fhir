@@ -98,13 +98,15 @@ endif;
 
 // -- end field properties
 
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . '/constructor.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-); ?>
+if (!$type->hasPrimitiveOrListParent()) :
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . '/constructor.php',
+        [
+            'version' => $version,
+            'type' => $type,
+        ]
+    );
+endif; ?>
 
     /**
      * @return string
@@ -127,7 +129,7 @@ if ($type->isContainedType()) : ?>
 <?php
 endif;
 
-if ($type->hasLocalProperties()) :
+if (!$type->hasPrimitiveOrListParent() && $type->hasLocalProperties()) :
     echo "\n";
 
     // --- property methods
