@@ -87,6 +87,11 @@ jobs:
           - 'R4B'
           - 'R5'
     name: '${{ matrix.test-target }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
+    services:
+      php-fhir-test-server:
+        image: dancarbone/php-fhir-test-server:latest
+        ports:
+          - '8080:8080'
     steps:
       - uses: actions/checkout@v4
       - name: 'Bootstrap'
@@ -100,6 +105,8 @@ jobs:
         with:
           version: '${{ matrix.test-target }}'
       - name: 'Run tests'
+        env:
+          PHPFHIR_TEST_SERVER_ADDR: 'http://127.0.0.1:8080'
         # language=sh
         run: |
           ./vendor/bin/phpunit -c 'phpunit/${{ matrix.test-target }}.xml'

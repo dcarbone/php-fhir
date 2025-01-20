@@ -12,7 +12,6 @@
     <php>
         <ini name="memory_limit" value="2048M"/>
         <env name="PHPFHIR_TEST_TARGET" value="R4"/>
-        <env name="PHPFHIR_TEST_INTEGRATION_ENDPOINT" value="https://lforms-fhir.nlm.nih.gov/baseR4" force="true"/>
     </php>
     <testsuites>
         <testsuite name="R4">
