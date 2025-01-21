@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -30,15 +31,23 @@ use Psr\Log\NullLogger;
 class Config implements LoggerAwareInterface
 {
     private const _DEFAULT_LIBXML_OPTS = LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL;
+    private const _DEFAULT_LIBRARY_NAMESPACE_PREFIX = 'DCarbone\\PHPFHIRGenerated';
+    private const _DEFAULT_TESTS_NAMESPACE_PREFIX = 'Tests';
 
     /** @var \DCarbone\PHPFHIR\Logger */
     private Logger $_log;
 
     /** @var string */
-    private string $_outputPath;
+    private string $_libraryPath;
 
     /** @var string */
-    private string $_rootNamespace;
+    private string $_libraryNamespacePrefix;
+
+    /** @var string */
+    private string $_testsPath;
+
+    /** @var string */
+    private string $_testsNamespacePrefix;
 
     /** @var \DCarbone\PHPFHIR\Version[] */
     private array $_versions = [];
@@ -49,7 +58,7 @@ class Config implements LoggerAwareInterface
     /** @var bool */
     private bool $_silent = false;
     /** @var null|int */
-    private null|int $_libxmlOpts;
+    private null|int $_librarySchemaLibxmlOpts;
 
     /** @var string */
     private string $_standardDate;
@@ -62,23 +71,31 @@ class Config implements LoggerAwareInterface
     /** @var \DCarbone\PHPFHIR\CoreFiles */
     private CoreFiles $_coreFiles;
 
+    /** @var \DCarbone\PHPFHIR\CoreFiles */
+    private CoreFiles $_coreTestFiles;
+
     /**
-     * @param string $outputPath
-     * @param string $rootNamespace
+     * @param string $libraryPath
      * @param iterable $versions
-     * @param int $libxmlOpts
+     * @param string $libraryNamespacePrefix
+     * @param null|string $testsPath
+     * @param string $testNamespacePrefix
+     * @param int $librarySchemaLibxmlOpts
      * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(string               $outputPath,
-                                string               $rootNamespace,
+    public function __construct(string               $libraryPath,
                                 iterable             $versions,
-                                int                  $libxmlOpts = self::_DEFAULT_LIBXML_OPTS,
+                                string               $libraryNamespacePrefix = self::_DEFAULT_LIBRARY_NAMESPACE_PREFIX,
+                                int                  $librarySchemaLibxmlOpts = self::_DEFAULT_LIBXML_OPTS,
+                                null|string          $testsPath = null,
+                                string               $testNamespacePrefix = self::_DEFAULT_TESTS_NAMESPACE_PREFIX,
                                 null|LoggerInterface $logger = null)
     {
-        $this->setOutputPath($outputPath);
-        $this->setRootNamespace($rootNamespace);
-        $this->setVersions($versions);
-        $this->setLibxmlOpts($libxmlOpts);
+        $this->setLibraryPath($libraryPath);
+        $this->setLibraryNamespacePrefix($libraryNamespacePrefix);
+        $this->setLibrarySchemaLibxmlOpts($librarySchemaLibxmlOpts);
+        $this->setTestsPath($testsPath);
+        $this->setTestsNamespacePrefix($testNamespacePrefix);
 
         if (null !== $logger && !$this->isSilent()) {
             $this->setLogger(new Logger($logger));
@@ -119,19 +136,18 @@ class Config implements LoggerAwareInterface
 
         $this->_coreFiles = new CoreFiles(
             $this,
-            $this->getOutputPath(),
+            $this->getLibraryPath(),
             PHPFHIR_TEMPLATE_CORE_DIR,
             $this->getFullyQualifiedName(true),
         );
+
+        $this->setVersions($versions);
     }
 
     public static function fromArray(array $data): Config
     {
-        if (!isset($data['outputPath'])) {
-            throw new \InvalidArgumentException('Key "outputPath" is required.');
-        }
-        if (!isset($data['rootNamespace'])) {
-            throw new \InvalidArgumentException('Key "rootNamespace" is required.');
+        if (!isset($data['libraryPath'])) {
+            throw new \InvalidArgumentException('Key "libraryPath" is required.');
         }
         if (isset($data['versions']) && !is_iterable($data['versions'])) {
             throw new \InvalidArgumentException('Key "versions" must be iterable.');
@@ -140,10 +156,12 @@ class Config implements LoggerAwareInterface
             throw new \InvalidArgumentException('Key "logger" must be an instance of Psr\Log\LoggerInterface');
         }
         return new Config(
-            outputPath: $data['outputPath'],
-            rootNamespace: $data['rootNamespace'],
+            libraryPath: $data['libraryPath'],
             versions: $data['versions'],
-            libxmlOpts: $data['libxmlOpts'] ?? self::_DEFAULT_LIBXML_OPTS,
+            libraryNamespacePrefix: $data['libraryNamespacePrefix'] ?? self::_DEFAULT_LIBRARY_NAMESPACE_PREFIX,
+            librarySchemaLibxmlOpts: $data['librarySchemaLibxmlOpts'] ?? self::_DEFAULT_LIBXML_OPTS,
+            testsPath: $data['testsPath'] ?? null,
+            testNamespacePrefix: $data['testNamespacePrefix'] ?? self::_DEFAULT_TESTS_NAMESPACE_PREFIX,
             logger: $data['logger'] ?? null,
         );
     }
@@ -159,38 +177,6 @@ class Config implements LoggerAwareInterface
         } else {
             $this->_log = new Logger($logger);
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getRootNamespace(): string
-    {
-        return $this->_rootNamespace;
-    }
-
-    /**
-     * @param string $rootNamespace
-     * @return self
-     */
-    public function setRootNamespace(string $rootNamespace): self
-    {
-        $rootNamespace = trim($rootNamespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
-        if ('' === $rootNamespace) {
-            throw new \InvalidArgumentException('Root namespace must not be empty');
-        }
-
-        if (!NameUtils::isValidNSName($rootNamespace)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Root namespace "%s" is not a valid PHP namespace.',
-                    $rootNamespace
-                )
-            );
-        }
-
-        $this->_rootNamespace = $rootNamespace;
-        return $this;
     }
 
     /**
@@ -212,24 +198,6 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @return null|int
-     */
-    public function getLibxmlOpts(): null|int
-    {
-        return $this->_libxmlOpts;
-    }
-
-    /**
-     * @param null|int $libxmlOpts
-     * @return static
-     */
-    public function setLibxmlOpts(?int $libxmlOpts): self
-    {
-        $this->_libxmlOpts = $libxmlOpts;
-        return $this;
-    }
-
-    /**
      * @return \DCarbone\PHPFHIR\Logger
      */
     public function getLogger(): Logger
@@ -240,37 +208,51 @@ class Config implements LoggerAwareInterface
     /**
      * @return string
      */
-    public function getOutputPath(): string
+    public function getLibraryPath(): string
     {
-        return $this->_outputPath;
+        return $this->_libraryPath;
     }
 
     /**
-     * @param string $outputPath
+     * @param string $libraryPath
      * @return self
      */
-    public function setOutputPath(string $outputPath): self
+    public function setLibraryPath(string $libraryPath): self
     {
-        if (!is_dir($outputPath)) {
-            throw new \RuntimeException('Unable to locate output dir "' . $outputPath . '"');
+        FileUtils::assertDirReadableAndWriteable($libraryPath);
+        $this->_libraryPath = $libraryPath;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLibraryNamespacePrefix(): string
+    {
+        return $this->_libraryNamespacePrefix;
+    }
+
+    /**
+     * @param string $libraryNamespacePrefix
+     * @return self
+     */
+    public function setLibraryNamespacePrefix(string $libraryNamespacePrefix): self
+    {
+        $libraryNamespacePrefix = trim($libraryNamespacePrefix, PHPFHIR_NAMESPACE_TRIM_CUTSET);
+        if ('' === $libraryNamespacePrefix) {
+            throw new \InvalidArgumentException('Library namespace must not be empty');
         }
-        if (!is_writable($outputPath)) {
-            throw new \RuntimeException(
+
+        if (!NameUtils::isValidNSName($libraryNamespacePrefix)) {
+            throw new \InvalidArgumentException(
                 sprintf(
-                    'Specified output path "%s" is not writable by this process.',
-                    $outputPath
+                    'Library namespace prefix "%s" is not a valid PHP namespace.',
+                    $libraryNamespacePrefix
                 )
             );
         }
-        if (!is_readable($outputPath)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Specified output path "%s" is not readable by this process.',
-                    $outputPath
-                )
-            );
-        }
-        $this->_outputPath = $outputPath;
+
+        $this->_libraryNamespacePrefix = $libraryNamespacePrefix;
         return $this;
     }
 
@@ -377,6 +359,83 @@ class Config implements LoggerAwareInterface
     }
 
     /**
+     * Set the path to place generated test classes.
+     *
+     * @param string|null $testsPath
+     * @return self
+     */
+    public function setTestsPath(null|string $testsPath): self
+    {
+        if (null === $testsPath) {
+            unset($this->_testsPath);
+            return $this;
+        }
+        FileUtils::assertDirReadableAndWriteable($testsPath);
+        $this->_testsPath = $testsPath;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTestsPath(): null|string
+    {
+        return $this->_testsPath ?? null;
+    }
+
+    /**
+     * Set namespace prefix to apply to generated test classes.
+     *
+     * @param string $testsNamespacePrefix
+     * @return self
+     */
+    public function setTestsNamespacePrefix(string $testsNamespacePrefix): self
+    {
+        $testsNamespacePrefix = trim($testsNamespacePrefix, PHPFHIR_NAMESPACE_TRIM_CUTSET);
+        if ('' === $testsNamespacePrefix) {
+            throw new \InvalidArgumentException('Test namespace prefix must not be empty');
+        }
+
+        if (!NameUtils::isValidNSName($testsNamespacePrefix)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Test namespace prefix "%s" is not a valid PHP namespace.',
+                    $testsNamespacePrefix
+                )
+            );
+        }
+
+        $this->_testsNamespacePrefix = $testsNamespacePrefix;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTestsNamespacePrefix(): string
+    {
+        return $this->_testsNamespacePrefix;
+    }
+
+    /**
+     * @return null|int
+     */
+    public function getLibrarySchemaLibxmlOpts(): null|int
+    {
+        return $this->_librarySchemaLibxmlOpts;
+    }
+
+    /**
+     * @param int $librarySchemaLibxmlOpts
+     * @return static
+     */
+    public function setLibrarySchemaLibxmlOpts(int $librarySchemaLibxmlOpts): self
+    {
+        $this->_librarySchemaLibxmlOpts = $librarySchemaLibxmlOpts;
+        return $this;
+    }
+
+    /**
      * @return \DCarbone\PHPFHIR\CoreFiles
      */
     public function getCoreFiles(): CoreFiles
@@ -391,12 +450,32 @@ class Config implements LoggerAwareInterface
      */
     public function getFullyQualifiedName(bool $leadingSlash, string...$bits): string
     {
-        $ns = $leadingSlash ? "\\$this->_rootNamespace" : $this->_rootNamespace;
+        $ns = $this->getLibraryNamespacePrefix();
+        if ($leadingSlash) {
+            $ns = "\\{$ns}";
+        }
         $bits = array_filter($bits);
         if ([] === $bits) {
             return $ns;
         }
         return sprintf('%s\\%s', $ns, implode('\\', $bits));
+    }
+
+    /**
+     * Construct fully qualified name with the appropriate test namespace prefix applied
+     *
+     * @param bool $leadingSlash
+     * @param string ...$bits
+     * @return string
+     */
+    public function getFullyQualifiedTestName(bool $leadingSlash, string...$bits): string
+    {
+        return sprintf(
+            "%s%s%s",
+            $leadingSlash ? '\\' : '',
+            $this->getTestsNamespacePrefix(),
+            $this->getFullyQualifiedName(true, ...$bits)
+        );
     }
 
     /**
@@ -422,5 +501,21 @@ class Config implements LoggerAwareInterface
     public function getBasePHPFHIRCopyrightComment(bool $trailingNewline): string
     {
         return $this->_basePHPFHIRCopyrightComment . ($trailingNewline ? "\n" : '');
+    }
+
+    public function getCoreTestFiles(): CoreFiles
+    {
+        if (isset($this->_coreTestFiles)) {
+            return $this->_coreTestFiles;
+        }
+        if (!isset($this->_testsPath)) {
+            throw new \RuntimeException('No tests path has been set.');
+        }
+        return $this->_coreTestFiles = new CoreFiles(
+            $this,
+            $this->getTestsPath(),
+            PHPFHIR_TEMPLATE_TESTS_CORE_DIR,
+            $this->getFullyQualifiedTestName(true),
+        );
     }
 }

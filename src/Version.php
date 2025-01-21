@@ -49,6 +49,10 @@ class Version
 
     /** @var \DCarbone\PHPFHIR\CoreFiles */
     private CoreFiles $_coreFiles;
+    /** @var \DCarbone\PHPFHIR\CoreFiles */
+    private CoreFiles $_versionTestFiles;
+    /** @var \DCarbone\PHPFHIR\CoreFiles */
+    private CoreFiles $_typesTestFiles;
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
@@ -57,10 +61,10 @@ class Version
      * @param null|string $namespace
      * @param null|array|\DCarbone\PHPFHIR\Version\DefaultConfig $defaultConfig
      */
-    public function __construct(Config             $config,
-                                string             $name,
-                                string             $schemaPath,
-                                null|string        $namespace = null,
+    public function __construct(Config                   $config,
+                                string                   $name,
+                                string                   $schemaPath,
+                                null|string              $namespace = null,
                                 null|array|DefaultConfig $defaultConfig = null)
     {
         $this->_config = $config;
@@ -93,7 +97,7 @@ class Version
 
         $this->_coreFiles = new CoreFiles(
             $this->_config,
-            $config->getOutputPath(),
+            $config->getLibraryPath(),
             PHPFHIR_TEMPLATE_VERSIONS_CORE_DIR,
             $this->getFullyQualifiedName(true),
         );
@@ -211,6 +215,16 @@ class Version
     }
 
     /**
+     * @param bool $leadingSlash
+     * @param string ...$bits
+     * @return string
+     */
+    public function getFullyQualifiedTestsName(bool $leadingSlash, string ...$bits): string
+    {
+        return $this->_config->getFullyQualifiedTestName($leadingSlash, ...array_merge([$this->_namespace], $bits));
+    }
+
+    /**
      * @return string
      */
     public function getConstName(): string
@@ -246,5 +260,47 @@ class Version
     public function getCoreFiles(): CoreFiles
     {
         return $this->_coreFiles;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\CoreFiles
+     */
+    public function getVersionTestFiles(): CoreFiles
+    {
+        if (isset($this->_versionTestFiles)) {
+            return $this->_versionTestFiles;
+        }
+        $tp = $this->_config->getTestsPath();
+        if (null === $tp) {
+            throw new \RuntimeException('No tests path has been set.');
+        }
+        $this->_versionTestFiles = new CoreFiles(
+            $this->_config,
+            $tp,
+            PHPFHIR_TEMPLATE_TESTS_VERSIONS_CORE_DIR,
+            $this->getFullyQualifiedTestsName(false)
+        );
+        return $this->_versionTestFiles;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\CoreFiles
+     */
+    public function getTypesTestFiles(): CoreFiles
+    {
+        if (isset($this->_typesTestFiles)) {
+            return $this->_typesTestFiles;;
+        }
+        $tp = $this->_config->getTestsPath();
+        if (null === $tp) {
+            throw new \RuntimeException('No tests path has been set.');
+        }
+        $this->_typesTestFiles = new CoreFiles(
+            $this->_config,
+            $tp,
+            PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR,
+            $this->getFullyQualifiedTestsName(false, PHPFHIR_NAMESPACE_TYPES)
+        );
+        return $this->_typesTestFiles;
     }
 }

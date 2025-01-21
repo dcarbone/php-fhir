@@ -356,6 +356,9 @@ echo PHP_EOL;
 $builder = new Builder($config);
 
 // render entities based on flags.
-$builder->render($generate_core, $generate_library ? $versions_to_generate : []);
+$builder->render(
+    coreFiles: $generate_core,
+    versionNames: $generate_library ? $versions_to_generate : [],
+);
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;

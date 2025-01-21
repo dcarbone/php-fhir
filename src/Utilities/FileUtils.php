@@ -29,6 +29,29 @@ use RuntimeException;
  */
 class FileUtils
 {
+    public static function assertDirReadableAndWriteable(string $path): void
+    {
+        if (!is_dir($path)) {
+            throw new \RuntimeException(sprintf('Unable to locate directory "%s"', $path));
+        }
+        if (!is_writable($path)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Specified directory "%s" is not writable by this process.',
+                    $path
+                )
+            );
+        }
+        if (!is_readable($path)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Specified directory "%s" is not readable by this process.',
+                    $path
+                )
+            );
+        }
+    }
+
     /**
      * @param string $path
      * @param int $dirPermMask
@@ -48,7 +71,7 @@ class FileUtils
      */
     public static function compileNamespaceFilepath(Config $config, string $namespace): string
     {
-        $base = rtrim($config->getOutputPath(), '\\/');
+        $base = rtrim($config->getLibraryPath(), '\\/');
         $nsPath = trim(str_replace(PHPFHIR_NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $namespace), DIRECTORY_SEPARATOR);
         return $base . DIRECTORY_SEPARATOR . $nsPath;
     }

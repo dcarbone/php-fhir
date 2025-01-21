@@ -19,14 +19,20 @@
  * limitations under the License.
  */
 return [
-    // The path to place generated files
-    'outputPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output' . DIRECTORY_SEPARATOR,
+    // The root path to place Library entites
+    'libraryPath' => __DIR__ . '/../output/src',
 
-    // The root namespace for all generated classes
-    'rootNamespace' => '\\DCarbone\\PHPFHIRGenerated',
+    // The root namespace for library entities
+    'libraryNamespacePrefix' => '\\DCarbone\\PHPFHIRGenerated',
 
-    // The libxml opts to use for parsing source XSD's.
-    'libxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
+    // The libxml opts to use for parsing version schema XSD's.
+    'librarySchemaLibxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
+
+    // The root path to place test classes
+    'testsPath' => __DIR__ . '/../output/tests',
+
+    // Namespace prefix to apply to test classes.  The library namespace will be appended to this for all test classes.
+    'testsNamespacePrefix' => '\\Tests',
 
     // Map of versions and configurations to generate.
     // Each entry in this map will grab the latest revision of that particular version.
