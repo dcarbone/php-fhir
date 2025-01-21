@@ -19,15 +19,16 @@
 
 return array_merge(
     require __DIR__ . '/../bin/config.php',
-    [
-        'versions' => match (getenv('PHPFHIR_TEST_TARGET')) {
-            'Core' => [],
-            default => [
+    match (getenv('PHPFHIR_TEST_TARGET')) {
+        'Core' => ['versions' => []],
+        'Versions' => [],
+        default => [
+            'versions' => [
                 [
                     'name' => getenv('PHPFHIR_TEST_TARGET'),
                     'schemaPath' => __DIR__ . '/../input/' . getenv('PHPFHIR_TEST_TARGET'),
                 ],
             ],
-        },
-    ]
+        ],
+    },
 );

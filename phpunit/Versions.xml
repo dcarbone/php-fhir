@@ -15,13 +15,7 @@
     </php>
     <testsuites>
         <testsuite name="Versions">
-            <directory>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Tests/Versions</directory>
-            <exclude>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Tests/Versions/DSTU1</exclude>
-            <exclude>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Tests/Versions/DSTU2</exclude>
-            <exclude>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Tests/Versions/STU3</exclude>
-            <exclude>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Tests/Versions/R4</exclude>
-            <exclude>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Tests/Versions/R4B</exclude>
-            <exclude>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Tests/Versions/R5</exclude>
+            <directory>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Versions</directory>
         </testsuite>
     </testsuites>
 </phpunit>
