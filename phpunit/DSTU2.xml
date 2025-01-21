@@ -15,7 +15,7 @@
     </php>
     <testsuites>
         <testsuite name="DSTU2">
-            <directory>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Versions/DSTU2/Tests</directory>
+            <directory>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Versions/DSTU2</directory>
         </testsuite>
     </testsuites>
 </phpunit>
