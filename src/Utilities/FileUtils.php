@@ -65,15 +65,15 @@ class FileUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param string $basepath
      * @param string $namespace
      * @return string
      */
-    public static function compileNamespaceFilepath(Config $config, string $namespace): string
+    public static function compileNamespaceFilepath(string $basepath, string $namespace): string
     {
-        $base = rtrim($config->getLibraryPath(), '\\/');
+        $basepath = rtrim($basepath, '\\/');
         $nsPath = trim(str_replace(PHPFHIR_NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $namespace), DIRECTORY_SEPARATOR);
-        return $base . DIRECTORY_SEPARATOR . $nsPath;
+        return $basepath . DIRECTORY_SEPARATOR . $nsPath;
     }
 
     /**
@@ -83,9 +83,16 @@ class FileUtils
      */
     public static function buildTypeClassFilepath(Version $version, Type $type): string
     {
-        return self::compileNamespaceFilepath($version->getConfig(), $type->getFullyQualifiedNamespace(false))
+        return self::compileNamespaceFilepath($version->getConfig()->getLibraryPath(), $type->getFullyQualifiedNamespace(false))
             . DIRECTORY_SEPARATOR
             . "{$type->getClassName()}.php";
+    }
+
+    public static function buildTypeTestClassFilepath(Version $version, Type $type): string
+    {
+        return self::compileNamespaceFilepath($version->getConfig()->getTestsPath(), $type->getFullyQualifiedTestNamespace(false))
+            . DIRECTORY_SEPARATOR
+            . "{$type->getTestClassName()}.php";
     }
 
     /**

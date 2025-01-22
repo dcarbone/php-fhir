@@ -17,8 +17,8 @@
  */
 
 
-/** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+/** @var \DCarbone\PHPFHIR\Version $version */
 
 $types = $version->getDefinition()->getTypes()->getNameSortedIterator();
 

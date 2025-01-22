@@ -30,45 +30,48 @@ use DCarbone\PHPFHIR\Version\Definition\Types;
  */
 abstract class Templates
 {
-    public static function renderCoreFile(Config $config, CoreFile $coreFile, array $templateArgs): string
+    /**
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\CoreFile $coreFile
+     * @param array $kwargs
+     * @return string
+     */
+    public static function renderCoreFile(Config $config, CoreFile $coreFile, array $kwargs): string
     {
-        extract($templateArgs);
+        extract($kwargs);
         return require $coreFile->getTemplateFile();
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Version $version
-     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderVersionXHTMLTypeClass(Version $version, Types $types, Type $type): string
+    public static function renderVersionXHTMLTypeClass(Version $version, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_xhtml.php';
+        return require sprintf('%s/class_xhtml.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Version $version
-     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderVersionTypeClass(Version $version, Types $types, Type $type): string
+    public static function renderVersionTypeClass(Version $version, Type $type): string
     {
         if ($type->getKind()->isResourceContainer($version)) {
-            return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_resource_container.php';
+            return require sprintf('%s/class_resource_container.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
         }
-        return require PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_default.php';
+        return require sprintf('%s/class_default.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
     }
 
-//    /**
-//     * @param \DCarbone\PHPFHIR\Version $version
-//     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
-//     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-//     * @return string
-//     */
-//    public static function renderVersionTypeClassTest(Version $version, Types $types, Type $type): string
-//    {
-//        return require PHPFHIR_TEMPLATE_VERSION_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR . 'class.php';
-//    }
+    /**
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @return string
+     */
+    public static function renderVersionTypeClassTest(Version $version, Type $type): string
+    {
+        return require sprintf('%s/class.php', PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR);
+    }
 }

@@ -79,6 +79,9 @@ class Builder
         if ($testFiles) {
             // write fhir version test classes
             $this->writeFHIRVersionTestClasses(...$versionNames);
+
+            // write fhir version type test classes
+            $this->writeFHIRVersionTypeTestClasses(...$versionNames);
         }
     }
 
@@ -142,9 +145,9 @@ class Builder
 
                 // TODO(@dcarbone): revisit with template system refactor
                 if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
-                    $classDefinition = Templates::renderVersionXHTMLTypeClass($version, $types, $type);
+                    $classDefinition = Templates::renderVersionXHTMLTypeClass($version, $type);
                 } else {
-                    $classDefinition = Templates::renderVersionTypeClass($version, $types, $type);
+                    $classDefinition = Templates::renderVersionTypeClass($version, $type);
                 }
                 $filepath = FileUtils::buildTypeClassFilepath($version, $type);
                 FileUtils::mkdirRecurse($filepath);
@@ -194,79 +197,52 @@ class Builder
     }
 
     /**
-     * Generate Test classes only.  Tests will not pass if FHIR classes have not been built.
+     * Generate FHIR version type test classes.
      *
      * @throws \Exception
      */
-//    public function writeFHIRVersionTestFiles(string ...$versionNames): void
-//    {
-//        $log = $this->config->getLogger();
-//
-//        foreach ($versionNames as $versionName) {
-//            $version = $this->config->getVersion($versionName);
-//
-//            $log->startBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
-//
-//            $definition = $version->getDefinition();
-//
-//            if (!$definition->isDefined()) {
-//                $log->startBreak('XSD Parsing');
-//                $definition->buildDefinition();
-//                $log->endBreak('XSD Parsing');
-//            }
-//
-//            $types = $definition->getTypes();
-//
-//            $log->startBreak('Test Class Generation');
-//
-//            foreach ($types->getIterator() as $type) {
-//                if ($type->isAbstract()) {
-//                    continue;
-//                }
-//
-//                // every type gets a unit test
-//
-//                $ns = sprintf('%s\\Types\\Tests\\Unit', $version->getNamespace());
-//                $typeNS = $type->getNamespace();
-//
-//                $coreFile = new CoreFile(
-//                    $this->config,
-//                    PHPFHIR_TEMPLATE_VERSION_TYPES_TESTS_DIR . DIRECTORY_SEPARATOR . 'unit' . DIRECTORY_SEPARATOR . 'class.php',
-//                    $type->getVersion()->getOutputPath() . DIRECTORY_SEPARATOR . 'Types' . DIRECTORY_SEPARATOR
-//                )
-//
-//                foreach ($testTypes as $testType) {
-//                    // only render integration and validation tests if this is a "resource" type
-//                    if (!$type->isResourceType() && $testType->isOneOf(TestTypeEnum::INTEGRATION, TestTypeEnum::VALIDATION)) {
-//                        continue;
-//                    }
-//
-//                    $log->debug("Generated {$testType->value} test class for type {$type}...");
-//                    $classDefinition = Templates::renderVersionTypeClassTest($version, $types, $type, $testType);
-//                    $filepath = FileUtils::buildTypeTestFilePath($version, $type, $testType);
-//                    if (false === file_put_contents($filepath, $classDefinition)) {
-//                        throw new \RuntimeException(
-//                            sprintf(
-//                                'Unable to write Type %s class definition to file %s',
-//                                $filepath,
-//                                $type
-//                            )
-//                        );
-//                    }
-//                }
-//            }
-//            $log->endBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
-//        }
-//    }
+    public function writeFHIRVersionTypeTestClasses(string ...$versionNames): void
+    {
+        $log = $this->config->getLogger();
+
+        foreach ($versionNames as $versionName) {
+            $version = $this->config->getVersion($versionName);
+
+            $log->startBreak(sprintf('FHIR Version %s Types Test Generation', $version->getName()));
+
+            $definition = $version->getDefinition();
+
+            if (!$definition->isDefined()) {
+                $log->startBreak('XSD Parsing');
+                $definition->buildDefinition();
+                $log->endBreak('XSD Parsing');
+            }
+
+            $types = $definition->getTypes();
+
+            foreach ($types->getIterator() as $type) {
+                /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
+                if ($type->isAbstract()) {
+                    continue;
+                }
+
+                $filepath = FileUtils::buildTypeTestClassFilepath($version, $type);
+                FileUtils::mkdirRecurse($filepath);
+                $classDefinition = Templates::renderVersionTypeClassTest($version, $type);
+                $this->writeFile($filepath, $classDefinition);
+            }
+            $log->endBreak(sprintf('FHIR Version %s Test Generation', $version->getName()));
+        }
+    }
 
     /**
      * Renders core PHP FHIR type classes, interfaces, traits, and enums.
      *
      * @param \DCarbone\PHPFHIR\CoreFiles $coreFiles
-     * @param array $templateArgs
+     * @param array $kwargs
      * @return void
      */
-    public function writeCoreFiles(CoreFiles $coreFiles, array $templateArgs): void
+    public function writeCoreFiles(CoreFiles $coreFiles, array $kwargs): void
     {
         $this->log->startBreak('Core Files');
 
@@ -275,7 +251,7 @@ class Builder
             FileUtils::mkdirRecurse($coreFile->getFilepath());
             $this->writeFile(
                 $coreFile->getFilepath(),
-                Templates::renderCoreFile($this->config, $coreFile, $templateArgs),
+                Templates::renderCoreFile($this->config, $coreFile, $kwargs),
             );
         }
 

@@ -12,6 +12,7 @@
     <php>
         <ini name="memory_limit" value="2048M"/>
         <env name="PHPFHIR_TEST_TARGET" value="R4B"/>
+        <env name="PHPFHIR_TEST_SERVER_ADDR" value="http://127.0.0.1:8080/R4B"/>
     </php>
     <testsuites>
         <testsuite name="R4B">

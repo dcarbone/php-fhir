@@ -97,10 +97,10 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> implements <?php echo PHPFH
 
         $format = $request->format ?? $this->_config->getDefaultFormat();
         if (null !== $format) {
-            $queryParams[self::_PARAM_FORMAT] = $format->value;
+            $queryParams[self::_PARAM_FORMAT] = $format;
         }
         if (isset($request->sort)) {
-            $queryParams[self::_PARAM_SORT] = $request->sort->value;
+            $queryParams[self::_PARAM_SORT] = $request->sort;
         }
         if (isset($request->count)) {
             $queryParams[self::_PARAM_COUNT] = $request->count;
@@ -155,53 +155,6 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CLIENT; ?> implements <?php echo PHPFH
         }
 
         return $rc;
-    }
-
-    private function _exec(string|<?php echo $htMethodEnum->getEntityName(); ?> $method, string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
-
-    {
-        $req = new <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>();
-        $req->method = (string)$method;
-        $req->path = $path;
-        $req->queryParams = $queryParams;
-        $req->options = $curlOpts;
-        return $this->exec($req);
-    }
-
-    public function get(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
-
-    {
-        return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::GET, $path, $queryParams, $curlOpts);
-    }
-
-    public function put(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
-
-    {
-        return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::PUT, $path, $queryParams, $curlOpts);
-    }
-
-    public function post(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
-
-    {
-        return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::POST, $path, $queryParams, $curlOpts);
-    }
-
-    public function patch(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
-
-    {
-        return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::PATCH, $path, $queryParams, $curlOpts);
-    }
-
-    public function delete(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
-
-    {
-        return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::DELETE, $path, $queryParams, $curlOpts);
-    }
-
-    public function head(string $path, array $queryParams = [], array $curlOpts = []): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
-
-    {
-        return $this->_exec(<?php echo $htMethodEnum->getEntityName(); ?>::HEAD, $path, $queryParams, $curlOpts);
     }
 }
 <?php return ob_get_clean();

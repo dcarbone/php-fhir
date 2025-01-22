@@ -20,10 +20,8 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\CoreFiles;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-use DCarbone\PHPFHIR\Enum\TypeTestKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue;
@@ -316,12 +314,34 @@ class Type
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\TypeTestKindEnum $testKind
      * @return string
      */
-    public function getTestClassName(TypeTestKindEnum $testKind): string
+    public function getTestClassName(): string
     {
-        return sprintf('%s%sTest', $this->getClassName(), $testKind->value);
+        return sprintf('%sTest', $this->getClassName());
+    }
+
+    public function getFullyQualifiedTestNamespace(bool $leadingSlash): string
+    {
+        return $this
+            ->getVersion()
+            ->getFullyQualifiedTestsName(
+                $leadingSlash,
+                PHPFHIR_NAMESPACE_TYPES,
+                $this->getNamespace(),
+            );
+    }
+
+    public function getFullyQualifiedTestClassname(bool $leadingSlash): string
+    {
+        return $this
+            ->getVersion()
+            ->getFullyQualifiedTestsName(
+                $leadingSlash,
+                PHPFHIR_NAMESPACE_TYPES,
+                $this->getNamespace(),
+                $this->getClassName(),
+            );
     }
 
     /**

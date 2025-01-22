@@ -51,8 +51,6 @@ class Version
     private CoreFiles $_coreFiles;
     /** @var \DCarbone\PHPFHIR\CoreFiles */
     private CoreFiles $_versionTestFiles;
-    /** @var \DCarbone\PHPFHIR\CoreFiles */
-    private CoreFiles $_typesTestFiles;
 
     /**
      * @param \DCarbone\PHPFHIR\Config $config
@@ -149,16 +147,6 @@ class Version
         }
         $this->_schemaPath = $schemaPath;
         return $this;
-    }
-
-    /**
-     * Returns the specific class output path for this version's generated code
-     *
-     * @return string
-     */
-    public function getOutputPath(): string
-    {
-        return FileUtils::compileNamespaceFilepath($this->_config, $this->_namespace);
     }
 
     /**
@@ -289,7 +277,7 @@ class Version
     public function getTypesTestFiles(): CoreFiles
     {
         if (isset($this->_typesTestFiles)) {
-            return $this->_typesTestFiles;;
+            return $this->_typesTestFiles;
         }
         $tp = $this->_config->getTestsPath();
         if (null === $tp) {

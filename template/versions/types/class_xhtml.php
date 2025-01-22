@@ -93,6 +93,10 @@ echo require_with(
      */
     public function setXHTML(null|string|\DOMNode|\SimpleXMLElement $xhtml): self
     {
+        if (null === $xhtml) {
+            unset($this->_xhtml);
+            return $this;
+        }
         if ($xhtml instanceof \DOMDocument) {
             $xhtml = $xhtml->saveXML($xhtml->documentElement);
         } else if ($xhtml instanceof \DOMNode) {

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
@@ -23,8 +25,19 @@ $coreFiles = $config->getCoreFiles();
 
 $clientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
 $formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 $sortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
+
+$imports = $coreFile->getimports();
+
+$imports->addCoreFileImports(
+    $clientClass,
+    $formatEnum,
+    $httpMethodEnum,
+    $sortEnum,
+    $responseClass,
+);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -32,6 +45,8 @@ echo '<?php ';?>declare(strict_types=1);
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
 
@@ -85,18 +100,18 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
      */
     public array $options;
 
-    public function __construct(string|<?php echo PHPFHIR_CLIENT_ENUM_HTTP_METHOD; ?> $method,
+    public function __construct(<?php echo $httpMethodEnum->getEntityName(); ?> $method,
                                 string $path,
                                 null|int $count = null,
                                 null|string $since = null,
                                 null|string $at = null,
-                                null|string|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null,
-                                null|string|<?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort = null,
+                                null|<?php echo $formatEnum->getEntityName(); ?> $format = null,
+                                null|<?php echo $sortEnum->getEntityName(); ?> $sort = null,
                                 null|array $queryParams = null,
                                 null|bool $parseResponseHeaders = null,
                                 null|array $options = null)
     {
-        $this->method = (string)$method;
+        $this->method = $method->value;
         $this->path = $path;
         if (null !== $count) {
             $this->count = $count;
@@ -108,10 +123,10 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
             $this->at = $at;
         }
         if (null !== $format) {
-            $this->format = (string)$format;
+            $this->format = $format->value;
         }
         if (null !== $sort) {
-            $this->sort = (string)$sort;
+            $this->sort = $format->value;
         }
         if (null !== $queryParams) {
             $this->queryParams = $queryParams;

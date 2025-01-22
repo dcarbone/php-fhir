@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Builder;
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\CoreFile;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
@@ -94,11 +95,20 @@ class Imports implements \Countable
         return $this;
     }
 
+    public function addCoreFileImports(CoreFile ...$coreFile): self
+    {
+        foreach ($coreFile as $cf) {
+            $this->addImport($cf->getFullyQualifiedNamespace(false), $cf->getEntityName());
+        }
+        return $this;
+    }
+
     public function addCoreFileImportsByName(string ...$entityNames): self
     {
         foreach ($entityNames as $en) {
-            $coreFile = $this->_config->getCoreFiles()->getCoreFileByEntityName($en);
-            $this->addImport($coreFile->getFullyQualifiedNamespace(false), $coreFile->getEntityName());
+            $this->addCoreFileImports(
+                $this->_config->getCoreFiles()->getCoreFileByEntityName($en),
+            );
         }
         return $this;
     }
@@ -114,7 +124,7 @@ class Imports implements \Countable
 
     public function addVersionTypeImports(Type ...$types): self
     {
-        foreach($types as $type) {
+        foreach ($types as $type) {
             $this->addImport($type->getFullyQualifiedNamespace(false), $type->getClassName());
         }
         return $this;

@@ -105,8 +105,6 @@ jobs:
         with:
           version: '${{ matrix.test-target }}'
       - name: 'Run tests'
-        env:
-          PHPFHIR_TEST_SERVER_ADDR: 'http://127.0.0.1:8080'
         # language=sh
         run: |
           ./vendor/bin/phpunit -c 'phpunit/${{ matrix.test-target }}.xml'
