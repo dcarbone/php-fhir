@@ -199,6 +199,9 @@ echo require_with(
 
 // TODO: Right now this assumes a single string value.  Need an example use case.
 ?>
+        if (null === $json) {
+            return $type;
+        }
         if ([] !== $json) {
             $v = reset($json);
             if (is_string($v)) {

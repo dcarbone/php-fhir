@@ -39,8 +39,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?>
-
+interface <?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?> extends \JsonSerializable
 {
     /**
      * Returns the FHIR name represented by this Type

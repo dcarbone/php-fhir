@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
@@ -25,27 +23,29 @@ $typeKind = $type->getKind();
 
 ob_start();
 
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/header.php',
-    [
-        'version' => $version,
-        'type'     => $type,
-    ]
-);
+if (!$type->isPrimitiveOrListType()) :
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/header.php',
+        [
+            'version' => $version,
+            'type'     => $type,
+        ]
+    );
 
-echo "\n";
+    echo "\n";
 
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/body.php',
-    [
-        'version' => $version,
-        'type'     => $type,
-    ]
-);
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/body.php',
+        [
+            'version' => $version,
+            'type'     => $type,
+        ]
+    );
 
-echo "\n";
+    echo "\n";
+endif;
 
-if ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
+if ($type->isPrimitiveOrListType()) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/serialize/primitive.php',
         [

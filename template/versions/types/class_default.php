@@ -167,18 +167,19 @@ if (!$type->isAbstract()) :
     );
 endif;
 
-if (!$type->isPrimitiveOrListType() && $type->hasLocalProperties()) :
+if ($type->hasLocalProperties()) :
     echo "\n";
+    if (!$type->isPrimitiveOrListType()) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
+            [
+                'version' => $version,
+                'type'     => $type,
+            ]
+        );
 
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
-        [
-            'version' => $version,
-            'type'     => $type,
-        ]
-    );
-
-    echo "\n";
+        echo "\n";
+    endif;
 
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',

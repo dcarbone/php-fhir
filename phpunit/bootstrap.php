@@ -22,15 +22,19 @@ const PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/.
 const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/src/DCarbone/PHPFHIRGenerated/Autoloader.php';
 
 // require generator autoloader
-(function () {
+(function (): void {
     $composer_autoloader = realpath(PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH);
     echo "Requiring composer autoloader: {$composer_autoloader}\n";
     require $composer_autoloader;
 })();
 
 // generate code for test target
-(function () {
+(function (): void {
     $phpfhir_test_target = getenv('PHPFHIR_TEST_TARGET');
+    if ('true' === (string)getenv('PHPFHIR_TEST_SKIP_GENERATE')) {
+        echo "Skipping code generation for target: {$phpfhir_test_target}\n";
+        return;
+    }
     echo "Generating code for target: {$phpfhir_test_target}\n";
     $config = \DCarbone\PHPFHIR\Config::fromArray(require PHPFHIR_TEST_CONFIG_FILE);
     $builder = new DCarbone\PHPFHIR\Builder($config);
@@ -38,7 +42,7 @@ const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/
 })();
 
 // require generated autoloader
-(function () {
+(function (): void {
     $generated_autoloader = realpath(PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH);
     echo "Requiring generated autoloader: {$generated_autoloader}\n";
     require $generated_autoloader;

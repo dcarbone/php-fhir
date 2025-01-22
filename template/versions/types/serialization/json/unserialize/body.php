@@ -61,99 +61,72 @@ foreach($type->getProperties()->getIterator() as $property) :
 <?php elseif ($propType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propType->hasPrimitiveContainerParent() || $propType->isValueContainer()) : ?>
         if (isset($json[self::<?php echo $propConst; ?>]) || isset($json[self::<?php echo $propConstExt; ?>]) || array_key_exists(self::<?php echo $propConst; ?>, $json) || array_key_exists(self::<?php echo $propConstExt; ?>, $json)) {
             $value = $json[self::<?php echo $propConst; ?>] ?? null;
-            $ext = (isset($json[self::<?php echo $propConstExt; ?>]) && is_array($json[self::<?php echo $propConstExt; ?>])) ? $json[self::<?php echo $propConstExt; ?>] : [];
-            if (null !== $value) {
-                if ($value instanceof <?php echo $propTypeClass; ?>) {
-                    $type-><?php echo $setter; ?>($value);
-                } else <?php if ($property->isCollection()) : ?>if (is_array($value)) {
-                    foreach($value as $i => $v) {
-                        if ($v instanceof <?php echo $propTypeClass; ?>) {
-                            $type-><?php echo $setter; ?>($v);
-                        } else {
-                            $iext = (isset($ext[$i]) && is_array($ext[$i])) ? $ext[$i] : [];
-                            if (is_array($v)) {
-                                $type-><?php echo $setter; ?>(new <?php echo $propTypeClass; ?>(array_merge($v, $iext)));
-                            } else {
-                                $type-><?php echo $setter; ?>(new <?php echo $propTypeClass; ?>(value: [<?php echo $propTypeClass; ?>::FIELD_VALUE => $v] + $iext));
-                            }
-                        }
-                    }
-                } else<?php endif; ?>if (is_array($value)) {
-                    $type-><?php echo $setter; ?>(new <?php echo $propTypeClass; ?>(array_merge($ext, $value)));
-                } else {
-                    $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize([<?php echo $propTypeClass; ?>::FIELD_VALUE => $value] + $ext));
-                }
-            } elseif ([] !== $ext) {
-<?php   if ($property->isCollection()) : ?>
-                foreach($ext as $iext) {
-                    $type-><?php echo $setter; ?>(new <?php echo $propTypeClass; ?>($iext));
-                }
-<?php   else : ?>
-                $type-><?php echo $setter; ?>(new <?php echo $propTypeClass; ?>($ext));
-<?php   endif; ?>
-            } else {
-                $type-><?php echo $setter; ?>(new <?php echo $propTypeClass; ?>(null));
+            $ext = (array)($json[self::<?php echo $propConstExt; ?>] ?? []);
+<?php if ($property->isCollection()) : ?>
+            if (!is_array($value)) {
+                $value = [$value];
             }
+            $cnt = count($value);
+            $extCnt = count($ext);
+            if ($extCnt > $cnt) {
+                $cnt = $extCnt;
+            }
+            for ($i = 0; $i < $cnt; $i++) {
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize(
+                    json: [<?php echo $propTypeClass; ?>::FIELD_VALUE => $value[$i] ?? null] + (array)($ext[$i] ?? []),
+                    config: $config,
+                ));
+            }
+<?php else : ?>
+            $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize(
+                json: [<?php echo $propTypeClass; ?>::FIELD_VALUE => $value] + $ext,
+                config: $config,
+            ));
+<?php endif; ?>
         }
 <?php elseif ($propTypeKind->isResourceContainer($version)) : ?>
-        if (isset($data[self::<?php echo $propConst; ?>])) {
+        if (isset($json[self::<?php echo $propConst; ?>])) {
 <?php   if ($property->isCollection()) : ?>
-            if (is_array($data[self::<?php echo $propConst; ?>])) {
-                if (is_int(key($data[self::<?php echo $propConst; ?>]))) {
-                    $type-><?php echo $setter; ?>($data[self::<?php echo $propConst; ?>]);
-                } else {
-                    $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($data[self::<?php echo $propConst; ?>]);
-                    $d = $data[self::<?php echo $propConst; ?>];
-                    unset($d[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
-                    $type-><?php echo $setter; ?>(new $typeClassName($d));
-                }
-            } elseif (!is_object($data[self::<?php echo $propConst; ?>]) || !($data[self::<?php echo $propConst; ?>] instanceof <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>)) {
-                throw new \InvalidArgumentException(sprintf(
-                    '<?php echo $propTypeClass; ?> - Field "<?php echo $property->getName(); ?>" must be an array of objects implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE); ?>, value of type %s seen',
-                    is_object($data[self::<?php echo $propConst; ?>]) ? get_class($data[self::<?php echo $propConst; ?>]) : gettype($data[self::<?php echo $propConst; ?>])
+            $d = $json[self::<?php echo $propConst; ?>];
+            if (!is_int(key($d))) {
+                $d = [$d];
+            }
+            foreach($d as $v) {
+                $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($v);
+                unset($v[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+                $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize(
+                    json: $v,
+                    config: $config,
                 ));
-            } else {
-                $type-><?php echo $setter; ?>($data[self::<?php echo $propConst; ?>]);
             }
 <?php   else : ?>
-            if (is_array($data[self::<?php echo $propConst; ?>])) {
-                $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($data[self::<?php echo $propConst; ?>]);
-                $d = $data[self::<?php echo $propConst; ?>];
-                unset($d[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
-                $typeClass = new $typeClassName($d);
-            } else if (!is_object($data[self::<?php echo $propConst; ?>]) || !($data[self::<?php echo $propConst; ?>] instanceof <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>)) {
-                throw new \InvalidArgumentException(sprintf(
-                    '<?php echo $propTypeClass; ?> - Field "<?php echo $property->getName(); ?>" must be an array or object implementing <?php echo $version->getFullyQualifiedName(true, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE); ?>, %s seen',
-                    is_object($data[self::<?php echo $propConst; ?>]) ? get_class($data[self::<?php echo $propConst; ?>]) : gettype($data[self::<?php echo $propConst; ?>])
-                ));
-            } else {
-                $typeClass = $data[self::<?php echo $propConst; ?>];
-            }
-            $type-><?php echo $setter; ?>($typeClass);
+            $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($json[self::<?php echo $propConst; ?>]);
+            $d = $json[self::<?php echo $propConst; ?>];
+            unset($d[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+            $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize(
+                json: $d,
+                config: $config,
+            ));
 <?php   endif; ?>
         }
 <?php else : ?>
         if (isset($json[self::<?php echo $propConst; ?>]) || array_key_exists(self::<?php echo $propConst; ?>, $json)) {
 <?php   if ($property->isCollection()) : ?>
-            if (is_array($json[self::<?php echo $propConst; ?>])) {
-                foreach($json[self::<?php echo $propConst; ?>] as $v) {
-                    if ($v instanceof <?php echo $propTypeClass; ?>) {
-                        $type-><?php echo $setter; ?>($v);
-                    } else {
-                        $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize($v));
-                    }
-                }
-            } elseif ($json[self::<?php echo $propConst; ?>] instanceof <?php echo $propTypeClass; ?>) {
-                $type-><?php echo $setter; ?>($json[self::<?php echo $propConst; ?>]);
-            } else {
-                $type-><?php echo $setter; ?>(new <?php echo $propTypeClass; ?>($json[self::<?php echo $propConst; ?>]));
+            $vs = $json[self::<?php echo $propConst; ?>];
+            if (!is_int(key($vs))) {
+                $vs = [$vs];
+            }
+            foreach($vs as $v) {
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize(
+                    json: $v,
+                    config: $config,
+                ));
             }
 <?php       else : ?>
-            if ($json[self::<?php echo $propConst; ?>] instanceof <?php echo $propTypeClass; ?>) {
-                $type-><?php echo $setter; ?>($json[self::<?php echo $propConst; ?>]);
-            } else {
-                $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize($json[self::<?php echo $propConst; ?>]));
-            }
+            $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize(
+                json: $json[self::<?php echo $propConst; ?>],
+                config: $config,
+            ));
 <?php   endif; ?>
         }
 <?php endif;

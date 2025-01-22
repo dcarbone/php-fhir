@@ -153,6 +153,7 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         $rc = $client->readRaw(
             resourceType: <?php echo $versionTypeEnum->getEntityName(); ?>::<?php echo $type->getConstName(false); ?>,
             format: <?php echo $clientFormatEnum->getEntityName(); ?>::JSON,
+            count: 5,
         );
         if (404 === $rc->getCode()) {
             $this->markTestSkipped(sprintf(
@@ -160,6 +161,8 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
                 $this->_getTestEndpoint(),
             ));
         }
+        $this->assertIsString($rc->getResp());
+        $this->assertJSON($rc->getResp());
         $this->assertEquals(200, $rc->getCode(), sprintf('Configured test endpoint "%s" returned non-200 response code', $this->_getTestEndpoint()));
         $bundle = <?php echo $bundleType->getClassName(); ?>::jsonUnserialize(
             json: $rc->getResp(),
