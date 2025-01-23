@@ -24,12 +24,12 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $imports = $coreFile->getImports();
 
 $imports->addCoreFileImportsByName(
-    PHPFHIR_INTERFACE_TYPE
+    PHPFHIR_TYPES_INTERFACE_TYPE
 );
 
 $coreFiles = $config->getCoreFiles();
 
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -78,7 +78,7 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public static function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool;
+    public static function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type): bool;
 
     /**
      * @param \SimpleXMLElement $node Parent element containing inline resource

@@ -26,14 +26,14 @@ $imports = $coreFile->getImports();
 
 $imports->addCoreFileImportsByName(
     PHPFHIR_CLASSNAME_CONSTANTS,
-    PHPFHIR_INTERFACE_TYPE,
+    PHPFHIR_TYPES_INTERFACE_TYPE,
     PHPFHIR_INTERFACE_VERSION_TYPE_MAP,
 );
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 
 $types = $version->getDefinition()->getTypes();
 
@@ -123,11 +123,11 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php
      * @return bool
      * @throws \InvalidArgumentException
      */
-    public static function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type): bool
+    public static function isContainableResource(string|array|\SimpleXMLElement|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type): bool
     {
         $tt = gettype($type);
         if ('object' === $tt) {
-            if ($type instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
+            if ($type instanceof <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>) {
                 return ($type instanceof <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>);
             }
             return isset(self::_CONTAINABLE_TYPES[$type->getName()]);

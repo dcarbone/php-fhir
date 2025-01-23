@@ -60,6 +60,8 @@ ob_start(); ?>
                     $cn = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
                     $type-><?php echo $setter; ?>($cn::xmlUnserialize($nn, null, $config));
                 }
+<?php   elseif ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
+                $type-><?php echo $setter; ?>($n);
 <?php   else :
             $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>
                 $v = new <?php echo $propTypeClassname; ?>(<?php if ($requiresXMLLocation) : ?>valueXMLLocation: <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
@@ -76,8 +78,9 @@ endforeach; ?>
     $setter = $property->getSetterName();
 
     $requiresXMLLocation = $propType === null
+        || $propType->isPrimitiveOrListType()
+        || $propType->isPrimitiveContainer()
         || $propType->isValueContainer()
-        || $propType->getKind()->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE, TypeKindEnum::PRIMITIVE_CONTAINER)
         || $propType->hasPrimitiveOrListParent()
         || $propType->hasValueContainerParent()
         || $propType->hasPrimitiveContainerParent();

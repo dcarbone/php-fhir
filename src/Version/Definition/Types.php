@@ -59,8 +59,6 @@ class Types implements Countable
         // TODO(dcarbone): this sucks.
         $xt = new Type($version, PHPFHIR_XHTML_TYPE_NAME);
         $xt->setKind(TypeKindEnum::PHPFHIR_XHTML);
-        $xt->addDocumentationFragment(PHPFHIR_XHTML_TYPE_DESCRIPTION);
-
         $this->addType($xt);
     }
 

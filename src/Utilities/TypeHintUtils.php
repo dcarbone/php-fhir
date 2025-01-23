@@ -124,15 +124,14 @@ class TypeHintUtils
         // fetch type's kind
         $tk = $type->getKind();
 
-        if ($tk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
+        if ($type->isPrimitiveOrListType()) {
             $hintTypes = $type->getPrimitiveType()->getPHPReceiveValueTypeHints();
-        } else if ($tk === TypeKindEnum::PRIMITIVE_CONTAINER) {
+        } else if ($type->isPrimitiveContainer()) {
             $ptp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
             $hintTypes = $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints();
             array_merge($hintTypes, self::buildBaseHintParts($version, $ptp, $fullyQualified));
         } else if ($tk->isResourceContainer($version)) {
             $containerType = $version->getDefinition()->getTypes()->getContainerType();
-
             $hintTypes = match ($fullyQualified) {
                 true => [
                     $containerType->getFullyQualifiedClassName(true),
@@ -143,6 +142,16 @@ class TypeHintUtils
                     PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE,
                 ],
             };
+        } else if ($type->getKind() === TypeKindEnum::PHPFHIR_XHTML) {
+            $hintTypes = [
+                'string',
+                '\\SimpleXMLElement',
+                '\\DOMNode',
+                match ($fullyQualified) {
+                    true => $type->getFullyQualifiedClassName(true),
+                    false => $type->getClassName(),
+                },
+            ];
         } else {
             $hintTypes = [
                 match ($fullyQualified) {
@@ -232,6 +241,7 @@ class TypeHintUtils
      * @param bool $nullable
      * @param bool $ignoreCollection
      * @return string
+     * @throws \Exception
      */
     public static function buildSetterParameterDocHint(Version  $version,
                                                        Property $property,
@@ -250,13 +260,12 @@ class TypeHintUtils
 
         $hintTypes = self::buildBaseHintParts($version, $pt, true);
 
-        $ptk = $pt->getKind();
 
-        if ($property->isValueProperty() || $ptk->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE)) {
+        if ($property->isValueProperty() || $pt->isPrimitiveOrListType()) {
             $hintTypes[] = $pt->getFullyQualifiedClassName(true);
         }
 
-        if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
+        if ($pt->isPrimitiveContainer()) {
             $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
             array_push(
                 $hintTypes,
@@ -300,13 +309,11 @@ class TypeHintUtils
         } else {
             $hintTypes = self::buildBaseHintParts($version, $pt, false);
 
-            $ptk = $pt->getKind();
-
-            if ($property->isValueProperty() || $ptk->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE)) {
+            if ($property->isValueProperty() || $pt->isPrimitiveOrListType()) {
                 $hintTypes[] = $pt->getClassName();
             }
 
-            if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
+            if ($pt->isPrimitiveContainer()) {
                 $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
                 array_push(
                     $hintTypes,

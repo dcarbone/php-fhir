@@ -27,13 +27,13 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
 /**
- * Interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+ * Interface <?php echo PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE; ?>
 
  *
  * This is a meta interface that must never be directly implemented by a class.  It exists purely to ensure type safety
  * throughout the base package.
  */
-interface <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_TYPE; ?>
+interface <?php echo PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
 {
     /**

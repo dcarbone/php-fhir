@@ -128,7 +128,19 @@ foreach ($type->getProperties()->getIterator() as $property) :
             $xw->endElement();
         }
 <?php   endif;
-    elseif ($property->isCollection()) : ?>
+    elseif ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
+        if (isset($this-><?php echo $property->getName(); ?>)) {
+            $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
+            $xr = $this-><?php echo $property->getName(); ?>->getXMLReader($config->getXHTMLLibxmlOpts());
+            if (null !== $xr) {
+                while ($xr->moveToNextAttribute()) {
+                    $xw->writeAttribute($xr->name, $xr->value);
+                }
+                $xw->writeRaw($xr->readInnerXml());
+            }
+            $xw->endElement();
+        }
+<?php elseif ($property->isCollection()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>)) {
             foreach ($this-><?php echo $property->getName(); ?> as $v) {
                 $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);

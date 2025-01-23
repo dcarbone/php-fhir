@@ -46,6 +46,11 @@ class ImportUtils
         // immediately add self
         $imports->addImport($type->getFullyQualifiedNamespace(false), $type->getClassName());
 
+        // xhtml type has too many special cases, do better.
+        if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
+            return;
+        }
+
         $typeKind = $type->getKind();
 
         if (!$type->isAbstract()) {
@@ -54,7 +59,7 @@ class ImportUtils
                 PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION,
                 PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
                 PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
-                PHPFHIR_INTERFACE_TYPE,
+                PHPFHIR_TYPES_INTERFACE_TYPE,
             );
         }
 

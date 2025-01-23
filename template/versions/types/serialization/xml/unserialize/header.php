@@ -36,7 +36,7 @@ ob_start(); ?>
      * @throws \Exception
      */
     public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
+                                          null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type = null,
                                           null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>

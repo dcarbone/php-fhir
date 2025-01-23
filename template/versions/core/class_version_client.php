@@ -38,7 +38,7 @@ $imports
         PHPFHIR_EXCEPTION_CLIENT_ERROR,
         PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE,
         PHPFHIR_CLASSNAME_RESPONSE_PARSER,
-        PHPFHIR_INTERFACE_TYPE,
+        PHPFHIR_TYPES_INTERFACE_TYPE,
     )
     ->addVersionTypeImports(
         $idType,
@@ -62,7 +62,7 @@ $clientResponseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSN
 $clientErrorException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_ERROR);
 $clientUnexpectedResponseCodeException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE);
 $responseParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_RESPONSE_PARSER);
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 
 $versionCoreFiles = $version->getCoreFiles();
 $versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_ENUM_VERSION_TYPES);
@@ -175,7 +175,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
                          null|string|<?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort = null,
                          null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null,
                          null|array $queryParams = null,
-                         null|bool $parseResponseHeaders = null): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                         null|bool $parseResponseHeaders = null): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseResponseHeaders);

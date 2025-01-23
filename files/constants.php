@@ -43,7 +43,6 @@ const PHPFHIR_XHTML_DIV = 'xhtml:div';
 
 // raw type
 const PHPFHIR_XHTML_TYPE_NAME = 'XHTML';
-const PHPFHIR_XHTML_TYPE_DESCRIPTION = 'XHTML type used in special cases';
 
 // FHIR XML NS
 const PHPFHIR_FHIR_XMLNS = 'https://hl7.org/fhir';
@@ -92,16 +91,11 @@ const PHPFHIR_CLASSNAME_CONSTANTS = 'Constants';
 const PHPFHIR_CLASSNAME_VALIDATOR = 'Validator';
 
 // Core interface names
-const PHPFHIR_INTERFACE_TYPE = 'TypeInterface';
-const PHPFHIR_INTERFACE_CONTAINED_TYPE = 'ContainedTypeInterface';
-const PHPFHIR_INTERFACE_COMMENT_CONTAINER = 'CommentContainerInterface';
-const PHPFHIR_INTERFACE_PRIMITIVE_TYPE = 'PrimitiveTypeInterface';
 const PHPFHIR_INTERFACE_VERSION = 'VersionInterface';
 const PHPFHIR_INTERFACE_VERSION_CONFIG = 'VersionConfigInterface';
 const PHPFHIR_INTERFACE_VERSION_TYPE_MAP = 'VersionTypeMapInterface';
 
 // Core traits
-const PHPFHIR_TRAIT_COMMENT_CONTAINER = 'CommentContainerTrait';
 const PHPFHIR_TRAIT_SOURCE_XMLNS = 'SourceXMLNamespaceTrait';
 
 // Core enums
@@ -111,6 +105,14 @@ const PHPFHIR_ENUM_VERSION = 'VersionEnum';
 const PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT = 'AbstractClientException';
 const PHPFHIR_EXCEPTION_CLIENT_ERROR = 'ClientErrorException';
 const PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE = 'UnexpectedResponseCodeException';
+
+// Core types entities
+const PHPFHIR_TYPES_INTERFACE_TYPE = 'TypeInterface';
+const PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE = 'ContainedTypeInterface';
+const PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER = 'CommentContainerInterface';
+const PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE = 'PrimitiveTypeInterface';
+const PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER = 'CommentContainerTrait';
+
 
 // Core encoding entities
 const PHPFHIR_ENCODING_CLASSNAME_XML_WRITER = 'XMLWriter';

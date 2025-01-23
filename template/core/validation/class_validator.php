@@ -26,12 +26,12 @@ $imports = $coreFile->getImports();
 
 $imports->addCoreFileImportsByName(
     PHPFHIR_CLASSNAME_CONSTANTS,
-    PHPFHIR_INTERFACE_TYPE,
-    PHPFHIR_INTERFACE_PRIMITIVE_TYPE,
+    PHPFHIR_TYPES_INTERFACE_TYPE,
+    PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE,
 );
 
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
-$pimitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_PRIMITIVE_TYPE);
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$pimitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -53,9 +53,9 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
      * @param null|array|<?php echo $typeInterface->getFullyQualifiedName(true); ?> $value
      * @return null|string
      */
-    public static function assertMinOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $value): null|string
+    public static function assertMinOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $value): null|string
     {
-        if (0 >= $expected || (1 === $expected && $value instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>)) {
+        if (0 >= $expected || (1 === $expected && $value instanceof <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>)) {
             return null;
         }
         if (null === $value || [] === $value) {
@@ -76,9 +76,9 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
      * @param null|array|<?php echo $typeInterface->getFullyQualifiedName(true); ?> $value
      * @return null|string
      */
-    public static function assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $value): null|string
+    public static function assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $value): null|string
     {
-        if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || [] === $value || $value instanceof <?php echo PHPFHIR_INTERFACE_TYPE; ?>) {
+        if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || [] === $value || $value instanceof <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>) {
             return null;
         }
         $len = count($value);
@@ -167,12 +167,12 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
      * @param null|string|<?php echo $pimitiveTypeInterface->getFullyQualifiedName(true); ?> $value
      * @return null|string
      */
-    public static function assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|string|<?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE ?> $value): null|string
+    public static function assertPatternMatch(string $typeName, string $fieldName, string $pattern, null|string|<?php echo PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE ?> $value): null|string
     {
         if ('' === $pattern || null === $value) {
             return null;
         }
-        if ($value instanceof <?php echo PHPFHIR_INTERFACE_PRIMITIVE_TYPE; ?>) {
+        if ($value instanceof <?php echo PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE; ?>) {
             $value = (string)$value;
         }
         if ('' === $value || (bool)preg_match($pattern, $value)) {

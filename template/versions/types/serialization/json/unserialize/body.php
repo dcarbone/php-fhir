@@ -58,7 +58,11 @@ foreach($type->getProperties()->getIterator() as $property) :
             $type-><?php echo $setter; ?>($json[self::<?php echo $propConst; ?>]);
 <?php   endif; ?>
         }
-<?php elseif ($propType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propType->hasPrimitiveContainerParent() || $propType->isValueContainer()) : ?>
+<?php elseif ($propType->getKind() === TypeKindEnum::PHPFHIR_XHTML) : ?>
+        if (isset($json[self::<?php echo $propConst; ?>]) || array_key_exists(self::<?php echo $propConst; ?>, $json)) {
+            $type-><?php echo $setter; ?>($json[self::<?php echo $propConst; ?>]);
+        }
+<?php elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent() || $propType->isValueContainer()) : ?>
         if (isset($json[self::<?php echo $propConst; ?>]) || isset($json[self::<?php echo $propConstExt; ?>]) || array_key_exists(self::<?php echo $propConst; ?>, $json) || array_key_exists(self::<?php echo $propConstExt; ?>, $json)) {
             $value = $json[self::<?php echo $propConst; ?>] ?? null;
             $ext = (array)($json[self::<?php echo $propConstExt; ?>] ?? []);

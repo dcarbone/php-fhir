@@ -19,8 +19,6 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 
@@ -36,7 +34,7 @@ ob_start(); ?>
      * @throws \Exception
      */
     public static function jsonUnserialize(string|array|\stdClass $json,
-                                           null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
+                                           null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type = null,
                                            null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>

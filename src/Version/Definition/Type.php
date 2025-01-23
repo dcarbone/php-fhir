@@ -823,8 +823,8 @@ class Type
 
         if (null === $parentType) {
             if ($this->isCommentContainer()) {
-                $interfaces[PHPFHIR_INTERFACE_COMMENT_CONTAINER] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_INTERFACE_COMMENT_CONTAINER)
+                $interfaces[PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER)
                     ->getFullyQualifiedNamespace(false);
             }
             if ($this->isContainedType()) {
@@ -832,12 +832,12 @@ class Type
                     ->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE)
                     ->getFullyQualifiedNamespace(false);
             } else if ($this->getKind() === TypeKindEnum::PRIMITIVE) {
-                $interfaces[PHPFHIR_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_INTERFACE_PRIMITIVE_TYPE)
+                $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             } else {
-                $interfaces[PHPFHIR_INTERFACE_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE)
+                $interfaces[PHPFHIR_TYPES_INTERFACE_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
         } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
@@ -862,8 +862,8 @@ class Type
             // if this type has no parent(s), try to add all traits
 
             if ($this->isCommentContainer()) {
-                $traits[PHPFHIR_TRAIT_COMMENT_CONTAINER] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TRAIT_COMMENT_CONTAINER)
+                $traits[PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER)
                     ->getFullyQualifiedNamespace(false);
             }
 

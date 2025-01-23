@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -25,27 +26,26 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 
-$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
+$imports = $type->getimports();
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-// build file header
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . '/header.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-); ?>
+namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
 
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
+<?php echo ImportUtils::compileImportStatements($imports); ?>
+
+class <?php echo $type->getClassName(); ?> implements \JsonSerializable
+{
     /** @var string */
     private string $_xhtml;
 
     /**
-     * <?php echo PHPFHIR_XHTML_TYPE_NAME; ?> Constructor
+     * <?php echo $type->getClassName(); ?> Constructor
      * @param null|string|\DOMNode|\SimpleXMLElement $xhtml
      */
     public function __construct(null|string|\DOMNode|\SimpleXmlElement $xhtml = null)
@@ -149,72 +149,10 @@ echo require_with(
         return $xr;
     }
 
-<?php
-// unserialize portion
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/unserialize/header.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
-?>
-        $type->setXHTML($element);
-        return $type;
-    }
-
-<?php
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/serialize/header.php',
-        [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
-?>
-        $xr = $this->getXMLReader($config->getXHTMLLibxmlOpts());
-        if (null === $xr) {
-            return $xw;
-        }
-        while ($xr->moveToNextAttribute()) {
-            $xw->writeAttribute($xr->name, $xr->value);
-        }
-        $xw->writeRaw($xr->readInnerXml());
-        if (isset($rootOpened) && $rootOpened) {
-            $xw->endElement();
-        }
-        if (isset($docStarted) && $docStarted) {
-            $xw->endDocument();
-        }
-        return $xw;
-    }
-
-<?php echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/header.php',
-    [
-        'version' => $version,
-        'type'     => $type,
-    ]
-);
-
-// TODO: Right now this assumes a single string value.  Need an example use case.
-?>
-        if (null === $json) {
-            return $type;
-        }
-        if ([] !== $json) {
-            $v = reset($json);
-            if (is_string($v)) {
-                $type->setXHTML($v);
-            }
-        }
-        return $type;
-    }
-
     /**
-     * @return mixed
+     * @return null|string
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): null|string
     {
         if (!isset($this->_xhtml)) {
             return null;

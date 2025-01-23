@@ -45,7 +45,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
+interface <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> extends \JsonSerializable
 {
     /**
      * Returns the FHIR name represented by this Type
@@ -84,7 +84,7 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @return static
      */
     public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
+                                          null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type = null,
                                           null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self;
 
     /**
@@ -103,7 +103,7 @@ interface <?php echo PHPFHIR_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @return static
      */
     public static function jsonUnserialize(string|array|\stdClass $json,
-                                           null|<?php echo PHPFHIR_INTERFACE_TYPE; ?> $type = null,
+                                           null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type = null,
                                            null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $config = null): self;
 
     /**

@@ -16,13 +16,24 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
 
 $versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_TYPE);
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
+
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImports(
+    $versionInterface,
+    $typeInterface,
+    $constantsClass,
+);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -30,6 +41,8 @@ echo '<?php ';?>declare(strict_types=1);
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
@@ -47,7 +60,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @throws \Exception
      */
     public static function parse(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                 null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                 null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         if (null === $input) {
@@ -68,7 +81,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
      */
     public static function parseArray(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                      array $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                      array $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         if ([] === $input) {
@@ -100,7 +113,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
      */
     public static function parseStdClass(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                         \stdClass $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                         \stdClass $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         return static::parseArray($version, (array)$input);
@@ -113,11 +126,11 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
      */
     public static function parseSimpleXMLElement(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                                 \SimpleXMLElement $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                                 \SimpleXMLElement $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         $elementName = $input->getName();
-        /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_INTERFACE_TYPE); ?> $fhirType */
+        /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_TYPES_INTERFACE_TYPE); ?> $fhirType */
         $fhirType = $version->getTypeMap()::getTypeClassName($elementName);
         if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
@@ -136,7 +149,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
      */
     public static function parseDOMDocument(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                            \DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                            \DOMDocument $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         return static::parseSimpleXMLElement($version, simplexml_import_dom($input));
@@ -149,7 +162,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
      */
     public static function parseObject(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                       \stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                       \stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         if ($input instanceof \stdClass) {
@@ -169,7 +182,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @throws \Exception
      */
     public static function parseXML(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                    string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                    string $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         return static::parseSimpleXMLElement(
@@ -184,7 +197,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
 
      */
     public static function parseJSON(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                     string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                     string $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         $decoded = json_decode($input, true, $version->getConfig()->getUnserializeConfig()->getJSONDecodeMaxDepth());
@@ -208,7 +221,7 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      * @throws \Exception
      */
     public static function parseString(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                       string $input): null|<?php echo PHPFHIR_INTERFACE_TYPE; ?>
+                                       string $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
 
     {
         $input = trim($input);

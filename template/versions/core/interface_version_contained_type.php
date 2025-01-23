@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $imports = $coreFile->getImports();
 
-$imports->addCoreFileImportsByName(PHPFHIR_INTERFACE_CONTAINED_TYPE);
+$imports->addCoreFileImportsByName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
 
 $config = $version->getConfig();
 $types = $version->getDefinition()->getTypes();
@@ -54,7 +54,7 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
  *
  * This interface is applied to any class that is containable within a <?php echo $version->getName(); ?> <?php echo $containerType->getClassName(); ?> instance
  */
-interface <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_INTERFACE_CONTAINED_TYPE; ?>
+interface <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE; ?>
 
 {
 

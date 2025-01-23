@@ -125,6 +125,11 @@ elseif ($propTypeKind->isResourceContainer($version)) : ?>
         if (!isset($this-><?php echo $propertyName; ?>)) {
             $this-><?php echo $propertyName; ?> = [];
         }
+<?php endif;
+if ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
+        if (!($<?php echo $propertyName; ?> instanceof <?php echo $propTypeClassname; ?>)) {
+            $<?php echo $propertyName; ?> = new <?php echo $propTypeClassname; ?>($<?php echo $propertyName; ?>);
+        }
 <?php endif; ?>
         $this-><?php echo $propertyName; echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
         return $this;
