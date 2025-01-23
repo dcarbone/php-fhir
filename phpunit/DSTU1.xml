@@ -11,6 +11,7 @@
          displayDetailsOnTestsThatTriggerNotices="true">
     <php>
         <ini name="memory_limit" value="2048M"/>
+        <ini name="precision" value="17"/>
         <env name="PHPFHIR_TEST_TARGET" value="DSTU1"/>
     </php>
     <testsuites>

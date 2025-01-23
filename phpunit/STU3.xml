@@ -11,6 +11,7 @@
          displayDetailsOnTestsThatTriggerNotices="true">
     <php>
         <ini name="memory_limit" value="2048M"/>
+        <ini name="precision" value="17"/>
         <env name="PHPFHIR_TEST_TARGET" value="STU3"/>
         <env name="PHPFHIR_TEST_SERVER_ADDR" value="http://127.0.0.1:8080/STU3"/>
     </php>
