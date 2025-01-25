@@ -25,20 +25,20 @@ trait SourceTrait
      *
      * @var null|\SimpleXMLElement
      */
-    protected null|\SimpleXMLElement $sourceSXE;
+    protected null|\SimpleXMLElement $_sourceSXE;
 
     /**
      * Name of file in definition this type was parsed from
      * @var string
      */
-    protected string $sourceFilename;
+    protected string $_sourceFilename;
 
     /**
      * @return null|\SimpleXMLElement
      */
     public function getSourceSXE(): null|\SimpleXMLElement
     {
-        return $this->sourceSXE;
+        return $this->_sourceSXE;
     }
 
     /**
@@ -46,7 +46,7 @@ trait SourceTrait
      */
     public function getSourceFilename(): string
     {
-        return $this->sourceFilename;
+        return $this->_sourceFilename;
     }
 
     /**

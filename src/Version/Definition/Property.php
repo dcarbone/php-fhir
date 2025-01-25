@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\DefaultValueXMLLocation;
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
@@ -29,6 +30,8 @@ class Property
 
     private Type $_memberOf;
     private Property $_overloads;
+
+    private DefaultValueXMLLocation $_defaultValueXMLLocation;
 
     private null|string $_name = null;
     private null|string $_ref = null;
@@ -49,17 +52,18 @@ class Property
     private null|string $namespace = null;// NOTE: not a php namespace
 
 
-    public function __construct(Type                   $memberOf,
-                                \SimpleXMLElement      $sxe,
-                                string                 $sourceFilename,
-                                string                 $name = '',
-                                string                 $ref = '',
-                                string|PropertyUseEnum $use = PropertyUseEnum::OPTIONAL,
-                                string|int             $minOccurs = 0,
-                                string|int             $maxOccurs = '',
-                                string                 $valueFHIRTypeName = '',
-                                string                 $fixed = '',
-                                string                 $namespace = '')
+    public function __construct(Type                    $memberOf,
+                                \SimpleXMLElement       $sxe,
+                                string                  $sourceFilename,
+                                DefaultValueXMLLocation $defaultValueXMLLocation,
+                                string                  $name = '',
+                                string                  $ref = '',
+                                string|PropertyUseEnum  $use = PropertyUseEnum::OPTIONAL,
+                                string|int              $minOccurs = 0,
+                                string|int              $maxOccurs = '',
+                                string                  $valueFHIRTypeName = '',
+                                string                  $fixed = '',
+                                string                  $namespace = '')
     {
         if ('' === $name && '' === $ref) {
             throw new \InvalidArgumentException(sprintf(
@@ -70,8 +74,9 @@ class Property
         }
 
         $this->_memberOf = $memberOf;
-        $this->sourceSXE = $sxe;
-        $this->sourceFilename = $sourceFilename;
+        $this->_sourceSXE = $sxe;
+        $this->_sourceFilename = $sourceFilename;
+        $this->_defaultValueXMLLocation = $defaultValueXMLLocation;
 
         if ('' !== $name) {
             $this->_name = $name;
@@ -115,6 +120,14 @@ class Property
     public function getMemberOf(): Type
     {
         return $this->_memberOf;
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Enum\DefaultValueXMLLocation
+     */
+    public function getDefaultValueXMLLocation(): DefaultValueXMLLocation
+    {
+        return $this->_defaultValueXMLLocation;
     }
 
     /**

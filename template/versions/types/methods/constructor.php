@@ -47,6 +47,7 @@ if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
     // only define constructor if this primitive does not have a parent.
     if (null === $parentType) : ?>
 
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
      * <?php echo $typeClassName; ?> Constructor
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true); ?> $value
@@ -62,6 +63,7 @@ if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
     endif;
 else : ?>
 
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
      * <?php echo $typeClassName; ?> Constructor
 <?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
@@ -97,10 +99,7 @@ if (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         }
 <?php endif;
 
-foreach($properties->getIterator() as $property) :
-    if ($property->getOverloadedProperty()) {
-        continue;
-    } ?>
+foreach($properties->getIterator() as $property) : ?>
         if (null !== $<?php echo $property->getName(); ?>) {
 <?php if ($property->isCollection()) : ?>
             $this->set<?php echo ucfirst($property->getName()); ?>(...$<?php echo $property->getName(); ?>);

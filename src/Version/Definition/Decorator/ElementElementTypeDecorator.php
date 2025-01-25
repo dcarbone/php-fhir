@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Enum\DefaultValueXMLLocation;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
@@ -139,6 +140,7 @@ class ElementElementTypeDecorator
                 memberOf: $type,
                 sxe: $element,
                 sourceFilename: $type->getSourceFilename(),
+                defaultValueXMLLocation: DefaultValueXMLLocation::ELEMENT,
                 name: $name,
                 ref: $ref,
                 minOccurs: $minOccurs,

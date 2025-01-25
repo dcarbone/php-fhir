@@ -115,8 +115,8 @@ class Type
         }
         $this->_version = $version;
         $this->_fhirName = $fhirName;
-        $this->sourceSXE = $sourceSXE;
-        $this->sourceFilename = $sourceFilename;
+        $this->_sourceSXE = $sourceSXE;
+        $this->_sourceFilename = $sourceFilename;
         $this->_properties = new Properties($this);
         $this->_enumeration = new Enumeration();
     }
