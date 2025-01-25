@@ -152,8 +152,8 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         $client = $this->_getClient();
         $rc = $client->readRaw(
             resourceType: <?php echo $versionTypeEnum->getEntityName(); ?>::<?php echo $type->getConstName(false); ?>,
-            format: <?php echo $clientFormatEnum->getEntityName(); ?>::JSON,
             count: 5,
+            format: <?php echo $clientFormatEnum->getEntityName(); ?>::JSON,
         );
         if (404 === $rc->getCode()) {
             $this->markTestSkipped(sprintf(
@@ -179,6 +179,36 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         $enc = json_encode($bundle);
         $this->assertJson($enc);
         $this->assertJsonStringEqualsJsonString($rc->getResp(), $enc);
+    }
+
+    public function testCanTranscodeBundleXML()
+    {
+        $client = $this->_getClient();
+        $rc = $client->readRaw(
+            resourceType: <?php echo $versionTypeEnum->getEntityName(); ?>::<?php echo $type->getConstName(false); ?>,
+            count: 5,
+            format: <?php echo $clientFormatEnum->getEntityName(); ?>::XML,
+        );
+        if (404 === $rc->getCode()) {
+            $this->markTestSkipped(sprintf(
+                'Configured test endpoint "%s" has no resources of type "<?php echo $type->getFHIRName(); ?>"',
+                $this->_getTestEndpoint(),
+            ));
+        }
+        $this->assertIsString($rc->getResp());
+        $this->assertEquals(200, $rc->getCode(), sprintf('Configured test endpoint "%s" returned non-200 response code', $this->_getTestEndpoint()));
+        $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize(
+            element: $rc->getResp(),
+            config: $this->_version->getConfig()->getUnserializeConfig(),
+        );
+        $entry = $bundle->getEntry();
+        $this->assertNotCount(0, $entry);
+        foreach($entry as $ent) {
+            $resource = $ent->getResource();
+            $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+        }
+        $xw = $bundle->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig());
+        $this->assertXmlStringEqualsXmlString($rc->getResp(), $xw->outputMemory());
     }
 <?php endif; ?>
 }
