@@ -261,10 +261,6 @@ class TypeHintUtils
         $hintTypes = self::buildBaseHintParts($version, $pt, true);
 
 
-        if ($property->isValueProperty() || $pt->isPrimitiveOrListType()) {
-            $hintTypes[] = $pt->getFullyQualifiedClassName(true);
-        }
-
         if ($pt->isPrimitiveContainer()) {
             $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
             array_push(
@@ -272,6 +268,8 @@ class TypeHintUtils
                 $vp->getValueFHIRType()->getFullyQualifiedClassName(true),
                 $pt->getFullyQualifiedClassName(true),
             );
+        } else if ($property->isValueProperty() || $pt->isPrimitiveOrListType()) {
+            $hintTypes[] = $pt->getFullyQualifiedClassName(true);
         }
 
         if (!$ignoreCollection && $property->isCollection()) {
@@ -309,10 +307,6 @@ class TypeHintUtils
         } else {
             $hintTypes = self::buildBaseHintParts($version, $pt, false);
 
-            if ($property->isValueProperty() || $pt->isPrimitiveOrListType()) {
-                $hintTypes[] = $pt->getClassName();
-            }
-
             if ($pt->isPrimitiveContainer()) {
                 $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
                 array_push(
@@ -320,6 +314,8 @@ class TypeHintUtils
                     $vp->getValueFHIRType()->getClassName(),
                     $pt->getClassName(),
                 );
+            } else if ($property->isValueProperty() || $pt->isPrimitiveOrListType()) {
+                $hintTypes[] = $pt->getClassName();
             }
         }
 
