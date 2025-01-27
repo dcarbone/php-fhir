@@ -71,19 +71,6 @@ interface <?php echo PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE; ?> extends \JsonSer
     public function _getFormattedValue(): string;
 
     /**
-     * Set the XML location of this element's value when serializing
-     *
-     * @param <?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation
-     */
-    public function _setValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation): void;
-
-    /**
-     * @return null|<?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?>
-
-     */
-    public function _getValueXMLLocation(): null|<?php echo $valueXMLLocationEnum->getEntityName(); ?>;
-
-    /**
      * @return string
      */
     public function __toString(): string;

@@ -20,7 +20,6 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 
 use ArrayIterator;
 use Countable;
-use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 

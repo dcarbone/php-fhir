@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Builder;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\DefaultValueXMLLocation;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version;
@@ -63,7 +62,6 @@ abstract class TypeBuilder
             memberOf: $type,
             sxe: $sxe,
             sourceFilename: $sourceFilename,
-            defaultValueXMLLocation: DefaultValueXMLLocation::ATTRIBUTE,
             name: PHPFHIR_VALUE_PROPERTY_NAME,
         );
         $type->getProperties()->addOrReturnProperty($value);

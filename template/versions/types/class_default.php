@@ -24,6 +24,10 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
+$coreFiles = $version->getConfig()->getCoreFiles();
+
+$xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
+
 // define some common things
 $typeKind = $type->getKind();
 
@@ -39,8 +43,9 @@ echo require_with(
 );
 
 // -- property field name constants
-if ($type->hasLocalProperties()) :
-    echo "\n";
+if ($type->hasLocalProperties()) : ?>
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+<?php
     foreach ($type->getProperties()->getIterator() as $property) :
         if ($property->getMemberOf()->hasPrimitiveOrListParent()) {
             continue;
@@ -48,15 +53,33 @@ if ($type->hasLocalProperties()) :
 
         $propertyType = $property->getValueFHIRType(); ?>
     public const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php   if (null !== $propertyType &&
-    ($propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->isValueContainer())) :
+<?php   if (null !== $propertyType && ($propertyType->isPrimitiveContainer() || $propertyType->isValueContainer())) :
     ?>    public const <?php echo $property->getFieldConstantName(); ?>_EXT = '<?php echo $property->getExtName(); ?>';
 <?php   endif;
     endforeach;
 // -- end property field name constants
 
-    echo "\n";
 
+if (!$type->isPrimitiveOrListType() && !$type->hasPrimitiveOrListParent()) :
+    // -- start xml location array definition
+?>
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+    private array $_valueXMLLocations = [
+<?php foreach ($type->getAllPropertiesIndexedIterator() as $property) :
+        if (!$property->requiresXMLLocation()) {
+            continue;
+        } ?>
+        self::<?php echo $property->getFieldConstantName(); ?> => <?php echo $xmlLocationEnum->getEntityName(); ?>::<?php echo $property->defaultXMLLocationEnumValue(); ?>,
+<?php endforeach; ?>
+    ];
+<?php
+    // -- end xml location array definition
+endif;
+?>
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+<?php
 // -- directly implemented properties
     foreach ($type->getProperties()->getIterator() as $property) :
         $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true); ?>
@@ -74,6 +97,7 @@ if ($type->hasLocalProperties()) :
     endforeach;
 endif; ?>
 
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /** Default validation map for fields in type <?php echo $type->getFHIRName(); ?> */
     private const _DEFAULT_VALIDATION_RULES = [<?php if (!$type->hasPropertiesWithValidations()): ?>];
 <?php else:
@@ -108,6 +132,7 @@ if (!$type->hasPrimitiveOrListParent()) :
     );
 endif; ?>
 
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
      * @return string
      */
@@ -119,6 +144,7 @@ endif; ?>
 
 if ($type->isContainedType()) : ?>
 
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
      * @return string
      */
@@ -130,9 +156,10 @@ if ($type->isContainedType()) : ?>
 endif;
 
 if (!$type->hasPrimitiveOrListParent() && $type->hasLocalProperties()) :
-    echo "\n";
+    // --- property methods ?>
 
-    // --- property methods
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+<?php
 
     if ($type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
         echo require_with(
@@ -155,7 +182,9 @@ if (!$type->hasPrimitiveOrListParent() && $type->hasLocalProperties()) :
     // --- end property methods
 endif;
 
-if (!$type->isAbstract()) :
+if (!$type->isAbstract()) : ?>
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+<?php
     echo "\n";
 
     echo require_with(
@@ -165,22 +194,25 @@ if (!$type->isAbstract()) :
             'type' => $type,
         ]
     );
+endif; ?>
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+<?php
+
+if (!$type->isPrimitiveOrListType()) :
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
+        [
+            'version' => $version,
+            'type'     => $type,
+        ]
+    );
+
+    echo "\n";
 endif;
 
 if ($type->hasLocalProperties()) :
     echo "\n";
-    if (!$type->isPrimitiveOrListType()) :
-        echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
-            [
-                'version' => $version,
-                'type'     => $type,
-            ]
-        );
-
-        echo "\n";
-    endif;
-
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',
         [
@@ -191,7 +223,7 @@ if ($type->hasLocalProperties()) :
 endif;
 
 if (!$type->hasPrimitiveOrListParent()) : ?>
-
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
      * @return string
      */

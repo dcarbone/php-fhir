@@ -39,6 +39,30 @@ class ImportUtils
         return implode("\n", $stmts) . "\n";
     }
 
+    public static function buildVersionPrimitiveTypeImports(Version $version, Type $type): void
+    {
+        $imports = $type->getImports();
+
+        $imports
+            ->addCoreFileImportsByName(
+                PHPFHIR_CLASSNAME_CONSTANTS,
+                PHPFHIR_CLASSNAME_VALIDATOR,
+            )
+            ->addVersionCoreFileImportsByName(
+                $version,
+                PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS,
+            );
+
+        if (!$type->hasParent()) {
+            $imports->addCoreFileImportsByName(
+                PHPFHIR_TRAIT_SOURCE_XMLNS,
+                PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE,
+            );
+        } else {
+            $imports->addVersionTypeImports($type->getParentType());
+        }
+    }
+
     public static function buildVersionTypeImports(Version $version, Type $type): void
     {
         $imports = $type->getImports();
@@ -48,6 +72,11 @@ class ImportUtils
 
         // xhtml type has too many special cases, do better.
         if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
+            return;
+        }
+
+        if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
+            self::buildVersionPrimitiveTypeImports($version, $type);
             return;
         }
 
@@ -101,13 +130,8 @@ class ImportUtils
             );
         }
 
-        if ($type->isValueContainer()
-            || $type->hasValueContainerParent()
-            || $type->hasPrimitiveContainerParent()
-            || $typeKind->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) {
-            if (!$type->hasValueContainerParent() && !$type->hasPrimitiveContainerParent()) {
-                $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION);
-            }
+        if ($type->isPrimitiveOrListType() || $type->isValueContainer() || $type->isPrimitiveContainer()) {
+            $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION);
         }
 
         if ($restrictionBaseType = $type->getRestrictionBaseFHIRType()) {

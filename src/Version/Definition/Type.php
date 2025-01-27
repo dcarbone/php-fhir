@@ -880,13 +880,6 @@ class Type
                 ->getFullyQualifiedNamespace(false);
         }
 
-        if (($this->isValueContainer() || $this->isPrimitiveOrListType() || $this->isPrimitiveContainer())
-            && !($this->hasValueContainerParent() || $this->hasPrimitiveContainerParent() || $this->hasPrimitiveOrListParent())) {
-            $traits[PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION] = $coreFiles
-                ->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION)
-                ->getFullyQualifiedNamespace(false);
-        }
-
         return $traits;
     }
 

@@ -55,15 +55,13 @@ echo require_with(
     ]
 );
 
-if ($type->hasLocalProperties()) {
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/serialize/body.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
-}
+echo require_with(
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/serialize/body.php',
+    [
+        'version' => $version,
+        'type' => $type,
+    ]
+);
 ?>
         if (isset($rootOpened) && $rootOpened) {
             $xw->endElement();

@@ -33,10 +33,8 @@ foreach ($type->getProperties()->getIterator() as $property) :
         if ($property->isCollection()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>)) {
             foreach($this-><?php echo $property->getName(); ?> as $v) {
-                if ($v->_getValueXMLLocation() === <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?>::ATTRIBUTE) {
-                    $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->_getFormattedValue());
-                    break;
-                }
+                $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $v->_getFormattedValue());
+                break;
             }
         }
 <?php   else : ?>
@@ -63,7 +61,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
 endforeach;
 
 // next, marshal parent attribute & element values
-if ($type->hasParentWithLocalProperties()) : ?>
+if ($type->hasConcreteParent()) : ?>
         parent::xmlSerialize($xw, $config);
 <?php endif;
 

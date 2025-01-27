@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\DefaultValueXMLLocation;
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
@@ -31,13 +30,11 @@ class Property
     private Type $_memberOf;
     private Property $_overloads;
 
-    private DefaultValueXMLLocation $_defaultValueXMLLocation;
-
     private null|string $_name = null;
     private null|string $_ref = null;
 
-    private null|string $valueFHIRTypeName = null;
-    private ?Type $valueFHIRType = null;
+    private null|string $_valueFHIRTypeName = null;
+    private ?Type $_valueFHIRType = null;
     private null|string $rawPHPValue = null;
 
     private int $minOccurs = 0;
@@ -52,18 +49,17 @@ class Property
     private null|string $namespace = null;// NOTE: not a php namespace
 
 
-    public function __construct(Type                    $memberOf,
-                                \SimpleXMLElement       $sxe,
-                                string                  $sourceFilename,
-                                DefaultValueXMLLocation $defaultValueXMLLocation,
-                                string                  $name = '',
-                                string                  $ref = '',
-                                string|PropertyUseEnum  $use = PropertyUseEnum::OPTIONAL,
-                                string|int              $minOccurs = 0,
-                                string|int              $maxOccurs = '',
-                                string                  $valueFHIRTypeName = '',
-                                string                  $fixed = '',
-                                string                  $namespace = '')
+    public function __construct(Type                   $memberOf,
+                                \SimpleXMLElement      $sxe,
+                                string                 $sourceFilename,
+                                string                 $name = '',
+                                string                 $ref = '',
+                                string|PropertyUseEnum $use = PropertyUseEnum::OPTIONAL,
+                                string|int             $minOccurs = 0,
+                                string|int             $maxOccurs = '',
+                                string                 $valueFHIRTypeName = '',
+                                string                 $fixed = '',
+                                string                 $namespace = '')
     {
         if ('' === $name && '' === $ref) {
             throw new \InvalidArgumentException(sprintf(
@@ -76,7 +72,6 @@ class Property
         $this->_memberOf = $memberOf;
         $this->_sourceSXE = $sxe;
         $this->_sourceFilename = $sourceFilename;
-        $this->_defaultValueXMLLocation = $defaultValueXMLLocation;
 
         if ('' !== $name) {
             $this->_name = $name;
@@ -123,14 +118,6 @@ class Property
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Enum\DefaultValueXMLLocation
-     */
-    public function getDefaultValueXMLLocation(): DefaultValueXMLLocation
-    {
-        return $this->_defaultValueXMLLocation;
-    }
-
-    /**
      * @return string|null
      */
     public function getName(): null|string
@@ -149,7 +136,7 @@ class Property
             throw new \InvalidArgumentException(
                 sprintf(
                     'Type "%s" Property $name cannot be empty',
-                    $this->valueFHIRType->getFHIRName()
+                    $this->_valueFHIRType->getFHIRName()
                 )
             );
         }
@@ -173,7 +160,7 @@ class Property
      */
     public function getValueFHIRTypeName(): null|string
     {
-        return $this->valueFHIRTypeName;
+        return $this->_valueFHIRTypeName;
     }
 
     /**
@@ -185,7 +172,7 @@ class Property
         if ('' === $valueFHIRTypeName) {
             $valueFHIRTypeName = null;
         }
-        $this->valueFHIRTypeName = $valueFHIRTypeName;
+        $this->_valueFHIRTypeName = $valueFHIRTypeName;
         return $this;
     }
 
@@ -194,17 +181,17 @@ class Property
      */
     public function getValueFHIRType(): ?Type
     {
-        return $this->valueFHIRType;
+        return $this->_valueFHIRType;
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Version\Definition\Type $valueFHIRType
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $_valueFHIRType
      * @return \DCarbone\PHPFHIR\Version\Definition\Property
      */
-    public function setValueFHIRType(Type $valueFHIRType): Property
+    public function setValueFHIRType(Type $_valueFHIRType): Property
     {
-        $this->valueFHIRType = $valueFHIRType;
-        $this->valueFHIRTypeName = $valueFHIRType->getFHIRName();
+        $this->_valueFHIRType = $_valueFHIRType;
+        $this->_valueFHIRTypeName = $_valueFHIRType->getFHIRName();
         return $this;
     }
 
@@ -285,8 +272,8 @@ class Property
         if (isset($this->pattern)) {
             return $this->pattern;
         }
-        if (isset($this->valueFHIRType)) {
-            return $this->valueFHIRType->getPattern();
+        if (isset($this->_valueFHIRType)) {
+            return $this->_valueFHIRType->getPattern();
         }
         return null;
     }
@@ -352,7 +339,7 @@ class Property
             throw new \InvalidArgumentException(
                 sprintf(
                     'Type "%s" Property $ref cannot be empty',
-                    $this->valueFHIRType->getFHIRName()
+                    $this->_valueFHIRType->getFHIRName()
                 )
             );
         }
@@ -519,12 +506,13 @@ class Property
      */
     public function requiresXMLLocation(): bool
     {
-        return $this->_memberOf->hasPrimitiveOrListParent()
-            || $this->_memberOf->getKind()->isOneOf(
-                TypeKindEnum::PRIMITIVE_CONTAINER,
-                TypeKindEnum::PRIMITIVE,
-                TypeKindEnum::LIST,
-            );
+        $propType = $this->getValueFHIRType();
+        if (null === $propType || $this->isCollection()) {
+            return false;
+        }
+        return $propType->hasPrimitiveOrListParent()
+            || $propType->isPrimitiveContainer()
+            || $propType->isPrimitiveOrListType();
     }
 
     /**
@@ -540,7 +528,7 @@ class Property
             ));
         }
 
-        return $this->_memberOf->isValueContainer() ? 'ELEMENT' : 'ATTRIBUTE';
+        return $this->getValueFHIRType()->isValueContainer() ? 'ELEMENT' : 'ATTRIBUTE';
     }
 
     /**

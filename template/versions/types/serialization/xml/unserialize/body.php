@@ -36,36 +36,28 @@ ob_start(); ?>
     $setter = $property->getSetterName();
     $propConst = $property->getFieldConstantName();
 
-    $requiresXMLLocation = $propType->isValueContainer()
-        || $propType->hasValueContainerParent()
-        || $propType->isPrimitiveOrListType()
-        || $propType->hasPrimitiveOrListParent()
-        || $propType->isPrimitiveContainer()
-        || $propType->hasPrimitiveContainerParent();
-
     if ($i > 0) : ?> else <?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $childName) {
 <?php   if ($propType->isPrimitiveOrListType()) : ?>
                 $valueAttr = $n->attributes()[<?php echo $propType->getClassName(); ?>::FIELD_VALUE] ?? null;
-                 if (null !== $valueAttr) {
+                if (null !== $valueAttr) {
                     $value = (string)$valueAttr;
                 } else if ($n->hasChildren()) {
                     $value = $n->saveXML();
                 } else {
                     $value = (string)$n;
                 }
-                $type-><?php echo $setter; ?>($value, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT);
+                $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: $value, valueXMLLocation: <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT);
 <?php   elseif ($propTypeKind->isResourceContainer($version)) : ?>
                 foreach ($n->children() as $nn) {
                     /** @var <?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $cn */
                     $cn = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
-                    $type-><?php echo $setter; ?>($cn::xmlUnserialize($nn, null, $config));
+                    $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: $cn::xmlUnserialize($nn, null, $config));
                 }
 <?php   elseif ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
                 $type-><?php echo $setter; ?>($n);
 <?php   else :
             $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>
-                $v = new <?php echo $propTypeClassname; ?>(<?php if ($requiresXMLLocation) : ?>valueXMLLocation: <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?>::ELEMENT<?php endif; ?>);
-                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, $v, $config));
+                $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: <?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($property->requiresXMLLocation()) : ?>, valueXMLLocation: <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT<?php endif; ?>);
 <?php   endif; ?>
             }<?php
 endforeach; ?>
@@ -77,37 +69,24 @@ endforeach; ?>
     $propType = $property->getValueFHIRType();
     $setter = $property->getSetterName();
 
-    $requiresXMLLocation = $propType === null
-        || $propType->isPrimitiveOrListType()
-        || $propType->isPrimitiveContainer()
-        || $propType->isValueContainer()
-        || $propType->hasPrimitiveOrListParent()
-        || $propType->hasValueContainerParent()
-        || $propType->hasPrimitiveContainerParent();
-
     if (null !== $propType) :
         $propTypeKind = $propType->getKind();
 
-        if ($propType->hasPrimitiveOrListParent() || $propType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) :
+        if ($propType->hasPrimitiveOrListParent() || $propType->isPrimitiveOrListType() || $propType->isPrimitiveContainer()) :
             $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>
         if (isset($attributes[self::<?php echo $propConst; ?>])) {
-<?php if ($property->isCollection()) :
-                // TODO: this logic is a bit iffy, it will currently overwrite any existing values defined through elements on collection propreties.  Not sure what else to do about this.
-                ?>
-            $v = new <?php echo $propTypeClassname; ?>(value: (string)$attributes[self::<?php echo $propConst; ?>],
-                                                       valueXMLLocation: <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?>::ATTRIBUTE);
-            $type-><?php echo $setter; ?>($v);
+<?php if ($property->isCollection()) : ?>
+            $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: (string)$attributes[self::<?php echo $propConst; ?>]);
 <?php else : ?>
             $pt = $type-><?php echo $property->getGetterName(); ?>();
             if (null !== $pt) {
-                $pt->setValue(value:(string)$attributes[self::<?php echo $propConst; ?>]);
-                $pt->_setValueXMLLocation(<?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?>::ATTRIBUTE);
+                $pt->setValue(value: (string)$attributes[self::<?php echo $propConst; ?>]);
             } else {
-                $type-><?php echo $setter; ?>(new <?php echo $propTypeClassname; ?>(
-                    value: (string)$attributes[self::<?php echo $propConst; ?>],
-                    valueXMLLocation: <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?>::ATTRIBUTE,
-                ));
+                $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: (string)$attributes[self::<?php echo $propConst; ?>]);
             }
+<?php if ($property->requiresXMLLocation()) : ?>
+            $type->_set<?php echo ucfirst($property->getName()); ?>ValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?>::ATTRIBUTE);
+<?php endif; ?>
 <?php endif; ?>
         }
 <?php endif;

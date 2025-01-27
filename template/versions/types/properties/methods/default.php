@@ -81,8 +81,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
         return new \ArrayIterator($this-><?php echo $propertyName; ?>);
     }
 <?php
-    endif;
-     ?>
+    endif;?>
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -91,13 +90,13 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 
      * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $propertyName; ?>
 
-<?php if (!$property->isCollection() && ($propType->isPrimitiveOrListType() || $propType->isPrimitiveContainer())) : ?>
-     * @param null|<?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation
+<?php if ($property->requiresXMLLocation()) : ?>
+     * @param <?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation
 <?php endif; ?>
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $property; if (!$property->isCollection() && ($propType->isPrimitiveOrListType() || $propType->isPrimitiveContainer())) : ?>,
-                     <?php echo str_repeat(' ', strlen($property->getSetterName()));?>null|<?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = null<?php endif; ?>): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $property; if ($property->requiresXMLLocation()) : ?>,
+                     <?php echo str_repeat(' ', strlen($property->getSetterName())); echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = <?php echo $valueXMLLocationEnum->getEntityName(); ?>::<?php echo $property->defaultXMLLocationEnumValue(); endif ?>): self
     {
 <?php if (!$property->isCollection()) : ?>
         if (null === $<?php echo $propertyName; ?>) {
@@ -109,13 +108,7 @@ if ($propType->isPrimitiveContainer() || $propType->isPrimitiveOrListType()) : ?
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propTypeClassname; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propTypeClassname; ?>(value: $<?php echo $propertyName; ?>);
         }
-<?php if (!$property->isCollection()) : ?>
-        if (null !== $valueXMLLocation) {
-            $<?php echo $propertyName; ?>->_setValueXMLLocation($valueXMLLocation);
-        } else if (null === $<?php echo $propertyName; ?>->_getValueXMLLocation()) {
-            $<?php echo $propertyName; ?>->_setValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?>::<?php if ($propType->isValueContainer()) : ?>ELEMENT<?php else : ?>ATTRIBUTE<?php endif; ?>);
-        }
-<?php endif;
+<?php
 elseif ($propTypeKind->isResourceContainer($version)) : ?>
         if ($<?php echo $propertyName; ?> instanceof <?php echo $versionContainerType->getClassName(); ?>) {
             $<?php echo $propertyName; ?> = $<?php echo $propertyName; ?>->getContainedType();
@@ -132,6 +125,9 @@ if ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
         }
 <?php endif; ?>
         $this-><?php echo $propertyName; echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
+<?php if ($property->requiresXMLLocation()) : ?>
+        $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>] = $valueXMLLocation;
+<?php endif; ?>
         return $this;
     }
 <?php   if ($isCollection) : ?>
@@ -162,6 +158,34 @@ if ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
         return $this;
     }
 <?php   endif;
+if ($property->requiresXMLLocation()) : ?>
+
+    /**
+     * Return the current location the "value" field of the <?php echo $property->getName(); ?> element will be placed
+     * when serializing this type to XML.
+     *
+     * @return <?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?>
+
+     */
+    public function _get<?php echo ucfirst($propertyName); ?>ValueXMLLocation() : <?php echo $valueXMLLocationEnum->getEntityName(); ?>
+
+    {
+        return $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>];
+    }
+
+    /**
+     * Set the location the "value" field of the <?php echo $property->getName(); ?> element will be placed when
+     * serializing tihs type to XML.
+     *
+     * @param <?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation
+     * @return static
+     */
+    public function _set<?php echo ucfirst($propertyName); ?>ValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation) : self
+    {
+        $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>] = $valueXMLLocation;
+        return $this;
+    }
+<?php endif;
 endforeach;
 
 return ob_get_clean();

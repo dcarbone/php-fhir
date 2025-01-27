@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Version\Definition\Decorator;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\DefaultValueXMLLocation;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
@@ -78,7 +77,6 @@ abstract class AttributeElementTypeDecorator
                 memberOf: $type,
                 sxe: $attributeElement,
                 sourceFilename: $type->getSourceFilename(),
-                defaultValueXMLLocation: DefaultValueXMLLocation::ATTRIBUTE,
                 name: $name,
                 use: $use,
                 valueFHIRTypeName: $valueFHIRTypeName,
