@@ -58,50 +58,14 @@ if ($type->hasLocalProperties()) : ?>
 <?php   endif;
     endforeach;
 // -- end property field name constants
-
-
-if (!$type->isPrimitiveOrListType() && !$type->hasPrimitiveOrListParent()) :
-    // -- start xml location array definition
-?>
-
-    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    private array $_valueXMLLocations = [
-<?php foreach ($type->getAllPropertiesIndexedIterator() as $property) :
-        if (!$property->requiresXMLLocation()) {
-            continue;
-        } ?>
-        self::<?php echo $property->getFieldConstantName(); ?> => <?php echo $xmlLocationEnum->getEntityName(); ?>::<?php echo $property->defaultXMLLocationEnumValue(); ?>,
-<?php endforeach; ?>
-    ];
-<?php
-    // -- end xml location array definition
 endif;
+
+// -- property validation rules
 ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-<?php
-// -- directly implemented properties
-    foreach ($type->getProperties()->getIterator() as $property) :
-        $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true); ?>
-    /**<?php if ('' !== $documentation) : ?>
-
-<?php echo $documentation; ?>
-     *
-     *<?php endif; ?> @var <?php echo TypeHintUtils::propertyGetterDocHint($version, $property, false); ?> <?php
-        if ('' !== $documentation) : ?>
-
-     <?php endif; ?>*/
-    protected <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, false); ?> $<?php echo $property->getName(); ?>;
-<?php
-// -- end directly implemented properties
-    endforeach;
-endif; ?>
-
-    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    /** Default validation map for fields in type <?php echo $type->getFHIRName(); ?> */
-    private const _DEFAULT_VALIDATION_RULES = [<?php if (!$type->hasPropertiesWithValidations()): ?>];
+    private static array $_validationRules = [<?php if (!$type->hasPropertiesWithValidations()): ?>];
 <?php else:
-// -- property validation rules
 
     foreach ($type->getAllPropertiesIndexedIterator() as $property) :
         $validationMap = $property->buildValidationMap($type);
@@ -117,7 +81,44 @@ endforeach; ?>
 
     ];
 <?php
+endif;
 // -- end property validation rules
+
+if (!$type->isPrimitiveOrListType() && !$type->hasPrimitiveOrListParent()) :
+    // -- start xml location array definition
+?>
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+    private array $_valueXMLLocations = [
+<?php foreach ($type->getAllPropertiesIndexedIterator() as $property) :
+        if (!$property->isSerializableAsXMLAttribute()) {
+            continue;
+        } ?>
+        self::<?php echo $property->getFieldConstantName(); ?> => <?php echo $xmlLocationEnum->getEntityName(); ?>::ATTRIBUTE,
+<?php endforeach; ?>
+    ];
+<?php
+    // -- end xml location array definition
+endif;
+
+// -- directly implemented properties
+if ($type->hasLocalProperties()) : ?>
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+<?php    foreach ($type->getProperties()->getIterator() as $property) :
+        $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true); ?>
+    /**<?php if ('' !== $documentation) : ?>
+
+<?php echo $documentation; ?>
+     *
+     *<?php endif; ?> @var <?php echo TypeHintUtils::propertyGetterDocHint($version, $property, false); ?> <?php
+        if ('' !== $documentation) : ?>
+
+     <?php endif; ?>*/
+    protected <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, false); ?> $<?php echo $property->getName(); ?>;
+<?php
+// -- end directly implemented properties
+    endforeach;
 endif;
 
 // -- end field properties
@@ -160,8 +161,8 @@ if (!$type->hasPrimitiveOrListParent() && $type->hasLocalProperties()) :
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
-
-    if ($type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
+    // primitive types are different enough to warrant their own template.
+    if ($type->isPrimitiveOrListType()) :
         echo require_with(
             PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . '/methods/primitive.php',
             [
@@ -183,10 +184,9 @@ if (!$type->hasPrimitiveOrListParent() && $type->hasLocalProperties()) :
 endif;
 
 if (!$type->isAbstract()) : ?>
+
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
-    echo "\n";
-
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . '/methods.php',
         [
@@ -194,7 +194,20 @@ if (!$type->isAbstract()) : ?>
             'type' => $type,
         ]
     );
-endif; ?>
+endif;
+
+if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+    public function _nonValueFieldDefined(): bool
+    {
+        return <?php foreach($type->getAllPropertiesIndexedIterator() as $i => $property) :
+            if ($property->isValueProperty()) { continue; }
+            if ($i > 0) : ?>
+
+               || <?php endif; ?>isset($this-><?php echo $property->getName(); ?>)<?php endforeach; ?>;
+    }
+<?php endif; ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php

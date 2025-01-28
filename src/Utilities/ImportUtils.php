@@ -82,13 +82,11 @@ class ImportUtils
 
         $typeKind = $type->getKind();
 
-        if (!$type->isAbstract()) {
+        if (!$type->isAbstract() && !$type->isPrimitiveOrListType()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
-                PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION,
                 PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
                 PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
-                PHPFHIR_TYPES_INTERFACE_TYPE,
             );
         }
 
@@ -98,6 +96,28 @@ class ImportUtils
 
         foreach ($type->getDirectlyUsedTraits() as $trait => $namespace) {
             $imports->addImport($namespace, $trait);
+        }
+
+        if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
+
+        } else if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
+            $imports->addCoreFileImportsByName(
+                PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE,
+            );
+        } else if ($type->isResourceType() || $type->hasResourceTypeParent()) {
+            $imports->addCoreFileImportsByName(
+                PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE,
+            );
+        } else {
+            $imports->addCoreFileImportsByName(
+                PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE,
+            );
+        }
+
+        if ($type->isValueContainer() || $type->hasValueContainerParent()) {
+            $imports->addCoreFileImportsByName(
+                PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION,
+            );
         }
 
         $imports->addVersionCoreFileImportsByName(
@@ -130,10 +150,6 @@ class ImportUtils
             );
         }
 
-        if ($type->isPrimitiveOrListType() || $type->isValueContainer() || $type->isPrimitiveContainer()) {
-            $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_TRAIT_VALUE_XML_LOCATION);
-        }
-
         if ($restrictionBaseType = $type->getRestrictionBaseFHIRType()) {
             $imports->addImport(
                 $restrictionBaseType->getFullyQualifiedNamespace(false),
@@ -145,6 +161,10 @@ class ImportUtils
             $propertyType = $property->getValueFHIRType();
             if (null === $propertyType) {
                 continue;
+            }
+
+            if ($property->isSerializableAsXMLAttribute()) {
+                $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
             }
 
             $ptk = $propertyType->getKind();
@@ -166,8 +186,12 @@ class ImportUtils
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION);
             } else {
                 if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
-                    $primType = $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
-                    $imports->addImport($primType->getFullyQualifiedNamespace(false), $primType->getClassName());
+                    $primType = $propertyType
+                        ->getProperties()
+                        ->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
+                    $imports->addImport(
+                        $primType->getFullyQualifiedNamespace(false), $primType->getClassName()
+                    );
                 }
 
                 $imports->addImport(

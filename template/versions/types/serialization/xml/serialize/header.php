@@ -22,26 +22,35 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 $config = $version->getConfig();
-$coreFiles = $config->getCoreFiles();
 
+$coreFiles = $config->getCoreFiles();
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
+$xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
+
+$versionCoreFiles = $version->getCoreFiles();
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 ob_start(); ?>
     /**
      * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
      * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+<?php if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
+     * @param null|<?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $valueLocation
+<?php endif; ?>
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
+                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null<?php if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>,
+                                 null|<?php echo $xmlLocationEnum->getEntityName(); ?> $valueLocation = null<?php endif; ?>): <?php echo $xmlWriterClass->getEntityName(); ?>
 
     {
         if (null === $config) {
-            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
+            $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getSerializeConfig();
         }
         if (null === $xw) {
-            $xw = new <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>($config);
+            $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($config);
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();

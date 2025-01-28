@@ -20,9 +20,19 @@
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 $config = $version->getConfig();
-$coreFiles = $config->getCoreFiles();
 
+$coreFiles = $config->getCoreFiles();
+$constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+
+if ($type->isResourceType() || $type->hasResourceTypeParent()) {
+    $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
+} else {
+    $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
+}
+
+$versionCoreFiles = $version->getCoreFiles();
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 ob_start(); ?>
     /**
@@ -34,8 +44,8 @@ ob_start(); ?>
      * @throws \Exception
      */
     public static function jsonUnserialize(string|array|\stdClass $json,
-                                           null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type = null,
-                                           null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self
+                                           null|<?php echo $typeInterface->getEntityName(); ?> $type = null,
+                                           null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
@@ -52,7 +62,7 @@ ob_start(); ?>
             ));
         }
         if (null === $config) {
-            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
+            $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getUnserializeConfig();
         }
         if (is_string($json)) {
             $json = json_decode(json: $json, associative: true, depth: $config->getJSONDecodeMaxDepth());
@@ -61,8 +71,8 @@ ob_start(); ?>
         }
 <?php if ($type->hasConcreteParent()) : ?>
         parent::jsonUnserialize($json, $type, $config);<?php elseif (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
-        if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS])) {
-            $type->_setFHIRComments((array)$data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_FHIR_COMMENTS]);
+        if (isset($data[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS])) {
+            $type->_setFHIRComments((array)$data[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS]);
         }
 <?php endif;
 

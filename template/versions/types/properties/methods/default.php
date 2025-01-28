@@ -90,13 +90,13 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 
      * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $propertyName; ?>
 
-<?php if ($property->requiresXMLLocation()) : ?>
+<?php if ($property->isSerializableAsXMLAttribute()) : ?>
      * @param <?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?> $valueXMLLocation
 <?php endif; ?>
      * @return static
      */
-    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $property; if ($property->requiresXMLLocation()) : ?>,
-                     <?php echo str_repeat(' ', strlen($property->getSetterName())); echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = <?php echo $valueXMLLocationEnum->getEntityName(); ?>::<?php echo $property->defaultXMLLocationEnumValue(); endif ?>): self
+    public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $property; if ($property->isSerializableAsXMLAttribute()) : ?>,
+                     <?php echo str_repeat(' ', strlen($property->getSetterName())); echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ATTRIBUTE<?php endif ?>): self
     {
 <?php if (!$property->isCollection()) : ?>
         if (null === $<?php echo $propertyName; ?>) {
@@ -125,7 +125,7 @@ if ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
         }
 <?php endif; ?>
         $this-><?php echo $propertyName; echo $isCollection ? '[]' : ''; ?> = $<?php echo $propertyName; ?>;
-<?php if ($property->requiresXMLLocation()) : ?>
+<?php if ($property->isSerializableAsXMLAttribute()) : ?>
         $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>] = $valueXMLLocation;
 <?php endif; ?>
         return $this;
@@ -158,7 +158,7 @@ if ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
         return $this;
     }
 <?php   endif;
-if ($property->requiresXMLLocation()) : ?>
+if ($property->isSerializableAsXMLAttribute()) : ?>
 
     /**
      * Return the current location the "value" field of the <?php echo $property->getName(); ?> element will be placed
@@ -187,5 +187,23 @@ if ($property->requiresXMLLocation()) : ?>
     }
 <?php endif;
 endforeach;
+
+if ($type->isPrimitiveContainer() && !$type->hasPrimitiveContainerParent()) :
+    $valueProp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+    ?>
+
+    /**
+     * Return the formatted value of this type's contained primitive type.
+     *
+     * @see <?php echo $valueProp->getValueFHIRType()->getFullyQualifiedClassName(true); ?>
+
+     *
+     * @return string
+     */
+    public function _getFormattedValue(): string
+    {
+        return (string)($this->getValue()?->_getFormattedValue());
+    }
+<?php endif;
 
 return ob_get_clean();

@@ -28,7 +28,8 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 enum <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?> : string
 {
-    case ATTRIBUTE = 'attribute';
+    case PARENT_ATTRIBUTE = 'parent_attribute';
+    case LOCAL_ATTRIBUTE = 'local_attribute';
     case ELEMENT = 'element';
 }
 <?php return ob_get_clean();

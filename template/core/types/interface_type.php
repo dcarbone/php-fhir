@@ -16,25 +16,20 @@
  * limitations under the License.
  */
 
-
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
-
-$imports = $coreFile->getImports();
-
-$imports->addCoreFileImportsByName(
-    PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
-    PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
-    PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
-);
 
 $coreFiles = $config->getCoreFiles();
 
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
+
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImports($serializeConfigClass, $unserializeConfigClass, $xmlWriterClass);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -45,7 +40,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> extends \JsonSerializable
+interface <?php echo $coreFile->getEntityName(); ?>
 {
     /**
      * Returns the FHIR name represented by this Type
@@ -53,14 +48,6 @@ interface <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @return string
      */
     public function _getFHIRTypeName(): string;
-
-    /**
-     * Returns the root XMLNS value found in the source.  Null indicates no "xmlns" was found.  Only defined when
-     * unserializing XML, and only used when serializing XML.
-     *
-     * @return null|string
-     */
-    public function _getSourceXMLNS(): null|string;
 
     /**
      * Must return an associative array in structure ["field" => ["rule" => {constraint}]] to be used during validation
@@ -76,35 +63,6 @@ interface <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> extends \JsonSerializable
      * @return array
      */
     public function _getValidationErrors(): array;
-
-    /**
-     * @param string|\SimpleXMLElement $element
-     * @param null|static $type Instance of this class to unserialize into.  If left null, a new instance will be created.
-     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return static
-     */
-    public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type = null,
-                                          null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self;
-
-    /**
-     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
-     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
-
-     */
-    public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null,
-                                 null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>;
-
-    /**
-     * @param string|array|\stdClass $json Raw or already un-encoded JSON
-     * @param null|static $type Instance of this class to unserialize into.  If left null, a new instance will be created.
-     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return static
-     */
-    public static function jsonUnserialize(string|array|\stdClass $json,
-                                           null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type = null,
-                                           null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> $config = null): self;
 
     /**
      * @return string

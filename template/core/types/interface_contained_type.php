@@ -16,8 +16,16 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+
+$coreFiles = $config->getCoreFiles();
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
+
+$imports = $coreFile->getImports();
+$imports->addCoreFileImports($resourceTypeInterface);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -26,14 +34,16 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
+<?php echo ImportUtils::compileImportStatements($imports); ?>
+
 /**
- * Interface <?php echo PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE; ?>
+ * Interface <?php echo $coreFile->getEntityName(); ?>
 
  *
  * This is a meta interface that must never be directly implemented by a class.  It exists purely to ensure type safety
  * throughout the base package.
  */
-interface <?php echo PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $resourceTypeInterface->getEntityName(); ?>
 
 {
     /**

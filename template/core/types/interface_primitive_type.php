@@ -23,12 +23,11 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
 
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 
 $imports = $coreFile->getImports();
-$imports->addCoreFileImportsByName(
-    PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION,
-);
+$imports->addCoreFileImports($typeInterface, $valueXMLLocationEnum);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -39,40 +38,13 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE; ?> extends \JsonSerializable
+interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>, \JsonSerializable
 {
-    /**
-     * Returns the FHIR name represented by this Type
-     *
-     * @return string
-     */
-    public function _getFHIRTypeName(): string;
-
-    /**
-     * Must return an associative array in structure ["field" => ["rule" => {constraint}]] to be used during validation
-     *
-     * @return array
-     */
-    public function _getValidationRules(): array;
-
-    /**
-     * Must return associative array where, if there are validation errors, the keys are the names of fields within the
-     * type that failed validation.  The value must be a string message describing the manner of error
-     *
-     * @return array
-     */
-    public function _getValidationErrors(): array;
-
     /**
      * Must return the appropriate "formatted" stringified version of this primitive type's value
      *
      * @return string
      */
     public function _getFormattedValue(): string;
-
-    /**
-     * @return string
-     */
-    public function __toString(): string;
 }
 <?php return ob_get_clean();

@@ -500,11 +500,11 @@ class Property
     }
 
     /**
-     * This method will panic if this is a primitive type.  Deal with it, also make it better later.
+     * Returns true if this property may be represented as an XML attribute on the parent element.
      *
      * @return bool
      */
-    public function requiresXMLLocation(): bool
+    public function isSerializableAsXMLAttribute(): bool
     {
         $propType = $this->getValueFHIRType();
         if (null === $propType || $this->isCollection()) {
@@ -513,22 +513,6 @@ class Property
         return $propType->hasPrimitiveOrListParent()
             || $propType->isPrimitiveContainer()
             || $propType->isPrimitiveOrListType();
-    }
-
-    /**
-     * @return string
-     */
-    public function defaultXMLLocationEnumValue(): string
-    {
-        if (!$this->requiresXMLLocation()) {
-            throw new \RuntimeException(sprintf(
-                'Type "%s" property "%s" does not support XML location setting',
-                $this->getMemberOf()->getFHIRName(),
-                $this->getName(),
-            ));
-        }
-
-        return $this->getValueFHIRType()->isValueContainer() ? 'ELEMENT' : 'ATTRIBUTE';
     }
 
     /**

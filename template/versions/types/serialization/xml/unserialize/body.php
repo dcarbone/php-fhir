@@ -57,7 +57,7 @@ ob_start(); ?>
                 $type-><?php echo $setter; ?>($n);
 <?php   else :
             $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>
-                $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: <?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($property->requiresXMLLocation()) : ?>, valueXMLLocation: <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT<?php endif; ?>);
+                $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: <?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($property->isSerializableAsXMLAttribute()) : ?>, valueXMLLocation: <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT<?php endif; ?>);
 <?php   endif; ?>
             }<?php
 endforeach; ?>
@@ -84,7 +84,7 @@ endforeach; ?>
             } else {
                 $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: (string)$attributes[self::<?php echo $propConst; ?>]);
             }
-<?php if ($property->requiresXMLLocation()) : ?>
+<?php if ($property->isSerializableAsXMLAttribute()) : ?>
             $type->_set<?php echo ucfirst($property->getName()); ?>ValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?>::ATTRIBUTE);
 <?php endif; ?>
 <?php endif; ?>

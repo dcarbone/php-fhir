@@ -569,7 +569,15 @@ class Type
      */
     public function isResourceType(): bool
     {
-        return str_contains($this->getFullyQualifiedNamespace(false), '\\FHIRResource\\');
+        return $this->_fhirName === 'Resource'
+            || $this->_fhirName === 'DomainResource'
+            || str_contains($this->getFullyQualifiedNamespace(false), '\\FHIRResource\\')
+            || str_contains($this->getFullyQualifiedNamespace(false), '\\FHIRDomainResource\\');
+    }
+
+    public function hasResourceTypeParent(): bool
+    {
+        return $this->hasParent() && $this->_parentType->isResourceType();
     }
 
     /**
@@ -779,6 +787,14 @@ class Type
     /**
      * @return bool
      */
+    public function hasContainedTypeParent(): bool
+    {
+        return $this->hasParent() && $this->_parentType->isContainedType();
+    }
+
+    /**
+     * @return bool
+     */
     public function isValueContainer(): bool
     {
         return $this->_valueContainer;
@@ -817,30 +833,43 @@ class Type
     public function getDirectlyImplementedInterfaces(): array
     {
         $interfaces = [];
-        $parentType = $this->getParentType();
         $coreFiles = $this->_version->getConfig()->getCoreFiles();
         $versionCoreFiles = $this->_version->getCoreFiles();
 
-        if (null === $parentType) {
-            if ($this->isCommentContainer()) {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER)
-                    ->getFullyQualifiedNamespace(false);
-            }
-            if ($this->isContainedType()) {
-                $interfaces[PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE] = $versionCoreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE)
-                    ->getFullyQualifiedNamespace(false);
-            } else if ($this->getKind() === TypeKindEnum::PRIMITIVE) {
+        // first, determine which base type interface it must implement
+        if ($this->isPrimitiveOrListType()) {
+            if (!$this->hasPrimitiveOrListParent()) {
                 $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE)
                     ->getFullyQualifiedNamespace(false);
-            } else {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE)
+            }
+        } else if ($this->isPrimitiveContainer()) {
+            if (!$this->hasPrimitiveContainerParent()) {
+                $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
-        } elseif ($this->isContainedType() && !$parentType->isContainedType()) {
+        } else if ($this->isResourceType()) {
+            if (!$this->hasResourceTypeParent()) {
+                $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE)
+                    ->getFullyQualifiedNamespace(false);
+            }
+        } else if (!$this->hasParent()) {
+            $interfaces[PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE] = $coreFiles
+                ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE)
+                ->getFullyQualifiedNamespace(false);
+        }
+
+        // comment container types
+        if ($this->isCommentContainer() && !$this->hasCommentContainerParent()) {
+            $interfaces[PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER] = $coreFiles
+                ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER)
+                ->getFullyQualifiedNamespace(false);
+        }
+
+        // types that can be contained within a resource container type
+        if ($this->isContainedType() && !$this->hasContainedTypeParent()) {
             $interfaces[PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE] = $versionCoreFiles
                 ->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE)
                 ->getFullyQualifiedNamespace(false);

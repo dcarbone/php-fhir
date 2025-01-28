@@ -19,12 +19,19 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 $config = $version->getConfig();
-$coreFiles = $config->getCoreFiles();
 
+$coreFiles = $config->getCoreFiles();
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+
+if ($type->isResourceType() || $type->hasResourceTypeParent()) {
+    $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
+} else {
+    $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
+}
+
+$versionCoreFiles = $version->getCoreFiles();
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 ob_start(); ?>
     /**
@@ -36,8 +43,8 @@ ob_start(); ?>
      * @throws \Exception
      */
     public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $type = null,
-                                          null|<?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG ?> $config = null): self
+                                          null|<?php echo $typeInterface->getEntityName(); ?> $type = null,
+                                          null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
@@ -54,7 +61,7 @@ ob_start(); ?>
             ));
         }
         if (null === $config) {
-            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getUnserializeConfig();
+            $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getUnserializeConfig();
         }
         if (is_string($element)) {
             $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());
