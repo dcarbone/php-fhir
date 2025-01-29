@@ -42,7 +42,7 @@ ob_start(); ?>
 
      */
     public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null<?php if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>,
+                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null<?php if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>,
                                  null|<?php echo $xmlLocationEnum->getEntityName(); ?> $valueLocation = null<?php endif; ?>): <?php echo $xmlWriterClass->getEntityName(); ?>
 
     {

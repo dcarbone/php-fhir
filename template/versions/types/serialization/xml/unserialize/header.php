@@ -35,16 +35,16 @@ $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASS
 
 ob_start(); ?>
     /**
-     * @param string|\SimpleXMLElement $element
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>string|<?php endif; ?>\SimpleXMLElement $element
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      * @throws \Exception
      */
-    public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo $typeInterface->getEntityName(); ?> $type = null,
-                                          null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null): self
+    public static function xmlUnserialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>string|<?php endif; ?>\SimpleXMLElement $element,
+                                          <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $unserializeConfigClass->getEntityName() ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif;?>,
+                                          null|<?php echo $typeInterface->getEntityName(); ?> $type = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
@@ -60,6 +60,7 @@ ob_start(); ?>
                 get_class($type)
             ));
         }
+<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
         if (null === $config) {
             $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getUnserializeConfig();
         }
@@ -69,4 +70,5 @@ ob_start(); ?>
         if (null !== ($ns = $element->getNamespaces()[''] ?? null)) {
             $type->_setSourceXMLNS((string)$ns);
         }
-<?php return ob_get_clean();
+<?php endif;
+return ob_get_clean();

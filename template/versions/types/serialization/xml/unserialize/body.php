@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\XMLValueLocationUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
@@ -46,55 +47,67 @@ ob_start(); ?>
                 } else {
                     $value = (string)$n;
                 }
-                $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: $value, valueXMLLocation: <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT);
+                $type-><?php echo $setter; ?>($value, valueXMLLocation: <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT);
 <?php   elseif ($propTypeKind->isResourceContainer($version)) : ?>
                 foreach ($n->children() as $nn) {
                     /** @var <?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $cn */
                     $cn = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($nn);
-                    $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: $cn::xmlUnserialize($nn, null, $config));
+                    $type-><?php echo $setter; ?>($cn::xmlUnserialize($nn, $config));
                 }
 <?php   elseif ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
                 $type-><?php echo $setter; ?>($n);
 <?php   else :
             $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>
-                $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: <?php echo $propTypeClassname; ?>::xmlUnserialize($n, null, $config)<?php if ($property->isSerializableAsXMLAttribute()) : ?>, valueXMLLocation: <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT<?php endif; ?>);
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClassname; ?>::xmlUnserialize($n, $config));
 <?php   endif; ?>
             }<?php
 endforeach; ?>
 
         }
         $attributes = $element->attributes();
-<?php foreach ($type->getAllPropertiesIndexedIterator() as $i => $property) :
+<?php
+// start attribute parsing
+foreach ($type->getAllPropertiesIndexedIterator() as $i => $property) :
+    if (!$property->isSerializableAsXMLAttribute()) {
+        continue;
+    }
+
     $propConst = $property->getFieldConstantName();
     $propType = $property->getValueFHIRType();
     $setter = $property->getSetterName();
-
-    if (null !== $propType) :
-        $propTypeKind = $propType->getKind();
-
-        if ($propType->hasPrimitiveOrListParent() || $propType->isPrimitiveOrListType() || $propType->isPrimitiveContainer()) :
-            $propTypeClassname = $property->getMemberOf()->getImports()->getImportByType($propType); ?>
+?>
         if (isset($attributes[self::<?php echo $propConst; ?>])) {
-<?php if ($property->isCollection()) : ?>
-            $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: (string)$attributes[self::<?php echo $propConst; ?>]);
-<?php else : ?>
-            $pt = $type-><?php echo $property->getGetterName(); ?>();
-            if (null !== $pt) {
-                $pt->setValue(value: (string)$attributes[self::<?php echo $propConst; ?>]);
-            } else {
-                $type-><?php echo $setter; ?>(<?php echo $property->getName(); ?>: (string)$attributes[self::<?php echo $propConst; ?>]);
-            }
-<?php if ($property->isSerializableAsXMLAttribute()) : ?>
-            $type->_set<?php echo ucfirst($property->getName()); ?>ValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?>::ATTRIBUTE);
-<?php endif; ?>
-<?php endif; ?>
-        }
-<?php endif;
+<?php
+    // primitive properties need to be set directly on the type
+    if (null === $propType) : ?>
+            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo $valueXMLLocationEnum->getEntityName(); ?>::LOCAL_ATTRIBUTE);
+<?php
+    // "value container" type properties can have their "value" property defined either on their parent's node as an
+    // attribute, on their own node as an attribute, or as a child of themselves.
     else : ?>
-        if (isset($attributes[self::<?php echo $property->getFieldConstantName(); ?>])) {
-            $type->setValue((string)$attributes[self::<?php echo $property->getFieldConstantName(); ?>]);
-        }
+            if (isset($type-><?php echo $property->getName(); ?>)) {
+                $type-><?php echo $property->getName(); ?>->setValue((string)$attributes[self::<?php echo $propConst; ?>]);
+            } else {
+                $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>]);
+            }
 <?php
     endif;
+    // if the local type is a "value container", this indicates the value was found on the container's local attributes
+    if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
+            $type->_set<?php echo ucfirst($property->getName()); ?>ValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?>::LOCAL_ATTRIBUTE);
+<?php
+    else :
+    // if the local type is NOT a "value container", this indicates the property's value was found in a PARENT node's
+    // attributes.
+        ?>
+            $type->_set<?php echo ucfirst($property->getName()); ?>ValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE);
+<?php
+    endif;
+?>
+        }
+<?php
+
+// end attribute parsing
 endforeach;
+
 return ob_get_clean();

@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\XMLValueLocationUtils;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
@@ -54,6 +55,8 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
     if ($i > 0) {
         echo "\n";
     }
+
+// start getter methods
 ?>
     /**<?php if ('' !== $documentation) : ?>
 
@@ -81,7 +84,12 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
         return new \ArrayIterator($this-><?php echo $propertyName; ?>);
     }
 <?php
-    endif;?>
+    endif;
+
+// end getter methods
+
+// start setter methods
+?>
 
     /**<?php if ('' !== $documentation) : ?>
 
@@ -96,7 +104,8 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
      * @return static
      */
     public function <?php echo $property->getSetterName(); ?>(<?php echo TypeHintUtils::buildSetterParameterHint($version, $property, !$property->isCollection(), true); ?> $<?php echo $property; if ($property->isSerializableAsXMLAttribute()) : ?>,
-                     <?php echo str_repeat(' ', strlen($property->getSetterName())); echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ATTRIBUTE<?php endif ?>): self
+                     <?php echo str_repeat(' ', strlen($property->getSetterName()));
+                        echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation = <?php echo XMLValueLocationUtils::determineDefaultLocation($type, $property, true); endif ?>): self
     {
 <?php if (!$property->isCollection()) : ?>
         if (null === $<?php echo $propertyName; ?>) {

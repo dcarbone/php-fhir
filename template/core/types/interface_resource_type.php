@@ -54,13 +54,13 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
 
     /**
      * @param string|\SimpleXMLElement $element
-     * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @return static
      */
     public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo $coreFile->getEntityName(); ?> $type = null,
-                                          null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null): self;
+                                          null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null,
+                                          null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
 
     /**
      * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
@@ -73,13 +73,13 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
 
     /**
      * @param string|array|\stdClass $json Raw or already un-encoded JSON
-     * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @return static
      */
     public static function jsonUnserialize(string|array|\stdClass $json,
-                                           null|<?php echo $coreFile->getEntityName(); ?> $type = null,
-                                           null|<?php echo $unserializeConfigClass->getEntityName(); ?> $config = null): self;
+                                           null|<?php echo $unserializeConfigClass->getEntityName(); ?> $config = null,
+                                           null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
 }
 
 <?php return ob_get_clean();

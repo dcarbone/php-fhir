@@ -36,16 +36,16 @@ $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASS
 
 ob_start(); ?>
     /**
-     * @param string|array|\stdClass $json
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>string|\stdClass|<?php endif; ?>array $json
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
-     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      * @throws \Exception
      */
-    public static function jsonUnserialize(string|array|\stdClass $json,
-                                           null|<?php echo $typeInterface->getEntityName(); ?> $type = null,
-                                           null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null): self
+    public static function jsonUnserialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>string|\stdClass|<?php endif; ?>array $json,
+                                           <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $unserializeConfigClass->getEntityName() ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif;?>,
+                                           null|<?php echo $typeInterface->getEntityName(); ?> $type = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {

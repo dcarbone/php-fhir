@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Enum\XMLValueLocationUtils;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
@@ -90,11 +91,11 @@ if (!$type->isPrimitiveOrListType() && !$type->hasPrimitiveOrListParent()) :
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     private array $_valueXMLLocations = [
-<?php foreach ($type->getAllPropertiesIndexedIterator() as $property) :
+<?php foreach ($type->getProperties()->getIterator() as $property) :
         if (!$property->isSerializableAsXMLAttribute()) {
             continue;
         } ?>
-        self::<?php echo $property->getFieldConstantName(); ?> => <?php echo $xmlLocationEnum->getEntityName(); ?>::ATTRIBUTE,
+        self::<?php echo $property->getFieldConstantName(); ?> => <?php echo XMLValueLocationUtils::determineDefaultLocation($type, $property, true); ?>,
 <?php endforeach; ?>
     ];
 <?php

@@ -843,10 +843,10 @@ class Type
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
-        } else if ($this->isPrimitiveContainer()) {
-            if (!$this->hasPrimitiveContainerParent()) {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
+        } else if ($this->isValueContainer()) {
+            if (!$this->hasValueContainerParent()) {
+                $interfaces[PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
         } else if ($this->isResourceType()) {

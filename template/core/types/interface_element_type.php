@@ -53,33 +53,33 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
     public function _getSourceXMLNS(): null|string;
 
     /**
-     * @param string|\SimpleXMLElement $element
+     * @param \SimpleXMLElement $element Decoded XML
+     * @param <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
-     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return static
      */
-    public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo $coreFile->getEntityName(); ?> $type = null,
-                                          null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null): self;
+    public static function xmlUnserialize(\SimpleXMLElement $element,
+                                          <?php echo $unserializeConfigClass->getEntityName() ?> $config,
+                                          null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
 
     /**
-     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
-     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @param <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
+     * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null): <?php echo $xmlWriterClass->getEntityName(); ?>;
+    public function xmlSerialize(<?php echo $xmlWriterClass->getEntityName(); ?> $xw,
+                                 <?php echo $serializeConfigClass->getEntityName(); ?> $config): <?php echo $xmlWriterClass->getEntityName(); ?>;
 
     /**
-     * @param string|array|\stdClass $json Raw or already un-encoded JSON
+     * @param array $json Decoded JSON
+     * @param <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
-     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @return static
      */
-    public static function jsonUnserialize(string|array|\stdClass $json,
-                                           null|<?php echo $coreFile->getEntityName(); ?> $type = null,
-                                           null|<?php echo $unserializeConfigClass->getEntityName(); ?> $config = null): self;
+    public static function jsonUnserialize(array $json,
+                                           <?php echo $unserializeConfigClass->getEntityName(); ?> $config,
+                                           null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
 }
 
 <?php return ob_get_clean();

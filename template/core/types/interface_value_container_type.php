@@ -65,14 +65,14 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $elementI
     public function _nonValueFieldDefined(): bool;
 
     /**
-     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
-     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @param <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
+     * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $xmlValueLocationEnum->getFullyQualifiedName(true); ?> $valueLocation
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null,
+    public function xmlSerialize(<?php echo $xmlWriterClass->getEntityName(); ?> $xw,
+                                 <?php echo $serializeConfigClass->getEntityName(); ?> $config,
                                  null|<?php echo $xmlValueLocationEnum->getEntityName(); ?> $valueLocation = null): <?php echo $xmlWriterClass->getEntityName(); ?>;
 }
 

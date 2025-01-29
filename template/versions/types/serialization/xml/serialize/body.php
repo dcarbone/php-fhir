@@ -37,8 +37,9 @@ foreach ($type->getProperties()->getIterator() as $property) :
 
     // if this is the "value" property on a primitive container, the value may be serialized to the parent's root node,
     // to the local node's attributes, or as an element on the local node.
-    if ($type->isPrimitiveContainer() && $property->isValueProperty()) : ?>
+    if ($type->isValueContainer() && $property->isValueProperty()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>)
+            && <?php echo $xmlLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE !== $valueLocation
             && (<?php echo $xmlLocationEnum->getEntityName(); ?>::LOCAL_ATTRIBUTE === $valueLocation
                 || (null === $valueLocation && $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>] === <?php echo $xmlLocationEnum->getEntityName(); ?>::LOCAL_ATTRIBUTE))) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->_getFormattedValue());

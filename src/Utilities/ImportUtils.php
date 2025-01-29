@@ -98,9 +98,7 @@ class ImportUtils
             $imports->addImport($namespace, $trait);
         }
 
-        if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
-
-        } else if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
+        if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE,
             );
