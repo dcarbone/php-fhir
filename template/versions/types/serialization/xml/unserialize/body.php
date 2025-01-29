@@ -42,12 +42,10 @@ ob_start(); ?>
                 $valueAttr = $n->attributes()[<?php echo $propType->getClassName(); ?>::FIELD_VALUE] ?? null;
                 if (null !== $valueAttr) {
                     $value = (string)$valueAttr;
-                } else if ($n->hasChildren()) {
-                    $value = $n->saveXML();
                 } else {
                     $value = (string)$n;
                 }
-                $type-><?php echo $setter; ?>($value, valueXMLLocation: <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT);
+                $type-><?php echo $setter; ?>($value, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT);
 <?php   elseif ($propTypeKind->isResourceContainer($version)) : ?>
                 foreach ($n->children() as $nn) {
                     /** @var <?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $cn */
