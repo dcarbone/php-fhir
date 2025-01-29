@@ -27,7 +27,7 @@ $xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VAL
 
 ob_start();
 
-// first, marshal attribute values
+// start attribute serialization
 foreach ($type->getProperties()->getIterator() as $property) :
     if (!$property->isSerializableAsXMLAttribute()) {
         continue;
@@ -35,36 +35,59 @@ foreach ($type->getProperties()->getIterator() as $property) :
 
     $propType = $property->getValueFHIRType();
 
-    // if this is the "value" property on a primitive container, the value may be serialized to the parent's root node,
-    // to the local node's attributes, or as an element on the local node.
-    if ($type->isValueContainer() && $property->isValueProperty()) : ?>
+    // a "value" property may be serialized as an attribute on the containing type's parent node, an attribute on the
+    // containing type's node, or as a child element of the containing type's node.
+    //
+    // this defaults to being controlled by the containing node, unless the parent node explicitly passes the
+    // "parent_attribute" value enum into the xml serialize func of the containing type.
+    //
+    // "value" properties are the only types of properties that respect the "valueLocation" parameter on value
+    // container xml serialize funcs.
+    if ($property->isValueProperty()) :
+        // if this is a value container type, we need to only serialize our value as an attribute on our node
+        // if, and only if, the $valueLocation parameter is == "local_attribute" or is null and our internal
+        // location map defines it as "local_attribute"
+        if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>)
-            && <?php echo $xmlLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE !== $valueLocation
             && (<?php echo $xmlLocationEnum->getEntityName(); ?>::LOCAL_ATTRIBUTE === $valueLocation
-                || (null === $valueLocation && $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>] === <?php echo $xmlLocationEnum->getEntityName(); ?>::LOCAL_ATTRIBUTE))) {
+                || (null === $valueLocation
+                    && <?php echo $xmlLocationEnum->getEntityName(); ?>::LOCAL_ATTRIBUTE === $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>]))) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->_getFormattedValue());
         }
 <?php
-    // if this is a primitive property type, the value may only be placed either as an attribute or element of the
-    // parent node.
-    elseif ($propType->hasPrimitiveOrListParent() || $propType->isPrimitiveOrListType()) : ?>
-        if (isset($this-><?php echo $property->getName(); ?>) && $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>] === <?php echo $xmlLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE) {
+        // if this is _not_ a value container type, we must only apply this attribute to the local type if and only if
+        // our local location map places it at "parent_attribute".
+        else : ?>
+        if (isset($this-><?php echo $property->getName(); ?>) && <?php echo $xmlLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE === $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>]) {
+            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->_getFormattedValue());
+        }
+<?php   endif;
+
+    elseif ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) : ?>
+        if (isset($this-><?php echo $property->getName(); ?>) && <?php echo $xmlLocationEnum->getEntityName(); ?>::LOCAL_ATTRIBUTE === $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>]) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->_getFormattedValue());
         }
 <?php
-    // if this property is a value container, the value may be placed as an attribute on the parent node, an
-    // attribute on the local node, or as an element of the local node.
-    elseif ($propType->isValueContainer()) : ?>
-        if (isset($this-><?php echo $property->getName(); ?>) && $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>] === <?php echo $xmlLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE) {
-            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->getValue()?->_getFormattedValue());
+    elseif ($propType->isValueContainer() || $propType->hasValueContainerParent()) : ?>
+        if (isset($this-><?php echo $property->getName(); ?>) && <?php echo $xmlLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE === $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>]) {
+            $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->_getFormattedValue());
         }
 <?php
+    else :
+        throw new \LogicException(sprintf(
+            'Cannot handle serializing type "%s" property "%s" of type "%s" as attribute.',
+            $type->getFHIRName(),
+            $property->getName(),
+            $propType->getFHIRName(),
+        ));
     endif;
+
+// end attribute serialization
 endforeach;
 
 // next, marshal parent attribute & element values
 if ($type->hasConcreteParent()) : ?>
-        parent::xmlSerialize($xw, $config<?php if ($type->hasPrimitiveContainerParent()) : ?>, $valueLocation<?php endif; ?>);
+        parent::xmlSerialize($xw, $config<?php if ($type->hasValueContainerParent()) : ?>, $valueLocation<?php endif; ?>);
 <?php endif;
 
 // finally, marshal local element values

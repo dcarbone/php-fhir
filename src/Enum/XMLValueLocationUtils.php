@@ -26,7 +26,7 @@ class XMLValueLocationUtils
     public static function determineDefaultLocation(Type $type, Property $property, bool $withClass): string
     {
         $case = match (true) {
-            $property->isValueProperty() => 'LOCAL_ATTRIBUTE',
+            $property->isValueProperty() && !$type->isQuantity() && !$type->hasQuantityParent() => 'LOCAL_ATTRIBUTE',
             default => 'ELEMENT',
         };
         if ($withClass) {

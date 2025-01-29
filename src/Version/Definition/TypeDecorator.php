@@ -372,8 +372,6 @@ abstract class TypeDecorator
      */
     public static function setContainedTypeFlag(Config $config, Version $version, Types $types): void
     {
-        $versionName = $version->getName();
-
         foreach ($types->getIterator() as $type) {
             if ($types->isContainedType($type)) {
                 $type->setContainedType(true);
@@ -382,41 +380,32 @@ abstract class TypeDecorator
     }
 
     /**
+     * A "value container" type is any non-primitive type with a "value" property.
+     *
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      */
     public static function setValueContainerFlag(Config $config, Types $types): void
     {
-        static $skip = [
-            TypeKindEnum::PRIMITIVE,
-            TypeKindEnum::PHPFHIR_XHTML,
-            TypeKindEnum::QUANTITY,
-        ];
+        // TODO: handle valueString, valueQuantity, etc. types?
 
         foreach ($types->getIterator() as $type) {
-            // TODO: handle valueString, valueQuantity, etc. types?
-
-            // skip primitive types and their child types
-            if ($type->getKind()->isOneOf(...$skip) || $type->hasPrimitiveOrListParent()) {
+            // primitive types have special handling and must not be marked as "value containers"
+            if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
                 continue;
             }
 
-            $properties = $type->getProperties();
-
-            // only target types with a single field on them with the name "value"
-            if (1 !== count($properties) || !$properties->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+            // skip "quantity" types, as their "value" is always applied as an element
+            if ($type->getKind()->isOneOf(TypeKindEnum::QUANTITY)) {
                 continue;
             }
 
-            $property = $properties->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
-            $propertyType = $property->getValueFHIRType();
-
-            // only target types where the "value" field is itself typed
-            if (null === $propertyType) {
+            // skip xhtml type
+            if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
                 continue;
             }
 
-            $type->setValueContainer(true);
+            $type->setValueContainer($type->getProperties()->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME));
         }
     }
 

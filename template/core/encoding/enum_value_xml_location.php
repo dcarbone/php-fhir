@@ -26,10 +26,11 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-enum <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?> : string
+enum <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?>
+
 {
-    case PARENT_ATTRIBUTE = 'parent_attribute';
-    case LOCAL_ATTRIBUTE = 'local_attribute';
-    case ELEMENT = 'element';
+    case PARENT_ATTRIBUTE;
+    case LOCAL_ATTRIBUTE;
+    case ELEMENT;
 }
 <?php return ob_get_clean();

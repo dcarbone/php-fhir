@@ -197,9 +197,9 @@ if ($property->isSerializableAsXMLAttribute()) : ?>
 <?php endif;
 endforeach;
 
-if ($type->isPrimitiveContainer() && !$type->hasPrimitiveContainerParent()) :
+if (($type->isValueContainer() && !$type->hasValueContainerParent()) || ($type->isQuantity() && !$type->hasQuantityParent())):
     $valueProp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
-    ?>
+?>
 
     /**
      * Return the formatted value of this type's contained primitive type.

@@ -824,6 +824,27 @@ class Type
     }
 
     /**
+     * @return bool
+     */
+    public function isQuantity(): bool
+    {
+        return $this->_kind === TypeKindEnum::QUANTITY;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasQuantityParent(): bool
+    {
+        foreach($this->getParentTypes() as $parent) {
+            if ($parent->isQuantity()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns map of [$interface_name => $interface_namespace]
      *
      * $interface_namespace does NOT contain leading slash!

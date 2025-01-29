@@ -197,7 +197,7 @@ if (!$type->isAbstract()) : ?>
     );
 endif;
 
-if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
+if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     public function _nonValueFieldDefined(): bool
@@ -243,10 +243,8 @@ if (!$type->hasPrimitiveOrListParent()) : ?>
      */
     public function __toString(): string
     {
-<?php if ($typeKind === TypeKindEnum::PRIMITIVE) : ?>
+<?php if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent() || $type->isValueContainer() || $type->hasValueContainerParent()) : ?>
         return $this->_getFormattedValue();
-<?php elseif ($typeKind->isOneOf(TypeKindEnum::LIST, TypeKindEnum::PRIMITIVE_CONTAINER)) : ?>
-        return (string)$this->getValue();
 <?php else : ?>
         return self::FHIR_TYPE_NAME;
 <?php endif; ?>
