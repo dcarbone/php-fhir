@@ -48,7 +48,11 @@ $imports
     );
 
 foreach($types->getIterator() as $type) {
-    if (($type->isResourceType() || $type->hasResourceTypeParent()) && !$type->isAbstract() && !$type->getKind()->isResourceContainer($version)) {
+    if ($type->hasResourceTypeParent()
+        && 'Bundle' !== $type->getFHIRName()
+        && 'DomainResource' !== $type->getFHIRName()
+        && !$type->isAbstract()
+        && !$type->getKind()->isResourceContainer($version)) {
         $imports->addVersionTypeImports($type);
     }
 }
@@ -212,7 +216,11 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
         }
     }
 <?php foreach($version->getDefinition()->getTypes()->getNameSortedIterator() as $rsc) :
-    if (!($rsc->isResourceType() || $rsc->hasResourceTypeParent()) || $rsc->isAbstract() || $rsc->getKind()->isResourceContainer($version)) {
+    if (!$rsc->hasResourceTypeParent()
+        || 'Bundle' === $rsc->getFHIRName()
+        || 'DomainResource' === $rsc->getFHIRName()
+        || $rsc->isAbstract()
+        || $rsc->getKind()->isResourceContainer($version)) {
         continue;
     }
 

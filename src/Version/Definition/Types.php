@@ -58,7 +58,7 @@ class Types implements Countable
         // TODO(dcarbone): this sucks.
         $xt = new Type($version, PHPFHIR_XHTML_TYPE_NAME);
         $xt->setKind(TypeKindEnum::PHPFHIR_XHTML);
-        $this->addType($xt);
+        $this->addOrReturnType($xt);
     }
 
     /**
@@ -117,14 +117,14 @@ class Types implements Countable
      * same type running around...
      *
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-     * @return \DCarbone\PHPFHIR\Version\Definition\Types
+     * @return \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    public function addType(Type &$type): Types
+    public function addOrReturnType(Type $type): Type
     {
         $tname = $type->getFHIRName();
         foreach ($this->_types as $current) {
             if ($type === $current) {
-                return $this;
+                return $current;
             }
             if ($current->getFHIRName() === $tname) {
                 // this happens with FHIR types sometimes...
@@ -136,12 +136,11 @@ class Types implements Countable
                         $type->getSourceFileBasename()
                     )
                 );
-                $type = $current;
-                return $this;
+                return $current;
             }
         }
         $this->_types[] = $type;
-        return $this;
+        return $type;
     }
 
     /**

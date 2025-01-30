@@ -136,7 +136,7 @@ abstract class TypeExtractor
                     $type = TypeBuilder::build($config, $version, $fhirName, $child, $sourceFile);
 
                     // add type
-                    $types->addType($type);
+                    $type = $types->addOrReturnType($type);
 
                     // proceed with decoration
                     SimpleTypeElementTypeDecorator::decorate($config, $types, $type, $child);
@@ -148,7 +148,7 @@ abstract class TypeExtractor
                     $type = TypeBuilder::build($config, $version, $fhirName, $child, $sourceFile);
 
                     // add type
-                    $types->addType($type);
+                    $type = $types->addOrReturnType($type);
 
                     // proceed with decoration
                     ComplexTypeElementTypeDecorator::decorate($config, $types, $type, $child);
@@ -173,7 +173,7 @@ abstract class TypeExtractor
                     $type = TypeBuilder::build($config, $version, $fhirName, $child, $sourceFile);
 
                     // add type
-                    $types->addType($type);
+                    $type = $types->addOrReturnType($type);
 
                     // proceed with decoration
                     ElementElementTypeDecorator::rootDecorate($config, $types, $type, $child);
