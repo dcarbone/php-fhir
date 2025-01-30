@@ -21,6 +21,8 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+$sourceMeta = $version->getSourceMetadata();
+
 $types = $version->getDefinition()->getTypes();
 
 $idType = $types->getTypeByName('id');
@@ -46,7 +48,7 @@ $imports
     );
 
 foreach($types->getIterator() as $type) {
-    if ($type->isResourceType() && !$type->isAbstract() && !$type->getKind()->isResourceContainer($version)) {
+    if (($type->isResourceType() || $type->hasResourceTypeParent()) && !$type->isAbstract() && !$type->getKind()->isResourceContainer($version)) {
         $imports->addVersionTypeImports($type);
     }
 }
@@ -98,12 +100,12 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
     }
 
     /**
-     * Queries for one or more resources of a given type, returning the raw response fromm the server.
+     * Queries for one <?php if ($sourceMeta->isDSTU1()) : ?>resource<?php else : ?>or more resources<?php endif; ?> of a given type, returning the raw response fromm the server.
      *
      * @see https://www.hl7.org/fhir/http.html#read
      *
      * @param <?php echo $versionTypeEnum->getFullyQualifiedName(true); ?> $resourceType
-     * @param null|string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
+     * @param <?php if (!$sourceMeta->isDSTU1()) : ?>null|<?php endif; ?>string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
      * @param null|int $count
      * @param null|string|<?php echo $clientSortEnum->getFullyQualifiedName(true); ?> $sort May be a string value if your server supports non-standard sorting methods
      * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
@@ -114,7 +116,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
      * @throws \Exception
      */
     public function readRaw(<?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPES; ?> $resourceType,
-                            null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null,
+                            <?php if (!$sourceMeta->isDSTU1()) : ?>null|<?php endif; ?>string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID<?php if (!$sourceMeta->isDSTU1()) : ?> = null<?php endif; ?>,
                             null|int $count = null,
                             null|string|<?php echo PHPFHIR_CLIENT_ENUM_SORT_DIRECTION; ?> $sort = null,
                             null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $format = null,
@@ -124,6 +126,13 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
     {
 
         $path = "/{$resourceType->value}";
+<?php if ($sourceMeta->isDSTU1()) : ?>
+        $resourceID = trim((string)$resourceID);
+        if ('' === $resourceID) {
+            throw new \InvalidArgumentException('Resource ID must be null or valued.');
+        }
+        $path .= "/{$resourceID}";
+<?php else : ?>
         if (null !== $resourceID) {
             $resourceID = trim((string)$resourceID);
             if ('' === $resourceID) {
@@ -131,6 +140,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
             }
             $path .= "/{$resourceID}";
         }
+<?php endif; ?>
         $req = new <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>(
             method: <?php echo PHPFHIR_CLIENT_ENUM_HTTP_METHOD; ?>::GET,
             path: $path,
@@ -153,6 +163,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
         return $this->_client->exec($req);
     }
 
+<?php if (!$sourceMeta->isDSTU1()) : ?>
     /**
      * Queries for one or more resources of a given type, returning the unserialized response from the server.
      *
@@ -183,6 +194,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
         return <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $rc->resp);
     }
 
+<?php endif; ?>
     /**
      * @param <?php echo $clientResponseClass->getFullyQualifiedName(true); ?> $rc
      * @throws <?php echo $clientErrorException->getFullyQualifiedName(true); ?>
@@ -200,7 +212,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
         }
     }
 <?php foreach($version->getDefinition()->getTypes()->getNameSortedIterator() as $rsc) :
-    if (!$rsc->isResourceType() || $rsc->isAbstract() || $rsc->getKind()->isResourceContainer($version)) {
+    if (!($rsc->isResourceType() || $rsc->hasResourceTypeParent()) || $rsc->isAbstract() || $rsc->getKind()->isResourceContainer($version)) {
         continue;
     }
 

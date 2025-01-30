@@ -46,9 +46,6 @@ $imports->addVersionTypeImports($type);
 
 if ($type->isResourceType()) {
     $imports
-        ->addVersionTypeImports(
-            $bundleType
-        )
         ->addCoreFileImportsByName(
             PHPFHIR_CLIENT_CLASSNAME_CONFIG,
             PHPFHIR_CLIENT_CLASSNAME_CLIENT,
@@ -61,6 +58,12 @@ if ($type->isResourceType()) {
             PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT,
             PHPFHIR_VERSION_ENUM_VERSION_TYPES,
         );
+
+    if (!$version->getSourceMetadata()->isDSTU1()) {
+        $imports->addVersionTypeImports(
+            $bundleType
+        );
+    }
 }
 
 $typeKind = $type->getKind();
@@ -145,7 +148,7 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
 <?php endforeach; ?>
     }
-<?php elseif ($type->isResourceType() && !$type->getKind()->isResourceContainer($version)) :  ?>
+<?php elseif (!$version->getSourceMetadata()->isDSTU1() && $type->isResourceType() && !$type->getKind()->isResourceContainer($version)) :  ?>
 
     public function testCanTranscodeBundleJSON()
     {
