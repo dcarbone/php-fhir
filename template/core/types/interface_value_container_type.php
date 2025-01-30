@@ -68,12 +68,10 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $elementI
      * @param <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
      * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $xmlValueLocationEnum->getFullyQualifiedName(true); ?> $valueLocation
-     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
-
      */
     public function xmlSerialize(<?php echo $xmlWriterClass->getEntityName(); ?> $xw,
                                  <?php echo $serializeConfigClass->getEntityName(); ?> $config,
-                                 null|<?php echo $xmlValueLocationEnum->getEntityName(); ?> $valueLocation = null): <?php echo $xmlWriterClass->getEntityName(); ?>;
+                                 null|<?php echo $xmlValueLocationEnum->getEntityName(); ?> $valueLocation = null): void;
 }
 
 <?php return ob_get_clean();

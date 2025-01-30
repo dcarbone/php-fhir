@@ -396,7 +396,7 @@ abstract class TypeDecorator
             }
 
             // skip "quantity" types, as their "value" is always applied as an element
-            if ($type->getKind()->isOneOf(TypeKindEnum::QUANTITY)) {
+            if ($type->isQuantity()) {
                 continue;
             }
 

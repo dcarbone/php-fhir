@@ -30,7 +30,8 @@ enum <?php echo PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION; ?>
 
 {
     case PARENT_ATTRIBUTE;
-    case LOCAL_ATTRIBUTE;
-    case ELEMENT;
+    case CONTAINER_ATTRIBUTE;
+    case ELEMENT_ATTRIBUTE;
+    case ELEMENT_VALUE;
 }
 <?php return ob_get_clean();

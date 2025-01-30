@@ -221,8 +221,6 @@ if (!$type->isPrimitiveOrListType()) :
             'type'     => $type,
         ]
     );
-
-    echo "\n";
 endif;
 
 if ($type->hasLocalProperties()) :

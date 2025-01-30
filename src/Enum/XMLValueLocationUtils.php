@@ -25,10 +25,20 @@ class XMLValueLocationUtils
 {
     public static function determineDefaultLocation(Type $type, Property $property, bool $withClass): string
     {
-        $case = match (true) {
-            $property->isValueProperty() && !$type->isQuantity() && !$type->hasQuantityParent() => 'LOCAL_ATTRIBUTE',
-            default => 'ELEMENT',
-        };
+        $propType = $property->getValueFHIRType();
+        if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveContainerParent()) {
+            $case = match(true) {
+                $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() => 'CONTAINER_ATTRIBUTE',
+                default => 'ELEMENT_ATTRIBUTE',
+            };
+        } else if ($property->isValueProperty()) {
+            $case = match (true) {
+                $type->isQuantity() || $type->hasQuantityParent() => 'ELEMENT_ATTRIBUTE',
+                default => 'CONTAINER_ATTRIBUTE',
+            };
+        } else {
+            $case = 'ELEMENT_ATTRIBUTE';
+        }
         if ($withClass) {
             return sprintf('%s::%s', PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION, $case);
         }

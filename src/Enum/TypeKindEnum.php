@@ -40,7 +40,6 @@ enum TypeKindEnum: string
     case RESOURCE = 'Resource';
     case RESOURCE_CONTAINER = 'ResourceContainer';
     case RESOURCE_INLINE = 'Resource.Inline';
-    case QUANTITY = 'Quantity';
 
     // this indicates a type that is an immediate child of a resource and not used elsewhere
     case RESOURCE_COMPONENT = 'resource_component';

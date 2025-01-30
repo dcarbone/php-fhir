@@ -33,19 +33,23 @@ $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASS
 
 ob_start(); ?>
     /**
-     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
-     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
 <?php if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
      * @param null|<?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $valueLocation
 <?php endif; ?>
+<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
+<?php endif; ?>
      */
-    public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null<?php if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>,
-                                 null|<?php echo $xmlLocationEnum->getEntityName(); ?> $valueLocation = null<?php endif; ?>): <?php echo $xmlWriterClass->getEntityName(); ?>
+    public function xmlSerialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif;  echo $xmlWriterClass->getEntityName(); ?> $xw<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif; ?>,
+                                 <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $serializeConfigClass->getEntityName(); ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif;
+    if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>,
+                                 null|<?php echo $xmlLocationEnum->getEntityName(); ?> $valueLocation = null<?php endif; ?>): <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : echo $xmlWriterClass->getEntityName(); else : ?>void<?php endif; ?>
 
     {
+<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
         if (null === $config) {
             $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getSerializeConfig();
         }
@@ -63,4 +67,8 @@ ob_start(); ?>
             $rootOpened = true;
             $xw->openRootNode('<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
         }
-<?php return ob_get_clean();
+<?php elseif ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
+        $valueLocation = $valueLocation ?? $this->_valueXMLLocations[self::FIELD_VALUE];
+<?php endif;
+
+return ob_get_clean();

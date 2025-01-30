@@ -828,7 +828,7 @@ class Type
      */
     public function isQuantity(): bool
     {
-        return $this->_kind === TypeKindEnum::QUANTITY;
+        return $this->_fhirName === 'Quantity';
     }
 
     /**

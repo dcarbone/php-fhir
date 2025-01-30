@@ -62,7 +62,8 @@ echo require_with(
         'type' => $type,
     ]
 );
-?>
+
+if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
         if (isset($rootOpened) && $rootOpened) {
             $xw->endElement();
         }
@@ -70,5 +71,6 @@ echo require_with(
             $xw->endDocument();
         }
         return $xw;
+<?php endif; ?>
     }
 <?php return ob_get_clean();

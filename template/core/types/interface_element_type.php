@@ -65,11 +65,9 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
     /**
      * @param <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
      * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
-
      */
     public function xmlSerialize(<?php echo $xmlWriterClass->getEntityName(); ?> $xw,
-                                 <?php echo $serializeConfigClass->getEntityName(); ?> $config): <?php echo $xmlWriterClass->getEntityName(); ?>;
+                                 <?php echo $serializeConfigClass->getEntityName(); ?> $config): void;
 
     /**
      * @param array $json Decoded JSON
