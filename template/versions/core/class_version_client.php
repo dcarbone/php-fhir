@@ -39,7 +39,7 @@ $imports
         PHPFHIR_CLIENT_CLASSNAME_RESPONSE,
         PHPFHIR_EXCEPTION_CLIENT_ERROR,
         PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE,
-        PHPFHIR_CLASSNAME_RESPONSE_PARSER,
+        PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER,
         PHPFHIR_TYPES_INTERFACE_TYPE,
     )
     ->addVersionTypeImports(
@@ -67,7 +67,7 @@ $clientRequestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNA
 $clientResponseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 $clientErrorException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_ERROR);
 $clientUnexpectedResponseCodeException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE);
-$responseParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_RESPONSE_PARSER);
+$responseParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 
 $versionCoreFiles = $version->getCoreFiles();
@@ -195,7 +195,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
     {
         $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseResponseHeaders);
         $this->_requireOK($rc);
-        return <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $rc->resp);
+        return <?php echo PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER; ?>::parse($this->_version, $rc->resp);
     }
 
 <?php endif; ?>
@@ -255,7 +255,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT; ?>
                 element: $rc->resp,
                 config: $this->_version->getConfig()->getUnserializeConfig(),
             ),
-            default => <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $rc->resp),
+            default => <?php echo PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER; ?>::parse($this->_version, $rc->resp),
         };
     }
 <?php endforeach; ?>

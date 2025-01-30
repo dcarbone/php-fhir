@@ -70,7 +70,7 @@ echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CLIENT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CONFIG); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLASSNAME_RESPONSE_PARSER); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER); ?>;
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
 use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT); ?>;
@@ -375,7 +375,7 @@ class <?php echo $testClassname; ?> extends TestCase
     {
         $sourceXML = $this->fetchResourceBundle('xml');
         try {
-            $bundle = <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $sourceXML);
+            $bundle = <?php echo PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER; ?>::parse($this->_version, $sourceXML);
         } catch(\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(
@@ -436,7 +436,7 @@ class <?php echo $testClassname; ?> extends TestCase
     {
         $sourceJSON = $this->fetchResourceBundle('json');
         try {
-            $bundle = <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>::parse($this->_version, $sourceJSON);
+            $bundle = <?php echo PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER; ?>::parse($this->_version, $sourceJSON);
         } catch(\Exception $e) {
             throw new AssertionFailedError(
                 sprintf(

@@ -512,8 +512,8 @@ class Property
         }
         return $propType->hasPrimitiveOrListParent()
             || $propType->isPrimitiveOrListType()
-            || $propType->isPrimitiveContainer()
-            || ($this->_memberOf->isValueContainer() && $this->isValueProperty());
+            || $propType->hasValueContainerParent()
+            || $propType->isValueContainer();
     }
 
     /**

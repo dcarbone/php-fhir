@@ -24,14 +24,14 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 
 $versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 $constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 
 $imports = $coreFile->getImports();
 
 $imports->addCoreFileImports(
     $versionInterface,
-    $typeInterface,
+    $resourceTypeInterface,
     $constantsClass,
 );
 
@@ -44,7 +44,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
+class <?php echo $coreFile->getEntityName(); ?>
 
 {
     private const XML_START = ['<'];
@@ -55,12 +55,12 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
      *
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */
-    public static function parse(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                 null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parse(<?php echo $versionInterface->getEntityName(); ?> $version,
+                                 null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
         if (null === $input) {
@@ -77,31 +77,31 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     /**
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param array $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseArray(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                      array $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parseArray(<?php echo $versionInterface->getEntityName(); ?> $version, array $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
         if ([] === $input) {
             return null;
         }
-        if (isset($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-            $className = $version->getTypeMap()::getTypeClassName($input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
+        if (isset($input[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE])) {
+            /** @var <?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?> $className */
+            $className = $version->getTypeMap()::getTypeClassName($input[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE]);
             if (null === $className) {
                 throw new \UnexpectedValueException(sprintf(
                     'Provided input has "%s" value of "%s", but it does not map to any known type.  Other keys: ["%s"]',
-                    <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE,
-                    $input[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE],
+                    <?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE,
+                    $input[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE],
                     implode('","', array_keys($input))
                 ));
             }
-            return $className::jsonUnserialize($input, null, $version->getConfig()->getUnserializeConfig());
+            return $className::jsonUnserialize($input, $version->getConfig()->getUnserializeConfig());
         }
         throw new \DomainException(sprintf(
             'Unable to determine FHIR Type from provided array: missing "%s" key.  Available keys: ["%s"]',
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE,
+            <?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE,
             implode('","', array_keys($input))
         ));
     }
@@ -109,11 +109,10 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     /**
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param \stdClass $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseStdClass(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                         \stdClass $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parseStdClass(<?php echo $versionInterface->getEntityName(); ?> $version, \stdClass $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
         return static::parseArray($version, (array)$input);
@@ -122,15 +121,14 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     /**
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param \SimpleXMLElement $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseSimpleXMLElement(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                                 \SimpleXMLElement $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parseSimpleXMLElement(<?php echo $versionInterface->getEntityName(); ?> $version, \SimpleXMLElement $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
         $elementName = $input->getName();
-        /** @var <?php echo $config->getFullyQualifiedName(true, PHPFHIR_TYPES_INTERFACE_TYPE); ?> $fhirType */
+        /** @var <?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?> $fhirType */
         $fhirType = $version->getTypeMap()::getTypeClassName($elementName);
         if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
@@ -139,17 +137,16 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
                 static::getPrintableStringInput($input->saveXML())
             ));
         }
-        return $fhirType::xmlUnserialize($input, null, $version->getConfig()->getUnserializeConfig());
+        return $fhirType::xmlUnserialize($input, $version->getConfig()->getUnserializeConfig());
     }
 
     /**
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param \DOMDocument $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseDOMDocument(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                            \DOMDocument $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parseDOMDocument(<?php echo $versionInterface->getEntityName(); ?> $version, \DOMDocument $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
         return static::parseSimpleXMLElement($version, simplexml_import_dom($input));
@@ -158,11 +155,11 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     /**
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param \stdClass|\SimpleXMLElement|\DOMDocument $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseObject(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                       \stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parseObject(<?php echo $versionInterface->getEntityName(); ?> $version,
+                                       \stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
         if ($input instanceof \stdClass) {
@@ -177,12 +174,11 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     /**
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param string $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */
-    public static function parseXML(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                    string $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parseXML(<?php echo $versionInterface->getEntityName(); ?> $version, string $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
         return static::parseSimpleXMLElement(
@@ -193,11 +189,10 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     /**
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param string $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseJSON(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                     string $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parseJSON(<?php echo $versionInterface->getEntityName(); ?> $version, string $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
         $decoded = json_decode($input, true, $version->getConfig()->getUnserializeConfig()->getJSONDecodeMaxDepth());
@@ -216,15 +211,13 @@ class <?php echo PHPFHIR_CLASSNAME_RESPONSE_PARSER; ?>
     /**
      * @param <?php echo $versionInterface->getFullyQualifiedName(true); ?> $version
      * @param string $input
-     * @return null|<?php echo $typeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */
-    public static function parseString(<?php echo PHPFHIR_INTERFACE_VERSION; ?> $version,
-                                       string $input): null|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>
+    public static function parseString(<?php echo $versionInterface->getEntityName(); ?> $version, string $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
 
     {
-        $input = trim($input);
         if ('' === $input) {
             return null;
         }

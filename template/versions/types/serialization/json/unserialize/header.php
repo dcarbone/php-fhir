@@ -70,7 +70,7 @@ ob_start(); ?>
             $json = (array)$json;
         }
 <?php if ($type->hasConcreteParent()) : ?>
-        parent::jsonUnserialize($json, $type, $config);<?php elseif (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+        parent::jsonUnserialize($json, $config, $type);<?php elseif (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
         if (isset($data[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS])) {
             $type->_setFHIRComments((array)$data[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS]);
         }
