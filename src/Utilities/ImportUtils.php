@@ -183,12 +183,12 @@ class ImportUtils
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION);
             } else {
-                if ($ptk === TypeKindEnum::PRIMITIVE_CONTAINER) {
-                    $primType = $propertyType
+                if ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) {
+                    $valType = $propertyType
                         ->getProperties()
                         ->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
                     $imports->addImport(
-                        $primType->getFullyQualifiedNamespace(false), $primType->getClassName()
+                        $valType->getFullyQualifiedNamespace(false), $valType->getClassName()
                     );
                 }
 

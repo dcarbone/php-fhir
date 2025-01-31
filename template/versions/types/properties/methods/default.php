@@ -120,7 +120,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
         }
 <?php
     endif;
-    if ($propType->isPrimitiveContainer() || $propType->isPrimitiveOrListType()) : ?>
+    if ($propType->isValueContainer() || $propType->hasValueContainerParent() || $propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propTypeClassname; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propTypeClassname; ?>(value: $<?php echo $propertyName; ?>);
         }

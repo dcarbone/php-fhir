@@ -93,7 +93,7 @@ class TypeHintUtils
 
         if ($tk->isResourceContainer($version)) {
             $types[] = PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE;
-        } else if ($tk === TypeKindEnum::PRIMITIVE_CONTAINER) {
+        } else if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
             $pt = $type->getProperties()->getProperty('value')->getValueFHIRType();
             $types = array_merge($types, $pt->getPrimitiveType()->getPHPReceiveValueTypeHints());
             array_push(
@@ -124,11 +124,14 @@ class TypeHintUtils
         // fetch type's kind
         $tk = $type->getKind();
 
-        if ($type->isPrimitiveOrListType()) {
+        if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
             $hintTypes = $type->getPrimitiveType()->getPHPReceiveValueTypeHints();
-        } else if ($type->isPrimitiveContainer()) {
+        } else if ($type->isValueContainer() || $type->hasValueContainerParent()) {
             $ptp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
-            $hintTypes = $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints();
+            $hintTypes = [];
+            if ($ptp->isPrimitiveOrListType() || $ptp->hasPrimitiveOrListParent()) {
+                $hintTypes = $ptp->getPrimitiveType()->getPHPReceiveValueTypeHints();
+            }
             array_merge($hintTypes, self::buildBaseHintParts($version, $ptp, $fullyQualified));
         } else if ($tk->isResourceContainer($version)) {
             $containerType = $version->getDefinition()->getTypes()->getContainerType();
@@ -261,14 +264,14 @@ class TypeHintUtils
         $hintTypes = self::buildBaseHintParts($version, $pt, true);
 
 
-        if ($pt->isPrimitiveContainer()) {
+        if ($pt->isValueContainer() || $pt->hasValueContainerParent()) {
             $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
             array_push(
                 $hintTypes,
                 $vp->getValueFHIRType()->getFullyQualifiedClassName(true),
                 $pt->getFullyQualifiedClassName(true),
             );
-        } else if ($property->isValueProperty() || $pt->isPrimitiveOrListType()) {
+        } else if ($property->isValueProperty() || ($pt->isPrimitiveOrListType() || $pt->hasPrimitiveOrListParent())) {
             $hintTypes[] = $pt->getFullyQualifiedClassName(true);
         }
 
@@ -307,14 +310,14 @@ class TypeHintUtils
         } else {
             $hintTypes = self::buildBaseHintParts($version, $pt, false);
 
-            if ($pt->isPrimitiveContainer()) {
+            if ($pt->isValueContainer() || $pt->hasValueContainerParent()) {
                 $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
                 array_push(
                     $hintTypes,
                     $vp->getValueFHIRType()->getClassName(),
                     $pt->getClassName(),
                 );
-            } else if ($property->isValueProperty() || $pt->isPrimitiveOrListType()) {
+            } else if ($property->isValueProperty() || ($pt->isPrimitiveOrListType() || $pt->hasPrimitiveOrListParent())) {
                 $hintTypes[] = $pt->getClassName();
             }
         }
