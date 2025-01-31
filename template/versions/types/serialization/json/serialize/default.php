@@ -39,14 +39,15 @@ if ($type->isCommentContainer() && !$type->hasCommentContainerParent()) : ?>
         }
 <?php endif;
 foreach ($type->getProperties()->getIterator() as $property) :
+    if ($property->getOverloadedProperty()) {
+        continue;
+    }
+
     $propConst = $property->getFieldConstantName();
     $propConstExt = $property->getFieldConstantExtensionName();
 
-    if ($property->getOverloadedProperty()) :
-        continue;
-    endif;
     $propertyType = $property->getValueFHIRType();
-    if ($propertyType->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) :
+    if ($propertyType->isPrimitiveOrListType() || $propertyType->hasPrimitiveOrListParent()) :
         if ($property->isCollection()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
             $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
@@ -57,28 +58,36 @@ foreach ($type->getProperties()->getIterator() as $property) :
         }
 <?php endif;
 
-    elseif ($propertyType->isValueContainer() || $propertyType->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER || $propertyType->hasPrimitiveContainerParent()) :
+    elseif ($propertyType->isValueContainer() || $propertyType->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
         $propTypeClassname = $property->getValueFHIRType()->getClassName();
 
         if ($property->isCollection()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
             $vals = [];
             $exts = [];
+            $hasVals = false;
+            $hasExts = false;
             foreach ($this-><?php echo $property->getName(); ?> as $v) {
                 $val = $v->getValue();
-                $ext = $v->jsonSerialize();
-                unset($ext->value);
                 if (null !== $val) {
+                    $hasVals = true;
                     $vals[] = $val;
+                } else {
+                    $vals[] = null;
                 }
-                if ([] !== $ext) {
+                if ($v->_nonValueFieldDefined()) {
+                    $hasExts = true;
+                    $ext = $v->jsonSerialize();
+                    unset($ext->value);
                     $exts[] = $ext;
+                } else {
+                    $exts[] = null;
                 }
             }
-            if ([] !== $vals) {
+            if ($hasVals) {
                 $out-><?php echo $property->getName(); ?> = $vals;
             }
-            if (count((array)$ext) > 0) {
+            if ($hasExts) {
                 $out-><?php echo $property->getExtName(); ?> = $exts;
             }
         }
@@ -87,9 +96,9 @@ foreach ($type->getProperties()->getIterator() as $property) :
             if (null !== ($val = $this-><?php echo $property->getName(); ?>->getValue())) {
                 $out-><?php echo $property->getName(); ?> = $val;
             }
-            $ext = $this-><?php echo $property->getName(); ?>->jsonSerialize();
-            unset($ext->value);
-            if (count((array)$ext) > 0) {
+            if ($this-><?php echo $property->getName(); ?>->_nonValueFieldDefined()) {
+                $ext = $this-><?php echo $property->getName(); ?>->jsonSerialize();
+                unset($ext->value);
                 $out-><?php echo $property->getExtName(); ?> = $ext;
             }
         }

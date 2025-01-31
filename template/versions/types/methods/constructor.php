@@ -41,7 +41,7 @@ $totalPropertyCount = $propertyCount + $parentPropertyCount;
 
 ob_start();
 
-if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
+if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) :
     $primitiveType = $type->getPrimitiveType();
 
     // only define constructor if this primitive does not have a parent.
@@ -58,18 +58,20 @@ if ($typeKind->isOneOf(TypeKindeNum::PRIMITIVE, TypeKindEnum::LIST)) :
     }
 <?php
     endif;
-else : ?>
+elseif ($type->hasLocalProperties() || ($type->isCommentContainer() && !$type->hasCommentContainerParent())) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
      * <?php echo $typeClassName; ?> Constructor
-<?php foreach($type->getAllPropertiesIndexedIterator() as $property) :
+<?php
+    foreach($type->getAllPropertiesIndexedIterator() as $property) :
         $propType = $property->getValueFHIRType();
         $propTypeKind = $propType->getKind();
 ?>
      * @param <?php echo TypeHintUtils::buildSetterParameterDocHint($version, $property, true); ?> $<?php echo $property->getName(); ?>
 
-<?php endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>
+<?php
+    endforeach; if ($type->hasCommentContainerParent() || $type->isCommentContainer()) : ?>
      * @param null|string[] $fhirComments
 <?php endif; ?>     */
     public function __construct(<?php foreach($type->getAllPropertiesIndexedIterator() as $i => $property) : if ($i > 0) : ?>,

@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
 
-$primitiveContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE);
+$elementInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $xmlValueLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
@@ -31,7 +31,7 @@ $xmlValueLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENU
 $imports = $coreFile->getimports();
 
 $imports->addCoreFileImports(
-    $primitiveContainerInterface,
+    $elementInterface,
     $serializeConfigClass,
     $xmlWriterClass,
     $xmlValueLocationEnum,
@@ -46,14 +46,32 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-/**
- * This indicates an Element type that contains a "value" property, but must be serialized differently than
- * a primitive container
- */
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $primitiveContainerInterface->getEntityName(); ?>
+interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $elementInterface->getEntityName(); ?>
 
 {
+    /**
+     * Must return the appropriate "formatted" stringified version of this type's contained primitive type's value
+     *
+     * @return string
+     */
+    public function _getFormattedValue(): string;
 
+    /**
+     * Must return true if this primitive container type has a field set other than "value".  This is used during
+     * serialization.
+     *
+     * @return bool
+     */
+    public function _nonValueFieldDefined(): bool;
+
+    /**
+     * @param <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
+     * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @param null|<?php echo $xmlValueLocationEnum->getFullyQualifiedName(true); ?> $valueLocation
+     */
+    public function xmlSerialize(<?php echo $xmlWriterClass->getEntityName(); ?> $xw,
+                                 <?php echo $serializeConfigClass->getEntityName(); ?> $config,
+                                 null|<?php echo $xmlValueLocationEnum->getEntityName(); ?> $valueLocation = null): void;
 }
 
 <?php return ob_get_clean();

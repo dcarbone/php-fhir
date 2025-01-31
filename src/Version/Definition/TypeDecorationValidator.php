@@ -40,7 +40,7 @@ abstract class TypeDecorationValidator
         if (!NameUtils::isValidNSName($version->getFullyQualifiedName(false))) {
             throw ExceptionUtils::createInvalidVersionNamespaceException($version);
         }
-        
+
         $seenClasses = [];
         foreach ($types->getIterator() as $type) {
             $typeKind = $type->getKind();
@@ -68,7 +68,7 @@ abstract class TypeDecorationValidator
             }
 
             if ($typeKind === TypeKindEnum::PRIMITIVE) {
-                if (null ===  $type->getPrimitiveType()) {
+                if (null === $type->getPrimitiveType()) {
                     throw ExceptionUtils::createUnknownPrimitiveTypeException($type);
                 }
             }
@@ -80,8 +80,8 @@ abstract class TypeDecorationValidator
                 }
             }
 
-            if ($typeKind === TypeKindenum::PRIMITIVE_CONTAINER) {
-                $valueProperty = $type->getProperties()->getProperty('value');
+            if ($type->isPrimitiveContainer()) {
+                $valueProperty = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
                 if (null === $valueProperty) {
                     throw ExceptionUtils::createPrimitiveValuePropertyNotFound($type);
                 }

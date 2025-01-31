@@ -92,6 +92,8 @@ class Type
     /** @var bool */
     private bool $_containedType = false;
     /** @var bool */
+    private bool $_primitiveContainer = false;
+    /** @var bool */
     private bool $_valueContainer = false;
     /** @var bool */
     private bool $_commentContainer = false;
@@ -352,6 +354,16 @@ class Type
         return $this->_properties;
     }
 
+    public function getParentProperty(string $name) : null|Property
+    {
+        foreach($this->getParentPropertiesIterator() as $property) {
+            if ($property->getName() === $name) {
+                return $property;;
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns true if this type has any locally defined properties.
      *
@@ -544,9 +556,28 @@ class Type
         return false;
     }
 
+    /**
+     * @return bool
+     */
     public function isPrimitiveContainer(): bool
     {
-        return $this->getKind() === TypeKindEnum::PRIMITIVE_CONTAINER;
+        return $this->_primitiveContainer;
+    }
+
+    /**
+     * @param bool $primitiveContainer
+     * @return $this
+     */
+    public function setPrimitiveContainer(bool $primitiveContainer): Type
+    {
+        if ($primitiveContainer && $this->_valueContainer) {
+            throw new \LogicException(sprintf(
+                'Cannot mark Type "%s" as primitive container as it is already marked as a value container',
+                $this->getFHIRName()
+            ));
+        }
+        $this->_primitiveContainer = $primitiveContainer;
+        return $this;
     }
 
     /**
@@ -806,6 +837,12 @@ class Type
      */
     public function setValueContainer(bool $valueContainer): Type
     {
+        if ($valueContainer && $this->_primitiveContainer) {
+            throw new \LogicException(sprintf(
+                'Cannot mark Type "%s" as value container as it is already marked as a primitive container',
+                $this->getFHIRName(),
+            ));
+        }
         $this->_valueContainer = $valueContainer;
         return $this;
     }
@@ -836,7 +873,7 @@ class Type
      */
     public function hasQuantityParent(): bool
     {
-        foreach($this->getParentTypes() as $parent) {
+        foreach ($this->getParentTypes() as $parent) {
             if ($parent->isQuantity()) {
                 return true;
             }
@@ -862,6 +899,12 @@ class Type
             if (!$this->hasPrimitiveOrListParent()) {
                 $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE)
+                    ->getFullyQualifiedNamespace(false);
+            }
+        } else if ($this->isPrimitiveContainer()) {
+            if (!$this->hasPrimitiveContainerParent()) {
+                $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
         } else if ($this->isValueContainer()) {

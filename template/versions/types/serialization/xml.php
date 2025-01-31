@@ -25,7 +25,7 @@ ob_start();
 
 // unserialize portion
 echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/unserialize/header.php',
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/unserialize/header.php',
     [
         'version' => $version,
         'type' => $type,
@@ -44,26 +44,29 @@ endif;
 ?>
         return $type;
     }
-
 <?php
-// serialize portion
-echo require_with(
+// start xml serialize
+if ($type->hasLocalProperties()) :
+
+    echo "\n";
+
+    echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/serialize/header.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
+        [
+            'version' => $version,
+            'type' => $type,
+        ]
+    );
 
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/serialize/body.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/serialize/body.php',
+        [
+            'version' => $version,
+            'type' => $type,
+        ]
+    );
 
-if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+    if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
         if (isset($rootOpened) && $rootOpened) {
             $xw->endElement();
         }
@@ -71,6 +74,11 @@ if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
             $xw->endDocument();
         }
         return $xw;
-<?php endif; ?>
+<?php
+    endif; ?>
     }
-<?php return ob_get_clean();
+<?php
+    // end xml serialize
+endif;
+
+return ob_get_clean();

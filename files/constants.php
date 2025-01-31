@@ -108,10 +108,10 @@ const PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE = 'UnexpectedResponseCod
 // Core types entities
 const PHPFHIR_TYPES_INTERFACE_TYPE = 'TypeInterface';
 const PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE = 'PrimitiveTypeInterface';
-const PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE = 'ValueContainerTypeInterface';
 const PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE = 'ElementTypeInterface';
+const PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE = 'PrimitiveContainerTypeInterface';
+const PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE = 'ValueContainerTypeInterface';
 const PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE = 'ResourceTypeInterface';
-
 const PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE = 'ContainedTypeInterface';
 const PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER = 'CommentContainerInterface';
 const PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER = 'CommentContainerTrait';

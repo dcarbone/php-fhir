@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utils\XMLValueLocationUtils;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
@@ -223,16 +222,15 @@ if (!$type->isPrimitiveOrListType()) :
     );
 endif;
 
-if ($type->hasLocalProperties()) :
-    echo "\n";
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
-endif;
+echo "\n";
+
+echo require_with(
+    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',
+    [
+        'version' => $version,
+        'type' => $type,
+    ]
+);
 
 if (!$type->hasPrimitiveOrListParent()) : ?>
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */

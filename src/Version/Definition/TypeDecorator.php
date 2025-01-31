@@ -44,8 +44,8 @@ abstract class TypeDecorator
      */
     public static function findNamelessProperties(Config $config, Types $types): void
     {
-        foreach($types->getIterator() as $type) {
-            foreach($type->getProperties()->getIterator() as $property) {
+        foreach ($types->getIterator() as $type) {
+            foreach ($type->getProperties()->getIterator() as $property) {
                 $name = $property->getName();
                 if ('' === $name || null === $name) {
                     $property->setName($property->getRef());
@@ -216,6 +216,10 @@ abstract class TypeDecorator
                 continue;
             }
 
+            if (!str_ends_with($ptn, '-primitive')) {
+                continue;
+            }
+
             $logger->debug(sprintf('Setting assumed primitive Type "%s" kind to "%s"', $type->getFHIRName(), $ptn));
             $ptn = str_replace('-primitive', '', $ptn);
             $pt = PrimitiveTypeEnum::from($ptn);
@@ -331,13 +335,6 @@ abstract class TypeDecorator
             return;
         }
 
-        // this is for primitive "wrapper" types, e.g. String -> 'string-primitive'
-        if (null !== $types->getTypeByName(sprintf('%s-primitive', $fhirName))) {
-            $logger->debug(sprintf('Type "%s" has primitive counterpart, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE_CONTAINER->value));
-            self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE_CONTAINER);
-            return;
-        }
-
         // special block for xhtml type
         if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
             $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKindEnum::PHPFHIR_XHTML->value));
@@ -380,23 +377,59 @@ abstract class TypeDecorator
     }
 
     /**
-     * A "value container" type is any non-primitive type with a "value" property.
+     * Once parsing has been completed, we must do a final pass to identify types that are primitive containers by
+     * another name.
      *
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      */
-    public static function setValueContainerFlag(Config $config, Types $types): void
+    public static function setPrimitiveContainerFlag(Version $version, Types $types): void
     {
-        // TODO: handle valueString, valueQuantity, etc. types?
+        $logger = $version->getConfig()->getLogger();
+        foreach ($types->getIterator() as $type) {
+            // skip primitives
+            if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
+                continue;
+            }
 
+            // mark types that have a "$n-primitive" counterpart as primitive containers explicitly.
+            if (null !== $types->getTypeByName(sprintf('%s-primitive', $type->getFHIRName()))) {
+                $logger->debug(sprintf('Type "%s" has primitive counterpart, marking as Primitive Container', $type->getFHIRName()));
+                $type->setPrimitiveContainer(true);
+                continue;
+            }
+
+            // skip types that do not have a directly implmeented "value" property
+            $vp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+            if (null === $vp) {
+                continue;
+            }
+
+            $vpt = $vp->getValueFHIRType();
+            if ($vpt->isPrimitiveOrListType() || $vpt->hasPrimitiveOrListParent()) {
+                $logger->debug(sprintf('Type "%s" has primtive "value" property, marking as Primitive Container', $type->getFHIRName()));
+                $type->setPrimitiveContainer(true);
+            }
+        }
+    }
+
+    /**
+     * A "value container" type is any type with a "value" property that isn't a primitive or primitive-container.
+     *
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
+     */
+    public static function setValueContainerFlag(Version $version, Types $types): void
+    {
+        $logger = $version->getConfig()->getLogger();
         foreach ($types->getIterator() as $type) {
             // primitive types have special handling and must not be marked as "value containers"
             if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
                 continue;
             }
 
-            // skip "quantity" types, as their "value" is always applied as an element
-            if ($type->isQuantity()) {
+            // skip "primitive container" types.
+            if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
                 continue;
             }
 
@@ -405,7 +438,10 @@ abstract class TypeDecorator
                 continue;
             }
 
-            $type->setValueContainer($type->getProperties()->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME));
+            if ($type->getProperties()->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
+                $logger->debug(sprintf('Type "%s" has "value" property, marking as Value Container', $type->getFHIRName()));
+                $type->setValueContainer(true);
+            }
         }
     }
 

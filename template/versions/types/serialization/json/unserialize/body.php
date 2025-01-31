@@ -58,7 +58,7 @@ foreach($type->getProperties()->getIterator() as $property) :
         if (isset($json[self::<?php echo $propConst; ?>]) || array_key_exists(self::<?php echo $propConst; ?>, $json)) {
             $type-><?php echo $setter; ?>($json[self::<?php echo $propConst; ?>]);
         }
-<?php elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent() || $propType->isValueContainer()) : ?>
+<?php elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) : ?>
         if (isset($json[self::<?php echo $propConst; ?>])
             || isset($json[self::<?php echo $propConstExt; ?>])
             || array_key_exists(self::<?php echo $propConst; ?>, $json)

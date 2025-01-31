@@ -58,6 +58,7 @@ ob_start(); ?>
 <?php   endif; ?>
             }<?php
 endforeach; ?>
+
         }
         $attributes = $element->attributes();
 <?php

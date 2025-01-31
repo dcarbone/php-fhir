@@ -25,9 +25,6 @@ enum TypeKindEnum: string
     // this represents an actual value: string, int, etc.
     case PRIMITIVE = 'primitive';
 
-    // these represent types that exist to wrap a primitive
-    case PRIMITIVE_CONTAINER = 'primitive_container';
-
     // primitive type with limited possible value set
     case LIST = 'list';
 

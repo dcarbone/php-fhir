@@ -65,6 +65,10 @@ class ImportUtils
 
     public static function buildVersionTypeImports(Version $version, Type $type): void
     {
+        $logger = $version->getConfig()->getLogger();
+
+        $logger->debug(sprintf('Compiling imports for Type "%s"...', $type->getFHIRName()));
+
         $imports = $type->getImports();
 
         // immediately add self
@@ -183,13 +187,13 @@ class ImportUtils
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION);
             } else {
-                if ($propertyType->isValueContainer() || $propertyType->hasValueContainerParent()) {
-                    $valType = $propertyType
-                        ->getProperties()
-                        ->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)->getValueFHIRType();
-                    $imports->addImport(
-                        $valType->getFullyQualifiedNamespace(false), $valType->getClassName()
-                    );
+                $valProp = $propertyType->isValueContainer()
+                    ? $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME)
+                    : $propertyType->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+
+                if (null !== $valProp) {
+                    $valType = $valProp->getValueFHIRType();
+                    $imports->addImport($valType->getFullyQualifiedNamespace(false), $valType->getClassName());
                 }
 
                 $imports->addImport(
