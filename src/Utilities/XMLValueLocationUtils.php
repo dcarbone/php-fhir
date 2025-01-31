@@ -34,6 +34,7 @@ class XMLValueLocationUtils
         } else if ($property->isValueProperty()) {
             $case = match (true) {
                 $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() => 'CONTAINER_ATTRIBUTE',
+                $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent() => 'CONTAINER_ATTRIBUTE',
                 default => 'ELEMENT_ATTRIBUTE'
             };
         } else {

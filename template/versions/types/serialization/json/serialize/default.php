@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
@@ -58,7 +56,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
         }
 <?php endif;
 
-    elseif ($propertyType->isValueContainer() || $propertyType->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
+    elseif ($propertyType->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent()) :
         $propTypeClassname = $property->getValueFHIRType()->getClassName();
 
         if ($property->isCollection()) : ?>
