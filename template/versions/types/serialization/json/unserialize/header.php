@@ -61,6 +61,7 @@ ob_start(); ?>
                 get_class($type)
             ));
         }
+<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
         if (null === $config) {
             $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getUnserializeConfig();
         }
@@ -69,11 +70,12 @@ ob_start(); ?>
         } else if (is_object($json)) {
             $json = (array)$json;
         }
-<?php if ($type->hasConcreteParent()) : ?>
-        parent::jsonUnserialize($json, $config, $type);<?php elseif (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
-        if (isset($data[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS])) {
-            $type->_setFHIRComments((array)$data[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS]);
-        }
 <?php endif;
+if ($type->hasConcreteParent()) : ?>
+        parent::jsonUnserialize($json, $config, $type); <?php
+elseif (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
+        if (isset($json[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS])) {
+            $type->_setFHIRComments((array)$json[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS]);
+        }<?php endif;
 
 return ob_get_clean();

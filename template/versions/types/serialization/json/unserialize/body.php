@@ -38,10 +38,6 @@ foreach($type->getProperties()->getIterator() as $property) :
     $propConstExt = $property->getFieldConstantExtensionName();
 
     if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) : ?>
-        if (!is_array($json)) {
-            $type->setValue($json);
-            return $type;
-        }
         if ([] === $json) {
             return $type;
         }
@@ -63,13 +59,13 @@ foreach($type->getProperties()->getIterator() as $property) :
             $type-><?php echo $setter; ?>($json[self::<?php echo $propConst; ?>]);
         }
 <?php elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent() || $propType->isValueContainer()) : ?>
-        if (isset($json[self::<?php echo $propConst; ?>]) || isset($json[self::<?php echo $propConstExt; ?>]) || array_key_exists(self::<?php echo $propConst; ?>, $json) || array_key_exists(self::<?php echo $propConstExt; ?>, $json)) {
-            $value = $json[self::<?php echo $propConst; ?>] ?? null;
-            $ext = (array)($json[self::<?php echo $propConstExt; ?>] ?? []);
+        if (isset($json[self::<?php echo $propConst; ?>])
+            || isset($json[self::<?php echo $propConstExt; ?>])
+            || array_key_exists(self::<?php echo $propConst; ?>, $json)
+            || array_key_exists(self::<?php echo $propConstExt; ?>, $json)) {
 <?php if ($property->isCollection()) : ?>
-            if (!is_array($value)) {
-                $value = [$value];
-            }
+            $value = (array)($json[self::<?php echo $propConst; ?>] ?? []);
+            $ext = (array)($json[self::<?php echo $propConstExt; ?>] ?? []);
             $cnt = count($value);
             $extCnt = count($ext);
             if ($extCnt > $cnt) {
@@ -77,14 +73,15 @@ foreach($type->getProperties()->getIterator() as $property) :
             }
             for ($i = 0; $i < $cnt; $i++) {
                 $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize(
-                    json: [<?php echo $propTypeClass; ?>::FIELD_VALUE => $value[$i] ?? null] + (array)($ext[$i] ?? []),
-                    config: $config,
+                    [<?php echo $propTypeClass; ?>::FIELD_VALUE => $value[$i] ?? null] + ($ext[$i] ?? []),
+                    $config,
                 ));
             }
 <?php else : ?>
+            $value = $json[self::<?php echo $propConst; ?>] ?? null;
             $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize(
-                json: [<?php echo $propTypeClass; ?>::FIELD_VALUE => $value] + $ext,
-                config: $config,
+                (is_array($value) ? $value : [<?php echo $propTypeClass; ?>::FIELD_VALUE => $value]) + ($json[self::<?php echo $propConstExt; ?>] ?? []),
+                $config,
             ));
 <?php endif; ?>
         }
@@ -98,19 +95,13 @@ foreach($type->getProperties()->getIterator() as $property) :
             foreach($d as $v) {
                 $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($v);
                 unset($v[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
-                $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize(
-                    json: $v,
-                    config: $config,
-                ));
+                $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize($v, $config));
             }
 <?php   else : ?>
             $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromArray($json[self::<?php echo $propConst; ?>]);
             $d = $json[self::<?php echo $propConst; ?>];
             unset($d[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE]);
-            $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize(
-                json: $d,
-                config: $config,
-            ));
+            $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize($d, $config));
 <?php   endif; ?>
         }
 <?php else : ?>
@@ -121,16 +112,10 @@ foreach($type->getProperties()->getIterator() as $property) :
                 $vs = [$vs];
             }
             foreach($vs as $v) {
-                $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize(
-                    json: $v,
-                    config: $config,
-                ));
+                $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize($v, $config));
             }
 <?php       else : ?>
-            $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize(
-                json: $json[self::<?php echo $propConst; ?>],
-                config: $config,
-            ));
+            $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize($json[self::<?php echo $propConst; ?>], $config));
 <?php   endif; ?>
         }
 <?php endif;
