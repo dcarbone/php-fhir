@@ -17,7 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-use DCarbone\PHPFHIR\Enum\XMLValueLocationUtils;
+use DCarbone\PHPFHIR\Utils\XMLValueLocationUtils;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 

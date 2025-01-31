@@ -76,7 +76,9 @@ foreach ($type->getProperties()->getIterator() as $property) :
     // value property start
     if (!$property->isCollection() && $property->isValueProperty() && ($type->isValueContainer() || $type->hasValueContainerParent())) : ?>
         if (isset($this-><?php echo $property->getName(); ?>)) {
-            if (<?php echo $xmlLocationEnum->getEntityName(); ?>::ELEMENT_ATTRIBUTE === $valueLocation) {
+            if (<?php echo $xmlLocationEnum->getEntityName(); ?>::CONTAINER_VALUE === $valueLocation) {
+                $xw->text($this-><?php echo $property->getName(); ?>->_getFormattedValue());
+            } else if (<?php echo $xmlLocationEnum->getEntityName(); ?>::ELEMENT_ATTRIBUTE === $valueLocation) {
                 $xw->startElement(self::<?php echo $property->getFieldConstantName(); ?>);
                 $xw->writeAttribute(<?php echo $propType->getClassName(); ?>::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->_getFormattedValue());
                 $xw->endElement();
@@ -133,7 +135,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
 <?php   endif;
     // primitive type end
 
-    // primitive container start
+    // value container start
     elseif ($propType->isValueContainer() || $propType->hasValueContainerParent()) :
         if ($property->isCollection()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
@@ -152,7 +154,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
             $xw->endElement();
         }
 <?php   endif;
-    // primitive container end
+    // value container end
 
     // xhtml type start
     elseif ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
