@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utils\XMLValueLocationUtils;
+use DCarbone\PHPFHIR\Utilities\XMLValueLocationUtils;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
@@ -53,7 +53,7 @@ if ($type->hasLocalProperties()) : ?>
 
         $propertyType = $property->getValueFHIRType(); ?>
     public const <?php echo $property->getFieldConstantName(); ?> = '<?php echo $property->getName(); ?>';
-<?php   if (null !== $propertyType && ($propertyType->isPrimitiveContainer() || $propertyType->isValueContainer())) :
+<?php   if (null !== $propertyType && ($propertyType->isPrimitiveContainer() || $propertyType->hasPrimitiveContainerParent())) :
     ?>    public const <?php echo $property->getFieldConstantName(); ?>_EXT = '<?php echo $property->getExtName(); ?>';
 <?php   endif;
     endforeach;
@@ -196,7 +196,7 @@ if (!$type->isAbstract()) : ?>
     );
 endif;
 
-if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
+if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     public function _nonValueFieldDefined(): bool

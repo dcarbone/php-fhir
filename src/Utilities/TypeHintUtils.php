@@ -126,8 +126,12 @@ class TypeHintUtils
 
         if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
             $hintTypes = $type->getPrimitiveType()->getPHPReceiveValueTypeHints();
-        } else if ($type->isValueContainer() || $type->hasValueContainerParent()) {
-            $valProp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME) ?? $type->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME);
+        } else if ($type->isValueContainer() || $type->hasValueContainerParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
+            $valProp = match (true) {
+                $type->isValueContainer() || $type->isPrimitiveContainer() => $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME),
+                $type->hasValueContainerParent() || $type->hasPrimitiveContainerParent() => $type->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME),
+                default => null,
+            };
             $ptp = $valProp->getValueFHIRType();
             $hintTypes = [];
             if ($ptp->isPrimitiveOrListType() || $ptp->hasPrimitiveOrListParent()) {
@@ -264,8 +268,7 @@ class TypeHintUtils
 
         $hintTypes = self::buildBaseHintParts($version, $pt, true);
 
-
-        if ($pt->isValueContainer() || $pt->hasValueContainerParent()) {
+        if ($pt->isValueContainer() || $pt->hasValueContainerParent() || $pt->isPrimitiveContainer() || $pt->hasPrimitiveContainerParent()) {
             $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME) ?? $pt->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME);
             array_push(
                 $hintTypes,
@@ -311,7 +314,7 @@ class TypeHintUtils
         } else {
             $hintTypes = self::buildBaseHintParts($version, $pt, false);
 
-            if ($pt->isValueContainer() || $pt->hasValueContainerParent()) {
+            if ($pt->isValueContainer() || $pt->hasValueContainerParent() || $pt->isPrimitiveContainer() || $pt->hasPrimitiveContainerParent()) {
                 $vp = $pt->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME) ?? $pt->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME);
                 array_push(
                     $hintTypes,

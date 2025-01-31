@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DCarbone\PHPFHIR\Utils;
+namespace DCarbone\PHPFHIR\Utilities;
 
 /*
  * Copyright 2025 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -33,13 +33,12 @@ class XMLValueLocationUtils
             };
         } else if ($property->isValueProperty()) {
             $case = match (true) {
-                $type->isQuantity() || $type->hasQuantityParent() => 'CONTAINER_ATTRIBUTE',
-                $type->isValueContainer() || $type->hasValueContainerParent() => 'CONTAINER_ATTRIBUTE',
+                $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() => 'CONTAINER_ATTRIBUTE',
                 default => 'ELEMENT_ATTRIBUTE'
             };
         } else {
             $case = match (true) {
-                $propType->isValueContainer() || $propType->hasValueContainerParent() => 'CONTAINER_ATTRIBUTE',
+                $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent() => 'CONTAINER_ATTRIBUTE',
                 default => 'ELEMENT_ATTRIBUTE',
             };
         }

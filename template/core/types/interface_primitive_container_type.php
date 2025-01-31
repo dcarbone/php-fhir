@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
 
-$elementInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
+$valueContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE);
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $xmlValueLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
@@ -31,7 +31,7 @@ $xmlValueLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENU
 $imports = $coreFile->getimports();
 
 $imports->addCoreFileImports(
-    $elementInterface,
+    $valueContainerInterface,
     $serializeConfigClass,
     $xmlWriterClass,
     $xmlValueLocationEnum,
@@ -46,16 +46,9 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $elementInterface->getEntityName(); ?>
+interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $valueContainerInterface->getEntityName(); ?>
 
 {
-    /**
-     * Must return the appropriate "formatted" stringified version of this type's contained primitive type's value
-     *
-     * @return string
-     */
-    public function _getFormattedValue(): string;
-
     /**
      * Must return true if this primitive container type has a field set other than "value".  This is used during
      * serialization.

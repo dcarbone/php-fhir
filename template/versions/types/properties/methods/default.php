@@ -17,7 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-use DCarbone\PHPFHIR\Utils\XMLValueLocationUtils;
+use DCarbone\PHPFHIR\Utilities\XMLValueLocationUtils;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
@@ -120,7 +120,9 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
         }
 <?php
     endif;
-    if ($propType->isValueContainer() || $propType->hasValueContainerParent() || $propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) : ?>
+    if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()
+        || $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()
+        || $propType->isValueContainer() || $propType->hasValueContainerParent()) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propTypeClassname; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propTypeClassname; ?>(value: $<?php echo $propertyName; ?>);
         }
@@ -173,7 +175,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
             return $this;
         }
 <?php
-        if ($propType->isValueContainer()) : ?>
+        if ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) : ?>
         $this-><?php echo $propertyName; ?> = [];
         foreach($<?php echo $propertyName; ?> as $v) {
             if ($v instanceof <?php echo $propTypeClassname; ?>) {
@@ -217,28 +219,28 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
      */
     public function _set<?php echo ucfirst($propertyName); ?>ValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation) : self
     {
-<?php if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
+<?php   if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
         if (<?php echo $valueXMLLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE === $valueXMLLocation) {
             throw new \InvalidArgumentException(sprintf(
                 'Cannot set "%s" as value XML serialize location for property "<?php echo $propertyName; ?>" on value container type "<?php echo $type->getFHIRName(); ?>"',
                 $valueXMLLocation->name,
             ));
         }
-<?php elseif ($propType->isPrimitiveOrListType() || $propType->hasprimitiveType()) : ?>
+<?php   elseif ($propType->isPrimitiveOrListType() || $propType->hasprimitiveType()) : ?>
         if (<?php echo $valueXMLLocationEnum->getEntityName(); ?>::CONTAINER_ATTRIBUTE === $valueXMLLocation) {
             throw new \InvalidArgumentException(sprintf(
                 'Cannot set "%s" as value XML serialize location for primitive property "<?php echo $propertyName; ?>" on type "<?php echo $type->getfhirName(); ?>"',
                 $valueXMLLocation->name,
             ));
         }
-<?php endif; ?>
+<?php   endif; ?>
         $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>] = $valueXMLLocation;
         return $this;
     }
 <?php endif;
 endforeach;
 
-if (($type->isValueContainer() && !$type->hasValueContainerParent()) || ($type->isQuantity() && !$type->hasQuantityParent())):
+if (($type->isPrimitiveContainer() && !$type->hasPrimitiveContainerParent()) || ($type->isValueContainer() && !$type->hasValueContainerParent())):
     $valueProp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
 ?>
 

@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
 
-$primitiveContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE);
+$elementInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $xmlValueLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
@@ -31,7 +31,7 @@ $xmlValueLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENU
 $imports = $coreFile->getimports();
 
 $imports->addCoreFileImports(
-    $primitiveContainerInterface,
+    $elementInterface,
     $serializeConfigClass,
     $xmlWriterClass,
     $xmlValueLocationEnum,
@@ -47,13 +47,17 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
- * This indicates an Element type that contains a "value" property, but must be serialized differently than
- * a primitive container
+ * This indicates an Element type that contains a "value" property
  */
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $primitiveContainerInterface->getEntityName(); ?>
+interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $elementInterface->getEntityName(); ?>
 
 {
-
+    /**
+     * Must return the appropriate "formatted" stringified version of this type's contained primitive type's value
+     *
+     * @return string
+     */
+    public function _getFormattedValue(): string;
 }
 
 <?php return ob_get_clean();

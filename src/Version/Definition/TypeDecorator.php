@@ -371,8 +371,7 @@ abstract class TypeDecorator
     }
 
     /**
-     * Once parsing has been completed, we must do a final pass to identify types that are primitive containers by
-     * another name.
+     * Primitive containers are Element types that contain a "value" element that is, itself, a primitive.
      *
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
