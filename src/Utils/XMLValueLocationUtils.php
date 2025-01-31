@@ -26,20 +26,19 @@ class XMLValueLocationUtils
     public static function determineDefaultLocation(Type $type, Property $property, bool $withClass): string
     {
         $propType = $property->getValueFHIRType();
-        if ($property->isValueProperty()) {
+        if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) {
             $case = match (true) {
-                $type->isQuantity() || $type->hasQuantityParent() => 'CONTAINER_VALUE',
+                $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() => 'CONTAINER_ATTRIBUTE',
+                default => 'PARENT_ATTRIBUTE',
+            };
+        } else if ($property->isValueProperty()) {
+            $case = match (true) {
+                $type->isQuantity() || $type->hasQuantityParent() => 'CONTAINER_ATTRIBUTE',
                 $type->isValueContainer() || $type->hasValueContainerParent() => 'CONTAINER_ATTRIBUTE',
                 default => 'ELEMENT_ATTRIBUTE'
             };
-        } else if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) {
-            $case = match (true) {
-                $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() => 'CONTAINER_ATTRIBUTE',
-                default => 'ELEMENT_ATTRIBUTE',
-            };
         } else {
             $case = match (true) {
-                $type->isQuantity() || $type->hasQuantityParent() => 'CONTAINER_VALUE',
                 $propType->isValueContainer() || $propType->hasValueContainerParent() => 'CONTAINER_ATTRIBUTE',
                 default => 'ELEMENT_ATTRIBUTE',
             };
