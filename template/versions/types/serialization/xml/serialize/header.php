@@ -35,7 +35,7 @@ ob_start(); ?>
     /**
      * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
      * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
-<?php if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
+<?php if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() || $type->isValueContainer() || $type->hasValueContainerParent()) : ?>
      * @param null|<?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $valueLocation
 <?php endif; ?>
 <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
@@ -45,7 +45,7 @@ ob_start(); ?>
      */
     public function xmlSerialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif;  echo $xmlWriterClass->getEntityName(); ?> $xw<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif; ?>,
                                  <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $serializeConfigClass->getEntityName(); ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif;
-    if ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>,
+    if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() || $type->isValueContainer() || $type->hasValueContainerParent()) : ?>,
                                  null|<?php echo $xmlLocationEnum->getEntityName(); ?> $valueLocation = null<?php endif; ?>): <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : echo $xmlWriterClass->getEntityName(); else : ?>void<?php endif; ?>
 
     {
@@ -67,7 +67,7 @@ ob_start(); ?>
             $rootOpened = true;
             $xw->openRootNode('<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
         }
-<?php elseif ($type->isValueContainer() || $type->hasValueContainerParent()) : ?>
+<?php elseif ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() || $type->isValueContainer() || $type->hasValueContainerParent()) : ?>
         $valueLocation = $valueLocation ?? $this->_valueXMLLocations[self::FIELD_VALUE];
 <?php endif;
 

@@ -216,10 +216,6 @@ abstract class TypeDecorator
                 continue;
             }
 
-            if (!str_ends_with($ptn, '-primitive')) {
-                continue;
-            }
-
             $logger->debug(sprintf('Setting assumed primitive Type "%s" kind to "%s"', $type->getFHIRName(), $ptn));
             $ptn = str_replace('-primitive', '', $ptn);
             $pt = PrimitiveTypeEnum::from($ptn);
@@ -235,18 +231,18 @@ abstract class TypeDecorator
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @param TypeKindEnum|string $kind
      */
-    private static function setTypeKind(Config $config, Types $types, Type $type, TypeKindEnum|string $kind): void
+    private static function setTypeKind(Version $version, Types $types, Type $type, TypeKindEnum|string $kind): void
     {
         if (is_string($kind)) {
             $kind = TypeKindEnum::from($kind);
         }
         $type->setKind($kind);
-        $config->getLogger()->info(
+        $version->getConfig()->getLogger()->info(
             sprintf(
                 'Setting Type "%s" to Kind "%s"',
                 $type->getFHIRName(),
@@ -256,12 +252,11 @@ abstract class TypeDecorator
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      */
-    private static function determineParsedTypeKind(Config $config, Version $version, Types $types, Type $type): void
+    private static function determineParsedTypeKind(Version $version, Types $types, Type $type): void
     {
         $logger = $version->getConfig()->getLogger();
         $fhirName = $type->getFHIRName();
@@ -290,14 +285,22 @@ abstract class TypeDecorator
         // check if type is primitive...
         if (str_ends_with($fhirName, PHPFHIR_PRIMITIVE_SUFFIX)) {
             $logger->debug(sprintf('Type "%s" has primitive suffix, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::PRIMITIVE->value));
-            self::setTypeKind($config, $types, $type, TypeKindEnum::PRIMITIVE);
+            self::setTypeKind($version, $types, $type, TypeKindEnum::PRIMITIVE);
+            return;
+        }
+
+        // check if type is list...
+        if (str_ends_with($fhirName, PHPFHIR_LIST_SUFFIX)) {
+            // for all intents and purposes, a List type is a multiple choice primitive type
+            $logger->debug(sprintf('Type "%s" has list suffix, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::LIST->value));
+            self::setTypeKind($version, $types, $type, TypeKindEnum::LIST);
             return;
         }
 
         // if this is a root type, i.e. it has no parents, set its kind to itself
         if ($type->isRootType()) {
             $logger->debug(sprintf('Type "%s" has no parent, setting kind to itself...', $type->getFHIRName()));
-            self::setTypeKind($config, $types, $type, $fhirName);
+            self::setTypeKind($version, $types, $type, $fhirName);
         }
 
         // otherise, localize root type.
@@ -306,7 +309,7 @@ abstract class TypeDecorator
         // if this is the "container" type for this FHIR version
         if (TypeKindEnum::isContainerTypeName($version, $fhirName)) {
             $logger->debug(sprintf('Type "%s" is a container type, setting kind to "%s"', $type->getFHIRName(), $fhirName));
-            self::setTypeKind($config, $types, $type, $fhirName);
+            self::setTypeKind($version, $types, $type, $fhirName);
             return;
         }
 
@@ -315,15 +318,7 @@ abstract class TypeDecorator
         // than just fhir-all or something.
         if ($rootType !== $type && null === $rootType->getKind()) {
             $logger->debug(sprintf('Type "%s" has root Type "%s" with undefined Kind, determining now', $type->getFHIRName(), $rootType->getFHIRName()));
-            self::determineParsedTypeKind($config, $version, $types, $rootType);
-        }
-
-        // check if type is list...
-        if (str_ends_with($fhirName, PHPFHIR_LIST_SUFFIX)) {
-            // for all intents and purposes, a List type is a multiple choice primitive type
-            $logger->debug(sprintf('Type "%s" has list suffix, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::LIST->value));
-            self::setTypeKind($config, $types, $type, TypeKindEnum::LIST);
-            return;
+            self::determineParsedTypeKind($version, $types, $rootType);
         }
 
         // This block indicates the type is only present as the child of a Resource.  Its name may (and in many
@@ -331,34 +326,33 @@ abstract class TypeDecorator
         // and must be marked as such.
         if (str_contains($fhirName, '.') && !$sourceMeta->isDSTU1() && TypeKindEnum::RESOURCE_INLINE->value !== $fhirName) {
             $logger->debug(sprintf('Type "%s" is not "%s" but has dot in name, setting kind to "%s"', $type->getFHIRName(), TypeKindEnum::RESOURCE_INLINE->value, TypeKindEnum::RESOURCE_COMPONENT->value));
-            self::setTypeKind($config, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
+            self::setTypeKind($version, $types, $type, TypeKindEnum::RESOURCE_COMPONENT);
             return;
         }
 
         // special block for xhtml type
         if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
             $logger->debug(sprintf('Setting Type "%s" kind to itself ("%s")', $type->getFHIRName(), TypeKindEnum::PHPFHIR_XHTML->value));
-            self::setTypeKind($config, $types, $type, TypeKindEnum::PHPFHIR_XHTML);
+            self::setTypeKind($version, $types, $type, TypeKindEnum::PHPFHIR_XHTML);
             return;
         }
 
         // otherwise, set kind to that of its parent
         $logger->debug(sprintf('Setting Type "%s" kind to it parent ("%s")', $type->getFHIRName(), $rootType->getKind()->value));
-        self::setTypeKind($config, $types, $type, $rootType->getKind());
+        self::setTypeKind($version, $types, $type, $rootType->getKind());
     }
 
     /**
      * This method is specifically designed to determine the "kind" of every type that was successfully
      * parsed from the provided xsd's.  It does NOT handle value or undefined types.
      *
-     * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      */
-    public static function determineParsedTypeKinds(Config $config, Version $version, Types $types): void
+    public static function determineParsedTypeKinds(Version $version, Types $types): void
     {
         foreach ($types->getIterator() as $type) {
-            self::determineParsedTypeKind($config, $version, $types, $type);
+            self::determineParsedTypeKind($version, $types, $type);
         }
     }
 

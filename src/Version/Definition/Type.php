@@ -903,7 +903,7 @@ class Type
             }
         } else if ($this->isPrimitiveContainer()) {
             if (!$this->hasPrimitiveContainerParent()) {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
+                $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }

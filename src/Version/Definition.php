@@ -93,7 +93,7 @@ class Definition
 
         // TODO: order of operations issue here, ideally this would be first...
         $log->info('Determining type kinds');
-        TypeDecorator::determineParsedTypeKinds($this->_config, $this->_version, $this->_types);
+        TypeDecorator::determineParsedTypeKinds($this->_version, $this->_types);
 
         $log->info('Determining Primitive Type kinds');
         TypeDecorator::determinePrimitiveTypes($this->_config, $this->_types);
