@@ -22,20 +22,10 @@
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
-
 $elementInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
-$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
-$xmlValueLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 
 $imports = $coreFile->getimports();
-
-$imports->addCoreFileImports(
-    $elementInterface,
-    $serializeConfigClass,
-    $xmlWriterClass,
-    $xmlValueLocationEnum,
-);
+$imports->addCoreFileImports($elementInterface);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);

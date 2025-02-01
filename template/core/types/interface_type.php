@@ -19,26 +19,12 @@
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-use DCarbone\PHPFHIR\Utilities\ImportUtils;
-
-$coreFiles = $config->getCoreFiles();
-
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
-$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
-$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
-
-$imports = $coreFile->getImports();
-
-$imports->addCoreFileImports($serializeConfigClass, $unserializeConfigClass, $xmlWriterClass);
-
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
-
-<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 interface <?php echo $coreFile->getEntityName(); ?>
 {

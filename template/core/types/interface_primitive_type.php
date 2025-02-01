@@ -24,10 +24,9 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 
 $imports = $coreFile->getImports();
-$imports->addCoreFileImports($typeInterface, $valueXMLLocationEnum);
+$imports->addCoreFileImports($typeInterface);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
