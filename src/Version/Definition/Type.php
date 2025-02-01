@@ -878,8 +878,8 @@ class Type
                         ->getFullyQualifiedNamespace(false);
                 }
             }
-        } else if ($this->isResourceType()) {
-            if (!$this->hasResourceTypeParent()) {
+        } else if ($this->isResourceType() || $this->getKind()->isResourceContainer($this->_version)) {
+            if (!$this->hasResourceTypeParent() && !$sourceMeta->isDSTU1()) {
                 $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE)
                     ->getFullyQualifiedNamespace(false);
@@ -913,6 +913,7 @@ class Type
     public function getDirectlyUsedTraits(): array
     {
         $traits = [];
+        $sourceMeta = $this->_version->getSourceMetadata();
         $parentType = $this->getParentType();
         $coreFiles = $this->_version->getConfig()->getCoreFiles();
 
@@ -926,7 +927,7 @@ class Type
             }
 
             // these must only be added if the type has local properties
-            if (($this->isResourceType() || $this->getVersion()->getSourceMetadata()->isDSTU1()) && $this->hasLocalProperties()) {
+            if (($this->isResourceType() || $sourceMeta->isDSTU1() || $this->_kind->isResourceContainer($this->_version)) && $this->hasLocalProperties()) {
                 $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
                     ->getFullyQualifiedNamespace(false);

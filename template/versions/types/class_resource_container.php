@@ -117,7 +117,7 @@ echo require_with(
         foreach ($element->children() as $child) {
             /** @var <?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $class */
             $class = <?php echo $versionTypeMapClass->getEntityName(); ?>::getContainedTypeClassNameFromXML($child);
-            $type->setContainedType($class::xmlUnserialize($child, null, $config));
+            $type->setContainedType($class::xmlUnserialize($child, $config));
             break;
         }
         return $type;
@@ -137,8 +137,11 @@ echo require_with(
         if (null !== $containedType) {
             return $containedType->xmlSerialize($xw, $config);
         }
+        if (null === $config) {
+            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
+        }
         if (null === $xw) {
-            $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>();
+            $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($config);
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();
@@ -147,12 +150,9 @@ echo require_with(
             $docStarted = true;
             $xw->startDocument();
         }
-        if (null === $config) {
-            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
-        }
         if (!$xw->isRootOpen()) {
             $rootOpened = true;
-            $xw->openRootNode($config, '<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
+            $xw->openRootNode('<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
         }
         if (isset($rootOpened) && $rootOpened) {
             $xw->endElement();
@@ -173,6 +173,10 @@ echo require_with(
     ]
 );
 ?>
+        /** @var <?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $class */
+        $class = <?php echo $versionTypeMapClass->getEntityName(); ?>::getContainedTypeClassNameFromArray($json);
+        $type->setContainedType($class::jsonUnserialize($json));
+        return $type;
     }
 
     public function __toString(): string
