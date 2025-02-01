@@ -19,6 +19,8 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type; */
 
+$sourceMeta = $version->getSourceMetadata();
+
 $typeKind = $type->getKind();
 
 ob_start();
@@ -66,7 +68,7 @@ if ($type->hasLocalProperties()) :
         ]
     );
 
-    if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+    if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>
         if (isset($rootOpened) && $rootOpened) {
             $xw->endElement();
         }

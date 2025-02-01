@@ -130,7 +130,7 @@ echo require_with(
 
      */
     public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null): <?php echo $xmlWriterClass->getEntityName(); ?>;
+                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null): <?php echo $xmlWriterClass->getEntityName(); ?>
 
     {
         $containedType = $this->getContainedType();

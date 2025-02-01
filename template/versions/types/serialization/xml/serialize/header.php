@@ -21,6 +21,8 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
+$sourceMeta = $version->getSourceMetadata();
+
 $config = $version->getConfig();
 
 $coreFiles = $config->getCoreFiles();
@@ -33,23 +35,23 @@ $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASS
 
 ob_start(); ?>
     /**
-     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
-     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif; echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif; echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
 <?php if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
      * @param null|<?php echo $xmlLocationEnum->getFullyQualifiedName(true); ?> $valueLocation
 <?php endif; ?>
-<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
 <?php endif; ?>
      */
-    public function xmlSerialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif;  echo $xmlWriterClass->getEntityName(); ?> $xw<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif; ?>,
-                                 <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $serializeConfigClass->getEntityName(); ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif;
+    public function xmlSerialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif;  echo $xmlWriterClass->getEntityName(); ?> $xw<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?> = null<?php endif; ?>,
+                                 <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif; echo $serializeConfigClass->getEntityName(); ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?> = null<?php endif;
     if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>,
-                                 null|<?php echo $xmlLocationEnum->getEntityName(); ?> $valueLocation = null<?php endif; ?>): <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : echo $xmlWriterClass->getEntityName(); else : ?>void<?php endif; ?>
+                                 null|<?php echo $xmlLocationEnum->getEntityName(); ?> $valueLocation = null<?php endif; ?>): <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : echo $xmlWriterClass->getEntityName(); else : ?>void<?php endif; ?>
 
     {
-<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>
         if (null === $config) {
             $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getSerializeConfig();
         }

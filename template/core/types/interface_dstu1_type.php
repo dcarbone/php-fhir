@@ -23,14 +23,11 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
 
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
-$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
-$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
 $imports = $coreFile->getimports();
 
-$imports->addCoreFileImports($typeInterface, $serializeConfigClass, $unserializeConfigClass, $xmlWriterClass);
+$imports->addCoreFileImports($resourceTypeInterface);
 
 
 ob_start();
@@ -48,44 +45,9 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
  * This is a special interface only applied when generating types for versions based on DSTU1.  It is necessary
  * as Resources in DSTU1 are extensions of Elements.  This is unique to DSTU1.
  */
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>, \JsonSerializable
+interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $resourceTypeInterface->getEntityName(); ?>
+
 {
-    /**
-     * Returns the root XMLNS value found in the source.  Null indicates no "xmlns" was found.  Only defined when
-     * unserializing XML, and only used when serializing XML.
-     *
-     * @return null|string
-     */
-    public function _getSourceXMLNS(): null|string;
 
-    /**
-     * @param string|\SimpleXMLElement $element
-     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
-     * @return static
-     */
-    public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null,
-                                          null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
-
-    /**
-     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
-     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
-
-     */
-    public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null): <?php echo $xmlWriterClass->getEntityName(); ?>;
-
-    /**
-     * @param string|array|\stdClass $json Raw or already un-encoded JSON
-     * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
-     * @return static
-     */
-    public static function jsonUnserialize(string|array|\stdClass $json,
-                                           null|<?php echo $unserializeConfigClass->getEntityName(); ?> $config = null,
-                                           null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
 }
-
 <?php return ob_get_clean();

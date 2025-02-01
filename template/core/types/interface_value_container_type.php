@@ -36,5 +36,4 @@ interface <?php echo $coreFile->getEntityName(); ?>
      */
     public function _getFormattedValue(): string;
 }
-
 <?php return ob_get_clean();

@@ -118,6 +118,7 @@ class NameUtils
         'xml' => 'XML',
         'http' => 'HTTP',
         'curl' => 'CURL',
+        'dstu1' => 'DSTU1',
     ];
 
     /** @var array */

@@ -69,6 +69,8 @@ class ImportUtils
 
         $logger->debug(sprintf('Compiling imports for Type "%s"...', $type->getFHIRName()));
 
+        $sourceMeta = $version->getSourceMetadata();
+
         $imports = $type->getImports();
 
         // immediately add self
@@ -110,7 +112,7 @@ class ImportUtils
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE,
             );
-        } else {
+        } else if (!$sourceMeta->isDSTU1()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE,
             );
@@ -126,6 +128,10 @@ class ImportUtils
             $type->hasPropertiesWithValidations() ||
             ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$type->hasPrimitiveOrListParent())) {
             $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
+        }
+
+        if ($sourceMeta->isDSTU1()) {
+            $imports->addCoreFileImportsByName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
         }
 
         if ($typeKind->isResourceContainer($type->getVersion())) {
@@ -181,7 +187,7 @@ class ImportUtils
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION);
             } else {
-                $valProp = match(true) {
+                $valProp = match (true) {
                     $propertyType->isPrimitiveContainer() => $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME),
                     $propertyType->hasPrimitiveContainerParent() => $propertyType->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME),
                     default => null,

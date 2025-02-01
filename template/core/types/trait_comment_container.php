@@ -69,5 +69,4 @@ trait <?php echo PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER; ?>
         return $this;
     }
 }
-<?php
-return ob_get_clean();
+<?php return ob_get_clean();

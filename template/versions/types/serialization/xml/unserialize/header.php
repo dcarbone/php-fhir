@@ -19,12 +19,14 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
+$sourceMeta = $version->getSourceMetadata();
+
 $config = $version->getConfig();
 
 $coreFiles = $config->getCoreFiles();
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
-if ($type->isResourceType() || $type->hasResourceTypeParent()) {
+if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) {
     $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 } else {
     $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
@@ -35,15 +37,15 @@ $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASS
 
 ob_start(); ?>
     /**
-     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>string|<?php endif; ?>\SimpleXMLElement $element
-     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>string|<?php endif; ?>\SimpleXMLElement $element
+     * @param <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif; echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      * @throws \Exception
      */
-    public static function xmlUnserialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>string|<?php endif; ?>\SimpleXMLElement $element,
-                                          <?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>null|<?php endif; echo $unserializeConfigClass->getEntityName() ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?> = null<?php endif;?>,
+    public static function xmlUnserialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>string|<?php endif; ?>\SimpleXMLElement $element,
+                                          <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif; echo $unserializeConfigClass->getEntityName() ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?> = null<?php endif;?>,
                                           null|<?php echo $typeInterface->getEntityName(); ?> $type = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
@@ -60,7 +62,7 @@ ob_start(); ?>
                 get_class($type)
             ));
         }
-<?php if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>
         if (null === $config) {
             $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getUnserializeConfig();
         }

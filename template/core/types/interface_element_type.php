@@ -71,5 +71,4 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
                                            <?php echo $unserializeConfigClass->getEntityName(); ?> $config,
                                            null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
 }
-
 <?php return ob_get_clean();

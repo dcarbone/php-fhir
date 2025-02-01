@@ -848,6 +848,16 @@ class Type
         $interfaces = [];
         $coreFiles = $this->_version->getConfig()->getCoreFiles();
         $versionCoreFiles = $this->_version->getCoreFiles();
+        $sourceMeta = $this->_version->getSourceMetadata();
+
+        // dstu1 has its own special type interface
+        if ($sourceMeta->isDSTU1() && !$this->isPrimitiveOrListType() && !$this->hasPrimitiveOrListParent()) {
+            if (null === $this->getParentType()) {
+                $interfaces[PHPFHIR_TYPES_INTERFACE_DSTU1_TYPE] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_DSTU1_TYPE)
+                    ->getFullyQualifiedNamespace(false);
+            }
+        }
 
         // first, determine which base type interface it must implement
         if ($this->isPrimitiveOrListType()) {
@@ -858,9 +868,15 @@ class Type
             }
         } else if ($this->isPrimitiveContainer()) {
             if (!$this->hasPrimitiveContainerParent()) {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
-                    ->getFullyQualifiedNamespace(false);
+                if ($sourceMeta->isDSTU1()) {
+                    $interfaces[PHPFHIR_TYPES_INTERFACE_DSTU1_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
+                        ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
+                        ->getFullyQualifiedNamespace(false);
+                } else {
+                    $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
+                        ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
+                        ->getFullyQualifiedNamespace(false);
+                }
             }
         } else if ($this->isResourceType()) {
             if (!$this->hasResourceTypeParent()) {
@@ -868,7 +884,7 @@ class Type
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
-        } else if (!$this->hasParent()) {
+        } else if (!$this->hasParent() && !$sourceMeta->isDSTU1()) {
             $interfaces[PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE] = $coreFiles
                 ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE)
                 ->getFullyQualifiedNamespace(false);
@@ -910,7 +926,7 @@ class Type
             }
 
             // these must only be added if the type has local properties
-            if ($this->isResourceType() && $this->hasLocalProperties()) {
+            if (($this->isResourceType() || $this->getVersion()->getSourceMetadata()->isDSTU1()) && $this->hasLocalProperties()) {
                 $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
                     ->getFullyQualifiedNamespace(false);

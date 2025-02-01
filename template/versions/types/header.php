@@ -50,9 +50,8 @@ if ($type->isAbstract()) : ?>abstract <?php endif; ?>class <?php echo $type->get
 {<?php if ([] !== $traits) : ?>
 
     use <?php echo implode(",\n        ", array_keys($traits)); ?>;
+
 <?php endif; ?>
-
-
     // name of FHIR type this class describes
     public const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
 
