@@ -187,15 +187,16 @@ if (!$type->isAbstract()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . '/methods.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
 
-if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . '/methods.php',
+        [
+            'version' => $version,
+            'type' => $type,
+        ]
+    );
+
+    if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     public function _nonValueFieldDefined(): bool
@@ -206,30 +207,31 @@ if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
 
                || <?php endif; ?>isset($this-><?php echo $property->getName(); ?>)<?php endforeach; ?>;
     }
-<?php endif; ?>
+<?php
+    endif; ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
 
-if (!$type->isPrimitiveOrListType()) :
+    if (!$type->isPrimitiveOrListType()) :
+        echo require_with(
+            PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
+            [
+                'version' => $version,
+                'type'     => $type,
+            ]
+        );
+    endif;
+
+    echo "\n";
+
     echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
+        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',
         [
             'version' => $version,
-            'type'     => $type,
+            'type' => $type,
         ]
     );
-endif;
-
-echo "\n";
-
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
 
 endif;
 
@@ -241,10 +243,14 @@ if (null === $type->getParentType()) : ?>
      */
     public function __toString(): string
     {
-<?php if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
+<?php
+    if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
         return $this->_getFormattedValue();
-<?php else : ?>
+<?php
+    else : ?>
         return self::FHIR_TYPE_NAME;
-<?php endif; ?>
+<?php
+    endif; ?>
     }
-<?php endif; ?>}<?php return ob_get_clean();
+<?php
+endif; ?>}<?php return ob_get_clean();
