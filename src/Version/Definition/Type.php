@@ -852,7 +852,7 @@ class Type
 
         // dstu1 has its own special type interface
         if ($sourceMeta->isDSTU1() && !$this->isPrimitiveOrListType() && !$this->hasPrimitiveOrListParent()) {
-            if (null === $this->getParentType()) {
+            if (!$this->hasConcreteParent()) {
                 $interfaces[PHPFHIR_TYPES_INTERFACE_DSTU1_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_DSTU1_TYPE)
                     ->getFullyQualifiedNamespace(false);
@@ -884,7 +884,7 @@ class Type
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
-        } else if (!$this->hasParent() && !$sourceMeta->isDSTU1()) {
+        } else if (!$this->hasParent() && !$sourceMeta->isDSTU1() && !$this->isAbstract()) {
             $interfaces[PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE] = $coreFiles
                 ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE)
                 ->getFullyQualifiedNamespace(false);
@@ -917,10 +917,10 @@ class Type
         $parentType = $this->getParentType();
         $coreFiles = $this->_version->getConfig()->getCoreFiles();
 
-        if (null === $parentType) {
+        if (!$this->hasConcreteParent()) {
             // if this type has no parent(s), try to add all traits
 
-            if ($this->isCommentContainer()) {
+            if ($this->isCommentContainer() && !$this->hasCommentContainerParent()) {
                 $traits[PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER)
                     ->getFullyQualifiedNamespace(false);

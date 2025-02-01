@@ -187,14 +187,13 @@ if (!$type->isAbstract()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . '/methods.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
-endif;
+echo require_with(
+    PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . '/methods.php',
+    [
+        'version' => $version,
+        'type' => $type,
+    ]
+);
 
 if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
 
@@ -231,6 +230,8 @@ echo require_with(
         'type' => $type,
     ]
 );
+
+endif;
 
 if (null === $type->getParentType()) : ?>
 
