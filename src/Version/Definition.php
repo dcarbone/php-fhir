@@ -119,9 +119,6 @@ class Definition
         $log->info('Setting primitive container flags');
         TypeDecorator::setPrimitiveContainerFlag($this->_version, $this->_types);
 
-        $log->info('Setting value container flags');
-        TypeDecorator::setValueContainerFlag($this->_version, $this->_types);
-
         $log->info('Setting comment container flags');
         TypeDecorator::setCommentContainerFlag($this->_config, $this->_types);
 

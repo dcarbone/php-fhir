@@ -65,7 +65,7 @@ endforeach;
 
 // next, marshal parent attribute & element values
 if ($type->hasConcreteParent()) : ?>
-        parent::xmlSerialize($xw, $config<?php if ($type->hasValueContainerParent()) : ?>, $valueLocation<?php endif; ?>);
+        parent::xmlSerialize($xw, $config<?php if ($type->hasPrimitiveContainerParent()) : ?>, $valueLocation<?php endif; ?>);
 <?php endif;
 
 // finally, marshal local element values

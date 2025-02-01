@@ -129,7 +129,8 @@ echo require_with(
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> $xw = null, null|<?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $config = null): <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>
+    public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
+                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null): <?php echo $xmlWriterClass->getEntityName(); ?>;
 
     {
         $containedType = $this->getContainedType();
@@ -137,7 +138,7 @@ echo require_with(
             return $containedType->xmlSerialize($xw, $config);
         }
         if (null === $xw) {
-            $xw = new <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?>();
+            $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>();
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();

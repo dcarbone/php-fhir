@@ -94,8 +94,6 @@ class Type
     /** @var bool */
     private bool $_primitiveContainer = false;
     /** @var bool */
-    private bool $_valueContainer = false;
-    /** @var bool */
     private bool $_commentContainer = false;
     /** @var \DCarbone\PHPFHIR\Builder\Imports */
     private Imports $_imports;
@@ -354,9 +352,9 @@ class Type
         return $this->_properties;
     }
 
-    public function getParentProperty(string $name) : null|Property
+    public function getParentProperty(string $name): null|Property
     {
-        foreach($this->getParentPropertiesIterator() as $property) {
+        foreach ($this->getParentPropertiesIterator() as $property) {
             if ($property->getName() === $name) {
                 return $property;;
             }
@@ -570,12 +568,6 @@ class Type
      */
     public function setPrimitiveContainer(bool $primitiveContainer): Type
     {
-        if ($primitiveContainer && $this->_valueContainer) {
-            throw new \LogicException(sprintf(
-                'Cannot mark Type "%s" as primitive container as it is already marked as a value container',
-                $this->getFHIRName()
-            ));
-        }
         $this->_primitiveContainer = $primitiveContainer;
         return $this;
     }
@@ -826,43 +818,6 @@ class Type
     /**
      * @return bool
      */
-    public function isValueContainer(): bool
-    {
-        return $this->_valueContainer;
-    }
-
-    /**
-     * @param bool $valueContainer
-     * @return \DCarbone\PHPFHIR\Version\Definition\Type
-     */
-    public function setValueContainer(bool $valueContainer): Type
-    {
-        if ($valueContainer && $this->_primitiveContainer) {
-            throw new \LogicException(sprintf(
-                'Cannot mark Type "%s" as value container as it is already marked as a primitive container',
-                $this->getFHIRName(),
-            ));
-        }
-        $this->_valueContainer = $valueContainer;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasValueContainerParent(): bool
-    {
-        foreach ($this->getParentTypes() as $parent) {
-            if ($parent->isValueContainer()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
     public function isQuantity(): bool
     {
         return $this->_fhirName === 'Quantity';
@@ -905,12 +860,6 @@ class Type
             if (!$this->hasPrimitiveContainerParent()) {
                 $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
-                    ->getFullyQualifiedNamespace(false);
-            }
-        } else if ($this->isValueContainer()) {
-            if (!$this->hasValueContainerParent()) {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
         } else if ($this->isResourceType()) {
@@ -961,15 +910,23 @@ class Type
             }
 
             // these must only be added if the type has local properties
-            if ($this->hasLocalProperties() || $this->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
+            if ($this->isResourceType() && $this->hasLocalProperties()) {
                 $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
                     ->getFullyQualifiedNamespace(false);
             }
-        } else if (!$parentType->hasLocalProperties()) {
+        } else if ($this->isResourceType() && !$parentType->hasLocalProperties()) {
             // if this type _does_ have a parent, only add these traits if the parent does not have local properties
             $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
                 ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
+                ->getFullyQualifiedNamespace(false);
+        }
+
+        // we do not apply the value container trait to primitive types, as they have a per-type implementation
+        // of _getFormattedValue()
+        if (($this->isPrimitiveContainer() && !$this->hasPrimitiveContainerParent())) {
+            $traits[PHPFHIR_TYPES_TRAIT_VALUE_CONTAINER] = $coreFiles
+                ->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_VALUE_CONTAINER)
                 ->getFullyQualifiedNamespace(false);
         }
 

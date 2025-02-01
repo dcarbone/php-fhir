@@ -116,12 +116,6 @@ class ImportUtils
             );
         }
 
-        if ($type->isValueContainer() || $type->hasValueContainerParent()) {
-            $imports->addCoreFileImportsByName(
-                PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION,
-            );
-        }
-
         $imports->addVersionCoreFileImportsByName(
             $type->getVersion(),
             PHPFHIR_VERSION_CLASSNAME_VERSION,
@@ -188,8 +182,8 @@ class ImportUtils
                 $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION);
             } else {
                 $valProp = match(true) {
-                    $propertyType->isPrimitiveContainer() || $propertyType->isValueContainer() => $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME),
-                    $propertyType->hasPrimitiveContainerParent() || $propertyType->hasValueContainerParent() => $propertyType->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME),
+                    $propertyType->isPrimitiveContainer() => $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME),
+                    $propertyType->hasPrimitiveContainerParent() => $propertyType->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME),
                     default => null,
                 };
 

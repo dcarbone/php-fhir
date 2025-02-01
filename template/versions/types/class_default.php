@@ -232,14 +232,15 @@ echo require_with(
     ]
 );
 
-if (!$type->hasPrimitiveOrListParent()) : ?>
+if (null === $type->getParentType()) : ?>
+
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
      * @return string
      */
     public function __toString(): string
     {
-<?php if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent() || $type->isValueContainer() || $type->hasValueContainerParent()) : ?>
+<?php if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
         return $this->_getFormattedValue();
 <?php else : ?>
         return self::FHIR_TYPE_NAME;

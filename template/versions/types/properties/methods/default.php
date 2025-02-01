@@ -121,8 +121,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
 <?php
     endif;
     if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()
-        || $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()
-        || $propType->isValueContainer() || $propType->hasValueContainerParent()) : ?>
+        || $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propTypeClassname; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propTypeClassname; ?>(value: $<?php echo $propertyName; ?>);
         }
@@ -239,23 +238,5 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
     }
 <?php endif;
 endforeach;
-
-if (($type->isPrimitiveContainer() && !$type->hasPrimitiveContainerParent()) || ($type->isValueContainer() && !$type->hasValueContainerParent())):
-    $valueProp = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
-?>
-
-    /**
-     * Return the formatted value of this type's contained primitive type.
-     *
-     * @see <?php echo $valueProp->getValueFHIRType()->getFullyQualifiedClassName(true); ?>
-
-     *
-     * @return string
-     */
-    public function _getFormattedValue(): string
-    {
-        return isset($this-><?php echo $valueProp->getName(); ?>) ? $this-><?php echo $valueProp->getName(); ?>->_getFormattedValue() : '';
-    }
-<?php endif;
 
 return ob_get_clean();

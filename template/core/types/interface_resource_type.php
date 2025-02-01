@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
-
-use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
 
@@ -41,7 +41,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>, \JsonSerializable
+interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>
 
 {
     /**

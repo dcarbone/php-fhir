@@ -19,14 +19,6 @@
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-use DCarbone\PHPFHIR\Utilities\ImportUtils;
-
-$coreFiles = $config->getCoreFiles();
-$elementInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
-
-$imports = $coreFile->getimports();
-$imports->addCoreFileImports($elementInterface);
-
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
@@ -34,16 +26,11 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-<?php echo ImportUtils::compileImportStatements($imports); ?>
-
-/**
- * This indicates an Element type that contains a "value" property
- */
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $elementInterface->getEntityName(); ?>
+interface <?php echo $coreFile->getEntityName(); ?>
 
 {
     /**
-     * Must return the appropriate "formatted" stringified version of this type's contained primitive type's value
+     * Must return the formatted string representation of this type's "value" field.
      *
      * @return string
      */

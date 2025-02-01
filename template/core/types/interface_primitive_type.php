@@ -24,6 +24,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$valueContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE);
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports($typeInterface);
@@ -37,13 +38,9 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>, \JsonSerializable
+interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>, <?php echo $valueContainerInterface->getEntityName(); ?>
+
 {
-    /**
-     * Must return the appropriate "formatted" stringified version of this primitive type's value
-     *
-     * @return string
-     */
-    public function _getFormattedValue(): string;
+
 }
 <?php return ob_get_clean();

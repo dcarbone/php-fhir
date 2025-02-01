@@ -407,38 +407,6 @@ abstract class TypeDecorator
     }
 
     /**
-     * A "value container" type is any type with a "value" property that isn't a primitive or primitive-container.
-     *
-     * @param \DCarbone\PHPFHIR\Version $version
-     * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
-     */
-    public static function setValueContainerFlag(Version $version, Types $types): void
-    {
-        $logger = $version->getConfig()->getLogger();
-        foreach ($types->getIterator() as $type) {
-            // primitive types have special handling and must not be marked as "value containers"
-            if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
-                continue;
-            }
-
-            // skip "primitive container" types.
-            if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
-                continue;
-            }
-
-            // skip xhtml type
-            if (PHPFHIR_XHTML_TYPE_NAME === $type->getFHIRName()) {
-                continue;
-            }
-
-            if ($type->getProperties()->hasProperty(PHPFHIR_VALUE_PROPERTY_NAME)) {
-                $logger->debug(sprintf('Type "%s" has "value" property, marking as Value Container', $type->getFHIRName()));
-                $type->setValueContainer(true);
-            }
-        }
-    }
-
-    /**
      * @param \DCarbone\PHPFHIR\Config $config
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      */

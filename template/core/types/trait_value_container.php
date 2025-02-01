@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,33 +26,18 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends \JsonSerializable
+trait <?php echo $coreFile->getEntityName(); ?>
+
 {
     /**
-     * Returns the FHIR name represented by this Type
+     * Return the string formatted representation of this type's "value" field.  Returns an empty string if the
+     * value field is not set.
      *
      * @return string
      */
-    public function _getFHIRTypeName(): string;
-
-    /**
-     * Must return an associative array in structure ["field" => ["rule" => {constraint}]] to be used during validation
-     *
-     * @return array
-     */
-    public function _getValidationRules(): array;
-
-    /**
-     * Must return associative array where, if there are validation errors, the keys are the names of fields within the
-     * type that failed validation.  The value must be a string message describing the manner of error
-     *
-     * @return array
-     */
-    public function _getValidationErrors(): array;
-
-    /**
-     * @return string
-     */
-    public function __toString(): string;
+    public function _getFormattedValue(): string
+    {
+        return isset($this->value) ? $this->value->_getFormattedValue() : '';
+    }
 }
 <?php return ob_get_clean();
