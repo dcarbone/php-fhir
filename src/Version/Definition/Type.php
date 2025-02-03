@@ -896,7 +896,7 @@ class Type
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
-        } else if (!$this->hasParent() && !$sourceMeta->isDSTU1() && !$this->isAbstract()) {
+        } else if (!$this->hasConcreteParent() && !$sourceMeta->isDSTU1() && !$this->isAbstract()) {
             $interfaces[PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE] = $coreFiles
                 ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE)
                 ->getFullyQualifiedNamespace(false);

@@ -168,6 +168,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
                 $xw->writeRaw($xr->readInnerXml());
             }
             $xw->endElement();
+            $xr->close();
         }
 <?php
     // xhtml type end

@@ -26,7 +26,11 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 
+$primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
+
 $imports = $type->getimports();
+$imports->addCoreFileImports($primitiveTypeInterface, $typeValidationTrait);
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
@@ -39,18 +43,21 @@ namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $type->getClassName(); ?> implements \JsonSerializable
+class <?php echo $type->getClassName(); ?> implements <?php echo $primitiveTypeInterface->getEntityName(); ?>
+
 {
+    use <?php echo $typeValidationTrait->getEntityName(); ?>;
+
     /** @var string */
-    private string $_xhtml;
+    protected string $value;
 
     /**
      * <?php echo $type->getClassName(); ?> Constructor
-     * @param null|string|\DOMNode|\SimpleXMLElement $xhtml
+     * @param null|string|\DOMNode|\SimpleXMLElement $value
      */
-    public function __construct(null|string|\DOMNode|\SimpleXmlElement $xhtml = null)
+    public function __construct(null|string|\DOMNode|\SimpleXmlElement $value = null)
     {
-        $this->setXHTML($xhtml);
+        $this->setValue($value);
     }
 
     /**
@@ -62,49 +69,33 @@ class <?php echo $type->getClassName(); ?> implements \JsonSerializable
     }
 
     /**
-     * @return array
-     */
-    public function _getValidationRules(): array
-    {
-        return [];
-    }
-
-    /**
-     * @return array
-     */
-    public function _getValidationErrors(): array
-    {
-        return [];
-    }
-
-    /**
      * @return null|string
      */
-    public function getXHTML(): null|string
+    public function getValue(): null|string
     {
-        return $this->_xhtml ?? null;
+        return $this->value ?? null;
     }
 
     /**
      * Set the full XHTML content of this element.
      *
-     * @param null|string|\DOMNode|\SimpleXmlElement $xhtml
+     * @param null|string|\DOMNode|\SimpleXmlElement $value
      * @return static
      */
-    public function setXHTML(null|string|\DOMNode|\SimpleXMLElement $xhtml): self
+    public function setValue(null|string|\DOMNode|\SimpleXMLElement $value): self
     {
-        if (null === $xhtml) {
-            unset($this->_xhtml);
+        if (null === $value) {
+            unset($this->value);
             return $this;
         }
-        if ($xhtml instanceof \DOMDocument) {
-            $xhtml = $xhtml->saveXML($xhtml->documentElement);
-        } else if ($xhtml instanceof \DOMNode) {
-            $xhtml = $xhtml->ownerDocument->saveXML($xhtml);
-        } else if ($xhtml instanceof \SimpleXMLElement) {
-            $xhtml = $xhtml->asXML();
+        if ($value instanceof \DOMDocument) {
+            $value = $value->saveXML($value->documentElement);
+        } else if ($value instanceof \DOMNode) {
+            $value = $value->ownerDocument->saveXML($value);
+        } else if ($value instanceof \SimpleXMLElement) {
+            $value = $value->asXML();
         }
-        $this->_xhtml = $xhtml;
+        $this->value = $value;
         return $this;
     }
 
@@ -115,10 +106,10 @@ class <?php echo $type->getClassName(); ?> implements \JsonSerializable
      */
     public function getSimpleXMLElement(int $libxmlOpts): null|\SimpleXMLElement
     {
-        if (!isset($this->_xhtml)) {
+        if (!isset($this->value)) {
             return null;
         }
-        return new \SimpleXMLElement($this->_xhtml, $libxmlOpts);
+        return new \SimpleXMLElement($this->value, $libxmlOpts);
     }
 
     /**
@@ -127,11 +118,11 @@ class <?php echo $type->getClassName(); ?> implements \JsonSerializable
      */
     public function getDOMDocument(int $libxmlOpts): null|\DOMDocument
     {
-        if (!isset($this->_xhtml)) {
+        if (!isset($this->value)) {
             return null;
         }
         $dom = new \DOMDocument('1.0', 'UTF-8');
-        $dom->loadXML($this->_xhtml, $libxmlOpts);
+        $dom->loadXML($this->value, $libxmlOpts);
         return $dom;
     }
 
@@ -141,10 +132,10 @@ class <?php echo $type->getClassName(); ?> implements \JsonSerializable
      */
     public function getXMLReader(int $libxmlOpts): null|\XMLReader
     {
-        if (!isset($this->_xhtml)) {
+        if (!isset($this->value)) {
             return null;
         }
-        $xr = \XMLReader::XML($this->_xhtml, 'UTF-8', $libxmlOpts);
+        $xr = \XMLReader::XML($this->value, 'UTF-8', $libxmlOpts);
         $xr->read();
         return $xr;
     }
@@ -154,10 +145,10 @@ class <?php echo $type->getClassName(); ?> implements \JsonSerializable
      */
     public function jsonSerialize(): null|string
     {
-        if (!isset($this->_xhtml)) {
+        if (!isset($this->value)) {
             return null;
         }
-        return $this->_xhtml;
+        return $this->value;
     }
 
     /**
@@ -165,7 +156,7 @@ class <?php echo $type->getClassName(); ?> implements \JsonSerializable
      */
     public function __toString(): string
     {
-        return (string)$this->getXHTML();
+        return (string)$this->getValue();
     }
 }
 <?php return ob_get_clean();
