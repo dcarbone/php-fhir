@@ -120,7 +120,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
         }
 <?php
     endif;
-    if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()
+    if ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()
         || $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propTypeClassname; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propTypeClassname; ?>(value: $<?php echo $propertyName; ?>);
@@ -225,7 +225,7 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
                 $valueXMLLocation->name,
             ));
         }
-<?php   elseif ($propType->isPrimitiveOrListType() || $propType->hasprimitiveType()) : ?>
+<?php   elseif ($propType->isPrimitiveType() || $propType->hasprimitiveType()) : ?>
         if (<?php echo $valueXMLLocationEnum->getEntityName(); ?>::CONTAINER_ATTRIBUTE === $valueXMLLocation) {
             throw new \InvalidArgumentException(sprintf(
                 'Cannot set "%s" as value XML serialize location for primitive property "<?php echo $propertyName; ?>" on type "<?php echo $type->getfhirName(); ?>"',

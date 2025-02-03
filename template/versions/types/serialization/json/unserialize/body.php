@@ -41,7 +41,7 @@ foreach($type->getProperties()->getIterator() as $property) :
     $propConst = $property->getFieldConstantName();
     $propConstExt = $property->getFieldConstantExtensionName();
 
-    if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) : ?>
+    if ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()) : ?>
         if ([] === $json) {
             return $type;
         }

@@ -87,7 +87,7 @@ class ImportUtils
         }
 
         // handle primitives in separate func
-        if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
+        if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent()) {
             self::buildVersionPrimitiveTypeImports($version, $type);
             return;
         }

@@ -548,18 +548,18 @@ class Type
     /**
      * @return bool
      */
-    public function isPrimitiveOrListType(): bool
+    public function isPrimitiveType(): bool
     {
-        return $this->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST);
+        return $this->getKind()->isOneOf(TypeKindEnum::PRIMITIVE);
     }
 
     /**
      * @return bool
      */
-    public function hasPrimitiveOrListParent(): bool
+    public function hasPrimitiveTypeParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
-            if ($parentType->isPrimitiveOrListType()) {
+            if ($parentType->isPrimitiveType()) {
                 return true;
             }
         }
@@ -863,7 +863,7 @@ class Type
         $sourceMeta = $this->_version->getSourceMetadata();
 
         // dstu1 has its own special type interface
-        if ($sourceMeta->isDSTU1() && !$this->isPrimitiveOrListType() && !$this->hasPrimitiveOrListParent()) {
+        if ($sourceMeta->isDSTU1() && !$this->isPrimitiveType() && !$this->hasPrimitiveTypeParent()) {
             if (!$this->hasConcreteParent()) {
                 $interfaces[PHPFHIR_TYPES_INTERFACE_DSTU1_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_DSTU1_TYPE)
@@ -872,8 +872,8 @@ class Type
         }
 
         // first, determine which base type interface it must implement
-        if ($this->isPrimitiveOrListType()) {
-            if (!$this->hasPrimitiveOrListParent()) {
+        if ($this->isPrimitiveType()) {
+            if (!$this->hasPrimitiveTypeParent()) {
                 $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE)
                     ->getFullyQualifiedNamespace(false);

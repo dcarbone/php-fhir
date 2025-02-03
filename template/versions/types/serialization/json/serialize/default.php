@@ -45,7 +45,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
     $propConstExt = $property->getFieldConstantExtensionName();
 
     $propertyType = $property->getValueFHIRType();
-    if ($propertyType->isPrimitiveOrListType() || $propertyType->hasPrimitiveOrListParent()) :
+    if ($propertyType->isPrimitiveType() || $propertyType->hasPrimitiveTypeParent()) :
         if ($property->isCollection()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
             $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;

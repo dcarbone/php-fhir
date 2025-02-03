@@ -40,7 +40,7 @@ $totalPropertyCount = $propertyCount + $parentPropertyCount;
 
 ob_start();
 
-if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) :
+if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent()) :
     $primitiveType = $type->getPrimitiveType();
 
     // only define constructor if this primitive does not have a parent.

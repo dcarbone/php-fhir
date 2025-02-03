@@ -47,7 +47,7 @@ if ($type->hasLocalProperties()) : ?>
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
     foreach ($type->getProperties()->getIterator() as $property) :
-        if ($property->getOverloadedProperty() || $property->getMemberOf()->hasPrimitiveOrListParent()) {
+        if ($property->getOverloadedProperty() || $property->getMemberOf()->hasPrimitiveTypeParent()) {
             continue;
         }
 
@@ -88,7 +88,7 @@ endforeach; ?>
 endif;
 // -- end property validation rules
 
-if (!$type->isPrimitiveOrListType() && !$type->hasPrimitiveOrListParent() && $type->hasNonOverloadedProperties()) :
+if (!$type->isPrimitiveType() && !$type->hasPrimitiveTypeParent() && $type->hasNonOverloadedProperties()) :
     // -- start xml location array definition
 ?>
 
@@ -130,7 +130,7 @@ endif;
 
 // -- end field properties
 
-if (!$type->hasPrimitiveOrListParent()) :
+if (!$type->hasPrimitiveTypeParent()) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_METHODS_DIR . '/constructor.php',
         [
@@ -163,13 +163,13 @@ if ($type->isContainedType()) : ?>
 <?php
 endif;
 
-if (!$type->hasPrimitiveOrListParent() && $type->hasNonOverloadedProperties()) :
+if (!$type->hasPrimitiveTypeParent() && $type->hasNonOverloadedProperties()) :
     // --- property methods ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
     // primitive types are different enough to warrant their own template.
-    if ($type->isPrimitiveOrListType()) :
+    if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) :
         echo require_with(
             PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . '/methods/primitive.php',
             [
@@ -190,12 +190,25 @@ if (!$type->hasPrimitiveOrListParent() && $type->hasNonOverloadedProperties()) :
     // --- end property methods
 endif;
 
-if (!$type->isAbstract()) : ?>
+if (!$type->isAbstract()) :
+    
+    if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+    public function _nonValueFieldDefined(): bool
+    {
+    return <?php foreach($type->getAllPropertiesIndexedIterator() as $i => $property) :
+        if ($property->isValueProperty()) { continue; }
+        if ($i > 0) : ?>
+
+            || <?php endif; ?>isset($this-><?php echo $property->getName(); ?>)<?php endforeach; ?>;
+    }
+<?php endif; ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
 
-    if (!$type->isPrimitiveOrListType()) :
+    if (!$type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) :
         echo require_with(
             PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
             [
@@ -226,7 +239,7 @@ if (null === $type->getParentType()) : ?>
     public function __toString(): string
     {
 <?php
-    if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
+    if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
         return $this->_getFormattedValue();
 <?php
     else : ?>

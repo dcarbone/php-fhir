@@ -37,7 +37,7 @@ ob_start(); ?>
     $propConst = $property->getFieldConstantName();
 
     if ($i > 0) : ?> else <?php else : ?>            <?php endif; ?>if (self::<?php echo $propConst; ?> === $cen) {
-<?php   if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) : ?>
+<?php   if ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()) : ?>
                 $va = $ce->attributes()[<?php echo $propType->getClassName(); ?>::FIELD_VALUE] ?? null;
                 if (null !== $va) {
                     $type-><?php echo $setter; ?>((string)$va, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT_ATTRIBUTE);
@@ -77,7 +77,7 @@ foreach ($type->getAllPropertiesIndexedIterator() as $i => $property) :
     if ($property->isValueProperty() && ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent())) : ?>
             $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo $valueXMLLocationEnum->getEntityName(); ?>::CONTAINER_ATTRIBUTE);
 <?php
-    elseif ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) : ?>
+    elseif ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()) : ?>
             $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo $valueXMLLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE);
 <?php
     else : ?>

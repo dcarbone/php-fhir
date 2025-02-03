@@ -23,7 +23,7 @@ $typeKind = $type->getKind();
 
 ob_start();
 
-if (!$type->isPrimitiveOrListType()) :
+if (!$type->isPrimitiveType()) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/header.php',
         [
@@ -45,7 +45,7 @@ if (!$type->isPrimitiveOrListType()) :
     echo "\n";
 endif;
 
-if ($type->isPrimitiveOrListType()) :
+if ($type->isPrimitiveType()) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/serialize/primitive.php',
         [

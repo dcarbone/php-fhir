@@ -46,7 +46,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->_getFormattedValue());
         }
 <?php   endif;
-    elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent() || $propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) : ?>
+    elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent() || $propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>) && <?php echo $xmlLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE === $this->_valueXMLLocations[self::<?php echo $property->getFieldConstantName(); ?>]) {
             $xw->writeAttribute(self::<?php echo $property->getFieldConstantName(); ?>, $this-><?php echo $property->getName(); ?>->_getFormattedValue());
         }
@@ -113,7 +113,7 @@ foreach ($type->getProperties()->getIterator() as $property) :
     // resource container end
 
     // primitive type start
-    elseif ($propType->hasPrimitiveOrListParent() || $propType->isPrimitiveOrListType()) :
+    elseif ($propType->hasPrimitiveTypeParent() || $propType->isPrimitiveType()) :
         if ($property->isCollection()) : ?>
         if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
             foreach($this-><?php echo $property->getName(); ?> as $v) {

@@ -510,8 +510,8 @@ class Property
         if (null === $propType || $this->isCollection()) {
             return false;
         }
-        return $propType->hasPrimitiveOrListParent()
-            || $propType->isPrimitiveOrListType()
+        return $propType->hasPrimitiveTypeParent()
+            || $propType->isPrimitiveType()
             || $propType->hasPrimitiveContainerParent()
             || $propType->isPrimitiveContainer();
     }

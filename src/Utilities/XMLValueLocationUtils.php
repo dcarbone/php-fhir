@@ -26,7 +26,7 @@ class XMLValueLocationUtils
     public static function determineDefaultLocation(Type $type, Property $property, bool $withClass): string
     {
         $propType = $property->getValueFHIRType();
-        if ($propType->isPrimitiveOrListType() || $propType->hasPrimitiveOrListParent()) {
+        if ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()) {
             $case = match (true) {
                 $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() => 'CONTAINER_ATTRIBUTE',
                 default => 'PARENT_ATTRIBUTE',
