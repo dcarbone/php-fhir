@@ -64,7 +64,8 @@ endif;
 ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    private static array $_validationRules = [<?php if (!$type->hasPropertiesWithValidations()): ?>];
+    // The default validation rules for this type as defined in the FHIR schema used to generate this code.
+    private const _FHIR_VALIDATION_RULES = [<?php if (!$type->hasNonOverloadedProperties() || !$type->hasPropertiesWithValidations()): ?>];
 <?php else:
 
     foreach ($type->getProperties()->getIterator() as $property) :
@@ -190,31 +191,6 @@ if (!$type->hasPrimitiveOrListParent() && $type->hasNonOverloadedProperties()) :
 endif;
 
 if (!$type->isAbstract()) : ?>
-
-    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-<?php
-
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_VALIDATION_DIR . '/methods.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
-
-    if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
-
-    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    public function _nonValueFieldDefined(): bool
-    {
-        return <?php foreach($type->getAllPropertiesIndexedIterator() as $i => $property) :
-            if ($property->isValueProperty()) { continue; }
-            if ($i > 0) : ?>
-
-               || <?php endif; ?>isset($this-><?php echo $property->getName(); ?>)<?php endforeach; ?>;
-    }
-<?php
-    endif; ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php

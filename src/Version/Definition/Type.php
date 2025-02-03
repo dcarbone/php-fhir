@@ -929,9 +929,13 @@ class Type
         $parentType = $this->getParentType();
         $coreFiles = $this->_version->getConfig()->getCoreFiles();
 
+        // add validation trait to everything.
+        $traits[PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS] = $coreFiles
+            ->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS)
+            ->getFullyQualifiedNamespace(false);
+
         if (!$this->hasConcreteParent()) {
             // if this type has no parent(s), try to add all traits
-
             if ($this->isCommentContainer() && !$this->hasCommentContainerParent()) {
                 $traits[PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER)
@@ -940,14 +944,14 @@ class Type
 
             // these must only be added if the type has local properties
             if (($this->isResourceType() || $sourceMeta->isDSTU1() || $this->_kind->isResourceContainer($this->_version)) && $this->hasLocalProperties()) {
-                $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
+                $traits[PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS] = $coreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS)
                     ->getFullyQualifiedNamespace(false);
             }
         } else if ($this->isResourceType() && !$parentType->hasLocalProperties()) {
             // if this type _does_ have a parent, only add these traits if the parent does not have local properties
-            $traits[PHPFHIR_TRAIT_SOURCE_XMLNS] = $coreFiles
-                ->getCoreFileByEntityName(PHPFHIR_TRAIT_SOURCE_XMLNS)
+            $traits[PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS] = $coreFiles
+                ->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS)
                 ->getFullyQualifiedNamespace(false);
         }
 

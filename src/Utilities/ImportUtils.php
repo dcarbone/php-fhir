@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Utilities;
  */
 
 use DCarbone\PHPFHIR\Builder\Imports;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
@@ -46,7 +45,6 @@ class ImportUtils
         $imports
             ->addCoreFileImportsByName(
                 PHPFHIR_CLASSNAME_CONSTANTS,
-                PHPFHIR_CLASSNAME_VALIDATOR,
             )
             ->addVersionCoreFileImportsByName(
                 $version,
@@ -55,7 +53,6 @@ class ImportUtils
 
         if (!$type->hasParent()) {
             $imports->addCoreFileImportsByName(
-                PHPFHIR_TRAIT_SOURCE_XMLNS,
                 PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE,
             );
         } else {
@@ -81,27 +78,26 @@ class ImportUtils
             return;
         }
 
+        // be sure to import directly used interfaces and traits
+        foreach ($type->getDirectlyImplementedInterfaces() as $interface => $namespace) {
+            $imports->addImport($namespace, $interface);
+        }
+        foreach ($type->getDirectlyUsedTraits() as $trait => $namespace) {
+            $imports->addImport($namespace, $trait);
+        }
+
+        // handle primitives in separate func
         if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) {
             self::buildVersionPrimitiveTypeImports($version, $type);
             return;
         }
 
-        $typeKind = $type->getKind();
-
-        if (!$type->isAbstract() && !$type->isPrimitiveOrListType()) {
+        if (!$type->isAbstract()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
                 PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
                 PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
             );
-        }
-
-        foreach ($type->getDirectlyImplementedInterfaces() as $interface => $namespace) {
-            $imports->addImport($namespace, $interface);
-        }
-
-        foreach ($type->getDirectlyUsedTraits() as $trait => $namespace) {
-            $imports->addImport($namespace, $trait);
         }
 
         if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
@@ -127,9 +123,7 @@ class ImportUtils
             PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS,
         );
 
-        if (($type->isCommentContainer() && !$type->hasCommentContainerParent()) ||
-            $type->hasPropertiesWithValidations() ||
-            ($typeKind->isOneOf(TypeKindEnum::PRIMITIVE) && !$type->hasPrimitiveOrListParent())) {
+        if (($type->isCommentContainer() && !$type->hasCommentContainerParent()) || $type->hasPropertiesWithValidations()) {
             $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
         }
 
@@ -137,7 +131,7 @@ class ImportUtils
             $imports->addCoreFileImportsByName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
         }
 
-        if ($typeKind->isResourceContainer($type->getVersion())) {
+        if ($type->getKind()->isResourceContainer($type->getVersion())) {
             $imports->addVersionCoreFileImportsByName(
                 $type->getVersion(),
                 PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP,
@@ -145,8 +139,6 @@ class ImportUtils
             );
             return;
         }
-
-        $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_VALIDATOR);
 
         if ($parentType = $type->getParentType()) {
             $imports->addImport(

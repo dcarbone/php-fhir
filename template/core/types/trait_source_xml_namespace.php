@@ -27,7 +27,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-trait <?php echo PHPFHIR_TRAIT_SOURCE_XMLNS; ?>
+trait <?php echo $coreFile->getEntityName(); ?>
 
 {
     /** @var string */

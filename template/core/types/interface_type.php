@@ -36,13 +36,6 @@ interface <?php echo $coreFile->getEntityName(); ?> extends \JsonSerializable
     public function _getFHIRTypeName(): string;
 
     /**
-     * Must return an associative array in structure ["field" => ["rule" => {constraint}]] to be used during validation
-     *
-     * @return array
-     */
-    public function _getValidationRules(): array;
-
-    /**
      * Must return associative array where, if there are validation errors, the keys are the names of fields within the
      * type that failed validation.  The value must be a string message describing the manner of error
      *

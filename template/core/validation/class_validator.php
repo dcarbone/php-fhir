@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
-
-use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
@@ -30,6 +30,7 @@ $imports->addCoreFileImportsByName(
     PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE,
 );
 
+$constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $pimitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 
@@ -42,7 +43,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
+class <?php echo PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR; ?>
 
 {
     /**
@@ -53,9 +54,9 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
      * @param null|array|<?php echo $typeInterface->getFullyQualifiedName(true); ?> $value
      * @return null|string
      */
-    public static function assertMinOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $value): null|string
+    public static function assertMinOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo $pimitiveTypeInterface->getEntityName(); ?> $value): null|string
     {
-        if (0 >= $expected || (1 === $expected && $value instanceof <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>)) {
+        if (0 >= $expected || (1 === $expected && $value instanceof <?php echo $typeInterface->getEntityName(); ?>)) {
             return null;
         }
         if (null === $value || [] === $value) {
@@ -76,9 +77,9 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
      * @param null|array|<?php echo $typeInterface->getFullyQualifiedName(true); ?> $value
      * @return null|string
      */
-    public static function assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?> $value): null|string
+    public static function assertMaxOccurs(string $typeName, string $fieldName, int $expected, null|array|<?php echo $typeInterface->getEntityName(); ?> $value): null|string
     {
-        if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || [] === $value || $value instanceof <?php echo PHPFHIR_TYPES_INTERFACE_TYPE; ?>) {
+        if (<?php echo $constantsClass->getEntityName(); ?>::UNLIMITED === $expected || null === $value || [] === $value || $value instanceof <?php echo $typeInterface->getEntityName(); ?>) {
             return null;
         }
         $len = count($value);
@@ -121,7 +122,7 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
      */
     public static function assertMaxLength(string $typeName, string $fieldName, int $expected, null|string $value): null|string
     {
-        if (<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::UNLIMITED === $expected || null === $value || '' === $value) {
+        if (<?php echo $constantsClass->getEntityName(); ?>::UNLIMITED === $expected || null === $value || '' === $value) {
             return null;
         }
         $len = strlen($value);
@@ -172,7 +173,7 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
         if ('' === $pattern || null === $value) {
             return null;
         }
-        if ($value instanceof <?php echo PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE; ?>) {
+        if ($value instanceof <?php echo $pimitiveTypeInterface->getEntityName(); ?>) {
             $value = (string)$value;
         }
         if ('' === $value || (bool)preg_match($pattern, $value)) {
@@ -184,21 +185,24 @@ class <?php echo PHPFHIR_CLASSNAME_VALIDATOR; ?>
     /**
      * @param string $typeName
      * @param string $fieldName
-     * @param string $ruleName
+     * @param string $rule
      * @param mixed $constraint
      * @param mixed $value
      * @return null|string
      */
-    public static function validateField(string $typeName, string $fieldName, string $ruleName, mixed $constraint, mixed $value): null|string
+    public static function validateField(string $typeName, string $fieldName, string $rule, mixed $constraint, mixed $value): null|string
     {
-        return match ($ruleName) {
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_ENUM => static::assertValueInEnum($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MIN_LENGTH => static::assertMinLength($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MAX_LENGTH => static::assertMaxLength($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MIN_OCCURS => static::assertMinOccurs($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_MAX_OCCURS => static::assertMaxOccurs($typeName, $fieldName, $constraint, $value),
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::VALIDATE_PATTERN => static::assertPatternMatch($typeName, $fieldName, $constraint, $value),
-            default => sprintf('Type "%s" specifies unknown validation for field "%s": Name "%s"; Constraint "%s"', $typeName, $fieldName, $ruleName, var_export($constraint, true)),
+        if (null === $constraint) {
+            return null;
+        }
+        return match ($rule) {
+            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_ENUM => static::assertValueInEnum($typeName, $fieldName, $constraint, $value),
+            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_MIN_LENGTH => static::assertMinLength($typeName, $fieldName, $constraint, $value),
+            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_MAX_LENGTH => static::assertMaxLength($typeName, $fieldName, $constraint, $value),
+            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_MIN_OCCURS => static::assertMinOccurs($typeName, $fieldName, $constraint, $value),
+            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_MAX_OCCURS => static::assertMaxOccurs($typeName, $fieldName, $constraint, $value),
+            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_PATTERN => static::assertPatternMatch($typeName, $fieldName, $constraint, $value),
+            default => sprintf('Type "%s" specifies unknown validation for field "%s": Name "%s"; Constraint "%s"', $typeName, $fieldName, $rule, var_export($constraint, true)),
         };
     }
 }
