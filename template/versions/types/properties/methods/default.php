@@ -39,7 +39,7 @@ $isPrimitiveType = $type->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEn
 
 ob_start();
 foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
-    if ($property->getOverloadedProperty()) {
+    if (null !== $property->getOverloadedProperty()) {
         continue;
     }
 

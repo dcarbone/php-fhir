@@ -112,6 +112,10 @@ class ImportUtils
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE,
             );
+            $imports->addVersionCoreFileImportsByName(
+                $version,
+                PHPFHIR_VERSION_CLASSNAME_VERSION,
+            );
         } else if (!$sourceMeta->isDSTU1()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE,
@@ -120,7 +124,6 @@ class ImportUtils
 
         $imports->addVersionCoreFileImportsByName(
             $type->getVersion(),
-            PHPFHIR_VERSION_CLASSNAME_VERSION,
             PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS,
         );
 

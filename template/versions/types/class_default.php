@@ -47,7 +47,7 @@ if ($type->hasLocalProperties()) : ?>
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
     foreach ($type->getProperties()->getIterator() as $property) :
-        if ($property->getMemberOf()->hasPrimitiveOrListParent()) {
+        if ($property->getOverloadedProperty() || $property->getMemberOf()->hasPrimitiveOrListParent()) {
             continue;
         }
 
@@ -67,7 +67,10 @@ endif;
     private static array $_validationRules = [<?php if (!$type->hasPropertiesWithValidations()): ?>];
 <?php else:
 
-    foreach ($type->getAllPropertiesIndexedIterator() as $property) :
+    foreach ($type->getProperties()->getIterator() as $property) :
+        if ($property->getOverloadedProperty()) {
+            continue;
+        }
         $validationMap = $property->buildValidationMap($type);
         if ([] !== $validationMap) : ?>
 
@@ -84,14 +87,14 @@ endforeach; ?>
 endif;
 // -- end property validation rules
 
-if (!$type->isPrimitiveOrListType() && !$type->hasPrimitiveOrListParent()) :
+if (!$type->isPrimitiveOrListType() && !$type->hasPrimitiveOrListParent() && $type->hasNonOverloadedProperties()) :
     // -- start xml location array definition
 ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     private array $_valueXMLLocations = [
 <?php foreach ($type->getProperties()->getIterator() as $property) :
-        if (!$property->isSerializableAsXMLAttribute()) {
+        if (!$property->isSerializableAsXMLAttribute() || null !== $property->getOverloadedProperty()) {
             continue;
         } ?>
         self::<?php echo $property->getFieldConstantName(); ?> => <?php echo XMLValueLocationUtils::determineDefaultLocation($type, $property, true); ?>,
@@ -106,6 +109,9 @@ if ($type->hasLocalProperties()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php    foreach ($type->getProperties()->getIterator() as $property) :
+        if ($property->getOverloadedProperty()) {
+            continue;
+        }
         $documentation = DocumentationUtils::compilePropertyDocumentation($property, 5, true); ?>
     /**<?php if ('' !== $documentation) : ?>
 
@@ -156,7 +162,7 @@ if ($type->isContainedType()) : ?>
 <?php
 endif;
 
-if (!$type->hasPrimitiveOrListParent() && $type->hasLocalProperties()) :
+if (!$type->hasPrimitiveOrListParent() && $type->hasNonOverloadedProperties()) :
     // --- property methods ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */

@@ -53,7 +53,8 @@ if ($type->isPrimitiveOrListType()) :
             'type'     => $type,
         ]
     );
-elseif ($type->hasLocalProperties()) :
+elseif ($type->hasLocalProperties()
+    && ($type->isResourceType() || $type->hasResourceTypeParent() || $type->hasNonOverloadedProperties())) :
     echo require_with(
         PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/serialize/default.php',
         [

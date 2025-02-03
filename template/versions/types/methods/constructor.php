@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -36,7 +35,7 @@ $properties = $type->getProperties();
 $valueProperty = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
 
 $propertyCount = count($properties);
-$parentPropertyCount = count($type->getParentPropertiesIterator());
+$parentPropertyCount = count($type->getParentPropertiesIterator(true));
 $totalPropertyCount = $propertyCount + $parentPropertyCount;
 
 ob_start();
@@ -58,7 +57,7 @@ if ($type->isPrimitiveOrListType() || $type->hasPrimitiveOrListParent()) :
     }
 <?php
     endif;
-elseif ($type->hasLocalProperties() || ($type->isCommentContainer() && !$type->hasCommentContainerParent())) : ?>
+elseif ($type->hasNonOverloadedProperties() || ($type->isCommentContainer() && !$type->hasCommentContainerParent())) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
@@ -80,7 +79,7 @@ elseif ($type->hasLocalProperties() || ($type->isCommentContainer() && !$type->h
                                 <?php endif; ?>null|iterable $fhirComments = null<?php endif; ?>)
     {
 <?php if (null !== $parentType) : ?>
-        parent::__construct(<?php foreach($type->getParentPropertiesIterator() as $i => $property) : if ($i > 0) : ?>,
+        parent::__construct(<?php foreach($type->getParentPropertiesIterator(true) as $i => $property) : if ($i > 0) : ?>,
                             <?php endif; echo $property->getName(); ?>: $<?php echo $property->getName(); ?><?php endforeach; ?><?php
         if ($type->hasCommentContainerParent()) :
             if ($parentPropertyCount > 0) : ?>,

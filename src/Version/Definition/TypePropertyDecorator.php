@@ -21,6 +21,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
+use DCarbone\PHPFHIR\Version;
 
 abstract class TypePropertyDecorator
 {
@@ -125,38 +126,37 @@ abstract class TypePropertyDecorator
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types
      */
-    public static function findOverloadedProperties(Config $config, Types $types): void
+    public static function findOverloadedProperties(Version $version, Types $types): void
     {
-        $logger = $config->getLogger();
+        $logger = $version->getConfig()->getLogger();
         foreach ($types->getIterator() as $type) {
             if (!$type->hasParent()) {
                 continue;
             }
             $typeProperties = $type->getProperties();
             $parent = $type->getParentType();
-            while (null !== $parent) {
-                foreach($parent->getProperties()->getIterator() as $parentProp) {
-                    $typeProp = $typeProperties->getProperty($parentProp->getName());
-                    if (null === $typeProp) {
-                        continue;
-                    }
-                    // for now, we only care about the most immediate overload
-                    if (null === $typeProp->getOverloadedProperty()) {
-                        $logger->debug(
-                            sprintf(
-                                'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
-                                $parentProp,
-                                $type,
-                                $parent
-                            )
-                        );
-                        $typeProp->setOverloadedProperty($parentProp);
-                    }
+            foreach ($type->getParentPropertiesIterator(false) as $parentProp) {
+                // attempt to locate a local property with the same name.
+                $typeProp = $typeProperties->getProperty($parentProp->getName());
+                if (null === $typeProp) {
+                    continue;
                 }
-                $parent = $parent->getParentType();
+
+                // for now, we only care about the most immediate overload
+                if (null === $typeProp->getOverloadedProperty()) {
+                    $logger->debug(
+                        sprintf(
+                            'Marking Property "%s" on Type "%s" as overloaded as Parent "%s" already has it',
+                            $parentProp,
+                            $type,
+                            $parent
+                        )
+                    );
+                    $typeProp->setOverloadedProperty($parentProp);
+                }
             }
         }
     }

@@ -140,14 +140,6 @@ class Properties implements \Countable
     }
 
     /**
-     * @return int
-     */
-    public function allPropertyCount(): int
-    {
-        return count($this->_properties);
-    }
-
-    /**
      * Returns an iterator containing all properties, including those inherited from parent types
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
@@ -158,24 +150,12 @@ class Properties implements \Countable
     }
 
     /**
-     * Returns an iterator contanining all properties, including those inherited from parent types, sorted ascending by name
-     *
-     * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
-     */
-    public function getSortedIterator(): iterable
-    {
-        $this->_sort();
-        return new \ArrayIterator($this->_sortedProperties);
-    }
-
-    /**
      * Returns an indexed iterator containing only properties local to this type.
      *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
     public function getIndexedIterator(): iterable
     {
-        $this->_sort();
         return \SplFixedArray::fromArray($this->_properties, preserveKeys: false);
     }
 

@@ -104,9 +104,6 @@ class Definition
         $log->info('Finding property types');
         TypePropertyDecorator::findPropertyTypes($this->_config, $this->_types);
 
-        $log->info('Finding overloaded properties in child types');
-        TypePropertyDecorator::findOverloadedProperties($this->_config, $this->_types);
-
         $log->info('Manually setting some property names');
         TypePropertyDecorator::setMissingPropertyNames($this->_config, $this->_types);
 
@@ -121,6 +118,9 @@ class Definition
 
         $log->info('Setting comment container flags');
         TypeDecorator::setCommentContainerFlag($this->_config, $this->_types);
+
+        $log->info('Finding overloaded properties in child types');
+        TypePropertyDecorator::findOverloadedProperties($this->_version, $this->_types);
 
         $log->info('Compiling type imports');
         TypeDecorator::buildTypeImports($this->_version, $this->_types);

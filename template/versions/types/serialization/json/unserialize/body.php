@@ -26,6 +26,10 @@ $typeKind = $type->getKind();
 ob_start();
 
 foreach($type->getProperties()->getIterator() as $property) :
+    if (null !== $property->getOverloadedProperty()) {
+        continue;
+    }
+
     $propType = $property->getValueFHIRType();
     if (null === $propType) {
         continue;

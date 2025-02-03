@@ -354,9 +354,9 @@ class Type
 
     public function getParentProperty(string $name): null|Property
     {
-        foreach ($this->getParentPropertiesIterator() as $property) {
+        foreach ($this->getParentPropertiesIterator(true) as $property) {
             if ($property->getName() === $name) {
-                return $property;;
+                return $property;
             }
         }
         return null;
@@ -370,6 +370,16 @@ class Type
     public function hasLocalProperties(): bool
     {
         return 0 !== count($this->_properties);
+    }
+
+    public function hasNonOverloadedProperties(): bool
+    {
+        foreach($this->_properties->getIterator() as $property) {
+            if (null === $property->getOverloadedProperty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -412,15 +422,17 @@ class Type
      * Returns an indexed iterator containing all properties defined on parents of this type.  Locally overloaded
      * properties are omitted.
      *
+     * @param bool $excludeOverloaded
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
-    public function getParentPropertiesIterator(): iterable
+    public function getParentPropertiesIterator(bool $excludeOverloaded): iterable
     {
         $p = [];
         foreach ($this->getRootFirstParentTypes() as $parentType) {
             foreach ($parentType->getProperties()->getIterator() as $property) {
                 // do not include properties that are overloaded by this type
-                if (!$this->_properties->hasProperty($property->getName()) && !isset($p[$property->getName()])) {
+                if (!$excludeOverloaded
+                    || (!$this->_properties->hasProperty($property->getName()) && !isset($p[$property->getName()]))) {
                     $p[$property->getName()] = $property;
                 }
             }

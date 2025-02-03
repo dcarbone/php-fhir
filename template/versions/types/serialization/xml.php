@@ -48,7 +48,8 @@ endif;
     }
 <?php
 // start xml serialize
-if ($type->hasLocalProperties()) :
+if ($type->hasLocalProperties()
+    && ($type->isResourceType() || $type->hasResourceTypeParent() || $type->hasNonOverloadedProperties())) :
 
     echo "\n";
 
