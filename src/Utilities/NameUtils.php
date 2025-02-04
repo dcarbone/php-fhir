@@ -116,6 +116,7 @@ class NameUtils
         'fhir' => 'FHIR',
         'xhtml' => 'XHTML',
         'xml' => 'XML',
+        'json' => 'JSON',
         'http' => 'HTTP',
         'curl' => 'CURL',
         'dstu1' => 'DSTU1',

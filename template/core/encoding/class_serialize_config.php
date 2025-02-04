@@ -26,14 +26,11 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-class <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>
+class <?php echo $coreFile->getEntityName(); ?>
 
 {
-    /** @var bool */
     private bool $_overrideSourceXMLNS = false;
-    /** @var string */
     private string $_rootXMLNS;
-    /** @var int */
     private int $_xhtmlLibxmlOpts = <?php echo PHPFHIR_DEFAULT_LIBXML_OPT_MASK; ?>;
 
     public function __construct(null|bool $overrideSourceXMLNS = null,
@@ -94,6 +91,11 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>
     }
 
     /**
+     * Specifies the libxml option mask to apply when loading an XHTML type's value into an XMLReader instance for
+     * serialization.
+     *
+     * @see https://www.php.net/manual/en/libxml.constants.php for available options and their purpose.
+     *
      * @param int $xhtmlLibxmlOpts
      * @return self
      */

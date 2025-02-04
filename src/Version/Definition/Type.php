@@ -934,6 +934,16 @@ class Type
             ->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS)
             ->getFullyQualifiedNamespace(false);
 
+        // add json serialization options trait
+        $traits[PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS] = $coreFiles
+            ->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS)
+            ->getfullyQualifiedNamespace(false);
+
+        // add xml serialization options trait
+        $traits[PHPFHIR_ENCODING_TRAIT_XML_SERIALIZATION_OPTIONS] = $coreFiles
+            ->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_XML_SERIALIZATION_OPTIONS)
+            ->getfullyQualifiedNamespace(false);
+
         if (!$this->hasConcreteParent()) {
             // if this type has no parent(s), try to add all traits
             if ($this->isCommentContainer() && !$this->hasCommentContainerParent()) {

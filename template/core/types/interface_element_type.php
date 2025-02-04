@@ -62,12 +62,12 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
                                  <?php echo $serializeConfigClass->getEntityName(); ?> $config): void;
 
     /**
-     * @param array $json Decoded JSON
+     * @param \stdClass $json Decoded JSON
      * @param <?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @return static
      */
-    public static function jsonUnserialize(array $json,
+    public static function jsonUnserialize(\stdClass $json,
                                            <?php echo $unserializeConfigClass->getEntityName(); ?> $config,
                                            null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
 }

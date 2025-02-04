@@ -40,9 +40,11 @@ ob_start(); ?>
 <?php   if ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()) : ?>
                 $va = $ce->attributes()[<?php echo $propType->getClassName(); ?>::FIELD_VALUE] ?? null;
                 if (null !== $va) {
-                    $type-><?php echo $setter; ?>((string)$va, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT_ATTRIBUTE);
+                    $type-><?php echo $setter; ?>((string)$va);
+                    $type->_setXMLFieldValueLocation(self::<?php echo $propConst; ?>, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT_ATTRIBUTE);
                 } else {
-                    $type-><?php echo $setter; ?>((string)$ce, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT_VALUE);
+                    $type-><?php echo $setter; ?>((string)$ce);
+                    $type->_setXMLFieldValueLocation(self::<?php echo $propConst; ?>, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::ELEMENT_VALUE);
                 }
 <?php   elseif ($propTypeKind->isResourceContainer($version)) : ?>
                 foreach ($ce->children() as $cen) {
@@ -75,18 +77,20 @@ foreach ($type->getAllPropertiesIndexedIterator() as $i => $property) :
         if (isset($attributes[self::<?php echo $propConst; ?>])) {
 <?php
     if ($property->isValueProperty() && ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent())) : ?>
-            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo $valueXMLLocationEnum->getEntityName(); ?>::CONTAINER_ATTRIBUTE);
+            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>]);
+            $type->_setXMLFieldValueLocation(self::<?php echo $propConst; ?>, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::CONTAINER_ATTRIBUTE);
 <?php
     elseif ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()) : ?>
-            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo $valueXMLLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE);
+            $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>]);
+            $type->_setXMLFieldValueLocation(self::<?php echo $propConst; ?>, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE);
 <?php
     else : ?>
             if (isset($type-><?php echo $property->getName(); ?>)) {
                 $type-><?php echo $property->getName(); ?>->setValue((string)$attributes[self::<?php echo $propConst; ?>]);
-                $type->_set<?php echo ucfirst($property->getName()); ?>ValueXMLLocation(<?php echo $valueXMLLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE);
             } else {
-                $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>], <?php echo $valueXMLLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE);
+                $type-><?php echo $setter; ?>((string)$attributes[self::<?php echo $propConst; ?>]);
             }
+            $type->_setXMLFieldValueLocation(self::<?php echo $propConst; ?>, <?php echo $valueXMLLocationEnum->getEntityName(); ?>::PARENT_ATTRIBUTE);
 <?php
     endif;
 ?>

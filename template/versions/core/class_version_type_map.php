@@ -156,20 +156,17 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?> implements <?php
     }
 
     /**
-     * @param array $data
+     * @param \stdClass $json
      * @return string Fully qualified class name of contained resource type
      */
-    public static function getContainedTypeClassNameFromArray(array $data): string
+    public static function getContainedTypeClassNameFromJSON(\stdClass $json): string
     {
-        $resourceType = null;
-        if (isset($data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE])) {
-            $resourceType = $data[<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE];
-        }
+        $resourceType = $json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> ?? null;
         if (null === $resourceType) {
             throw new \DomainException(sprintf(
                 'Unable to determine contained Resource type from input (missing "%s" key).  Keys: ["%s"]',
                 <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::JSON_FIELD_RESOURCE_TYPE,
-                implode('","', array_keys($data))
+                implode('","', array_keys((array)$json))
             ));
         }
         $className = self::getContainedTypeClassName($resourceType);

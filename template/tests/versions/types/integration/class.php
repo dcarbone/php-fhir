@@ -107,9 +107,9 @@ class <?php echo $testClassname; ?> extends TestCase
 
     protected function setUp(): void
     {
-        $endpoint = trim((string)getenv('<?php echo PHPFHIR_TEST_CONSTANT_INTEGRATION_ENDPOINT; ?>'));
+        $endpoint = trim((string)getenv('<?php echo PHPFHIR_TEST_CONSTANT_SERVER_ADDR; ?>'));
         if ('' === $endpoint) {
-            $this->markTestIncomplete('Environment variable <?php echo PHPFHIR_TEST_CONSTANT_INTEGRATION_ENDPOINT; ?> is not defined or empty');
+            $this->markTestIncomplete('Environment variable <?php echo PHPFHIR_TEST_CONSTANT_SERVER_ADDR; ?> is not defined or empty');
         }
         $this->_testEndpoint = $endpoint;
         $this->_version = new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION ?>();

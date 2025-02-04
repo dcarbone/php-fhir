@@ -174,7 +174,7 @@ echo require_with(
 );
 ?>
         /** @var <?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $class */
-        $class = <?php echo $versionTypeMapClass->getEntityName(); ?>::getContainedTypeClassNameFromArray($json);
+        $class = <?php echo $versionTypeMapClass->getEntityName(); ?>::getContainedTypeClassNameFromJSON($json);
         $type->setContainedType($class::jsonUnserialize($json));
         return $type;
     }

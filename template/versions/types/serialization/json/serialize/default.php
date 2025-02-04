@@ -41,18 +41,23 @@ foreach ($type->getProperties()->getIterator() as $property) :
         continue;
     }
 
+    $propName = $property->getName();
     $propConst = $property->getFieldConstantName();
     $propConstExt = $property->getFieldConstantExtensionName();
 
     $propertyType = $property->getValueFHIRType();
     if ($propertyType->isPrimitiveType() || $propertyType->hasPrimitiveTypeParent()) :
         if ($property->isCollection()) : ?>
-        if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
-            $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
+        if (isset($this-><?php echo $propName; ?>) && [] !== $this-><?php echo $propName; ?>) {
+            if ($this->_getJSONFieldElideSingletonArray(self::<?php echo $propConst; ?>) && 1 === count($this-><?php echo $propName; ?>)) {
+                $out-><?php echo $propName; ?> = $this-><?php echo $propName; ?>[0];
+            } else {
+                $out-><?php echo $propName; ?> = $this-><?php echo $propName; ?>;
+            }
         }
 <?php else : ?>
-        if (isset($this-><?php echo $property->getName(); ?>)) {
-            $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
+        if (isset($this-><?php echo $propName; ?>)) {
+            $out-><?php echo $propName; ?> = $this-><?php echo $propName; ?>;
         }
 <?php endif;
 
@@ -60,12 +65,12 @@ foreach ($type->getProperties()->getIterator() as $property) :
         $propTypeClassname = $property->getValueFHIRType()->getClassName();
 
         if ($property->isCollection()) : ?>
-        if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
+        if (isset($this-><?php echo $propName; ?>) && [] !== $this-><?php echo $propName; ?>) {
             $vals = [];
             $exts = [];
             $hasVals = false;
             $hasExts = false;
-            foreach ($this-><?php echo $property->getName(); ?> as $v) {
+            foreach ($this-><?php echo $propName; ?> as $v) {
                 $val = $v->getValue();
                 if (null !== $val) {
                     $hasVals = true;
@@ -83,19 +88,19 @@ foreach ($type->getProperties()->getIterator() as $property) :
                 }
             }
             if ($hasVals) {
-                $out-><?php echo $property->getName(); ?> = $vals;
+                $out-><?php echo $propName; ?> = $vals;
             }
             if ($hasExts) {
                 $out-><?php echo $property->getExtName(); ?> = $exts;
             }
         }
 <?php else : ?>
-        if (isset($this-><?php echo $property->getName(); ?>)) {
-            if (null !== ($val = $this-><?php echo $property->getName(); ?>->getValue())) {
-                $out-><?php echo $property->getName(); ?> = $val;
+        if (isset($this-><?php echo $propName; ?>)) {
+            if (null !== ($val = $this-><?php echo $propName; ?>->getValue())) {
+                $out-><?php echo $propName; ?> = $val;
             }
-            if ($this-><?php echo $property->getName(); ?>->_nonValueFieldDefined()) {
-                $ext = $this-><?php echo $property->getName(); ?>->jsonSerialize();
+            if ($this-><?php echo $propName; ?>->_nonValueFieldDefined()) {
+                $ext = $this-><?php echo $propName; ?>->jsonSerialize();
                 unset($ext->value);
                 $out-><?php echo $property->getExtName(); ?> = $ext;
             }
@@ -104,12 +109,16 @@ foreach ($type->getProperties()->getIterator() as $property) :
 
     else :
         if ($property->isCollection()) : ?>
-        if (isset($this-><?php echo $property->getName(); ?>) && [] !== $this-><?php echo $property->getName(); ?>) {
-            $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
+        if (isset($this-><?php echo $propName; ?>) && [] !== $this-><?php echo $propName; ?>) {
+            if ($this->_getJSONFieldElideSingletonArray(self::<?php echo $propConst; ?>) && 1 === count($this-><?php echo $propName; ?>)) {
+                $out-><?php echo $propName; ?> = $this-><?php echo $propName; ?>[0];
+            } else {
+                $out-><?php echo $propName; ?> = $this-><?php echo $propName; ?>;
+            }
         }
 <?php else : ?>
-        if (isset($this-><?php echo $property->getName(); ?>)) {
-            $out-><?php echo $property->getName(); ?> = $this-><?php echo $property->getName(); ?>;
+        if (isset($this-><?php echo $propName; ?>)) {
+            $out-><?php echo $propName; ?> = $this-><?php echo $propName; ?>;
         }
 <?php endif;
     endif;

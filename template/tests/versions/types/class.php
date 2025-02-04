@@ -92,7 +92,7 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
 
     protected function _getTestEndpoint(): string
     {
-        return trim((string)getenv('<?php echo PHPFHIR_TEST_CONSTANT_INTEGRATION_ENDPOINT; ?>'));
+        return trim((string)getenv('<?php echo PHPFHIR_TEST_CONSTANT_SERVER_ADDR; ?>'));
     }
 
     protected function _getClient(): <?php echo $versionClientClass->getEntityName(); ?>
@@ -100,7 +100,7 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
     {
         $testEndpoint = $this->_getTestEndpoint();
         if ('' === $testEndpoint) {
-            $this->markTestSkipped('Environment variable <?php echo PHPFHIR_TEST_CONSTANT_INTEGRATION_ENDPOINT; ?> is not defined or empty');
+            $this->markTestSkipped('Environment variable <?php echo PHPFHIR_TEST_CONSTANT_SERVER_ADDR; ?> is not defined or empty');
         }
         return new <?php echo $versionClientClass->getEntityName(); ?>(
             new <?php echo $clientClass->getEntityName(); ?>(

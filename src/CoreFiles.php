@@ -75,6 +75,16 @@ class CoreFiles
         return $this->_templateDir;
     }
 
+    public function getEntityNames(): array
+    {
+        $out = [];
+        foreach($this->_files as $file) {
+            $out[] = $file->getEntityName();
+        }
+        natcasesort($out);
+        return $out;
+    }
+
     public function getCoreFileByEntityName(string $name): CoreFile
     {
         foreach ($this->_files as $file) {
@@ -82,7 +92,11 @@ class CoreFiles
                 return $file;
             }
         }
-        throw new \OutOfBoundsException(sprintf('Unable to locate CoreFile for entity name "%s"', $name));
+        throw new \OutOfBoundsException(sprintf(
+            'Unable to locate CoreFile for entity name "%s", available: [%s]',
+            $name,
+            implode(', ', $this->getEntityNames()),
+        ));
     }
 
     /**

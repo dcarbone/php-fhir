@@ -30,43 +30,28 @@ trait <?php echo $coreFile->getEntityName(); ?>
 
 {
     /** @var array */
-    private array $_fhirComments;
+    private array $_fieldElideMap = [];
 
     /**
-     * Return any / all comments set on this type.
+     * Declare the provided field must be serialized to JSON as an object, rather than an array of objects, when
+     * it contains a singular element.
      *
-     * @return string[]
+     * @param string $field Name of field on this type.
      */
-    public function _getFHIRComments(): array
+    public function _setJSONFieldElideSingletonArray(string $field, bool $elideSingleton): void
     {
-        return $this->_fhirComments ?? [];
+        $this->_fieldElideMap[$field] = $elideSingleton;
     }
 
     /**
-     * Set internal fhir_comments list, overwriting any previous value(s)
+     * Returns whether the provided field should be JSON serialized as an object, rather than an array of objects, when
+     * it contains a singular element.
      *
-     * @param array $fhirComments
-     * @return static
+     * @return true
      */
-    public function _setFHIRComments(iterable $fhirComments): self
+    public function _getJSONFieldElideSingletonArray(string $field): bool
     {
-        $this->_fhirComments = $fhirComments;
-        return $this;
-    }
-
-    /**
-     * Append comment string to internal fhir_comments list
-     *
-     * @param string $fhirComment
-     * @return static
-     */
-    public function _addFHIRComment(string $fhirComment): self
-    {
-        if (!isset($this->_fhirComments)) {
-            $this->_fhirComments = [];
-        }
-        $this->_fhirComments[] = $fhirComment;
-        return $this;
+        return $this->_fieldElideMap[$field] ?? false;
     }
 }
 <?php return ob_get_clean();

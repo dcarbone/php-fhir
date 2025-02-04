@@ -72,12 +72,12 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
                                  null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null): <?php echo $xmlWriterClass->getEntityName(); ?>;
 
     /**
-     * @param string|array|\stdClass $json Raw or already un-encoded JSON
+     * @param string|\stdClass $json Encoded or decoded JSON.
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @return static
      */
-    public static function jsonUnserialize(string|array|\stdClass $json,
+    public static function jsonUnserialize(string|\stdClass $json,
                                            null|<?php echo $unserializeConfigClass->getEntityName(); ?> $config = null,
                                            null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
 }
