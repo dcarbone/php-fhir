@@ -176,38 +176,6 @@ function ask(string $q): bool
     return false;
 }
 
-/**
- * @param string $dir
- */
-function nuke_dir(string $dir): void
-{
-    echo "Executing \"rm -rf {$dir}\" ..." . PHP_EOL;
-    shell_exec('rm -rf ' . $dir);
-    sleep(1);
-    if (file_exists($dir)) {
-        echo "Unable to delete dir {$dir}" . PHP_EOL;
-        exit(1);
-    }
-    echo "Done." . PHP_EOL;
-}
-
-/**
- * @param string $dir
- * @return bool
- */
-function is_dir_empty(string $dir): bool
-{
-    $res = glob($dir, GLOB_NOSORT);
-    foreach ($res as $r) {
-        if (str_starts_with($r, '.')) {
-            continue;
-        }
-        return false;
-    }
-    return true;
-}
-
-
 // ----- parameter parsing
 
 if ($argc > 1) {
