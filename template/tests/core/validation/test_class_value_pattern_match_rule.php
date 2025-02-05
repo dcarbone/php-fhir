@@ -56,12 +56,24 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertEquals('', $err);
     }
 
-        public function testErrorWithValidPatternAndInvalidValue()
+    public function testErrorWithValidPatternAndInvalidValue()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
         $rule = new <?php echo $patternRule; ?>();
         $err = $rule->assert($type, 'value', '/^[a-z]+$/', $type->getValue());
-        $this->assertNotEmpty($err, sprintf('Unexpected error seen: %s', $err));
+        $this->assertNotEmpty($err, 'Rule should have produced error');
+    }
+
+    /**
+     * @see https://github.com/dcarbone/php-fhir/issues/150
+     */
+    public function testErrorWithValueOverflow()
+    {
+        $bigval = base64_encode(str_repeat('a', 12000));
+        $type = new <?php echo $mockPrimitive; ?>('base64-primitive', $bigval);
+        $rule = new <?php echo $patternRule; ?>();
+        $err = $rule->assert($type, 'value', '/^(\\s*([0-9a-zA-Z\\+\\/=]){4}\\s*)+$/', $type->getValue());
+        $this->assertNotEmpty($err, 'Rule should have produced error');
     }
 }
 <?php return ob_get_clean();
