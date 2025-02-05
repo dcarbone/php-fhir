@@ -1,10 +1,15 @@
 # php-fhir
 
-Tools for modeling and interacting with [HL7 FHIR](https://hl7.org/fhir/) data and servers. 
+Tools for modeling and interacting with [HL7 FHIR](https://hl7.org/fhir/) data and servers.
 
 # Documentation
 
 Please refer to the wiki for the latest documentation: https://github.com/dcarbone/php-fhir/wiki
+
+## Getting Started
+
+Please head to the [Builder Usage](https://github.com/dcarbone/php-fhir/wiki/Builder-Usage) section of our
+wiki for details on how to get started using this library.
 
 # Pre-generated Code
 
