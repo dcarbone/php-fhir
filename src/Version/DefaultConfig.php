@@ -24,6 +24,8 @@ class DefaultConfig
         'libxmlOpts',
         'libxmlOptMask',
         'jsonDecodeMaxDepth',
+        'jsonDecodeOpts',
+        'jsonDecodeOptsMask',
     ];
 
     private const _SERIALIZE_CONFIG_KEYS = [
@@ -62,6 +64,9 @@ class DefaultConfig
         if (array_key_exists('libxmlOpts', $config) && array_key_exists('libxmlOptMask', $config)) {
             throw new \DomainException('Cannot specify both "libxmlOpts" and "libxmlOptMask" keys.');
         }
+        if (array_key_exists('jsonDecodeOpts', $config) && array_key_exists('jsonDecodeOptMask', $config)) {
+            throw new \DomainException('Cannot specify both "jsonDecodeOpts" and "jsonDecodeOptMask" keys.');
+        }
         foreach (self::_UNSERIALIZE_CONFIG_KEYS as $k) {
             if (!array_key_exists($k, $config)) {
                 continue;
@@ -75,6 +80,13 @@ class DefaultConfig
                         $config[$k],
                     )),
                 'jsonDecodeMaxDepth' => intval($config[$k]),
+                'jsonDecodeOpts' => intval($config[$k]),
+                'jsonDecodeOptMask '=> is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+}$}', $config[$k])
+                    ? $config[$k]
+                    : throw new \InvalidArgumentException(sprintf(
+                        'Value provided to "jsonDecodeOptMask" is either not a string or is an invalid options mask: %s',
+                        $config[$k],
+                    )),
 
                 default => throw new \UnexpectedValueException(sprintf(
                     'Unknown unserialize config key "%s"',

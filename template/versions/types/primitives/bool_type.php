@@ -36,7 +36,7 @@ ob_start(); ?>
             $this->_jsonAsString = true;
             $this->value = self::TRUE === strtolower($value);
         } else {
-            $this->value = (bool)$value;
+            $this->value = $value;
         }
         return $this;
     }

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
@@ -31,6 +33,17 @@ $versionTypeMapInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE
 
 $versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
 
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImports(
+    $clientInterface,
+    $versionInterface,
+    $versionConfigClass,
+    $versionConfigInterface,
+    $versionTypeMapInterface,
+    $versionTypeMapClass,
+);
+
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
@@ -38,13 +51,9 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
-use <?php echo $versionInterface->getFullyQualifiedName(false); ?>;
-use <?php echo $versionConfigClass->getFullyQualifiedName(false); ?>;
-use <?php echo $versionConfigInterface->getFullyQualifiedName(false); ?>;
-use <?php echo $versionTypeMapInterface->getFullyQualifiedName(false); ?>;
-
-class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> implements <?php echo PHPFHIR_INTERFACE_VERSION; ?>
+class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $versionInterface->getEntityName(); ?>
 
 {
     public const NAME = '<?php echo $version->getName(); ?>';
@@ -54,23 +63,23 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> implements <?php echo PHP
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
 
     /** @var <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?> */
-    private <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $_config;
+    private <?php echo $versionConfigInterface->getEntityName(); ?> $_config;
 
     /** @var <?php echo $versionTypeMapClass->getFullyQualifiedName(true); ?> */
-    private static <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?> $_typeMap;
+    private static <?php echo $versionTypeMapInterface->getEntityName(); ?> $_typeMap;
 
     /**
-     * <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> Constructor
+     * <?php echo $coreFile->getEntityName(); ?> Constructor
      * @param null|array|<?php echo $versionConfigInterface->getFullyQualifiedName(true); ?> $config
      */
-    public function __construct(null|array|<?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?> $config = null)
+    public function __construct(null|array|<?php echo $versionConfigInterface->getEntityName() ?> $config = null)
     {
         if (!is_object($config)) {
-            $config = new <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>(array_merge(self::_GENERATED_CONFIG, (array)$config));
-        } else if (!($config instanceof <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>)) {
+            $config = new <?php echo $versionConfigClass->getEntityName(); ?>(array_merge(self::_GENERATED_CONFIG, (array)$config));
+        } else if (!($config instanceof <?php echo $versionConfigClass->getEntityName(); ?>)) {
             throw new \InvalidArgumentException(sprintf(
                 '$config must be an instance of \\%s, %s given',
-                <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?>::class,
+                <?php echo $versionConfigClass->getEntityName(); ?>::class,
                 get_class($config)
             ));
         }
@@ -105,7 +114,7 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> implements <?php echo PHP
      * @return <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getConfig(): <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
+    public function getConfig(): <?php echo $versionConfigInterface->getEntityName(); ?>
 
     {
         return $this->_config;
@@ -115,11 +124,11 @@ class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?> implements <?php echo PHP
      * @return <?php echo $versionTypeMapClass->getFullyQualifiedName(true); ?>
 
      */
-    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
+    public function getTypeMap(): <?php echo $versionTypeMapInterface->getEntityName(); ?>
 
     {
         if (!isset(self::$_typeMap)) {
-            self::$_typeMap = new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>();
+            self::$_typeMap = new <?php echo $versionTypeMapClass->getEntityName(); ?>();
         }
         return self::$_typeMap;
     }

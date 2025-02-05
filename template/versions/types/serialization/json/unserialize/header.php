@@ -73,7 +73,10 @@ ob_start(); ?>
             $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getUnserializeConfig();
         }
         if (is_string($json)) {
-            $json = json_decode(json: $json, associative: false, depth: $config->getJSONDecodeMaxDepth());
+            $json = json_decode(json: $json,
+                                associative: false,
+                                depth: $config->getJSONDecodeMaxDepth(),
+                                flags: $config->getJSONDecodeOpts());
         }
 <?php endif;
 if ($type->hasConcreteParent()) : ?>

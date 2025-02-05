@@ -35,37 +35,10 @@ return [
     'testsNamespacePrefix' => '\\Tests',
 
     // Map of versions and configurations to generate.
-    // Each entry in this map will grab the latest revision of that particular version.
-    //
-    // For a list of base versions, see here: https://www.hl7.org/fhir/directory.html
     'versions' => [
         [
-            // Unique-to-you name of this version
             'name' => 'DSTU1',
-
-            // Namespace to generate classes into.  This is nested under the value provided to rootNamespace.
-            'namespace' => 'DSTU1',
-
-            // Local path to un-compressed source schema files for this version
             'schemaPath' => __DIR__ . '/../input/DSTU1',
-
-            // The default configuration for all instances of this version.  May be overridden during use.
-            'defaultConfig' => [
-                'unserializeConfig' => [
-                    // Libxml options to use when unserializing types from XML
-                    'libxmlOptMask' => 'LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL',
-                    // Maximum depth to allow when decoding JSON
-                    'jsonDecodeMaxDepth' => 512,
-                ],
-                'serializeConfig' => [
-                    // If true, will override the default xmlns value with the value provided in the rootXmlns key
-                    'overrideSourceXMLNS' => false,
-                    // If overrideSourceXmlns is true, this value will be used as the root xmlns value
-                    'rootXMLNS' => 'http://hl7.org/fhir',
-                    // Libxml options to use when serializing XHTML content
-                    'xhtmlLibxmlOptMask' => 'LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL',
-                ]
-            ]
         ],
         [
             'name' => 'DSTU2',

@@ -21,17 +21,17 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-$imports = $coreFile->getImports();
-
-$imports->addCoreFileImportsByName(
-    PHPFHIR_INTERFACE_VERSION_CONFIG,
-    PHPFHIR_INTERFACE_VERSION_TYPE_MAP,
-);
-
 $coreFiles = $config->getCoreFiles();
 
 $versionConfigInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONFIG);
 $versionTypeMapInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_TYPE_MAP);
+
+$imports = $coreFile->getImports();
+
+$imports->addCoreFileImports(
+    $versionConfigInterface,
+    $versionTypeMapInterface,
+);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -42,11 +42,11 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo PHPFHIR_INTERFACE_VERSION; ?>
+interface <?php echo $coreFile->getEntityName(); ?>
 
 {
     /**
-     * Must return the "name" of this version, e.g. DSTU1, STU3, R5, etc.
+     * Must return the "name" of this version.
      *
      * @return string
      */
@@ -72,7 +72,7 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION; ?>
      * @return <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getConfig(): <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>;
+    public function getConfig(): <?php echo $versionConfigInterface->getEntityName(); ?>;
 
     /**
      * Must return the type map class for this version
@@ -80,6 +80,6 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION; ?>
      * @return <?php echo $versionTypeMapInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getTypeMap(): <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>;
+    public function getTypeMap(): <?php echo $versionTypeMapInterface->getEntityName(); ?>;
 }
 <?php return ob_get_clean();

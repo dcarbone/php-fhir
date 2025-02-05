@@ -78,6 +78,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
             $config = new <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>(
                 libxmlOpts: $config['libxmlOpts'] ?? null,
                 jsonDecodeMaxDepth: $config['jsonDecodeMaxDepth'] ?? null,
+                jsonDecodeOpts: $config['jsonDecodeOpts'] ?? null,
             );
         }
         $this->_unserializeConfig = $config;

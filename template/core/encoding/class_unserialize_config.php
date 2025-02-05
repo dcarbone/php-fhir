@@ -33,9 +33,12 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     private int $_libxmlOpts = <?php echo PHPFHIR_DEFAULT_LIBXML_OPT_MASK; ?>;
     /** @var int */
     private int $_jsonDecodeMaxDepth = 512;
+    /** @var int */
+    private int $_jsonDecodeOpts = <?php echo PHPFHIR_DEFAULT_JSON_DECODE_OPT_MASK; ?>;
 
     public function __construct(null|int $libxmlOpts = null,
-                                null|int $jsonDecodeMaxDepth = null)
+                                null|int $jsonDecodeMaxDepth = null,
+                                null|int $jsonDecodeOpts = null)
     {
         if (null !== $libxmlOpts) {
             $this->setLibxmlOpts($libxmlOpts);
@@ -43,9 +46,16 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
         if (null !== $jsonDecodeMaxDepth) {
             $this->setJSONDecodeMaxDepth($jsonDecodeMaxDepth);
         }
+        if (null !== $jsonDecodeOpts) {
+            $this->setJSONDecodeOpts($jsonDecodeOpts);
+        }
     }
 
     /**
+     * The option mask to use when decoding serialied XML.
+     *
+     * @see https://www.php.net/manual/en/libxml.constants.php for details.
+     *
      * @param int $libxmlOpts
      * @return self
      */
@@ -64,6 +74,8 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     }
 
     /**
+     * Maximum depth of nested
+     *
      * @param int $jsonDecodeMaxDepth
      * @return self
      */
@@ -79,6 +91,30 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     public function getJSONDecodeMaxDepth(): int
     {
         return $this->_jsonDecodeMaxDepth;
+    }
+
+    /**
+     * The option mask to use when decoding serialized JSON.
+     *
+     * @see https://www.php.net/manual/en/json.constants.php under the "json_decode" section for details.
+     *
+     * @param int $jsonDecodeOpts JSON decode options mask
+     * @return self
+     */
+    public function setJSONDecodeOpts(int $jsonDecodeOpts): self
+    {
+        $this->_jsonDecodeOpts = $jsonDecodeOpts;
+        return $this;
+    }
+
+    /**
+     * Return the current option mask to use when decoding serialized JSON
+     *
+     * @return int
+     */
+    public function getJSONDecodeOpts(): int
+    {
+        return $this->_jsonDecodeOpts;
     }
 }
 <?php return ob_get_clean();
