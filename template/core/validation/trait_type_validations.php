@@ -128,7 +128,7 @@ trait <?php echo $coreFile->getEntityName(); ?>
         foreach ($this->_getCombinedValidationRules() as $field => $rules) {
             $v = $this->{$field} ?? null;
             foreach ($rules as $rule => $constraint) {
-                $err = <?php echo $validatorClass->getEntityName(); ?>::validateField(self::FHIR_TYPE_NAME, $field, $rule, $constraint, $v);
+                $err = <?php echo $validatorClass->getEntityName(); ?>::validateField($this, $field, $rule, $constraint, $v);
                 if (null !== $err) {
                     if (!isset($errs[$field])) {
                         $errs[$field] = [];
