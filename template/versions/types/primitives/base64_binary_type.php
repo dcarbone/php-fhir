@@ -32,39 +32,39 @@ ob_start(); ?>
     {
         if (null === $value) {
             unset($this->value);
-            return $this;
-        }
-        if (is_string($value)) {
+        } else {
             $this->value = $value;
-            return $this;
         }
-        if ($value instanceof \DateTimeInterface) {
-            $this->value = $value->format(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT);
-            return $this;
-        }
-        throw new \InvalidArgumentException(sprintf('$value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
+        return $this;
     }
 
     /**
-     * @return null|\DateTimeInterface
+     * Will attempt to write the base64-decoded contents of the internal value to the provided file handle
+     *
+     * @param resource $fileHandle
+     * @return int|false
      */
-    public function getDateTime(): null|\DateTimeInterface
+    public function writeToFile($fileHandle): int|bool
     {
         if (!isset($this->value)) {
-            return null;
+            return 0;
         }
-        $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT, $this->value);
-        if (!($dt instanceof \DateTime)) {
-            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $this->value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT));
-        }
-        return $dt;
+        return fwrite($fileHandle, base64_decode($this->value));
     }
 
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        return (string)$this->getValue();
+        return (string)($this->value ?? '');
+    }
+
+    /**
+     * @return string
+     */
+    public function jsonSerialize(): string
+    {
+        return $this->value ?? '';
     }
 <?php return ob_get_clean();

@@ -20,7 +20,6 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
 $config = $version->getConfig();

@@ -33,6 +33,7 @@ ob_start(); ?>
         if (null === $value) {
             unset($this->value);
         } elseif (is_string($value)) {
+            $this->_jsonAsString = true;
             $this->value = <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_TRUE === strtolower($value);
         } else {
             $this->value = (bool)$value;
@@ -43,8 +44,20 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        return $this->getValue() ? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_TRUE : <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_FALSE;
+        return ($this->value ?? false)
+            ? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_TRUE
+            : <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_FALSE;
+    }
+
+    public function jsonSerialize(): bool|string
+    {
+        if ($this->_jsonAsString) {
+            return ($this->value ?? false)
+                ? <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_TRUE
+                : <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::STRING_FALSE;
+        }
+        return $this->value ?? false;
     }
 <?php return ob_get_clean();

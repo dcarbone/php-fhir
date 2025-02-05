@@ -32,17 +32,44 @@ ob_start(); ?>
     {
         if (null === $value) {
             unset($this->value);
-        } else {
-            $this->value = $value;
+            return $this;
         }
-        return $this;
+        if (is_string($value)) {
+            $this->value = $value;
+            return $this;
+        }
+        if ($value instanceof \DateTimeInterface) {
+            $this->value = $value->format(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_INSTANT);
+            return $this;
+        }
+        throw new \InvalidArgumentException(sprintf('Value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
+    }
+
+    /**
+     * @return null|\DateTimeInterface
+     */
+    public function _getValueAsDateTime(): null|\DateTimeInterface
+    {
+        if (!isset($this->value)) {
+            return null;
+        }
+        $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_INSTANT, $this->value);
+        if (!($dt instanceof \DateTime)) {
+            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $this->value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_INSTANT));
+        }
+        return $dt;
     }
 
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
         return (string)$this->getValue();
+    }
+
+    public function jsonSerialize(): string
+    {
+        return $this->value ?? '';
     }
 <?php return ob_get_clean();

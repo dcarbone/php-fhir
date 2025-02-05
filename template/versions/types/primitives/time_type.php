@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-// TODO: use big numbers library here..
-
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -26,9 +24,6 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
-    /** @var bool */
-    private bool $_commas = false;
-
     /**
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
      * @return static
@@ -37,45 +32,44 @@ ob_start(); ?>
     {
         if (null === $value) {
             unset($this->value);
-            $this->_commas = false;
             return $this;
         }
-        if (is_float($value)) {
-            $value = intval($value);
+        if (is_string($value)) {
+            $this->value = $value;
+            return $this;
         }
-        if (is_int($value)) {
-            if (0 > $value) {
-                throw new \OutOfBoundsException(sprintf('Value must be >= 0, %d seen.', $value));
-            }
-            $value = (string)$value;
-            $this->_commas = false;
-        } else if (is_string($value)) {
-            if ('' === $value) {
-                $value = '0';
-            }
-            if ($this->_commas = str_contains($value, ',')) {
-                $value = str_replace(',', '', $value);
-            }
-            if (!ctype_digit($value)) {
-                throw new \InvalidArgumentException(sprintf('Value must be null, positive integer, or string representation of positive integer, "%s" seen.', gettype($value)));
-            }
+        if ($value instanceof \DateTimeInterface) {
+            $this->value = $value->format(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT);
+            return $this;
         }
-        $this->value = $value;
-        return $this;
+        throw new \InvalidArgumentException(sprintf('$value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
+    }
+
+    /**
+     * @return null|\DateTimeInterface
+     */
+    public function _getValueAsDateTime(): null|\DateTimeInterface
+    {
+        if (!isset($this->value)) {
+            return null;
+        }
+        $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT, $this->value);
+        if (!($dt instanceof \DateTime)) {
+            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $this->value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::TIME_FORMAT));
+        }
+        return $dt;
     }
 
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        $v = $this->getValue();
-        if (null === $v) {
-            return '0';
-        }
-        if ($this->_commas) {
-            return strrev(wordwrap(strrev((string)$v), 3, ',', true));
-        }
-        return (string)$v;
+        return (string)$this->getValue();
+    }
+
+    public function jsonSerialize(): string
+    {
+        return $this->value ?? '';
     }
 <?php return ob_get_clean();

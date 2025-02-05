@@ -48,7 +48,7 @@ ob_start(); ?>
     /**
      * @return null|\DateTimeInterface
      */
-    public function getDateTime(): null|\DateTimeInterface
+    public function _getValueAsDateTime(): null|\DateTimeInterface
     {
         if (!isset($this->value)) {
             return null;
@@ -81,8 +81,13 @@ ob_start(); ?>
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        return (string)$this->getValue();
+        return $this->value ?? '';
+    }
+
+    public function jsonSerialize(): string
+    {
+        return $this->value ?? '';
     }
 <?php return ob_get_clean();

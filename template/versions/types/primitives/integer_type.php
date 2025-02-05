@@ -22,10 +22,11 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
+/** @var string $typeClassName */
 
 ob_start(); ?>
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true); ?> $value
      * @return static
      */
     public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value): self
@@ -34,37 +35,36 @@ ob_start(); ?>
             unset($this->value);
             return $this;
         }
-        if (is_string($value)) {
-            $this->value = $value;
-            return $this;
+        $this->_jsonAsString = is_string($value);
+        if (is_float($value)) {
+            $this->value = (string)intval($value);
+        } else {
+            $this->value = (string)$value;
         }
-        if ($value instanceof \DateTimeInterface) {
-            $this->value = $value->format(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_INSTANT);
-            return $this;
-        }
-        throw new \InvalidArgumentException(sprintf('Value must be null, string, or instance of \\DateTimeInterface, %s seen.', gettype($value)));
+        return $this;
     }
 
-    /**
-     * @return null|\DateTimeInterface
-     */
-    public function getDateTime(): null|\DateTimeInterface
+    public function _getValueAsInteger(): null|int
     {
-        if (!isset($this->value)) {
-            return null;
+        if (isset($this->value)) {
+            return intval($this->value);
         }
-        $dt = \DateTime::createFromFormat(<?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_INSTANT, $this->value);
-        if (!($dt instanceof \DateTime)) {
-            throw new \UnexpectedValueException(sprintf('Unable to parse value "%s" into \DateTime instance with expected format "%s"', $this->value, <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::DATE_FORMAT_INSTANT));
-        }
-        return $dt;
+        return null;
     }
 
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        return (string)$this->getValue();
+        return $this->value ?? '';
+    }
+
+    public function jsonSerialize(): int|string
+    {
+        if ($this->_jsonAsString) {
+            return $this->value ?? '';
+        }
+        return intval($this->value ?? '0');
     }
 <?php return ob_get_clean();

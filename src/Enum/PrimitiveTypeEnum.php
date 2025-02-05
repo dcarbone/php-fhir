@@ -97,8 +97,7 @@ enum PrimitiveTypeEnum: string
     {
         return match ($hint = $this->getPHPValueTypes()) {
             'boolean' => 'bool',
-            'double' => 'float',
-            'integer' => 'int',
+            'double', 'integer' => 'string',
             default => $hint,
         };
     }
@@ -126,7 +125,7 @@ enum PrimitiveTypeEnum: string
 
             // floats may stem from integers
             case PrimitiveTypeEnum::DECIMAL:
-                $hintTypes[] = 'int';
+                array_push($hintTypes, 'int', 'float');
                 break;
 
             // integers may stem from floats

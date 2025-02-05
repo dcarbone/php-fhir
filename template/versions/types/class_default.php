@@ -21,8 +21,11 @@ use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
-/** @var \DCarbone\PHPFHIR\Version\Definition\Types $types */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
+
+if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) {
+    throw new \LogicException(sprintf('Cannot use template %s for Type "%s"', __FILE__, $type->getFHIRName()));
+}
 
 $coreFiles = $version->getConfig()->getCoreFiles();
 
@@ -88,7 +91,7 @@ endforeach; ?>
 endif;
 // -- end property validation rules
 
-if (!$type->isPrimitiveType() && !$type->hasPrimitiveTypeParent() && $type->hasNonOverloadedProperties()) :
+if (!$type->hasPrimitiveTypeParent() && $type->hasNonOverloadedProperties()) :
     // -- start xml location array definition
 ?>
 
@@ -168,25 +171,13 @@ if (!$type->hasPrimitiveTypeParent() && $type->hasNonOverloadedProperties()) :
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
-    // primitive types are different enough to warrant their own template.
-    if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) :
-        echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . '/methods/primitive.php',
-            [
-                'version' => $version,
-                'type' => $type
-            ]
-        );
-    else :
-        echo require_with(
-            PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . '/methods/default.php',
-            [
-                'version' => $version,
-                'type' => $type,
-            ]
-        );
-    endif;
-
+    echo require_with(
+        PHPFHIR_TEMPLATE_VERSION_TYPES_PROPERTIES_DIR . '/methods/default.php',
+        [
+            'version' => $version,
+            'type' => $type,
+        ]
+    );
     // --- end property methods
 endif;
 
@@ -208,7 +199,7 @@ if (!$type->isAbstract()) :
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
 <?php
 
-    if (!$type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) :
+    if (!$type->hasPrimitiveTypeParent()) :
         echo require_with(
             PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml.php',
             [
@@ -216,21 +207,20 @@ if (!$type->isAbstract()) :
                 'type'     => $type,
             ]
         );
+
+        echo "\n";
+
+        echo require_with(
+            PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',
+            [
+                'version' => $version,
+                'type' => $type,
+            ]
+        );
     endif;
-
-    echo "\n";
-
-    echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json.php',
-        [
-            'version' => $version,
-            'type' => $type,
-        ]
-    );
-
 endif;
 
-if (null === $type->getParentType()) : ?>
+if (null === $type->getParentType() && !$type->hasPrimitiveTypeParent()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**
@@ -239,8 +229,8 @@ if (null === $type->getParentType()) : ?>
     public function __toString(): string
     {
 <?php
-    if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
-        return $this->_getFormattedValue();
+    if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>
+        return $this->_getValueAsString();
 <?php
     else : ?>
         return self::FHIR_TYPE_NAME;

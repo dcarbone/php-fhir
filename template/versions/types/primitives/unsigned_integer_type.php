@@ -16,61 +16,48 @@
  * limitations under the License.
  */
 
+// TODO: use big numbers library here..
+
 use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
-/** @var string $typeClassName */
 
 ob_start(); ?>
-    /** @var bool */
-    private bool $_commas = false;
-
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
      * @return static
      */
     public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value): self
     {
         if (null === $value) {
             unset($this->value);
-            $this->_commas = false;
             return $this;
         }
+        $this->_jsonAsString = is_string($value);
         if (is_float($value)) {
-            $value = intval($value);
-        } else if (is_string($value)) {
-            if ('' === $value) {
-                $value = '0';
-            }
-            $neg = 1;
-            if ('-' === $value[0]) {
-                $neg = -1;
-                $value = substr($value, 1);
-            }
-            if ($this->_commas = str_contains($value, ',')) {
-                $value = str_replace(',', '', $value);
-            }
-            $value = $neg * intval($value);
+            $this->value = (string)intval($value);
+        } else {
+            $this->value = (string)$value;
         }
-        $this->value = $value;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        $v = $this->getValue();
-        if (null === $v) {
-            return '0';
+        return $this->value ?? '';
+    }
+
+    public function jsonSerialize(): int|string
+    {
+        if ($this->_jsonAsString) {
+            return $this->value ?? '';
         }
-        if ($this->_commas) {
-            return strrev(wordwrap(strrev((string)$v), 3, ',', true));
-        }
-        return (string)$v;
+        return intval($this->value ?? 0);
     }
 <?php return ob_get_clean();

@@ -35,9 +35,9 @@ trait <?php echo $coreFile->getEntityName(); ?>
      *
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        return isset($this->value) ? $this->value->_getFormattedValue() : '';
+        return isset($this->value) ? $this->value->_getValueAsString() : '';
     }
 }
 <?php return ob_get_clean();

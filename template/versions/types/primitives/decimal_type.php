@@ -24,39 +24,56 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
+
     /**
-     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
+     * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true); ?> $value
      * @return static
      */
     public function setValue(<?php echo TypeHintUtils::typeSetterTypeHint($version, $type, true); ?> $value): self
     {
         if (null === $value) {
             unset($this->value);
+            return $this;
+        }
+        $this->_jsonAsString = is_string($value);
+        if (is_float($value)) {
+            $str = serialize($value);
+            $this->value = substr($str, 2, strlen($str) - 3);
         } else {
-            $this->value = $value;
+            $this->value = (string)$value;
         }
         return $this;
     }
 
     /**
-     * Will attempt to write the base64-decoded contents of the internal value to the provided file handle
+     * Return the float representation of this value.
      *
-     * @param resource $fileHandle
-     * @return int|false
+     * WARNING: This is subject to rounding errors.
+     * @see https://www.php.net/manual/en/language.types.float.php
+     *
+     * @return null|float
      */
-    public function writeToFile($fileHandle): int|bool
+    public function _getValueAsFloat(): null|float
     {
-        if (!isset($this->value)) {
-            return 0;
+        if (isset($this->value)) {
+            return (float)$this->value;
         }
-        return fwrite($fileHandle, base64_decode($this->value));
+        return null;
     }
 
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        return (string)$this->getValue();
+        return $this->value ?? '';
+    }
+
+    public function jsonSerialize(): float|string
+    {
+        if ($this->_jsonAsString) {
+            return $this->value ?? '';
+        }
+        return (float)($this->value ?? 0.0);
     }
 <?php return ob_get_clean();

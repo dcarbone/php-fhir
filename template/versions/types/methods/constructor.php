@@ -26,7 +26,6 @@ $valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENU
 
 $typeKind = $type->getKind();
 $typeClassName = $type->getClassName();
-$typeImports = $type->getImports();
 
 $parentType = $type->getParentType();
 $properties = $type->getProperties();

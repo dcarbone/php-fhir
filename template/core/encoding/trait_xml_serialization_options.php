@@ -71,11 +71,20 @@ trait <?php echo $coreFile->getEntityName(); ?>
     /**
      * Returns the value serialization target for the given field's value on this type.
      *
-     * @return true
+     * @return <?php echo $valueXMLLocationEnum->getFullyQualifiedName(true); ?>
+
+     * @throws \DomainException
      */
     public function _getXMLFieldValueLocation(string $field): <?php echo $valueXMLLocationEnum->getEntityName(); ?>
 
     {
+        if (!isset($this->_valueXMLLocations[$field])) {
+            throw new \DomainException(sprintf(
+                'Field "%s" on Type "%s" does not contain a value that is serializable as an attribute',
+                $field,
+                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+            ));
+        }
         return $this->_valueXMLLocations[$field];
     }
 }

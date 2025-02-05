@@ -24,12 +24,6 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum $primitiveType */
 
 ob_start(); ?>
-    /** @var int */
-    private int $_decimals = 1;
-
-    /** @var bool */
-    private bool $_commas = false;
-
     /**
      * @param <?php echo TypeHintUtils::primitivePHPValueTypeSetterDoc($version, $primitiveType, true, false); ?> $value
      * @return static
@@ -38,33 +32,22 @@ ob_start(); ?>
     {
         if (null === $value) {
             unset($this->value);
-            $this->_decimals = 1;
-            $this->_commas = false;
-            return $this;
-        }
-        $str = (string)$value;
-        $dec = strstr($str, '.');
-        if ($this->_commas = str_contains($str, ',')) {
-            $str = str_replace(',', '', $str);
-        }
-        if (false === $dec) {
-            $this->_decimals = 0;
         } else {
-            $this->_decimals = strlen($dec) - 1;
+            $this->value = $value;
         }
-        $this->value = floatval($str);
         return $this;
     }
 
     /**
      * @return string
      */
-    public function _getFormattedValue(): string
+    public function _getValueAsString(): string
     {
-        $v = $this->getValue();
-        if (null === $v) {
-            return '0.0';
-        }
-        return number_format($v, $this->_decimals, '.', $this->_commas ? ',' : '');
+        return (string)$this->getValue();
+    }
+
+    public function jsonSerialize(): string
+    {
+        return $this->value ?? '';
     }
 <?php return ob_get_clean();

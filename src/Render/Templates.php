@@ -61,6 +61,8 @@ abstract class Templates
     {
         if ($type->getKind()->isResourceContainer($version)) {
             return require sprintf('%s/class_resource_container.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
+        } else if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) {
+            return require sprintf('%s/class_primitive.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
         }
         return require sprintf('%s/class_default.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
     }
