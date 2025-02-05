@@ -35,8 +35,6 @@ final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     // Common
     public const JSON_FIELD_RESOURCE_TYPE = 'resourceType';
     public const JSON_FIELD_FHIR_COMMENTS = 'fhir_comments';
-    public const STRING_TRUE = 'true';
-    public const STRING_FALSE = 'false';
 
     // Date and time formats
     public const DATE_FORMAT_YEAR = '<?php echo PHPFHIR_DATE_FORMAT_YEAR; ?>';
@@ -47,14 +45,6 @@ final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     public const TIME_FORMAT = '<?php echo PHPFHIR_TIME_FORMAT; ?>';
 
     public const UNLIMITED = -1;
-
-    // Validation
-    public const <?php echo PHPFHIR_VALIDATION_ENUM_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_ENUM; ?>';
-    public const <?php echo PHPFHIR_VALIDATION_MIN_LENGTH_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_MIN_LENGTH; ?>';
-    public const <?php echo PHPFHIR_VALIDATION_MAX_LENGTH_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_MAX_LENGTH; ?>';
-    public const <?php echo PHPFHIR_VALIDATION_PATTERN_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_PATTERN; ?>';
-    public const <?php echo PHPFHIR_VALIDATION_MIN_OCCURS_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_MIN_OCCURS; ?>';
-    public const <?php echo PHPFHIR_VALIDATION_MAX_OCCURS_NAME; ?> = '<?php echo PHPFHIR_VALIDATION_MAX_OCCURS; ?>';
 }
 <?php
 return ob_get_clean();

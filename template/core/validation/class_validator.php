@@ -24,14 +24,26 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
-$constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
+$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_VALIDATION_RULE);
+
+$enumRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF);
+$minLengthRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MIN_LENGTH);
+$maxLengthRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MAX_LENGTH);
+$patternRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH);
+$minOccursRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS);
+$maxOccursRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MAX_OCCURS);
 
 $imports->addCoreFileImports(
-    $constantsClass,
     $typeInterface,
-    $primitiveTypeInterface,
+    $validationRuleInterface,
+
+    $enumRuleClass,
+    $minLengthRuleClass,
+    $maxLengthRuleClass,
+    $patternRuleClass,
+    $minOccursRuleClass,
+    $maxOccursRuleClass,
 );
 
 ob_start();
@@ -43,173 +55,73 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR; ?>
+class <?php echo $coreFile->getEntityName(); ?>
 
 {
     /**
-     * Asserts that a given collection field is of a specific minimum length
+     * Map of rules, keyed by name.
      *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $fieldName
-     * @param int $expected
-     * @param null|array|<?php echo $primitiveTypeInterface->getFullyQualifiedName(true); ?> $value
-     * @return null|string
+     * @var <?php echo $validationRuleInterface->getFullyQualifiedName(true); ?>[]
      */
-    public static function assertMinOccurs(<?php echo $typeInterface->getEntityName(); ?> $type, string $fieldName, int $expected, null|array|<?php echo $primitiveTypeInterface->getEntityName(); ?> $value): null|string
+    protected static array $_rules = [];
+
+    private static bool $_initialized = false;
+
+    /**
+     * Define a validation rule.  Will overwrite any pre-existing rule with the same name.
+     *
+     * @param <?php echo $validationRuleInterface->getFullyQualifiedName(true); ?> $rule
+     */
+    public static function setRule(<?php echo $validationRuleInterface->getEntityName(); ?> $rule): void
     {
-        if (0 >= $expected || (1 === $expected && $value instanceof <?php echo $typeInterface->getEntityName(); ?>)) {
-            return null;
-        }
-        if (null === $value || [] === $value) {
-            return sprintf('Field "%s" on type "%s" must have at least %d elements, but it is empty', $fieldName, $type->_getFHIRTypeName(), $expected);
-        }
-        $len = count($value);
-        if ($expected > $len) {
-            return sprintf('Field "%s" on type "%s" must have at least %d elements, %d seen.', $fieldName, $type->_getFHIRTypeName(), $expected, $len);
-        }
-        return null;
+        self::_init();
+        self::$_rules[$rule->getName()] = $rule;
     }
 
     /**
-     * Asserts that a given collection field has no more than the specified number of elements
-     *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $fieldName
-     * @param int $expected
-     * @param null|array|<?php echo $typeInterface->getFullyQualifiedName(true); ?> $value
-     * @return null|string
+     * Return the current map of rules
+     * @return <?php echo $validationRuleInterface->getFullyQualifiedName(true); ?>[]
      */
-    public static function assertMaxOccurs(<?php echo $typeInterface->getEntityName(); ?> $type, string $fieldName, int $expected, null|array|<?php echo $typeInterface->getEntityName(); ?> $value): null|string
+    public static function getRules(): array
     {
-        if (<?php echo $constantsClass->getEntityName(); ?>::UNLIMITED === $expected || null === $value || [] === $value || $value instanceof <?php echo $typeInterface->getEntityName(); ?>) {
-            return null;
-        }
-        $len = count($value);
-        if ($expected >= $len) {
-            return null;
-        }
-        return sprintf('Field "%s" on type "%s" must have no more than %d elements, %d seen', $fieldName, $type->_getFHIRTypeName(), $expected, $len);
-    }
-
-    /**
-     * Asserts that a given string value is at least x characters long
-     *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $fieldName
-     * @param int $expected
-     * @param null|string $value
-     * @return null|string
-     */
-    public static function assertMinLength(<?php echo $typeInterface->getEntityName(); ?> $type, string $fieldName, int $expected, null|string $value): null|string
-    {
-        if (0 >= $expected) {
-            return null;
-        }
-        if (null === $value || '' === $value) {
-            return sprintf('Field "%s" on type "%s" must be at least %d characters long, but it is empty', $fieldName, $type->_getFHIRTypeName(), $expected);
-        }
-        $len = strlen($value);
-        if ($expected <= $len) {
-            return null;
-        }
-        return sprintf('Field "%s" on type "%s" must be at least %d characters long, %d seen.', $fieldName, $type->_getFHIRTypeName(), $expected, $len);
-    }
-
-    /**
-     * Asserts that a given string value is no more than x characters long
-     *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $fieldName
-     * @param int $expected
-     * @param null|string $value
-     * @return null|string
-     */
-    public static function assertMaxLength(<?php echo $typeInterface->getEntityName(); ?> $type, string $fieldName, int $expected, null|string $value): null|string
-    {
-        if (<?php echo $constantsClass->getEntityName(); ?>::UNLIMITED === $expected || null === $value || '' === $value) {
-            return null;
-        }
-        $len = strlen($value);
-        if ($expected >= $len) {
-            return null;
-        }
-        return sprintf('Field "%s" on type "%s" must be no more than %d characters long, %d seen', $fieldName, $type->_getFHIRTypeName(), $expected, $len);
-    }
-
-    /**
-     * Asserts that a given value is within the expected list of values
-     *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $fieldName
-     * @param array $expected
-     * @param mixed $value
-     * @return null|string
-     */
-    public static function assertValueInEnum(<?php echo $typeInterface->getEntityName(); ?> $type, string $fieldName, array $expected, mixed $value): null|string
-    {
-        if ([] === $expected || in_array($value, $expected, true)) {
-            return null;
-        }
-        return sprintf(
-            'Field "%s" on type "%s" value "%s" not in allowed list: [%s]',
-            $fieldName,
-            $type->_getFHIRTypeName(),
-            var_export($value, true),
-            implode(
-                ', ',
-                array_map(
-                    function($v) { return var_export($v, true); },
-                    $expected
-                )
-            )
-        );
-    }
-
-    /**
-     * Asserts that a given string value matches the specified pattern
-     *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $fieldName
-     * @param string $pattern
-     * @param null|string|<?php echo $primitiveTypeInterface->getFullyQualifiedName(true); ?> $value
-     * @return null|string
-     */
-    public static function assertPatternMatch(<?php echo $typeInterface->getEntityName(); ?> $type, string $fieldName, string $pattern, null|string|<?php echo PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE ?> $value): null|string
-    {
-        if ('' === $pattern || null === $value) {
-            return null;
-        }
-        if ($value instanceof <?php echo $primitiveTypeInterface->getEntityName(); ?>) {
-            $value = (string)$value;
-        }
-        if ('' === $value || (bool)preg_match($pattern, $value)) {
-            return null;
-        }
-        return sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $fieldName, $type->_getFHIRTypeName(), $value, $pattern);
+        self::_init();
+        return self::$_rules;
     }
 
     /**
      * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $fieldName
-     * @param string $rule
+     * @param string $field
+     * @param string|<?php echo $validationRuleInterface->getFullyQualifiedName(true); ?> $rule Name of registered validation rule, or a specific rule instance to run.
      * @param mixed $constraint
      * @param mixed $value
      * @return null|string
      */
-    public static function validateField(<?php echo $typeInterface->getEntityName(); ?> $type, string $fieldName, string $rule, mixed $constraint, mixed $value): null|string
+    public static function validateField(<?php echo $typeInterface->getEntityName(); ?> $type,
+                                         string $field,
+                                         string|<?php echo $validationRuleInterface->getEntityName(); ?> $rule,
+                                         mixed $constraint,
+                                         mixed $value): null|string
     {
-        if (null === $constraint) {
-            return null;
+        if ($rule instanceof <?php echo $validationRuleInterface->getEntityName(); ?>) {
+            return $rule->assert($type, $field, $constraint, $value);
         }
-        return match ($rule) {
-            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_ENUM => static::assertValueInEnum($type, $fieldName, $constraint, $value),
-            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_MIN_LENGTH => static::assertMinLength($type, $fieldName, $constraint, $value),
-            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_MAX_LENGTH => static::assertMaxLength($type, $fieldName, $constraint, $value),
-            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_MIN_OCCURS => static::assertMinOccurs($type, $fieldName, $constraint, $value),
-            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_MAX_OCCURS => static::assertMaxOccurs($type, $fieldName, $constraint, $value),
-            <?php echo $constantsClass->getEntityName(); ?>::VALIDATE_PATTERN => static::assertPatternMatch($type, $fieldName, $constraint, $value),
-            default => sprintf('Type "%s" specifies unknown validation for field "%s": Name "%s"; Constraint "%s"', $type, $fieldName, $rule, var_export($constraint, true)),
-        };
+        self::_init();
+        if (isset(self::$_rules[$rule])) {
+            return self::$_rules[$rule]->assert($type, $field, $constraint, $value);
+        }
+    }
+
+    private static function _init(): void
+    {
+        if (self::$_initialized) {
+            return;
+        }
+        self::setRule(new <?php echo $enumRuleClass->getEntityName(); ?>());
+        self::setRule(new <?php echo $minLengthRuleClass->getEntityName(); ?>());
+        self::setRule(new <?php echo $maxLengthRuleClass->getEntityName(); ?>());
+        self::setRule(new <?php echo $patternRuleClass->getEntityName(); ?>());
+        self::setRule(new <?php echo $minOccursRuleClass->getEntityName(); ?>());
+        self::setRule(new <?php echo $maxOccursRuleClass->getEntityName(); ?>());
     }
 }
 <?php return ob_get_clean();

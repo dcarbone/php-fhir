@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Version;
+use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
 class ImportUtils
@@ -38,14 +39,73 @@ class ImportUtils
         return implode("\n", $stmts) . "\n";
     }
 
+    public static function buildPropertyValidationRuleImports(Type $type, Property $property): void
+    {
+        $imports = $type->getImports();
+
+        foreach($property->buildValidationMap($type) as $ruleClass => $_) {
+            $imports->addCoreFileImportsByName($ruleClass);
+        }
+    }
+
+    public static function buildTypePropertiesImports(Version $version, Type $type): void
+    {
+        $imports = $type->getImports();
+
+        foreach ($type->getAllPropertiesIndexedIterator() as $property) {
+            self::buildPropertyValidationRuleImports($type, $property);
+
+            $propertyType = $property->getValueFHIRType();
+            if (null === $propertyType) {
+                continue;
+            }
+
+            if ($property->isSerializableAsXMLAttribute()) {
+                $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
+            }
+
+            $ptk = $propertyType->getKind();
+
+//            if (null !== $property->getOverloadedProperty() && !$ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
+//                continue;
+//            }
+
+            if ($ptk->isResourceContainer($version)) {
+                $containerType = $version->getDefinition()->getTypes()->getContainerType();
+                $imports->addImport(
+                    $containerType->getFullyQualifiedNamespace(false),
+                    $containerType->getClassName(),
+                );
+
+                $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
+                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
+                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
+                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION);
+            } else {
+                $valProp = match (true) {
+                    $propertyType->isPrimitiveContainer() => $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME),
+                    $propertyType->hasPrimitiveContainerParent() => $propertyType->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME),
+                    default => null,
+                };
+
+                if (null !== $valProp) {
+                    $valType = $valProp->getValueFHIRType();
+                    $imports->addImport($valType->getFullyQualifiedNamespace(false), $valType->getClassName());
+                }
+
+                $imports->addImport(
+                    $propertyType->getFullyQualifiedNamespace(false),
+                    $propertyType->getClassName(),
+                );
+            }
+        }
+    }
+
     public static function buildVersionPrimitiveTypeImports(Version $version, Type $type): void
     {
         $imports = $type->getImports();
 
         $imports
-            ->addCoreFileImportsByName(
-                PHPFHIR_CLASSNAME_CONSTANTS,
-            )
             ->addVersionCoreFileImportsByName(
                 $version,
                 PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS,
@@ -58,6 +118,8 @@ class ImportUtils
         } else {
             $imports->addVersionTypeImports($type->getParentType());
         }
+
+        self::buildTypePropertiesImports($version, $type);
     }
 
     public static function buildVersionTypeImports(Version $version, Type $type): void
@@ -154,50 +216,6 @@ class ImportUtils
             );
         }
 
-        foreach ($type->getAllPropertiesIndexedIterator() as $property) {
-            $propertyType = $property->getValueFHIRType();
-            if (null === $propertyType) {
-                continue;
-            }
-
-            if ($property->isSerializableAsXMLAttribute()) {
-                $imports->addCoreFileImportsByName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
-            }
-
-            $ptk = $propertyType->getKind();
-
-//            if (null !== $property->getOverloadedProperty() && !$ptk->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::LIST)) {
-//                continue;
-//            }
-
-            if ($ptk->isResourceContainer($type->getVersion())) {
-                $containerType = $version->getDefinition()->getTypes()->getContainerType();
-                $imports->addImport(
-                    $containerType->getFullyQualifiedNamespace(false),
-                    $containerType->getClassName(),
-                );
-
-                $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
-                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
-                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
-                $imports->addVersionCoreFileImportsByName($type->getVersion(), PHPFHIR_VERSION_CLASSNAME_VERSION);
-            } else {
-                $valProp = match (true) {
-                    $propertyType->isPrimitiveContainer() => $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME),
-                    $propertyType->hasPrimitiveContainerParent() => $propertyType->getParentProperty(PHPFHIR_VALUE_PROPERTY_NAME),
-                    default => null,
-                };
-
-                if (null !== $valProp) {
-                    $valType = $valProp->getValueFHIRType();
-                    $imports->addImport($valType->getFullyQualifiedNamespace(false), $valType->getClassName());
-                }
-
-                $imports->addImport(
-                    $propertyType->getFullyQualifiedNamespace(false),
-                    $propertyType->getClassName(),
-                );
-            }
-        }
+        self::buildTypePropertiesImports($version, $type);
     }
 }

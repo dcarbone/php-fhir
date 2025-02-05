@@ -80,7 +80,7 @@ endif;
 
         self::<?php echo $property->getFieldConstantName(); ?> => [
 <?php       foreach($validationMap as $k => $v) : ?>
-            <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>::<?php echo $k; ?> => <?php echo pretty_var_export($v, 3); ?>,
+            <?php echo $k; ?>::NAME => <?php echo pretty_var_export($v, 3); ?>,
 <?php       endforeach; ?>
         ],<?php
         endif;

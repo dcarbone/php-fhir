@@ -444,7 +444,7 @@ class Property
         }
 
         if (null !== $pattern) {
-            $map[PHPFHIR_VALIDATION_PATTERN_NAME] = '/^' . addcslashes($pattern, '/\'') . '$/';
+            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH] = '/^' . addcslashes($pattern, '/\'') . '$/';
         }
 
         $minOccurs = $this->getMinOccurs();
@@ -453,28 +453,28 @@ class Property
         $maxlength = $memberOf->getMaxLength();
 
         if (0 < $minOccurs) {
-            $map[PHPFHIR_VALIDATION_MIN_OCCURS_NAME] = $minOccurs;
+            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS] = $minOccurs;
         }
         if (null !== $maxOccurs && PHPFHIR_UNLIMITED !== $maxOccurs && 1 < $maxOccurs) {
-            $map[PHPFHIR_VALIDATION_MAX_OCCURS_NAME] = $maxOccurs;
+            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_MAX_OCCURS] = $maxOccurs;
         }
 
         if (0 < $minLength) {
-            $map[PHPFHIR_VALIDATION_MIN_LENGTH_NAME] = $minLength;
+            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MIN_LENGTH] = $minLength;
         }
         if (PHPFHIR_UNLIMITED !== $maxlength) {
-            $map[PHPFHIR_VALIDATION_MAX_LENGTH_NAME] = $maxlength;
+            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MAX_LENGTH] = $maxlength;
         }
 
         if ($memberOf->isEnumerated()) {
-            $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
+            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF] = [];
             foreach ($memberOf->getEnumeration()->getIterator() as $enum) {
-                $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
+                $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF][] = $enum->getValue();
             }
         } else if ($this->isValueProperty() && $local->isEnumerated()) {
-            $map[PHPFHIR_VALIDATION_ENUM_NAME] = [];
+            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF] = [];
             foreach ($local->getEnumeration()->getIterator() as $enum) {
-                $map[PHPFHIR_VALIDATION_ENUM_NAME][] = $enum->getValue();
+                $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF][] = $enum->getValue();
             }
         }
 
