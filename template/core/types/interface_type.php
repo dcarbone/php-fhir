@@ -26,7 +26,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends \JsonSerializable
+interface <?php echo $coreFile; ?> extends \JsonSerializable
 {
     /**
      * Returns the FHIR name represented by this Type

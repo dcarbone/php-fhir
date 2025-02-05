@@ -26,7 +26,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-trait <?php echo $coreFile->getEntityName(); ?>
+trait <?php echo $coreFile; ?>
 
 {
     /** @var array */

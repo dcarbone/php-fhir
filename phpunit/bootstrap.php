@@ -19,7 +19,8 @@
 const PHPFHIR_TEST_CONFIG_ROOT_DIR = __DIR__;
 const PHPFHIR_TEST_CONFIG_FILE = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/config.php';
 const PHPFHIR_TEST_COMPOSER_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../vendor/autoload.php';
-const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/src/DCarbone/PHPFHIRGenerated/Autoloader.php';
+const PHPFHIR_TEST_GENERATED_TEST_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/tests/Tests/DCarbone/PHPFHIRGenerated/TestAutoloader.php';
+const PHPFHIR_TEST_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/../output/src/DCarbone/PHPFHIRGenerated/Autoloader.php';
 
 // require generator autoloader
 (function (): void {
@@ -41,11 +42,15 @@ const PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH = PHPFHIR_TEST_CONFIG_ROOT_DIR . '/
     $builder->render();
 })();
 
-// require generated autoloader
+// require generated autoloaders
 (function (): void {
-    $generated_autoloader = realpath(PHPFHIR_TETS_GENERATED_AUTOLOADER_PATH);
+    $generated_autoloader = realpath(PHPFHIR_TEST_GENERATED_AUTOLOADER_PATH);
     echo "Requiring generated autoloader: {$generated_autoloader}\n";
     require $generated_autoloader;
+
+    $test_autoloader = realpath(PHPFHIR_TEST_GENERATED_TEST_AUTOLOADER_PATH);
+    echo "Requiring test autoloader: {$test_autoloader}\n";
+    require $test_autoloader;
 })();
 
 // bootstrap complete

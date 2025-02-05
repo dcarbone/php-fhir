@@ -51,8 +51,8 @@ ob_start(); ?>
      * @throws \Exception
      */
     public static function jsonUnserialize(<?php if ($isResource) : ?>string|<?php endif; ?>\stdClass $json,
-                                           <?php if ($isResource) : ?>null|<?php endif; echo $unserializeConfigClass->getEntityName() ?> $config<?php if ($isResource) : ?> = null<?php endif;?>,
-                                           null|<?php echo $typeInterface->getEntityName(); ?> $type = null): self
+                                           <?php if ($isResource) : ?>null|<?php endif; echo $unserializeConfigClass ?> $config<?php if ($isResource) : ?> = null<?php endif;?>,
+                                           null|<?php echo $typeInterface; ?> $type = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
@@ -70,7 +70,7 @@ ob_start(); ?>
         }
 <?php if ($isResource) : ?>
         if (null === $config) {
-            $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getUnserializeConfig();
+            $config = (new <?php echo $versionClass; ?>())->getConfig()->getUnserializeConfig();
         }
         if (is_string($json)) {
             $json = json_decode(json: $json,
@@ -82,8 +82,8 @@ ob_start(); ?>
 if ($type->hasConcreteParent()) : ?>
         parent::jsonUnserialize($json, $config, $type); <?php
 elseif (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
-        if (isset($json->{<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS})) {
-            $type->_setFHIRComments((array)$json->{<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_FHIR_COMMENTS});
+        if (isset($json->{<?php echo $constantsClass; ?>::JSON_FIELD_FHIR_COMMENTS})) {
+            $type->_setFHIRComments((array)$json->{<?php echo $constantsClass; ?>::JSON_FIELD_FHIR_COMMENTS});
         }<?php endif;
 
 return ob_get_clean();

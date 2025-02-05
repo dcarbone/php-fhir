@@ -40,17 +40,17 @@ final class <?php echo PHPFHIR_ENCODING_CLASSNAME_XML_WRITER; ?> extends \XMLWri
 {
     private const _MEM = 'memory';
 
-    private <?php echo $serializeConfigClass->getEntityName(); ?> $_config;
+    private <?php echo $serializeConfigClass; ?> $_config;
     private bool $_docStarted = false;
     private bool $_rootOpen = false;
     private null|string $_open = null;
 
     /**
-     * <?php echo $coreFile->getEntityName(); ?> constructor.
+     * <?php echo $coreFile; ?> constructor.
      *
      * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
      */
-    public function __construct(<?php echo $serializeConfigClass->getEntityName(); ?> $config)
+    public function __construct(<?php echo $serializeConfigClass; ?> $config)
     {
         $this->_config = $config;
     }

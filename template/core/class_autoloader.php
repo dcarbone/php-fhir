@@ -30,7 +30,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
+abstract class <?php echo $coreFile; ?>
 
 {
     private const _ROOT_NAMESPACE = '<?php echo $config->getFullyQualifiedName(false); ?>\\';
@@ -50,10 +50,10 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
     private const _CORE_CLASS_MAP = [
         // core types
-<?php foreach($config->getCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
-        '<?php echo $coreFile->getFullyQualifiedName(false); ?>' => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
+<?php foreach($coreFiles->getIterator() as $cf): if ($cf->isAutoloader() || $cf->isTest()) { continue; } ?>
+        '<?php echo $cf->getFullyQualifiedName(false); ?>' => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
         $config->getFullyQualifiedName(false),
-        $coreFile->getFullyQualifiedName(false),
+        $cf->getFullyQualifiedName(false),
     ); ?>,
 <?php endforeach; ?>    ];
 

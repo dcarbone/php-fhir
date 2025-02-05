@@ -100,13 +100,13 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
      */
     public array $options;
 
-    public function __construct(<?php echo $httpMethodEnum->getEntityName(); ?> $method,
+    public function __construct(<?php echo $httpMethodEnum; ?> $method,
                                 string $path,
                                 null|int $count = null,
                                 null|string $since = null,
                                 null|string $at = null,
-                                null|<?php echo $formatEnum->getEntityName(); ?> $format = null,
-                                null|<?php echo $sortEnum->getEntityName(); ?> $sort = null,
+                                null|<?php echo $formatEnum; ?> $format = null,
+                                null|<?php echo $sortEnum; ?> $sort = null,
                                 null|array $queryParams = null,
                                 null|bool $parseResponseHeaders = null,
                                 null|array $options = null)

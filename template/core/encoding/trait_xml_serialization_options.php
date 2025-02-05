@@ -36,7 +36,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-trait <?php echo $coreFile->getEntityName(); ?>
+trait <?php echo $coreFile; ?>
 
 {
     /**
@@ -56,7 +56,7 @@ trait <?php echo $coreFile->getEntityName(); ?>
      * @param string $field Name of field on this type.
      * @throws \DomainException
      */
-    public function _setXMLFieldValueLocation(string $field, <?php echo $valueXMLLocationEnum->getEntityName(); ?> $valueXMLLocation): void
+    public function _setXMLFieldValueLocation(string $field, <?php echo $valueXMLLocationEnum; ?> $valueXMLLocation): void
     {
         if (!isset($this->_valueXMLLocations[$field])) {
             throw new \DomainException(sprintf(
@@ -75,7 +75,7 @@ trait <?php echo $coreFile->getEntityName(); ?>
 
      * @throws \DomainException
      */
-    public function _getXMLFieldValueLocation(string $field): <?php echo $valueXMLLocationEnum->getEntityName(); ?>
+    public function _getXMLFieldValueLocation(string $field): <?php echo $valueXMLLocationEnum; ?>
 
     {
         if (!isset($this->_valueXMLLocations[$field])) {

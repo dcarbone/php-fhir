@@ -43,7 +43,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $validationRuleInterface->getEntityName(); ?>
+class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
     public const NAME = 'value_pattern_match';
@@ -59,15 +59,27 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $validatio
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface->getEntityName(); ?> $type, string $field, mixed $constraint, mixed $value): null|string
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
         if ('' === $constraint || null === $value) {
             return null;
         }
-        if ($value instanceof <?php echo $primitiveTypeInterface->getEntityName(); ?>) {
+        if ($value instanceof <?php echo $primitiveTypeInterface; ?>) {
             $value = (string)$value;
         }
-        if ('' === $value || (bool)preg_match($constraint, $value)) {
+        $res = preg_match($constraint, $value);
+        if (PREG_NO_ERROR !== preg_last_error()) {
+            return sprintf(
+                'Rule %s failed to verify type "%s" field "%s" value of size %d with pattern "%s": %s',
+                self::NAME,
+                $type->_getFHIRTypeName(),
+                $field,
+                strlen((string)$value),
+                $constraint,
+                preg_last_error_msg(),
+            );
+        }
+        if ($res) {
             return null;
         }
         return sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $field, $type->_getFHIRTypeName(), $value, $constraint);

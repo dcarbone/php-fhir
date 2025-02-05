@@ -44,7 +44,7 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> extends Te
 {
     public function testCanConstructWithoutParams()
     {
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
+        $sc = new <?php echo $serializeConfigClass; ?>();
         $this->assertFalse($sc->getOverrideSourceXMLNS());
         $this->assertNull($sc->getRootXMLNS());
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS ?>, $sc->getXHTMLLibxmlOpts());
@@ -52,7 +52,7 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> extends Te
 
     public function testCanConstructWithValidValues()
     {
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>(overrideSourceXMLNS: true, rootXMLNS: 'urn:foo:bar', xhtmlLibxmlOpts: 123);
+        $sc = new <?php echo $serializeConfigClass; ?>(overrideSourceXMLNS: true, rootXMLNS: 'urn:foo:bar', xhtmlLibxmlOpts: 123);
         $this->assertTrue($sc->getOverrideSourceXMLNS());
         $this->assertEquals('urn:foo:bar', $sc->getRootXMLNS());
         $this->assertEquals(123, $sc->getXHTMLLibxmlOpts());

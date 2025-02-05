@@ -38,7 +38,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>, <?php echo $valueContainerInterface->getEntityName(); ?>
+interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>, <?php echo $valueContainerInterface; ?>
 
 {
 

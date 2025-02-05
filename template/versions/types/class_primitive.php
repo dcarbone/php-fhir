@@ -128,6 +128,7 @@ if (!$type->hasParent()) : ?>
     }
 <?php if (!$type->hasParent()) : ?>
 
+<?php   if ($stringSerializable) : ?>
     /**
      * Specify whether this value must be represented as a string when serializing to JSON.
      *
@@ -148,6 +149,7 @@ if (!$type->hasParent()) : ?>
         return $this->_jsonAsString;
     }
 
+<?php endif; ?>
     /**
      * @return <?php echo TypeHintUtils::primitivePHPValueTypeHint($version, $primitiveType, true); ?>
 
@@ -157,6 +159,7 @@ if (!$type->hasParent()) : ?>
     {
         return $this->value ?? null;
     }
+
 <?php
 switch ($primitiveType) {
     // string types

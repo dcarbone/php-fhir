@@ -26,7 +26,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?>
+interface <?php echo $coreFile; ?>
 
 {
     /**

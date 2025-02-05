@@ -46,7 +46,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $valueContainerInterface->getEntityName(); ?>
+interface <?php echo $coreFile; ?> extends <?php echo $valueContainerInterface; ?>
 
 {
     /**
@@ -62,8 +62,8 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $valueCon
      * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $xmlValueLocationEnum->getFullyQualifiedName(true); ?> $valueLocation
      */
-    public function xmlSerialize(<?php echo $xmlWriterClass->getEntityName(); ?> $xw,
-                                 <?php echo $serializeConfigClass->getEntityName(); ?> $config,
-                                 null|<?php echo $xmlValueLocationEnum->getEntityName(); ?> $valueLocation = null): void;
+    public function xmlSerialize(<?php echo $xmlWriterClass; ?> $xw,
+                                 <?php echo $serializeConfigClass; ?> $config,
+                                 null|<?php echo $xmlValueLocationEnum; ?> $valueLocation = null): void;
 }
 <?php return ob_get_clean();

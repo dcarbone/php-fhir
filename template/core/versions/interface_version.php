@@ -42,7 +42,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?>
+interface <?php echo $coreFile; ?>
 
 {
     /**
@@ -72,7 +72,7 @@ interface <?php echo $coreFile->getEntityName(); ?>
      * @return <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getConfig(): <?php echo $versionConfigInterface->getEntityName(); ?>;
+    public function getConfig(): <?php echo $versionConfigInterface; ?>;
 
     /**
      * Must return the type map class for this version
@@ -80,6 +80,6 @@ interface <?php echo $coreFile->getEntityName(); ?>
      * @return <?php echo $versionTypeMapInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getTypeMap(): <?php echo $versionTypeMapInterface->getEntityName(); ?>;
+    public function getTypeMap(): <?php echo $versionTypeMapInterface; ?>;
 }
 <?php return ob_get_clean();

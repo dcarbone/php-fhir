@@ -83,11 +83,11 @@ use PHPUnit\Framework\TestCase;
 class <?php echo $type->getTestClassName(); ?> extends TestCase
 {<?php if ($type->isResourceType()) : ?>
 
-    protected <?php echo $versionClass->getEntityName(); ?> $_version;
+    protected <?php echo $versionClass; ?> $_version;
 
     protected function setUp(): void
     {
-        $this->_version = new <?php echo $versionClass->getEntityName(); ?>();
+        $this->_version = new <?php echo $versionClass; ?>();
     }
 
     protected function _getTestEndpoint(): string
@@ -95,16 +95,16 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         return trim((string)getenv('<?php echo PHPFHIR_TEST_CONSTANT_SERVER_ADDR; ?>'));
     }
 
-    protected function _getClient(): <?php echo $versionClientClass->getEntityName(); ?>
+    protected function _getClient(): <?php echo $versionClientClass; ?>
 
     {
         $testEndpoint = $this->_getTestEndpoint();
         if ('' === $testEndpoint) {
             $this->markTestSkipped('Environment variable <?php echo PHPFHIR_TEST_CONSTANT_SERVER_ADDR; ?> is not defined or empty');
         }
-        return new <?php echo $versionClientClass->getEntityName(); ?>(
-            new <?php echo $clientClass->getEntityName(); ?>(
-                new <?php echo $clientConfigClass->getEntityName(); ?>(
+        return new <?php echo $versionClientClass; ?>(
+            new <?php echo $clientClass; ?>(
+                new <?php echo $clientConfigClass; ?>(
                     address: $testEndpoint,
                 ),
             ),
@@ -154,9 +154,9 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
     {
         $client = $this->_getClient();
         $rc = $client->readRaw(
-            resourceType: <?php echo $versionTypeEnum->getEntityName(); ?>::<?php echo $type->getConstName(false); ?>,
+            resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
-            format: <?php echo $clientFormatEnum->getEntityName(); ?>::JSON,
+            format: <?php echo $clientFormatEnum; ?>::JSON,
         );
         if (404 === $rc->getCode()) {
             $this->markTestSkipped(sprintf(
@@ -188,9 +188,9 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
     {
         $client = $this->_getClient();
         $rc = $client->readRaw(
-            resourceType: <?php echo $versionTypeEnum->getEntityName(); ?>::<?php echo $type->getConstName(false); ?>,
+            resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
-            format: <?php echo $clientFormatEnum->getEntityName(); ?>::XML,
+            format: <?php echo $clientFormatEnum; ?>::XML,
         );
         if (404 === $rc->getCode()) {
             $this->markTestSkipped(sprintf(

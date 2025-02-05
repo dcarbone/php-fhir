@@ -41,7 +41,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>
+interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
 
 {
     /**
@@ -51,15 +51,15 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
      * @return static
      */
     public static function xmlUnserialize(\SimpleXMLElement $element,
-                                          <?php echo $unserializeConfigClass->getEntityName() ?> $config,
-                                          null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
+                                          <?php echo $unserializeConfigClass ?> $config,
+                                          null|<?php echo $coreFile; ?> $type = null): self;
 
     /**
      * @param <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
      * @param <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
      */
-    public function xmlSerialize(<?php echo $xmlWriterClass->getEntityName(); ?> $xw,
-                                 <?php echo $serializeConfigClass->getEntityName(); ?> $config): void;
+    public function xmlSerialize(<?php echo $xmlWriterClass; ?> $xw,
+                                 <?php echo $serializeConfigClass; ?> $config): void;
 
     /**
      * @param \stdClass $json Decoded JSON
@@ -68,7 +68,7 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
      * @return static
      */
     public static function jsonUnserialize(\stdClass $json,
-                                           <?php echo $unserializeConfigClass->getEntityName(); ?> $config,
-                                           null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
+                                           <?php echo $unserializeConfigClass; ?> $config,
+                                           null|<?php echo $coreFile; ?> $type = null): self;
 }
 <?php return ob_get_clean();

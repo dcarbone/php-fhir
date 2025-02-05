@@ -16,21 +16,26 @@
  * limitations under the License.
  */
 
+
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$patternRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH);
 
-$clientClientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
-$clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
+$testCoreFiles = $config->getCoreTestFiles();
+$mockResource = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
+$mockPrimitive = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_STRING_PRIMITIVE_TYPE);
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
-    $clientClientClass,
-    $clientConfigClass,
+    $mockResource,
+    $mockPrimitive,
+    $patternRule,
 );
+
 
 ob_start();
 echo "<?php\n\n";?>
@@ -41,19 +46,22 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 use PHPUnit\Framework\TestCase;
 
-class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
+class <?php echo $coreFile; ?> extends TestCase
 {
-    public function testCanConstructWithOnlyAddress()
+    public function testNoErrorWithValidPatternAndValue()
     {
-        $cl = new <?php echo $clientClientClass; ?>('http://example.com');
-        $this->assertEquals('http://example.com', $cl->getConfig()->getAddress());
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
+        $rule = new <?php echo $patternRule; ?>();
+        $err = $rule->assert($type, 'value', '/^[a-z\s]+$/', $type->getValue());
+        $this->assertEquals('', $err);
     }
 
-    public function testCanConstructWithConfig()
+        public function testErrorWithValidPatternAndInvalidValue()
     {
-        $c = new <?php echo $clientConfigClass; ?>('http://example.com');
-        $cl = new <?php echo $clientClientClass; ?>($c);
-        $this->assertEquals('http://example.com', $cl->getConfig()->getAddress());
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
+        $rule = new <?php echo $patternRule; ?>();
+        $err = $rule->assert($type, 'value', '/^[a-z]+$/', $type->getValue());
+        $this->assertNotEmpty($err, sprintf('Unexpected error seen: %s', $err));
     }
 }
 <?php return ob_get_clean();

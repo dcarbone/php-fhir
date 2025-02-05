@@ -55,15 +55,15 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
      * @param null|array|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $serializeConfig
      * @param null|array|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $unserializeConfig
      */
-    public function __construct(null|array|<?php echo $unserializeConfigClass->getEntityName(); ?> $unserializeConfig = null,
-                                null|array|<?php echo $serializeConfigClass->getEntityName(); ?> $serializeConfig = null)
+    public function __construct(null|array|<?php echo $unserializeConfigClass; ?> $unserializeConfig = null,
+                                null|array|<?php echo $serializeConfigClass; ?> $serializeConfig = null)
     {
         if (null === $unserializeConfig) {
-            $unserializeConfig = new <?php echo $unserializeConfigClass->getEntityName(); ?>();
+            $unserializeConfig = new <?php echo $unserializeConfigClass; ?>();
         }
         $this->setUnserializeConfig($unserializeConfig);
         if (null === $serializeConfig) {
-            $serializeConfig = new <?php echo $serializeConfigClass->getEntityName(); ?>();
+            $serializeConfig = new <?php echo $serializeConfigClass; ?>();
         }
         $this->setSerializeConfig($serializeConfig);
     }

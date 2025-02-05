@@ -45,7 +45,7 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CONFIG; ?> extends TestCase
 {
     public function testCanConstructWithOnlyAddress()
     {
-        $c = new <?php echo $clientConfigClass->getEntityName(); ?>('http://example.com');
+        $c = new <?php echo $clientConfigClass; ?>('http://example.com');
         $this->assertEquals('http://example.com', $c->getAddress());
         $this->assertNull($c->getDefaultFormat());
         $this->assertEmpty($c->getQueryParams());
@@ -55,15 +55,15 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CONFIG; ?> extends TestCase
 
     public function testCanConstructWithAllParams()
     {
-        $c = new <?php echo $clientConfigClass->getEntityName(); ?>(
+        $c = new <?php echo $clientConfigClass; ?>(
             address: 'http://example.com',
-            defaultFormat: <?php echo $responseFormatEnum->getEntityName(); ?>::JSON,
+            defaultFormat: <?php echo $responseFormatEnum; ?>::JSON,
             queryParams: ['foo' => 'bar'],
             curlOpts: ['bar' => 'baz'],
             parseResponseHeaders: true
         );
         $this->assertEquals('http://example.com', $c->getAddress());
-        $this->assertEquals(<?php echo $responseFormatEnum->getEntityName(); ?>::JSON, $c->getDefaultFormat());
+        $this->assertEquals(<?php echo $responseFormatEnum; ?>::JSON, $c->getDefaultFormat());
         $this->assertEquals(['foo' => 'bar'], $c->getQueryParams());
         $this->assertEquals(['bar' => 'baz'], $c->getCurlOpts());
         $this->assertTrue($c->getParseResponseHeaders());

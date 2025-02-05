@@ -37,13 +37,13 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
- * Interface <?php echo $coreFile->getEntityName(); ?>
+ * Interface <?php echo $coreFile; ?>
 
  *
  * This is a meta interface that must never be directly implemented by a class.  It exists purely to ensure type safety
  * throughout the base package.
  */
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $resourceTypeInterface->getEntityName(); ?>
+interface <?php echo $coreFile; ?> extends <?php echo $resourceTypeInterface; ?>
 
 {
     /**

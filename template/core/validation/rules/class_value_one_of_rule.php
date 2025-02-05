@@ -41,7 +41,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $validationRuleInterface->getEntityName(); ?>
+class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
     public const NAME = 'value_one_of';
@@ -57,7 +57,7 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $validatio
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface->getEntityName(); ?> $type, string $field, mixed $constraint, mixed $value): null|string
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
         if ([] === $constraint || in_array($value, $constraint, true)) {
             return null;

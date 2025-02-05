@@ -184,4 +184,9 @@ class CoreFile
     {
         return $this->_isAbstract;
     }
+
+    public function __toString(): string
+    {
+        return $this->getEntityName();
+    }
 }

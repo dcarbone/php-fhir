@@ -44,7 +44,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile->getEntityName(); ?>
+class <?php echo $coreFile; ?>
 
 {
     private const XML_START = ['<'];
@@ -59,8 +59,8 @@ class <?php echo $coreFile->getEntityName(); ?>
 
      * @throws \Exception
      */
-    public static function parse(<?php echo $versionInterface->getEntityName(); ?> $version,
-                                 null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parse(<?php echo $versionInterface; ?> $version,
+                                 null|string|array|\stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         if (null === $input) {
@@ -80,20 +80,20 @@ class <?php echo $coreFile->getEntityName(); ?>
      * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseArray(<?php echo $versionInterface->getEntityName(); ?> $version, array $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parseArray(<?php echo $versionInterface; ?> $version, array $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         if ([] === $input) {
             return null;
         }
-        if (isset($input[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE])) {
+        if (isset($input[<?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE])) {
             /** @var <?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?> $className */
-            $className = $version->getTypeMap()::getTypeClassName($input[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE]);
+            $className = $version->getTypeMap()::getTypeClassName($input[<?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE]);
             if (null === $className) {
                 throw new \UnexpectedValueException(sprintf(
                     'Provided input has "%s" value of "%s", but it does not map to any known type.  Other keys: ["%s"]',
-                    <?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE,
-                    $input[<?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE],
+                    <?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE,
+                    $input[<?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE],
                     implode('","', array_keys($input))
                 ));
             }
@@ -101,7 +101,7 @@ class <?php echo $coreFile->getEntityName(); ?>
         }
         throw new \DomainException(sprintf(
             'Unable to determine FHIR Type from provided array: missing "%s" key.  Available keys: ["%s"]',
-            <?php echo $constantsClass->getEntityName(); ?>::JSON_FIELD_RESOURCE_TYPE,
+            <?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE,
             implode('","', array_keys($input))
         ));
     }
@@ -112,7 +112,7 @@ class <?php echo $coreFile->getEntityName(); ?>
      * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseStdClass(<?php echo $versionInterface->getEntityName(); ?> $version, \stdClass $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parseStdClass(<?php echo $versionInterface; ?> $version, \stdClass $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         return static::parseArray($version, (array)$input);
@@ -124,7 +124,7 @@ class <?php echo $coreFile->getEntityName(); ?>
      * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseSimpleXMLElement(<?php echo $versionInterface->getEntityName(); ?> $version, \SimpleXMLElement $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parseSimpleXMLElement(<?php echo $versionInterface; ?> $version, \SimpleXMLElement $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         $elementName = $input->getName();
@@ -146,7 +146,7 @@ class <?php echo $coreFile->getEntityName(); ?>
      * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseDOMDocument(<?php echo $versionInterface->getEntityName(); ?> $version, \DOMDocument $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parseDOMDocument(<?php echo $versionInterface; ?> $version, \DOMDocument $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         return static::parseSimpleXMLElement($version, simplexml_import_dom($input));
@@ -158,8 +158,8 @@ class <?php echo $coreFile->getEntityName(); ?>
      * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseObject(<?php echo $versionInterface->getEntityName(); ?> $version,
-                                       \stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parseObject(<?php echo $versionInterface; ?> $version,
+                                       \stdClass|\SimpleXMLElement|\DOMDocument $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         if ($input instanceof \stdClass) {
@@ -178,7 +178,7 @@ class <?php echo $coreFile->getEntityName(); ?>
 
      * @throws \Exception
      */
-    public static function parseXML(<?php echo $versionInterface->getEntityName(); ?> $version, string $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parseXML(<?php echo $versionInterface; ?> $version, string $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         return static::parseSimpleXMLElement(
@@ -192,7 +192,7 @@ class <?php echo $coreFile->getEntityName(); ?>
      * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public static function parseJSON(<?php echo $versionInterface->getEntityName(); ?> $version, string $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parseJSON(<?php echo $versionInterface; ?> $version, string $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         $decoded = json_decode($input, true, $version->getConfig()->getUnserializeConfig()->getJSONDecodeMaxDepth());
@@ -215,7 +215,7 @@ class <?php echo $coreFile->getEntityName(); ?>
 
      * @throws \Exception
      */
-    public static function parseString(<?php echo $versionInterface->getEntityName(); ?> $version, string $input): null|<?php echo $resourceTypeInterface->getEntityName(); ?>
+    public static function parseString(<?php echo $versionInterface; ?> $version, string $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
         if ('' === $input) {

@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -44,17 +43,17 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 use PHPUnit\Framework\TestCase;
 
-class <?php echo PHPFHIR_TEST_CLASSNAME_VERSION_CONFIG; ?> extends TestCase
+class <?php echo $coreFile; ?> extends TestCase
 {
     public function testCanConstructWithoutParams()
     {
-        $vc = new <?php echo $versionConfigClass->getEntityName(); ?>();
+        $vc = new <?php echo $versionConfigClass; ?>();
         $uc = $vc->getUnserializeConfig();
-        $this->assertInstanceOf(<?php echo $unserializeConfigClass->getEntityName(); ?>::class, $uc);
+        $this->assertInstanceOf(<?php echo $unserializeConfigClass; ?>::class, $uc);
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $uc->getLibxmlOpts());
         $this->assertEquals(512, $uc->getJSONDecodeMaxDepth());
         $sc = $vc->getSerializeConfig();
-        $this->assertInstanceOf(<?php echo $serializeConfigClass->getEntityName(); ?>::class, $sc);
+        $this->assertInstanceOf(<?php echo $serializeConfigClass; ?>::class, $sc);
         $this->assertFalse($sc->getOverrideSourceXMLNS());
         $this->assertNull($sc->getRootXMLNS());
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $sc->getXHTMLLibxmlOpts());
@@ -62,16 +61,16 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_VERSION_CONFIG; ?> extends TestCase
 
     public function testCanConstructWithValidMapParams()
     {
-        $vc = new <?php echo $versionConfigClass->getEntityName(); ?>(
+        $vc = new <?php echo $versionConfigClass; ?>(
             unserializeConfig: ['libxmlOpts' => 456, 'jsonDecodeMaxDepth' => 789],
             serializeConfig: ['overrideSourceXMLNS' => true, 'rootXMLNS' => 'urn:foo:bar', 'xhtmlLibxmlOpts' => 123],
         );
         $uc = $vc->getUnserializeConfig();
-        $this->assertInstanceOf(<?php echo $unserializeConfigClass->getEntityName(); ?>::class, $uc);
+        $this->assertInstanceOf(<?php echo $unserializeConfigClass; ?>::class, $uc);
         $this->assertEquals(456, $uc->getLibxmlOpts());
         $this->assertEquals(789, $uc->getJSONDecodeMaxDepth());
         $sc = $vc->getSerializeConfig();
-        $this->assertInstanceOf(<?php echo $serializeConfigClass->getEntityName(); ?>::class, $sc);
+        $this->assertInstanceOf(<?php echo $serializeConfigClass; ?>::class, $sc);
         $this->assertTrue($sc->getOverrideSourceXMLNS());
         $this->assertEquals('urn:foo:bar', $sc->getRootXMLNS());
         $this->assertEquals(123, $sc->getXHTMLLibxmlOpts());
@@ -79,16 +78,16 @@ class <?php echo PHPFHIR_TEST_CLASSNAME_VERSION_CONFIG; ?> extends TestCase
 
     public function testCanConstructWithValidObjectParams()
     {
-        $vc = new <?php echo $versionConfigClass->getEntityName(); ?>(
-            unserializeConfig: new <?php echo $unserializeConfigClass->getEntityName(); ?>(),
-            serializeConfig: new <?php echo $serializeConfigClass->getEntityName(); ?>(),
+        $vc = new <?php echo $versionConfigClass; ?>(
+            unserializeConfig: new <?php echo $unserializeConfigClass; ?>(),
+            serializeConfig: new <?php echo $serializeConfigClass; ?>(),
         );
         $uc = $vc->getUnserializeConfig();
-        $this->assertInstanceOf(<?php echo $unserializeConfigClass->getEntityName(); ?>::class, $uc);
+        $this->assertInstanceOf(<?php echo $unserializeConfigClass; ?>::class, $uc);
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $uc->getLibxmlOpts());
         $this->assertEquals(512, $uc->getJSONDecodeMaxDepth());
         $sc = $vc->getSerializeConfig();
-        $this->assertInstanceOf(<?php echo $serializeConfigClass->getEntityName(); ?>::class, $sc);
+        $this->assertInstanceOf(<?php echo $serializeConfigClass; ?>::class, $sc);
         $this->assertFalse($sc->getOverrideSourceXMLNS());
         $this->assertNull($sc->getRootXMLNS());
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $sc->getXHTMLLibxmlOpts());

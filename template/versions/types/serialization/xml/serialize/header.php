@@ -45,18 +45,18 @@ ob_start(); ?>
 
 <?php endif; ?>
      */
-    public function xmlSerialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif;  echo $xmlWriterClass->getEntityName(); ?> $xw<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?> = null<?php endif; ?>,
-                                 <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif; echo $serializeConfigClass->getEntityName(); ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?> = null<?php endif;
+    public function xmlSerialize(<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif;  echo $xmlWriterClass; ?> $xw<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?> = null<?php endif; ?>,
+                                 <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>null|<?php endif; echo $serializeConfigClass; ?> $config<?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?> = null<?php endif;
     if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) : ?>,
-                                 null|<?php echo $xmlLocationEnum->getEntityName(); ?> $valueLocation = null<?php endif; ?>): <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : echo $xmlWriterClass->getEntityName(); else : ?>void<?php endif; ?>
+                                 null|<?php echo $xmlLocationEnum; ?> $valueLocation = null<?php endif; ?>): <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : echo $xmlWriterClass; else : ?>void<?php endif; ?>
 
     {
 <?php if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>
         if (null === $config) {
-            $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getSerializeConfig();
+            $config = (new <?php echo $versionClass; ?>())->getConfig()->getSerializeConfig();
         }
         if (null === $xw) {
-            $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($config);
+            $xw = new <?php echo $xmlWriterClass; ?>($config);
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();

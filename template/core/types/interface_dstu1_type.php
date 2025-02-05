@@ -40,12 +40,12 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
- * <?php echo $coreFile->getEntityName(); ?> Interface
+ * <?php echo $coreFile; ?> Interface
  *
  * This is a special interface only applied when generating types for versions based on DSTU1.  It is necessary
  * as Resources in DSTU1 are extensions of Elements.  This is unique to DSTU1.
  */
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $resourceTypeInterface->getEntityName(); ?>
+interface <?php echo $coreFile; ?> extends <?php echo $resourceTypeInterface; ?>
 
 {
 

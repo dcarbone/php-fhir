@@ -43,7 +43,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $validationRuleInterface->getEntityName(); ?>
+class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
     public const NAME = 'min_occurs';
@@ -59,9 +59,9 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $validatio
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface->getEntityName(); ?> $type, string $field, mixed $constraint, mixed $value): null|string
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
-        if (0 >= $constraint || (1 === $constraint && $value instanceof <?php echo $typeInterface->getEntityName(); ?>)) {
+        if (0 >= $constraint || (1 === $constraint && $value instanceof <?php echo $typeInterface; ?>)) {
             return null;
         }
         if (null === $value || [] === $value) {

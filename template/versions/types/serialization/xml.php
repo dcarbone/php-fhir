@@ -70,10 +70,10 @@ if ($type->hasLocalProperties()
     );
 
     if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>
-        if (isset($rootOpened) && $rootOpened) {
+        if ($rootOpened ?? false) {
             $xw->endElement();
         }
-        if (isset($docStarted) && $docStarted) {
+        if ($docStarted ?? false) {
             $xw->endDocument();
         }
         return $xw;

@@ -42,14 +42,14 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> extends 
 {
     public function testCanConstructWithoutParams()
     {
-        $uc = new <?php echo $unserializeConfigClass->getEntityName(); ?>();
+        $uc = new <?php echo $unserializeConfigClass; ?>();
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $uc->getLibxmlOpts());
         $this->assertEquals(512, $uc->getJSONDecodeMaxDepth());
     }
 
     public function testCanConstructWithValidValues()
     {
-        $uc = new <?php echo $unserializeConfigClass->getEntityName(); ?>(libxmlOpts: 123, jsonDecodeMaxDepth: 456);
+        $uc = new <?php echo $unserializeConfigClass; ?>(libxmlOpts: 123, jsonDecodeMaxDepth: 456);
         $this->assertEquals(123, $uc->getLibxmlOpts());
         $this->assertEquals(456, $uc->getJSONDecodeMaxDepth());
     }

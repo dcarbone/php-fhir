@@ -49,12 +49,12 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
- * Class <?php echo $coreFile->getEntityName(); ?>
+ * Class <?php echo $coreFile; ?>
 
  *
- * Basic implementation of the <?php echo $clientInterface->getEntityName(); ?> interface.
+ * Basic implementation of the <?php echo $clientInterface; ?> interface.
  */
-class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $clientInterface->getEntityName(); ?>
+class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
 
 {
     private const _PARAM_FORMAT = '_format';
@@ -67,22 +67,22 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $clientInt
         CURLOPT_USERAGENT => 'php-fhir client (build: <?php echo $config->getStandardDate(); ?>;)',
     ];
 
-    protected <?php echo $clientConfigClass->getEntityName(); ?> $_config;
+    protected <?php echo $clientConfigClass; ?> $_config;
 
     /**
-     * <?php echo $coreFile->getEntityName(); ?> Constructor
+     * <?php echo $coreFile; ?> Constructor
      *
      * @param string|<?php echo $clientConfigClass->getFullyQualifiedName(true); ?> $config Fully qualified address of FHIR server, or configuration object.
      */
-    public function __construct(string|<?php echo $clientConfigClass->getEntityName(); ?> $config)
+    public function __construct(string|<?php echo $clientConfigClass; ?> $config)
     {
         if (is_string($config)) {
-            $config = new <?php echo $clientConfigClass->getEntityName(); ?>(address: $config);
+            $config = new <?php echo $clientConfigClass; ?>(address: $config);
         }
         $this->_config = $config;
     }
 
-    public function getConfig(): <?php echo $clientConfigClass->getEntityName(); ?>
+    public function getConfig(): <?php echo $clientConfigClass; ?>
 
     {
         return $this->_config;
@@ -93,7 +93,7 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $clientInt
      * @return <?php echo $clientResponseClass->getFullyQualifiedName(true); ?>
 
      */
-    public function exec(<?php echo $clientRequestClass->getEntityName(); ?> $request): <?php echo $clientResponseClass->getEntityName(); ?>
+    public function exec(<?php echo $clientRequestClass; ?> $request): <?php echo $clientResponseClass; ?>
 
     {
         $queryParams = array_merge($this->_config->getQueryParams(), $request->queryParams ?? []);
@@ -109,7 +109,7 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $clientInt
             $queryParams[self::_PARAM_COUNT] = $request->count;
         }
 
-        $rc = new <?php echo $clientResponseClass->getEntityName(); ?>();
+        $rc = new <?php echo $clientResponseClass; ?>();
 
         $url = "{$this->_config->getAddress()}{$request->path}?" . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
 

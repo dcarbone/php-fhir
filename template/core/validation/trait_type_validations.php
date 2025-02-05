@@ -40,7 +40,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-trait <?php echo $coreFile->getEntityName(); ?>
+trait <?php echo $coreFile; ?>
 
 {
     /**
@@ -128,7 +128,7 @@ trait <?php echo $coreFile->getEntityName(); ?>
         foreach ($this->_getCombinedValidationRules() as $field => $rules) {
             $v = $this->{$field} ?? null;
             foreach ($rules as $rule => $constraint) {
-                $err = <?php echo $validatorClass->getEntityName(); ?>::validateField($this, $field, $rule, $constraint, $v);
+                $err = <?php echo $validatorClass; ?>::runRule($this, $field, $rule, $constraint, $v);
                 if (null !== $err) {
                     if (!isset($errs[$field])) {
                         $errs[$field] = [];
@@ -136,7 +136,7 @@ trait <?php echo $coreFile->getEntityName(); ?>
                     $errs[$field][] = $err;
                 }
             }
-            if ($v instanceof <?php echo $typeInterface->getEntityName(); ?>) {
+            if ($v instanceof <?php echo $typeInterface; ?>) {
                 $typeErrs = $v->_getValidationErrors();
                 if ([] !== $typeErrs) {
                     foreach($typeErrs as $subField => $subErrs) {

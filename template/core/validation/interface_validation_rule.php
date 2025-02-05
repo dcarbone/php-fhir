@@ -40,7 +40,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?>
+interface <?php echo $coreFile; ?>
 
 {
     /**
@@ -66,6 +66,6 @@ interface <?php echo $coreFile->getEntityName(); ?>
      * @param mixed $value
      * @return null|string
      */
-    public function assert(<?php echo $typeInterface->getEntityName(); ?> $type, string $field, mixed $constraint, mixed $value): null|string;
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string;
 }
 <?php return ob_get_clean();

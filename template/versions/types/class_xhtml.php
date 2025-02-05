@@ -42,10 +42,10 @@ namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $type->getClassName(); ?> implements <?php echo $primitiveTypeInterface->getEntityName(); ?>
+class <?php echo $type->getClassName(); ?> implements <?php echo $primitiveTypeInterface; ?>
 
 {
-    use <?php echo $typeValidationTrait->getEntityName(); ?>;
+    use <?php echo $typeValidationTrait; ?>;
 
     /** @var string */
     protected string $value;

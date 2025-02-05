@@ -41,7 +41,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInterface->getEntityName(); ?>
+interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
 
 {
     /**
@@ -59,8 +59,8 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
      * @return static
      */
     public static function xmlUnserialize(string|\SimpleXMLElement $element,
-                                          null|<?php echo $unserializeConfigClass->getEntityName() ?> $config = null,
-                                          null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
+                                          null|<?php echo $unserializeConfigClass ?> $config = null,
+                                          null|<?php echo $coreFile; ?> $type = null): self;
 
     /**
      * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
@@ -68,8 +68,8 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null): <?php echo $xmlWriterClass->getEntityName(); ?>;
+    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null,
+                                 null|<?php echo $serializeConfigClass; ?> $config = null): <?php echo $xmlWriterClass; ?>;
 
     /**
      * @param string|\stdClass $json Encoded or decoded JSON.
@@ -78,7 +78,7 @@ interface <?php echo $coreFile->getEntityName(); ?> extends <?php echo $typeInte
      * @return static
      */
     public static function jsonUnserialize(string|\stdClass $json,
-                                           null|<?php echo $unserializeConfigClass->getEntityName(); ?> $config = null,
-                                           null|<?php echo $coreFile->getEntityName(); ?> $type = null): self;
+                                           null|<?php echo $unserializeConfigClass; ?> $config = null,
+                                           null|<?php echo $coreFile; ?> $type = null): self;
 }
 <?php return ob_get_clean();

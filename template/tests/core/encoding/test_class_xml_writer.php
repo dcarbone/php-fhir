@@ -44,8 +44,8 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCas
 {
     public function testCanConstructWithDefaultConfig()
     {
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertFalse($xw->isOpen());
         $this->assertNull($xw->getWriteDestination());
         $this->assertFalse($xw->isDocStarted());
@@ -54,16 +54,16 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCas
 
     public function testCanGetMemoryWriteDestination()
     {
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertTrue($xw->openMemory());
         $this->assertEquals('memory', $xw->getWriteDestination());
     }
 
     public function testCanGetUriWriteDestination()
     {
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertTrue($xw->openUri('php://memory'));
         $this->assertEquals('php://memory', $xw->getWriteDestination());
     }
@@ -71,8 +71,8 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCas
     public function testCannotOpenMemoryTwice()
     {
         $this->expectException(\LogicException::class);
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertTrue($xw->openMemory());
         $xw->openMemory();
     }
@@ -80,8 +80,8 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCas
     public function testCannotOpenUriTwice()
     {
         $this->expectException(\LogicException::class);
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertTrue($xw->openUri('php://memory'));
         $xw->openUri('php://memory');
     }
@@ -89,16 +89,16 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCas
     public function testCannotOpenMixedTwice()
     {
         $this->expectException(\LogicException::class);
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertTrue($xw->openMemory());
         $xw->openUri('php://memory');
     }
 
     public function testCanStartDocument()
     {
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertFalse($xw->isDocStarted());
         $this->assertTrue($xw->openMemory());
         $this->assertTrue($xw->startDocument());
@@ -108,8 +108,8 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCas
     public function testCannotStartDocumentTwice()
     {
         $this->expectException(\LogicException::class);
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertTrue($xw->openMemory());
         $this->assertTrue($xw->startDocument());
         $xw->startDocument();
@@ -117,8 +117,8 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCas
 
     public function testCanOpenRootNode()
     {
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertTrue($xw->openMemory());
         $this->assertTrue($xw->startDocument());
         $this->assertFalse($xw->isRootOpen());
@@ -129,8 +129,8 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCas
     public function testCannotOpenRootNodeTwice()
     {
         $this->expectException(\LogicException::class);
-        $sc = new <?php echo $serializeConfigClass->getEntityName(); ?>();
-        $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($sc);
+        $sc = new <?php echo $serializeConfigClass; ?>();
+        $xw = new <?php echo $xmlWriterClass; ?>($sc);
         $this->assertTrue($xw->openMemory());
         $this->assertTrue($xw->startDocument());
         $this->assertFalse($xw->isRootOpen());

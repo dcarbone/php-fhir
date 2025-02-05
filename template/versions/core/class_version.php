@@ -53,7 +53,7 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $versionInterface->getEntityName(); ?>
+class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
 
 {
     public const NAME = '<?php echo $version->getName(); ?>';
@@ -63,23 +63,23 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $versionIn
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
 
     /** @var <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?> */
-    private <?php echo $versionConfigInterface->getEntityName(); ?> $_config;
+    private <?php echo $versionConfigInterface; ?> $_config;
 
     /** @var <?php echo $versionTypeMapClass->getFullyQualifiedName(true); ?> */
-    private static <?php echo $versionTypeMapInterface->getEntityName(); ?> $_typeMap;
+    private static <?php echo $versionTypeMapInterface; ?> $_typeMap;
 
     /**
-     * <?php echo $coreFile->getEntityName(); ?> Constructor
+     * <?php echo $coreFile; ?> Constructor
      * @param null|array|<?php echo $versionConfigInterface->getFullyQualifiedName(true); ?> $config
      */
-    public function __construct(null|array|<?php echo $versionConfigInterface->getEntityName() ?> $config = null)
+    public function __construct(null|array|<?php echo $versionConfigInterface ?> $config = null)
     {
         if (!is_object($config)) {
-            $config = new <?php echo $versionConfigClass->getEntityName(); ?>(array_merge(self::_GENERATED_CONFIG, (array)$config));
-        } else if (!($config instanceof <?php echo $versionConfigClass->getEntityName(); ?>)) {
+            $config = new <?php echo $versionConfigClass; ?>(array_merge(self::_GENERATED_CONFIG, (array)$config));
+        } else if (!($config instanceof <?php echo $versionConfigClass; ?>)) {
             throw new \InvalidArgumentException(sprintf(
                 '$config must be an instance of \\%s, %s given',
-                <?php echo $versionConfigClass->getEntityName(); ?>::class,
+                <?php echo $versionConfigClass; ?>::class,
                 get_class($config)
             ));
         }
@@ -114,7 +114,7 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $versionIn
      * @return <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getConfig(): <?php echo $versionConfigInterface->getEntityName(); ?>
+    public function getConfig(): <?php echo $versionConfigInterface; ?>
 
     {
         return $this->_config;
@@ -124,11 +124,11 @@ class <?php echo $coreFile->getEntityName(); ?> implements <?php echo $versionIn
      * @return <?php echo $versionTypeMapClass->getFullyQualifiedName(true); ?>
 
      */
-    public function getTypeMap(): <?php echo $versionTypeMapInterface->getEntityName(); ?>
+    public function getTypeMap(): <?php echo $versionTypeMapInterface; ?>
 
     {
         if (!isset(self::$_typeMap)) {
-            self::$_typeMap = new <?php echo $versionTypeMapClass->getEntityName(); ?>();
+            self::$_typeMap = new <?php echo $versionTypeMapClass; ?>();
         }
         return self::$_typeMap;
     }

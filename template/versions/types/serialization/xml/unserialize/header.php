@@ -50,8 +50,8 @@ ob_start(); ?>
      * @throws \Exception
      */
     public static function xmlUnserialize(<?php if ($isResource) : ?>string|<?php endif; ?>\SimpleXMLElement $element,
-                                          <?php if ($isResource) : ?>null|<?php endif; echo $unserializeConfigClass->getEntityName() ?> $config<?php if ($isResource) : ?> = null<?php endif;?>,
-                                          null|<?php echo $typeInterface->getEntityName(); ?> $type = null): self
+                                          <?php if ($isResource) : ?>null|<?php endif; echo $unserializeConfigClass ?> $config<?php if ($isResource) : ?> = null<?php endif;?>,
+                                          null|<?php echo $typeInterface; ?> $type = null): self
     {
 <?php if ($type->isAbstract()) : // abstract types may not be instantiated directly ?>
         if (null === $type) {
@@ -69,7 +69,7 @@ ob_start(); ?>
         }
 <?php if ($isResource) : ?>
         if (null === $config) {
-            $config = (new <?php echo $versionClass->getEntityName(); ?>())->getConfig()->getUnserializeConfig();
+            $config = (new <?php echo $versionClass; ?>())->getConfig()->getUnserializeConfig();
         }
         if (is_string($element)) {
             $element = new \SimpleXMLElement($element, $config->getLibxmlOpts());

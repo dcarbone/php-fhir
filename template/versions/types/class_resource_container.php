@@ -45,9 +45,9 @@ echo require_with(
 ); ?>
 
     /** @var null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> */
-    private null|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $containedType = null;
+    private null|<?php echo $versionContainedTypeInterface; ?> $containedType = null;
 
-    public function __construct(null|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $containedType = null,
+    public function __construct(null|<?php echo $versionContainedTypeInterface; ?> $containedType = null,
                                 null|iterable $fhirComments = null)
     {
         if (null !== $containedType) {
@@ -84,7 +84,7 @@ echo require_with(
      * @return null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getContainedType(): null|<?php echo $versionContainedTypeInterface->getEntityName(); ?>
+    public function getContainedType(): null|<?php echo $versionContainedTypeInterface; ?>
 
     {
         return $this->containedType ?? null;
@@ -94,7 +94,7 @@ echo require_with(
      * @param null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $containedType
      * @return static
      */
-    public function setContainedType(null|<?php echo $versionContainedTypeInterface->getEntityName(); ?> $containedType): self
+    public function setContainedType(null|<?php echo $versionContainedTypeInterface; ?> $containedType): self
     {
         if (null === $containedType) {
             unset($this->containedType);
@@ -115,7 +115,7 @@ echo require_with(
 ?>
         foreach ($element->children() as $child) {
             /** @var <?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $class */
-            $class = <?php echo $versionTypeMapClass->getEntityName(); ?>::getContainedTypeClassNameFromXML($child);
+            $class = <?php echo $versionTypeMapClass; ?>::getContainedTypeClassNameFromXML($child);
             $type->setContainedType($class::xmlUnserialize($child, $config));
             break;
         }
@@ -128,8 +128,8 @@ echo require_with(
      * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
 
      */
-    public function xmlSerialize(null|<?php echo $xmlWriterClass->getEntityName(); ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass->getEntityName(); ?> $config = null): <?php echo $xmlWriterClass->getEntityName(); ?>
+    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null,
+                                 null|<?php echo $serializeConfigClass; ?> $config = null): <?php echo $xmlWriterClass; ?>
 
     {
         $containedType = $this->getContainedType();
@@ -140,7 +140,7 @@ echo require_with(
             $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
         }
         if (null === $xw) {
-            $xw = new <?php echo $xmlWriterClass->getEntityName(); ?>($config);
+            $xw = new <?php echo $xmlWriterClass; ?>($config);
         }
         if (!$xw->isOpen()) {
             $xw->openMemory();
@@ -173,7 +173,7 @@ echo require_with(
 );
 ?>
         /** @var <?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $class */
-        $class = <?php echo $versionTypeMapClass->getEntityName(); ?>::getContainedTypeClassNameFromJSON($json);
+        $class = <?php echo $versionTypeMapClass; ?>::getContainedTypeClassNameFromJSON($json);
         $type->setContainedType($class::jsonUnserialize($json));
         return $type;
     }

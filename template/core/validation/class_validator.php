@@ -55,7 +55,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile->getEntityName(); ?>
+class <?php echo $coreFile; ?>
 
 {
     /**
@@ -72,7 +72,7 @@ class <?php echo $coreFile->getEntityName(); ?>
      *
      * @param <?php echo $validationRuleInterface->getFullyQualifiedName(true); ?> $rule
      */
-    public static function setRule(<?php echo $validationRuleInterface->getEntityName(); ?> $rule): void
+    public static function setRule(<?php echo $validationRuleInterface; ?> $rule): void
     {
         self::_init();
         self::$_rules[$rule->getName()] = $rule;
@@ -96,13 +96,13 @@ class <?php echo $coreFile->getEntityName(); ?>
      * @param mixed $value
      * @return null|string
      */
-    public static function validateField(<?php echo $typeInterface->getEntityName(); ?> $type,
+    public static function runRule(<?php echo $typeInterface; ?> $type,
                                          string $field,
-                                         string|<?php echo $validationRuleInterface->getEntityName(); ?> $rule,
+                                         string|<?php echo $validationRuleInterface; ?> $rule,
                                          mixed $constraint,
                                          mixed $value): null|string
     {
-        if ($rule instanceof <?php echo $validationRuleInterface->getEntityName(); ?>) {
+        if ($rule instanceof <?php echo $validationRuleInterface; ?>) {
             return $rule->assert($type, $field, $constraint, $value);
         }
         self::_init();
@@ -116,12 +116,12 @@ class <?php echo $coreFile->getEntityName(); ?>
         if (self::$_initialized) {
             return;
         }
-        self::setRule(new <?php echo $enumRuleClass->getEntityName(); ?>());
-        self::setRule(new <?php echo $minLengthRuleClass->getEntityName(); ?>());
-        self::setRule(new <?php echo $maxLengthRuleClass->getEntityName(); ?>());
-        self::setRule(new <?php echo $patternRuleClass->getEntityName(); ?>());
-        self::setRule(new <?php echo $minOccursRuleClass->getEntityName(); ?>());
-        self::setRule(new <?php echo $maxOccursRuleClass->getEntityName(); ?>());
+        self::setRule(new <?php echo $enumRuleClass; ?>());
+        self::setRule(new <?php echo $minLengthRuleClass; ?>());
+        self::setRule(new <?php echo $maxLengthRuleClass; ?>());
+        self::setRule(new <?php echo $patternRuleClass; ?>());
+        self::setRule(new <?php echo $minOccursRuleClass; ?>());
+        self::setRule(new <?php echo $maxOccursRuleClass; ?>());
     }
 }
 <?php return ob_get_clean();
