@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,115 +18,95 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Version;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 use RuntimeException;
 
 /**
  * Class FileUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class FileUtils
+class FileUtils
 {
-    public const REGEX_SLASH_SEARCH         = '{[\\\]}S';
-    public const REGEX_SLASH_SEARCH_CLEANUP = '{[/]{2,}}S';
-    public const REGEX_SLASH_REPLACE        = '/';
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param string $pathSuffix
-     * @return string
-     */
-    public static function mkdirRecurse(VersionConfig $config, string $pathSuffix): string
+    public static function assertDirReadableAndWriteable(string $path): void
     {
-        $path = $config->getClassesPath();
-        foreach (explode('/', str_replace('\\', '/', $pathSuffix)) as $dir) {
-            $dir = trim($dir, "/");
-            if ('' === $dir) {
-                continue;
-            }
-            $path .= "/{$dir}";
-            if (is_dir($path)) {
-                $config->getLogger()->debug(sprintf('Directory at path "%s" already exists.', $path));
-            } else {
-                $config->getLogger()->info(sprintf('Attempting to create directory at path "%s"...', $path));
-                if (!mkdir($path)) {
-                    $msg = 'Unable to create directory at path "' . $path . '"';
-                    $config->getLogger()->critical($msg);
-                    throw new RuntimeException($msg);
-                }
-            }
+        if (!is_dir($path)) {
+            throw new \RuntimeException(sprintf('Unable to locate directory "%s"', $path));
         }
-        return $path;
+        if (!is_writable($path)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Specified directory "%s" is not writable by this process.',
+                    $path
+                )
+            );
+        }
+        if (!is_readable($path)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Specified directory "%s" is not readable by this process.',
+                    $path
+                )
+            );
+        }
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param string $namespace
-     * @param string $filename
-     * @return string
+     * @param string $path
+     * @param int $dirPermMask
      */
-    public static function buildGenericFilePath(VersionConfig $config, string $namespace, string $filename): string
+    public static function mkdirRecurse(string $path, int $dirPermMask = 0777): void
     {
-        return self::mkdirRecurse($config, self::cleanupPath($namespace)) . DIRECTORY_SEPARATOR."{$filename}.php";
+        $dirPath = pathinfo($path, PATHINFO_DIRNAME);
+        if (!is_dir($dirPath) && !mkdir($dirPath, $dirPermMask, true)) {
+            throw new RuntimeException(sprintf('Unable to create directory at path "%s"', $path));
+        }
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @return string
-     */
-    public static function buildTypeFilePath(VersionConfig $config, Type $type): string
-    {
-        return static::mkdirRecurse(
-                $config,
-                self::cleanupPath($type->getFullyQualifiedNamespace(false))
-            ) . "/{$type->getClassName()}.php";
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
-     * @return string
-     */
-    public static function buildTypeTestFilePath(VersionConfig $config, Type $type, TestType $testType): string
-    {
-        return static::mkdirRecurse(
-                $config,
-                self::cleanupPath($type->getFullyQualifiedTestNamespace($testType, false))
-            ) . "/{$type->getTestClassName()}.php";
-    }
-
-    /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @return string
-     */
-    public static function buildAutoloaderRelativeFilepath(VersionConfig $config, Type $type): string
-    {
-        return ltrim(
-                str_replace(
-                    [$config->getFullyQualifiedName(false), '\\'],
-                    ['', '/'],
-                    $type->getFullyQualifiedClassName(false)
-                ),
-                '/\\'
-            ) . '.php';
-    }
-
-    /**
+     * @param string $basepath
      * @param string $namespace
      * @return string
      */
-    protected static function cleanupPath(string $namespace): string
+    public static function compileNamespaceFilepath(string $basepath, string $namespace): string
     {
-        $namespace = rtrim($namespace, '\\/');
-        return preg_replace(
-            [self::REGEX_SLASH_SEARCH, self::REGEX_SLASH_SEARCH_CLEANUP],
-            self::REGEX_SLASH_REPLACE,
-            $namespace
-        );
+        $basepath = rtrim($basepath, '\\/');
+        $nsPath = trim(str_replace(PHPFHIR_NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $namespace), DIRECTORY_SEPARATOR);
+        return $basepath . DIRECTORY_SEPARATOR . $nsPath;
+    }
+
+    /**
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @return string
+     */
+    public static function buildTypeClassFilepath(Version $version, Type $type): string
+    {
+        return self::compileNamespaceFilepath($version->getConfig()->getLibraryPath(), $type->getFullyQualifiedNamespace(false))
+            . DIRECTORY_SEPARATOR
+            . "{$type->getClassName()}.php";
+    }
+
+    public static function buildTypeTestClassFilepath(Version $version, Type $type): string
+    {
+        return self::compileNamespaceFilepath($version->getConfig()->getTestsPath(), $type->getFullyQualifiedTestNamespace(false))
+            . DIRECTORY_SEPARATOR
+            . "{$type->getTestClassName()}.php";
+    }
+
+    /**
+     * @param string $baseNS
+     * @param string $classFQN
+     * @return string
+     */
+    public static function buildAutoloaderRelativeFilepath(string $baseNS, string $classFQN): string
+    {
+        $baseNS = ltrim($baseNS, '\\');
+        $classFQN = ltrim($classFQN, '\\');
+        if (str_starts_with($classFQN, $baseNS)) {
+            $classFQN = ltrim(substr($classFQN, strlen($baseNS)), '\\');
+        }
+        return sprintf("__DIR__ . '/%s.php'", str_replace('\\', "/", $classFQN));
     }
 }

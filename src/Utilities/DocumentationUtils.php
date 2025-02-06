@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,16 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Property;
+use DCarbone\PHPFHIR\Version\Definition\Property;
 
 /**
  * Class DocumentationUtils
  * @package DCarbone\PHPFHIR\Utilities
  */
-abstract class DocumentationUtils
+class DocumentationUtils
 {
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Property $property
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $property
      * @param int $spaces
      * @param bool $trailingNewline
      * @return string
@@ -36,9 +36,11 @@ abstract class DocumentationUtils
     {
         $propValueType = $property->getValueFHIRType();
 
-        $typeDoc = null === $propValueType ?
-            '' :
-            trim($propValueType->getDocBlockDocumentationFragment($spaces, false));
+        $typeDoc = match($propValueType) {
+            null => '',
+            default => trim($propValueType->getDocBlockDocumentationFragment($spaces, false)),
+        };
+
         $propDoc = trim($property->getDocBlockDocumentationFragment($spaces, false));
 
         if ('' === $typeDoc && '' === $propDoc) {

@@ -5,3 +5,4 @@
 /output export-ignore
 /input export-ignore
 /phpunit export-ignore
+fhir_test_resources.tar.gz export-ignore

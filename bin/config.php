@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
 /**
- * Generator default configuration file
+ * Builder default configuration file
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,57 +19,46 @@
  * limitations under the License.
  */
 return [
-    // The path to look look for and optionally download source XSD files to
-    'schemaPath'  => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'input/',
+    // The root path to place Library entites
+    'libraryPath' => __DIR__ . '/../output/src',
 
-    // The path to place generated type class files
-    'classesPath' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'output/',
+    // The root namespace for library entities
+    'libraryNamespacePrefix' => '\\DCarbone\\PHPFHIRGenerated',
 
-    // If true, will use a noop null logger
-    'silent'      => false,
+    // The libxml opts to use for parsing version schema XSD's.
+    'librarySchemaLibxmlOpts' => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
 
-    // If true, will skip generation of test classes
-    'skipTests'   => false,
+    // The root path to place test classes
+    'testsPath' => __DIR__ . '/../output/tests',
 
-    // If you wish to specify alternative libxml opts, do so here.
-    'libxmlOpts'  => LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
+    // Namespace prefix to apply to test classes.  The library namespace will be appended to this for all test classes.
+    'testsNamespacePrefix' => '\\Tests',
 
-    // Map of versions and configurations to generate
-    // Each entry in this map will grab the latest revision of that particular version.  If you wish to use a specific
-    // version, please see https://www.hl7.org/fhir/directory.html
-    'versions'    => [
-        'DSTU1' => [
-            // Source URL
-            'url'       => 'https://hl7.org/fhir/DSTU1/fhir-all-xsd.zip',
-            // Namespace to prefix the generated classes with
-            'namespace' => '\\HL7\\FHIR\\DSTU1',
-            // if defined, enables integration and validation test generation against the provided endpoint.
-            'testEndpoint' => '',
+    // Map of versions and configurations to generate.
+    'versions' => [
+        [
+            'name' => 'DSTU1',
+            'schemaPath' => __DIR__ . '/../input/DSTU1',
         ],
-        'DSTU2' => [
-            'url'          => 'https://hl7.org/fhir/DSTU2/fhir-all-xsd.zip',
-            'namespace'    => '\\HL7\\FHIR\\DSTU2',
-            'testEndpoint' => 'https://hapi.fhir.org/baseDstu2',
+        [
+            'name' => 'DSTU2',
+            'schemaPath' => __DIR__ . '/../input/DSTU2',
         ],
-        'STU3'  => [
-            'url'          => 'https://hl7.org/fhir/STU3/fhir-all-xsd.zip',
-            'namespace'    => '\\HL7\\FHIR\\STU3',
-            'testEndpoint' => 'https://hapi.fhir.org/baseDstu3',
+        [
+            'name' => 'STU3',
+            'schemaPath' => __DIR__ . '/../input/STU3',
         ],
-        'R4'    => [
-            'url'          => 'https://hl7.org/fhir/R4/fhir-all-xsd.zip',
-            'namespace'    => '\\HL7\\FHIR\\R4',
-            'testEndpoint' => 'https://hapi.fhir.org/baseR4',
+        [
+            'name' => 'R4',
+            'schemaPath' => __DIR__ . '/../input/R4',
         ],
-        'R5' => [
-            'url'          => 'https://hl7.org/fhir/R5/fhir-all-xsd.zip',
-            'namespace'    => '\\HL7\\FHIR\\R5',
-            'testEndpoint' => 'https://hapi.fhir.org/baseR5',
-        ]
-
-        //        'Build' => [
-        //            'url'       => 'https://build.fhir.org/fhir-all-xsd.zip',
-        //            'namespace' => '\\HL7\\FHIR\\Build',
-        //        ],
+        [
+            'name' => 'R4B',
+            'schemaPath' => __DIR__ . '/../input/R4B',
+        ],
+        [
+            'name' => 'R5',
+            'schemaPath' => __DIR__ . '/../input/R5',
+        ],
     ],
 ];

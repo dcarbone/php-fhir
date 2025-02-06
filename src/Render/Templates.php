@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Render;
 
 /*
- * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,11 @@ namespace DCarbone\PHPFHIR\Render;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\VersionConfig;
-use DCarbone\PHPFHIR\Definition\Type;
-use DCarbone\PHPFHIR\Definition\Types;
-use DCarbone\PHPFHIR\Enum\TestType;
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\CoreFile;
+use DCarbone\PHPFHIR\Version;
+use DCarbone\PHPFHIR\Version\Definition\Type;
+use DCarbone\PHPFHIR\Version\Definition\Types;
 
 /**
  * Class TemplateBuilder
@@ -30,47 +31,49 @@ use DCarbone\PHPFHIR\Enum\TestType;
 abstract class Templates
 {
     /**
-     * @param string $coreFilename
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
+     * @param \DCarbone\PHPFHIR\Config $config
+     * @param \DCarbone\PHPFHIR\CoreFile $coreFile
+     * @param array $kwargs
      * @return string
      */
-    public static function renderCoreType(string $coreFilename, VersionConfig $config, Types $types): string
+    public static function renderCoreFile(Config $config, CoreFile $coreFile, array $kwargs): string
     {
-        return require $coreFilename;
+        extract($kwargs);
+        return require $coreFile->getTemplateFile();
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderXhtmlTypeClass(VersionConfig $config, Types $types, Type $type): string
+    public static function renderVersionXHTMLTypeClass(Version $version, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_xhtml.php';
+        return require sprintf('%s/class_xhtml.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderFhirTypeClass(VersionConfig $config, Types $types, Type $type): string
+    public static function renderVersionTypeClass(Version $version, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPES_DIR . DIRECTORY_SEPARATOR . 'class_default.php';
+        if ($type->getKind()->isResourceContainer($version)) {
+            return require sprintf('%s/class_resource_container.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
+        } else if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) {
+            return require sprintf('%s/class_primitive.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
+        }
+        return require sprintf('%s/class_default.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\VersionConfig $config
-     * @param \DCarbone\PHPFHIR\Definition\Types $types
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
-     * @param \DCarbone\PHPFHIR\Enum\TestType $testType
+     * @param \DCarbone\PHPFHIR\Version $version
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
-    public static function renderFhirTypeClassTest(VersionConfig $config, Types $types, Type $type, TestType $testType): string
+    public static function renderVersionTypeClassTest(Version $version, Type $type): string
     {
-        return require PHPFHIR_TEMPLATE_TYPE_TESTS_DIR . DIRECTORY_SEPARATOR . $testType->value . DIRECTORY_SEPARATOR .'class.php';
+        return require sprintf('%s/class.php', PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR);
     }
 }

@@ -4,7 +4,7 @@
  * Download and generation script for all major FHIR versions
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,25 +26,21 @@ date_default_timezone_set('UTC');
 // --- autoload setup
 const AUTOLOAD_CLASS_FILEPATH = __DIR__ . '/../vendor/autoload.php';
 
+$autoloadClasspath = realpath(AUTOLOAD_CLASS_FILEPATH);
+
 // ensure composer autoload class exists.
-if (!file_exists(AUTOLOAD_CLASS_FILEPATH)) {
-    echo sprintf("Unable to locate composer autoload file expected at path: %s\n\n", AUTOLOAD_CLASS_FILEPATH);
-    echo "Please run \"composer install\" from the root of the project directory\n\n";
+if (!$autoloadClasspath) {
+    echo 'Unable to locate composer autoload file expected at path: ' . AUTOLOAD_CLASS_FILEPATH . PHP_EOL . PHP_EOL;
+    echo "Please run \"composer install\" from the root of the project directory" . PHP_EOL . PHP_EOL;
     exit(1);
 }
 
-require AUTOLOAD_CLASS_FILEPATH;
+require $autoloadClasspath;
 
-// --- use statements
+// ----- use statements
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Definition;
-use JetBrains\PhpStorm\NoReturn;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
@@ -53,35 +49,30 @@ use Psr\Log\NullLogger;
 const ENV_GENERATE_CONFIG_FILE = 'PHPFHIR_GENERATE_CONFIG_FILE';
 
 const FLAG_HELP = '--help';
-const FLAG_FORCE_DELETE = '--forceDelete';
-const FLAG_USE_EXISTING = '--useExisting';
 const FLAG_CONFIG = '--config';
+const FLAG_ONLY_CORE = '--onlyCore';
 const FLAG_ONLY_LIBRARY = '--onlyLibrary';
-const FLAG_ONLY_TESTS = '--onlyTests';
 const FLAG_VERSIONS = '--versions';
 const FLAG_LOG_LEVEL = '--logLevel';
 
 // ----- cli and config opts
 
 $print_help = false;
-$force_delete = false;
 $config_location_def = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 $config_location_env = getenv(ENV_GENERATE_CONFIG_FILE);
 $config_location_arg = '';
 $config_file = null;
+$only_core = false;
 $only_library = false;
-$only_tests = false;
 $versions_to_generate = null;
-$use_existing = false;
 $log_level = LogLevel::WARNING;
 
 // ----- functions
 
 /**
- * @param bool $return
  * @return string
  */
-function missing_config_text(bool $return): string
+function missing_config_text(): string
 {
     global $config_location_env, $config_location_arg, $config_location_def;
     $out = 'Unable to locate generate script configuration file.  I looked in the following locations:' . PHP_EOL;
@@ -113,21 +104,17 @@ Below is an example config file:
 
 STRING;
 
-    if ($return) {
-        return $out;
-    }
-
-    echo $out;
-    exit(1);
+    return $out;
 }
 
 /**
- * @param bool $err
+ * @return string
  */
-#[NoReturn] function exit_with_help(bool $err = false): void
+function help_text(): string
 {
-    global $config_location_def;
-    $env_var = ENV_GENERATE_CONFIG_FILE;
+    global $config_location_def, $user_agent_def;
+
+    $config_env_var = ENV_GENERATE_CONFIG_FILE;
     $out = <<<STRING
 
 PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
@@ -140,44 +127,36 @@ Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
     FHIR:           https://hl7.org/fhir
 
 - Flags:
-    --help:         Print this help text 
+    --help          Print this help text 
                         ex: ./bin/generate.sh --help
-    --forceDelete:  Forcibly delete all pre-existing FHIR schema files and output files without being prompted 
-                        ex: ./bin/generate.sh --forceDelete
-    --useExisting:  Do no prompt for any cleanup tasks.  Mutually exclusive with --forceDelete
-                        ex: ./bin/generate.sh --useExisting
+    --onlyCore      Only gnerate Core classes.  Mutually exclusive with --onlyLibrary and --onlyTests
+                        ex: ./bin/generate.sh --onlyCore
     --onlyLibrary   Only generate Library classes.  Mutually exclusive with --onlyTests
                         ex: ./bin/generate.sh --onlyLibrary
-    --onlyTests     Only generate Test classes.  Mutually exclusive with --onlyLibrary
-                        ex: ./bin/generate.sh --onlyTests
-    --config:       Specify location of config [default: {$config_location_def}]
+    --config        Specify location of config
+                        default: {$config_location_def}
                         ex: ./bin/generate.sh --config path/to/file
-    --versions:     Comma-separated list of specific versions to parse from config
+    --versions      Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions STU3,R4
-    --logLevel:     Level of verbosity during generation
+    --logLevel      Level of verbosity during generation
                         ex: ./bin/generate.sh --logLevel warning
 
 - Configuration:
     There are 3 possible ways to define a configuration file for this script to use:
-        1. Define env var {$env_var}
+        1. Define env var {$config_env_var}
         2. Pass "--config" flag at run time
         3. Place "config.php" in dir {$config_location_def}
 
 
 STRING;
 
-    echo $out;
-    if ($err) {
-        exit(1);
-    }
-    exit(0);
+    return $out;
 }
 
 /**
  * TODO: Figure out what to do with Windows...
  *
  * @param string $q
- *
  * @return bool
  */
 function ask(string $q): bool
@@ -186,7 +165,7 @@ function ask(string $q): bool
     echo "{$q} [enter \"yes\" or \"no\"]: ";
     while (0 !== stream_select($ins, $null, $null, null)) {
         foreach ($ins as $in) {
-            $resp = stream_get_line($in, 25, "\n");
+            $resp = stream_get_line($in, 8, PHP_EOL);
             if (is_string($resp)) {
                 return str_starts_with(strtolower($resp), 'y');
             }
@@ -196,38 +175,6 @@ function ask(string $q): bool
     // some kind of error checking?
     return false;
 }
-
-/**
- * @param string $dir
- */
-function nuke_dir(string $dir): void
-{
-    echo "Executing \"rm -rf {$dir}\" ...\n";
-    shell_exec('rm -rf ' . $dir);
-    sleep(1);
-    if (file_exists($dir)) {
-        echo "Unable to delete dir {$dir}\n";
-        exit(1);
-    }
-    echo "Done.\n";
-}
-
-/**
- * @param string $dir
- * @return bool
- */
-function is_dir_empty(string $dir): bool
-{
-    $res = glob($dir, GLOB_NOSORT);
-    foreach ($res as $r) {
-        if (str_starts_with($r, '.')) {
-            continue;
-        }
-        return false;
-    }
-    return true;
-}
-
 
 // ----- parameter parsing
 
@@ -241,20 +188,16 @@ if ($argc > 1) {
             $next = trim($argv[$i + 1]);
         }
         if (str_contains($arg, '=')) {
-            list($arg, $next) = explode('=', $arg, 2);
+            [$arg, $next] = explode('=', $arg, 2);
             $found_equal = true;
         }
         switch ($arg) {
+            case '?';
+            case '-h':
+            case '-help':
+            case 'help':
             case FLAG_HELP:
                 $print_help = true;
-                break;
-
-            case FLAG_FORCE_DELETE:
-                $force_delete = true;
-                break;
-
-            case FLAG_USE_EXISTING:
-                $use_existing = true;
                 break;
 
             case FLAG_CONFIG:
@@ -278,37 +221,26 @@ if ($argc > 1) {
                 }
                 break;
 
+            case FLAG_ONLY_CORE:
+                $only_core = true;
+                break;
+
             case FLAG_ONLY_LIBRARY:
                 $only_library = true;
                 break;
 
-            case FLAG_ONLY_TESTS:
-                $only_tests = true;
-                break;
-
             default:
-                echo "Unknown argument \"{$arg}\" passed at position {$i}\n";
-                exit_with_help(true);
+                echo "Unknown argument \"{$arg}\" passed at position {$i}" . PHP_EOL;
+                echo help_text();
+                exit(1);
         }
     }
 }
 
-if ($use_existing && $force_delete) {
-    echo sprintf(
-        "Flags %s and %s are mutually exclusive, please specify one or the other.\n",
-        FLAG_FORCE_DELETE,
-        FLAG_USE_EXISTING
-    );
-    exit_with_help(true);
-}
-
-if ($only_library && $only_tests) {
-    echo sprintf(
-        "Flags %s and %s are mutually exclusive, please specify one or neither.\n",
-        FLAG_ONLY_LIBRARY,
-        FLAG_ONLY_TESTS
-    );
-    exit_with_help(true);
+// check if they want the help text before doing anything else.
+if ($print_help) {
+    echo help_text();
+    exit(0);
 }
 
 // try to determine which config file to use...
@@ -320,203 +252,81 @@ if ('' !== $config_location_arg) {
     $config_file = $config_location_def;
 }
 
-if ($print_help) {
-    exit_with_help(); // calls exit(0); at end
-}
-
 if (!file_exists($config_file)) {
-    missing_config_text(false);
-}
-
-if (!is_readable($config_file)) {
-    echo sprintf(
-        "Specified config file \"%s\" is not readable by this process, please check permissions and try again\n",
-        $config_file
-    );
+    echo missing_config_text();
     exit(1);
 }
 
+if (!is_readable($config_file)) {
+    echo "Specified config file \"{$config_file}\" is not readable by this process, please check permissions and try again" . PHP_EOL;
+    exit(1);
+}
+
+// ensure no mutually exclusive flag conflicts exist...
+
+$only_count = 0;
+if ($only_core) {
+    $only_count++;
+}
+if ($only_library) {
+    $only_count++;
+}
+if ($only_count > 1) {
+    echo help_text();
+    echo PHP_EOL;
+    echo "Flags " . FLAG_ONLY_CORE . " and " . FLAG_ONLY_LIBRARY . " are mutually exclusive." . PHP_EOL;
+    exit(1);
+}
+
+// determine what to generate
+$generate_core = $only_core || (0 === $only_count);
+$generate_library = $only_library || (0 === $only_count);
+
 // determine if monolog is present, otherwise use null logger
 if (class_exists('\\Monolog\\Logger')) {
-    $formatter = new LineFormatter(LineFormatter::SIMPLE_FORMAT);
-    $handler = new StreamHandler('php://stdout', $log_level);
-    $handler->setFormatter($formatter);
-    $processor = new PsrLogMessageProcessor(\DateTimeInterface::W3C);
-    $logger = new Logger(
+    $logger = new \Monolog\Logger(
         'php-fhir',
-        [$handler],
-        [$processor]
+        [
+            (new \Monolog\Handler\StreamHandler('php://stdout', $log_level))
+                ->setFormatter(
+                    new \Monolog\Formatter\LineFormatter(\Monolog\Formatter\LineFormatter::SIMPLE_FORMAT),
+                ),
+        ],
+        [
+            new \Monolog\Processor\PsrLogMessageProcessor(\DateTimeInterface::W3C),
+        ]
     );
 } else {
     $logger = new NullLogger();
 }
 
 // build configuration
-$config = new Config(require $config_file, $logger);
+$config = Config::fromArray(require $config_file);
+$config->setLogger($logger);
 
 // test provided versions are defined
 if (null === $versions_to_generate) {
-    $versions_to_generate = $config->listVersions();
+    $versions_to_generate = $config->getVersionNames();
 }
 
 // test specified versions
 foreach ($versions_to_generate as $vg) {
     if (!$config->hasVersion($vg)) {
-        echo sprintf(
-            "Version \"%s\" not found in config.  Available: %s\n\n",
-            $vg,
-            implode(', ', $config->listVersions())
-        );
+        echo 'Version "' . $vg . '" not found in config.  Available: ' .
+            implode(', ', $config->getVersionNames()) . PHP_EOL . PHP_EOL;
         exit(1);
     }
 }
 
-$ins = [STDIN];
-$null = null;
+echo PHP_EOL;
 
-echo sprintf(
-    "\nGenerating classes for versions: %s\n\n",
-    implode(', ', $versions_to_generate)
+// create builder
+$builder = new Builder($config);
+
+// render entities based on flags.
+$builder->render(
+    coreFiles: $generate_core,
+    versionNames: $generate_library ? $versions_to_generate : [],
 );
-
-foreach ($versions_to_generate as $version) {
-    $version_config = $config->getVersion($version);
-    $url = $version_config->getUrl();
-
-    // build vars
-    $namespace = $version_config->getFullyQualifiedName(true);
-    $version = trim($version);
-    $schema_dir = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version;
-
-    // Download zip files
-    $zip_file_name = $config->getSchemaPath() . DIRECTORY_SEPARATOR . $version . '.zip';
-    $zip_exists = file_exists($zip_file_name);
-
-    $download = $unzip = true;
-
-    if ($zip_exists) {
-        if (!$use_existing && ($force_delete ||
-                ask("ZIP \"{$zip_file_name}\" already exists.\nWould you like to re-download from \"{$url}\"?"))
-        ) {
-            echo "Deleting {$zip_file_name} ...\n";
-            unlink($zip_file_name);
-            if (file_exists($zip_file_name)) {
-                echo "Unable to delete file {$zip_file_name}\n";
-                exit(1);
-            }
-            echo "Deleted.\n";
-        } else {
-            echo "Using existing local copy\n";
-            $download = false;
-        }
-    }
-
-    if ($download) {
-        // Download zip file...
-        echo sprintf('Downloading %s from %s to %s%s', $version, $url, $zip_file_name, PHP_EOL);
-        $fh = fopen($zip_file_name, 'w');
-        $ch = curl_init($url);
-        curl_setopt_array(
-            $ch,
-            [
-                CURLOPT_USERAGENT => 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0',
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HEADER => 0,
-                CURLOPT_FILE => $fh,
-            ]
-        );
-        $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err = curl_error($ch);
-        curl_close($ch);
-        fclose($fh);
-        if ('' !== $err) {
-            echo sprintf('Error downloading from %s: %s%s', $version, $err, PHP_EOL);
-            exit(1);
-        }
-        if ($code !== 200) {
-            echo sprintf('Error downlodaing from %s: %d (%s)%s', $version, $code, $resp, PHP_EOL);
-            exit(1);
-        }
-    }
-
-    if (is_dir($schema_dir)) {
-        if (is_dir_empty($schema_dir)) {
-            // TODO: is this necessary...?
-            echo "Schema dir \"{$schema_dir}\" is empty, will remove and re-create\n";
-            nuke_dir($schema_dir);
-            if (!mkdir($schema_dir, 0755, true)) {
-                echo "Unable to create directory \"{$schema_dir}\. Exiting\n";
-                exit(1);
-            }
-        } elseif (!$download) {
-            echo "Did not download new zip and schema dir \"{$schema_dir}\" already exists, using...\n";
-            $unzip = false;
-        } elseif (!$use_existing) {
-            if ($force_delete || ask("Schema dir \"{$schema_dir}\" already exists, ok to delete?")) {
-                nuke_dir($schema_dir);
-                if (!mkdir($schema_dir, 0755, true)) {
-                    echo "Unable to create directory \"{$schema_dir}\. Exiting\n";
-                    exit(1);
-                }
-            } else {
-                echo "Exiting\n";
-                exit(0);
-            }
-        }
-    }
-
-    if ($unzip) {
-        if (class_exists('\\ZipArchive')) {
-            echo "ext-zip found\n";
-
-            $zip = new \ZipArchive();
-
-            if (true !== ($res = $zip->open($schema_dir . '.zip'))) {
-                echo "Unable to open file {$schema_dir}.zip.  ZipArchive err: {$res}\n";
-                exit(1);
-            }
-
-            // Extract Zip
-            $zip->extractTo($schema_dir);
-            $zip->close();
-        } else {
-            echo "ext-zip not found, trying \"unzip\" directly...\n";
-            $cmd = "unzip -o -qq {$schema_dir}.zip -d {$schema_dir}";
-            $output = [];
-            $code = 0;
-            echo "executing: {$cmd}\n";
-            exec($cmd, $output, $code);
-            if (0 !== $code) {
-                echo "unzip failed with code {$code}\noutput:\n";
-                foreach ($output as $line) {
-                    echo "-----> {$line}\n";
-                }
-                exit(1);
-            }
-        }
-    }
-
-    echo sprintf(
-        'Generating "%s" into %s%s%s%s',
-        $version,
-        $config->getClassesPath(),
-        DIRECTORY_SEPARATOR,
-        str_replace('\\', DIRECTORY_SEPARATOR, trim($namespace, "\\")),
-        PHP_EOL
-    );
-
-    $definition = new Definition($version_config);
-    $definition->buildDefinition();
-
-    $builder = new Builder($version_config, $definition);
-    if ($only_library) {
-        $builder->writeFhirTypeFiles();
-    } elseif ($only_tests) {
-        $builder->writeFhirTestFiles();
-    } else {
-        $builder->render();
-    }
-}
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;

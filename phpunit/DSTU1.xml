@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" bootstrap="../vendor/autoload.php" colors="true" stopOnFailure="false">
-  <php>
-    <ini name="memory_limit" value="2048M"/>
-  </php>
-  <testsuites>
-    <testsuite name="DSTU1-Core">
-      <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>../output/HL7/FHIR/DSTU1/PHPFHIRTests/PHPFHIRConfigTest.php</file>
-    </testsuite>
-    <testsuite name="DSTU1-Unit">
-      <directory>../output/HL7/FHIR/DSTU1/PHPFHIRTests/Unit</directory>
-    </testsuite>
-  </testsuites>
-  <source>
-    <include>
-      <directory suffix=".php">./src</directory>
-    </include>
-  </source>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         colors="true"
+         stopOnFailure="false"
+         displayDetailsOnIncompleteTests="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true">
+    <php>
+        <ini name="memory_limit" value="2048M"/>
+        <ini name="precision" value="17"/>
+        <env name="PHPFHIR_TEST_TARGET" value="DSTU1"/>
+    </php>
+    <testsuites>
+        <testsuite name="DSTU1">
+            <directory>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Versions/DSTU1</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>

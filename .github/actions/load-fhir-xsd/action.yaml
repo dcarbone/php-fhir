@@ -25,6 +25,12 @@ outputs:
   cache-key:
     description: 'Actions Cache key'
     value: '${{ steps.vars.cache-key }}'
+  cache-dir:
+    description: 'Root Cache directory'
+    value: '${{ steps.vars.cache-dir }}'
+  version-xsd-cache-dir:
+    description: 'Specific version XSD cache directory'
+    value: '${{ steps.vars.version-xsd-cache-dir }}'
 
 runs:
   using: composite
@@ -37,12 +43,12 @@ runs:
         _cache_key="fhir-source-${{ inputs.version }}-${_month}-1"
         _dl_url="${{ inputs.base-url}}/${{ inputs.version }}/${{ inputs.filename }}"
         _cache_dir="${{ github.workspace }}/input"
-        _xsd_cache_dir="${_cache_dir}/${{ inputs.version }}"
+        _version_xsd_cache_dir="${_cache_dir}/${{ inputs.version }}"
         _zip_filename="${_cache_dir}/${{ inputs.version }}.zip"
         
         echo "cache-key=${_cache_key}" >> $GITHUB_OUTPUT
         echo "cache-dir=${_cache_dir}" >> $GITHUB_OUTPUT
-        echo "xsd-cache-dir=${_xsd_cache_dir}" >> $GITHUB_OUTPUT
+        echo "version-xsd-cache-dir=${_version_xsd_cache_dir}" >> $GITHUB_OUTPUT
         echo "url=${_dl_url}" >> $GITHUB_OUTPUT
         echo "zip-filename=${_zip_filename}" >> $GITHUB_OUTPUT
 
@@ -57,15 +63,39 @@ runs:
       shell: bash -e {0}
       # language=sh
       run: |
-        mkdir -p '${{ steps.vars.outputs.xsd-cache-dir }}'
+        echo "::group::Ensuring cache directory exists"
+        mkdir -p '${{ steps.vars.outputs.version-xsd-cache-dir }}'
+        echo "::endgroup::"
         
+        echo "::group::Downloading '${{ steps.vars.outputs.url }}'"
         curl \
           -L \
           -A '${{ inputs.user-agent }}' \
           -o '${{ steps.vars.outputs.zip-filename }}' \
           '${{ steps.vars.outputs.url }}'
+        echo "::endgroup::"
         
-        unzip -o -qq '${{ steps.vars.outputs.zip-filename }}' -d '${{ steps.vars.outputs.xsd-cache-dir }}'
+        echo "::group::Unzipping '${{ steps.vars.outputs.zip-filename }}'"
+        unzip -o -qq '${{ steps.vars.outputs.zip-filename }}' -d '${{ steps.vars.outputs.version-xsd-cache-dir }}'
+        echo "::endgroup::"
         
+        if [ -d '${{ steps.vars.outputs.version-xsd-cache-dir }}/fhir-all-xsd' ]; then
+            echo "::group::Zip was created on MacOS, cleaning up..."
+        
+            mv '${{ steps.vars.outputs.version-xsd-cache-dir }}/fhir-all-xsd'/* '${{ steps.vars.outputs.version-xsd-cache-dir }}'
+            rmdir '${{ steps.vars.outputs.version-xsd-cache-dir }}/fhir-all-xsd'
+        
+            echo "::endgroup::"
+        fi
+
+    - name: 'List files'
+      shell: bash -e {0}
+      # language=sh
+      run: |
+        echo "::group::Listing files in '${{ steps.vars.outputs.cache-dir }}'"
         ls -l '${{ steps.vars.outputs.cache-dir}}'
-        ls -l '${{ steps.vars.outputs.xsd-cache-dir }}'
+        echo "::endgroup::"
+        
+        echo "::group::Listing files in '${{ steps.vars.outputs.version-xsd-cache-dir }}'"
+        ls -l '${{ steps.vars.outputs.version-xsd-cache-dir }}'
+        echo "::endgroup::"

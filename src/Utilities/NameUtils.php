@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Utilities;
 
 /*
- * Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,19 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Definition\Type;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 
 /**
  * Class NameUtils
  * @package DCarbone\PHPFHIR\ClassGenerator\Utilities
  */
-abstract class NameUtils
+class NameUtils
 {
+    public const VARIABLE_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
+    public const FUNCTION_NAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
+    public const CLASSNAME_REGEX = '{^[a-zA-Z_][a-zA-Z0-9_]*$}S';
+    public const NAMESPACE_REGEX = '{^[a-zA-Z][a-zA-Z0-9_]*(\\\[a-zA-Z0-9_]+)*[a-zA-Z0-9_]$}';
+
     /** @var array */
     public static array $classNameSearch = [
         '.',
@@ -106,6 +111,17 @@ abstract class NameUtils
         '-' => '_HYPHEN_',
     ];
 
+    private const _NAME_REPLACE_MAP = [
+        'api' => 'API',
+        'fhir' => 'FHIR',
+        'xhtml' => 'XHTML',
+        'xml' => 'XML',
+        'json' => 'JSON',
+        'http' => 'HTTP',
+        'curl' => 'CURL',
+        'dstu1' => 'DSTU1',
+    ];
+
     /** @var array */
     private static array $constNameMap = [];
 
@@ -115,7 +131,7 @@ abstract class NameUtils
      */
     public static function isValidVariableName(string $name): bool
     {
-        return (bool)preg_match(PHPFHIR_VARIABLE_NAME_REGEX, $name);
+        return (bool)preg_match(self::VARIABLE_NAME_REGEX, $name);
     }
 
     /**
@@ -124,7 +140,7 @@ abstract class NameUtils
      */
     public static function isValidFunctionName(string $name): bool
     {
-        return (bool)preg_match(PHPFHIR_FUNCTION_NAME_REGEX, $name);
+        return (bool)preg_match(self::FUNCTION_NAME_REGEX, $name);
     }
 
     /**
@@ -133,16 +149,16 @@ abstract class NameUtils
      */
     public static function isValidClassName(string $name): bool
     {
-        return (bool)preg_match(PHPFHIR_CLASSNAME_REGEX, $name);
+        return (bool)preg_match(self::CLASSNAME_REGEX, $name);
     }
 
     /**
-     * @param string|null $name
+     * @param string $name
      * @return bool
      */
-    public static function isValidNSName(?string $name): bool
+    public static function isValidNSName(string $name): bool
     {
-        return null === $name || '' === $name || preg_match(PHPFHIR_NAMESPACE_REGEX, $name);
+        return '' !== $name && preg_match(self::NAMESPACE_REGEX, $name);
     }
 
     /**
@@ -178,7 +194,8 @@ abstract class NameUtils
         $lastUpper = false;
         foreach (str_split($name) as $chr) {
             if (in_array($chr, self::_UPPER, true) || in_array($chr, self::_NUMS, true)) {
-                if ('' !== $constName && !$lastUpper && !str_ends_with($constName, '_')) { // really simplistic abbreviation detection...
+                // really simplistic abbreviation detection...
+                if ('' !== $constName && !$lastUpper && !str_ends_with($constName, '_')) {
                     $constName .= '_';
                 }
                 $constName .= $chr;
@@ -201,7 +218,7 @@ abstract class NameUtils
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Definition\Type $type
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
     public static function getTypeXMLElementName(Type $type): string
@@ -210,20 +227,22 @@ abstract class NameUtils
     }
 
     /**
-     * @param string $propName
+     * This is a horrendously named function.
+     *
+     * @param string $bit
      * @return string
      */
-    public static function getPropertyMethodName(string $propName): string
+    public static function phpNameFormat(string $bit): string
     {
-        return ucfirst($propName);
+        return self::_NAME_REPLACE_MAP[$bit] ?? ucfirst($bit);
     }
 
-    /**
-     * @param string $propName
-     * @return string
-     */
-    public static function getPropertyVariableName(string $propName): string
+    public static function templateFilenameToPHPName(string $filename, string $explode = '_', string $join = ''): string
     {
-        return sprintf('$%s', $propName);
+        $parts = [];
+        foreach (explode($explode, $filename) as $bit) {
+            $parts[] = self::phpNameFormat($bit);
+        }
+        return implode($join, array_filter($parts));
     }
 }

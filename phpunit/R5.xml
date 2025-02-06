@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" bootstrap="../vendor/autoload.php" colors="true" stopOnFailure="false">
-  <php>
-    <ini name="memory_limit" value="2048M"/>
-  </php>
-  <testsuites>
-    <testsuite name="R5-Core">
-      <file>../output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConstantsTest.php</file>
-      <file>../output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRTypeMapTest.php</file>
-      <file>../output/HL7/FHIR/R5/PHPFHIRTests/PHPFHIRConfigTest.php</file>
-    </testsuite>
-    <testsuite name="R5-Unit">
-      <directory>../output/HL7/FHIR/R5/PHPFHIRTests/Unit</directory>
-    </testsuite>
-    <testsuite name="R5-Integration">
-      <directory>../output/HL7/FHIR/R5/PHPFHIRTests/Integration</directory>
-    </testsuite>
-  </testsuites>
-  <source>
-    <include>
-      <directory suffix=".php">../src</directory>
-    </include>
-  </source>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         colors="true"
+         stopOnFailure="false"
+         displayDetailsOnIncompleteTests="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true">
+    <php>
+        <ini name="memory_limit" value="2048M"/>
+        <ini name="precision" value="17"/>
+        <env name="PHPFHIR_TEST_TARGET" value="R5"/>
+        <env name="PHPFHIR_TEST_SERVER_ADDR" value="http://127.0.0.1:8080/R5"/>
+    </php>
+    <testsuites>
+        <testsuite name="R5">
+            <directory>../output/tests/Tests/DCarbone/PHPFHIRGenerated/Versions/R5</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>
