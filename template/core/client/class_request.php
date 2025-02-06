@@ -28,6 +28,7 @@ $formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_F
 $httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 $sortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
+$versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
 
 $imports = $coreFile->getimports();
 
@@ -37,6 +38,7 @@ $imports->addCoreFileImports(
     $httpMethodEnum,
     $sortEnum,
     $responseClass,
+    $versionInterface,
 );
 
 ob_start();
@@ -48,9 +50,12 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
+class <?php echo $coreFile; ?>
 
 {
+    /** @var <?php $versionInterface->getFullyQualifiedName(true); ?> */
+    public <?php echo $versionInterface; ?> $version;
+
     /** @var string */
     public string $method;
 
@@ -95,12 +100,11 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
      *
      * If using the provided client (@see <?php echo $clientClass->getFullyQualifiedName(true); ?> class),
      * these must be valid PHP curl options.
-     *
-     * @var array
      */
     public array $options;
 
-    public function __construct(<?php echo $httpMethodEnum; ?> $method,
+    public function __construct(<?php echo $versionInterface; ?> $version,
+                                <?php echo $httpMethodEnum; ?> $method,
                                 string $path,
                                 null|int $count = null,
                                 null|string $since = null,
@@ -111,6 +115,7 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?>
                                 null|bool $parseResponseHeaders = null,
                                 null|array $options = null)
     {
+        $this->version = $version;
         $this->method = $method->value;
         $this->path = $path;
         if (null !== $count) {
