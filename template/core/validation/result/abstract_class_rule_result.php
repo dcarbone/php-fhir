@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
-$ruleResult = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
+$ruleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
-    $ruleResult,
+    $ruleInterface,
 );
 
 ob_start();
@@ -42,33 +42,28 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile; ?>
+abstract class <?php echo $coreFile; ?> implements <?php echo $ruleInterface; ?>
 
 {
     /**
-     * Must return the name of this rule.
+     * The name of the FHIR Type that the rule was run on.
      *
-     * @return string
+     * @var string
      */
-    public function getName(): string;
+    public string $fhirType;
 
     /**
-     * Should return a human-readable description of the purpose of this validator
+     * The name of the field the rule was run on.
      *
-     * @return string
+     * @var string
      */
-    public function getDescription(): string;
+    public string $field;
 
     /**
-     * Perform assertion for this rule.
+     * The constraint provided to the rule.
      *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $field
-     * @param mixed $constraint
-     * @param mixed $value
-     * @return <?php echo $ruleResult->getFullyQualifiedName(true); ?>
-
+     * @var mixed
      */
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResult; ?>;
+    public mixed $constraint;
 }
 <?php return ob_get_clean();

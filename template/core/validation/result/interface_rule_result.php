@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
+
 $ruleResult = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
-    $ruleResult,
 );
 
 ob_start();
@@ -42,33 +42,70 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile; ?>
+interface <?php echo $coreFile; ?> extends \Countable, \JsonSerializable
 
 {
     /**
-     * Must return the name of this rule.
+     * Must return the name of the rule that produced this result
      *
      * @return string
      */
-    public function getName(): string;
+    public function getRule(): string;
 
     /**
-     * Should return a human-readable description of the purpose of this validator
+     * Must return the name of the FHIR type the rule was run on.
      *
      * @return string
      */
-    public function getDescription(): string;
+    public function getFHIRType(): string;
 
     /**
-     * Perform assertion for this rule.
+     * Must return the name of the field the rule was run on.
      *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $field
-     * @param mixed $constraint
-     * @param mixed $value
-     * @return <?php echo $ruleResult->getFullyQualifiedName(true); ?>
-
+     * @return string
      */
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResult; ?>;
+    public function getField(): string;
+
+    /**
+     * Must return the constraint passed to the rule.
+     *
+     * @return mixed
+     */
+    public function getConstraint(): mixed;
+
+    /**
+     * Must return the error message produced by the rule, if there was one.  An empty value indicates no error.
+     *
+     * @return string
+     */
+    public function getError(): string;
+
+    /**
+     * Must return whether this rule must be the last rule run in the set for the type's field.
+     *
+     * @return bool
+     */
+    public function mustHalt(): bool;
+
+    /**
+     * Must return true if this rule and all (if any) subrules passed.
+     *
+     * @return bool
+     */
+    public function ok(): bool;
+
+    /**
+     * Must return the total count of all errored rules, including self and sub-rules
+     *
+     * @return int
+     */
+    public function getErroCount(): int;
+
+    /**
+     * Must return an iterator that enables recursion through self and all sub-rules
+     *
+     * @return <?php echo $coreFile->getFullyQualifiedName(true); ?>[]
+     */
+    public function getIterator(): iterable;
 }
 <?php return ob_get_clean();

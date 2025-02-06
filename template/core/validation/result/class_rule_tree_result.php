@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
-$ruleResult = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
+$ruleResultInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATOR_INTERFACE_RULE_RESULT);
+$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
-    $ruleResult,
 );
 
 ob_start();
@@ -42,33 +42,10 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile; ?>
+class <?php echo $coreFile; ?> extends <?php echo $ruleResultClass; ?>
 
 {
-    /**
-     * Must return the name of this rule.
-     *
-     * @return string
-     */
-    public function getName(): string;
-
-    /**
-     * Should return a human-readable description of the purpose of this validator
-     *
-     * @return string
-     */
-    public function getDescription(): string;
-
-    /**
-     * Perform assertion for this rule.
-     *
-     * @param <?php echo $typeInterface->getFullyQualifiedName(true); ?> $type
-     * @param string $field
-     * @param mixed $constraint
-     * @param mixed $value
-     * @return <?php echo $ruleResult->getFullyQualifiedName(true); ?>
-
-     */
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResult; ?>;
+    /** @var <?php echo $ruleResultClass->getFullyQualifiedName(true); ?>[] */
+    protected array $_results = [];
 }
 <?php return ob_get_clean();
