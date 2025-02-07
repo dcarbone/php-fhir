@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
-$maxOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MAX_OCCURS);
+$minOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS);
 
 $testCoreFiles = $config->getCoreTestFiles();
 $mockResource = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
@@ -33,7 +33,7 @@ $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $mockResource,
     $mockPrimitive,
-    $maxOccursRule,
+    $minOccursRule,
 );
 
 ob_start();
@@ -59,13 +59,13 @@ class <?php echo $coreFile; ?> extends TestCase
                 ],
             ],
         );
-        $rule = new <?php echo $maxOccursRule; ?>();
+        $rule = new <?php echo $minOccursRule; ?>();
         $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
         $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined');
         $this->assertEquals('', $res->error ?? '');
     }
 
-    public function testNoErrorWithEmptyValue()
+    public function testErrorWithEmptyValue()
     {
         $type = new <?php echo $mockResource; ?>(
             'mock',
@@ -76,13 +76,13 @@ class <?php echo $coreFile; ?> extends TestCase
                 ],
             ],
         );
-        $rule = new <?php echo $maxOccursRule; ?>();
+        $rule = new <?php echo $minOccursRule; ?>();
         $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined');
-        $this->assertEquals('', $res->error ?? '');
+        $this->assertFalse($res->ok(), $res->error ?? 'Result should be not OK, but is and no error was defined');
+        $this->assertNotEquals('', $res->error);
     }
 
-    public function testErrorWithTooManyElements()
+    public function testErrorWithTooFewElements()
     {
         $type = new <?php echo $mockResource; ?>(
             'mock',
@@ -90,11 +90,11 @@ class <?php echo $coreFile; ?> extends TestCase
                 'stuff' => [
                     'class' => <?php echo $mockPrimitive; ?>::class,
                     'collection' => true,
-                    'value' => ['value-1', 'value-2', 'value-3'],
+                    'value' => ['value-1'],
                 ],
             ],
         );
-        $rule = new <?php echo $maxOccursRule; ?>();
+        $rule = new <?php echo $minOccursRule; ?>();
         $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
         $this->assertFalse($res->ok(), $res->error ?? 'Result should be not OK, but is OK and no error was defined');
         $this->assertNotEquals('', $res->error);
