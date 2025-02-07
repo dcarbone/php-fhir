@@ -96,13 +96,100 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
             $this->_setFieldValidationRules($field, $validationRuleMap);
         }
 
-        foreach($fields as $field => $def) {
+        // process field declarations, performing some basic value validation and processing.
+        foreach($this->_fields as $field => $def) {
             if (!isset($def['class'])) {
                 throw new \LogicException(sprintf('Field "%s" definition must contain "class" key', $field));
             }
-            if (is_a($def['class'], <?php echo $primitiveContainerInterface; ?>::class, true)) {
+
+            $class = $def['class'];
+            $value = $def['value'] ?? null;
+            $collection = $def['collection'] ?? false;
+
+            $primitive = is_a($class, <?php echo $primitiveTypeInterface; ?>::class, true);
+            $primitiveContainer = is_a($class, <?php echo $primitiveContainerInterface; ?>::class, true);
+
+            // if value is unset / null, move on to next field
+            if (null === $value) {
+                continue;
+            }
+
+            // start collection field processing
+            if ($collection) {
+                // if you wish to set an initial value for a collection field, you must provide an array of values.
+                if (!is_array($value)) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Must leave mock type "%s" collection field "%s" value unset or provide an array of values',
+                        $this->_name,
+                        $class
+                    ));
+                }
+                foreach($value as $i => $v) {
+                    // if we have the expected field class type, move on.
+                    if (is_a($v, $class, false)) {
+                        continue;
+                    }
+                    // nulls and anything other than scalar values are prohibited at this point.
+                    if (!is_scalar($v)) {
+                        throw new \InvalidArgumentException(sprintf(
+                            'Unexpected value of php type "%s" provided at offset %d of mock type "%s" collection field "%s" value.',
+                            gettype($v),
+                            $i,
+                            $this->_name,
+                            $field,
+                        ));
+                    }
+                    // if this is a primitive or primitive container, set the initial value to be the type instance.
+                    if ($primitive || $primitiveContainer) {
+                        $this->_fields[$field]['value'][$i] = new $class(value: $v);
+                        continue;
+                    }
+                    // all other types must be instances
+                    throw new \InvalidArgumentException(sprintf(
+                        'Must provide fully initialized instance of type "%s" to all values for mock type "%s" collection field "%s"',
+                        $class,
+                        $this->_name,
+                        $field,
+                    ));
+                }
+
+                // end collection field processing
+                continue;
+            }
+
+            // ensure the appropriate XML locations are set.
+            if ($primitive) {
+                $this->_valueXMLLocations[$field] = <?php echo $valueXMLLocationEnum; ?>::PARENT_ATTRIBUTE;
+            } else if ($primitiveContainer) {
                 $this->_valueXMLLocations[$field] = <?php echo $valueXMLLocationEnum; ?>::CONTAINER_ATTRIBUTE;
             }
+
+            // if not set or already the correct instance, move on.
+            if ($value instanceof $class) {
+                continue;
+            }
+
+            // non-primitives _must_ have an instance of the appropriate type set as their initial value, if one is set.
+            if (!$primitive && !$primitiveContainer) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Must provide instance of "%s" to mock type "%s" field "%s" value.',
+                    $class,
+                    $this->_name,
+                    $field,
+                ));
+            }
+
+            // this point, the value must be a scalar.
+            if (!is_scalar($value)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Unexpected value of php type "%s" provided to mock type "%s" field "%s" value.',
+                    gettype($value),
+                    $this->_name,
+                    $field,
+                ));
+            }
+
+            $this->_fields[$field]['value'] = new $class(value: $value);
         }
     }
 
@@ -198,7 +285,7 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
         return $this;
     }
 
-    public function __call(string $name, array $args): null|self|<?php echo $typeInterface; ?>
+    public function __call(string $name, array $args): null|self|iterable|<?php echo $typeInterface; ?>
 
     {
         $get = str_starts_with($name, 'get');
@@ -221,7 +308,9 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
         };
     }
 
-    public static function xmlUnserialize(\SimpleXMLElement|string $element, <?php echo $unserializeConfig; ?> $config = null, <?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
+    public static function xmlUnserialize(\SimpleXMLElement|string $element,
+                                          null|<?php echo $unserializeConfig; ?> $config = null,
+                                          null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
 
     {
         throw new \BadMethodCallException('gotta do this');
@@ -268,6 +357,10 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
             $collection = $def['collection'] ?? false;
             $primitiveContainer = is_a($class, <?php echo $primitiveContainerInterface; ?>::class, true);
 
+            if (null === $value) {
+                continue;
+            }
+
             if ($collection) {
                 foreach ($value as $v) {
                     $xw->startElement($field);
@@ -312,7 +405,7 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
             $value = $def['value'] ?? null;
             $primitiveContainer = is_a($class, <?php echo $primitiveContainerInterface; ?>::class, true);
 
-            if (null === $value || [] === $value) {
+            if (null === $value) {
                 continue;
             }
 

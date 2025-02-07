@@ -52,7 +52,7 @@ class <?php echo $coreFile; ?> extends TestCase
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
         $rule = new <?php echo $patternRule; ?>();
         $res = $rule->assert($type, 'value', '/^[a-z\s]+$/', $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? '');
+        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
     }
 
     public function testErrorWithValidPatternAndInvalidValue()
@@ -61,6 +61,7 @@ class <?php echo $coreFile; ?> extends TestCase
         $rule = new <?php echo $patternRule; ?>();
         $res = $rule->assert($type, 'value', '/^[a-z]+$/', $type->getValue());
         $this->assertFalse($res->ok(), 'Rule should have produced error');
+        $this->assertNotEquals('', $res->error);
     }
 
     /**
@@ -73,6 +74,7 @@ class <?php echo $coreFile; ?> extends TestCase
         $rule = new <?php echo $patternRule; ?>();
         $res = $rule->assert($type, 'value', '/^(\\s*([0-9a-zA-Z\\+\\/=]){4}\\s*)+$/', $type->getValue());
         $this->assertFalse($res->ok(), 'Rule should have produced error');
+        $this->assertNotEquals('', $res->error);
     }
 }
 <?php return ob_get_clean();

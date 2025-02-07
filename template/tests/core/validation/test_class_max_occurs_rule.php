@@ -47,5 +47,40 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo $coreFile; ?> extends TestCase
 {
+    public function testNoErrorWithValidState()
+    {
+        $type = new <?php echo $mockResource; ?>(
+            'mock',
+            [
+                'stuff' => [
+                    'class' => <?php echo $mockPrimitive; ?>::class,
+                    'collection' => true,
+                    'value' => ['value-1', 'value-2'],
+                ],
+            ],
+        );
+        $rule = new <?php echo $maxOccursRule; ?>();
+        $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
+        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined');
+        $this->assertEquals('', $res->error ?? '');
+    }
+
+    public function testErrorWithTooManyElements()
+    {
+        $type = new <?php echo $mockResource; ?>(
+            'mock',
+            [
+                'stuff' => [
+                    'class' => <?php echo $mockPrimitive; ?>::class,
+                    'collection' => true,
+                    'value' => ['value-1', 'value-2', 'value-3'],
+                ],
+            ],
+        );
+        $rule = new <?php echo $maxOccursRule; ?>();
+        $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
+        $this->assertFalse($res->ok(), $res->error ?? 'Result should be not OK, but is OK and no error was defined');
+        $this->assertNotEquals('', $res->error);
+    }
 }
 <?php return ob_get_clean();

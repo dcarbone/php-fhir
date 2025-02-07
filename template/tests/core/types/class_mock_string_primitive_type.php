@@ -57,11 +57,11 @@ class <?php echo $coreFile; ?> implements <?php echo $primitiveTypeInterface; ?>
 
     protected string $value;
 
-    public function __construct(string $typeName,
+    public function __construct(string $name = 'mock-string-primitive',
                                 null|string $value = null,
                                 array $validationRuleMap = [])
     {
-        $this->_name = $typeName;
+        $this->_name = $name;
         $this->setValue($value);
         foreach($validationRuleMap as $field => $rules) {
             $this->_setFieldValidationRules($field, $validationRuleMap);
