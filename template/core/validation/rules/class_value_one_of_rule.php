@@ -25,11 +25,13 @@ $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
 $ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports->addCoreFileImports(
     $typeInterface,
+    $primitiveTypeInterface,
     $validationRuleInterface,
     $ruleResultClass,
 );
@@ -63,7 +65,13 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
     {
         $res = new <?php echo $ruleResultClass; ?>(self::NAME, $type->_getFHIRTypeName(), $field, $constraint, $value);
-        if ([] === $constraint || in_array($value, $constraint, true)) {
+        if (null === $value || [] === $constraint) {
+            return $res;
+        }
+        if ($value instanceof <?php echo $primitiveTypeInterface; ?>) {
+            $value = (string)$value;
+        }
+        if (in_array($value, $constraint, true)) {
             return $res;
         }
         $res->error = sprintf(
