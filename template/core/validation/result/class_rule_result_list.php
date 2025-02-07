@@ -24,7 +24,6 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
-$ruleResultInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATOR_INTERFACE_RULE_RESULT);
 $ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports = $coreFile->getImports();

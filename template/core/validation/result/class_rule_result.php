@@ -21,18 +21,6 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-$coreFiles = $config->getCoreFiles();
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
-$ruleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
-
-$imports = $coreFile->getImports();
-$imports->addCoreFileImports(
-    $typeInterface,
-    $validatorClass,
-    $ruleInterface,
-);
-
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
@@ -40,17 +28,43 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-<?php echo ImportUtils::compileImportStatements($imports); ?>
-
-class <?php echo $coreFile; ?> implements <?php echo $ruleInterface; ?>
+class <?php echo $coreFile; ?>
 
 {
     /**
-     * The name of the rule that produced this response.
+     * The name of the rule that produced this res.
      *
      * @var string
      */
     public string $rule;
+
+    /**
+     * The name of the FHIR Type that the rule was run on.
+     *
+     * @var string
+     */
+    public string $fhirType;
+
+    /**
+     * The name of the field the rule was run on.
+     *
+     * @var string
+     */
+    public string $field;
+
+    /**
+     * The value of the field.
+     *
+     * @var mixed
+     */
+    public mixed $value;
+
+    /**
+     * The constraint provided to the rule.
+     *
+     * @var mixed
+     */
+    public mixed $constraint;
 
     /**
      * Error message from rule.  If not defined, rule is assumed to have passed.
@@ -71,14 +85,13 @@ class <?php echo $coreFile; ?> implements <?php echo $ruleInterface; ?>
                                 string $fhirType,
                                 string $field,
                                 mixed $constraint,
-                                string $error,
-                                bool $halt = false) {
+                                mixed $value)
+    {
         $this->rule = $rule;
-        $this->fhirType = fhirType;
+        $this->fhirType = $fhirType;
         $this->field = $field;
         $this->constraint = $constraint;
-        $this->error = $error;
-        $this->halt = $halt;
+        $this->value = $value;
     }
 
     /**
@@ -88,7 +101,7 @@ class <?php echo $coreFile; ?> implements <?php echo $ruleInterface; ?>
      */
     public function ok(): bool
     {
-        return unset($this->error) || '' === $this->error;
+        return !isset($this->error);
     }
 
     /**
@@ -100,32 +113,33 @@ class <?php echo $coreFile; ?> implements <?php echo $ruleInterface; ?>
     {
         $out = new \stdClass();
         foreach($this as $k => $v) {
-            if ('constraint' !== $k) {
+            if ('constraint' !== $k && 'value' !== $k) {
                 $out->{$k} = $v;
             } else if (is_scalar($v)) {
-                $out->constraint = $v;
+                $out->{$k} = $v;
             } else if (is_object($v)) {
-                $out->constraint = ($v instanceof \JsonSerializable) ? $v : get_class($v);
+                $out->{$k} = ($v instanceof \JsonSerializable) ? $v : get_class($v);
             } else if (is_array($v)) {
                 $unsafeTypes = [];
                 foreach($v as $vv) {
-                    if (is_scalar($vv) {
+                    if (is_scalar($vv)) {
                         continue;
                     }
                     $unsafeType[] = match(true) {
                         is_object($vv) => get_class($vv),
                         is_array($vv) => sprintf('Array[%d]', count($vv)),
                         default => gettype($vv),
-                    }
+                    };
                 }
-                $out->constraint = match($unsafeTypes) {
+                $out->{$k} = match($unsafeTypes) {
                     [] => $v,
                     default => $unsafeTypes,
                 };
             } else {
-                $out->constraint = gettype($v);
+                $out->{$k} = gettype($v);
             }
         }
+        return $out;
     }
 }
 <?php return ob_get_clean();

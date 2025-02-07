@@ -28,12 +28,14 @@ $constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANT
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
+$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports->addCoreFileImports(
     $constantsClass,
     $typeInterface,
     $primitiveTypeInterface,
     $validationRuleInterface,
+    $ruleResultClass,
 );
 
 ob_start();
@@ -61,16 +63,17 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResultClass; ?>
+
     {
+        $res = new <?php echo $ruleResultClass; ?>(self::NAME, $type->_getFHIRTypeName(), $field, $constraint, $value);
         if (<?php echo $constantsClass; ?>::UNLIMITED === $constraint || null === $value || [] === $value || $value instanceof <?php echo $typeInterface; ?>) {
-            return null;
+            return $res;
         }
-        $len = count($value);
-        if ($constraint >= $len) {
-            return null;
+        if ($constraint < ($len = count($value))) {
+            $res->error = sprintf('Field "%s" on type "%s" must have no more than %d elements, %d seen', $field, $type->_getFHIRTypeName(), $constraint, $len);
         }
-        return sprintf('Field "%s" on type "%s" must have no more than %d elements, %d seen', $field, $type->_getFHIRTypeName(), $constraint, $len);
+        return $res;
     }
 }
 <?php return ob_get_clean();

@@ -26,10 +26,12 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
+$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $validationRuleInterface,
+    $ruleResultClass,
 );
 
 ob_start();
@@ -57,12 +59,14 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResultClass; ?>
+
     {
+        $res = new <?php echo $ruleResultClass; ?>(self::NAME, $type->_getFHIRTypeName(), $field, $constraint, $value);
         if ([] === $constraint || in_array($value, $constraint, true)) {
-            return null;
+            return $res;
         }
-        return sprintf(
+        $res->error = sprintf(
             'Field "%s" on type "%s" value "%s" not one of [%s]',
             $field,
             $type->_getFHIRTypeName(),
@@ -75,6 +79,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
                 )
             )
         );
+        return $res;
     }
 }
 <?php return ob_get_clean();

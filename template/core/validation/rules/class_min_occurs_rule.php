@@ -27,11 +27,13 @@ $imports = $coreFile->getImports();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
+$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $primitiveTypeInterface,
     $validationRuleInterface,
+    $ruleResultClass,
 );
 
 ob_start();
@@ -59,19 +61,19 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResultClass; ?>
+
     {
-        if (0 >= $constraint || (1 === $constraint && $value instanceof <?php echo $typeInterface; ?>)) {
-            return null;
+        $res = new <?php echo $ruleResultClass; ?>(self::NAME, $type->_getFHIRTypeName(), $field, $constraint, $value);
+        if (0 >= $constraint || (1 === $constraint && (is_scalar($value) || $value instanceof <?php echo $typeInterface; ?>))) {
+            return $res;
         }
         if (null === $value || [] === $value) {
-            return sprintf('Field "%s" on type "%s" must have at least %d elements, but it is empty', $field, $type->_getFHIRTypeName(), $constraint);
+            $res->error = sprintf('Field "%s" on type "%s" must have at least %d elements, but it is empty', $field, $type->_getFHIRTypeName(), $constraint);
+        } else if ($constraint > ($len = count($value))) {
+            $res->error = sprintf('Field "%s" on type "%s" must have at least %d elements, %d seen.', $field, $type->_getFHIRTypeName(), $constraint, $len);
         }
-        $len = count($value);
-        if ($constraint > $len) {
-            return sprintf('Field "%s" on type "%s" must have at least %d elements, %d seen.', $field, $type->_getFHIRTypeName(), $constraint, $len);
-        }
-        return null;
+        return $res;
     }
 }
 <?php return ob_get_clean();

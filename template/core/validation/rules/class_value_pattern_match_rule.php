@@ -27,11 +27,13 @@ $imports = $coreFile->getImports();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
+$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $primitiveTypeInterface,
     $validationRuleInterface,
+    $ruleResultClass,
 );
 
 ob_start();
@@ -59,17 +61,19 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResultClass; ?>
+
     {
+        $res = new <?php echo $ruleResultClass; ?>(self::NAME, $type->_getFHIRTypeName(), $field, $constraint, $value);
         if ('' === $constraint || null === $value) {
-            return null;
+            return $res;
         }
         if ($value instanceof <?php echo $primitiveTypeInterface; ?>) {
             $value = (string)$value;
         }
-        $res = preg_match($constraint, $value);
+        $match = preg_match($constraint, $value);
         if (PREG_NO_ERROR !== preg_last_error()) {
-            return sprintf(
+            $res->error = sprintf(
                 'Rule %s failed to verify type "%s" field "%s" value of size %d with pattern "%s": %s',
                 self::NAME,
                 $type->_getFHIRTypeName(),
@@ -78,11 +82,10 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
                 $constraint,
                 preg_last_error_msg(),
             );
+        } else if (!$match) {
+            $res->error = sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $field, $type->_getFHIRTypeName(), $value, $constraint);
         }
-        if ($res) {
-            return null;
-        }
-        return sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $field, $type->_getFHIRTypeName(), $value, $constraint);
+        return $res;
     }
 }
 <?php return ob_get_clean();
