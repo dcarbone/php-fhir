@@ -71,19 +71,23 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         if ($value instanceof <?php echo $primitiveTypeInterface; ?>) {
             $value = (string)$value;
         }
-        $match = preg_match($constraint, $value);
-        if (PREG_NO_ERROR !== preg_last_error()) {
-            $res->error = sprintf(
-                'Rule %s failed to verify type "%s" field "%s" value of size %d with pattern "%s": %s',
-                self::NAME,
-                $type->_getFHIRTypeName(),
-                $field,
-                strlen((string)$value),
-                $constraint,
-                preg_last_error_msg(),
-            );
-        } else if (!$match) {
-            $res->error = sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $field, $type->_getFHIRTypeName(), $value, $constraint);
+        try {
+            $match = preg_match($constraint, $value);
+            if (PREG_NO_ERROR !== preg_last_error()) {
+                $res->error = sprintf(
+                    'Rule %s failed to verify type "%s" field "%s" value of size %d with pattern "%s": %s',
+                    self::NAME,
+                    $type->_getFHIRTypeName(),
+                    $field,
+                    strlen((string)$value),
+                    $constraint,
+                    preg_last_error_msg(),
+                );
+            } else if (!$match) {
+                $res->error = sprintf('Field "%s" on type "%s" value of "%s" does not match pattern: %s', $field, $type->_getFHIRTypeName(), $value, $constraint);
+            }
+        } catch (\Exception $e) {
+            $res->error = sprintf('Rule %s failed to verify type "%s" field "%s" value with pattern "%s": %s', self::NAME, $type->_getFHIRTypeName(), $field, $constraint, $e->getMessage());
         }
         return $res;
     }

@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
-$patternRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH);
+$maxLenRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MAX_LENGTH);
 
 $testCoreFiles = $config->getCoreTestFiles();
 $mockResource = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
@@ -33,7 +33,7 @@ $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $mockResource,
     $mockPrimitive,
-    $patternRule,
+    $maxLenRule,
 );
 
 ob_start();
@@ -47,42 +47,39 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo $coreFile; ?> extends TestCase
 {
-    public function testNoErrorWithValidPatternAndValue()
+    public function testNoErrorWithMax()
     {
-        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
-        $rule = new <?php echo $patternRule; ?>();
-        $res = $rule->assert($type, 'value', '/^[a-z\s]+$/', $type->getValue());
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'one');
+        $rule = new <?php echo $maxLenRule; ?>();
+        $res = $rule->assert($type, 'value', 3, $type->getValue());
         $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
         $this->assertEquals('', $res->error ?? '');
     }
 
-    public function testErrorWithValidPatternAndInvalidValue()
+    public function testNoErrorWithLess()
     {
-        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
-        $rule = new <?php echo $patternRule; ?>();
-        $res = $rule->assert($type, 'value', '/^[a-z]+$/', $type->getValue());
-        $this->assertFalse($res->ok(), 'Rule should have produced error');
-        $this->assertNotEquals('', $res->error);
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'on');
+        $rule = new <?php echo $maxLenRule; ?>();
+        $res = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
+        $this->assertEquals('', $res->error ?? '');
     }
 
-    public function testErrorWithInvalidPattern()
+    public function testNoErrorWithEmpty()
     {
-        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
-        $rule = new <?php echo $patternRule; ?>();
-        $res = $rule->assert($type, 'value', '/^[a-+$/', $type->getValue());
-        $this->assertFalse($res->ok(), 'Rule should have produced error');
-        $this->assertNotEquals('', $res->error);    }
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', '');
+        $rule = new <?php echo $maxLenRule; ?>();
+        $res = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
+        $this->assertEquals('', $res->error ?? ''); 
+    }
 
-    /**
-     * @see https://github.com/dcarbone/php-fhir/issues/150
-     */
-    public function testErrorWithValueOverflow()
+    public function testErrorWithOverflow()
     {
-        $bigval = base64_encode(str_repeat('a', 12000));
-        $type = new <?php echo $mockPrimitive; ?>('base64-primitive', $bigval);
-        $rule = new <?php echo $patternRule; ?>();
-        $res = $rule->assert($type, 'value', '/^(\\s*([0-9a-zA-Z\\+\\/=]){4}\\s*)+$/', $type->getValue());
-        $this->assertFalse($res->ok(), 'Rule should have produced error');
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'one ');
+        $rule = new <?php echo $maxLenRule; ?>();
+        $res = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertFalse($res->ok(), $res->error ?? 'Result should be NO OK, but is and no error was defined.');
         $this->assertNotEquals('', $res->error);
     }
 }

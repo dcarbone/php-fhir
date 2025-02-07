@@ -47,7 +47,7 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo $coreFile; ?> extends TestCase
 {
-    public function testNoErrorWithValidState()
+    public function testNoErrorWithExact()
     {
         $type = new <?php echo $mockResource; ?>(
             'mock',
@@ -56,6 +56,24 @@ class <?php echo $coreFile; ?> extends TestCase
                     'class' => <?php echo $mockPrimitive; ?>::class,
                     'collection' => true,
                     'value' => ['value-1', 'value-2'],
+                ],
+            ],
+        );
+        $rule = new <?php echo $minOccursRule; ?>();
+        $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
+        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined');
+        $this->assertEquals('', $res->error ?? '');
+    }
+
+    public function testNoErrorWithMore()
+    {
+        $type = new <?php echo $mockResource; ?>(
+            'mock',
+            [
+                'stuff' => [
+                    'class' => <?php echo $mockPrimitive; ?>::class,
+                    'collection' => true,
+                    'value' => ['value-1', 'value-2', 'value-3'],
                 ],
             ],
         );
@@ -82,7 +100,7 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertNotEquals('', $res->error);
     }
 
-    public function testErrorWithTooFewElements()
+    public function testErrorWithLess()
     {
         $type = new <?php echo $mockResource; ?>(
             'mock',
