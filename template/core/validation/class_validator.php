@@ -28,7 +28,7 @@ $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYP
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
 $ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
-$enumRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF);
+$valueOneOfRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF);
 $minLengthRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MIN_LENGTH);
 $maxLengthRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MAX_LENGTH);
 $patternRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH);
@@ -40,7 +40,7 @@ $imports->addCoreFileImports(
     $validationRuleInterface,
     $ruleResultClass,
 
-    $enumRuleClass,
+    $valueOneOfRule,
     $minLengthRuleClass,
     $maxLengthRuleClass,
     $patternRuleClass,
@@ -121,12 +121,12 @@ class <?php echo $coreFile; ?>
         if (self::$_initialized) {
             return;
         }
-        self::setRule(new <?php echo $enumRuleClass; ?>());
-        self::setRule(new <?php echo $minLengthRuleClass; ?>());
-        self::setRule(new <?php echo $maxLengthRuleClass; ?>());
-        self::setRule(new <?php echo $patternRuleClass; ?>());
-        self::setRule(new <?php echo $minOccursRuleClass; ?>());
-        self::setRule(new <?php echo $maxOccursRuleClass; ?>());
+        self::$_rules[<?php echo $valueOneOfRule; ?>::NAME] = new <?php echo $valueOneOfRule; ?>();
+        self::$_rules[<?php echo $minLengthRuleClass; ?>::NAME] = new <?php echo $minLengthRuleClass; ?>();
+        self::$_rules[<?php echo $maxLengthRuleClass; ?>::NAME] = new <?php echo $maxLengthRuleClass; ?>();
+        self::$_rules[<?php echo $patternRuleClass; ?>::NAME] = new <?php echo $patternRuleClass; ?>();
+        self::$_rules[<?php echo $minOccursRuleClass; ?>::NAME] = new <?php echo $minOccursRuleClass; ?>();
+        self::$_rules[<?php echo $maxOccursRuleClass; ?>::NAME] = new <?php echo $maxOccursRuleClass; ?>();
     }
 }
 <?php return ob_get_clean();
