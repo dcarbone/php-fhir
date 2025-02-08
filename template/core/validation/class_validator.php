@@ -26,6 +26,7 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
+$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $enumRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF);
 $minLengthRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MIN_LENGTH);
@@ -37,6 +38,7 @@ $maxOccursRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RUL
 $imports->addCoreFileImports(
     $typeInterface,
     $validationRuleInterface,
+    $ruleResultClass,
 
     $enumRuleClass,
     $minLengthRuleClass,
@@ -94,13 +96,15 @@ class <?php echo $coreFile; ?>
      * @param string|<?php echo $validationRuleInterface->getFullyQualifiedName(true); ?> $rule Name of registered validation rule, or a specific rule instance to run.
      * @param mixed $constraint
      * @param mixed $value
-     * @return null|string
+     * @return <?php echo $ruleResultClass->getFullyQualifiedName(true); ?>
+
      */
     public static function runRule(<?php echo $typeInterface; ?> $type,
-                                         string $field,
-                                         string|<?php echo $validationRuleInterface; ?> $rule,
-                                         mixed $constraint,
-                                         mixed $value): null|string
+                                   string $field,
+                                   string|<?php echo $validationRuleInterface; ?> $rule,
+                                   mixed $constraint,
+                                   mixed $value): <?php echo $ruleResultClass; ?>
+
     {
         if ($rule instanceof <?php echo $validationRuleInterface; ?>) {
             return $rule->assert($type, $field, $constraint, $value);
@@ -109,6 +113,7 @@ class <?php echo $coreFile; ?>
         if (isset(self::$_rules[$rule])) {
             return self::$_rules[$rule]->assert($type, $field, $constraint, $value);
         }
+        throw new \OutOfBoundsException(sprintf('No rule named "%s" registered.', $rule));
     }
 
     private static function _init(): void

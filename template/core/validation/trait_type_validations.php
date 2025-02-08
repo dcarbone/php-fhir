@@ -22,13 +22,16 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
-$validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-
 $imports = $coreFile->getImports();
+
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
+$ruleResultList = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT_LIST);
+
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
+    $ruleResultList,
 );
 
 ob_start();
@@ -120,41 +123,33 @@ trait <?php echo $coreFile; ?>
      * The returned map is keyed by the field and valued by a list of validation failures.  An empty array must be seen
      * as no validation errors occurring.
      *
-     * @return array
+     * @param bool $retainOK If false, only errored rule results will be returned.
+     * @return <?php echo $ruleResultList->getFullyQualifiedName(true); ?>
+
      */
-    public function _getValidationErrors(): array 
+    public function _getValidationErrors(bool $retainOK = false): <?php echo $ruleResultList; ?>
+
     {
-        $errs = [];
+        $results = new <?php echo $ruleResultList; ?>();
         foreach ($this->_getCombinedValidationRules() as $field => $rules) {
             $v = $this->{$field} ?? null;
             foreach ($rules as $rule => $constraint) {
-                $err = <?php echo $validatorClass; ?>::runRule($this, $field, $rule, $constraint, $v);
-                if (null !== $err) {
-                    if (!isset($errs[$field])) {
-                        $errs[$field] = [];
-                    }
-                    $errs[$field][] = $err;
+                $res = <?php echo $validatorClass; ?>::runRule($this, $field, $rule, $constraint, $v);
+                if ($retainOK || !$res->ok()) {
+                    $results->addResult($field, $res);
                 }
             }
             if ($v instanceof <?php echo $typeInterface; ?>) {
-                $typeErrs = $v->_getValidationErrors();
-                if ([] !== $typeErrs) {
-                    foreach($typeErrs as $subField => $subErrs) {
-                        $errs["{$field}.{$subField}"] = $subErrs;
-                    }
-                }
+                $results->appendResults($field, $v->_getValidationErrors($retainOK));
             } else if (is_array($v)) {
                 foreach($v as $i => $vv) {
-                    $typeErrs = $vv->_getValidationErrors();
-                    if ([] !== $typeErrs) {
-                        foreach($typeErrs as $subField => $subErrs) {
-                            $errs["{$field}.{$i}.{$subField}"] = $subErrs;
-                        }
+                    if ($vv instanceof <?php echo $typeInterface; ?>) {
+                        $results->appendResults("{$field}.{$i}", $vv->_getValidationErrors($retainOK));
                     }
                 }
             }
         }
-        return $errs;
+        return $results;
     }
 }
 <?php return ob_get_clean();

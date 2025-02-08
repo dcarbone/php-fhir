@@ -22,14 +22,11 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
 $ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
-    $typeInterface,
-    $validatorClass,
+    $ruleResultClass,
 );
 
 ob_start();
@@ -41,10 +38,94 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> extends <?php echo $ruleResultClass; ?>
-
+class <?php echo $coreFile; ?> implements \Countable, \JsonSerializable
 {
     /** @var <?php echo $ruleResultClass->getFullyQualifiedName(true); ?>[] */
     protected array $_results = [];
+
+    protected int $_okCount = 0;
+    protected int $_nokCount = 0;
+
+    /**
+     * Returns true if there are no errored results.
+     *
+     * @return bool
+     */
+    public function ok(): bool
+    {
+        return 0 === $this->_nokCount;
+    }
+
+    /**
+     * Returns the number of OK results.
+     *
+     * @return int
+     */
+    public function okCount(): int
+    {
+        return $this->_okCount;
+    }
+
+    /**
+     * Returns the number of errored results
+     *
+     * @return int
+     */
+    public function erroredCount(): int
+    {
+        return $this->_nokCount;
+    }
+
+    public function count(): int
+    {
+        return count($this->_results);
+    }
+
+    /**
+     * @return <?php echo $ruleResultClass->getFullyQualifiedName(true); ?>[]
+     */
+    public function getResultIterator(): iterable
+    {
+        if ([] === $this->_results) {
+            return new \EmptyIterator();
+        }
+        return new \ArrayIterator($this->_results);
+    }
+
+    /**
+     * Append a single result to this list at the specified path.
+     *
+     * @param string $path
+     * @param <?php echo $ruleResultClass->getFullyQualifiedName(true); ?> $result
+     */
+    public function addResult(string $path, <?php echo $ruleResultClass; ?> $result): void
+    {
+        $this->_results[$path] = $result;
+        if ($result->ok()) {
+            $this->_okCount++;
+        } else {
+            $this->_nokCount++;
+        }
+    }
+
+    /**
+     * Append another result list's results to this list under the provided prefix.
+     *
+     * @param string $pathPrefix
+     * @param <?php echo $coreFile->getFullyQualifiedName(true); ?> $other
+     */
+    public function appendResults(string $pathPrefix, <?php echo $coreFile; ?> $other): void
+    {
+        $this->_okCount += $other->_okCount;
+        $this->_nokCount += $other->_nokCount;
+        foreach ($other->_results as $subPath => $res) {
+            $this->_results["{$pathPrefix}.{$subPath}"] = $res;
+        }
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->_results;
+    }
 }
 <?php return ob_get_clean();
