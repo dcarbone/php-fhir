@@ -27,13 +27,11 @@ $imports = $coreFile->getImports();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
-$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $primitiveTypeInterface,
     $validationRuleInterface,
-    $ruleResultClass,
 );
 
 ob_start();
@@ -61,20 +59,18 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResultClass; ?>
-
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
-        $res = new <?php echo $ruleResultClass; ?>(self::NAME, $type->_getFHIRTypeName(), $field, $constraint, $value);
         if (null === $value || [] === $constraint) {
-            return $res;
+            return null;
         }
         if ($value instanceof <?php echo $primitiveTypeInterface; ?>) {
             $value = (string)$value;
         }
         if (in_array($value, $constraint, true)) {
-            return $res;
+            return null;
         }
-        $res->error = sprintf(
+        return sprintf(
             'Field "%s" on type "%s" value "%s" not one of [%s]',
             $field,
             $type->_getFHIRTypeName(),
@@ -87,7 +83,6 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
                 )
             )
         );
-        return $res;
     }
 }
 <?php return ob_get_clean();

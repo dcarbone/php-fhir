@@ -51,27 +51,25 @@ class <?php echo $coreFile; ?> extends TestCase
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
         $rule = new <?php echo $patternRule; ?>();
-        $res = $rule->assert($type, 'value', '/^[a-z\s]+$/', $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'value', '/^[a-z\s]+$/', $type->getValue());
+        $this->assertNull($err);
     }
 
     public function testErrorWithValidPatternAndInvalidValue()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
         $rule = new <?php echo $patternRule; ?>();
-        $res = $rule->assert($type, 'value', '/^[a-z]+$/', $type->getValue());
-        $this->assertFalse($res->ok(), 'Rule should have produced error');
-        $this->assertNotEquals('', $res->error);
+        $err = $rule->assert($type, 'value', '/^[a-z]+$/', $type->getValue());
+        $this->assertNotNull($err);
     }
 
     public function testErrorWithInvalidPattern()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
         $rule = new <?php echo $patternRule; ?>();
-        $res = $rule->assert($type, 'value', '/^[a-+$/', $type->getValue());
-        $this->assertFalse($res->ok(), 'Rule should have produced error');
-        $this->assertNotEquals('', $res->error);    }
+        $err = $rule->assert($type, 'value', '/^[a-+$/', $type->getValue());
+        $this->assertNotNull($err);
+    }
 
     /**
      * @see https://github.com/dcarbone/php-fhir/issues/150
@@ -81,9 +79,8 @@ class <?php echo $coreFile; ?> extends TestCase
         $bigval = base64_encode(str_repeat('a', 12000));
         $type = new <?php echo $mockPrimitive; ?>('base64-primitive', $bigval);
         $rule = new <?php echo $patternRule; ?>();
-        $res = $rule->assert($type, 'value', '/^(\\s*([0-9a-zA-Z\\+\\/=]){4}\\s*)+$/', $type->getValue());
-        $this->assertFalse($res->ok(), 'Rule should have produced error');
-        $this->assertNotEquals('', $res->error);
+        $err = $rule->assert($type, 'value', '/^(\\s*([0-9a-zA-Z\\+\\/=]){4}\\s*)+$/', $type->getValue());
+        $this->assertNotNull($err);
     }
 }
 <?php return ob_get_clean();

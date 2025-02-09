@@ -51,36 +51,32 @@ class <?php echo $coreFile; ?> extends TestCase
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'one');
         $rule = new <?php echo $maxLenRule; ?>();
-        $res = $rule->assert($type, 'value', 3, $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertNull($err);
     }
 
     public function testNoErrorWithLess()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'on');
         $rule = new <?php echo $maxLenRule; ?>();
-        $res = $rule->assert($type, 'value', 3, $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertNull($err);
     }
 
     public function testNoErrorWithEmpty()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', '');
         $rule = new <?php echo $maxLenRule; ?>();
-        $res = $rule->assert($type, 'value', 3, $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
-        $this->assertEquals('', $res->error ?? ''); 
+        $err = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertNull($err);
     }
 
     public function testErrorWithOverflow()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'one ');
         $rule = new <?php echo $maxLenRule; ?>();
-        $res = $rule->assert($type, 'value', 3, $type->getValue());
-        $this->assertFalse($res->ok(), $res->error ?? 'Result should be NO OK, but is and no error was defined.');
-        $this->assertNotEquals('', $res->error);
+        $err = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertNotNull($err);
     }
 }
 <?php return ob_get_clean();

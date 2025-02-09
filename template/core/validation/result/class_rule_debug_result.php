@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\ImportUtils;
-
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
@@ -36,7 +34,14 @@ class <?php echo $coreFile; ?>
      *
      * @var string
      */
-    public string $rule;
+    public string $ruleName;
+
+    /**
+     * The classname of the rule.
+     *
+     * @var string
+     */
+    public string $ruleClass;
 
     /**
      * The name of the FHIR Type that the rule was run on.
@@ -73,35 +78,21 @@ class <?php echo $coreFile; ?>
      */
     public string $error;
 
-    /**
-     * If set to true, halts execution of further rules.  The outcome of this rule is used as the final validation
-     * pass / fail state for the set.
-     *
-     * @var bool
-     */
-    public bool $halt;
-
-    public function __construct(string $rule,
+    public function __construct(string $ruleName,
+                                string $ruleClass,
                                 string $fhirType,
                                 string $field,
                                 mixed $constraint,
-                                mixed $value)
+                                mixed $value,
+                                string $error)
     {
-        $this->rule = $rule;
+        $this->ruleName = $ruleName;
+        $this->ruleClass = $ruleClass;
         $this->fhirType = $fhirType;
         $this->field = $field;
         $this->constraint = $constraint;
         $this->value = $value;
-    }
-
-    /**
-     * Returns true if the rule passed
-     *
-     * @return bool
-     */
-    public function ok(): bool
-    {
-        return !isset($this->error);
+        $this->error = $error;
     }
 
     /**

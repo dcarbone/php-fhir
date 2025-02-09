@@ -26,12 +26,14 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
-$ruleResultList = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT_LIST);
+$ruleDebugResult = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_DEBUG_RESULT);
+$ruleDebugResultList = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_DEBUG_RESULT_LIST);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
-    $ruleResultList,
+    $ruleDebugResult,
+    $ruleDebugResultList,
 );
 
 ob_start();
@@ -117,39 +119,87 @@ trait <?php echo $coreFile; ?>
         $this->_customValidationRules[$field][$rule] = $constraint;
     }
 
+    private function _executeNormalValidations(): array
+    {
+        $errs = [];
+        foreach ($this->_getCombinedValidationRules() as $field => $rules) {
+            $v = $this->{$field} ?? null;
+            foreach ($rules as $rule => $constraint) {
+                $err = <?php echo $validatorClass; ?>::runRule($this, $field, $rule, $constraint, $v);
+                if (null !== $err) {
+                    $errs[] = $err;
+                }
+            }
+            if ($v instanceof <?php echo $typeInterface; ?>) {
+                foreach ($v->_getValidationErrors(false) as $subPath => $subErrs) {
+                    $errs["{$field}.{$subPath}"] = $subErrs;
+                }
+            } else if (is_array($v)) {
+                foreach($v as $i => $vv) {
+                    if ($vv instanceof <?php echo $typeInterface; ?>) {
+                        foreach ($vv->_getValidationErrors(false) as $subPath => $subErrs) {
+                            $errs["{$field}.{$i}.{$subPath}"] = $subErrs;
+                        }
+                    }
+                }
+            }
+        }
+        return $errs;
+    }
+
+    private function _executeDebugValidations(): <?php echo $ruleDebugResultList; ?>
+
+    {
+        $results = new <?php echo $ruleDebugResultList; ?>();
+        foreach ($this->_getCombinedValidationRules() as $field => $rules) {
+            $v = $this->{$field} ?? null;
+            foreach ($rules as $rule => $constraint) {
+                $err = <?php echo $validatorClass; ?>::runRule($this, $field, $rule, $constraint, $v);
+                if (null === $err) {
+                    continue;
+                }
+                $res = new <?php echo $ruleDebugResult; ?>(
+                    $rule,
+                    <?php echo $validatorClass; ?>::getRule($rule)::class,
+                    $this->_getFHIRTypeName(),
+                    $field,
+                    $constraint,
+                    $v,
+                    $err,
+                );
+                $results->addResult($field, $res);
+            }
+            if ($v instanceof <?php echo $typeInterface; ?>) {
+                foreach ($v->_getValidationErrors(true)->getResultIterator() as $subPath => $res) {
+                    $results->addResult("{$field}.{$subPath}", $res);
+                }
+            } else if (is_array($v)) {
+                foreach($v as $i => $vv) {
+                    if ($vv instanceof <?php echo $typeInterface; ?>) {
+                        foreach ($vv->_getValidationErrors(true)->getResultIterator() as $subPath => $res) {
+                            $results->addResult("{$field}.{$i}.{$subPath}", $res);
+                        }
+                    }
+                }
+            }
+        }
+        return $results;
+    }
+
     /**
      * Executes all defined validation rules for this type, returning a map of validation failures.
      *
      * The returned map is keyed by the field and valued by a list of validation failures.  An empty array must be seen
      * as no validation errors occurring.
      *
-     * @param bool $retainOK If false, only errored rule results will be returned.
-     * @return <?php echo $ruleResultList->getFullyQualifiedName(true); ?>
+     * @param bool $debug If true, returns a <?php echo $ruleDebugResultList; ?> instance with more detailed information.
+     * @return array|<?php echo $ruleDebugResultList->getFullyQualifiedName(true); ?>
 
      */
-    public function _getValidationErrors(bool $retainOK = false): <?php echo $ruleResultList; ?>
+    public function _getValidationErrors(bool $debug = false): array|<?php echo $ruleDebugResultList; ?>
 
     {
-        $results = new <?php echo $ruleResultList; ?>();
-        foreach ($this->_getCombinedValidationRules() as $field => $rules) {
-            $v = $this->{$field} ?? null;
-            foreach ($rules as $rule => $constraint) {
-                $res = <?php echo $validatorClass; ?>::runRule($this, $field, $rule, $constraint, $v);
-                if ($retainOK || !$res->ok()) {
-                    $results->addResult($field, $res);
-                }
-            }
-            if ($v instanceof <?php echo $typeInterface; ?>) {
-                $results->appendResults($field, $v->_getValidationErrors($retainOK));
-            } else if (is_array($v)) {
-                foreach($v as $i => $vv) {
-                    if ($vv instanceof <?php echo $typeInterface; ?>) {
-                        $results->appendResults("{$field}.{$i}", $vv->_getValidationErrors($retainOK));
-                    }
-                }
-            }
-        }
-        return $results;
+       return $debug ? $this->_executeDebugValidations() : $this->_executeNormalValidations();
     }
 }
 <?php return ob_get_clean();

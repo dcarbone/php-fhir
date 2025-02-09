@@ -60,9 +60,8 @@ class <?php echo $coreFile; ?> extends TestCase
             ],
         );
         $rule = new <?php echo $minOccursRule; ?>();
-        $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'stuff', 2, $type->getStuff());
+        $this->assertNull($err);
     }
 
     public function testNoErrorWithMore()
@@ -78,9 +77,8 @@ class <?php echo $coreFile; ?> extends TestCase
             ],
         );
         $rule = new <?php echo $minOccursRule; ?>();
-        $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'stuff', 2, $type->getStuff());
+        $this->assertNull($err);
     }
 
     public function testErrorWithEmptyValue()
@@ -95,9 +93,8 @@ class <?php echo $coreFile; ?> extends TestCase
             ],
         );
         $rule = new <?php echo $minOccursRule; ?>();
-        $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
-        $this->assertFalse($res->ok(), $res->error ?? 'Result should be not OK, but is and no error was defined');
-        $this->assertNotEquals('', $res->error);
+        $err = $rule->assert($type, 'stuff', 2, $type->getStuff());
+        $this->assertNotNull($err);
     }
 
     public function testErrorWithLess()
@@ -113,9 +110,8 @@ class <?php echo $coreFile; ?> extends TestCase
             ],
         );
         $rule = new <?php echo $minOccursRule; ?>();
-        $res = $rule->assert($type, 'stuff', 2, $type->getStuff());
-        $this->assertFalse($res->ok(), $res->error ?? 'Result should be not OK, but is OK and no error was defined');
-        $this->assertNotEquals('', $res->error);
+        $err = $rule->assert($type, 'stuff', 2, $type->getStuff());
+        $this->assertNotNull($err);
     }
 }
 <?php return ob_get_clean();

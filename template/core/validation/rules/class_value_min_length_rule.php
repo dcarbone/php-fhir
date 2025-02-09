@@ -26,7 +26,7 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
-$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
+$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_DEBUG_RESULT);
 
 $imports->addCoreFileImports(
     $typeInterface,
@@ -59,19 +59,17 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         return self::DESCRIPTION;
     }
 
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResultClass; ?>
-
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
-        $res = new <?php echo $ruleResultClass; ?>(self::NAME, $type->_getFHIRTypeName(), $field, $constraint, $value);
         if (0 >= $constraint) {
-            return $res;
+            return null;
         }
         if (null === $value || '' === $value) {
-            $res->error = sprintf('Field "%s" on type "%s" must be at least %d characters long, but it is empty', $field, $type->_getFHIRTypeName(), $constraint);
+            return sprintf('Field "%s" on type "%s" must be at least %d characters long, but it is empty', $field, $type->_getFHIRTypeName(), $constraint);
         } else if ($constraint > ($len = strlen($value))) {
-            $res->error = sprintf('Field "%s" on type "%s" must be at least %d characters long, %d seen.', $field, $type->_getFHIRTypeName(), $constraint, $len);
+            return sprintf('Field "%s" on type "%s" must be at least %d characters long, %d seen.', $field, $type->_getFHIRTypeName(), $constraint, $len);
         }
-        return $res;
+        return null;
     }
 }
 <?php return ob_get_clean();

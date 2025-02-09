@@ -51,36 +51,40 @@ class <?php echo $coreFile; ?> extends TestCase
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'one');
         $rule = new <?php echo $oneOfRule; ?>();
-        $res = $rule->assert($type, 'value', ['one'], $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'value', ['one'], $type->getValue());
+        $this->assertNull($err);
     }
 
     public function testNoErrorWhenValueAllowed()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'one');
         $rule = new <?php echo $oneOfRule; ?>();
-        $res = $rule->assert($type, 'value', ['one', 'two'], $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'value', ['one', 'two'], $type->getValue());
+        $this->assertNull($err);
     }
 
     public function testNoErrorWhemValueEmpty()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', null);
         $rule = new <?php echo $oneOfRule; ?>();
-        $res = $rule->assert($type, 'value', ['one'], $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'value', ['one'], $type->getValue());
+        $this->assertNull($err);
     }
 
     public function testNoErrorWhenConstraintEmpty()
     {
         $type = new <?php echo $mockPrimitive; ?>('string-primitive', null);
         $rule = new <?php echo $oneOfRule; ?>();
-        $res = $rule->assert($type, 'value', [], $type->getValue());
-        $this->assertTrue($res->ok(), $res->error ?? 'Result should be OK, but is not and no error was defined.');
-        $this->assertEquals('', $res->error ?? '');
+        $err = $rule->assert($type, 'value', [], $type->getValue());
+        $this->assertNull($err);
+    }
+
+    public function testErrWhenValueNotAllowed()
+    {
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'three');
+        $rule = new <?php echo $oneOfRule; ?>();
+        $err = $rule->assert($type, 'value', ['one', 'two'], $type->getValue());
+        $this->assertNotNull($err);
     }
 }
 <?php return ob_get_clean();

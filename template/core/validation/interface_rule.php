@@ -24,13 +24,11 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
-$ruleResult = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
 
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
-    $ruleResult,
 );
 
 ob_start();
@@ -66,9 +64,9 @@ interface <?php echo $coreFile; ?>
      * @param string $field
      * @param mixed $constraint
      * @param mixed $value
-     * @return <?php echo $ruleResult->getFullyQualifiedName(true); ?>
+     * @return null|string
 
      */
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): <?php echo $ruleResult; ?>;
+    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string;
 }
 <?php return ob_get_clean();

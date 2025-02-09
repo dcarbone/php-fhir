@@ -26,7 +26,7 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
-$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_RESULT);
+$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_DEBUG_RESULT);
 
 $valueOneOfRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF);
 $minLengthRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MIN_LENGTH);
@@ -76,8 +76,20 @@ class <?php echo $coreFile; ?>
      */
     public static function setRule(<?php echo $validationRuleInterface; ?> $rule): void
     {
-        self::_init();
         self::$_rules[$rule->getName()] = $rule;
+    }
+
+    /**
+     * Return a rule by name, if it exists
+     *
+     * @param string $ruleName
+     * @return null|<?php echo $validationRuleInterface->getFullyQualifiedName(true); ?>
+
+     */
+    public static function getRule(string $ruleName): null|<?php echo $validationRuleInterface; ?>
+
+    {
+        return self::$_rules[$ruleName] ?? null;
     }
 
     /**
@@ -86,7 +98,6 @@ class <?php echo $coreFile; ?>
      */
     public static function getRules(): array
     {
-        self::_init();
         return self::$_rules;
     }
 
@@ -96,31 +107,29 @@ class <?php echo $coreFile; ?>
      * @param string|<?php echo $validationRuleInterface->getFullyQualifiedName(true); ?> $rule Name of registered validation rule, or a specific rule instance to run.
      * @param mixed $constraint
      * @param mixed $value
-     * @return <?php echo $ruleResultClass->getFullyQualifiedName(true); ?>
-
+     * @return null|string
      */
     public static function runRule(<?php echo $typeInterface; ?> $type,
                                    string $field,
                                    string|<?php echo $validationRuleInterface; ?> $rule,
                                    mixed $constraint,
-                                   mixed $value): <?php echo $ruleResultClass; ?>
-
+                                   mixed $value): null|string
     {
         if ($rule instanceof <?php echo $validationRuleInterface; ?>) {
             return $rule->assert($type, $field, $constraint, $value);
         }
-        self::_init();
         if (isset(self::$_rules[$rule])) {
             return self::$_rules[$rule]->assert($type, $field, $constraint, $value);
         }
         throw new \OutOfBoundsException(sprintf('No rule named "%s" registered.', $rule));
     }
 
-    private static function _init(): void
+    public static function _init(): void
     {
         if (self::$_initialized) {
             return;
         }
+        self::$_initialized = true;
         self::$_rules[<?php echo $valueOneOfRule; ?>::NAME] = new <?php echo $valueOneOfRule; ?>();
         self::$_rules[<?php echo $minLengthRuleClass; ?>::NAME] = new <?php echo $minLengthRuleClass; ?>();
         self::$_rules[<?php echo $maxLengthRuleClass; ?>::NAME] = new <?php echo $maxLengthRuleClass; ?>();
@@ -129,4 +138,6 @@ class <?php echo $coreFile; ?>
         self::$_rules[<?php echo $maxOccursRuleClass; ?>::NAME] = new <?php echo $maxOccursRuleClass; ?>();
     }
 }
+
+<?php echo $coreFile; ?>::_init();
 <?php return ob_get_clean();
