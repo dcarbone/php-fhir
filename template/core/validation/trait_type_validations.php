@@ -125,29 +125,38 @@ trait <?php echo $coreFile; ?>
      */
     public function _getValidationErrors(): array
     {
+        $rules = $this->_getCombinedValidationRules();
         $errs = [];
-        foreach ($this->_getCombinedValidationRules() as $field => $rules) {
-            $v = $this->{$field} ?? null;
-            foreach ($rules as $rule => $constraint) {
-                $err = <?php echo $validatorClass; ?>::runRule($this, $field, $rule, $constraint, $v);
-                if (null !== $err) {
-                    $errs[] = $err;
+        foreach ($this as $prop => $value) {
+            if (str_starts_with($prop, '_')) {
+                continue;
+            }
+            if (isset($rules[$prop])) {
+                foreach ($rules[$prop] as $rule => $constraint) {
+                    $err = <?php echo $validatorClass; ?>::runRule($this, $prop, $rule, $constraint, $value);
+                    if (null !== $err) {
+                        if (!isset($errs[$prop])) {
+                            $errs[$prop] = [];
+                        }
+                        $errs[$prop][$rule] = $err;
+                    }
                 }
             }
-            if ($v instanceof <?php echo $typeInterface; ?>) {
-                foreach ($v->_getValidationErrors() as $subPath => $subErrs) {
-                    $errs["{$field}.{$subPath}"] = $subErrs;
+            if ($value instanceof <?php echo $typeInterface; ?>) {
+                foreach ($value->_getValidationErrors() as $subPath => $subErrs) {
+                    $errs["{$prop}.{$subPath}"] = $subErrs;
                 }
-            } else if (is_array($v)) {
-                foreach($v as $i => $vv) {
+            } else if (is_array($value)) {
+                foreach($value as $i => $vv) {
                     if ($vv instanceof <?php echo $typeInterface; ?>) {
                         foreach ($vv->_getValidationErrors() as $subPath => $subErrs) {
-                            $errs["{$field}.{$i}.{$subPath}"] = $subErrs;
+                            $errs["{$prop}.{$i}.{$subPath}"] = $subErrs;
                         }
                     }
                 }
             }
         }
-        return $errs;    }
+        return $errs;
+    }
 }
 <?php return ob_get_clean();

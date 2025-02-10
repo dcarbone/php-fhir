@@ -102,7 +102,7 @@ class <?php echo $coreFile; ?> extends TestCase
                                 'class' => <?php echo $mockPrimitive; ?>::class,
                                 'value' => new <?php echo $mockPrimitive; ?>(
                                     value: 'mock-1',
-                                    validationRuleMap: ['value' => [<?php echo $patternMatchRule; ?>::NAME => '/^[a-z-]+$/']],
+                                    validationRuleMap: ['value' => [<?php echo $patternMatchRule; ?>::NAME => '/^[a-z0-9-]+$/']],
                                 ),
                             ],
                         ],
@@ -114,7 +114,7 @@ class <?php echo $coreFile; ?> extends TestCase
         $rules = $type->getIdentifier()->_getCombinedValidationRules();
         $this->assertCount(1, $rules);
         $errs = $type->_getValidationErrors();
-        $this->assertEmpty($errs);
+        $this->assertEmpty($errs, var_export($errs, true));
     }
 
     public function testCanValidateComplexTypeWithErrors()
@@ -135,15 +135,13 @@ class <?php echo $coreFile; ?> extends TestCase
                                 ),
                             ],
                         ],
-                        validationRuleMap: ['identifier' => [<?php echo $minOccursRule; ?>::NAME => 1]],
                     ),
                 ],
             ],
         );
-        $rules = $type->getIdentifier()->_getCombinedValidationRules();
-        $this->assertCount(1, $rules);
+        $this->assertCount(1, $type->getIdentifier()->getValue()->_getCombinedValidationRules());
         $errs = $type->_getValidationErrors();
-        $this->assertNotEmpty($errs);
+        $this->assertCount(1, $errs);
     }
 }
 <?php return ob_get_clean();
