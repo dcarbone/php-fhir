@@ -16,12 +16,10 @@
  * limitations under the License.
  */
 
-
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
-
 
 $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
