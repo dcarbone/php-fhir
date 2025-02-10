@@ -24,12 +24,6 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
-$ruleResultListClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_DEBUG_RESULT_LIST);
-
-$imports->addCoreFileImports(
-    $ruleResultListClass,
-);
-
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
@@ -51,11 +45,10 @@ interface <?php echo $coreFile; ?> extends \JsonSerializable
     /**
      * Execute any and all validation rules present on this type and all nested field types.
      *
-     * @param bool $debug If true, returns a <?php echo $ruleResultListClass; ?> instance with more detailed information.
-     * @return array|<?php echo $ruleResultListClass->getFullyQualifiedName(true); ?>
+     * @return array
 
      */
-    public function _getValidationErrors(bool $debug = false): array|<?php echo $ruleResultListClass; ?>;
+    public function _getValidationErrors(bool $debug = false): array;
 
     /**
      * @return string

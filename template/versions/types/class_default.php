@@ -68,27 +68,20 @@ endif;
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     // The default validation rules for this type as defined in the FHIR schema used to generate this code.
-    private const _FHIR_VALIDATION_RULES = [<?php if (!$type->hasNonOverloadedProperties() || !$type->hasPropertiesWithValidations()): ?>];
-<?php else:
-
-    foreach ($type->getProperties()->getIterator() as $property) :
-        if ($property->getOverloadedProperty()) {
-            continue;
-        }
+    private const _FHIR_VALIDATION_RULES = [
+<?php foreach ($type->getAllPropertiesIndexedIterator() as $property) :
         $validationMap = $property->buildValidationMap($type);
         if ([] !== $validationMap) : ?>
-
         self::<?php echo $property->getFieldConstantName(); ?> => [
 <?php       foreach($validationMap as $k => $v) : ?>
             <?php echo $k; ?>::NAME => <?php echo pretty_var_export($v, 3); ?>,
 <?php       endforeach; ?>
-        ],<?php
+        ],
+<?php
         endif;
 endforeach; ?>
-
     ];
 <?php
-endif;
 // -- end property validation rules
 
 if (!$type->hasPrimitiveTypeParent() && $type->hasNonOverloadedProperties()) :

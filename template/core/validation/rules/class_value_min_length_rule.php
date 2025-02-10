@@ -26,12 +26,10 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
-$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_DEBUG_RESULT);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $validationRuleInterface,
-    $ruleResultClass,
 );
 
 ob_start();

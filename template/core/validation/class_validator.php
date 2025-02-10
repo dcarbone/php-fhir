@@ -26,7 +26,6 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
-$ruleResultClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_RULE_DEBUG_RESULT);
 
 $valueOneOfRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF);
 $minLengthRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MIN_LENGTH);
@@ -38,7 +37,6 @@ $maxOccursRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RUL
 $imports->addCoreFileImports(
     $typeInterface,
     $validationRuleInterface,
-    $ruleResultClass,
 
     $valueOneOfRule,
     $minLengthRuleClass,
