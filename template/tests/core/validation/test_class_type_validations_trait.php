@@ -36,6 +36,7 @@ $maxOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLA
 
 $mockPrimitive = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_STRING_PRIMITIVE_TYPE);
 $mockPrimitiveContainer = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_PRIMITIVE_CONTAINER_TPYE);
+$mockElement = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_ELEMENT_TYPE);
 $mockResource = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
 
 $imports->addCoreFileImports(
@@ -48,6 +49,7 @@ $imports->addCoreFileImports(
 
     $mockPrimitive,
     $mockPrimitiveContainer,
+    $mockElement,
     $mockResource,
 );
 
@@ -68,7 +70,7 @@ class <?php echo $coreFile; ?> extends TestCase
         $type = new <?php echo $mockPrimitive; ?>();
         $type->_setFieldValidationRules('value', $valueRules);
         $rules = $type->_getCombinedValidationRules();
-        $this->assertCount(1, $rules);
+        $this->assertCount(1, $rules, var_export($rules, true));
         $this->assertArrayHasKey('value', $rules);
         $this->assertEquals($valueRules, $rules['value'] ?? []);
         $this->assertArrayHasKey(<?php echo $patternMatchRule; ?>::NAME, $rules['value'] ?? []);
@@ -85,7 +87,7 @@ class <?php echo $coreFile; ?> extends TestCase
     {
         $type = new <?php echo $mockPrimitive; ?>(value: 'NOPE.', validationRuleMap: ['value' => [<?php echo $patternMatchRule; ?>::NAME => '/^[a-z-]+$/']]);
         $errs = $type->_getValidationErrors();
-        $this->assertCount(1, $errs);
+        $this->assertCount(1, $errs, var_export($errs, true));
     }
 
     public function testCanValidateComplexTypeNoErrors()
@@ -106,13 +108,11 @@ class <?php echo $coreFile; ?> extends TestCase
                                 ),
                             ],
                         ],
-                        validationRuleMap: ['identifier' => [<?php echo $minOccursRule; ?>::NAME => 1]],
                     ),
                 ],
             ],
         );
-        $rules = $type->getIdentifier()->_getCombinedValidationRules();
-        $this->assertCount(1, $rules);
+        $this->assertCount(1, $type->getIdentifier()->getValue()->_getCombinedValidationRules());
         $errs = $type->_getValidationErrors();
         $this->assertEmpty($errs, var_export($errs, true));
     }
@@ -141,7 +141,67 @@ class <?php echo $coreFile; ?> extends TestCase
         );
         $this->assertCount(1, $type->getIdentifier()->getValue()->_getCombinedValidationRules());
         $errs = $type->_getValidationErrors();
-        $this->assertCount(1, $errs);
+        $this->assertCount(1, $errs, var_export($errs, true));
+    }
+
+    public function testCanValidateSimpleCollectionFieldNoErrors()
+    {
+        $type = new <?php echo $mockElement; ?>(
+            name: 'mock',
+            fields: [
+                'code' => [
+                    'class' => <?php echo $mockPrimitive; ?>::class,
+                    'collection' => true,
+                    'value' => [
+                        new <?php echo $mockPrimitive; ?>(
+                            value: 'mock-1',
+                            validationRuleMap: ['value' => [<?php echo $patternMatchRule; ?>::NAME => '/^[a-z0-9-]+$/']],
+                        ),
+                        new <?php echo $mockPrimitive; ?>(
+                            value: 'mock-2',
+                            validationRuleMap: ['value' => [<?php echo $patternMatchRule; ?>::NAME => '/^[a-z0-9-]+$/']],
+                        ),
+                    ],
+                ],
+            ],
+            validationRuleMap: [
+                'code' => [
+                    <?php echo $minOccursRule; ?>::NAME => 2,
+                ],
+            ],
+        );
+        $errs = $type->_getValidationErrors();
+        $this->assertCount(0, $errs, var_export($errs, true));
+    }
+
+    public function testCanValidateSimpleCollectionFieldErrors()
+    {
+        $type = new <?php echo $mockElement; ?>(
+            name: 'mock',
+            fields: [
+                'code' => [
+                    'class' => <?php echo $mockPrimitive; ?>::class,
+                    'collection' => true,
+                    'value' => [
+                        new <?php echo $mockPrimitive; ?>(
+                            value: 'mock-1',
+                            validationRuleMap: ['value' => [<?php echo $patternMatchRule; ?>::NAME => '/^[a-z0-9-]+$/']],
+                        ),
+                        new <?php echo $mockPrimitive; ?>(
+                            value: 'mock-2',
+                            validationRuleMap: ['value' => [<?php echo $patternMatchRule; ?>::NAME => '/^[a-z-]+$/']],
+                        ),
+                    ],
+                ],
+            ],
+            validationRuleMap: [
+                'code' => [
+                    <?php echo $minOccursRule; ?>::NAME => 3,
+                ],
+            ],
+        );
+        $errs = $type->_getValidationErrors();
+        $this->assertCount(2, $errs, var_export($errs, true));
     }
 }
 <?php return ob_get_clean();
