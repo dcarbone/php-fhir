@@ -85,5 +85,6 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertArrayHasKey(<?php echo $maxOccursRule; ?>::NAME, $rules);
         $this->assertInstanceOf(<?php echo $maxOccursRule; ?>::class, $rules[<?php echo $maxOccursRule; ?>::NAME]);
     }
+
 }
 <?php return ob_get_clean();

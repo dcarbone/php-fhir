@@ -25,10 +25,9 @@ $coreFiles = $config->getCoreFiles();
 $testCoreFiles = $config->getCoreTestFiles();
 $imports = $coreFile->getImports();
 
-$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
+$elementTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
 $commentContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER);
 $commentContainerTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER);
-$sourceXMLNSTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS);
 
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
@@ -41,10 +40,9 @@ $serializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAM
 $mockTypeFieldsTrait = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_TRAIT_MOCK_TYPE_FIELDS);
 
 $imports->addCoreFileImports(
-    $resourceTypeInterface,
+    $elementTypeInterface,
     $commentContainerInterface,
     $commentContainerTrait,
-    $sourceXMLNSTrait,
 
     $typeValidationTrait,
 
@@ -65,20 +63,18 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>, <?php echo $commentContainerInterface; ?>
+class <?php echo $coreFile; ?> implements <?php echo $elementTypeInterface; ?>, <?php echo $commentContainerInterface; ?>
 
 {
     use <?php echo $typeValidationTrait; ?>,
         <?php echo $jsonSerializableOptionsTrait; ?>,
         <?php echo $xmlSerializationOptionsTrait; ?>,
         <?php echo $commentContainerTrait; ?>,
-        <?php echo $sourceXMLNSTrait; ?>,
         <?php echo $mockTypeFieldsTrait; ?>;
 
     private const _FHIR_VALIDATION_RULES = [];
 
     protected string $_name;
-    protected array $_fields = [];
 
     private array $_valueXMLLocations = [];
 
@@ -100,48 +96,22 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
         return $this->_name;
     }
 
-    public static function xmlUnserialize(\SimpleXMLElement|string $element,
-                                          null|<?php echo $unserializeConfig; ?> $config = null,
-                                          null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
-
+    public static function xmlUnserialize(\SimpleXMLElement $element,
+                                          <?php echo $unserializeConfig; ?> $config,
+                                          null|<?php echo $elementTypeInterface; ?> $type = null): self
     {
         throw new \BadMethodCallException('xmlUnserialize not yet implemented');
     }
 
-    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null, null|<?php echo $serializeConfig; ?> $config = null): <?php echo $xmlWriterClass; ?>
-
+    public function xmlSerialize(<?php echo $xmlWriterClass; ?> $xw,
+                                 <?php echo $serializeConfig; ?> $config): void
     {
-        if (null === $config) {
-            $config = new <?php echo $serializeConfig; ?>();
-        }
-        if (null === $xw) {
-            $xw = new XMLWriter($config);
-        }
-        if (!$xw->isOpen()) {
-            $xw->openMemory();
-        }
-        if (!$xw->isDocStarted()) {
-            $docStarted = true;
-            $xw->startDocument();
-        }
-        if (!$xw->isRootOpen()) {
-            $rootOpened = true;
-            $xw->openRootNode($this->_name, $this->_getSourceXMLNS());
-        }
-
         $this->_xmlSerialize($xw, $config);
-
-        if ($rootOpened ?? false) {
-            $xw->endElement();
-        }
-        if ($docStarted ?? false) {
-            $xw->endDocument();
-        }
-        return $xw;
     }
 
-    public static function jsonUnserialize(string|\stdClass $json, null|<?php echo $unserializeConfig; ?> $config = null, null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
-
+    public static function jsonUnserialize(\stdClass $json,
+                                           <?php echo $unserializeConfig; ?> $config,
+                                           null|<?php echo $elementTypeInterface; ?> $type = null): self
     {
         throw new \BadMethodCallException('jsonUnserialize not yet implemented');
     }

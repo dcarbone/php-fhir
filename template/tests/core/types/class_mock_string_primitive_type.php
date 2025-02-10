@@ -64,7 +64,7 @@ class <?php echo $coreFile; ?> implements <?php echo $primitiveTypeInterface; ?>
         $this->_name = $name;
         $this->setValue($value);
         foreach($validationRuleMap as $field => $rules) {
-            $this->_setFieldValidationRules($field, $validationRuleMap);
+            $this->_setFieldValidationRules($field, $rules);
         }
     }
 
