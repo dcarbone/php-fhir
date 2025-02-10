@@ -48,7 +48,8 @@ $imports->addCoreFileImports(
 );
 
 ob_start();
-echo "<?php\n\n";?>
+echo '<?php'; ?> declare(strict_types=1);
+
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
@@ -311,7 +312,9 @@ trait <?php echo $coreFile; ?>
         };
     }
 
-    protected function _xmlSerialize(<?php echo $xmlWriterClass; ?> $xw, <?php echo $serializeConfig; ?> $config): void
+    protected function _xmlSerialize(<?php echo $xmlWriterClass; ?> $xw,
+                                     <?php echo $serializeConfig; ?> $config,
+                                     null|<?php echo $valueXMLLocationEnum; ?> $valueLocation = null): void
     {
         // define primitives as attributes
         foreach($this->_fields as $field => $def) {

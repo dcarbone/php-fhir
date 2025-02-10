@@ -25,34 +25,32 @@ $coreFiles = $config->getCoreFiles();
 $testCoreFiles = $config->getCoreTestFiles();
 $imports = $coreFile->getImports();
 
-$elementTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
-$commentContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER);
-$commentContainerTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER);
+$primitiveContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE);
 
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
+$valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 $jsonSerializableOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS);
 $xmlSerializationOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_XML_SERIALIZATION_OPTIONS);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
-$unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $serializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
 $mockTypeFieldsTrait = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_TRAIT_MOCK_TYPE_FIELDS);
+$mockElementTypeClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_ELEMENT_TYPE);
 
 $imports->addCoreFileImports(
-    $elementTypeInterface,
-    $commentContainerInterface,
-    $commentContainerTrait,
+    $primitiveContainerInterface,
 
     $typeValidationTrait,
 
+    $valueXMLLocationEnum,
     $jsonSerializableOptionsTrait,
     $xmlSerializationOptionsTrait,
     $xmlWriterClass,
-    $unserializeConfig,
     $serializeConfig,
 
     $mockTypeFieldsTrait,
+    $mockElementTypeClass,
 );
 
 ob_start();
@@ -64,62 +62,50 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> implements <?php echo $elementTypeInterface; ?>, <?php echo $commentContainerInterface; ?>
+class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> implements <?php echo $primitiveContainerInterface; ?>
 
 {
     use <?php echo $typeValidationTrait; ?>,
         <?php echo $jsonSerializableOptionsTrait; ?>,
         <?php echo $xmlSerializationOptionsTrait; ?>,
-        <?php echo $commentContainerTrait; ?>,
         <?php echo $mockTypeFieldsTrait; ?>;
-
-    private const _FHIR_VALIDATION_RULES = [];
-
-    protected string $_name;
-
-    private array $_valueXMLLocations = [];
 
     public function __construct(string $name,
                                 array $fields = [],
                                 array $validationRuleMap = [],
                                 array $fhirComments = [])
     {
-        $this->_name = $name;
-        $this->_setFHIRComments($fhirComments);
-        foreach($validationRuleMap as $field => $rules) {
-            $this->_setFieldValidationRules($field, $rules);
+        if (!isset($fields['value'])
+            || !isset($fields['value']['class'])
+            || !is_a($fields['value']['class'], <?php echo $primitiveContainerInterface; ?>::class, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Primitive container type "%s" must have a "value" field and it must be a primitive type.',
+                $name,
+            ));
         }
-        $this->_processFields($fields);
+        parent::__construct($name, $fields, $validationRuleMap, $fhirComments);
     }
 
-    public function _getFHIRTypeName(): string
+    public function _nonValueFieldDefined(): bool
     {
-        return $this->_name;
-    }
-
-    public static function xmlUnserialize(\SimpleXMLElement $element,
-                                          <?php echo $unserializeConfig; ?> $config,
-                                          null|<?php echo $elementTypeInterface; ?> $type = null): self
-    {
-        throw new \BadMethodCallException('xmlUnserialize not yet implemented');
+        foreach($this->_fields as $field => $def) {
+            if ('value' !== $field && isset($def['value']) && [] !== $def['value']) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function xmlSerialize(<?php echo $xmlWriterClass; ?> $xw,
-                                 <?php echo $serializeConfig; ?> $config): void
+                                 <?php echo $serializeConfig; ?> $config,
+                                 null|<?php echo $valueXMLLocationEnum; ?> $valueLocation = null): void
     {
-        $this->_xmlSerialize($xw, $config);
+        $this->_xmlSerialize($xw, $config, $valueLocation);
     }
 
-    public static function jsonUnserialize(\stdClass $json,
-                                           <?php echo $unserializeConfig; ?> $config,
-                                           null|<?php echo $elementTypeInterface; ?> $type = null): self
+    public function _getValueAsString(): string
     {
-        throw new \BadMethodCallException('jsonUnserialize not yet implemented');
-    }
-
-    public function __toString(): string
-    {
-        return $this->_name;
+        return (string)$this->getValue();
     }
 }
 <?php return ob_get_clean();

@@ -58,7 +58,8 @@ $imports->addCoreFileImports(
 );
 
 ob_start();
-echo "<?php\n\n";?>
+echo '<?php'; ?> declare(strict_types=1);
+
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
