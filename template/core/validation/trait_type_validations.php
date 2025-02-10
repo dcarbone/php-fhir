@@ -122,9 +122,8 @@ trait <?php echo $coreFile; ?>
      * as no validation errors occurring.
      *
      * @return array
-
      */
-    public function _getValidationErrors(bool $debug = false): array
+    public function _getValidationErrors(): array
     {
         $errs = [];
         foreach ($this->_getCombinedValidationRules() as $field => $rules) {

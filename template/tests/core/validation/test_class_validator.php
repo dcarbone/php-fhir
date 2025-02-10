@@ -34,9 +34,6 @@ $patternMatchRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_
 $minOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS);
 $maxOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MAX_OCCURS);
 
-$mockResource = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
-$mockPrimitive = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_STRING_PRIMITIVE_TYPE);
-
 $imports->addCoreFileImports(
     $validatorClass,
 
@@ -46,9 +43,6 @@ $imports->addCoreFileImports(
     $patternMatchRule,
     $minOccursRule,
     $maxOccursRule,
-
-    $mockResource,
-    $mockPrimitive,
 );
 
 ob_start();
@@ -85,6 +79,5 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertArrayHasKey(<?php echo $maxOccursRule; ?>::NAME, $rules);
         $this->assertInstanceOf(<?php echo $maxOccursRule; ?>::class, $rules[<?php echo $maxOccursRule; ?>::NAME]);
     }
-
 }
 <?php return ob_get_clean();

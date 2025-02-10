@@ -64,7 +64,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> implements <?php echo $elementTypeInterface; ?>, <?php echo $commentContainerInterface; ?>
+class <?php echo $coreFile; ?> implements <?php echo $elementTypeInterface; ?>, <?php echo $commentContainerInterface; ?>, \Iterator
 
 {
     use <?php echo $typeValidationTrait; ?>,

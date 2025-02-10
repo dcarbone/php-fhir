@@ -29,7 +29,6 @@ $elementTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERF
 $primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 $primitiveContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE);
 $elementTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
-$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
 $valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
@@ -40,7 +39,6 @@ $imports->addCoreFileImports(
     $primitiveTypeInterface,
     $primitiveContainerInterface,
     $elementTypeInterface,
-    $resourceTypeInterface,
 
     $valueXMLLocationEnum,
     $xmlWriterClass,
@@ -61,6 +59,66 @@ trait <?php echo $coreFile; ?>
 {
     protected array $_fields = [];
 
+    public function __call(string $name, array $args): null|self|iterable|<?php echo $typeInterface; ?>
+
+    {
+        $get = str_starts_with($name, 'get');
+        $set = str_starts_with($name, 'set');
+        $add = str_starts_with($name, 'add');
+
+        if (!$get && !$set && !$add) {
+            throw new \BadMethodCallException(sprintf('Method "%s" not defined', $name));
+        }
+
+        $field = lcfirst(substr($name, 3));
+        if (!isset($this->_fields[$field])) {
+            throw new \BadMethodCallException(sprintf('No field "%s" defined', $field));
+        }
+
+        return match(true) {
+            $get => $this->_doGet($field, $this->_fields[$field], $args),
+            $set => $this->_doSet($field, $this->_fields[$field], $args),
+            $add => $this->_doAdd($field, $this->_fields[$field], $args),
+        };
+    }
+
+    public function __isset(string $name): bool
+    {
+        return isset($this->_fields[$name]);
+    }
+
+    public function __get(string $name): array|<?php echo $typeInterface; ?>
+
+    {
+        return $this->_fields[$name]['value'];
+    }
+
+    public function current(): mixed
+    {
+        $def = current($this->_fields);
+        return $def['value'] ?? null;
+    }
+
+    public function key(): mixed
+    {
+        return key($this->_fields);
+    }
+
+    public function next(): void
+    {
+        next($this->_fields);
+    }
+
+    public function rewind(): void
+    {
+        reset($this->_fields);
+    }
+
+    public function valid(): bool
+    {
+        return null !== key($this->_fields);
+    }
+
     /**
      * Process any / all field definitions for the mock type, ensuring they're probably sane.
      *
@@ -73,7 +131,6 @@ trait <?php echo $coreFile; ?>
 
         // process field declarations, performing some basic value validation and processing.
         foreach($fields as $field => $def) {
-
             // lazy check for "sane" field name, probably not good enough.
             if (!preg_match('{^[a-zA-Z0-9]+}', $field)) {
                 throw new \DomainException(sprintf('Field name "%s" is not valid.', $field));
@@ -85,12 +142,13 @@ trait <?php echo $coreFile; ?>
             }
 
             // all fields must implement the base type interface.
-            if (!is_a($def['class'], <?php echo $typeInterface; ?>::class, true)) {
+            if (!is_string($def['class']) || !is_a($def['class'], <?php echo $typeInterface; ?>::class, true)) {
                 throw new \InvalidArgumentException(sprintf(
-                    'Field classes must implement "%s", but field "%s" class "%s" does not.',
+                    'Type "%s" field "%s" class "%s" does not implement required interface "%s"',
                     $this->_name,
                     $field,
-                    $def['class'],
+                    is_string($def['class']) ? $def['class'] : gettype($def['class']),
+                    <?php echo $typeInterface; ?>::class,
                 ));
             }
 
@@ -103,7 +161,6 @@ trait <?php echo $coreFile; ?>
             $primitive = is_a($class, <?php echo $primitiveTypeInterface; ?>::class, true);
             $element = is_a($class, <?php echo $elementTypeInterface; ?>::class, true);
             $primitiveContainer = is_a($class, <?php echo $primitiveContainerInterface; ?>::class, true);
-            $resource = is_a($class, <?php echo $resourceTypeInterface; ?>::class, true);
 
             // element types may only have other element types or primitives as field types.
             if ($mockElement && !$element && !$primitive) {
@@ -111,7 +168,7 @@ trait <?php echo $coreFile; ?>
                     'Mock element type "%s" may only have other elements or primitives field types but field "%s" has class "%s"',
                     $this->_name,
                     $field,
-                    is_string($class) ? $class : get_class($class),
+                    $class,
                 ));
             }
 
@@ -289,34 +346,18 @@ trait <?php echo $coreFile; ?>
         return $this;
     }
 
-    public function __call(string $name, array $args): null|self|iterable|<?php echo $typeInterface; ?>
-
-    {
-        $get = str_starts_with($name, 'get');
-        $set = str_starts_with($name, 'set');
-        $add = str_starts_with($name, 'add');
-
-        if (!$get && !$set && !$add) {
-            throw new \BadMethodCallException(sprintf('Method "%s" not defined', $name));
-        }
-
-        $field = lcfirst(substr($name, 3));
-        if (!isset($this->_fields[$field])) {
-            throw new \BadMethodCallException(sprintf('No field "%s" defined', $field));
-        }
-
-        return match(true) {
-            $get => $this->_doGet($field, $this->_fields[$field], $args),
-            $set => $this->_doSet($field, $this->_fields[$field], $args),
-            $add => $this->_doAdd($field, $this->_fields[$field], $args),
-        };
-    }
-
     protected function _xmlSerialize(<?php echo $xmlWriterClass; ?> $xw,
                                      <?php echo $serializeConfig; ?> $config,
                                      null|<?php echo $valueXMLLocationEnum; ?> $valueLocation = null): void
     {
-        // define primitives as attributes
+        $mockPrimitiveContainer = ($this instanceof <?php echo $primitiveContainerInterface; ?>);
+
+        // if this is a mock primitve container, we need to handle locations a lil' different
+        if ($mockPrimitiveContainer) {
+            $valueLocation = $valueLocation ?? $this->_valueXMLLocations['value'];
+        }
+
+        // handle attribute serialization
         foreach($this->_fields as $field => $def) {
             $class = $def['class'];
             $value = $def['value'] ?? null;
@@ -326,8 +367,16 @@ trait <?php echo $coreFile; ?>
             if (null === $value || (!$primitive && !$primitiveContainer)) {
                 continue;
             }
-            if ($primitiveContainer && <?php echo  $valueXMLLocationEnum; ?>::PARENT_ATTRIBUTE === $this->__valueXMLLocations[$field]) {
-                continue;
+
+            // primitive containers may only have their value field as an attribute
+            if ($mockPrimitiveContainer) {
+                if ('value' !== $field || <?php echo $valueXMLLocationEnum; ?>::CONTAINER_ATTRIBUTE !== $valueLocation) {
+                    continue;
+                }
+            } else {
+                if ($primitiveContainer && <?php echo  $valueXMLLocationEnum; ?>::PARENT_ATTRIBUTE === $this->_valueXMLLocations[$field]) {
+                    continue;
+                }
             }
 
             $xw->writeAttribute($field, $value->_getValueAsString());
@@ -354,10 +403,22 @@ trait <?php echo $coreFile; ?>
                     }
                     $xw->endElement();
                 }
-            } else if ($primitiveContainer && <?php echo  $valueXMLLocationEnum; ?>::PARENT_ATTRIBUTE !== $this->__valueXMLLocations[$field]) {
-                $xw->startElement($field);
-                $value->xmlSerialize($xw, $config, $this->_valueXMLLocations[$field]);
-                $xw->endElement();
+            } else if ($mockPrimitiveContainer && 'value' === $field) {
+                if (<?php echo $valueXMLLocationEnum; ?>::CONTAINER_VALUE === $valueLocation) {
+                    $xw->text((string)$this->getValue());
+                } else if (<?php echo $valueXMLLocationEnum; ?>::ELEMENT_ATTRIBUTE === $valueLocation) {
+                    $xw->startElement('value');
+                    $xw->writeAttribute('value', (string)$this->getValue());
+                    $xw->endElement();
+                } else if (<?php echo $valueXMLLocationEnum; ?>::ELEMENT_VALUE === $valueLocation) {
+                    $xw->writeElement('value', (string)$this->getValue());
+                }
+            } else if ($primitiveContainer) {
+                if ($value->_nonValueFieldDefined() || <?php echo  $valueXMLLocationEnum; ?>::PARENT_ATTRIBUTE !== $this->_valueXMLLocations[$field]) {
+                    $xw->startElement($field);
+                    $value->xmlSerialize($xw, $config, $this->_valueXMLLocations[$field]);
+                    $xw->endElement();
+                }
             } else {
                 $xw->startElement($field);
                 $value->xmlSerialize($xw, $config);

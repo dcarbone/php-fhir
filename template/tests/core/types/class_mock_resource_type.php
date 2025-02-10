@@ -66,7 +66,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>, <?php echo $commentContainerInterface; ?>
+class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>, <?php echo $commentContainerInterface; ?>, \Iterator
 
 {
     use <?php echo $typeValidationTrait; ?>,
@@ -79,7 +79,6 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
     private const _FHIR_VALIDATION_RULES = [];
 
     protected string $_name;
-    protected array $_fields = [];
 
     private array $_valueXMLLocations = [];
 

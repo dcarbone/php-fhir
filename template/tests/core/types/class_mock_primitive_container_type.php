@@ -25,6 +25,7 @@ $coreFiles = $config->getCoreFiles();
 $testCoreFiles = $config->getCoreTestFiles();
 $imports = $coreFile->getImports();
 
+$primitiveInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 $primitiveContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE);
 
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
@@ -39,6 +40,7 @@ $mockTypeFieldsTrait = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_TRAI
 $mockElementTypeClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_ELEMENT_TYPE);
 
 $imports->addCoreFileImports(
+    $primitiveInterface,
     $primitiveContainerInterface,
 
     $typeValidationTrait,
@@ -70,18 +72,27 @@ class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> impl
         <?php echo $xmlSerializationOptionsTrait; ?>,
         <?php echo $mockTypeFieldsTrait; ?>;
 
+
+    private const _FHIR_VALIDATION_RULES = [];
+
+    private array $_valueXMLLocations = [];
+
     public function __construct(string $name,
                                 array $fields = [],
                                 array $validationRuleMap = [],
-                                array $fhirComments = [])
+                                array $fhirComments = [],
+                                mixed $value = null)
     {
         if (!isset($fields['value'])
             || !isset($fields['value']['class'])
-            || !is_a($fields['value']['class'], <?php echo $primitiveContainerInterface; ?>::class, true)) {
+            || !is_a($fields['value']['class'], <?php echo $primitiveInterface; ?>::class, true)) {
             throw new \InvalidArgumentException(sprintf(
                 'Primitive container type "%s" must have a "value" field and it must be a primitive type.',
                 $name,
             ));
+        }
+        if (null !== $value) {
+            $fields['value']['value'] = $value;
         }
         parent::__construct($name, $fields, $validationRuleMap, $fhirComments);
     }

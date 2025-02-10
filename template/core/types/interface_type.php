@@ -46,9 +46,8 @@ interface <?php echo $coreFile; ?> extends \JsonSerializable
      * Execute any and all validation rules present on this type and all nested field types.
      *
      * @return array
-
      */
-    public function _getValidationErrors(bool $debug = false): array;
+    public function _getValidationErrors(): array;
 
     /**
      * @return string
