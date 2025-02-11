@@ -16,8 +16,13 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+
+$coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getImports();
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -25,6 +30,8 @@ echo '<?php ';?>declare(strict_types=1);
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 interface <?php echo $coreFile; ?> extends \JsonSerializable
 {
@@ -36,8 +43,7 @@ interface <?php echo $coreFile; ?> extends \JsonSerializable
     public function _getFHIRTypeName(): string;
 
     /**
-     * Must return associative array where, if there are validation errors, the keys are the names of fields within the
-     * type that failed validation.  The value must be a string message describing the manner of error
+     * Execute any and all validation rules present on this type and all nested field types.
      *
      * @return array
      */

@@ -37,7 +37,8 @@ $imports->addCoreFileImports(
 );
 
 ob_start();
-echo "<?php\n\n";?>
+echo '<?php'; ?> declare(strict_types=1);
+
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
@@ -57,14 +58,14 @@ class <?php echo $coreFile; ?> implements <?php echo $primitiveTypeInterface; ?>
 
     protected string $value;
 
-    public function __construct(string $typeName,
+    public function __construct(string $name = 'mock-string-primitive',
                                 null|string $value = null,
                                 array $validationRuleMap = [])
     {
-        $this->_name = $typeName;
+        $this->_name = $name;
         $this->setValue($value);
         foreach($validationRuleMap as $field => $rules) {
-            $this->_setFieldValidationRules($field, $validationRuleMap);
+            $this->_setFieldValidationRules($field, $rules);
         }
     }
 

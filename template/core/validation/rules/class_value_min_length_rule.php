@@ -25,7 +25,7 @@ $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_VALIDATION_RULE);
+$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
 
 $imports->addCoreFileImports(
     $typeInterface,
@@ -64,12 +64,10 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         }
         if (null === $value || '' === $value) {
             return sprintf('Field "%s" on type "%s" must be at least %d characters long, but it is empty', $field, $type->_getFHIRTypeName(), $constraint);
+        } else if ($constraint > ($len = strlen($value))) {
+            return sprintf('Field "%s" on type "%s" must be at least %d characters long, %d seen.', $field, $type->_getFHIRTypeName(), $constraint, $len);
         }
-        $len = strlen($value);
-        if ($constraint <= $len) {
-            return null;
-        }
-        return sprintf('Field "%s" on type "%s" must be at least %d characters long, %d seen.', $field, $type->_getFHIRTypeName(), $constraint, $len);
+        return null;
     }
 }
 <?php return ob_get_clean();

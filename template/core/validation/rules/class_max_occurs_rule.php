@@ -26,13 +26,11 @@ $imports = $coreFile->getImports();
 
 $constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
-$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_VALIDATION_RULE);
+$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
 
 $imports->addCoreFileImports(
     $constantsClass,
     $typeInterface,
-    $primitiveTypeInterface,
     $validationRuleInterface,
 );
 
@@ -63,14 +61,14 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
     public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
-        if (<?php echo $constantsClass; ?>::UNLIMITED === $constraint || null === $value || [] === $value || $value instanceof <?php echo $typeInterface; ?>) {
+        if (<?php echo $constantsClass; ?>::UNLIMITED === $constraint || !is_array($value) || [] === $value) {
             return null;
         }
         $len = count($value);
-        if ($constraint >= $len) {
-            return null;
+        if ($constraint < $len) {
+            return sprintf('Field "%s" on type "%s" must have no more than %d elements, %d seen', $field, $type->_getFHIRTypeName(), $constraint, $len);
         }
-        return sprintf('Field "%s" on type "%s" must have no more than %d elements, %d seen', $field, $type->_getFHIRTypeName(), $constraint, $len);
+        return null;
     }
 }
 <?php return ob_get_clean();

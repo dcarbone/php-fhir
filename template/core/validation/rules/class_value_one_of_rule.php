@@ -25,10 +25,12 @@ $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_VALIDATION_RULE);
+$primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
+$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
 
 $imports->addCoreFileImports(
     $typeInterface,
+    $primitiveTypeInterface,
     $validationRuleInterface,
 );
 
@@ -59,7 +61,13 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
     public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
-        if ([] === $constraint || in_array($value, $constraint, true)) {
+        if (null === $value || [] === $constraint) {
+            return null;
+        }
+        if ($value instanceof <?php echo $primitiveTypeInterface; ?>) {
+            $value = (string)$value;
+        }
+        if (in_array($value, $constraint, true)) {
             return null;
         }
         return sprintf(

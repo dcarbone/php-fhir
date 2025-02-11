@@ -24,11 +24,11 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
+$imports = $type->getimports();
 
 $primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
-$imports = $type->getimports();
 $imports->addCoreFileImports($primitiveTypeInterface, $typeValidationTrait);
 
 $xmlName = NameUtils::getTypeXMLElementName($type);

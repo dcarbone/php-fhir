@@ -26,7 +26,7 @@ $imports = $coreFile->getImports();
 
 $constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_VALIDATION_RULE);
+$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
 
 $imports->addCoreFileImports(
     $constantsClass,
@@ -65,10 +65,10 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
             return null;
         }
         $len = strlen($value);
-        if ($constraint >= $len) {
-            return null;
+        if ($constraint < $len) {
+            return sprintf('Field "%s" on type "%s" must be no more than %d characters long, %d seen', $field, $type->_getFHIRTypeName(), $constraint, $len);
         }
-        return sprintf('Field "%s" on type "%s" must be no more than %d characters long, %d seen', $field, $type->_getFHIRTypeName(), $constraint, $len);
+        return null;
     }
 }
 <?php return ob_get_clean();

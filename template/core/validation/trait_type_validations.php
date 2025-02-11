@@ -22,10 +22,11 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
-$validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-
 $imports = $coreFile->getImports();
+
+$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
+
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
@@ -122,33 +123,34 @@ trait <?php echo $coreFile; ?>
      *
      * @return array
      */
-    public function _getValidationErrors(): array 
+    public function _getValidationErrors(): array
     {
+        $rules = $this->_getCombinedValidationRules();
         $errs = [];
-        foreach ($this->_getCombinedValidationRules() as $field => $rules) {
-            $v = $this->{$field} ?? null;
-            foreach ($rules as $rule => $constraint) {
-                $err = <?php echo $validatorClass; ?>::runRule($this, $field, $rule, $constraint, $v);
-                if (null !== $err) {
-                    if (!isset($errs[$field])) {
-                        $errs[$field] = [];
+        foreach ($this as $prop => $value) {
+            if (str_starts_with($prop, '_')) {
+                continue;
+            }
+            if (isset($rules[$prop])) {
+                foreach ($rules[$prop] as $rule => $constraint) {
+                    $err = <?php echo $validatorClass; ?>::runRule($this, $prop, $rule, $constraint, $value);
+                    if (null !== $err) {
+                        if (!isset($errs[$prop])) {
+                            $errs[$prop] = [];
+                        }
+                        $errs[$prop][$rule] = $err;
                     }
-                    $errs[$field][] = $err;
                 }
             }
-            if ($v instanceof <?php echo $typeInterface; ?>) {
-                $typeErrs = $v->_getValidationErrors();
-                if ([] !== $typeErrs) {
-                    foreach($typeErrs as $subField => $subErrs) {
-                        $errs["{$field}.{$subField}"] = $subErrs;
-                    }
+            if ($value instanceof <?php echo $typeInterface; ?>) {
+                foreach ($value->_getValidationErrors() as $subPath => $subErrs) {
+                    $errs["{$prop}.{$subPath}"] = $subErrs;
                 }
-            } else if (is_array($v)) {
-                foreach($v as $i => $vv) {
-                    $typeErrs = $vv->_getValidationErrors();
-                    if ([] !== $typeErrs) {
-                        foreach($typeErrs as $subField => $subErrs) {
-                            $errs["{$field}.{$i}.{$subField}"] = $subErrs;
+            } else if (is_array($value)) {
+                foreach($value as $i => $vv) {
+                    if ($vv instanceof <?php echo $typeInterface; ?>) {
+                        foreach ($vv->_getValidationErrors() as $subPath => $subErrs) {
+                            $errs["{$prop}.{$i}.{$subPath}"] = $subErrs;
                         }
                     }
                 }

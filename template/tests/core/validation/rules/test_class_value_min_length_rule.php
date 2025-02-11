@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
-$patternRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH);
+$minLenRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MIN_LENGTH);
 
 $testCoreFiles = $config->getCoreTestFiles();
 $mockResource = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
@@ -33,9 +33,8 @@ $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $mockResource,
     $mockPrimitive,
-    $patternRule,
+    $minLenRule,
 );
-
 
 ob_start();
 echo "<?php\n\n";?>
@@ -48,32 +47,36 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo $coreFile; ?> extends TestCase
 {
-    public function testNoErrorWithValidPatternAndValue()
+    public function testNoErrorWithMin()
     {
-        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
-        $rule = new <?php echo $patternRule; ?>();
-        $err = $rule->assert($type, 'value', '/^[a-z\s]+$/', $type->getValue());
-        $this->assertEquals('', $err);
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'one');
+        $rule = new <?php echo $minLenRule; ?>();
+        $err = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertNull($err);
     }
 
-    public function testErrorWithValidPatternAndInvalidValue()
+    public function testNoErrorWithMore()
     {
-        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'the quick brown fox jumped over the lazy dog');
-        $rule = new <?php echo $patternRule; ?>();
-        $err = $rule->assert($type, 'value', '/^[a-z]+$/', $type->getValue());
-        $this->assertNotEmpty($err, 'Rule should have produced error');
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'one ');
+        $rule = new <?php echo $minLenRule; ?>();
+        $err = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertNull($err);
     }
 
-    /**
-     * @see https://github.com/dcarbone/php-fhir/issues/150
-     */
-    public function testErrorWithValueOverflow()
+    public function testErrorWithLess()
     {
-        $bigval = base64_encode(str_repeat('a', 12000));
-        $type = new <?php echo $mockPrimitive; ?>('base64-primitive', $bigval);
-        $rule = new <?php echo $patternRule; ?>();
-        $err = $rule->assert($type, 'value', '/^(\\s*([0-9a-zA-Z\\+\\/=]){4}\\s*)+$/', $type->getValue());
-        $this->assertNotEmpty($err, 'Rule should have produced error');
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', 'on');
+        $rule = new <?php echo $minLenRule; ?>();
+        $err = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertNotNull($err);
+    }
+
+    public function testErrorWithEmpty()
+    {
+        $type = new <?php echo $mockPrimitive; ?>('string-primitive', '');
+        $rule = new <?php echo $minLenRule; ?>();
+        $err = $rule->assert($type, 'value', 3, $type->getValue());
+        $this->assertNotNull($err);
     }
 }
 <?php return ob_get_clean();

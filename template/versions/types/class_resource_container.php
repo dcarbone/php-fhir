@@ -23,12 +23,12 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
+$versionCoreFiles = $version->getCoreFiles();
+$imports = $type->getImports();
 
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
-
-$versionCoreFiles = $version->getCoreFiles();
 
 $versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
 $versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
@@ -58,26 +58,9 @@ echo require_with(
         }
     }
 
-
     public function _getFHIRTypeName(): string
     {
         return self::FHIR_TYPE_NAME;
-    }
-
-    /**
-     * TODO: empty, pending validation system overhaul
-     */
-    public function _getValidationRules(): array
-    {
-        return [];
-    }
-
-    /**
-     * TODO: empty, pending validation system overhaul
-     */
-    public function _getValidationErrors(): array
-    {
-        return [];
     }
 
     /**
