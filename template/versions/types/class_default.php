@@ -213,7 +213,7 @@ if (!$type->isAbstract()) :
     endif;
 endif;
 
-if (null === $type->getParentType() && !$type->hasPrimitiveTypeParent()) : ?>
+if (null === $type->getParentType() || ($type->isPrimitiveContainer() && !$type->hasPrimitiveContainerParent())) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     /**

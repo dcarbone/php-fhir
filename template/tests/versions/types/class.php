@@ -81,8 +81,8 @@ namespace <?php echo $type->getFullyQualifiedTestNamespace(false); ?>;
 use PHPUnit\Framework\TestCase;
 
 class <?php echo $type->getTestClassName(); ?> extends TestCase
-{<?php if ($type->isResourceType()) : ?>
-
+{
+<?php if ($type->isResourceType()) : ?>
     protected <?php echo $versionClass; ?> $_version;
 
     protected function setUp(): void
@@ -111,15 +111,19 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
             $this->_version,
         );
     }
-<?php endif; ?>
 
+<?php endif; ?>
     public function testCanConstructTypeNoArgs()
     {
         $type = new <?php echo $type->getClassName(); ?>();
-        $this->assertInstanceOf('<?php echo $type->getFullyQualifiedClassName(true); ?>', $type);
+        $this->assertEquals('<?php echo $type->getFHIRName(); ?>', $type->_getFHIRTypeName());
     }
-<?php if ($typeKind === TypeKindEnum::PRIMITIVE) :
-    $primitiveType = $type->getPrimitiveType();
+<?php if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) :
+    $primitiveType = match(true) {
+        ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent()) => $type->getPrimitiveType(),
+        $type->isPrimitiveContainer() => $type->getProperties()->getProperty('value')->getValueFHIRType()->getPrimitiveType(),
+        $type->hasPrimitiveContainerParent() => $type->getParentProperty('value')->getValueFHIRType()->getPrimitiveType(),
+    };
 
     // TODO: more different types of strvals...
     $strVals = match ($primitiveType) {
@@ -131,25 +135,26 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         default => ['randomstring'],
     };
 ?>
-
     public function testCanConstructWithString()
     {
 <?php foreach($strVals as $strVal) : ?>
-        $n = new <?php echo $type->getClassName(); ?>('<?php echo $strVal; ?>');
-        $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+        $type = new <?php echo $type->getClassName(); ?>(value: '<?php echo $strVal; ?>');
+        $this->assertEquals('<?php echo $strVal; ?>', $type->_getValueAsString());
+        $this->assertEquals('<?php echo $strVal; ?>', (string)$type);
 <?php endforeach; ?>
     }
 
     public function testCanSetValueFromString()
     {
 <?php foreach($strVals as $strVal) : ?>
-        $n = new <?php echo $type->getClassName(); ?>;
-        $n->setValue('<?php echo $strVal; ?>');
-        $this->assertEquals('<?php echo $strVal; ?>', (string)$n);
+        $type = new <?php echo $type->getClassName(); ?>();
+        $type->setValue('<?php echo $strVal; ?>');
+        $this->assertEquals('<?php echo $strVal; ?>', $type->_getValueAsString());
+        $this->assertEquals('<?php echo $strVal; ?>', (string)$type);
 <?php endforeach; ?>
     }
-<?php elseif (!$version->getSourceMetadata()->isDSTU1() && $type->isResourceType() && !$type->getKind()->isResourceContainer($version)) :  ?>
 
+<?php elseif (!$version->getSourceMetadata()->isDSTU1() && $type->isResourceType() && !$type->getKind()->isResourceContainer($version)) :  ?>
     public function testCanTranscodeBundleJSON()
     {
         $client = $this->_getClient();
