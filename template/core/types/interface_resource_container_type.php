@@ -55,9 +55,9 @@ interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
     /**
      * Set or unset the contained type.
      *
-     * @param null|<?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $contained
+     * @param null|<?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $containedType
      * @return static
      */
-    public function setContainedType(null|<?php echo $containedTypeInterface; ?> $contained): self;
+    public function setContainedType(null|<?php echo $containedTypeInterface; ?> $containedType): self;
 }
 <?php return ob_get_clean();

@@ -27,7 +27,7 @@ $versionCoreFiles = $version->getCoreFiles();
 $imports = $type->getImports();
 
 $resourceContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_CONTAINER_TYPE);
-$containedInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
+$containedTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
 $versionConstants = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS);
@@ -35,7 +35,7 @@ $versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPF
 
 $imports->addCoreFileImports(
     $resourceContainerInterface,
-    $containedInterface,
+    $containedTypeInterface,
     $typeValidationTrait,
 
     $versionConstants,
@@ -61,12 +61,12 @@ class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContai
     private const _FHIR_VALIDATION_RULES = [];
 
     /** @var null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> */
-    private null|<?php echo $versionContainedTypeInterface; ?> $contained = null;
+    private null|<?php echo $versionContainedTypeInterface; ?> $containedType = null;
 
-    public function __construct(null|<?php echo $versionContainedTypeInterface; ?> $contained = null)
+    public function __construct(null|<?php echo $versionContainedTypeInterface; ?> $containedType = null)
     {
-        if (null !== $contained) {
-            $this->setContainedType($contained);
+        if (null !== $containedType) {
+            $this->setContainedType($containedType);
         }
     }
 
@@ -79,36 +79,36 @@ class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContai
      * @return null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getContainedType(): null|<?php echo $containedInterface; ?>
+    public function getContainedType(): null|<?php echo $containedTypeInterface; ?>
 
     {
         return $this->contained ?? null;
     }
 
     /**
-     * @param null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $contained
+     * @param null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $containedType
      * @return static
      */
-    public function setContainedType(null|<?php echo $containedInterface; ?> $contained): self
+    public function setContainedType(null|<?php echo $containedTypeInterface; ?> $containedType): self
     {
-        if (null === $contained) {
-            unset($this->contained);
+        if (null === $containedType) {
+            unset($this->containedType);
             return $this;
         }
-        if (!($contained instanceof <?php echo $versionContainedTypeInterface; ?>)) {
+        if (!($containedType instanceof <?php echo $versionContainedTypeInterface; ?>)) {
             throw new \InvalidArgumentException(sprintf(
                 'Contained type must implement "%s", provided type "%s" does not.',
                 <?php echo $versionContainedTypeInterface; ?>::class,
-                $contained::class,
+                $containedType::class,
             ));
         }
-        $this->contained = $contained;
+        $this->containedType = $containedType;
         return $this;
     }
 
     public function __toString(): string
     {
-        return (string)($this->contained ?? self::FHIR_TYPE_NAME);
+        return (string)($this->containedType ?? self::FHIR_TYPE_NAME);
     }
 
     /**
@@ -118,7 +118,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContai
     public function jsonSerialize(): null|<?php echo $versionContainedTypeInterface; ?>
 
     {
-        return $this->contained ?? null;
+        return $this->containedType ?? null;
     }
 }
 <?php
