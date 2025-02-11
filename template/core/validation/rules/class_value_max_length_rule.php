@@ -47,7 +47,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
 {
     public const NAME = 'value_max_length';
-    public const DESCRIPTION = 'Asserts that a given string value is no more than x characters long';
+    public const DESCRIPTION = 'Asserts that a given string value is no more than x characters long.';
 
     public function getName(): string
     {

@@ -47,7 +47,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
 {
     public const NAME = 'max_occurs';
-    public const DESCRIPTION = 'Asserts that a given collection field has no more than the specified number of elements';
+    public const DESCRIPTION = 'Asserts that a given collection field has no more than the specified number of elements.';
 
     public function getName(): string
     {

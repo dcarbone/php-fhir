@@ -47,7 +47,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
 {
     public const NAME = 'value_pattern_match';
-    public const DESCRIPTION = 'Asserts that a given string value matches the specified pattern';
+    public const DESCRIPTION = 'Asserts that a given string value matches the specified pattern.';
 
     public function getName(): string
     {

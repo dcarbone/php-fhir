@@ -45,7 +45,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
 {
     public const NAME = 'value_min_length';
-    public const DESCRIPTION = 'Asserts that a given string value is at least x characters long';
+    public const DESCRIPTION = 'Asserts that a given string value is at least x characters long.';
 
     public function getName(): string
     {
