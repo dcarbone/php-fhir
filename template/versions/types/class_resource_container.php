@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
-
-use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
@@ -28,30 +28,45 @@ $imports = $type->getImports();
 
 $resourceContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_CONTAINER_TYPE);
 $containedInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
-$commentContainerTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER);
+$typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
+$versionConstants = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS);
 $versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
-$versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
+
+$imports->addCoreFileImports(
+    $resourceContainerInterface,
+    $containedInterface,
+    $typeValidationTrait,
+
+    $versionConstants,
+    $versionContainedTypeInterface,
+);
 
 ob_start();
+echo '<?php ';?>declare(strict_types=1);
 
-?>
+    namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
+
+<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
+<?php echo ImportUtils::compileImportStatements($imports); ?>
+
 class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContainerInterface; ?>
 
 {
-    use <?php echo $commentContainerTrait; ?>;
+    use <?php echo $typeValidationTrait; ?>;
+
+    public const FHIR_TYPE_NAME = <?php echo $type->getTypeNameConst(true); ?>;
+
+    private const _FHIR_VALIDATION_RULES = [];
 
     /** @var null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> */
     private null|<?php echo $versionContainedTypeInterface; ?> $contained = null;
 
-    public function __construct(null|<?php echo $versionContainedTypeInterface; ?> $contained = null,
-                                null|iterable $fhirComments = null)
+    public function __construct(null|<?php echo $versionContainedTypeInterface; ?> $contained = null)
     {
         if (null !== $contained) {
-            $this->setContained($contained);
-        }
-        if (null !== $fhirComments) {
-            $this->_setFHIRComments($fhirComments);
+            $this->setContainedType($contained);
         }
     }
 
@@ -97,9 +112,11 @@ class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContai
     }
 
     /**
-     * @return null|object
+     * @return null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?>
+
      */
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): null|<?php echo $versionContainedTypeInterface; ?>
+
     {
         return $this->contained ?? null;
     }

@@ -135,8 +135,8 @@ class ImportUtils
         // immediately add self
         $imports->addImport($type->getFullyQualifiedNamespace(false), $type->getClassName());
 
-        // xhtml type has too many special cases, do better.
-        if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
+        // few types are handled different.  this is lazy and I hate it, but here we are.
+        if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME || $type->getKind()->isResourceContainer($version)) {
             return;
         }
 

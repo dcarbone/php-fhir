@@ -164,6 +164,16 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
             }
         }
 <?php
+        elseif ($propTypeKind->isResourceContainer($version)) : ?>
+        foreach($<?php echo $propertyName; ?> as $v) {
+            if ($v instanceof <?php echo $propTypeClassname; ?>) {
+                $v = $v->getContainedType();
+            }
+            if (null !== $v) {
+                $this-><?php echo $propertyName; ?>[] = $v;
+            }
+        }
+<?php
         else : ?>
         $this-><?php echo $propertyName; ?> = $<?php echo $propertyName; ?>;
 <?php

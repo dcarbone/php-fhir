@@ -47,6 +47,8 @@ class <?php echo $type->getClassName(); ?> implements <?php echo $primitiveTypeI
 {
     use <?php echo $typeValidationTrait; ?>;
 
+    private const _FHIR_VALIDATION_RULES = [];
+
     /** @var string */
     protected string $value;
 

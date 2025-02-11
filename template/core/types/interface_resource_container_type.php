@@ -26,12 +26,10 @@ $imports = $coreFile->getimports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $containedTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
-$commentContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $containedTypeInterface,
-    $commentContainerInterface,
 );
 
 ob_start();
@@ -43,7 +41,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>, <?php echo $commentContainerInterface; ?>
+interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
 
 {
     /**
@@ -52,7 +50,7 @@ interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>, <?php 
      * @return null|<?php echo $containedTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getContained(): null|<?php echo $containedTypeInterface; ?>;
+    public function getContainedType(): null|<?php echo $containedTypeInterface; ?>;
 
     /**
      * Set or unset the contained type.
@@ -60,6 +58,6 @@ interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>, <?php 
      * @param null|<?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $contained
      * @return static
      */
-    public function setContained(null|<?php echo $containedTypeInterface; ?> $contained): self;
+    public function setContainedType(null|<?php echo $containedTypeInterface; ?> $contained): self;
 }
 <?php return ob_get_clean();
