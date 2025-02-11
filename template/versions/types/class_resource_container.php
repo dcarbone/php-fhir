@@ -26,32 +26,29 @@ $coreFiles = $config->getCoreFiles();
 $versionCoreFiles = $version->getCoreFiles();
 $imports = $type->getImports();
 
-$xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
-$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
-$unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+$resourceContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_CONTAINER_TYPE);
+$containedInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
+$commentContainerTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER);
 
 $versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
 $versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
 
 ob_start();
 
-// build file header
-echo require_with(
-    PHPFHIR_TEMPLATE_VERSION_TYPES_DIR . '/header.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-); ?>
+?>
+class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContainerInterface; ?>
+
+{
+    use <?php echo $commentContainerTrait; ?>;
 
     /** @var null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> */
-    private null|<?php echo $versionContainedTypeInterface; ?> $containedType = null;
+    private null|<?php echo $versionContainedTypeInterface; ?> $contained = null;
 
-    public function __construct(null|<?php echo $versionContainedTypeInterface; ?> $containedType = null,
+    public function __construct(null|<?php echo $versionContainedTypeInterface; ?> $contained = null,
                                 null|iterable $fhirComments = null)
     {
-        if (null !== $containedType) {
-            $this->setContainedType($containedType);
+        if (null !== $contained) {
+            $this->setContained($contained);
         }
         if (null !== $fhirComments) {
             $this->_setFHIRComments($fhirComments);
@@ -67,103 +64,36 @@ echo require_with(
      * @return null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?>
 
      */
-    public function getContainedType(): null|<?php echo $versionContainedTypeInterface; ?>
+    public function getContainedType(): null|<?php echo $containedInterface; ?>
 
     {
-        return $this->containedType ?? null;
+        return $this->contained ?? null;
     }
 
     /**
-     * @param null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $containedType
+     * @param null|<?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $contained
      * @return static
      */
-    public function setContainedType(null|<?php echo $versionContainedTypeInterface; ?> $containedType): self
+    public function setContainedType(null|<?php echo $containedInterface; ?> $contained): self
     {
-        if (null === $containedType) {
-            unset($this->containedType);
+        if (null === $contained) {
+            unset($this->contained);
             return $this;
         }
-        $this->containedType = $containedType;
+        if (!($contained instanceof <?php echo $versionContainedTypeInterface; ?>)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Contained type must implement "%s", provided type "%s" does not.',
+                <?php echo $versionContainedTypeInterface; ?>::class,
+                $contained::class,
+            ));
+        }
+        $this->contained = $contained;
         return $this;
-    }
-
-<?php
-echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/xml/unserialize/header.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
-?>
-        foreach ($element->children() as $child) {
-            /** @var <?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $class */
-            $class = <?php echo $versionTypeMapClass; ?>::getContainedTypeClassNameFromXML($child);
-            $type->setContainedType($class::xmlUnserialize($child, $config));
-            break;
-        }
-        return $type;
-    }
-
-    /**
-     * @param null|<?php echo $xmlWriterClass->getFullyQualifiedName(true); ?> $xw
-     * @param null|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $config
-     * @return <?php echo $xmlWriterClass->getFullyQualifiedName(true); ?>
-
-     */
-    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null,
-                                 null|<?php echo $serializeConfigClass; ?> $config = null): <?php echo $xmlWriterClass; ?>
-
-    {
-        $containedType = $this->getContainedType();
-        if (null !== $containedType) {
-            return $containedType->xmlSerialize($xw, $config);
-        }
-        if (null === $config) {
-            $config = (new <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION; ?>())->getConfig()->getSerializeConfig();
-        }
-        if (null === $xw) {
-            $xw = new <?php echo $xmlWriterClass; ?>($config);
-        }
-        if (!$xw->isOpen()) {
-            $xw->openMemory();
-        }
-        if (!$xw->isDocStarted()) {
-            $docStarted = true;
-            $xw->startDocument();
-        }
-        if (!$xw->isRootOpen()) {
-            $rootOpened = true;
-            $xw->openRootNode('<?php echo NameUtils::getTypeXMLElementName($type); ?>', $this->_getSourceXMLNS());
-        }
-        if (isset($rootOpened) && $rootOpened) {
-            $xw->endElement();
-        }
-        if (isset($docStarted) && $docStarted) {
-            $xw->endDocument();
-        }
-        return $xw;
-    }
-
-<?php
-// unserialize portion
-echo require_with(
-        PHPFHIR_TEMPLATE_VERSION_TYPES_SERIALIZATION_DIR . '/json/unserialize/header.php',
-    [
-        'version' => $version,
-        'type' => $type,
-    ]
-);
-?>
-        /** @var <?php echo $versionContainedTypeInterface->getFullyQualifiedName(true); ?> $class */
-        $class = <?php echo $versionTypeMapClass; ?>::getContainedTypeClassNameFromJSON($json);
-        $type->setContainedType($class::jsonUnserialize($json));
-        return $type;
     }
 
     public function __toString(): string
     {
-        return self::FHIR_TYPE_NAME;
+        return (string)($this->contained ?? self::FHIR_TYPE_NAME);
     }
 
     /**
@@ -171,7 +101,7 @@ echo require_with(
      */
     public function jsonSerialize(): mixed
     {
-        return $this->getContainedType();
+        return $this->contained ?? null;
     }
 }
 <?php
