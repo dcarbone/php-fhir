@@ -22,16 +22,14 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
-$imports = $coreFile->getImports();
+$imports = $coreFile->getimports();
 
-$constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
-$validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
+$containedTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
 
 $imports->addCoreFileImports(
-    $constantsClass,
     $typeInterface,
-    $validationRuleInterface,
+    $containedTypeInterface,
 );
 
 ob_start();
@@ -43,32 +41,23 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
+interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
 
 {
-    public const NAME = 'value_max_length';
-    public const DESCRIPTION = 'Asserts that a given string value is no more than x characters long.';
+    /**
+     * Must return the contained resource, or null if one is not set.
+     *
+     * @return null|<?php echo $containedTypeInterface->getFullyQualifiedName(true); ?>
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
+     */
+    public function getContainedType(): null|<?php echo $containedTypeInterface; ?>;
 
-    public function getDescription(): string
-    {
-        return self::DESCRIPTION;
-    }
-
-    public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
-    {
-        if (<?php echo $constantsClass; ?>::UNLIMITED === $constraint || null === $value || '' === $value) {
-            return null;
-        }
-        $len = strlen($value);
-        if ($constraint < $len) {
-            return sprintf('Field "%s" on type "%s" must be no more than %d characters long, %d seen', $field, $type->_getFHIRTypeName(), $constraint, $len);
-        }
-        return null;
-    }
+    /**
+     * Set or unset the contained type.
+     *
+     * @param null|<?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $containedType
+     * @return static
+     */
+    public function setContainedType(null|<?php echo $containedTypeInterface; ?> $containedType): self;
 }
 <?php return ob_get_clean();

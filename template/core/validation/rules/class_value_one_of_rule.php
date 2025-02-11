@@ -47,7 +47,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
 {
     public const NAME = 'value_one_of';
-    public const DESCRIPTION = 'Asserts that a given value is within the expected list of values';
+    public const DESCRIPTION = 'Asserts that a given value is within the expected list of values.';
 
     public function getName(): string
     {

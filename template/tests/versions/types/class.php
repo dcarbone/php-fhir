@@ -153,8 +153,10 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         $this->assertEquals('<?php echo $strVal; ?>', (string)$type);
 <?php endforeach; ?>
     }
+<?php elseif (!$version->getSourceMetadata()->isDSTU1()) :
+    if ($type->isResourceType()) :
+        if (!$type->getKind()->isResourceContainer($version)) : ?>
 
-<?php elseif (!$version->getSourceMetadata()->isDSTU1() && $type->isResourceType() && !$type->getKind()->isResourceContainer($version)) :  ?>
     public function testCanTranscodeBundleJSON()
     {
         $client = $this->_getClient();
@@ -218,6 +220,16 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         $xw = $bundle->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig());
         $this->assertXmlStringEqualsXmlString($rc->getResp(), $xw->outputMemory());
     }
-<?php endif; ?>
-}
+<?php
+        endif; ?>
+
+    public function testCanExecuteValidations()
+    {
+        $type = new <?php echo $type->getclassName(); ?>();
+        $errs = $type->_getValidationErrors();
+        $this->assertIsArray($errs);
+    }
+<?php
+    endif;
+endif; ?>}
 <?php return ob_get_clean();

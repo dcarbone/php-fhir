@@ -45,7 +45,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
 {
     public const NAME = 'min_occurs';
-    public const DESCRIPTION = 'Asserts that a given collection field is of a specific minimum length';
+    public const DESCRIPTION = 'Asserts that a given collection field is of a specific minimum length.';
 
     public function getName(): string
     {
