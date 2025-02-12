@@ -181,11 +181,11 @@ class SourceMetadata
     public function getShortVersion(): string
     {
         $this->compile();
-        $v = $this->getsemanticVersion(true);
-        $dotCnt = substr_count($v, '.');
-        return match ($dotCnt) {
+        $v = $this->getsemanticVersion(false);
+        return match (substr_count($v, '.')) {
             1 => $v,
-            default => substr($v, 0, strrpos($v, '.')),
+            2 => substr($v, 0, strrpos($v, '.')),
+            default => implode('.', array_chunk(explode('.', $v), 2)[0])
         };
     }
 
