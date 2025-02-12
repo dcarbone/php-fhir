@@ -44,6 +44,8 @@ $imports->addCoreFileImports(
     $versionTypeMapClass,
 );
 
+$sourceMeta = $version->getSourceMetadata();
+
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
@@ -51,14 +53,16 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
+
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
 
 {
     public const NAME = '<?php echo $version->getName(); ?>';
-    public const SOURCE_VERSION = '<?php echo $version->getSourceMetadata()->getFHIRVersionString(false); ?>';
-    public const SOURCE_GENERATION_DATE = '<?php echo $version->getSourceMetadata()->getFHIRGenerationDate(); ?>';
+    public const FHIR_SEMANTIC_VERSION = '<?php echo $sourceMeta->getSemanticVersion(false); ?>';
+    public const FHIR_SHORT_VERSION = '<?php echo $sourceMeta->getShortVersion(); ?>';
+    public const FHIR_GENERATION_DATE = '<?php echo $sourceMeta->getSourceGenerationDate(); ?>';
 
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
 
@@ -97,17 +101,25 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     /**
      * @return string
      */
-    public function getSourceVersion(): string
+    public function getFHIRSemanticVersion(): string
     {
-        return self::SOURCE_VERSION;
+        return self::FHIR_SEMANTIC_VERSION;
     }
 
     /**
      * @return string
      */
-    public function getSourceGenerationDate(): string
+    public function getFHIRShortVersion(): string
     {
-        return self::SOURCE_GENERATION_DATE;
+        return self::FHIR_SHORT_VERSION;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFHIRGenerationDate(): string
+    {
+        return self::FHIR_GENERATION_DATE;
     }
 
     /**

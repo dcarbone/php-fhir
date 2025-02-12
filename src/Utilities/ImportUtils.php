@@ -43,7 +43,7 @@ class ImportUtils
     {
         $imports = $type->getImports();
 
-        foreach($property->buildValidationMap($type) as $ruleClass => $_) {
+        foreach ($property->buildValidationMap($type) as $ruleClass => $_) {
             $imports->addCoreFileImportsByName($ruleClass);
         }
     }

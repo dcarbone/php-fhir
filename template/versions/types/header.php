@@ -21,6 +21,10 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
+$versionCoreFiles = $version->getCoreFiles();
+
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
+
 $parentType = $type->getParentType();
 $classDocumentation = $type->getDocBlockDocumentationFragment(1, true);
 $interfaces = $type->getDirectlyImplementedInterfaces();

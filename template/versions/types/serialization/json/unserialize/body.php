@@ -98,12 +98,12 @@ foreach($type->getProperties()->getIterator() as $property) :
                 $vals = $json-><?php echo $propName; ?>;
             }
             foreach($vals as $v) {
-                $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromJSON($v);
+                $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::mustGetContainedTypeClassnameFromJSON($v);
                 unset($v-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>);
                 $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize($v, $config));
             }
 <?php   else : ?>
-            $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromJSON($json-><?php echo $propName; ?>);
+            $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::mustGetContainedTypeClassnameFromJSON($json-><?php echo $propName; ?>);
             $v = $json-><?php echo $propName; ?>;
             unset($v-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>);
             $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize($v, $config));

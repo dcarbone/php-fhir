@@ -157,20 +157,36 @@ class SourceMetadata
     /**
      * @return string
      */
-    public function getFHIRGenerationDate(): string
+    public function getSourceGenerationDate(): string
     {
         $this->compile();
         return $this->_fhirGenerationDate;
     }
 
     /**
-     * @param bool $trimmed
+     * @param bool $trimmed If true, trims off the 'v' prefix before returning.
      * @return string
      */
-    public function getFHIRVersionString(bool $trimmed): string
+    public function getSemanticVersion(bool $trimmed): string
     {
         $this->compile();
         return $trimmed ? trim($this->_fhirVersion, 'v') : $this->_fhirVersion;
+    }
+
+    /**
+     * Return the shortenend representation of the FHIR semantic version containing only Manjor.Minor values.
+     *
+     * @return string
+     */
+    public function getShortVersion(): string
+    {
+        $this->compile();
+        $v = $this->getsemanticVersion(false);
+        $dotCnt = substr_count($v, '.');
+        return match ($dotCnt) {
+            1 => $v,
+            default => substr($v, 0, strrpos($v, '.')),
+        };
     }
 
     /**
@@ -180,6 +196,6 @@ class SourceMetadata
      */
     public function isDSTU1(): bool
     {
-        return Semver::satisfies($this->getFHIRVersionString(false), '<= ' . self::_DSTU1_VERSION_MAX);
+        return Semver::satisfies($this->getSemanticVersion(false), '<= ' . self::_DSTU1_VERSION_MAX);
     }
 }

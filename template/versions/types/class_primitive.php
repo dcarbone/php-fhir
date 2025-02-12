@@ -24,8 +24,6 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-$coreFiles = $version->getConfig()->getCoreFiles();
-
 // define some common things
 $typeKind = $type->getKind();
 $typeClassName = $type->getClassName();
@@ -56,15 +54,14 @@ echo require_with(
     ]
 ); ?>
     public const <?php echo $valueProperty->getFieldConstantName(); ?> = '<?php echo $valueProperty->getName(); ?>';
-<?php if ($primitiveType === PrimitiveTypeEnum::BOOLEAN) : ?>
 
+<?php if ($primitiveType === PrimitiveTypeEnum::BOOLEAN) : ?>
     public const TRUE = 'true';
     public const FALSE = 'false';
 
 <?php endif; ?>
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    // The default validation rules for this type as defined in the FHIR schema used to generate this code.
-    private const _FHIR_VALIDATION_RULES = [<?php if (!$type->hasNonOverloadedProperties() || !$type->hasPropertiesWithValidations()): ?>];
+    private const _FHIR_VALIDATION_RULES = [<?php if ([] === $validationMap): ?>];
 <?php else: ?>
 
         self::<?php echo $valueProperty->getFieldConstantName(); ?> => [

@@ -57,14 +57,21 @@ interface <?php echo $coreFile; ?>
      *
      * @return string
      */
-    public function getSourceVersion(): string;
+    public function getFHIRSemanticVersion(): string;
+
+    /*
+     * Must return the shortened Major.Minor representation of the source's semantic version.
+     *
+     * @return string
+     */
+    public function getFHIRShortVersion(): string;
 
     /**
      * Must return the date this FHIR version's source was generated
      *
      * @return string
      */
-    public function getSourceGenerationDate(): string;
+    public function getFHIRGenerationDate(): string;
 
     /**
      * Must return config for this version

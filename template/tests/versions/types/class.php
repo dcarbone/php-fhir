@@ -18,7 +18,6 @@
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -44,7 +43,10 @@ $versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_EN
 $imports = new Imports($version->getConfig(), $type->getFullyQualifiedTestNamespace(false), $type->getTestClassName());
 $imports->addVersionTypeImports($type);
 
-if ($type->isResourceType()) {
+if (!$type->isAbstract()
+    && $type !== $bundleType
+    && !$type->getKind()->isResourceContainer($version)
+    && ($type->isResourceType() || $type->hasResourceTypeParent())) {
     $imports
         ->addCoreFileImportsByName(
             PHPFHIR_CLIENT_CLASSNAME_CONFIG,
@@ -70,7 +72,8 @@ $typeKind = $type->getKind();
 
 ob_start();
 
-echo '<?php'; ?>
+echo '<?php /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */'; ?>
+
 
 namespace <?php echo $type->getFullyQualifiedTestNamespace(false); ?>;
 
@@ -82,7 +85,11 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo $type->getTestClassName(); ?> extends TestCase
 {
-<?php if ($type->isResourceType()) : ?>
+<?php
+if (!$type->isAbstract()
+    && $type !== $bundleType
+    && !$type->getKind()->isResourceContainer($version)
+    && ($type->isResourceType() || $type->hasResourceTypeParent())) : ?>
     protected <?php echo $versionClass; ?> $_version;
 
     protected function setUp(): void
@@ -154,8 +161,29 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
 <?php endforeach; ?>
     }
 <?php elseif (!$version->getSourceMetadata()->isDSTU1()) :
-    if ($type->isResourceType()) :
-        if (!$type->getKind()->isResourceContainer($version)) : ?>
+    if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+
+    public function testGetFHIRVersionName()
+    {
+        $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>;
+        $this->assertEquals(<?php echo $versionClass->getFullyQualifiedName(true); ?>::NAME, $type->_getFHIRVersionName());
+    }
+
+    public function testGetFHIRSemanticVersion()
+    {
+        $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>;
+        $this->assertEquals(<?php echo $versionClass->getFullyQualifiedName(true); ?>::FHIR_SEMANTIC_VERSION, $type->_getFHIRSemanticVersion());
+    }
+
+    public function testGetFHIRShortVersion()
+    {
+        $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>;
+        $this->assertEquals(<?php echo $versionClass->getFullyQualifiedName(true); ?>::FHIR_SHORT_VERSION, $type->_getFHIRShortVersion());
+    }
+<?php   if (!$type->isAbstract()
+            && $type !== $bundleType
+            && !$type->getKind()->isResourceContainer($version)
+            && ($type->isResourceType() || $type->hasResourceTypeParent())) : ?>
 
     public function testCanTranscodeBundleJSON()
     {
@@ -220,8 +248,7 @@ class <?php echo $type->getTestClassName(); ?> extends TestCase
         $xw = $bundle->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig());
         $this->assertXmlStringEqualsXmlString($rc->getResp(), $xw->outputMemory());
     }
-<?php
-        endif; ?>
+<?php   endif; ?>
 
     public function testCanExecuteValidations()
     {

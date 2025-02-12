@@ -16,101 +16,136 @@
  * limitations under the License.
  */
 
+// TODO: I did not separate each type into its own test method because new PHPStorm absolutely shits itself with that many test funcs.
+
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 /** @var \DCarbone\PHPFHIR\Version $version */
 
+$versionCoreFiles = $version->getCoreFiles();
+$imports = $coreFile->getImports();
+
+$typeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
+
+$imports->addCoreFileImports(
+    $typeMapClass,
+);
+
 $types = $version->getDefinition()->getTypes();
 
-$coreFiles = $version->getCoreFiles();
-
 ob_start();
-echo "<?php\n\n"; ?>
+echo "<?php /** @noinspection PhpFullyQualifiedNameUsageInspection */\n\n"; ?>
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
 
 
-use <?php echo $coreFiles
-    ->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP)
-    ->getFullyQualifiedName(false); ?>;
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 use PHPUnit\Framework\TestCase;
 
-class <?php echo PHPFHIR_TEST_CLASSNAME_TYPE_MAP; ?> extends TestCase
+class <?php echo $coreFile; ?> extends TestCase
 {
-    public function testGetTypeClassWithNonStringReturnsNull()
+    public function testGetTypeClassnameWithInvalidString()
     {
-        $this->assertNull(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getTypeClassName(1));
+        $this->assertNull(<?php echo $typeMapClass; ?>::getTypeClassname('\\stdClass'));
     }
 
-    public function testGetTypeClassName()
+    public function testGetTypeClassnameWithInvalidXML()
     {
-<?php foreach($types->getNamespaceSortedIterator() as $type): ?>
-    $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getTypeClassName('<?php echo $type->getFHIRName(); ?>'));
+        $sxe = new \SimpleXMLElement('<NotAResource></NotAResource>');
+        $this->assertNull(<?php echo $typeMapClass; ?>::getTypeClassname($sxe));
+    }
+
+    public function testGetTypeClassnameWithJSONMissingResourceType()
+    {
+        $json = new \stdClass();
+        $json->jimmy = 'Observation';
+        $this->assertNull(<?php echo $typeMapClass; ?>::getTypeClassname($json));
+    }
+
+    public function testGetTypeClassnameWithJSONInvalidResourceType()
+    {
+        $json = new \stdClass();
+        $json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = 'Steve';
+        $this->assertNull(<?php echo $typeMapClass; ?>::getTypeClassname($json));
+    }
+
+    public function testGetTypeClassnameWithTypeName()
+    {
+<?php foreach($types->getNamespaceSortedIterator() as $type) : ?>
+        $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo $typeMapClass; ?>::getTypeClassname('<?php echo $type->getFHIRName(); ?>'));
 <?php endforeach; ?>
     }
 
-    public function testGetContainedTypeClassName()
+    public function testGetContainedTypeClassnameWithTypeName()
     {
-<?php foreach($types->getNameSortedIterator() as $type) :
+<?php foreach($types->getNamespaceSortedIterator() as $type) :
     if ($type->isContainedType()) : ?>
-        $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassName('<?php echo $type->getFHIRName(); ?>'));
+        $this->assertEquals('<?php echo $type->getFullyQualifiedClassName(true); ?>', <?php echo $typeMapClass; ?>::getContainedTypeClassname('<?php echo $type->getFHIRName(); ?>'));
 <?php else : ?>
-        $this->assertNull(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassName('<?php echo $type->getFHIRName(); ?>'));
+        $this->assertNull(<?php echo $typeMapClass; ?>::getContainedTypeClassname('<?php echo $type->getFHIRName(); ?>'));
 <?php endif;
 endforeach; ?>
     }
 
     public function testIsContainableResourceWithClassname()
     {
-<?php foreach($types->getNameSortedIterator() as $type) :
-    // TODO(@dcarbone): don't do this.
-    if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
-        continue;
-    }
+<?php foreach($types->getNamespaceSortedIterator() as $type) :
     if ($type->isContainedType()) : ?>
-        $this->assertTrue(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(false); ?>'));
-        $this->assertTrue(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(true); ?>'));
+        $this->assertTrue(<?php echo $typeMapClass; ?>::isContainableType('<?php echo $type->getFullyQualifiedClassName(false); ?>'), sprintf('Expected input "%s" to return true.', '<?php echo $type->getFullyQualifiedClassName(false); ?>'));
+        $this->assertTrue(<?php echo $typeMapClass; ?>::isContainableType('<?php echo $type->getFullyQualifiedClassName(true); ?>'), sprintf('Expected input "%s" to return true.', '<?php echo $type->getFullyQualifiedClassName(true); ?>'));
 <?php else : ?>
-        $this->assertFalse(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(false); ?>'));
-        $this->assertFalse(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource('<?php echo $type->getFullyQualifiedClassName(true); ?>'));
-<?php endif;
-endforeach; ?>
-    }
-
-    public function testIsContainableResourceWithTypeName()
-    {
-<?php foreach($types->getNameSortedIterator() as $type) :
-    if ($type->isAbstract()) {
-        continue;
-    }
-    // TODO(@dcarbone): don't do this.
-    if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
-        continue;
-    }
-    if ($type->isContainedType()) : ?>
-        $this->assertTrue(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource('<?php echo $type->getFHIRName(); ?>'));
-<?php else : ?>
-        $this->assertFalse(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource('<?php echo $type->getFHIRName(); ?>'));
+        $this->assertFalse(<?php echo $typeMapClass; ?>::isContainableType('<?php echo $type->getFullyQualifiedClassName(false); ?>'), sprintf('Expected input "%s" to return false.', '<?php echo $type->getFullyQualifiedClassName(false); ?>'));
+        $this->assertFalse(<?php echo $typeMapClass; ?>::isContainableType('<?php echo $type->getFullyQualifiedClassName(true); ?>'), sprintf('Expected input "%s" to return false.', '<?php echo $type->getFullyQualifiedClassName(true); ?>'));
 <?php endif;
 endforeach; ?>
     }
 
     public function testIsContainableResourceWithInstance()
     {
+<?php foreach($types->getNamespaceSortedIterator() as $type) :
+    if ($type->isAbstract()) {
+        continue;
+    } ?>
+        $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>;
+<?php if ($type->isContainedType()) : ?>
+        $this->assertTrue(<?php echo $typeMapClass; ?>::isContainableType($type), sprintf('Expected instance of "%s" to return true.', $type::class));
+        $this->assertTrue(<?php echo $typeMapClass; ?>::isContainableType($type->_getFHIRTypeName()), sprintf('Expected input "%s" to return true.', $type->_getFHIRTypeName()));
+<?php else : ?>
+        $this->assertFalse(<?php echo $typeMapClass; ?>::isContainableType($type), sprintf('Expected instance of "%s" to return false.', $type::class));
+        $this->assertFalse(<?php echo $typeMapClass; ?>::isContainableType($type->_getFHIRTypeName()), sprintf('Expected input "%s" to return false.', $type->_getFHIRTypeName()));
+<?php endif;
+endforeach; ?>
+    }
+
+    public function testIsContainableTypeWithXML()
+    {
 <?php foreach($types->getNameSortedIterator() as $type) :
     if ($type->isAbstract()) {
         continue;
-    }
-    // TODO(@dcarbone): don't do this.
-    if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME) {
-        continue;
-    }
-?>
-        $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>;
+    } ?>
+        $sxe = new \SimpleXMLElement('<<?php echo $type->getFHIRName(); ?>></<?php echo $type->getFHIRName(); ?>>');
 <?php if ($type->isContainedType()) : ?>
-        $this->assertTrue(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource($type));
+        $this->assertTrue(<?php echo $typeMapClass; ?>::isContainableType($sxe), sprintf('Expected input "%s" to return true.', $sxe->saveXML()));
 <?php else : ?>
-        $this->assertFalse(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::isContainableResource($type));
+        $this->assertFalse(<?php echo $typeMapClass; ?>::isContainableType($sxe), sprintf('Expected input "%s" to return false.', $sxe->saveXML()));
+<?php endif;
+endforeach; ?>
+    }
+
+    public function testIsContainableTypeWithJSON()
+    {
+<?php foreach($types->getNameSortedIterator() as $type) :
+    if ($type->isAbstract()) {
+        continue;
+    } ?>
+        $json = new \stdClass();
+        $json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = '<?php echo $type->getFHIRName(); ?>';
+<?php if ($type->isContainedType()) : ?>
+        $this->assertTrue(<?php echo $typeMapClass; ?>::isContainableType($json), sprintf('Expected input "%s" to return true.', var_export($json, true)));
+<?php else : ?>
+        $this->assertFalse(<?php echo $typeMapClass; ?>::isContainableType($json), sprintf('Expected input "%s" to return false.', var_export($json, true)));
 <?php endif;
 endforeach; ?>
     }
