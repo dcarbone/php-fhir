@@ -150,10 +150,12 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
         $rc->err = $err;
         $rc->errno = $errno;
 
-        if ($parseResponseHeaders) {
-            $rc->resp = substr($resp, $rc->headers->getLength());
-        } else {
-            $rc->resp = $resp;
+        if (0 === $errno) {
+            if ($parseResponseHeaders) {
+                $rc->resp = substr($resp, $rc->headers->getLength());
+            } else {
+                $rc->resp = $resp;
+            }
         }
 
         return $rc;
