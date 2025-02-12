@@ -27,6 +27,8 @@ if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) {
     throw new \LogicException(sprintf('Cannot use template %s for Type "%s"', __FILE__, $type->getFHIRName()));
 }
 
+$sourceMeta = $version->getSourceMetadata();
+
 $coreFiles = $version->getConfig()->getCoreFiles();
 $versionCoreFiles = $version->getCoreFiles();
 
@@ -146,7 +148,7 @@ endif; ?>
     }
 <?php
 
-if ($type->isResourceType() && !$type->hasParent()) : ?>
+if (!$type->hasParent() && ($sourceMeta->isDSTU1() || $type->isResourceType())) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     public function _getFHIRVersionName(): string
