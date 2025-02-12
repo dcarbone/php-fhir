@@ -27,9 +27,14 @@ if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) {
     throw new \LogicException(sprintf('Cannot use template %s for Type "%s"', __FILE__, $type->getFHIRName()));
 }
 
+$sourceMeta = $version->getSourceMetadata();
+
 $coreFiles = $version->getConfig()->getCoreFiles();
+$versionCoreFiles = $version->getCoreFiles();
 
 $xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
+
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 // define some common things
 $typeKind = $type->getKind();
@@ -137,21 +142,33 @@ if (!$type->hasPrimitiveTypeParent()) :
 endif; ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    /**
-     * @return string
-     */
     public function _getFHIRTypeName(): string
     {
         return self::FHIR_TYPE_NAME;
     }
-<?php 
+<?php
 
+if (!$type->hasConcreteParent() && ($sourceMeta->isDSTU1() || $type->isResourceType())) : ?>
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+    public function _getFHIRVersionName(): string
+    {
+        return <?php echo $versionClass; ?>::NAME;
+    }
+
+    public function _getFHIRSemanticVersion(): string
+    {
+        return <?php echo $versionClass; ?>::FHIR_SEMANTIC_VERSION;
+    }
+
+    public function _getFHIRShortVersion(): string
+    {
+        return <?php echo $versionClass; ?>::FHIR_SHORT_VERSION;
+    }
+<?php endif;
 if ($type->isContainedType()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    /**
-     * @return string
-     */
     public function _getResourceType(): string
     {
         return static::FHIR_TYPE_NAME;
@@ -216,9 +233,6 @@ endif;
 if (null === $type->getParentType() || ($type->isPrimitiveContainer() && !$type->hasPrimitiveContainerParent())) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
 <?php

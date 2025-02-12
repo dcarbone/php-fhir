@@ -88,7 +88,7 @@ class <?php echo $coreFile; ?>
         }
         if (isset($input[<?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE])) {
             /** @var <?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?> $className */
-            $className = $version->getTypeMap()::getTypeClassName($input[<?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE]);
+            $className = $version->getTypeMap()::getTypeClassname($input[<?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE]);
             if (null === $className) {
                 throw new \UnexpectedValueException(sprintf(
                     'Provided input has "%s" value of "%s", but it does not map to any known type.  Other keys: ["%s"]',
@@ -129,7 +129,7 @@ class <?php echo $coreFile; ?>
     {
         $elementName = $input->getName();
         /** @var <?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?> $fhirType */
-        $fhirType = $version->getTypeMap()::getTypeClassName($elementName);
+        $fhirType = $version->getTypeMap()::getTypeClassname($elementName);
         if (null === $fhirType) {
             throw new \UnexpectedValueException(sprintf(
                 'Unable to locate FHIR type for root XML element "%s". Input seen: %s',

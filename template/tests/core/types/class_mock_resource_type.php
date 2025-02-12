@@ -79,15 +79,21 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
     private const _FHIR_VALIDATION_RULES = [];
 
     protected string $_name;
+    protected string $_versionName;
+    protected string $_semanticVersion;
 
     private array $_valueXMLLocations = [];
 
     public function __construct(string $name,
                                 array $fields = [],
                                 array $validationRuleMap = [],
-                                array $fhirComments = [])
+                                array $fhirComments = [],
+                                string $versionName = 'mock',
+                                string $semanticVersion = 'v0.0.0')
     {
         $this->_name = $name;
+        $this->_versionName = $versionName;
+        $this->_semanticVersion = $semanticVersion;
         $this->_setFHIRComments($fhirComments);
         foreach($validationRuleMap as $field => $rules) {
             $this->_setFieldValidationRules($field, $rules);
@@ -98,6 +104,26 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
     public function _getFHIRTypeName(): string
     {
         return $this->_name;
+    }
+
+    public function _getFHIRVersionName(): string
+    {
+        return $this->_versionName;
+    }
+
+    public function _getFHIRSemanticVersion(): string
+    {
+        return $this->_semanticVersion;
+    }
+
+    public function _getFHIRShortVersion(): string
+    {
+        $v = ltrim($this->_semanticVersion, 'v');
+        return match (substr_count($v, '.')) {
+            1 => $v,
+            2 => substr($v, 0, strrpos($v, '.')),
+            default => implode('.', array_chunk(explode('.', $v), 2)[0])
+        };
     }
 
     public static function xmlUnserialize(\SimpleXMLElement|string $element,

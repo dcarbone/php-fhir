@@ -49,7 +49,7 @@ ob_start(); ?>
 <?php   elseif ($propTypeKind->isResourceContainer($version)) : ?>
                 foreach ($ce->children() as $cen) {
                     /** @var <?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $cn */
-                    $cn = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::getContainedTypeClassNameFromXML($cen);
+                    $cn = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::mustGetContainedTypeClassnameFromXML($cen);
                     $type-><?php echo $setter; ?>($cn::xmlUnserialize($cen, $config));
                 }
 <?php   elseif ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>

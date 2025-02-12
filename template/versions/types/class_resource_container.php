@@ -30,6 +30,7 @@ $resourceContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_
 $containedTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 $versionConstants = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS);
 $versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
 
@@ -38,6 +39,7 @@ $imports->addCoreFileImports(
     $containedTypeInterface,
     $typeValidationTrait,
 
+    $versionClass,
     $versionConstants,
     $versionContainedTypeInterface,
 );
