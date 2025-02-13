@@ -62,5 +62,14 @@ enum <?php echo $coreFile; ?> : string
 <?php endforeach; ?>
         };
     }
+
+    public function getVersionInteger(): int
+    {
+        return match ($this) {
+<?php foreach ($config->getVersionsIterator() as $version) : ?>
+            self::<?php echo $version->getConstName(); ?> => <?php echo $version->getEnumImportName(); ?>::FHIR_INTEGER_VERSION,
+<?php endforeach; ?>
+        };
+    }
 }
 <?php return ob_get_clean();

@@ -124,15 +124,28 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
                 };
         }
 
+        $acceptVersion = match(true) {
+            isset($request->version) => "; fhirVersion={$request->version->getShortVersion()}",
+            isset($request->resource) => "; fhirVersion={$request->resource->_getFHIRShortVersion()}",
+            default => '',
+        };
+
+        $contentTypeVersion = match(true) {
+            isset($request->resource) => "; fhirVersion={$request->resource->_getFHIRShortVersion()}",
+            default => '',
+        };
+
         $headers = [];
         // TODO: for now, both legacy and new-age values are set.
-        if (<?php echo $formatEnum; ?>::JSON->value === $format) {
+        if (<?php echo $formatEnum; ?>::JSON === $format) {
 
+            $headers[] = "Accept: application/fhir+json{$acceptVersion}";
+            $headers[] = "Accept: application/json+fhir{$acceptVersion}";
+
+            if (isset($request->resource)) {
+                $headers[] = "Content-Type: application/fhir+json
+            }
         }
-            match ($format) {
-                <?php echo $formatEnum; ?>::JSON => "Accept: application/fhir
-            },
-        ];
 
         $ch = curl_init($url);
         if (!curl_setopt_array($ch, $curlOpts)) {

@@ -67,6 +67,13 @@ interface <?php echo $coreFile; ?>
     public function getFHIRShortVersion(): string;
 
     /**
+     * Must return an integer representation of the source's semantic version.
+     *
+     * @return int
+     */
+    public function getFHIRVersionInteger(): int;
+
+    /**
      * Must return the date this FHIR version's source was generated
      *
      * @return string

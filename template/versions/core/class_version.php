@@ -62,6 +62,7 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public const NAME = '<?php echo $version->getName(); ?>';
     public const FHIR_SEMANTIC_VERSION = '<?php echo $sourceMeta->getSemanticVersion(false); ?>';
     public const FHIR_SHORT_VERSION = '<?php echo $sourceMeta->getShortVersion(); ?>';
+    public const FHIR_VERSION_INTEGER = <?php echo $sourceMeta->getVersionInteger(); ?>;
     public const FHIR_GENERATION_DATE = '<?php echo $sourceMeta->getSourceGenerationDate(); ?>';
 
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
@@ -112,6 +113,14 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public function getFHIRShortVersion(): string
     {
         return self::FHIR_SHORT_VERSION;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFHIRVersionInteger(): int
+    {
+        return self::FHIR_VERSION_INTEGER;
     }
 
     /**

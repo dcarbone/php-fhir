@@ -27,10 +27,17 @@ $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYP
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
+$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
 
 $imports = $coreFile->getimports();
 
-$imports->addCoreFileImports($typeInterface, $serializeConfigClass, $unserializeConfigClass, $xmlWriterClass);
+$imports->addCoreFileImports(
+    $typeInterface,
+    $serializeConfigClass,
+    $unserializeConfigClass,
+    $xmlWriterClass,
+    $versionEnum,
+);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -45,28 +52,14 @@ interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
 
 {
     /**
-     * Returns the name of the version this type was generated from.
+     * Must return the appropriate version enum for this type.
      *
      * @return string
      */
-    public function _getFHIRVersionName(): string;
+    public function _getFHIRVersion(): <?php echo $versionEnum; ?>;
 
     /**
-     * Returns the semver of the version of FHIR this type was generated from.
-     *
-     * @return string
-     */
-    public function _getFHIRSemanticVersion(): string;
-
-    /**
-     * Returns the shortened Major.Minor representation of the FHIR semantic version this type was generated from.
-     *
-     * @return string
-     */
-    public function _getFHIRShortVersion(): string;
-
-    /**
-     * Returns the root XMLNS value found in the source.  Null indicates no "xmlns" was found.  Only defined when
+     * Must return the root XMLNS value found in the source.  Null indicates no "xmlns" was found.  Only defined when
      * unserializing XML, and only used when serializing XML.
      *
      * @return null|string

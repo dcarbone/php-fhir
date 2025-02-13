@@ -32,9 +32,8 @@ $sourceMeta = $version->getSourceMetadata();
 $coreFiles = $version->getConfig()->getCoreFiles();
 $versionCoreFiles = $version->getCoreFiles();
 
+$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
 $xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
-
-$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 // define some common things
 $typeKind = $type->getKind();
@@ -151,19 +150,9 @@ endif; ?>
 if (!$type->hasConcreteParent() && ($sourceMeta->isDSTU1() || $type->isResourceType())) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    public function _getFHIRVersionName(): string
+    public function _getFHIRVersion(): <?php echo $versionEnum; ?>
     {
-        return <?php echo $versionClass; ?>::NAME;
-    }
-
-    public function _getFHIRSemanticVersion(): string
-    {
-        return <?php echo $versionClass; ?>::FHIR_SEMANTIC_VERSION;
-    }
-
-    public function _getFHIRShortVersion(): string
-    {
-        return <?php echo $versionClass; ?>::FHIR_SHORT_VERSION;
+        return <?php echo $versionEnum; ?>::<?php echo $version->getConstName(); ?>;
     }
 <?php endif;
 if ($type->isContainedType()) : ?>

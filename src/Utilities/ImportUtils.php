@@ -79,9 +79,12 @@ class ImportUtils
                 );
 
                 $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
-                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
-                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
-                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION);
+                $imports->addVersionCoreFileImportsByName(
+                    $version,
+                    PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE,
+                    PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP,
+                    PHPFHIR_VERSION_CLASSNAME_VERSION,
+                );
             } else {
                 $valProp = match (true) {
                     $propertyType->isPrimitiveContainer() => $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME),
@@ -170,10 +173,7 @@ class ImportUtils
         } else if ($type->isResourceType() || $type->hasResourceTypeParent()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE,
-            );
-            $imports->addVersionCoreFileImportsByName(
-                $version,
-                PHPFHIR_VERSION_CLASSNAME_VERSION,
+                PHPFHIR_ENUM_VERSION,
             );
         } else if (!$sourceMeta->isDSTU1()) {
             $imports->addCoreFileImportsByName(
