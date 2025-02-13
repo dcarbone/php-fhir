@@ -31,7 +31,7 @@ $coreFiles = $version->getConfig()->getCoreFiles();
 
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 $clientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
-$clientFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$clientFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
 $unexpectedCodeException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE);
 
 $versionCoreFiles = $version->getCoreFiles();
@@ -51,7 +51,7 @@ if (!$type->isAbstract()
         ->addCoreFileImportsByName(
             PHPFHIR_CLIENT_CLASSNAME_CONFIG,
             PHPFHIR_CLIENT_CLASSNAME_CLIENT,
-            PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT,
+            PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT,
             PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE,
         )
         ->addVersionCoreFileImportsByName(

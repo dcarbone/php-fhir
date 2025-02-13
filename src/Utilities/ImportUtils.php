@@ -30,7 +30,8 @@ class ImportUtils
         $stmts = [];
         foreach ($imports->getIterator() as $import) {
             if ($import->requiresImport()) {
-                $stmts[] = "use {$import->getFullyQualifiedName(false)};";
+
+                $stmts[] = $import->getUseStatement();
             }
         }
         if ([] === $stmts) {

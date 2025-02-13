@@ -24,11 +24,13 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 
 $clientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
-$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
 $httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 $sortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 $versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
+
+$resourceInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
 $imports = $coreFile->getimports();
 
@@ -39,6 +41,8 @@ $imports->addCoreFileImports(
     $sortEnum,
     $responseClass,
     $versionInterface,
+
+    $resourceInterface,
 );
 
 ob_start();
@@ -70,14 +74,22 @@ class <?php echo $coreFile; ?>
     public string $at;
 
     /**
-     * The serialization type to request from the server.  Typically this is 'json' or 'xml'.
+     * The serialization format to use.
      *
      * @var string
      */
-    public string $format;
+    public <?php echo $formatEnum; ?> $format;
 
     /** @var string */
     public string $sort;
+
+    /**
+     * The resource to send as part of a write request.
+     *
+     * @var <?php echo $resourceInterface->getFullyQualifiedName(true); ?>
+
+     */
+    public <?php echo $resourceInterface; ?> $resource;
 
     /**
      * Extra query parameters.
@@ -111,6 +123,7 @@ class <?php echo $coreFile; ?>
                                 null|string $at = null,
                                 null|<?php echo $formatEnum; ?> $format = null,
                                 null|<?php echo $sortEnum; ?> $sort = null,
+                                null|<?php echo $resourceInterface; ?> $resource = null,
                                 null|array $queryParams = null,
                                 null|bool $parseResponseHeaders = null,
                                 null|array $options = null)
@@ -128,10 +141,13 @@ class <?php echo $coreFile; ?>
             $this->at = $at;
         }
         if (null !== $format) {
-            $this->format = $format->value;
+            $this->format = $format;
         }
         if (null !== $sort) {
             $this->sort = $format->value;
+        }
+        if (null !== $resource) {
+            $this->resource = $resource;
         }
         if (null !== $queryParams) {
             $this->queryParams = $queryParams;

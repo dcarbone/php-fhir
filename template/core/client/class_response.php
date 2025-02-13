@@ -16,12 +16,19 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getImports();
 
 $respHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
+
+$imports->addCoreFileImports(
+    $respHeaderClass,
+);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -29,6 +36,8 @@ echo '<?php ';?>declare(strict_types=1);
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
+
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
 
@@ -60,7 +69,7 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
      * @var <?php echo $respHeaderClass->getFullyQualifiedName(true); ?>
 
      */
-    public <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?> $headers;
+    public <?php echo $respHeaderClass; ?> $headers;
 
     /**
      * HTTP response body.
@@ -83,37 +92,86 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
      */
     public int $errno;
 
+    public function __construct(string $method,
+                                string $url,
+                                int $code,
+                                string $err,
+                                int $errno)
+    {
+        $this->method = $method;
+        $this->url = $url;
+        $this->code = $code;
+        $this->err = $err;
+        $this->errno = $errno;
+    }
+
+    /**
+     * Return the HTTP request method used.
+     *
+     * @return null|string
+     */
     public function getMethod(): null|string
     {
         return $this->method ?? null;
     }
 
+    /**
+     * Return the full URL used.
+     *
+     * @return null|string
+     */
     public function getURL(): null|string
     {
         return $this->url ?? null;
     }
 
+    /**
+     * Return the HTTP response code seen.
+     *
+     * @return null|int
+     */
     public function getCode(): null|int
     {
         return $this->code ?? null;
     }
 
-    public function getHeaders(): null|<?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS; ?>
+    /**
+     * Return the HTTP response headers seen.
+     *
+     * @return null|<?php echo $respHeaderClass->getFullyQualifiedName(true); ?>
+
+     */
+    public function getHeaders(): null|<?php echo $respHeaderClass; ?>
 
     {
         return $this->headers ?? null;
     }
 
+    /**
+     * Return the full response seen, if there was one.
+     *
+     * @return null|string
+     */
     public function getResp(): null|string
     {
         return $this->resp ?? null;
     }
 
+    /**
+     * Client error message, if there was one.
+     *
+     * @return null|string
+     */
     public function getErr(): null|string
     {
         return $this->err ?? null;
     }
 
+    /**
+     * Client error code, if there was one.
+     *
+     * @return null|int
+     */
     public function getErrno(): null|int
     {
         return $this->errno ?? null;

@@ -26,16 +26,18 @@ $imports = $coreFile->getImports();
 
 $clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_INTERFACE_CLIENT);
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
-$clientRequestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
-$clientResponseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
-$clientHTTPMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
+$requestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
+$responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
+$httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
 
 $imports->addCoreFileImports(
     $clientInterface,
     $clientConfigClass,
-    $clientRequestClass,
-    $clientResponseClass,
-    $clientHTTPMethodEnum,
+    $requestClass,
+    $responseClass,
+    $httpMethodEnum,
+    $formatEnum,
 );
 
 ob_start();
@@ -88,27 +90,23 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
     }
 
     /**
-     * @param <?php echo $clientRequestClass->getFullyQualifiedName(true); ?> $request
-     * @return <?php echo $clientResponseClass->getFullyQualifiedName(true); ?>
+     * @param <?php echo $requestClass->getFullyQualifiedName(true); ?> $request
+     * @return <?php echo $responseClass->getFullyQualifiedName(true); ?>
 
      */
-    public function exec(<?php echo $clientRequestClass; ?> $request): <?php echo $clientResponseClass; ?>
+    public function exec(<?php echo $requestClass; ?> $request): <?php echo $responseClass; ?>
 
     {
-        $queryParams = array_merge($this->_config->getQueryParams(), $request->queryParams ?? []);
+        $queryParams = array_merge($this->_config->getDefaultQueryParams(), $request->queryParams ?? []);
 
-        $format = $request->format ?? $this->_config->getDefaultFormat();
-        if (null !== $format) {
-            $queryParams[self::_PARAM_FORMAT] = $format;
-        }
+        $format = (string)($request->format ?? $this->_config->getDefaultFormat());
+        $queryParams[self::_PARAM_FORMAT] = $format;
         if (isset($request->sort)) {
             $queryParams[self::_PARAM_SORT] = $request->sort;
         }
         if (isset($request->count)) {
             $queryParams[self::_PARAM_COUNT] = $request->count;
         }
-
-        $rc = new <?php echo $clientResponseClass; ?>();
 
         $url = "{$this->_config->getAddress()}{$request->path}?" . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
 
@@ -117,17 +115,24 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
             + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
 
         $parseResponseHeaders = ($this->_config->getParseResponseHeaders()
-            && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders))
-            || (isset($req->parseResponseHeaders) && $req->parseResponseHeaders);
+            && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders);
 
         if ($parseResponseHeaders) {
             $curlOpts[CURLOPT_HEADER] = 1;
             $curlOpts[CURLOPT_HEADERFUNCTION] = function($ch, string $line) use (&$rc): int {
                     return $rc->headers->addLine($line);
                 };
-        } else {
-            $curlOpts[CURLOPT_HEADER] = 0;
         }
+
+        $headers = [];
+        // TODO: for now, both legacy and new-age values are set.
+        if (<?php echo $formatEnum; ?>::JSON->value === $format) {
+
+        }
+            match ($format) {
+                <?php echo $formatEnum; ?>::JSON => "Accept: application/fhir
+            },
+        ];
 
         $ch = curl_init($url);
         if (!curl_setopt_array($ch, $curlOpts)) {
@@ -144,11 +149,13 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
         $errno = curl_errno($ch);
         curl_close($ch);
 
-        $rc->method = $request->method;
-        $rc->url = $url;
-        $rc->code = $code;
-        $rc->err = $err;
-        $rc->errno = $errno;
+        $rc = new <?php echo $responseClass; ?>(
+            method: $request->method,
+            url: $url,
+            code: $code,
+            err: $err,
+            errno: $errno,
+        );
 
         if (0 === $errno) {
             if ($parseResponseHeaders) {

@@ -24,13 +24,13 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
     PHPFHIR_CLIENT_CLASSNAME_CONFIG,
-    PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT,
+    PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT,
 );
 
 $coreFiles = $config->getCoreFiles();
 
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
-$responseFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$responseFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
 
 ob_start();
 echo "<?php\n\n";?>
@@ -48,7 +48,7 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CONFIG; ?> extends TestCase
         $c = new <?php echo $clientConfigClass; ?>('http://example.com');
         $this->assertEquals('http://example.com', $c->getAddress());
         $this->assertNull($c->getDefaultFormat());
-        $this->assertEmpty($c->getQueryParams());
+        $this->assertEmpty($c->getDefaultQueryParams());
         $this->assertEmpty($c->getCurlOpts());
         $this->assertFalse($c->getParseResponseHeaders());
     }
@@ -64,7 +64,7 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CONFIG; ?> extends TestCase
         );
         $this->assertEquals('http://example.com', $c->getAddress());
         $this->assertEquals(<?php echo $responseFormatEnum; ?>::JSON, $c->getDefaultFormat());
-        $this->assertEquals(['foo' => 'bar'], $c->getQueryParams());
+        $this->assertEquals(['foo' => 'bar'], $c->getDefaultQueryParams());
         $this->assertEquals(['bar' => 'baz'], $c->getCurlOpts());
         $this->assertTrue($c->getParseResponseHeaders());
     }
