@@ -25,6 +25,7 @@ $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
 $respHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
+$methodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 
 $imports->addCoreFileImports(
     $respHeaderClass,
@@ -45,9 +46,10 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
     /**
      * HTTP request method.
      *
-     * @var string
+     * @var <?php echo $methodEnum->getFullyQualifiedName(true); ?>
+
      */
-    public string $method;
+    public <?php echo $methodEnum; ?> $method;
 
     /**
      * Request URL.
@@ -92,25 +94,20 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
      */
     public int $errno;
 
-    public function __construct(string $method,
-                                string $url,
-                                int $code,
-                                string $err,
-                                int $errno)
+    public function __construct(<?php echo $methodEnum ?> $method, string $url)
     {
         $this->method = $method;
         $this->url = $url;
-        $this->code = $code;
-        $this->err = $err;
-        $this->errno = $errno;
     }
 
     /**
      * Return the HTTP request method used.
      *
-     * @return null|string
+     * @return null|<?php echo $methodEnum->getFullyQualifiedName(true); ?>
+
      */
-    public function getMethod(): null|string
+    public function getMethod(): null|<?php echo $methodEnum; ?>
+
     {
         return $this->method ?? null;
     }

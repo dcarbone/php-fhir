@@ -57,8 +57,8 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?>
 
 {
-    /** @var string */
-    public string $method;
+    /** @var <?php echo $httpMethodEnum->getFullyQualifiedName(true); ?> */
+    public <?php echo $httpMethodEnum; ?> $method;
 
     /** @var string */
     public string $path;
@@ -73,7 +73,8 @@ class <?php echo $coreFile; ?>
     /**
      * The serialization format to use.
      *
-     * @var string
+     * @var <?php echo $formatEnum->getFullyQualifiedName(true); ?>
+
      */
     public <?php echo $formatEnum; ?> $format;
 
@@ -126,14 +127,14 @@ class <?php echo $coreFile; ?>
                                 null|string $since = null,
                                 null|string $at = null,
                                 null|<?php echo $formatEnum; ?> $format = null,
-                                null|<?php echo $sortEnum; ?> $sort = null,
+                                null|string|<?php echo $sortEnum; ?> $sort = null,
                                 null|<?php echo $acceptVersionEnum; ?> $acceptVersion = null,
                                 null|<?php echo $resourceInterface; ?> $resource = null,
                                 null|array $queryParams = null,
                                 null|bool $parseResponseHeaders = null,
                                 null|array $options = null)
     {
-        $this->method = $method->value;
+        $this->method = $method;
         $this->path = $path;
         if (null !== $count) {
             $this->count = $count;
@@ -148,7 +149,7 @@ class <?php echo $coreFile; ?>
             $this->format = $format;
         }
         if (null !== $sort) {
-            $this->sort = $format->value;
+            $this->sort = ($sort instanceof <?php echo $sortEnum; ?>) ? $sort->value : $sort;
         }
         if (null !== $acceptVersion) {
             $this->acceptVersion = $acceptVersion;

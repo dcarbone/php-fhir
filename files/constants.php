@@ -137,16 +137,12 @@ const PHPFHIR_CLIENT_ENUM_HTTP_METHOD = 'HTTPMethodEnum';
 const PHPFHIR_CLIENT_ENUM_SORT_DIRECTION = 'SortDirectionEnum';
 const PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT = 'SerializeFormatEnum';
 
-// Version class names
+// Version core entities
 const PHPFHIR_VERSION_CLASSNAME_VERSION = 'Version';
 const PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS = 'VersionConstants';
 const PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP = 'VersionTypeMap';
 const PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT = 'VersionClient';
-
-// Version interface names
 const PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE = 'VersionContainedTypeInterface';
-
-// Version enums
 const PHPFHIR_VERSION_ENUM_VERSION_TYPES = 'VersionTypesEnum';
 
 // Validation entities

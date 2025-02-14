@@ -25,7 +25,7 @@ $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 $versionCoreFiles = $version->getCoreFiles();
 
-$clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_INTERFACE_CLIENT);
+$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
 $versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
 $versionConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERSION_CONFIG);
 $versionConfigInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONFIG);
@@ -36,7 +36,7 @@ $versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSIO
 $imports = $coreFile->getImports();
 
 $imports->addCoreFileImports(
-    $clientInterface,
+    $versionEnum,
     $versionInterface,
     $versionConfigClass,
     $versionConfigInterface,
@@ -66,6 +66,8 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public const FHIR_GENERATION_DATE = '<?php echo $sourceMeta->getSourceGenerationDate(); ?>';
 
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
+
+    private static <?php echo $versionEnum; ?> $_fhirVersion = <?php echo $versionEnum; ?>::<?php echo $version->getConstName(); ?>;
 
     /** @var <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?> */
     private <?php echo $versionConfigInterface; ?> $_config;
@@ -97,6 +99,16 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    /**
+     * @return <?php echo $versionEnum->getFullyQualifiedName(true); ?>
+
+     */
+    public function getFHIRVersion(): <?php echo $versionEnum ?>
+
+    {
+        return self::$_fhirVersion;
     }
 
     /**

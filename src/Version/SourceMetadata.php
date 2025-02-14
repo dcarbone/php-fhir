@@ -116,7 +116,7 @@ class SourceMetadata
     public function getVersionInteger(): int
     {
         $this->_compile();
-        return intval(str_replace(['v', '.'], '', $this->_fhirVersion));
+        return intval(sprintf("%'.-08s", str_replace(['v', '.'], '', $this->_fhirVersion)));
     }
 
     /**

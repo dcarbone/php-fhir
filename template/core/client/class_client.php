@@ -30,6 +30,8 @@ $requestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQ
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 $httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 $formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
+$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
+$responseHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
 
 $imports->addCoreFileImports(
     $clientInterface,
@@ -38,6 +40,8 @@ $imports->addCoreFileImports(
     $responseClass,
     $httpMethodEnum,
     $formatEnum,
+    $versionEnum,
+    $responseHeaderClass,
 );
 
 ob_start();
@@ -98,9 +102,20 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
 
     {
         $queryParams = array_merge($this->_config->getDefaultQueryParams(), $request->queryParams ?? []);
+        $format = $request->format ?? $this->_config->getDefaultFormat();
+        $parseResponseHeaders = $this->_config->getParseResponseHeaders()
+            && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders);
+        $acceptVersion = match(true) {
+            isset($request->version) => $request->version,
+            isset($request->resource) => $request->resource->_getFHIRVersion(),
+            default => null,
+        };
+        $contentTypeVersion = match(true) {
+            isset($request->resource) => $request->resource->_getFHIRVersion(),
+            default => null,
+        };
 
-        $format = (string)($request->format ?? $this->_config->getDefaultFormat());
-        $queryParams[self::_PARAM_FORMAT] = $format;
+        $queryParams[self::_PARAM_FORMAT] = $format->value;
         if (isset($request->sort)) {
             $queryParams[self::_PARAM_SORT] = $request->sort;
         }
@@ -110,67 +125,59 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
 
         $url = "{$this->_config->getAddress()}{$request->path}?" . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
 
+        $rc = new <?php echo $responseClass; ?>($request->method, $url);
+
         $curlOpts = self::_BASE_CURL_OPTS
-            + [CURLOPT_CUSTOMREQUEST => $request->method]
             + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
 
-        $parseResponseHeaders = ($this->_config->getParseResponseHeaders()
-            && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders);
-
         if ($parseResponseHeaders) {
+            $rc->headers = new <?php echo $responseHeaderClass; ?>();
             $curlOpts[CURLOPT_HEADER] = 1;
             $curlOpts[CURLOPT_HEADERFUNCTION] = function($ch, string $line) use (&$rc): int {
                     return $rc->headers->addLine($line);
                 };
         }
 
-        $acceptVersion = match(true) {
-            isset($request->version) => "; fhirVersion={$request->version->getShortVersion()}",
-            isset($request->resource) => "; fhirVersion={$request->resource->_getFHIRShortVersion()}",
-            default => '',
-        };
+        if (!isset($curlOpts[CURLOPT_HTTPHEADER])) {
+            $curlOpts[CURLOPT_HTTPHEADER] = [];
+        }
 
-        $contentTypeVersion = match(true) {
-            isset($request->resource) => "; fhirVersion={$request->resource->_getFHIRShortVersion()}",
-            default => '',
-        };
+        if (<?php echo $httpMethodEnum; ?>::GET !== $request->method) {
+            $curlOpts[CURLOPT_CUSTOMREQUEST] = $request->method->value;
+            $curlOpts[CURLOPT_HTTPHEADER][] = "X-HTTP-Method-Override: {$request->method->value}";
+        }
 
-        $headers = [];
-        // TODO: for now, both legacy and new-age values are set.
-        if (<?php echo $formatEnum; ?>::JSON === $format) {
-
-            $headers[] = "Accept: application/fhir+json{$acceptVersion}";
-            $headers[] = "Accept: application/json+fhir{$acceptVersion}";
-
-            if (isset($request->resource)) {
-                $headers[] = "Content-Type: application/fhir+json
+        if (null === $acceptVersion) {
+            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/{$format->value}+json, application/json+{$format->value}";
+        } else if ($acceptVersion->getVersionInteger() < <?php echo $versionEnum; ?>::STU3->getVersionInteger()) {
+            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/{$format->value}+fhir; fhirVersion={$acceptVersion->getShortVersion()}";
+        } else {
+            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/fhir+{$format->value}; fhirVersion={$acceptVersion->getShortVersion()}";
+        }
+        if (null !== $contentTypeVersion) {
+            if ($contentTypeVersion->getVersionInteger() < <?php echo $versionEnum; ?>::STU3->getVersionInteger()) {
+                $curlOpts[CURLOPT_HTTPHEADER][] = "Content-Type: application/{$format->value}+fhir; fhirVersion={$contentTypeVersion->getShortVersion()}";
+            } else {
+                $curlOpts[CURLOPT_HTTPHEADER][] = "Content-Type: application/fhir+{$format->value}; fhirVersion={$contentTypeVersion->getShortVersion()}";
             }
         }
 
         $ch = curl_init($url);
         if (!curl_setopt_array($ch, $curlOpts)) {
             throw new \DomainException(sprintf(
-                'Error setting curl opts for query "%s" with value: %s',
+                'curl_setopt_array returned false for "%s" with options: %s',
                 $url,
                 var_export($curlOpts, true),
             ));
         }
 
         $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err = curl_error($ch);
-        $errno = curl_errno($ch);
+        $rc->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $rc->err = curl_error($ch);
+        $rc->errno = curl_errno($ch);
         curl_close($ch);
 
-        $rc = new <?php echo $responseClass; ?>(
-            method: $request->method,
-            url: $url,
-            code: $code,
-            err: $err,
-            errno: $errno,
-        );
-
-        if (0 === $errno) {
+        if (0 === $rc->errno) {
             if ($parseResponseHeaders) {
                 $rc->resp = substr($resp, $rc->headers->getLength());
             } else {

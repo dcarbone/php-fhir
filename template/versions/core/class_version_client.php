@@ -157,7 +157,7 @@ if ($sourceMeta->isDSTU1()) : ?>
         }
 <?php endif; ?>
         $req = new <?php echo $clientRequestClass; ?>(
-            version: $this->_version,
+            acceptVersion: $this->_version->getFHIRVersion(),
             method: <?php echo $httpMethodEnum; ?>::GET,
             path: $path,
         );
@@ -168,7 +168,7 @@ if ($sourceMeta->isDSTU1()) : ?>
             $req->sort = is_string($sort) ? $sort : $sort->value;
         }
         if (null !== $format) {
-            $req->format = $format->value;
+            $req->format = $format;
         }
         if (null !== $parseResponseHeaders) {
             $req->parseResponseHeaders = $parseResponseHeaders;

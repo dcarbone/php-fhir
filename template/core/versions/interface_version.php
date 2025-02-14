@@ -22,13 +22,14 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getImports();
 
+$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
 $versionConfigInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONFIG);
 $versionTypeMapInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_TYPE_MAP);
 
-$imports = $coreFile->getImports();
-
 $imports->addCoreFileImports(
+    $versionEnum,
     $versionConfigInterface,
     $versionTypeMapInterface,
 );
@@ -51,6 +52,14 @@ interface <?php echo $coreFile; ?>
      * @return string
      */
     public function getName(): string;
+
+    /**
+     * Must return source's reported version of FHIR
+     *
+     * @return <?php echo $versionEnum->getFullyQualifiedName(true); ?>
+
+     */
+    public function getFHIRVersion(): <?php echo $versionEnum ?>;
 
     /**
      * Must return source's reported version of FHIR
