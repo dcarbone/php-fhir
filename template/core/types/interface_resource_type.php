@@ -27,7 +27,7 @@ $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYP
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
-$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 
 $imports = $coreFile->getimports();
 
@@ -36,7 +36,7 @@ $imports->addCoreFileImports(
     $serializeConfigClass,
     $unserializeConfigClass,
     $xmlWriterClass,
-    $versionEnum,
+    $fhirVersion,
 );
 
 ob_start();
@@ -56,7 +56,7 @@ interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
      *
      * @return string
      */
-    public function _getFHIRVersion(): <?php echo $versionEnum; ?>;
+    public function _getFHIRVersion(): <?php echo $fhirVersion; ?>;
 
     /**
      * Must return the root XMLNS value found in the source.  Null indicates no "xmlns" was found.  Only defined when

@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -25,7 +26,7 @@ $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 $versionCoreFiles = $version->getCoreFiles();
 
-$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
 $versionConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERSION_CONFIG);
 $versionConfigInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONFIG);
@@ -36,7 +37,7 @@ $versionTypeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSIO
 $imports = $coreFile->getImports();
 
 $imports->addCoreFileImports(
-    $versionEnum,
+    $fhirVersion,
     $versionInterface,
     $versionConfigClass,
     $versionConfigInterface,
@@ -51,8 +52,7 @@ echo '<?php ';?>declare(strict_types=1);
 
 namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
-
+<?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
@@ -67,7 +67,7 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
 
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
 
-    private static <?php echo $versionEnum; ?> $_fhirVersion = <?php echo $versionEnum; ?>::<?php echo $version->getConstName(); ?>;
+    private static <?php echo $fhirVersion; ?> $_fhirVersion;
 
     /** @var <?php echo $versionConfigInterface->getFullyQualifiedName(true); ?> */
     private <?php echo $versionConfigInterface; ?> $_config;
@@ -102,12 +102,20 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     }
 
     /**
-     * @return <?php echo $versionEnum->getFullyQualifiedName(true); ?>
+     * @return <?php echo $fhirVersion->getFullyQualifiedName(true); ?>
 
      */
-    public function getFHIRVersion(): <?php echo $versionEnum ?>
+    public static function getFHIRVersion(): <?php echo $fhirVersion ?>
 
     {
+        if (!isset(self::$_fhirVersion)) {
+            self::$_fhirVersion = new <?php echo $fhirVersion; ?>(
+                self::NAME,
+                self::FHIR_SEMANTIC_VERSION,
+                self::FHIR_SHORT_VERSION,
+                self::FHIR_VERSION_INTEGER,
+            );
+        }
         return self::$_fhirVersion;
     }
 
@@ -164,6 +172,11 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
             self::$_typeMap = new <?php echo $versionTypeMapClass; ?>();
         }
         return self::$_typeMap;
+    }
+
+    public function __toString(): string
+    {
+        return (string)self::getFHIRVersion();
     }
 }
 <?php return ob_get_clean();

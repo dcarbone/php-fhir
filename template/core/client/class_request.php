@@ -28,7 +28,7 @@ $formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_
 $httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 $sortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
-$acceptVersionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
+$acceptVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 
 $resourceInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
@@ -40,7 +40,7 @@ $imports->addCoreFileImports(
     $httpMethodEnum,
     $sortEnum,
     $responseClass,
-    $acceptVersionEnum,
+    $acceptVersion,
 
     $resourceInterface,
 );
@@ -84,10 +84,10 @@ class <?php echo $coreFile; ?>
     /**
      * FHIR version to set as the desired response version.
      *
-     * @var <?php echo $acceptVersionEnum->getFullyQualifiedName(true); ?>
+     * @var <?php echo $acceptVersion->getFullyQualifiedName(true); ?>
 
      */
-    public <?php echo $acceptVersionEnum; ?> $acceptVersion;
+    public <?php echo $acceptVersion; ?> $acceptVersion;
 
     /**
      * The resource to send as part of a write request.
@@ -128,7 +128,7 @@ class <?php echo $coreFile; ?>
                                 null|string $at = null,
                                 null|<?php echo $formatEnum; ?> $format = null,
                                 null|string|<?php echo $sortEnum; ?> $sort = null,
-                                null|<?php echo $acceptVersionEnum; ?> $acceptVersion = null,
+                                null|<?php echo $acceptVersion; ?> $acceptVersion = null,
                                 null|<?php echo $resourceInterface; ?> $resource = null,
                                 null|array $queryParams = null,
                                 null|bool $parseResponseHeaders = null,

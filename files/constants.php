@@ -87,14 +87,12 @@ const PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR = PHPFHIR_TEMPLATE_TESTS_DIR . D
 const PHPFHIR_CLASSNAME_AUTOLOADER = 'Autoloader';
 const PHPFHIR_CLASSNAME_VERSION_CONFIG = 'VersionConfig';
 const PHPFHIR_CLASSNAME_CONSTANTS = 'Constants';
+const PHPFHIR_CLASSNAME_FHIR_VERSION = 'FHIRVersion';
 
 // Core interface names
 const PHPFHIR_INTERFACE_VERSION = 'VersionInterface';
 const PHPFHIR_INTERFACE_VERSION_CONFIG = 'VersionConfigInterface';
 const PHPFHIR_INTERFACE_VERSION_TYPE_MAP = 'VersionTypeMapInterface';
-
-// Core enums
-const PHPFHIR_ENUM_VERSION = 'VersionEnum';
 
 // Core exceptions
 const PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT = 'AbstractClientException';

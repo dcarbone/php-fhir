@@ -30,7 +30,7 @@ $requestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQ
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 $httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 $formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
-$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $responseHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
 
 $imports->addCoreFileImports(
@@ -40,7 +40,7 @@ $imports->addCoreFileImports(
     $responseClass,
     $httpMethodEnum,
     $formatEnum,
-    $versionEnum,
+    $fhirVersion,
     $responseHeaderClass,
 );
 
@@ -149,16 +149,16 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
 
         if (null === $acceptVersion) {
             $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/{$format->value}+json, application/json+{$format->value}";
-        } else if ($acceptVersion->getVersionInteger() < <?php echo $versionEnum; ?>::STU3->getVersionInteger()) {
-            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/{$format->value}+fhir; fhirVersion={$acceptVersion->getShortVersion()}";
+        } else if ($acceptVersion->getFHIRVersionInteger() < <?php echo $fhirVersion; ?>::STU3_MIN_VERSION_INTEGER) {
+            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/{$format->value}+fhir; fhirVersion={$acceptVersion->getFHIRShortVersion()}";
         } else {
-            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/fhir+{$format->value}; fhirVersion={$acceptVersion->getShortVersion()}";
+            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/fhir+{$format->value}; fhirVersion={$acceptVersion->getFHIRShortVersion()}";
         }
         if (null !== $contentTypeVersion) {
-            if ($contentTypeVersion->getVersionInteger() < <?php echo $versionEnum; ?>::STU3->getVersionInteger()) {
-                $curlOpts[CURLOPT_HTTPHEADER][] = "Content-Type: application/{$format->value}+fhir; fhirVersion={$contentTypeVersion->getShortVersion()}";
+            if ($contentTypeVersion->getFHIRVersionInteger() < <?php echo $fhirVersion; ?>::STU3_MIN_VERSION_INTEGER) {
+                $curlOpts[CURLOPT_HTTPHEADER][] = "Content-Type: application/{$format->value}+fhir; fhirVersion={$contentTypeVersion->getFHIRShortVersion()}";
             } else {
-                $curlOpts[CURLOPT_HTTPHEADER][] = "Content-Type: application/fhir+{$format->value}; fhirVersion={$contentTypeVersion->getShortVersion()}";
+                $curlOpts[CURLOPT_HTTPHEADER][] = "Content-Type: application/fhir+{$format->value}; fhirVersion={$contentTypeVersion->getFHIRShortVersion()}";
             }
         }
 

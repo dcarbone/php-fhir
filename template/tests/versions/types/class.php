@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Enum\PrimitiveTypeEnum;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -29,7 +30,7 @@ $bundleType = $types->getBundleType();
 
 $coreFiles = $version->getConfig()->getCoreFiles();
 
-$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 $clientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
 $clientFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
@@ -50,7 +51,7 @@ if (!$type->isAbstract()
     && ($type->isResourceType() || $type->hasResourceTypeParent())) {
     $imports
         ->addCoreFileImportsByName(
-            PHPFHIR_ENUM_VERSION,
+            PHPFHIR_CLASSNAME_FHIR_VERSION,
             PHPFHIR_CLIENT_CLASSNAME_CONFIG,
             PHPFHIR_CLIENT_CLASSNAME_CLIENT,
             PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT,
@@ -79,8 +80,7 @@ echo '<?php /** @noinspection PhpUnnecessaryFullyQualifiedNameInspection */'; ?>
 
 namespace <?php echo $type->getFullyQualifiedTestNamespace(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
-
+<?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 use PHPUnit\Framework\TestCase;
@@ -168,7 +168,7 @@ if (!$type->isAbstract()
     public function testGetFHIRVersion()
     {
         $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>();
-        $this->assertEquals(<?php echo $versionEnum->getFullyQualifiedName(true); ?>::<?php echo $version->getConstName(); ?>, $type->_getFHIRVersion());
+        $this->assertEquals(<?php echo $versionClass->getFullyQualifiedName(true); ?>::getFHIRVersion(), $type->_getFHIRVersion());
     }
 <?php   if (!$type->isAbstract()
             && $type !== $bundleType

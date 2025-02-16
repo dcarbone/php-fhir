@@ -32,8 +32,10 @@ $sourceMeta = $version->getSourceMetadata();
 $coreFiles = $version->getConfig()->getCoreFiles();
 $versionCoreFiles = $version->getCoreFiles();
 
-$versionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENUM_VERSION);
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
+
+$verionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 // define some common things
 $typeKind = $type->getKind();
@@ -71,7 +73,6 @@ endif;
 ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    // The default validation rules for this type as defined in the FHIR schema used to generate this code.
     private const _FHIR_VALIDATION_RULES = [
 <?php foreach ($type->getAllPropertiesIndexedIterator() as $property) :
         $validationMap = $property->buildValidationMap($type);
@@ -88,8 +89,8 @@ endforeach; ?>
 <?php
 // -- end property validation rules
 
+// -- start xml location array definition
 if (!$type->hasPrimitiveTypeParent() && $type->hasNonOverloadedProperties()) :
-    // -- start xml location array definition
 ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
@@ -147,12 +148,12 @@ endif; ?>
     }
 <?php
 
-if (!$type->hasConcreteParent() && ($sourceMeta->isDSTU1() || $type->isResourceType())) : ?>
+if (!$type->isPrimitiveType() && !$type->hasConcreteParent() && ($sourceMeta->isDSTU1() || $type->isResourceType())) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
-    public function _getFHIRVersion(): <?php echo $versionEnum; ?>
+    public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
     {
-        return <?php echo $versionEnum; ?>::<?php echo $version->getConstName(); ?>;
+        return <?php echo $verionClass; ?>::getFHIRVersion();
     }
 <?php endif;
 if ($type->isContainedType()) : ?>

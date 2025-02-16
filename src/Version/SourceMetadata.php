@@ -19,40 +19,29 @@ namespace DCarbone\PHPFHIR\Version;
  */
 
 use Composer\Semver\Semver;
-use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Version;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 
-class SourceMetadata
+class SourceMetadata implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     private const _DSTU1_VERSION_MAX = "0.0.82";
 
-    /** @var \DCarbone\PHPFHIR\Config */
-    private Config $_config;
-    /** @var \DCarbone\PHPFHIR\Version */
-    private Version $_version;
+    private string $_schemaPath;
 
-    /** @var bool */
     private bool $_compiled = false;
 
-    /** @var array */
     private array $_fhirCopyright;
 
-    /** @var string */
-    private string $_fullPHPFHIRCopyrightComment;
-
-    /** @var string */
     private string $_fhirGenerationDate;
-    /** @var string */
     private string $_fhirVersion;
 
-    /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Version $version
-     */
-    public function __construct(Config $config, Version $version)
+    public function __construct(LoggerInterface $log, string $schemPath)
     {
-        $this->_config = $config;
-        $this->_version = $version;
+        $this->setLogger($log);
+        $this->_schemaPath = $schemPath;
     }
 
     /**
@@ -62,15 +51,6 @@ class SourceMetadata
     {
         $this->_compile();
         return $this->_fhirCopyright;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFullPHPFHIRCopyrightComment(): string
-    {
-        $this->_compile();
-        return $this->_fullPHPFHIRCopyrightComment;
     }
 
     /**
@@ -135,9 +115,9 @@ class SourceMetadata
             return;
         }
 
-        $fhirBase = sprintf('%s/fhir-base.xsd', $this->_version->getSchemaPath());
+        $fhirBase = sprintf('%s/fhir-base.xsd', $this->_schemaPath);
 
-        $this->_config->getLogger()->debug(sprintf('Extracting FHIR version metadata from "%s"...', $fhirBase));
+        $this->logger->debug(sprintf('Extracting FHIR version metadata from "%s"...', $fhirBase));
 
         $this->_fhirCopyright = [];
         $fh = fopen($fhirBase, 'rb');
@@ -196,15 +176,9 @@ class SourceMetadata
                 get_called_class(),
                 $fhirBase
             );
-            $this->_config->getLogger()->critical($msg);
+            $this->logger->critical($msg);
             throw new \RuntimeException($msg);
         }
-
-        $this->_fullPHPFHIRCopyrightComment = sprintf(
-            "/*!\n * %s\n *\n * FHIR Copyright Notice:\n *\n * %s\n */",
-            implode("\n * ", $this->_config->getPHPFHIRCopyright()),
-            implode("\n * ", $this->_fhirCopyright)
-        );
 
         // flip it
         $this->_compiled = true;

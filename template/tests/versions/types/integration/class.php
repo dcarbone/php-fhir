@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -63,7 +63,7 @@ echo "<?php\n\n";
 
 echo "namespace {$testNS};\n\n";
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
+echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata());
 ?>
 
 

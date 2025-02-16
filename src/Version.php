@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
@@ -58,12 +57,14 @@ class Version
      * @param string $schemaPath
      * @param null|string $namespace
      * @param null|array|\DCarbone\PHPFHIR\Version\DefaultConfig $defaultConfig
+     * @param \DCarbone\PHPFHIR\Version\SourceMetadata|null $sourceMetadata
      */
     public function __construct(Config                   $config,
                                 string                   $name,
                                 string                   $schemaPath,
                                 null|string              $namespace = null,
-                                null|array|DefaultConfig $defaultConfig = null)
+                                null|array|DefaultConfig $defaultConfig = null,
+                                null|SourceMetadata $sourceMetadata = null)
     {
         $this->_config = $config;
         $this->_name = $name;
@@ -91,7 +92,10 @@ class Version
         }
         $this->setDefaultConfig($defaultConfig);
 
-        $this->_sourceMetadata = new SourceMetadata($config, $this);
+        if (null === $sourceMetadata) {
+            $sourceMetadata = new SourceMetadata($config->getLogger(), $schemaPath);
+        }
+        $this->_sourceMetadata = $sourceMetadata;
 
         $this->_coreFiles = new CoreFiles(
             $this->_config,
@@ -269,26 +273,5 @@ class Version
             $this->getFullyQualifiedTestsName(false)
         );
         return $this->_versionTestFiles;
-    }
-
-    /**
-     * @return \DCarbone\PHPFHIR\CoreFiles
-     */
-    public function getTypesTestFiles(): CoreFiles
-    {
-        if (isset($this->_typesTestFiles)) {
-            return $this->_typesTestFiles;
-        }
-        $tp = $this->_config->getTestsPath();
-        if (null === $tp) {
-            throw new \RuntimeException('No tests path has been set.');
-        }
-        $this->_typesTestFiles = new CoreFiles(
-            $this->_config,
-            $tp,
-            PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR,
-            $this->getFullyQualifiedTestsName(false, PHPFHIR_NAMESPACE_TYPES)
-        );
-        return $this->_typesTestFiles;
     }
 }
