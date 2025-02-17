@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
-$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 
 $imports->addCoreFileImports(
     $formatEnum,

@@ -26,9 +26,12 @@ $imports = $coreFile->getImports();
 
 $respHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
 $methodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
+$serializeFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 
 $imports->addCoreFileImports(
     $respHeaderClass,
+    $methodEnum,
+    $serializeFormatEnum,
 );
 
 ob_start();
@@ -57,6 +60,14 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
      * @var string
      */
     public string $url;
+
+    /**
+     * The serialized format used to encode the request, if applicable.
+     *
+     * @var <?php echo $serializeFormatEnum->getFullyQualifiedName(true); ?>
+
+     */
+    public <?php echo $serializeFormatEnum; ?> $requestFormat;
 
     /**
      * HTTP response status code.
@@ -94,7 +105,9 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
      */
     public int $errno;
 
-    public function __construct(<?php echo $methodEnum ?> $method, string $url)
+    public function __construct(<?php echo $methodEnum ?> $method,
+                                string $url,
+                                <?php echo $serializeFormatEnum; ?> $requestFormat)
     {
         $this->method = $method;
         $this->url = $url;
@@ -172,6 +185,40 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>
     public function getErrno(): null|int
     {
         return $this->errno ?? null;
+    }
+
+    /**
+     * Attempts to extract the serialization format from the response Content-Type header.  Returns null if response
+     * headers were not parsed, if the Content-Type header is not present or parseable.
+     *
+     * @return null|<?php echo $serializeFormatEnum->getFullyQualifiedName(true); ?>
+
+     */
+    public function getResponseFormat(): null|<?php echo $serializeFormatEnum; ?>
+
+    {
+        if (!isset($this->headers)) {
+            return $this->requestFormat ?? null;
+        }
+        $ctHeaders = $this->headers->get('content-type');
+        if ([] === $ctHeaders) {
+            return $this->requestFormat ?? null;
+        }
+        foreach ($ctHeaders as $header) {
+            $lower = strtolower($header);
+            switch (true) {
+                case str_contains($lower, 'application/json'):
+                case str_contains($lower, 'application/fhir+json'):
+                case str_contains($lower, 'application/json+fhir'):
+                    return <?php echo $serializeFormatEnum; ?>::JSON;
+
+                case str_contains($lower, 'application/xml'):
+                case str_contains($lower, 'application/fhir+xml'):
+                case str_contains($lower, 'application/xml+fhir'):
+                    return <?php echo $serializeFormatEnum; ?>::XML;
+            }
+        }
+        return $this->requestFormat ?? null;
     }
 }
 <?php return ob_get_clean();

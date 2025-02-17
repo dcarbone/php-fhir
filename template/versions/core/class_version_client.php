@@ -25,10 +25,9 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $config = $version->getConfig();
 
 $coreFiles = $config->getCoreFiles();
-$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
 $clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_INTERFACE_CLIENT);
-$clientResponseFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
+$serializeFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 $clientSortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
 $clientRequestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
 $clientResponseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
@@ -41,6 +40,7 @@ $resourceParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLAS
 $versionCoreFiles = $version->getCoreFiles();
 $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 $versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_ENUM_VERSION_TYPES);
+$versionResourceTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_RESOURCE_TYPE);
 
 $sourceMeta = $version->getSourceMetadata();
 
@@ -53,7 +53,7 @@ $imports = $coreFile->getImports();
 $imports
     ->addCoreFileImports(
         $clientInterface,
-        $clientResponseFormatEnum,
+        $serializeFormatEnum,
         $clientSortEnum,
         $clientRequestClass,
         $clientResponseClass,
@@ -65,8 +65,7 @@ $imports
 
         $versionTypeEnum,
         $versionClass,
-
-        $resourceTypeInterface,
+        $versionResourceTypeInterface,
     )
     ->addVersionTypeImports(
         $idType,
@@ -112,6 +111,24 @@ class <?php echo $coreFile; ?>
         $this->_version = $version;
     }
 
+    protected function parseResponseResource(<?php echo $versionTypeEnum; ?> $resourceType,
+                                             <?php echo $clientResponseClass; ?> $response): <?php echo $versionResourceTypeInterface; ?>
+
+    {
+        /** @var <?php echo $versionResourceTypeInterface->getFullyQualifiedName(true); ?> $class */
+        $class = $this->_version->getTypeMap()::getTypeClassname($resourceType->name);
+        return match ($response->getResponseFormat()) {
+            <?php echo $serializeFormatEnum; ?>::JSON => $class::jsonUnserialize(
+                json: $response->resp,
+                config: $this->_version->getConfig()->getUnserializeConfig(),
+            ),
+            <?php echo $serializeFormatEnum; ?>::XML => $class::xmlUnserialize(
+                element: $response->resp,
+                config: $this->_version->getConfig()->getUnserializeConfig(),
+            ),
+        };
+    }
+
     /**
      * Queries for one <?php if ($sourceMeta->isDSTU1()) : ?>resource<?php else : ?>or more resources<?php endif; ?> of a given type, returning the raw response fromm the server.
      *
@@ -121,7 +138,7 @@ class <?php echo $coreFile; ?>
      * @param <?php if (!$sourceMeta->isDSTU1()) : ?>null|<?php endif; ?>string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
      * @param null|int $count
      * @param null|string|<?php echo $clientSortEnum->getFullyQualifiedName(true); ?> $sort May be a string value if your server supports non-standard sorting methods
-     * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
+     * @param null|<?php echo $serializeFormatEnum->getFullyQualifiedName(true); ?> $format
      * @param null|array $queryParams
      * @param null|bool $parseResponseHeaders
      * @return <?php echo $clientResponseClass->getFullyQualifiedName(true); ?>
@@ -132,7 +149,7 @@ class <?php echo $coreFile; ?>
                             <?php if (!$sourceMeta->isDSTU1()) : ?>null|<?php endif; ?>string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID<?php if (!$sourceMeta->isDSTU1()) : ?> = null<?php endif; ?>,
                             null|int $count = null,
                             null|string|<?php echo $clientSortEnum; ?> $sort = null,
-                            null|<?php echo $clientResponseFormatEnum; ?> $format = null,
+                            null|<?php echo $serializeFormatEnum; ?> $format = null,
                             null|array $queryParams = null,
                             null|bool $parseResponseHeaders = null): <?php echo $clientResponseClass; ?>
 
@@ -158,9 +175,9 @@ if ($sourceMeta->isDSTU1()) : ?>
         }
 <?php endif; ?>
         $req = new <?php echo $clientRequestClass; ?>(
-            acceptVersion: $this->_version->getFHIRVersion(),
             method: <?php echo $httpMethodEnum; ?>::GET,
             path: $path,
+            acceptVersion: $this->_version->getFHIRVersion(),
         );
         if (null !== $count) {
             $req->count = $count;
@@ -181,6 +198,14 @@ if ($sourceMeta->isDSTU1()) : ?>
     }
 
 <?php if (!$sourceMeta->isDSTU1()) : ?>
+    public function updateRaw(<?php echo $versionResourceTypeInterface; ?> $resource,
+                              null|<?php echo $serializeFormatEnum; ?> $format = null,
+                              null|array $queryParams = null,
+                              null|bool $parseResponseHeaders = null): <?php echo $versionResourceTypeInterface ?>
+    {
+
+    }
+
     /**
      * Queries for one or more resources of a given type, returning the unserialized response from the server.
      *
@@ -190,10 +215,10 @@ if ($sourceMeta->isDSTU1()) : ?>
      * @param null|string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
      * @param null|int $count
      * @param null|string|<?php echo $clientSortEnum->getFullyQualifiedName(true); ?> $sort May be a string value if your server supports non-standard sorting methods
-     * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
+     * @param null|<?php echo $serializeFormatEnum->getFullyQualifiedName(true); ?> $format
      * @param null|array $queryParams
      * @param null|bool $parseResponseHeaders
-     * @return null|<?php echo $resourceTypeInterface->getFullyQualifiedName(true); ?>
+     * @return null|<?php echo $versionResourceTypeInterface->getFullyQualifiedName(true); ?>
 
      * @throws \Exception
      */
@@ -201,13 +226,15 @@ if ($sourceMeta->isDSTU1()) : ?>
                          null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null,
                          null|int $count = null,
                          null|string|<?php echo $clientSortEnum; ?> $sort = null,
-                         null|<?php echo $clientResponseFormatEnum; ?> $format = null,
+                         null|<?php echo $serializeFormatEnum; ?> $format = null,
                          null|array $queryParams = null,
-                         null|bool $parseResponseHeaders = null): null|<?php echo $resourceTypeInterface; ?>
+                         null|bool $parseResponseHeaders = null): null|<?php echo $versionResourceTypeInterface; ?>
 
     {
         $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseResponseHeaders);
         $this->_requireOK($rc);
+        return $this->parseResponseResource($resourceType,
+        $resourceClass = $this->_version->getTypeMap()::getTypeClassname($resourceType->value);
         return <?php echo $resourceParserClass; ?>::parse($this->_version, $rc->resp);
     }
 
@@ -215,14 +242,14 @@ if ($sourceMeta->isDSTU1()) : ?>
                            null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null,
                            null|int $count = null,
                            null|string|<?php echo $clientSortEnum; ?> $sort = null,
-                           null|<?php echo $clientResponseFormatEnum; ?> $format = null,
+                           null|<?php echo $serializeFormatEnum; ?> $format = null,
                            null|array $queryParams = null,
-                           null|bool $parseResponseHeaders = null): null|<?php echo $resourceTypeInterface; ?>
+                           null|bool $parseResponseHeaders = null): null|<?php echo $versionResourceTypeInterface; ?>
 
     {
         $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseResponseHeaders);
         $this->_requireOK($rc);
-        return <?php echo PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER; ?>::parse($this->_version, $rc->resp);
+        return <?php echo $resourceParserClass; ?>::parse($this->_version, $rc->resp);
     }
 
 <?php endif; ?>
@@ -236,10 +263,10 @@ if ($sourceMeta->isDSTU1()) : ?>
     protected function _requireOK(<?php echo $clientResponseClass; ?> $rc): void
     {
         if (isset($rc->err)) {
-            throw new <?php echo PHPFHIR_EXCEPTION_CLIENT_ERROR; ?>($rc);
+            throw new <?php echo $clientErrorException; ?>($rc);
         }
         if (!isset($rc->code) || self::_STATUS_OK !== $rc->code) {
-            throw new <?php echo PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE; ?>($rc, self::_STATUS_OK);
+            throw new <?php echo $clientUnexpectedResponseCodeException; ?>($rc, self::_STATUS_OK);
         }
     }
 <?php foreach($version->getDefinition()->getTypes()->getNameSortedIterator() as $rsc) :
@@ -260,13 +287,13 @@ if ($sourceMeta->isDSTU1()) : ?>
      * Read one <?php echo $rsc->getFHIRName(); ?> resource.
      *
      * @param string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
-     * @param null|<?php echo $clientResponseFormatEnum->getFullyQualifiedName(true); ?> $format
+     * @param null|<?php echo $serializeFormatEnum->getFullyQualifiedName(true); ?> $format
      * @return <?php echo $rsc->getFullyQualifiedClassName(true); ?>
 
      * @throws \Exception
      */
     public function readOne<?php echo $rsc->getFHIRName(); ?>(string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID,
-                           <?php echo $rscNameIndent; ?> null|<?php echo PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT; ?> $format = null): <?php echo $rsc->getClassName(); ?>
+                           <?php echo $rscNameIndent; ?> null|<?php echo $serializeFormatEnum; ?> $format = null): <?php echo $rsc->getClassName(); ?>
 
     {
         $rc = $this->readRaw(resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $rsc->getConstName(false); ?>,
@@ -274,18 +301,22 @@ if ($sourceMeta->isDSTU1()) : ?>
                              format: $format);
         $this->_requireOK($rc);
         return match($format) {
-            <?php echo $clientResponseFormatEnum; ?>::JSON => <?php echo $rsc->getClassName(); ?>::jsonUnserialize(
+            <?php echo $serializeFormatEnum; ?>::JSON => <?php echo $rsc->getClassName(); ?>::jsonUnserialize(
                 json: $rc->resp,
                 config: $this->_version->getConfig()->getUnserializeConfig(),
             ),
-            <?php echo $clientResponseFormatEnum; ?>::XML => <?php echo $rsc->getClassName(); ?>::xmlUnserialize(
+            <?php echo $serializeFormatEnum; ?>::XML => <?php echo $rsc->getClassName(); ?>::xmlUnserialize(
                 element: $rc->resp,
                 config: $this->_version->getConfig()->getUnserializeConfig(),
             ),
-            default => <?php echo $resourceParserClass; ?>::parse($this->_version, $rc->resp),
         };
     }
-<?php endforeach; ?>
+<?php if (!$sourceMeta->isDSTU1()) : ?>
+
+<?php // todo: update resource! ?>
+
+<?php endif;
+endforeach; ?>
 
 }
 <?php return ob_get_clean();

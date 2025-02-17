@@ -29,7 +29,7 @@ $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAM
 $requestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 $httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
-$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $responseHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
 
@@ -103,8 +103,10 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
     {
         $queryParams = array_merge($this->_config->getDefaultQueryParams(), $request->queryParams ?? []);
         $format = $request->format ?? $this->_config->getDefaultFormat();
-        $parseResponseHeaders = $this->_config->getParseResponseHeaders()
-            && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders);
+        $parseResponseHeaders = match(true) {
+            isset($request->parseResponseHeaders) => $request->parseResponseHeaders,
+            default => $this->_config->getParseResponseHeaders(),
+        };
         $acceptVersion = match(true) {
             isset($request->version) => $request->version,
             isset($request->resource) => $request->resource->_getFHIRVersion(),
@@ -125,10 +127,9 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
 
         $url = "{$this->_config->getAddress()}{$request->path}?" . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
 
-        $rc = new <?php echo $responseClass; ?>($request->method, $url);
+        $rc = new <?php echo $responseClass; ?>($request->method, $url, $format);
 
-        $curlOpts = self::_BASE_CURL_OPTS
-            + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
+        $curlOpts = self::_BASE_CURL_OPTS + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
 
         if ($parseResponseHeaders) {
             $rc->headers = new <?php echo $responseHeaderClass; ?>();

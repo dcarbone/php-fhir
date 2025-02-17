@@ -890,10 +890,10 @@ class Type
                         ->getFullyQualifiedNamespace(false);
                 }
             }
-        } else if ($this->isResourceType() || $this->getKind()->isResourceContainer($this->_version)) {
+        } else if ($this->isResourceType()) {
             if (!$this->hasResourceTypeParent() && !$sourceMeta->isDSTU1()) {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE)
+                $interfaces[PHPFHIR_VERSION_INTERFACE_RESOURCE_TYPE] = $versionCoreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_RESOURCE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
         } else if (!$this->hasConcreteParent() && !$sourceMeta->isDSTU1() && !$this->isAbstract()) {

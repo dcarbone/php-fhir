@@ -33,7 +33,7 @@ $coreFiles = $version->getConfig()->getCoreFiles();
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 $clientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
-$clientFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
+$clientFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 $unexpectedCodeException = $coreFiles->getCoreFileByEntityName(PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE);
 
 $versionCoreFiles = $version->getCoreFiles();
@@ -54,7 +54,7 @@ if (!$type->isAbstract()
             PHPFHIR_CLASSNAME_FHIR_VERSION,
             PHPFHIR_CLIENT_CLASSNAME_CONFIG,
             PHPFHIR_CLIENT_CLASSNAME_CLIENT,
-            PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT,
+            PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT,
             PHPFHIR_EXCEPTION_CLIENT_UNEXPECTED_RESPONSE_CODE,
         )
         ->addVersionCoreFileImportsByName(
@@ -209,6 +209,39 @@ if (!$type->isAbstract()
         $this->assertJsonStringEqualsJsonString($rc->getResp(), $enc);
     }
 
+    public function testCanTranscodeBundleJSONWithNullConfig()
+    {
+        $client = $this->_getClient();
+        $rc = $client->readRaw(
+            resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $type->getConstName(false); ?>,
+            count: 5,
+            format: <?php echo $clientFormatEnum; ?>::JSON,
+        );
+        if (404 === $rc->getCode()) {
+            $this->markTestSkipped(sprintf(
+                'Configured test endpoint "%s" has no resources of type "<?php echo $type->getFHIRName(); ?>"',
+                $this->_getTestEndpoint(),
+            ));
+        }
+        $this->assertIsString($rc->getResp());
+        $this->assertJSON($rc->getResp());
+        $this->assertEquals(200, $rc->getCode(), sprintf('Configured test endpoint "%s" returned non-200 response code', $this->_getTestEndpoint()));
+        $bundle = <?php echo $bundleType->getClassName(); ?>::jsonUnserialize(
+            json: $rc->getResp(),
+        );
+        $entry = $bundle->getEntry();
+        $this->assertNotCount(0, $entry);
+        foreach($entry as $ent) {
+            $resource = $ent->getResource();
+            $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+            $enc = json_encode($resource);
+            $this->assertJson($enc);
+        }
+        $enc = json_encode($bundle);
+        $this->assertJson($enc);
+        $this->assertJsonStringEqualsJsonString($rc->getResp(), $enc);
+    }
+
     public function testCanTranscodeBundleXML()
     {
         $client = $this->_getClient();
@@ -228,6 +261,35 @@ if (!$type->isAbstract()
         $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize(
             element: $rc->getResp(),
             config: $this->_version->getConfig()->getUnserializeConfig(),
+        );
+        $entry = $bundle->getEntry();
+        $this->assertNotCount(0, $entry);
+        foreach($entry as $ent) {
+            $resource = $ent->getResource();
+            $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+        }
+        $xw = $bundle->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig());
+        $this->assertXmlStringEqualsXmlString($rc->getResp(), $xw->outputMemory());
+    }
+ 
+    public function testCanTranscodeBundleXMLWithNullConfig()
+    {
+        $client = $this->_getClient();
+        $rc = $client->readRaw(
+            resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $type->getConstName(false); ?>,
+            count: 5,
+            format: <?php echo $clientFormatEnum; ?>::XML,
+        );
+        if (404 === $rc->getCode()) {
+            $this->markTestSkipped(sprintf(
+                'Configured test endpoint "%s" has no resources of type "<?php echo $type->getFHIRName(); ?>"',
+                $this->_getTestEndpoint(),
+            ));
+        }
+        $this->assertIsString($rc->getResp());
+        $this->assertEquals(200, $rc->getCode(), sprintf('Configured test endpoint "%s" returned non-200 response code', $this->_getTestEndpoint()));
+        $bundle = <?php echo $bundleType->getClassName(); ?>::xmlUnserialize(
+            element: $rc->getResp(),
         );
         $entry = $bundle->getEntry();
         $this->assertNotCount(0, $entry);

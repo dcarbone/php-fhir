@@ -166,14 +166,20 @@ class ImportUtils
             );
         }
 
-        if (!$type->hasConcreteParent() && ($type->isResourceType() || $sourceMeta->isDSTU1())) {
-            $imports->addCoreFileImportsByName(
-                PHPFHIR_CLASSNAME_FHIR_VERSION,
-            );
+        if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) {
             $imports->addVersionCoreFileImportsByName(
                 $version,
                 PHPFHIR_VERSION_CLASSNAME_VERSION,
             );
+            if (!$type->hasConcreteParent()) {
+                $imports->addCoreFileImportsByName(
+                    PHPFHIR_CLASSNAME_FHIR_VERSION,
+                );
+                $imports->addVersionCoreFileImportsByName(
+                    $version,
+                    PHPFHIR_VERSION_CLASSNAME_VERSION,
+                );
+            }
         }
 
         if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {

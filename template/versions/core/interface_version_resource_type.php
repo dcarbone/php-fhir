@@ -16,28 +16,20 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-$config = $version->getConfig();
+$coreFiles = $version->getConfig()->getCoreFiles();
 $imports = $coreFile->getImports();
 
-$imports->addCoreFileImportsByName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
-$types = $version->getDefinition()->getTypes();
-
-$containerType = $types->getContainerType();
-if (null === $containerType) {
-    throw new \RuntimeException(sprintf(
-        'Unable to locate either "%s" or "%s" type',
-        TypeKindEnum::RESOURCE_CONTAINER->value,
-        TypeKindEnum::RESOURCE_INLINE->value
-    ));
-}
+$imports->addCoreFileImport(
+    $resourceTypeInterface,
+);
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
@@ -48,13 +40,7 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-/**
- * Interface <?php echo $coreFile; ?>
-
- *
- * This interface is applied to any class that is containable within a <?php echo $version->getName(); ?> <?php echo $containerType->getClassName(); ?> instance
- */
-interface <?php echo $coreFile; ?> extends <?php echo PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE; ?>
+interface <?php echo $coreFile; ?> extends <?php echo $resourceTypeInterface; ?>
 
 {
 

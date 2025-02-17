@@ -24,13 +24,13 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
     PHPFHIR_CLIENT_CLASSNAME_CONFIG,
-    PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT,
+    PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT,
 );
 
 $coreFiles = $config->getCoreFiles();
 
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
-$serializeFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SERIALIZE_FORMAT);
+$serializeFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 
 ob_start();
 echo "<?php\n\n";?>
