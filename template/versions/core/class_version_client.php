@@ -111,21 +111,22 @@ class <?php echo $coreFile; ?>
         $this->_version = $version;
     }
 
-    protected function parseResponseResource(<?php echo $versionTypeEnum; ?> $resourceType,
-                                             <?php echo $clientResponseClass; ?> $response): <?php echo $versionResourceTypeInterface; ?>
+    protected function parseResponse(<?php echo $versionTypeEnum; ?> $resourceType,
+                                             <?php echo $clientResponseClass; ?> $rc): <?php echo $versionResourceTypeInterface; ?>
 
     {
         /** @var <?php echo $versionResourceTypeInterface->getFullyQualifiedName(true); ?> $class */
         $class = $this->_version->getTypeMap()::getTypeClassname($resourceType->name);
-        return match ($response->getResponseFormat()) {
+        return match ($rc->getResponseFormat()) {
             <?php echo $serializeFormatEnum; ?>::JSON => $class::jsonUnserialize(
-                json: $response->resp,
+                json: $rc->resp,
                 config: $this->_version->getConfig()->getUnserializeConfig(),
             ),
             <?php echo $serializeFormatEnum; ?>::XML => $class::xmlUnserialize(
-                element: $response->resp,
+                element: $rc->resp,
                 config: $this->_version->getConfig()->getUnserializeConfig(),
             ),
+            null => <?php echo $resourceParserClass; ?>::parse($this->_version, $rc->resp),
         };
     }
 
@@ -202,6 +203,7 @@ if ($sourceMeta->isDSTU1()) : ?>
                               null|<?php echo $serializeFormatEnum; ?> $format = null,
                               null|array $queryParams = null,
                               null|bool $parseResponseHeaders = null): <?php echo $versionResourceTypeInterface ?>
+
     {
 
     }
@@ -233,23 +235,16 @@ if ($sourceMeta->isDSTU1()) : ?>
     {
         $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseResponseHeaders);
         $this->_requireOK($rc);
-        return $this->parseResponseResource($resourceType,
-        $resourceClass = $this->_version->getTypeMap()::getTypeClassname($resourceType->value);
-        return <?php echo $resourceParserClass; ?>::parse($this->_version, $rc->resp);
+        return $this->parseResponse($resourceType, $rc);
     }
 
-    public function update(<?php echo $versionTypeEnum; ?> $resourceType,
-                           null|string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID = null,
-                           null|int $count = null,
-                           null|string|<?php echo $clientSortEnum; ?> $sort = null,
+    public function update(<?php echo $versionResourceTypeInterface; ?> $resource,
                            null|<?php echo $serializeFormatEnum; ?> $format = null,
                            null|array $queryParams = null,
                            null|bool $parseResponseHeaders = null): null|<?php echo $versionResourceTypeInterface; ?>
 
     {
-        $rc = $this->readRaw($resourceType, $resourceID, $count, $sort, $format, $queryParams, $parseResponseHeaders);
-        $this->_requireOK($rc);
-        return <?php echo $resourceParserClass; ?>::parse($this->_version, $rc->resp);
+
     }
 
 <?php endif; ?>
