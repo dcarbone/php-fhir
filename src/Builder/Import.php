@@ -50,7 +50,7 @@ class Import
     /**
      * @return string
      */
-    public function getClassname(): string
+    public function getName(): string
     {
         return $this->_classname;
     }
@@ -87,7 +87,7 @@ class Import
         if ($this->isAliased()) {
             return $this->getAliasName();
         }
-        return $this->getClassname();
+        return $this->getName();
     }
 
     /**
@@ -123,9 +123,9 @@ class Import
     {
         $use = "use {$this->getFullyQualifiedName(false)}";
         if ($this->isAliased()) {
-            $use .= " as {$this->getAliasName()}";
+            return $use . " as {$this->getAliasName()};";
         }
-        return $use . ";\n";
+        return $use . ';';
     }
 
     /**

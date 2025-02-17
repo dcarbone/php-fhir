@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -63,13 +63,13 @@ echo "<?php\n\n";
 
 echo "namespace {$testNS};\n\n";
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
+echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata());
 ?>
 
 
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CLIENT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CONFIG); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER); ?>;
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
@@ -134,7 +134,7 @@ class <?php echo $testClassname; ?> extends TestCase
         $rc = $this->_client->readRaw(
             resourceType: <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPES; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
-            format: <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?>::from($format),
+            format: <?php echo PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT; ?>::from($format),
         );
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         if (404 === $rc->code) {

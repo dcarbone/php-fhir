@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,19 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
-$types = $version->getDefinition()->getTypes();
+$coreFiles = $version->getConfig()->getCoreFiles();
+$imports = $coreFile->getImports();
+
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
+
+$imports->addCoreFileImport(
+    $resourceTypeInterface,
+);
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
@@ -30,11 +38,11 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
-enum <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPES; ?> : string
-{
-<?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>
-    case <?php echo $type->getConstName(false); ?> = <?php echo $type->getTypeNameConst(true) ?>;
-<?php endforeach;?>
-}
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
+interface <?php echo $coreFile; ?> extends <?php echo $resourceTypeInterface; ?>
+
+{
+
+}
 <?php return ob_get_clean();

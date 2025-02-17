@@ -19,6 +19,8 @@
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+
 $namespace = $version->getFullyQualifiedName(false);
 
 $types = $version->getDefinition()->getTypes();
@@ -28,8 +30,7 @@ echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
-
+<?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
 abstract class <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS; ?>
 

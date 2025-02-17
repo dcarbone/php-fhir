@@ -30,7 +30,8 @@ class ImportUtils
         $stmts = [];
         foreach ($imports->getIterator() as $import) {
             if ($import->requiresImport()) {
-                $stmts[] = "use {$import->getFullyQualifiedName(false)};";
+
+                $stmts[] = $import->getUseStatement();
             }
         }
         if ([] === $stmts) {
@@ -78,9 +79,12 @@ class ImportUtils
                 );
 
                 $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
-                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
-                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
-                $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION);
+                $imports->addVersionCoreFileImportsByName(
+                    $version,
+                    PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE,
+                    PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP,
+                    PHPFHIR_VERSION_CLASSNAME_VERSION,
+                );
             } else {
                 $valProp = match (true) {
                     $propertyType->isPrimitiveContainer() => $propertyType->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME),
@@ -162,6 +166,22 @@ class ImportUtils
             );
         }
 
+        if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) {
+            $imports->addVersionCoreFileImportsByName(
+                $version,
+                PHPFHIR_VERSION_CLASSNAME_VERSION,
+            );
+            if (!$type->hasConcreteParent()) {
+                $imports->addCoreFileImportsByName(
+                    PHPFHIR_CLASSNAME_FHIR_VERSION,
+                );
+                $imports->addVersionCoreFileImportsByName(
+                    $version,
+                    PHPFHIR_VERSION_CLASSNAME_VERSION,
+                );
+            }
+        }
+
         if ($type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE,
@@ -169,10 +189,7 @@ class ImportUtils
         } else if ($type->isResourceType() || $type->hasResourceTypeParent()) {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE,
-            );
-            $imports->addVersionCoreFileImportsByName(
-                $version,
-                PHPFHIR_VERSION_CLASSNAME_VERSION,
+                PHPFHIR_CLASSNAME_FHIR_VERSION,
             );
         } else if (!$sourceMeta->isDSTU1()) {
             $imports->addCoreFileImportsByName(

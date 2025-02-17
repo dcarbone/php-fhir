@@ -16,12 +16,19 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getImports();
 
-$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
+
+$imports->addCoreFileImports(
+    $formatEnum,
+);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -30,45 +37,42 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
+<?php echo ImportUtils::compileImportStatements($imports); ?>
+
 /**
- * Class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
+ * Class <?php echo $coreFile; ?>
 
  *
  * Configuration class for built-in FHIR API client.  If you are not using the built-in client,
  * you can ignore this class.
  */
-class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
+class <?php echo $coreFile; ?>
 
 {
-    /** @var string */
     private string $_address;
-    /** @var array */
     private array $_curlOpts;
-    /** @var array */
-    private array $_queryParams;
-    /** @var null|<?php echo $formatEnum->getFullyQualifiedName(true); ?> */
-    private null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $_defaultFormat;
-    /** @var bool */
+    private array $_defaultQueryParams;
+    private <?php echo $formatEnum; ?> $_defaultFormat;
     private bool $_parseResponseHeaders;
 
     /**
-     * <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> Constructor
+     * <?php echo $coreFile; ?> Constructor
      *
      * @param string $address Fully qualified address of FHIR server, including scheme, port, and any path prefix.
-     * @param null|<?php echo $formatEnum->getFullyQualifiedName(true); ?> $defaultFormat Default format to request from server.  If not provided, server default will be used.  May be overridden by an individual request.
-     * @param array $queryParams Base query parameters array.  These will be added to every request.  May be overridden by an individual request.
+     * @param <?php echo $formatEnum->getFullyQualifiedName(true); ?> $defaultFormat Default serialization format.  Defaults to XML.
+     * @param array $defaultQueryParams Base query parameters array.  These will be added to every request.  May be overridden by an individual request.
      * @param array $curlOpts Base curl options array.  These will be added to every request.  May be overridden by an individual request.
-     * @param bool $parseResponseHeaders Whether or not to parse headers from response.  This adds a small amount of overhead, so it is recommended to only set to true if actually used.
+     * @param bool $parseResponseHeaders Whether or not to parse headers from response.  This adds overhead to parsing each response, but is also necessary to extract response version information.
      */
     public function __construct(string $address,
-                                null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> $defaultFormat = null,
-                                array $queryParams = [],
+                                <?php echo $formatEnum; ?> $defaultFormat = <?php echo $formatEnum; ?>::XML,
+                                array $defaultQueryParams = [],
                                 array $curlOpts = [],
-                                bool $parseResponseHeaders = false)
+                                bool $parseResponseHeaders = true)
     {
         $this->_address = $address;
         $this->_defaultFormat = $defaultFormat;
-        $this->_queryParams = $queryParams;
+        $this->_defaultQueryParams = $defaultQueryParams;
         $this->_curlOpts = $curlOpts;
         $this->_parseResponseHeaders = $parseResponseHeaders;
     }
@@ -82,10 +86,10 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
     }
 
     /**
-     * @return null|<?php echo $formatEnum->getFullyQualifiedName(true); ?>
+     * @return <?php echo $formatEnum->getFullyQualifiedName(true); ?>
 
      */
-    public function getDefaultFormat(): null|<?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?>
+    public function getDefaultFormat(): <?php echo $formatEnum; ?>
 
     {
         return $this->_defaultFormat;
@@ -94,9 +98,9 @@ class <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
     /**
      * @return array
      */
-    public function getQueryParams(): array
+    public function getDefaultQueryParams(): array
     {
-        return $this->_queryParams;
+        return $this->_defaultQueryParams;
     }
 
     /**

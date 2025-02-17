@@ -26,14 +26,10 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-<?php foreach($config->getVersionsIterator() as $version) : ?>
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION); ?> as <?php echo $version->getEnumImportName(); ?>;
-<?php endforeach; ?>
-
-enum <?php echo PHPFHIR_ENUM_VERSION; ?> : string
+enum <?php echo $coreFile; ?> : string
 {
-<?php foreach ($config->getVersionsIterator() as $version) : ?>
-    case <?php echo $version->getConstName(); ?> = <?php echo $version->getEnumImportName(); ?>::NAME;
-<?php endforeach; ?>
+    case XML = 'xml';
+    case JSON = 'json';
 }
+
 <?php return ob_get_clean();

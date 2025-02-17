@@ -87,14 +87,12 @@ const PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR = PHPFHIR_TEMPLATE_TESTS_DIR . D
 const PHPFHIR_CLASSNAME_AUTOLOADER = 'Autoloader';
 const PHPFHIR_CLASSNAME_VERSION_CONFIG = 'VersionConfig';
 const PHPFHIR_CLASSNAME_CONSTANTS = 'Constants';
+const PHPFHIR_CLASSNAME_FHIR_VERSION = 'FHIRVersion';
 
 // Core interface names
 const PHPFHIR_INTERFACE_VERSION = 'VersionInterface';
 const PHPFHIR_INTERFACE_VERSION_CONFIG = 'VersionConfigInterface';
 const PHPFHIR_INTERFACE_VERSION_TYPE_MAP = 'VersionTypeMapInterface';
-
-// Core enums
-const PHPFHIR_ENUM_VERSION = 'VersionEnum';
 
 // Core exceptions
 const PHPFHIR_EXCEPTION_CLIENT_ABSTRACT_CLIENT = 'AbstractClientException';
@@ -125,6 +123,7 @@ const PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG = 'UnserializeConfig';
 const PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER = 'ResourceParser';
 const PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS = 'JSONSerializationOptionsTrait';
 const PHPFHIR_ENCODING_TRAIT_XML_SERIALIZATION_OPTIONS = 'XMLSerializationOptionsTrait';
+const PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT = 'SerializeFormatEnum';
 
 // Core client entities
 const PHPFHIR_CLIENT_INTERFACE_CLIENT = 'ClientInterface';
@@ -135,19 +134,15 @@ const PHPFHIR_CLIENT_CLASSNAME_RESPONSE = 'Response';
 const PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS = 'ResponseHeaders';
 const PHPFHIR_CLIENT_ENUM_HTTP_METHOD = 'HTTPMethodEnum';
 const PHPFHIR_CLIENT_ENUM_SORT_DIRECTION = 'SortDirectionEnum';
-const PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT = 'ResponseFormatEnum';
 
-// Version class names
+// Version core entities
 const PHPFHIR_VERSION_CLASSNAME_VERSION = 'Version';
 const PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS = 'VersionConstants';
 const PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP = 'VersionTypeMap';
 const PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT = 'VersionClient';
-
-// Version interface names
 const PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE = 'VersionContainedTypeInterface';
-
-// Version enums
 const PHPFHIR_VERSION_ENUM_VERSION_TYPES = 'VersionTypesEnum';
+const PHPFHIR_VERSION_INTERFACE_RESOURCE_TYPE = 'VersionResourceTypeInterface';
 
 // Validation entities
 const PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR = 'Validator';

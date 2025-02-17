@@ -17,16 +17,17 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+$config = $version->getConfig();
 $imports = $coreFile->getImports();
 
 $imports->addCoreFileImportsByName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
 
-$config = $version->getConfig();
 $types = $version->getDefinition()->getTypes();
 
 $containerType = $types->getContainerType();
@@ -43,18 +44,17 @@ echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
-
+<?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
- * Interface <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?>
+ * Interface <?php echo $coreFile; ?>
 
  *
  * This interface is applied to any class that is containable within a <?php echo $version->getName(); ?> <?php echo $containerType->getClassName(); ?> instance
  */
-interface <?php echo PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE; ?> extends <?php echo PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE; ?>
+interface <?php echo $coreFile; ?> extends <?php echo PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE; ?>
 
 {
 

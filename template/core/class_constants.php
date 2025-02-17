@@ -44,6 +44,7 @@ final class <?php echo PHPFHIR_CLASSNAME_CONSTANTS; ?>
     public const DATE_FORMAT_INSTANT = '<?php echo PHPFHIR_DATE_FORMAT_INSTANT; ?>';
     public const TIME_FORMAT = '<?php echo PHPFHIR_TIME_FORMAT; ?>';
 
+    // Validation
     public const UNLIMITED = -1;
 }
 <?php

@@ -24,11 +24,13 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 
 $clientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
-$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 $httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 $sortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
-$versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
+$acceptVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
+
+$resourceInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
 $imports = $coreFile->getimports();
 
@@ -38,7 +40,9 @@ $imports->addCoreFileImports(
     $httpMethodEnum,
     $sortEnum,
     $responseClass,
-    $versionInterface,
+    $acceptVersion,
+
+    $resourceInterface,
 );
 
 ob_start();
@@ -53,11 +57,8 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?>
 
 {
-    /** @var <?php $versionInterface->getFullyQualifiedName(true); ?> */
-    public <?php echo $versionInterface; ?> $version;
-
-    /** @var string */
-    public string $method;
+    /** @var <?php echo $httpMethodEnum->getFullyQualifiedName(true); ?> */
+    public <?php echo $httpMethodEnum; ?> $method;
 
     /** @var string */
     public string $path;
@@ -70,14 +71,31 @@ class <?php echo $coreFile; ?>
     public string $at;
 
     /**
-     * The serialization type to request from the server.  Typically this is 'json' or 'xml'.
+     * The serialization format to use.
      *
-     * @var string
+     * @var <?php echo $formatEnum->getFullyQualifiedName(true); ?>
+
      */
-    public string $format;
+    public <?php echo $formatEnum; ?> $format;
 
     /** @var string */
     public string $sort;
+
+    /**
+     * FHIR version to set as the desired response version.
+     *
+     * @var <?php echo $acceptVersion->getFullyQualifiedName(true); ?>
+
+     */
+    public <?php echo $acceptVersion; ?> $acceptVersion;
+
+    /**
+     * The resource to send as part of a write request.
+     *
+     * @var <?php echo $resourceInterface->getFullyQualifiedName(true); ?>
+
+     */
+    public <?php echo $resourceInterface; ?> $resource;
 
     /**
      * Extra query parameters.
@@ -103,20 +121,20 @@ class <?php echo $coreFile; ?>
      */
     public array $options;
 
-    public function __construct(<?php echo $versionInterface; ?> $version,
-                                <?php echo $httpMethodEnum; ?> $method,
+    public function __construct(<?php echo $httpMethodEnum; ?> $method,
                                 string $path,
                                 null|int $count = null,
                                 null|string $since = null,
                                 null|string $at = null,
                                 null|<?php echo $formatEnum; ?> $format = null,
-                                null|<?php echo $sortEnum; ?> $sort = null,
+                                null|string|<?php echo $sortEnum; ?> $sort = null,
+                                null|<?php echo $acceptVersion; ?> $acceptVersion = null,
+                                null|<?php echo $resourceInterface; ?> $resource = null,
                                 null|array $queryParams = null,
                                 null|bool $parseResponseHeaders = null,
                                 null|array $options = null)
     {
-        $this->version = $version;
-        $this->method = $method->value;
+        $this->method = $method;
         $this->path = $path;
         if (null !== $count) {
             $this->count = $count;
@@ -128,10 +146,16 @@ class <?php echo $coreFile; ?>
             $this->at = $at;
         }
         if (null !== $format) {
-            $this->format = $format->value;
+            $this->format = $format;
         }
         if (null !== $sort) {
-            $this->sort = $format->value;
+            $this->sort = ($sort instanceof <?php echo $sortEnum; ?>) ? $sort->value : $sort;
+        }
+        if (null !== $acceptVersion) {
+            $this->acceptVersion = $acceptVersion;
+        }
+        if (null !== $resource) {
+            $this->resource = $resource;
         }
         if (null !== $queryParams) {
             $this->queryParams = $queryParams;
