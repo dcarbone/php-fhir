@@ -92,7 +92,7 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
     private array $_valueXMLLocations = [];
 
     public function __construct(string $name,
-                                string|<?php echo $mockStringpPrimitiveClass; ?>|<?php echo $mockResourceIDClass; ?> $id = null,
+                                null|string|<?php echo $mockStringpPrimitiveClass; ?>|<?php echo $mockResourceIDClass; ?> $id = null,
                                 array $fields = [],
                                 array $validationRuleMap = [],
                                 array $fhirComments = [],

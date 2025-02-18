@@ -27,7 +27,8 @@ class SourceMetadata implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    private const _DSTU1_VERSION_MAX = "0.0.82";
+    private const _DSTU1_VERSION_MAX = '0.0.82';
+    private const _R4B_VERSION = '4.3.0';
 
     private string $_schemaPath;
 
@@ -107,6 +108,11 @@ class SourceMetadata implements LoggerAwareInterface
     public function isDSTU1(): bool
     {
         return Semver::satisfies($this->getSemanticVersion(false), '<= ' . self::_DSTU1_VERSION_MAX);
+    }
+
+    public function isR4B(): bool
+    {
+        return Semver::satisfies($this->getSemanticVersion(false), '== ' . self::_R4B_VERSION);
     }
 
     private function _compile(): void

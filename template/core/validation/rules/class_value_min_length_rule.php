@@ -64,7 +64,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         }
         if (null === $value || '' === $value) {
             return sprintf('Field "%s" on type "%s" must be at least %d characters long, but it is empty', $field, $type->_getFHIRTypeName(), $constraint);
-        } else if ($constraint > ($len = strlen($value))) {
+        } else if ($constraint > ($len = strlen((string)$value))) {
             return sprintf('Field "%s" on type "%s" must be at least %d characters long, %d seen.', $field, $type->_getFHIRTypeName(), $constraint, $len);
         }
         return null;

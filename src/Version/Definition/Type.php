@@ -878,8 +878,8 @@ class Type
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE)
                     ->getFullyQualifiedNamespace(false);
 
-                // DSTU1 is a pain.
                 if ($sourceMeta->isDSTU1() && 'id-primitive' === $this->getFHIRName()) {
+                    // DSTU1 and R4b are a pain.
                     $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE] = $coreFiles
                         ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE)
                         ->getFullyQualifiedNamespace(false);
@@ -891,7 +891,7 @@ class Type
                     $interfaces[PHPFHIR_TYPES_INTERFACE_DSTU1_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
                         ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
                         ->getFullyQualifiedNamespace(false);
-                } else if ('id' === $this->getFHIRName()) {
+                } else if ('id' === $this->getFHIRName() || (($sourceMeta->isR4B() && 'string' === $this->getFHIRName()))) {
                     $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE] = $coreFiles
                         ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE)
                         ->getFullyQualifiedNamespace(false);
