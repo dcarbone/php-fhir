@@ -170,15 +170,15 @@ if (!$type->isAbstract()
         $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>();
         $this->assertEquals(<?php echo $versionClass->getFullyQualifiedName(true); ?>::getFHIRVersion(), $type->_getFHIRVersion());
     }
-<?php   if (!$type->isAbstract()
+<?php   if ($type->hasResourceTypeParent()
             && $type !== $bundleType
-            && !$type->getKind()->isResourceContainer($version)
-            && ($type->isResourceType() || $type->hasResourceTypeParent())) : ?>
+            && 'DomainResource' !== $type->getFHIRName()
+            && !$type->getKind()->isResourceContainer($version)) : ?>
 
     public function testCanTranscodeBundleJSON()
     {
         $client = $this->_getClient();
-        $rc = $client->readRaw(
+        $rc = $client->read(
             resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
             format: <?php echo $clientFormatEnum; ?>::JSON,
@@ -212,7 +212,7 @@ if (!$type->isAbstract()
     public function testCanTranscodeBundleJSONWithNullConfig()
     {
         $client = $this->_getClient();
-        $rc = $client->readRaw(
+        $rc = $client->read(
             resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
             format: <?php echo $clientFormatEnum; ?>::JSON,
@@ -245,7 +245,7 @@ if (!$type->isAbstract()
     public function testCanTranscodeBundleXML()
     {
         $client = $this->_getClient();
-        $rc = $client->readRaw(
+        $rc = $client->read(
             resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
             format: <?php echo $clientFormatEnum; ?>::XML,
@@ -275,7 +275,7 @@ if (!$type->isAbstract()
     public function testCanTranscodeBundleXMLWithNullConfig()
     {
         $client = $this->_getClient();
-        $rc = $client->readRaw(
+        $rc = $client->read(
             resourceType: <?php echo $versionTypeEnum; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
             format: <?php echo $clientFormatEnum; ?>::XML,

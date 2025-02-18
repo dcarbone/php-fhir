@@ -131,7 +131,7 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->_client->readRaw(
+        $rc = $this->_client->read(
             resourceType: <?php echo PHPFHIR_VERSION_ENUM_VERSION_RESOURCE_TYPE; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
             format: <?php echo PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT; ?>::from($format),

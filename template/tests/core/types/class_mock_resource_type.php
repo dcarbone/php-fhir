@@ -27,6 +27,7 @@ $imports = $coreFile->getImports();
 
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
+$resourceIDTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE);
 $commentContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER);
 $commentContainerTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER);
 $sourceXMLNSTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS);
@@ -40,10 +41,13 @@ $unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSN
 $serializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
 $mockTypeFieldsTrait = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_TRAIT_MOCK_TYPE_FIELDS);
+$mockStringpPrimitiveClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_STRING_PRIMITIVE_TYPE);
+$mockResourceIDClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_ID_TYPE);
 
 $imports->addCoreFileImports(
     $fhirVersion,
     $resourceTypeInterface,
+    $resourceIDTypeInterface,
     $commentContainerInterface,
     $commentContainerTrait,
     $sourceXMLNSTrait,
@@ -57,6 +61,8 @@ $imports->addCoreFileImports(
     $serializeConfig,
 
     $mockTypeFieldsTrait,
+    $mockStringpPrimitiveClass,
+    $mockResourceIDClass,
 );
 
 ob_start();
@@ -86,6 +92,7 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
     private array $_valueXMLLocations = [];
 
     public function __construct(string $name,
+                                string|<?php echo $mockStringpPrimitiveClass; ?>|<?php echo $mockResourceIDClass; ?> $id = null,
                                 array $fields = [],
                                 array $validationRuleMap = [],
                                 array $fhirComments = [],
@@ -109,9 +116,18 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
             intval(sprintf("%'.-08s", str_replace(['v', '.'], '', $semanticVersion))),
         );
 
+        $fields['id'] = [
+            'class' => <?php echo $mockResourceIDClass; ?>::class,
+            'value' => match (true) {
+                $id instanceof <?php echo $mockResourceIDClass; ?> => $id,
+                default => new <?php echo $mockResourceIDClass; ?>($id ?? uniqid()),
+            },
+        ];
+
         foreach($validationRuleMap as $field => $rules) {
             $this->_setFieldValidationRules($field, $rules);
         }
+
         $this->_processFields($fields);
     }
 
@@ -123,6 +139,12 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
     public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
     {
         return $this->_fhirVersion;
+    }
+
+    public function getId(): null|<?php echo $resourceIDTypeInterface; ?>
+
+    {
+        return $this->_doGet('id');
     }
 
     public static function xmlUnserialize(\SimpleXMLElement|string $element,

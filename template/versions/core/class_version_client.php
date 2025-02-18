@@ -311,7 +311,6 @@ foreach($version->getDefinition()->getTypes()->getNameSortedIterator() as $rsc) 
     if (!$rsc->hasResourceTypeParent()
         || 'Bundle' === $rsc->getFHIRName()
         || 'DomainResource' === $rsc->getFHIRName()
-        || $rsc->isAbstract()
         || $rsc->getKind()->isResourceContainer($version)) {
         continue;
     }
