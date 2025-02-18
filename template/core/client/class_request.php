@@ -32,6 +32,8 @@ $acceptVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERS
 
 $resourceInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
+$serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
+
 $imports = $coreFile->getimports();
 
 $imports->addCoreFileImports(
@@ -43,6 +45,8 @@ $imports->addCoreFileImports(
     $acceptVersion,
 
     $resourceInterface,
+
+    $serializeConfigClass,
 );
 
 ob_start();
@@ -98,6 +102,14 @@ class <?php echo $coreFile; ?>
     public <?php echo $resourceInterface; ?> $resource;
 
     /**
+     * If a resource is defined, the config to use when serializing its data.
+     *
+     * @var <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?>
+
+     */
+    public <?php echo $serializeConfigClass; ?> $resourceSerializeConfig;
+
+    /**
      * Extra query parameters.
      *
      * @var array
@@ -114,12 +126,12 @@ class <?php echo $coreFile; ?>
     public bool $parseResponseHeaders;
 
     /**
-     * Extra client options.  Possible entries will vary depending on what client implementation you are using.
+     * Extra client clientOptions.  Possible entries will vary depending on what client implementation you are using.
      *
      * If using the provided client (@see <?php echo $clientClass->getFullyQualifiedName(true); ?> class),
-     * these must be valid PHP curl options.
+     * these must be valid PHP curl clientOptions.
      */
-    public array $options;
+    public array $clientOptions;
 
     public function __construct(<?php echo $httpMethodEnum; ?> $method,
                                 string $path,
@@ -130,9 +142,10 @@ class <?php echo $coreFile; ?>
                                 null|string|<?php echo $sortEnum; ?> $sort = null,
                                 null|<?php echo $acceptVersion; ?> $acceptVersion = null,
                                 null|<?php echo $resourceInterface; ?> $resource = null,
+                                null|<?php echo $serializeConfigClass; ?> $resourceSerializeConfig = null,
                                 null|array $queryParams = null,
                                 null|bool $parseResponseHeaders = null,
-                                null|array $options = null)
+                                null|array $clientOptions = null)
     {
         $this->method = $method;
         $this->path = $path;
@@ -157,14 +170,17 @@ class <?php echo $coreFile; ?>
         if (null !== $resource) {
             $this->resource = $resource;
         }
+        if (null !== $resourceSerializeConfig) {
+            $this->resourceSerializeConfig = $resourceSerializeConfig;
+        }
         if (null !== $queryParams) {
             $this->queryParams = $queryParams;
         }
         if (null !== $parseResponseHeaders) {
             $this->parseResponseHeaders = $parseResponseHeaders;
         }
-        if (null !== $options) {
-            $this->options = $options;
+        if (null !== $clientOptions) {
+            $this->clientOptions = $clientOptions;
         }
     }
 }

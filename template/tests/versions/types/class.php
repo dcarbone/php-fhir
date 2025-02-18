@@ -40,7 +40,7 @@ $versionCoreFiles = $version->getCoreFiles();
 
 $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 $versionClientClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT);
-$versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_ENUM_VERSION_TYPES);
+$versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_ENUM_VERSION_RESOURCE_TYPE);
 
 $imports = new Imports($version->getConfig(), $type->getFullyQualifiedTestNamespace(false), $type->getTestClassName());
 $imports->addVersionTypeImports($type);
@@ -61,7 +61,7 @@ if (!$type->isAbstract()
             $version,
             PHPFHIR_VERSION_CLASSNAME_VERSION,
             PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT,
-            PHPFHIR_VERSION_ENUM_VERSION_TYPES,
+            PHPFHIR_VERSION_ENUM_VERSION_RESOURCE_TYPE,
         );
 
     if (!$version->getSourceMetadata()->isDSTU1()) {

@@ -22,14 +22,14 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getimports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
-
-$imports = $coreFile->getimports();
+$resourceIDInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE);
 
 $imports->addCoreFileImports(
     $typeInterface,
@@ -37,6 +37,7 @@ $imports->addCoreFileImports(
     $unserializeConfigClass,
     $xmlWriterClass,
     $fhirVersion,
+    $resourceIDInterface,
 );
 
 ob_start();
@@ -52,9 +53,10 @@ interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
 
 {
     /**
-     * Must return the appropriate version enum for this type.
+     * Must return the FHIR version of this type.
      *
-     * @return string
+     * @return <?php echo $fhirVersion->getFullyQualifiedName(true); ?>
+
      */
     public function _getFHIRVersion(): <?php echo $fhirVersion; ?>;
 
@@ -65,6 +67,14 @@ interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
      * @return null|string
      */
     public function _getSourceXMLNS(): null|string;
+
+    /**
+     * Must return the ID-containing element of this resource, if defined.
+     *
+     * @return null|<?php echo $resourceIDInterface->getFullyQualifiedName(true); ?>
+
+     */
+    public function getId(): null|<?php echo $resourceIDInterface; ?>;
 
     /**
      * @param string|\SimpleXMLElement $element

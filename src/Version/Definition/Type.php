@@ -374,7 +374,7 @@ class Type
 
     public function hasNonOverloadedProperties(): bool
     {
-        foreach($this->_properties->getIterator() as $property) {
+        foreach ($this->_properties->getIterator() as $property) {
             if (null === $property->getOverloadedProperty()) {
                 return true;
             }
@@ -877,12 +877,23 @@ class Type
                 $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE)
                     ->getFullyQualifiedNamespace(false);
+
+                // DSTU1 is a pain.
+                if ($sourceMeta->isDSTU1() && 'id-primitive' === $this->getFHIRName()) {
+                    $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE] = $coreFiles
+                        ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE)
+                        ->getFullyQualifiedNamespace(false);
+                }
             }
         } else if ($this->isPrimitiveContainer()) {
             if (!$this->hasPrimitiveContainerParent()) {
                 if ($sourceMeta->isDSTU1()) {
                     $interfaces[PHPFHIR_TYPES_INTERFACE_DSTU1_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
                         ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
+                        ->getFullyQualifiedNamespace(false);
+                } else if ('id' === $this->getFHIRName()) {
+                    $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE] = $coreFiles
+                        ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE)
                         ->getFullyQualifiedNamespace(false);
                 } else {
                     $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE] = $coreFiles

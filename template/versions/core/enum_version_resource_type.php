@@ -17,9 +17,19 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+
+$versionCoreFiles = $version->getCoreFiles();
+$imports = $coreFile->getImports();
+
+$versionConstants = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS);
+
+$imports->addCoreFileImport(
+    $versionConstants,
+);
 
 $types = $version->getDefinition()->getTypes();
 
@@ -30,9 +40,19 @@ namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
 <?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
-enum <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPES; ?> : string
+<?php echo ImportUtils::compileImportStatements($imports); ?>
+
+enum <?php echo $coreFile; ?> : string
 {
-<?php foreach($types->getNameSortedIterator() as $type) : if ($type->isAbstract()) { continue; } ?>
+<?php foreach($types->getNameSortedIterator() as $type) :
+    if (!$type->hasResourceTypeParent()
+        || 'Bundle' === $type->getFHIRName()
+        || 'DomainResource' === $type->getFHIRName()
+        || $type->isAbstract()
+        || $type->getKind()->isResourceContainer($version)
+        ) {
+        continue;
+    } ?>
     case <?php echo $type->getConstName(false); ?> = <?php echo $type->getTypeNameConst(true) ?>;
 <?php endforeach;?>
 }

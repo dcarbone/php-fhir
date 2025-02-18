@@ -30,8 +30,10 @@ $requestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQ
 $responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
 $httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
 $formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
-$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $responseHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
+
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
 $imports->addCoreFileImports(
     $clientInterface,
@@ -40,8 +42,10 @@ $imports->addCoreFileImports(
     $responseClass,
     $httpMethodEnum,
     $formatEnum,
-    $fhirVersion,
     $responseHeaderClass,
+
+    $fhirVersion,
+    $resourceTypeInterface,
 );
 
 ob_start();
@@ -107,15 +111,6 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
             isset($request->parseResponseHeaders) => $request->parseResponseHeaders,
             default => $this->_config->getParseResponseHeaders(),
         };
-        $acceptVersion = match(true) {
-            isset($request->version) => $request->version,
-            isset($request->resource) => $request->resource->_getFHIRVersion(),
-            default => null,
-        };
-        $contentTypeVersion = match(true) {
-            isset($request->resource) => $request->resource->_getFHIRVersion(),
-            default => null,
-        };
 
         $queryParams[self::_PARAM_FORMAT] = $format->value;
         if (isset($request->sort)) {
@@ -148,19 +143,10 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
             $curlOpts[CURLOPT_HTTPHEADER][] = "X-HTTP-Method-Override: {$request->method->value}";
         }
 
-        if (null === $acceptVersion) {
-            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/{$format->value}+json, application/json+{$format->value}";
-        } else if ($acceptVersion->getFHIRVersionInteger() < <?php echo $fhirVersion; ?>::STU3_MIN_VERSION_INTEGER) {
-            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/{$format->value}+fhir; fhirVersion={$acceptVersion->getFHIRShortVersion()}";
-        } else {
-            $curlOpts[CURLOPT_HTTPHEADER][] = "Accept: application/fhir+{$format->value}; fhirVersion={$acceptVersion->getFHIRShortVersion()}";
-        }
-        if (null !== $contentTypeVersion) {
-            if ($contentTypeVersion->getFHIRVersionInteger() < <?php echo $fhirVersion; ?>::STU3_MIN_VERSION_INTEGER) {
-                $curlOpts[CURLOPT_HTTPHEADER][] = "Content-Type: application/{$format->value}+fhir; fhirVersion={$contentTypeVersion->getFHIRShortVersion()}";
-            } else {
-                $curlOpts[CURLOPT_HTTPHEADER][] = "Content-Type: application/fhir+{$format->value}; fhirVersion={$contentTypeVersion->getFHIRShortVersion()}";
-            }
+        $curlOpts[CURLOPT_HTTPHEADER][] = $this->_buildAcceptHeader($request, $format);
+
+        if (isset($request->resource)) {
+            $curlOpts[CURLOPT_HTTPHEADER][] = $this->_buildContentTypeHeader($request, $format);
         }
 
         $ch = curl_init($url);
@@ -187,6 +173,45 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
         }
 
         return $rc;
+    }
+
+    protected function _buildAcceptHeader(<?php echo $requestClass; ?> $request,
+                                          <?php echo $formatEnum; ?> $format): string
+    {
+        $ver = match(true) {
+            isset($request->version) => $request->version,
+            isset($request->resource) => $request->resource->_getFHIRVersion(),
+            default => null,
+        };
+        if (null === $ver) {
+            return "Accept: application/{$format->value}+json, application/json+{$format->value}";
+        } else if ($ver->getFHIRVersionInteger() < <?php echo $fhirVersion; ?>::STU3_MIN_VERSION_INTEGER) {
+            return "Accept: application/{$format->value}+fhir; fhirVersion={$ver->getFHIRShortVersion()}";
+        } else {
+            return "Accept: application/fhir+{$format->value}; fhirVersion={$ver->getFHIRShortVersion()}";
+        }
+    }
+
+    protected function _buildContentTypeHeader(<?php echo $requestClass; ?> $request,
+                                               <?php echo $formatEnum; ?> $format): string
+    {
+        $ver = $request->resource->_getFHIRVersion();
+        if (<?php echo $httpMethodEnum; ?>::PATCH === $request->method) {
+            return "Content-Type: application/{$format->value}-patch+{$format->value}; fhirVersion={$ver->getFHIRShortVersion()}";
+        } else if ($ver->getFHIRVersionInteger() < <?php echo $fhirVersion; ?>::STU3_MIN_VERSION_INTEGER) {
+            return "Content-Type: application/{$format->value}+fhir; fhirVersion={$ver->getFHIRShortVersion()}";
+        } else {
+            return "Content-Type: application/fhir+{$format->value}; fhirVersion={$ver->getFHIRShortVersion()}";
+        }
+    }
+
+    protected function _buildBody(<?php echo $resourceTypeInterface; ?> $resource,
+                                  <?php echo $formatEnum; ?> $format): string
+    {
+        return match ($format) {
+            <?php echo $formatEnum; ?>::JSON => json_encode($resource),
+            <?php echo $formatEnum; ?>::XML => $resource->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig()),
+        };
     }
 }
 <?php return ob_get_clean();

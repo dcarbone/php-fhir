@@ -152,6 +152,7 @@ if (!$type->isPrimitiveType() && !$type->hasConcreteParent() && ($sourceMeta->is
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
+
     {
         return <?php echo $verionClass; ?>::getFHIRVersion();
     }
