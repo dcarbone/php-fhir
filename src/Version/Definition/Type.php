@@ -617,7 +617,12 @@ class Type
 
     public function hasResourceTypeParent(): bool
     {
-        return $this->hasParent() && $this->_parentType->isResourceType();
+        foreach($this->getParentTypes() as $parent) {
+            if ($parent->isResourceType()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
