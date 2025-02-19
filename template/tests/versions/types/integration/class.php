@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TestTypeEnum;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -63,18 +63,18 @@ echo "<?php\n\n";
 
 echo "namespace {$testNS};\n\n";
 
-echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment();
+echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata());
 ?>
 
 
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CLIENT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_CLASSNAME_CONFIG); ?>;
-use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT); ?>;
+use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT); ?>;
 use <?php echo $config->getFullyQualifiedName(false, PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER); ?>;
 use <?php echo $bundleType->getFullyQualifiedClassName(false); ?>;
 use <?php echo $type->getFullyQualifiedClassName(false); ?>;
 use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT); ?>;
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_VERSION_TYPES); ?>;
+use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_ENUM_VERSION_RESOURCE_TYPE); ?>;
 use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION); ?>;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
@@ -131,14 +131,14 @@ class <?php echo $testClassname; ?> extends TestCase
         if (isset($this->_fetchedResources[$format])) {
             return $this->_fetchedResources[$format];
         }
-        $rc = $this->_client->readRaw(
-            resourceType: <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPES; ?>::<?php echo $type->getConstName(false); ?>,
+        $rc = $this->_client->read(
+            resourceType: <?php echo PHPFHIR_VERSION_ENUM_VERSION_RESOURCE_TYPE; ?>::<?php echo $type->getConstName(false); ?>,
             count: 5,
-            format: <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?>::from($format),
+            format: <?php echo PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT; ?>::from($format),
         );
         $this->assertEmpty($rc->err, sprintf('curl error seen: %s', $rc->err));
         if (404 === $rc->code) {
-            $this->markTestSkipped(sprintf('Query "%s" returned no resources of type "%s"', $rc->url, <?php echo PHPFHIR_VERSION_ENUM_VERSION_TYPES; ?>::<?php echo $type->getConstName(false); ?>->value));
+            $this->markTestSkipped(sprintf('Query "%s" returned no resources of type "%s"', $rc->url, <?php echo PHPFHIR_VERSION_ENUM_VERSION_RESOURCE_TYPE; ?>::<?php echo $type->getConstName(false); ?>->value));
         } else if (500 === $rc->code) {
             $this->markTestSkipped(sprintf('Query "%s" returned 500', $rc->url));
         } else {

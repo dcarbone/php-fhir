@@ -64,7 +64,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
         if (<?php echo $constantsClass; ?>::UNLIMITED === $constraint || null === $value || '' === $value) {
             return null;
         }
-        $len = strlen($value);
+        $len = strlen((string)$value);
         if ($constraint < $len) {
             return sprintf('Field "%s" on type "%s" must be no more than %d characters long, %d seen', $field, $type->_getFHIRTypeName(), $constraint, $len);
         }

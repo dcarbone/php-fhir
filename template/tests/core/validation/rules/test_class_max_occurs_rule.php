@@ -50,8 +50,8 @@ class <?php echo $coreFile; ?> extends TestCase
     public function testNoErrorWithValidState()
     {
         $type = new <?php echo $mockResource; ?>(
-            'mock',
-            [
+            name: 'mock',
+            fields: [
                 'stuff' => [
                     'class' => <?php echo $mockPrimitive; ?>::class,
                     'collection' => true,
@@ -67,8 +67,8 @@ class <?php echo $coreFile; ?> extends TestCase
     public function testNoErrorWithEmptyValue()
     {
         $type = new <?php echo $mockResource; ?>(
-            'mock',
-            [
+            name: 'mock',
+            fields: [
                 'stuff' => [
                     'class' => <?php echo $mockPrimitive; ?>::class,
                     'collection' => true,
@@ -83,8 +83,8 @@ class <?php echo $coreFile; ?> extends TestCase
     public function testErrorWithTooManyElements()
     {
         $type = new <?php echo $mockResource; ?>(
-            'mock',
-            [
+            name: 'mock',
+            fields: [
                 'stuff' => [
                     'class' => <?php echo $mockPrimitive; ?>::class,
                     'collection' => true,

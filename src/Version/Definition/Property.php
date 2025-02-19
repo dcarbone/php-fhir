@@ -19,7 +19,6 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  */
 
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 class Property
@@ -53,13 +52,14 @@ class Property
                                 \SimpleXMLElement      $sxe,
                                 string                 $sourceFilename,
                                 string                 $name = '',
-                                string                 $ref = '',
+                                null|string            $ref = null,
                                 string|PropertyUseEnum $use = PropertyUseEnum::OPTIONAL,
                                 string|int             $minOccurs = 0,
                                 string|int             $maxOccurs = '',
                                 string                 $valueFHIRTypeName = '',
-                                string                 $fixed = '',
-                                string                 $namespace = '')
+                                null|Type              $valueFHIRType = null,
+                                null|string            $fixed = null,
+                                null|string            $namespace = null)
     {
         if ('' === $name && '' === $ref) {
             throw new \InvalidArgumentException(sprintf(
@@ -76,16 +76,24 @@ class Property
         if ('' !== $name) {
             $this->_name = $name;
         }
-        if ('' !== $ref) {
-            $this->_ref = $ref;
+        if (null !== $ref && '' !== $ref) {
+            $this->setRef($ref);
         }
 
         $this->setUse($use);
         $this->setMinOccurs($minOccurs);
         $this->setMaxOccurs($maxOccurs);
-        $this->setValueFHIRTypeName($valueFHIRTypeName);
-        $this->setFixed($fixed);
-        $this->setNamespace($namespace);
+        if (null !== $valueFHIRType) {
+            $this->setValueFHIRType($valueFHIRType);
+        } else {
+            $this->setValueFHIRTypeName($valueFHIRTypeName);
+        }
+        if (null !== $fixed) {
+            $this->setFixed($fixed);
+        }
+        if (null !== $namespace) {
+            $this->setNamespace($namespace);
+        }
     }
 
     /**

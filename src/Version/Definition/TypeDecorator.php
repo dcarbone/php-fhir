@@ -464,6 +464,124 @@ abstract class TypeDecorator
         }
     }
 
+    protected static function convertDSTU1TypeParent(Version          $version,
+                                                     Types            $types,
+                                                     string|Type      $base,
+                                                     null|string|Type $newParent): void
+    {
+        if (!$version->getSourceMetadata()->isDSTU1()) {
+            throw new \LogicException(sprintf(
+                'This method is only intended to be used with DSTU1, version "%s" type seen.',
+                $version->getSourceMetadata()->getSemanticVersion(false),
+            ));
+        }
+
+        if (is_string($base)) {
+            $base = $types->getTypeByName($base);
+        }
+        if (is_string($newParent)) {
+            $newParent = $types->getTypeByName($newParent);
+        }
+
+        $log = $version->getConfig()->getLogger();
+
+        $baseProperties = $base->getProperties();
+        $currentParent = $base->getParentType();
+
+        if (null === $newParent) {
+            $log->info(sprintf(
+                'Removing DSTU1 type "%s" parent type "%s".',
+                $base->getFHIRName(),
+                $currentParent->getFHIRName()
+            ));
+        } else {
+            $log->info(sprintf(
+                'Changing DSTU1 type "%s" parent from type "%s" to "%s"',
+                $base->getFHIRName(),
+                $currentParent->getFHIRName(),
+                $newParent->getFHIRName(),
+            ));
+        }
+
+        $base->setParentType($newParent);
+
+        foreach ($currentParent->getAllPropertiesIndexedIterator() as $property) {
+            // skip properties overloaded in base type.
+            $propName = $property->getName();
+
+            // for id properties, we want to make sure that the base Resource type has a primitive container "id"
+            // field, but for types extending the base resource we want them to use the parent property.
+            if ('id' === $propName) {
+                if ($base->hasResourceTypeParent()) {
+                    $baseProperties->removePropertyByName('id');
+                    continue;
+                }
+            } else if ($baseProperties->hasProperty($property->getName())) {
+                continue;
+            }
+
+            $propValueTypeName = $property->getValueFHIRTypeName();
+            $propValueType = $property->getValueFHIRType();
+
+            // override resource "id" type with actual id type.
+            if ($base->isResourceType() && 'id' === $property->getName()) {
+                $propValueType = $types->getTypeByName('id');
+                $propValueTypeName = $propValueType->getFHIRName();
+            }
+
+            $log->info(sprintf(
+                'Copying DSTU1 type "%s" property "%s" to type "%s".',
+                $currentParent->getFHIRName(),
+                $property->getName(),
+                $base->getFHIRName(),
+            ));
+
+            $baseProperties->addOrReturnProperty(new Property(
+                memberOf: $base,
+                sxe: $property->getSourceSXE(),
+                sourceFilename: $property->getSourceFilename(),
+                name: $property->getName(),
+                ref: $property->getRef(),
+                use: $property->getUse(),
+                minOccurs: $property->getMinOccurs(),
+                maxOccurs: $property->getMaxOccurs(),
+                valueFHIRTypeName: $propValueTypeName,
+                valueFHIRType: $propValueType,
+                fixed: $property->getFixed(),
+                namespace: $property->getNamespace(),
+            ));
+        }
+    }
+
+    public static function applyVersionOverrides(Version $version, Types $types): void
+    {
+        $sourceMeta = $version->getSourceMetadata();
+        $log = $version->getConfig()->getLogger();
+
+        if ($sourceMeta->isDSTU1()) {
+            // this is needed as DSTU1 is a pain in the ass.
+            self::convertDSTU1TypeParent($version, $types, 'Resource', null);
+            self::convertDSTU1TypeParent($version, $types, 'Binary', 'Resource');
+        }
+
+        if ($sourceMeta->isR4B()) {
+            // this is needed as the schema for R4B specifies the Resource "id" attribute as merely a string, not an id.
+            $resourceType = $types->getTypeByName('Resource');
+            $resourceID = $resourceType->getProperties()->getProperty('id');
+            $idType = $types->getTypeByName('id');
+
+            $log->info(sprintf(
+                'Setting R4B type "%s" property "%s" from type "%s" to type "%s".',
+                $resourceType->getFHIRName(),
+                $resourceID->getName(),
+                $resourceID->getValueFHIRType()->getFHIRName(),
+                $idType->getFHIRName(),
+            ));
+
+            $resourceID->setValueFHIRType($idType);
+        }
+    }
+
     /**
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types

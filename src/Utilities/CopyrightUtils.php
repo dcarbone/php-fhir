@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 
+namespace DCarbone\PHPFHIR\Utilities;
+
 /*
- * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +18,17 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config $config */
-/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Version\SourceMetadata;
 
-ob_start();
-echo '<?php ';?>declare(strict_types=1);
-
-namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
-
-<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
-
-enum <?php echo PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT; ?> : string
+class CopyrightUtils
 {
-    case XML = 'xml';
-    case JSON = 'json';
+    public static function compileFullCopyrightComment(Config $config, SourceMetadata $sourceMetadata): string
+    {
+        return sprintf(
+            "/*!\n * %s\n *\n * FHIR Copyright Notice:\n *\n * %s\n */",
+            implode("\n * ", $config->getPHPFHIRCopyright()),
+            implode("\n * ", $sourceMetadata->getFHIRCopyright())
+        );
+    }
 }
-
-<?php return ob_get_clean();

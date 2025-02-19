@@ -35,6 +35,8 @@ class Imports implements \Countable
 
     /** @var \DCarbone\PHPFHIR\Builder\Import[] */
     private array $_imports = [];
+    /** @var bool */
+    private bool $_sorted = false;
 
     /** @var int */
     private int $_requiredImportCount = 0;
@@ -54,51 +56,79 @@ class Imports implements \Countable
     /**
      * @param string $namespace Namespace of referenced entity
      * @param string $name Name of referenced entity
-     * @return \DCarbone\PHPFHIR\Builder\Imports
+     * @param null|string $alias Explicit alias to use
+     * @return \DCarbone\PHPFHIR\Builder\Import
      */
-    public function addImport(string $namespace, string $name): self
+    public function addImport(string $namespace, string $name, null|string $alias = null): Import
     {
         // ensure clean namespace value
         $namespace = trim($namespace, PHPFHIR_NAMESPACE_SEPARATOR);
 
-        // do not need to import sibling entities.
+        // do not need to explicitly import same-namespace entities.
         $requiresImport = ($namespace !== $this->_localNamespace);
-
-        if (isset($this->_imports[$name])) {
-            // if we have already seen this type, move on.
-            if ($this->_imports[$name]->getNamespace() === $namespace) {
-                return $this;
-            }
-            // if there is a conflicting imported type here...
-            $aliasName = $this->_findNextAliasName($name);
-            $this->_imports[$aliasName] = new Import($name, $namespace, $aliasName, $requiresImport);
-        } else if ($name === $this->_localName && $namespace != $this->_localNamespace) {
-            // if the referenced type has the same name but exists in a different namespace, alias it.
-            $aliasName = $this->_findNextAliasName($name);
-            $this->_imports[$aliasName] = new Import($name, $namespace, $aliasName, $requiresImport);
-        } else {
-            // otherwise, go ahead and add to map.
-            $this->_imports[$name] = new Import($name, $namespace, '', $requiresImport);
-        }
-
         if ($requiresImport) {
             $this->_requiredImportCount++;
         }
 
-        uasort(
-            $this->_imports,
-            function (Import $a, Import $b) {
-                return strnatcasecmp($a->getFullyQualifiedName(false), $b->getFullyQualifiedName(false));
-            }
-        );
+        // check if one with the same name or explicit alias already exists.
+        $current = match ($alias) {
+            null => $this->_imports[$name] ?? null,
+            default => $this->_imports[$alias] ?? null,
+        };
 
-        return $this;
+        // if match found...
+        if ($current) {
+            // ...and is an exact match, return it
+            if ($current->getNamespace() === $namespace) {
+                return $current;
+            }
+
+            // otherwise, if alias was explicitly provided, bail out now as this indicates faulty logic somewhere
+            // along the line.
+            if (null !== $alias) {
+                throw new \LogicException(sprintf(
+                    'Explicit alias "%s" for type "%s" at namespace "%s" collides with alias for type "%s" at namespace "%s".',
+                    $alias,
+                    $name,
+                    $namespace,
+                    $current->getName(),
+                    $current->getNamespace(),
+                ));
+            }
+
+            // otherwise, find next available alias and create import
+            $import = new Import($name, $namespace, $this->_findNextAliasName($name), $requiresImport);
+        } else if ($name === $this->_localName && $namespace != $this->_localNamespace) {
+            // if the referenced type has the same name but exists in a different namespace, alias it.
+            $import = new Import($name, $namespace, $alias ?? $this->_findNextAliasName($name), $requiresImport);
+        } else {
+            // otherwise, go ahead and add to map.
+            $import = new Import($name, $namespace, $alias ?? '', $requiresImport);
+        }
+
+        // add new import to local map
+        $this->_sorted = false;
+        $this->_imports[$import->getImportedName()] = $import;
+
+        return $import;
     }
 
-    public function addCoreFileImports(CoreFile ...$coreFile): self
+    /**
+     * Add specific core file to imported list with optional explicit alias.
+     *
+     * @param \DCarbone\PHPFHIR\CoreFile $coreFile
+     * @param string|null $alias
+     * @return \DCarbone\PHPFHIR\Builder\Import
+     */
+    public function addCoreFileImport(CoreFile $coreFile, null|string $alias = null): Import
     {
-        foreach ($coreFile as $cf) {
-            $this->addImport($cf->getFullyQualifiedNamespace(false), $cf->getEntityName());
+        return $this->addImport($coreFile->getFullyQualifiedNamespace(false), $coreFile->getEntityName(), $alias);
+    }
+
+    public function addCoreFileImports(CoreFile ...$coreFiles): self
+    {
+        foreach ($coreFiles as $cf) {
+            $this->addCoreFileImport($cf);
         }
         return $this;
     }
@@ -106,7 +136,7 @@ class Imports implements \Countable
     public function addCoreFileImportsByName(string ...$entityNames): self
     {
         foreach ($entityNames as $en) {
-            $this->addCoreFileImports(
+            $this->addCoreFileImport(
                 $this->_config->getCoreFiles()->getCoreFileByEntityName($en),
             );
         }
@@ -135,6 +165,7 @@ class Imports implements \Countable
      */
     public function getIterator(): iterable
     {
+        $this->_sort();
         return new \ArrayIterator($this->_imports);
     }
 
@@ -168,8 +199,9 @@ class Imports implements \Countable
      */
     public function getImportByClassAndNamespace(string $classname, string $namespace): null|Import
     {
+        $this->_sort();
         foreach ($this->_imports as $import) {
-            if ($import->getNamespace() === $namespace && $import->getClassname() === $classname) {
+            if ($import->getNamespace() === $namespace && $import->getName() === $classname) {
                 return $import;
             }
         }
@@ -207,5 +239,19 @@ class Imports implements \Countable
             $aliasName = "{$classname}{++$i}";
         }
         return $aliasName;
+    }
+
+    private function _sort(): void
+    {
+        if ($this->_sorted) {
+            return;
+        }
+        uasort(
+            $this->_imports,
+            function (Import $a, Import $b) {
+                return strnatcasecmp($a->getFullyQualifiedName(false), $b->getFullyQualifiedName(false));
+            }
+        );
+        $this->_sorted = true;
     }
 }

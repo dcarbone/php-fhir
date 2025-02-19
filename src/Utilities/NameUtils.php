@@ -113,13 +113,14 @@ class NameUtils
 
     private const _NAME_REPLACE_MAP = [
         'api' => 'API',
-        'fhir' => 'FHIR',
-        'xhtml' => 'XHTML',
-        'xml' => 'XML',
-        'json' => 'JSON',
-        'http' => 'HTTP',
         'curl' => 'CURL',
         'dstu1' => 'DSTU1',
+        'fhir' => 'FHIR',
+        'http' => 'HTTP',
+        'id' => 'ID',
+        'json' => 'JSON',
+        'xhtml' => 'XHTML',
+        'xml' => 'XML',
     ];
 
     /** @var array */
