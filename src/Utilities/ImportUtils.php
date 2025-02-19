@@ -166,7 +166,7 @@ class ImportUtils
             );
         }
 
-        if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) {
+        if ($type->isResourceType() || $type->hasResourceTypeParent()) {
             $imports->addVersionCoreFileImportsByName(
                 $version,
                 PHPFHIR_VERSION_CLASSNAME_VERSION,
@@ -191,7 +191,7 @@ class ImportUtils
                 PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE,
                 PHPFHIR_CLASSNAME_FHIR_VERSION,
             );
-        } else if (!$sourceMeta->isDSTU1()) {
+        } else {
             $imports->addCoreFileImportsByName(
                 PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE,
             );
@@ -204,16 +204,6 @@ class ImportUtils
 
         if (($type->isCommentContainer() && !$type->hasCommentContainerParent()) || $type->hasPropertiesWithValidations()) {
             $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_CONSTANTS);
-        }
-
-        if ($sourceMeta->isDSTU1()) {
-            $imports->addCoreFileImportsByName(
-                PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE,
-            );
-            $imports->addVersionCoreFileImportsByName(
-                $version,
-                PHPFHIR_VERSION_CLASSNAME_VERSION,
-            );
         }
 
         if ($type->getKind()->isResourceContainer($type->getVersion())) {

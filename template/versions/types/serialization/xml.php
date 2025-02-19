@@ -69,7 +69,7 @@ if ($type->hasLocalProperties()
         ]
     );
 
-    if ($type->isResourceType() || $type->hasResourceTypeParent() || $sourceMeta->isDSTU1()) : ?>
+    if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
         if ($rootOpened ?? false) {
             $xw->endElement();
         }

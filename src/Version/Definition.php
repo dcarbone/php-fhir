@@ -119,6 +119,9 @@ class Definition
         $log->info('Setting comment container flags');
         TypeDecorator::setCommentContainerFlag($this->_config, $this->_types);
 
+        $log->info('Applying per-version overrides');
+        TypeDecorator::applyVersionOverrides($this->_version, $this->_types);
+
         $log->info('Finding overloaded properties in child types');
         TypePropertyDecorator::findOverloadedProperties($this->_version, $this->_types);
 

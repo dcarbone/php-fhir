@@ -64,6 +64,7 @@ if (!$type->isAbstract()
             PHPFHIR_VERSION_ENUM_VERSION_RESOURCE_TYPE,
         );
 
+    // DSTU1 does not have a "Bundle" type.
     if (!$version->getSourceMetadata()->isDSTU1()) {
         $imports->addVersionTypeImports(
             $bundleType

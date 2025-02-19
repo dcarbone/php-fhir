@@ -464,6 +464,78 @@ abstract class TypeDecorator
         }
     }
 
+    public static function applyVersionOverrides(Version $version, Types $types): void
+    {
+        $sourceMeta = $version->getSourceMetadata();
+        $log = $version->getConfig()->getLogger();
+
+        if ($sourceMeta->isDSTU1()) {
+            // this is needed as DSTU1 is a pain in the ass.
+            $resourceType = $types->getTypeByName('Resource');
+            $resourceProperties = $resourceType->getProperties();
+            $elementType = $types->getTypeByName('Element');
+
+            $log->info('Unsetting DSTU1 "Resource" type parent.');
+            $resourceType->setParentType(null);
+
+            foreach ($elementType->getProperties()->getIterator() as $property) {
+                if ($resourceProperties->hasProperty($property->getName())) {
+                    continue;
+                }
+
+                $propValueTypeName = $property->getValueFHIRTypeName();
+                $propValueType = $property->getValueFHIRType();
+
+                // override resource "id" type with actual id type.
+                if ('id' === $property->getName()) {
+                    $propValueType = $types->getTypeByName('id');
+                    $propValueTypeName = $propValueType->getFHIRName();
+                }
+
+                $log->info(sprintf(
+                    'Copying DSTU1 type "%s" property "%s" to type "%s".',
+                    $elementType->getFHIRName(),
+                    $property->getName(),
+                    $resourceType->getFHIRName(),
+                ));
+
+                $resourceProperties->addOrReturnProperty(new Property(
+                    memberOf: $resourceType,
+                    sxe: $property->getSourceSXE(),
+                    sourceFilename: $property->getSourceFilename(),
+                    name: $property->getName(),
+                    ref: $property->getRef(),
+                    use: $property->getUse(),
+                    minOccurs: $property->getMinOccurs(),
+                    maxOccurs: $property->getMaxOccurs(),
+                    valueFHIRTypeName: $propValueTypeName,
+                    valueFHIRType: $propValueType,
+                    fixed: $property->getFixed(),
+                    namespace: $property->getNamespace(),
+                ));
+            }
+        }
+
+        if ($sourceMeta->isR4B()) {
+            // this is needed as the schema for R4B specifies the Resource "id" attribute as merely a string, not an id.
+
+            $resourceType = $types->getTypeByName('Resource');
+            $resourceID = $resourceType->getProperties()->getProperty('id');
+            $idType = $types->getTypeByName('id');
+
+            $log->info(sprintf(
+                'Setting R4B type "%s" property "%s" from type "%s" to type "%s".',
+                $resourceType->getFHIRName(),
+                $resourceID->getName(),
+                $resourceID->getValueFHIRType()->getFHIRName(),
+                $idType->getFHIRName(),
+            ));
+
+
+            $resourceID->setValueFHIRType($idType);
+        }
+    }
+
     /**
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Types $types

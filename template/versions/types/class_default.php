@@ -148,7 +148,7 @@ endif; ?>
     }
 <?php
 
-if (!$type->isPrimitiveType() && !$type->hasConcreteParent() && ($sourceMeta->isDSTU1() || $type->isResourceType())) : ?>
+if (!$type->isPrimitiveType() && !$type->hasConcreteParent() && $type->isResourceType()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
