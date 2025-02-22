@@ -226,7 +226,7 @@ class TypeHintUtils
         }
 
         if ($pt->getKind()->isResourceContainer($version)) {
-            $versionCoreFiles = $version->getCoreFiles();
+            $versionCoreFiles = $version->getVersionCoreFiles();
             $containedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
             if ($property->isCollection()) {
                 return "{$containedTypeInterface->getFullyQualifiedName(true)}[]";

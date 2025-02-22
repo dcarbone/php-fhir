@@ -25,7 +25,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
-$versionCoreFiles = $version->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 $imports = $coreFile->getImports();
 
 $constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);

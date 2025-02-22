@@ -19,14 +19,9 @@ namespace DCarbone\PHPFHIR\Version;
  */
 
 use Composer\Semver\Semver;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 
-class SourceMetadata implements LoggerAwareInterface
+class SourceMetadata
 {
-    use LoggerAwareTrait;
-
     private string $_schemaPath;
 
     private bool $_compiled = false;
@@ -36,9 +31,8 @@ class SourceMetadata implements LoggerAwareInterface
     private string $_fhirGenerationDate;
     private string $_fhirVersion;
 
-    public function __construct(LoggerInterface $log, string $schemPath)
+    public function __construct(string $schemPath)
     {
-        $this->setLogger($log);
         $this->_schemaPath = $schemPath;
     }
 
@@ -150,8 +144,6 @@ class SourceMetadata implements LoggerAwareInterface
 
         $fhirBase = sprintf('%s/fhir-base.xsd', $this->_schemaPath);
 
-        $this->logger->debug(sprintf('Extracting FHIR version metadata from "%s"...', $fhirBase));
-
         $this->_fhirCopyright = [];
         $fh = fopen($fhirBase, 'rb');
         if ($fh) {
@@ -209,7 +201,6 @@ class SourceMetadata implements LoggerAwareInterface
                 get_called_class(),
                 $fhirBase
             );
-            $this->logger->critical($msg);
             throw new \RuntimeException($msg);
         }
 

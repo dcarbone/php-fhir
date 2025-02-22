@@ -146,7 +146,7 @@ class Imports implements \Countable
     public function addVersionCoreFileImportsByName(Version $version, string ...$entityNames): self
     {
         foreach ($entityNames as $en) {
-            $coreFile = $version->getCoreFiles()->getCoreFileByEntityName($en);
+            $coreFile = $version->getVersionCoreFiles()->getCoreFileByEntityName($en);
             $this->addImport($coreFile->getNamespace(), $coreFile->getEntityName());
         }
         return $this;

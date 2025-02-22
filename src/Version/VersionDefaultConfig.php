@@ -18,7 +18,7 @@ namespace DCarbone\PHPFHIR\Version;
  * limitations under the License.
  */
 
-class DefaultConfig
+class VersionDefaultConfig
 {
     private const _UNSERIALIZE_CONFIG_KEYS = [
         'libxmlOpts',
@@ -49,6 +49,22 @@ class DefaultConfig
     {
         $this->setUnserializeConfig($unserializeConfig);
         $this->setSerializeConfig($serializeConfig);
+    }
+
+    public static function fromArray(array $config): self
+    {
+        $c = new self();
+        foreach ($config as $k => $v) {
+            match($k) {
+                'unserializeConfig' => $c->setUnserializeConfig($v),
+                'serializeConfig' => $c->setSerializeConfig($v),
+                default => throw new \UnexpectedValueException(sprintf(
+                    'Unknown configuration field "%s" specified',
+                    $k
+                )),
+            };
+        }
+        return $c;
     }
 
     /**

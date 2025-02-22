@@ -25,7 +25,7 @@ $coreFiles = $version->getConfig()->getCoreFiles();
 
 $valueXMLLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 
-$containedTypeInterface = $version->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
+$containedTypeInterface = $version->getVersionCoreFiles()->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
 
 ob_start(); ?>
         foreach ($element->children() as $ce) {

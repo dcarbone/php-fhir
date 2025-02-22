@@ -24,7 +24,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
-$versionCoreFiles = $version->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $versionInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);

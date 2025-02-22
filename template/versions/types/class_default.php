@@ -30,7 +30,7 @@ if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) {
 $sourceMeta = $version->getSourceMetadata();
 
 $coreFiles = $version->getConfig()->getCoreFiles();
-$versionCoreFiles = $version->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);

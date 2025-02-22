@@ -869,7 +869,7 @@ class Type
     {
         $interfaces = [];
         $coreFiles = $this->_version->getConfig()->getCoreFiles();
-        $versionCoreFiles = $this->_version->getCoreFiles();
+        $versionCoreFiles = $this->_version->getVersionCoreFiles();
         $sourceMeta = $this->_version->getSourceMetadata();
 
         // first, determine which base type interface it must implement

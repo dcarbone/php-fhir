@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIRTests;
  */
 
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Version;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
@@ -39,24 +40,96 @@ class ConfigTest extends TestCase
         }
     }
 
-    public function testCanConstructValidValues()
+    protected function validBaseValues(string $funcName): array
     {
-        $libPath = $this->_tmpdir->path('input/src');
-        $testPath = $this->_tmpdir->path('input/tests');
-        $ns = 'PHPFHIRTests';
-        $c = new Config(
-            libraryPath: $libPath,
-            versions: [],
-            libraryNamespacePrefix: $ns,
-            testsPath: $testPath
-        );
+        return [
+            'libPath' => $this->_tmpdir->path('output/src'),
+            'libNsPrefix' => $funcName,
+            'testsPath' => $this->_tmpdir->path('output/tests'),
+            'testNsPrefix' => 'Tests' . PHPFHIR_NAMESPACE_SEPARATOR . $funcName,
+        ];
+    }
+
+    protected function baseAssertions(Config $c,
+                                      string $libPath,
+                                      string $libNsPrefix,
+                                      string $testsPath,
+                                      string $testNsPrefix): void
+    {
         $this->assertEquals($libPath, $c->getLibraryPath());
-        $this->assertEquals($ns, $c->getLibraryNamespacePrefix());
+        $this->assertEquals($libNsPrefix, $c->getLibraryNamespacePrefix());
+        $this->assertEquals($testsPath, $c->getTestsPath());
+        $this->assertEquals($testNsPrefix, $c->getTestsNamespacePrefix());
         $this->assertEquals(
             LIBXML_NONET | LIBXML_BIGLINES | LIBXML_PARSEHUGE | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOXMLDECL,
             $c->getLibrarySchemaLibxmlOpts(),
         );
+    }
+
+    public function testCanConstructWithEmptyVersionConfig(): void
+    {
+        extract($this->validBaseValues(__FUNCTION__));
+        $c = new Config(
+            libraryPath: $libPath,
+            versions: [],
+            libraryNamespacePrefix: $libNsPrefix,
+            testsPath: $testsPath,
+            testNamespacePrefix: $testNsPrefix,
+        );
+        $this->baseAssertions($c, $libPath, $libNsPrefix, $testsPath, $testNsPrefix);
         $this->assertEmpty($c->getVersionNames());
         $this->assertEmpty($c->getVersionsIterator());
+    }
+
+    public function testCanConstructWithValidMapVersionConfig(): void
+    {
+        extract($this->validBaseValues(__FUNCTION__));
+        $schemaPath = $this->_tmpdir->path('input/Mock');
+        $c = new Config(
+            libraryPath: $libPath,
+            versions: [
+                [
+                    'name' => 'Mock',
+                    'schemaPath' => $schemaPath,
+                    'defaultConfig' => [
+                        'unserializeConfig' => [],
+                        'serializeConfig' => [],
+                    ],
+                ],
+            ],
+            libraryNamespacePrefix: $libNsPrefix,
+            testsPath: $testsPath,
+            testNamespacePrefix: $testNsPrefix,
+        );
+        $this->baseAssertions($c, $libPath, $libNsPrefix, $testsPath, $testNsPrefix);
+        $this->assertEquals(['Mock'], $c->getVersionNames());
+        $this->assertCount(1, $c->getVersionsIterator());
+        $this->assertInstanceOf(Version::class, $c->getVersion('Mock'));
+    }
+
+    public function testCanConstructWithValidVersionConfigClass()
+    {
+        extract($this->validBaseValues(__FUNCTION__));
+        $schemaPath = $this->_tmpdir->path('input/Mock');
+        $c = new Config(
+            libraryPath: $libPath,
+            versions: [
+                new Config\VersionConfig(
+                    name: 'Mock',
+                    schemaPath: $schemaPath,
+                    defaultConfig: [
+                        'unserializeConfig' => [],
+                        'serializeConfig' => [],
+                    ],
+                ),
+            ],
+            libraryNamespacePrefix: $libNsPrefix,
+            testsPath: $testsPath,
+            testNamespacePrefix: $testNsPrefix,
+        );
+        $this->baseAssertions($c, $libPath, $libNsPrefix, $testsPath, $testNsPrefix);
+        $this->assertEquals(['Mock'], $c->getVersionNames());
+        $this->assertCount(1, $c->getVersionsIterator());
+        $this->assertInstanceOf(Version::class, $c->getVersion('Mock'));
     }
 }
