@@ -117,15 +117,16 @@ class <?php echo $coreFile; ?>
      * @see https://www.hl7.org/fhir/http.html#read
      *
      * @param <?php echo $versionTypeEnum->getFullyQualifiedName(true); ?> $resourceType
-     * @param <?php if (!$sourceMeta->isDSTU1()) : ?>null|<?php endif; ?>string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID<?php if (!$sourceMeta->isDSTU1()) : ?>
-     * @param null|int $count<?php endif; ?>
+     * @param <?php if (!$sourceMeta->isDSTU1()) : ?>null|<?php endif; ?>string|<?php echo $idType->getFullyQualifiedClassName(true); ?>|<?php echo $idPrimitiveType->getFullyQualifiedClassName(true); ?> $resourceID
+<?php if (!$sourceMeta->isDSTU1()) : ?>
+     * @param null|int $count
+<?php endif; ?>
      * @param null|string|<?php echo $clientSortEnum->getFullyQualifiedName(true); ?> $sort May be a string value if your server supports non-standard sorting methods
      * @param null|<?php echo $serializeFormatEnum->getFullyQualifiedName(true); ?> $format
      * @param null|array $queryParams
      * @param null|bool $parseResponseHeaders
      * @return <?php echo $clientResponseClass->getFullyQualifiedName(true); ?>
 
-     * @throws \Exception
      */
     public function read(<?php echo $versionTypeEnum; ?> $resourceType,
                          <?php if (!$sourceMeta->isDSTU1()) : ?>null|<?php endif; ?>string|<?php echo $idType->getClassName(); ?>|<?php echo $idPrimitiveType->getClassName(); ?> $resourceID<?php if (!$sourceMeta->isDSTU1()) : ?> = null<?php endif; ?>,
