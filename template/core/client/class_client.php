@@ -26,16 +26,26 @@ $imports = $coreFile->getImports();
 
 $clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_INTERFACE_CLIENT);
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
-$clientRequestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
-$clientResponseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
-$clientHTTPMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
+$requestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
+$responseClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE);
+$httpMethodEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_HTTP_METHOD);
+$formatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
+$responseHeaderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_RESPONSE_HEADERS);
+
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 
 $imports->addCoreFileImports(
     $clientInterface,
     $clientConfigClass,
-    $clientRequestClass,
-    $clientResponseClass,
-    $clientHTTPMethodEnum,
+    $requestClass,
+    $responseClass,
+    $httpMethodEnum,
+    $formatEnum,
+    $responseHeaderClass,
+
+    $fhirVersion,
+    $resourceTypeInterface,
 );
 
 ob_start();
@@ -88,19 +98,21 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
     }
 
     /**
-     * @param <?php echo $clientRequestClass->getFullyQualifiedName(true); ?> $request
-     * @return <?php echo $clientResponseClass->getFullyQualifiedName(true); ?>
+     * @param <?php echo $requestClass->getFullyQualifiedName(true); ?> $request
+     * @return <?php echo $responseClass->getFullyQualifiedName(true); ?>
 
      */
-    public function exec(<?php echo $clientRequestClass; ?> $request): <?php echo $clientResponseClass; ?>
+    public function exec(<?php echo $requestClass; ?> $request): <?php echo $responseClass; ?>
 
     {
-        $queryParams = array_merge($this->_config->getQueryParams(), $request->queryParams ?? []);
-
+        $queryParams = array_merge($this->_config->getDefaultQueryParams(), $request->queryParams ?? []);
         $format = $request->format ?? $this->_config->getDefaultFormat();
-        if (null !== $format) {
-            $queryParams[self::_PARAM_FORMAT] = $format;
-        }
+        $parseResponseHeaders = match(true) {
+            isset($request->parseResponseHeaders) => $request->parseResponseHeaders,
+            default => $this->_config->getParseResponseHeaders(),
+        };
+
+        $queryParams[self::_PARAM_FORMAT] = $format->value;
         if (isset($request->sort)) {
             $queryParams[self::_PARAM_SORT] = $request->sort;
         }
@@ -108,49 +120,51 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
             $queryParams[self::_PARAM_COUNT] = $request->count;
         }
 
-        $rc = new <?php echo $clientResponseClass; ?>();
-
         $url = "{$this->_config->getAddress()}{$request->path}?" . http_build_query($queryParams, '', '&', PHP_QUERY_RFC3986);
 
-        $curlOpts = self::_BASE_CURL_OPTS
-            + [CURLOPT_CUSTOMREQUEST => $request->method]
-            + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
+        $rc = new <?php echo $responseClass; ?>($request->method, $url, $format);
 
-        $parseResponseHeaders = ($this->_config->getParseResponseHeaders()
-            && (!isset($req->parseResponseHeaders) || $req->parseResponseHeaders))
-            || (isset($req->parseResponseHeaders) && $req->parseResponseHeaders);
+        $curlOpts = self::_BASE_CURL_OPTS + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
 
         if ($parseResponseHeaders) {
+            $rc->headers = new <?php echo $responseHeaderClass; ?>();
             $curlOpts[CURLOPT_HEADER] = 1;
             $curlOpts[CURLOPT_HEADERFUNCTION] = function($ch, string $line) use (&$rc): int {
                     return $rc->headers->addLine($line);
                 };
-        } else {
-            $curlOpts[CURLOPT_HEADER] = 0;
+        }
+
+        if (!isset($curlOpts[CURLOPT_HTTPHEADER])) {
+            $curlOpts[CURLOPT_HTTPHEADER] = [];
+        }
+
+        if (<?php echo $httpMethodEnum; ?>::GET !== $request->method) {
+            $curlOpts[CURLOPT_CUSTOMREQUEST] = $request->method->value;
+            $curlOpts[CURLOPT_HTTPHEADER][] = "X-HTTP-Method-Override: {$request->method->value}";
+        }
+
+        $curlOpts[CURLOPT_HTTPHEADER][] = $this->_buildAcceptHeader($request, $format);
+
+        if (isset($request->resource)) {
+            $curlOpts[CURLOPT_HTTPHEADER][] = $this->_buildContentTypeHeader($request, $format);
         }
 
         $ch = curl_init($url);
         if (!curl_setopt_array($ch, $curlOpts)) {
             throw new \DomainException(sprintf(
-                'Error setting curl opts for query "%s" with value: %s',
+                'curl_setopt_array returned false for "%s" with options: %s',
                 $url,
                 var_export($curlOpts, true),
             ));
         }
 
         $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err = curl_error($ch);
-        $errno = curl_errno($ch);
+        $rc->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $rc->err = curl_error($ch);
+        $rc->errno = curl_errno($ch);
         curl_close($ch);
 
-        $rc->method = $request->method;
-        $rc->url = $url;
-        $rc->code = $code;
-        $rc->err = $err;
-        $rc->errno = $errno;
-
-        if (0 === $errno) {
+        if (0 === $rc->errno) {
             if ($parseResponseHeaders) {
                 $rc->resp = substr($resp, $rc->headers->getLength());
             } else {
@@ -159,6 +173,45 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
         }
 
         return $rc;
+    }
+
+    protected function _buildAcceptHeader(<?php echo $requestClass; ?> $request,
+                                          <?php echo $formatEnum; ?> $format): string
+    {
+        $ver = match(true) {
+            isset($request->version) => $request->version,
+            isset($request->resource) => $request->resource->_getFHIRVersion(),
+            default => null,
+        };
+        if (null === $ver) {
+            return "Accept: application/{$format->value}+json, application/json+{$format->value}";
+        } else if ($ver->getFHIRVersionInteger() < <?php echo $fhirVersion; ?>::STU3_MIN_VERSION_INTEGER) {
+            return "Accept: application/{$format->value}+fhir; fhirVersion={$ver->getFHIRShortVersion()}";
+        } else {
+            return "Accept: application/fhir+{$format->value}; fhirVersion={$ver->getFHIRShortVersion()}";
+        }
+    }
+
+    protected function _buildContentTypeHeader(<?php echo $requestClass; ?> $request,
+                                               <?php echo $formatEnum; ?> $format): string
+    {
+        $ver = $request->resource->_getFHIRVersion();
+        if (<?php echo $httpMethodEnum; ?>::PATCH === $request->method) {
+            return "Content-Type: application/{$format->value}-patch+{$format->value}; fhirVersion={$ver->getFHIRShortVersion()}";
+        } else if ($ver->getFHIRVersionInteger() < <?php echo $fhirVersion; ?>::STU3_MIN_VERSION_INTEGER) {
+            return "Content-Type: application/{$format->value}+fhir; fhirVersion={$ver->getFHIRShortVersion()}";
+        } else {
+            return "Content-Type: application/fhir+{$format->value}; fhirVersion={$ver->getFHIRShortVersion()}";
+        }
+    }
+
+    protected function _buildBody(<?php echo $resourceTypeInterface; ?> $resource,
+                                  <?php echo $formatEnum; ?> $format): string
+    {
+        return match ($format) {
+            <?php echo $formatEnum; ?>::JSON => json_encode($resource),
+            <?php echo $formatEnum; ?>::XML => $resource->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig()),
+        };
     }
 }
 <?php return ob_get_clean();

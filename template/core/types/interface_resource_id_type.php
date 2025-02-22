@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,19 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+
+$coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getImports();
+
+$valueContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE);
+
+$imports->addCoreFileImport(
+    $valueContainerInterface,
+);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -26,14 +37,12 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-<?php foreach($config->getVersionsIterator() as $version) : ?>
-use <?php echo $version->getFullyQualifiedName(false, PHPFHIR_VERSION_CLASSNAME_VERSION); ?> as <?php echo $version->getEnumImportName(); ?>;
-<?php endforeach; ?>
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
-enum <?php echo PHPFHIR_ENUM_VERSION; ?> : string
+interface <?php echo $coreFile; ?> extends <?php echo $valueContainerInterface; ?>
+
 {
-<?php foreach ($config->getVersionsIterator() as $version) : ?>
-    case <?php echo $version->getConstName(); ?> = <?php echo $version->getEnumImportName(); ?>::NAME;
-<?php endforeach; ?>
+
 }
+
 <?php return ob_get_clean();

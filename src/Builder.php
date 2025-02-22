@@ -108,7 +108,7 @@ class Builder
             }
 
             // write version core files
-            $this->writeCoreFiles($version->getCoreFiles(), ['version' => $version]);
+            $this->writeCoreFiles($version->getVersionCoreFiles(), ['version' => $version]);
 
             $log->endBreak("FHIR Version {$version->getName()} Core File Generation");
         }
@@ -190,7 +190,7 @@ class Builder
 
             $log->startBreak(sprintf('FHIR Version %s Test Class Generation', $version->getName()));
 
-            $this->writeCoreFiles($version->getVersionTestFiles(), ['version' => $version]);
+            $this->writeCoreFiles($version->getVersionTestCoreFiles(), ['version' => $version]);
 
             $log->endBreak(sprintf('FHIR Version %s Test Class Generation', $version->getName()));
         }

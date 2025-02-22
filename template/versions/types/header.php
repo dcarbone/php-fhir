@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-$versionCoreFiles = $version->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 
 $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
@@ -35,8 +36,7 @@ echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
-
+<?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
 <?php
 echo ImportUtils::compileImportStatements($type->getImports());

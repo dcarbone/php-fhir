@@ -22,13 +22,14 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$imports = $coreFile->getImports();
 
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $versionConfigInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_CONFIG);
 $versionTypeMapInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_TYPE_MAP);
 
-$imports = $coreFile->getImports();
-
 $imports->addCoreFileImports(
+    $fhirVersion,
     $versionConfigInterface,
     $versionTypeMapInterface,
 );
@@ -55,6 +56,14 @@ interface <?php echo $coreFile; ?>
     /**
      * Must return source's reported version of FHIR
      *
+     * @return <?php echo $fhirVersion->getFullyQualifiedName(true); ?>
+
+     */
+    public static function getFHIRVersion(): <?php echo $fhirVersion ?>;
+
+    /**
+     * Must return source's reported version of FHIR
+     *
      * @return string
      */
     public function getFHIRSemanticVersion(): string;
@@ -65,6 +74,13 @@ interface <?php echo $coreFile; ?>
      * @return string
      */
     public function getFHIRShortVersion(): string;
+
+    /**
+     * Must return an integer representation of the source's semantic version.
+     *
+     * @return int
+     */
+    public function getFHIRVersionInteger(): int;
 
     /**
      * Must return the date this FHIR version's source was generated

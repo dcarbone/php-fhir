@@ -85,7 +85,7 @@ class Properties implements \Countable
                 )
             );
         }
-        foreach ($this->_properties as $i => $current) {
+        foreach ($this->_properties as $current) {
             if ($property === $current) {
                 return $property;
             }
@@ -137,6 +137,40 @@ class Properties implements \Countable
     public function hasProperty(string $name): bool
     {
         return null !== $this->getProperty($name);
+    }
+
+    /**
+     * Remove a specific property from this property list, if found.
+     *
+     * @param \DCarbone\PHPFHIR\Version\Definition\Property $target
+     * @return void
+     */
+    public function removeProperty(Property $target): void
+    {
+        foreach($this->_properties as $i => $property) {
+            if ($property === $target) {
+                unset($this->_properties[$i]);
+                $this->_properties = array_values($this->_properties);
+            }
+        }
+    }
+
+    /**
+     * Remove the specified property from this property list, returning the removed property if found.
+     *
+     * @param string $name
+     * @return \DCarbone\PHPFHIR\Version\Definition\Property|null
+     */
+    public function removePropertyByName(string $name): null|Property
+    {
+        foreach($this->_properties as $i => $property) {
+            if ($property->getName() === $name) {
+                unset($this->_properties[$i]);
+                $this->_properties = array_values($this->_properties);
+                return $property;
+            }
+        }
+        return null;
     }
 
     /**

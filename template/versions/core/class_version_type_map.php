@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -24,7 +25,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
-$versionCoreFiles = $version->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 $imports = $coreFile->getImports();
 
 $constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
@@ -69,8 +70,7 @@ echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
-
+<?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 

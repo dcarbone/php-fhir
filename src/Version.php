@@ -18,82 +18,39 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Utilities\FileUtils;
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version\SourceMetadata;
 use DCarbone\PHPFHIR\Version\Definition;
-use DCarbone\PHPFHIR\Version\DefaultConfig;
+use DCarbone\PHPFHIR\Version\VersionDefaultConfig;
 
 class Version
 {
-    /** @var \DCarbone\PHPFHIR\Config */
     private Config $_config;
-    /** @var string */
-    private string $_schemaPath;
+    private VersionConfig $_versionConfig;
 
-    /** @var \DCarbone\PHPFHIR\Version\SourceMetadata */
     private SourceMetadata $_sourceMetadata;
 
-    /** @var \DCarbone\PHPFHIR\Version\DefaultConfig */
-    private DefaultConfig $_defaultConfig;
-
-    /** @var string */
-    private string $_name;
-    /** @var string */
-    private string $_namespace;
-    /** @var string */
     private string $_constName;
 
-    /** @var \DCarbone\PHPFHIR\Version\Definition */
     private Definition $_definition;
 
-    /** @var \DCarbone\PHPFHIR\CoreFiles */
-    private CoreFiles $_coreFiles;
-    /** @var \DCarbone\PHPFHIR\CoreFiles */
-    private CoreFiles $_versionTestFiles;
+    private CoreFiles $_versionCoreFiles;
+    private CoreFiles $_versionTestCoreFiles;
 
-    /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param string $name
-     * @param string $schemaPath
-     * @param null|string $namespace
-     * @param null|array|\DCarbone\PHPFHIR\Version\DefaultConfig $defaultConfig
-     */
-    public function __construct(Config                   $config,
-                                string                   $name,
-                                string                   $schemaPath,
-                                null|string              $namespace = null,
-                                null|array|DefaultConfig $defaultConfig = null)
+    public function __construct(Config              $config,
+                                VersionConfig       $versionConfig,
+                                null|SourceMetadata $sourceMetadata = null)
     {
         $this->_config = $config;
-        $this->_name = $name;
-        $this->setSchemaPath($schemaPath);
+        $this->_versionConfig = $versionConfig;
 
-        if ('' === trim($this->_name)) {
-            throw new \DomainException('Version name cannot be empty.');
+        if (null === $sourceMetadata) {
+            $sourceMetadata = new SourceMetadata($versionConfig->getSchemaPath());
         }
+        $this->_sourceMetadata = $sourceMetadata;
 
-        // if no specific namespace is set, try to use the name
-        if (null === $namespace) {
-            if (!NameUtils::isValidNSName($name)) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Version namespace not set and version name "%s" is not a valid PHP namespace value.  Please set a namespace value, or change the name.',
-                    $name
-                ));
-            }
-            $namespace = $name;
-        }
-
-        $this->setNamespace($namespace);
-
-        if (!is_object($defaultConfig)) {
-            $defaultConfig = new Version\DefaultConfig((array)$defaultConfig);
-        }
-        $this->setDefaultConfig($defaultConfig);
-
-        $this->_sourceMetadata = new SourceMetadata($config, $this);
-
-        $this->_coreFiles = new CoreFiles(
+        $this->_versionCoreFiles = new CoreFiles(
             $this->_config,
             $config->getLibraryPath(),
             PHPFHIR_TEMPLATE_VERSIONS_CORE_DIR,
@@ -101,12 +58,29 @@ class Version
         );
     }
 
-    /**
-     * @return \DCarbone\PHPFHIR\Config
-     */
+    public function getName(): string
+    {
+        return $this->_versionConfig->getName();
+    }
+
+    public function getNamespace(): string
+    {
+        return $this->_versionConfig->getNamespace();
+    }
+
+    public function getSchemaPath(): string
+    {
+        return $this->_versionConfig->getSchemaPath();
+    }
+
     public function getConfig(): Config
     {
         return $this->_config;
+    }
+
+    public function getVersionConfig(): VersionConfig
+    {
+        return $this->_versionConfig;
     }
 
     /**
@@ -118,78 +92,11 @@ class Version
     }
 
     /**
-     * @return string
+     * @return \DCarbone\PHPFHIR\Version\VersionDefaultConfig
      */
-    public function getName(): string
+    public function getDefaultConfig(): VersionDefaultConfig
     {
-        return $this->_name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSchemaPath(): string
-    {
-        return $this->_schemaPath;
-    }
-
-    /**
-     * @param string $schemaPath
-     * @return self
-     */
-    public function setSchemaPath(string $schemaPath): self
-    {
-        if (!is_dir($schemaPath) || !is_readable($schemaPath)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Specified schema path "%s" either does not exist or is not readable',
-                $schemaPath
-            ));
-        }
-        $this->_schemaPath = $schemaPath;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getNamespace(): string
-    {
-        return $this->_namespace;
-    }
-
-    /**
-     * @param string $namespace
-     * @return self
-     */
-    public function setNamespace(string $namespace): self
-    {
-        // ensure namespace is valid
-        if (!NameUtils::isValidNSName($namespace)) {
-            throw new \InvalidArgumentException(sprintf('"%s" is not a valid PHP namespace.', $namespace));
-        }
-        $this->_namespace = PHPFHIR_NAMESPACE_VERSIONS . PHPFHIR_NAMESPACE_SEPARATOR . $namespace;
-        return $this;
-    }
-
-    /**
-     * @return \DCarbone\PHPFHIR\Version\DefaultConfig
-     */
-    public function getDefaultConfig(): DefaultConfig
-    {
-        return $this->_defaultConfig;
-    }
-
-    /**
-     * @param array|\DCarbone\PHPFHIR\Version\DefaultConfig $defaultConfig
-     * @return self
-     */
-    public function setDefaultConfig(array|DefaultConfig $defaultConfig): self
-    {
-        if (is_array($defaultConfig)) {
-            $defaultConfig = new DefaultConfig($defaultConfig);
-        }
-        $this->_defaultConfig = $defaultConfig;
-        return $this;
+        return $this->_versionConfig->getDefaultConfig();
     }
 
     /**
@@ -199,7 +106,7 @@ class Version
      */
     public function getFullyQualifiedName(bool $leadingSlash, string ...$bits): string
     {
-        return $this->_config->getFullyQualifiedName($leadingSlash, ...array_merge([$this->_namespace], $bits));
+        return $this->_config->getFullyQualifiedName($leadingSlash, ...array_merge([$this->getNamespace()], $bits));
     }
 
     /**
@@ -209,7 +116,7 @@ class Version
      */
     public function getFullyQualifiedTestsName(bool $leadingSlash, string ...$bits): string
     {
-        return $this->_config->getFullyQualifiedTestName($leadingSlash, ...array_merge([$this->_namespace], $bits));
+        return $this->_config->getFullyQualifiedTestName($leadingSlash, ...array_merge([$this->getNamespace()], $bits));
     }
 
     /**
@@ -218,7 +125,7 @@ class Version
     public function getConstName(): string
     {
         if (!isset($this->_constName)) {
-            $this->_constName = NameUtils::getConstName($this->_name);
+            $this->_constName = NameUtils::getConstName($this->getName());
         }
         return $this->_constName;
     }
@@ -245,50 +152,29 @@ class Version
     /**
      * @return \DCarbone\PHPFHIR\CoreFiles
      */
-    public function getCoreFiles(): CoreFiles
+    public function getVersionCoreFiles(): CoreFiles
     {
-        return $this->_coreFiles;
+        return $this->_versionCoreFiles;
     }
 
     /**
      * @return \DCarbone\PHPFHIR\CoreFiles
      */
-    public function getVersionTestFiles(): CoreFiles
+    public function getVersionTestCoreFiles(): CoreFiles
     {
-        if (isset($this->_versionTestFiles)) {
-            return $this->_versionTestFiles;
+        if (isset($this->_versionTestCoreFiles)) {
+            return $this->_versionTestCoreFiles;
         }
         $tp = $this->_config->getTestsPath();
         if (null === $tp) {
             throw new \RuntimeException('No tests path has been set.');
         }
-        $this->_versionTestFiles = new CoreFiles(
+        $this->_versionTestCoreFiles = new CoreFiles(
             $this->_config,
             $tp,
             PHPFHIR_TEMPLATE_TESTS_VERSIONS_CORE_DIR,
             $this->getFullyQualifiedTestsName(false)
         );
-        return $this->_versionTestFiles;
-    }
-
-    /**
-     * @return \DCarbone\PHPFHIR\CoreFiles
-     */
-    public function getTypesTestFiles(): CoreFiles
-    {
-        if (isset($this->_typesTestFiles)) {
-            return $this->_typesTestFiles;
-        }
-        $tp = $this->_config->getTestsPath();
-        if (null === $tp) {
-            throw new \RuntimeException('No tests path has been set.');
-        }
-        $this->_typesTestFiles = new CoreFiles(
-            $this->_config,
-            $tp,
-            PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR,
-            $this->getFullyQualifiedTestsName(false, PHPFHIR_NAMESPACE_TYPES)
-        );
-        return $this->_typesTestFiles;
+        return $this->_versionTestCoreFiles;
     }
 }

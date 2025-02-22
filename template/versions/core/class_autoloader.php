@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $version */
@@ -29,8 +30,7 @@ echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $version->getFullyQualifiedName(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
-
+<?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
 abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
 
@@ -38,7 +38,7 @@ abstract class <?php echo PHPFHIR_CLASSNAME_AUTOLOADER; ?>
     /** @var array */
     private const _CLASS_MAP = [
         // version core types
-<?php foreach($version->getCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
+<?php foreach($version->getVersionCoreFiles()->getIterator() as $coreFile): if ($coreFile->isAutoloader() || $coreFile->isTest()) { continue; } ?>
         '<?php echo $coreFile->getFullyQualifiedName(false); ?>' => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
             $version->getFullyQualifiedName(false),
             $coreFile->getFullyQualifiedName(false),

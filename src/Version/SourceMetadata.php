@@ -19,51 +19,130 @@ namespace DCarbone\PHPFHIR\Version;
  */
 
 use Composer\Semver\Semver;
-use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Version;
 
 class SourceMetadata
 {
-    private const _DSTU1_VERSION_MAX = "0.0.82";
+    private string $_schemaPath;
 
-    /** @var \DCarbone\PHPFHIR\Config */
-    private Config $_config;
-    /** @var \DCarbone\PHPFHIR\Version */
-    private Version $_version;
-
-    /** @var bool */
     private bool $_compiled = false;
 
-    /** @var array */
     private array $_fhirCopyright;
 
-    /** @var string */
-    private string $_fullPHPFHIRCopyrightComment;
-
-    /** @var string */
     private string $_fhirGenerationDate;
-    /** @var string */
     private string $_fhirVersion;
 
-    /**
-     * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\Version $version
-     */
-    public function __construct(Config $config, Version $version)
+    public function __construct(string $schemPath)
     {
-        $this->_config = $config;
-        $this->_version = $version;
+        $this->_schemaPath = $schemPath;
     }
 
-    public function compile(): void
+    /**
+     * @return array
+     */
+    public function getFHIRCopyright(): array
+    {
+        $this->_compile();
+        return $this->_fhirCopyright;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSourceGenerationDate(): string
+    {
+        $this->_compile();
+        return $this->_fhirGenerationDate;
+    }
+
+    /**
+     * @param bool $trimmed If true, trims off the 'v' prefix before returning.
+     * @return string
+     */
+    public function getSemanticVersion(bool $trimmed): string
+    {
+        $this->_compile();
+        return $trimmed ? ltrim($this->_fhirVersion, 'v') : $this->_fhirVersion;
+    }
+
+    /**
+     * Return the shortenend representation of the FHIR semantic version containing only Manjor.Minor values.
+     *
+     * @return string
+     */
+    public function getShortVersion(): string
+    {
+        $this->_compile();
+        $v = ltrim($this->_fhirVersion);
+        return match (substr_count($v, '.')) {
+            1 => $v,
+            2 => substr($v, 0, strrpos($v, '.')),
+            default => implode('.', array_chunk(explode('.', $v), 2)[0])
+        };
+    }
+
+    /**
+     * Returns an integer representation of the FHIR semantic version.
+     *
+     * @return int
+     */
+    public function getVersionInteger(): int
+    {
+        $this->_compile();
+        return intval(sprintf("%'.-08s", str_replace(['v', '.'], '', $this->_fhirVersion)));
+    }
+
+    /**
+     * Returns true if the upstream source was generated from, or is based on, DSTU1.
+     *
+     * @return bool
+     */
+    public function isDSTU1(): bool
+    {
+        return Semver::satisfies($this->getSemanticVersion(false), '< v1.0.0');
+    }
+
+    public function isDSTU2(): bool
+    {
+        $semver = $this->getSemanticVersion(false);
+        return Semver::satisfies($semver, '>= v1.0.0')
+            && Semver::satisfies($semver, '< v3.0.0');
+    }
+
+    public function isSTU3(): bool
+    {
+        $semver = $this->getSemanticVersion(false);
+        return Semver::satisfies($semver, '>= v3.0.0')
+            && Semver::satisfies($semver, '< v4.0.0');
+    }
+
+    public function isR4(): bool
+    {
+        $semver = $this->getSemanticVersion(false);
+        return Semver::satisfies($semver, '>= v4.0.0')
+            && Semver::satisfies($semver, '< v4.3.0');
+    }
+
+    public function isR4B(): bool
+    {
+        $semver = $this->getSemanticVersion(false);
+        return Semver::satisfies($semver, '>= v4.3.0')
+            && Semver::satisfies($semver, '< v5.0.0');
+    }
+
+    public function isR5(): bool
+    {
+        $semver = $this->getSemanticVersion(false);
+        return Semver::satisfies($semver, '>= v5.0.0')
+            && Semver::satisfies($semver, '< v6.0.0');
+    }
+
+    private function _compile(): void
     {
         if ($this->_compiled) {
             return;
         }
 
-        $fhirBase = sprintf('%s/fhir-base.xsd', $this->_version->getSchemaPath());
-
-        $this->_config->getLogger()->debug(sprintf('Extracting FHIR version metadata from "%s"...', $fhirBase));
+        $fhirBase = sprintf('%s/fhir-base.xsd', $this->_schemaPath);
 
         $this->_fhirCopyright = [];
         $fh = fopen($fhirBase, 'rb');
@@ -122,80 +201,10 @@ class SourceMetadata
                 get_called_class(),
                 $fhirBase
             );
-            $this->_config->getLogger()->critical($msg);
             throw new \RuntimeException($msg);
         }
 
-        $this->_fullPHPFHIRCopyrightComment = sprintf(
-            "/*!\n * %s\n *\n * FHIR Copyright Notice:\n *\n * %s\n */",
-            implode("\n * ", $this->_config->getPHPFHIRCopyright()),
-            implode("\n * ", $this->_fhirCopyright)
-        );
-
         // flip it
         $this->_compiled = true;
-    }
-
-    /**
-     * @return array
-     */
-    public function getFHIRCopyright(): array
-    {
-        $this->compile();
-        return $this->_fhirCopyright;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFullPHPFHIRCopyrightComment(): string
-    {
-        $this->compile();
-        return $this->_fullPHPFHIRCopyrightComment;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSourceGenerationDate(): string
-    {
-        $this->compile();
-        return $this->_fhirGenerationDate;
-    }
-
-    /**
-     * @param bool $trimmed If true, trims off the 'v' prefix before returning.
-     * @return string
-     */
-    public function getSemanticVersion(bool $trimmed): string
-    {
-        $this->compile();
-        return $trimmed ? trim($this->_fhirVersion, 'v') : $this->_fhirVersion;
-    }
-
-    /**
-     * Return the shortenend representation of the FHIR semantic version containing only Manjor.Minor values.
-     *
-     * @return string
-     */
-    public function getShortVersion(): string
-    {
-        $this->compile();
-        $v = $this->getsemanticVersion(false);
-        return match (substr_count($v, '.')) {
-            1 => $v,
-            2 => substr($v, 0, strrpos($v, '.')),
-            default => implode('.', array_chunk(explode('.', $v), 2)[0])
-        };
-    }
-
-    /**
-     * Returns true if the upstream source was generated from, or is based on, DSTU1.
-     *
-     * @return bool
-     */
-    public function isDSTU1(): bool
-    {
-        return Semver::satisfies($this->getSemanticVersion(false), '<= ' . self::_DSTU1_VERSION_MAX);
     }
 }

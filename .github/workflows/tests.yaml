@@ -89,7 +89,7 @@ jobs:
     name: '${{ matrix.test-target }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
     services:
       php-fhir-test-server:
-        image: dancarbone/php-fhir-test-server:latest
+        image: ghcr.io/dcarbone/php-fhir-test-server:latest
         ports:
           - '8080:8080'
     steps:

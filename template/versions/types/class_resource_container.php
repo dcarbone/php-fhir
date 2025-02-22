@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
-$versionCoreFiles = $version->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 $imports = $type->getImports();
 
 $resourceContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_CONTAINER_TYPE);

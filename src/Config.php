@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Config\VersionConfig;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use Psr\Log\LoggerAwareInterface;
@@ -76,7 +77,7 @@ class Config implements LoggerAwareInterface
 
     /**
      * @param string $libraryPath
-     * @param iterable $versions
+     * @param array[]|\DCarbone\PHPFHIR\Config\VersionConfig[] $versions Array of VersionConfig maps or intsances.
      * @param string $libraryNamespacePrefix
      * @param null|string $testsPath
      * @param string $testNamespacePrefix
@@ -149,11 +150,11 @@ class Config implements LoggerAwareInterface
         if (!isset($data['libraryPath'])) {
             throw new \InvalidArgumentException('Key "libraryPath" is required.');
         }
-        if (isset($data['versions']) && !is_iterable($data['versions'])) {
+        if (!isset($data['versions']) || !is_iterable($data['versions'])) {
             throw new \InvalidArgumentException('Key "versions" must be iterable.');
         }
         if (isset($data['logger']) && !($data['logger'] instanceof LoggerInterface)) {
-            throw new \InvalidArgumentException('Key "logger" must be an instance of Psr\Log\LoggerInterface');
+            throw new \InvalidArgumentException(sprintf('Key "logger" must be undefined or be an instance of %s', LoggerInterface::class));
         }
         return new Config(
             libraryPath: $data['libraryPath'],
@@ -257,26 +258,16 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @param array|\DCarbone\PHPFHIR\Version $version
+     * @param array|\DCarbone\PHPFHIR\Config\VersionConfig $versionConfig
      * @return self
      */
-    public function addVersion(array|Version $version): self
+    public function addVersion(array|VersionConfig $versionConfig): self
     {
-        if (is_array($version)) {
-            if (!isset($version['name'])) {
-                throw new \InvalidArgumentException('Version name is required');
-            }
-            if (!isset($version['schemaPath'])) {
-                throw new \InvalidArgumentException('Path to schemas for version is required');
-            }
-            $version = new Version(
-                config: $this,
-                name: $version['name'],
-                schemaPath: $version['schemaPath'],
-                namespace: $version['namespace'] ?? null,
-                defaultConfig: $version['defaultConfig'] ?? null,
-            );
+        if (is_array($versionConfig)) {
+            $versionConfig = VersionConfig::fromArray($versionConfig);
         }
+
+        $version = new Version(config: $this, versionConfig: $versionConfig);
 
         // ensure unique version name
         if (isset($this->_versions[$version->getName()])) {
@@ -301,7 +292,7 @@ class Config implements LoggerAwareInterface
     }
 
     /**
-     * @param iterable<array|\DCarbone\PHPFHIR\Version> $versions Iterable containing Versions or Version configuration maps.
+     * @param iterable<array|\DCarbone\PHPFHIR\Config\VersionConfig> $versions
      * @return self
      */
     public function setVersions(iterable $versions): self

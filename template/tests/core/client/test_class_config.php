@@ -24,13 +24,13 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
     PHPFHIR_CLIENT_CLASSNAME_CONFIG,
-    PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT,
+    PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT,
 );
 
 $coreFiles = $config->getCoreFiles();
 
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
-$responseFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_RESPONSE_FORMAT);
+$serializeFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 
 ob_start();
 echo "<?php\n\n";?>
@@ -47,24 +47,24 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CONFIG; ?> extends TestCase
     {
         $c = new <?php echo $clientConfigClass; ?>('http://example.com');
         $this->assertEquals('http://example.com', $c->getAddress());
-        $this->assertNull($c->getDefaultFormat());
-        $this->assertEmpty($c->getQueryParams());
+        $this->assertEquals(<?php echo $serializeFormatEnum; ?>::XML, $c->getDefaultFormat());
+        $this->assertEmpty($c->getDefaultQueryParams());
         $this->assertEmpty($c->getCurlOpts());
-        $this->assertFalse($c->getParseResponseHeaders());
+        $this->assertTrue($c->getParseResponseHeaders());
     }
 
     public function testCanConstructWithAllParams()
     {
         $c = new <?php echo $clientConfigClass; ?>(
             address: 'http://example.com',
-            defaultFormat: <?php echo $responseFormatEnum; ?>::JSON,
-            queryParams: ['foo' => 'bar'],
+            defaultFormat: <?php echo $serializeFormatEnum; ?>::JSON,
+            defaultQueryParams: ['foo' => 'bar'],
             curlOpts: ['bar' => 'baz'],
             parseResponseHeaders: true
         );
         $this->assertEquals('http://example.com', $c->getAddress());
-        $this->assertEquals(<?php echo $responseFormatEnum; ?>::JSON, $c->getDefaultFormat());
-        $this->assertEquals(['foo' => 'bar'], $c->getQueryParams());
+        $this->assertEquals(<?php echo $serializeFormatEnum; ?>::JSON, $c->getDefaultFormat());
+        $this->assertEquals(['foo' => 'bar'], $c->getDefaultQueryParams());
         $this->assertEquals(['bar' => 'baz'], $c->getCurlOpts());
         $this->assertTrue($c->getParseResponseHeaders());
     }

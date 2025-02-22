@@ -56,10 +56,10 @@ class Type
     /** @var \DCarbone\PHPFHIR\Version\Definition\Properties */
     private Properties $_properties;
 
-    /** @var null|string */
-    private null|string $_parentTypeName = null;
-    /** @var null|\DCarbone\PHPFHIR\Version\Definition\Type */
-    private null|Type $_parentType = null;
+    /** @var string */
+    private string $_parentTypeName;
+    /** @var \DCarbone\PHPFHIR\Version\Definition\Type */
+    private Type $_parentType;
 
     /** @var int */
     private int $_minLength = 0;
@@ -374,7 +374,7 @@ class Type
 
     public function hasNonOverloadedProperties(): bool
     {
-        foreach($this->_properties->getIterator() as $property) {
+        foreach ($this->_properties->getIterator() as $property) {
             if (null === $property->getOverloadedProperty()) {
                 return true;
             }
@@ -487,7 +487,7 @@ class Type
      */
     public function getParentType(): null|Type
     {
-        return $this->_parentType;
+        return $this->_parentType ?? null;
     }
 
     /**
@@ -509,11 +509,16 @@ class Type
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
+     * @param null|\DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Version\Definition\Type
      */
-    public function setParentType(Type $type): Type
+    public function setParentType(null|Type $type): Type
     {
+        if (null === $type) {
+            unset($this->_parentType);
+            unset($this->_parentTypeName);
+            return $this;
+        }
         $this->_parentType = $type;
         $this->setParentTypeName($type->getFHIRName());
         return $this;
@@ -524,7 +529,7 @@ class Type
      */
     public function getParentTypeName(): null|string
     {
-        return $this->_parentTypeName;
+        return $this->_parentTypeName ?? null;
     }
 
     /**
@@ -612,7 +617,12 @@ class Type
 
     public function hasResourceTypeParent(): bool
     {
-        return $this->hasParent() && $this->_parentType->isResourceType();
+        foreach($this->getParentTypes() as $parent) {
+            if ($parent->isResourceType()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -859,17 +869,8 @@ class Type
     {
         $interfaces = [];
         $coreFiles = $this->_version->getConfig()->getCoreFiles();
-        $versionCoreFiles = $this->_version->getCoreFiles();
+        $versionCoreFiles = $this->_version->getVersionCoreFiles();
         $sourceMeta = $this->_version->getSourceMetadata();
-
-        // dstu1 has its own special type interface
-        if ($sourceMeta->isDSTU1() && !$this->isPrimitiveType() && !$this->hasPrimitiveTypeParent()) {
-            if (!$this->hasConcreteParent()) {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_DSTU1_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_DSTU1_TYPE)
-                    ->getFullyQualifiedNamespace(false);
-            }
-        }
 
         // first, determine which base type interface it must implement
         if ($this->isPrimitiveType()) {
@@ -880,9 +881,9 @@ class Type
             }
         } else if ($this->isPrimitiveContainer()) {
             if (!$this->hasPrimitiveContainerParent()) {
-                if ($sourceMeta->isDSTU1()) {
-                    $interfaces[PHPFHIR_TYPES_INTERFACE_DSTU1_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
-                        ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE)
+                if ('id' === $this->getFHIRName()) {
+                    $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE] = $coreFiles
+                        ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE)
                         ->getFullyQualifiedNamespace(false);
                 } else {
                     $interfaces[PHPFHIR_TYPES_INTERFACE_PRIMITIVE_CONTAINER_TYPE] = $coreFiles
@@ -890,13 +891,13 @@ class Type
                         ->getFullyQualifiedNamespace(false);
                 }
             }
-        } else if ($this->isResourceType() || $this->getKind()->isResourceContainer($this->_version)) {
-            if (!$this->hasResourceTypeParent() && !$sourceMeta->isDSTU1()) {
-                $interfaces[PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE] = $coreFiles
-                    ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE)
+        } else if ($this->isResourceType()) {
+            if (!$this->hasResourceTypeParent()) {
+                $interfaces[PHPFHIR_VERSION_INTERFACE_RESOURCE_TYPE] = $versionCoreFiles
+                    ->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_RESOURCE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
-        } else if (!$this->hasConcreteParent() && !$sourceMeta->isDSTU1() && !$this->isAbstract()) {
+        } else if (!$this->hasConcreteParent() && !$this->isAbstract()) {
             $interfaces[PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE] = $coreFiles
                 ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE)
                 ->getFullyQualifiedNamespace(false);
@@ -953,7 +954,7 @@ class Type
             }
 
             // these must only be added if the type has local properties
-            if (($this->isResourceType() || $sourceMeta->isDSTU1() || $this->_kind->isResourceContainer($this->_version)) && $this->hasLocalProperties()) {
+            if (($this->isResourceType() || $this->_kind->isResourceContainer($this->_version)) && $this->hasLocalProperties()) {
                 $traits[PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS] = $coreFiles
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS)
                     ->getFullyQualifiedNamespace(false);

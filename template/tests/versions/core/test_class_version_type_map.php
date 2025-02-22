@@ -18,12 +18,13 @@
 
 // TODO: I did not separate each type into its own test method because new PHPStorm absolutely shits itself with that many test funcs.
 
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 /** @var \DCarbone\PHPFHIR\Version $version */
 
-$versionCoreFiles = $version->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 $imports = $coreFile->getImports();
 
 $typeMapClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP);
@@ -38,8 +39,7 @@ ob_start();
 echo "<?php /** @noinspection PhpFullyQualifiedNameUsageInspection */\n\n"; ?>
 namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
-<?php echo $version->getSourceMetadata()->getFullPHPFHIRCopyrightComment(); ?>
-
+<?php echo CopyrightUtils::compileFullCopyrightComment($version->getConfig(), $version->getSourceMetadata()); ?>
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 use PHPUnit\Framework\TestCase;

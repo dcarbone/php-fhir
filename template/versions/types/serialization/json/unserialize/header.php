@@ -23,7 +23,6 @@ $sourceMeta = $version->getSourceMetadata();
 
 $isResource = $type->isResourceType()
     || $type->hasResourceTypeParent()
-    || $sourceMeta->isDSTU1()
     || $type->getKind()->isResourceContainer($version);
 
 $config = $version->getConfig();
@@ -38,7 +37,7 @@ if ($isResource) {
     $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
 }
 
-$versionCoreFiles = $version->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 ob_start(); ?>
