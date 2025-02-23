@@ -204,7 +204,11 @@ trait <?php echo $coreFile; ?>
                     }
                     // if this is a primitive or primitive container, set the initial value to be the type instance.
                     if ($primitive || $primitiveContainer) {
-                        $fields[$field]['value'][$i] = new $class(value: $v);
+                        $fields[$field]['value'][$i] = new $class(
+                            value: $v,
+                            versionName: $this->_fhirVersion->getName(),
+                            semanticVersion: $this->_fhirVersion->getFHIRSemanticVersion(),
+                        );
                         continue;
                     }
                     // all other types must be instances
@@ -252,7 +256,11 @@ trait <?php echo $coreFile; ?>
                 ));
             }
 
-            $fields[$field]['value'] = new $class(value: $value);
+            $fields[$field]['value'] = new $class(
+                value: $value,
+                versionName: $this->_fhirVersion->getName(),
+                semanticVersion: $this->_fhirVersion->getFHIRSemanticVersion(),
+            );
         }
 
         // finally set fields

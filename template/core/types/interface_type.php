@@ -24,6 +24,10 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
+
+$imports->addCoreFileImport($fhirVersion);
+
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
@@ -41,6 +45,14 @@ interface <?php echo $coreFile; ?> extends \JsonSerializable
      * @return string
      */
     public function _getFHIRTypeName(): string;
+
+    /**
+     * Must return the FHIR version of this type.
+     *
+     * @return <?php echo $fhirVersion->getFullyQualifiedName(true); ?>
+
+     */
+    public function _getFHIRVersion(): <?php echo $fhirVersion; ?>;
 
     /**
      * Execute any and all validation rules present on this type and all nested field types.

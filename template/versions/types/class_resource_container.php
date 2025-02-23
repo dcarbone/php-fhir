@@ -29,6 +29,7 @@ $imports = $type->getImports();
 $resourceContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_CONTAINER_TYPE);
 $containedTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 
 $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 $versionConstants = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS);
@@ -38,6 +39,7 @@ $imports->addCoreFileImports(
     $resourceContainerInterface,
     $containedTypeInterface,
     $typeValidationTrait,
+    $fhirVersion,
 
     $versionClass,
     $versionConstants,
@@ -75,6 +77,13 @@ class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContai
     public function _getFHIRTypeName(): string
     {
         return self::FHIR_TYPE_NAME;
+    }
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+    public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
+
+    {
+        return <?php echo $versionClass; ?>::getFHIRVersion();
     }
 
     /**

@@ -40,6 +40,7 @@ $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME
 $unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $serializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
+$mockAbstractTypeClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_ABSTRACT_MOCK_TYPE);
 $mockTypeFieldsTrait = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_TRAIT_MOCK_TYPE_FIELDS);
 $mockStringpPrimitiveClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_STRING_PRIMITIVE_TYPE);
 $mockResourceIDClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_ID_TYPE);
@@ -60,6 +61,7 @@ $imports->addCoreFileImports(
     $unserializeConfig,
     $serializeConfig,
 
+    $mockAbstractTypeClass,
     $mockTypeFieldsTrait,
     $mockStringpPrimitiveClass,
     $mockResourceIDClass,
@@ -74,7 +76,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>, <?php echo $commentContainerInterface; ?>, \Iterator
+class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> implements <?php echo $resourceTypeInterface; ?>, <?php echo $commentContainerInterface; ?>, \Iterator
 
 {
     use <?php echo $typeValidationTrait; ?>,
@@ -86,9 +88,6 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
 
     private const _FHIR_VALIDATION_RULES = [];
 
-    protected string $_name;
-    protected <?php echo $fhirVersion; ?> $_fhirVersion;
-
     private array $_valueXMLLocations = [];
 
     public function __construct(string $name,
@@ -96,25 +95,12 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
                                 array $fields = [],
                                 array $validationRuleMap = [],
                                 array $fhirComments = [],
-                                string $versionName = 'mock',
-                                string $semanticVersion = 'v0.0.0')
+                                string $versionName = self::DEFAULT_MOCK_VERSION_NAME,
+                                string $semanticVersion = self::DEFAULT_MOCK_SEMANTIC_VERSION)
     {
-        $this->_name = $name;
+        parent::__construct($name, $versionName, $semanticVersion);
+
         $this->_setFHIRComments($fhirComments);
-
-        $shortVersion = ltrim($semanticVersion, 'v');
-        $shortVersion = match (substr_count($shortVersion, '.')) {
-            1 => $shortVersion,
-            2 => substr($shortVersion, 0, strrpos($shortVersion, '.')),
-            default => implode('.', array_chunk(explode('.', $shortVersion), 2)[0])
-        };
-
-        $this->_fhirVersion = new <?php echo $fhirVersion; ?>(
-            $versionName,
-            $semanticVersion,
-            $shortVersion,
-            intval(sprintf("%'.-08s", str_replace(['v', '.'], '', $semanticVersion))),
-        );
 
         $fields['id'] = [
             'class' => <?php echo $mockResourceIDClass; ?>::class,
@@ -131,16 +117,6 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
         $this->_processFields($fields);
     }
 
-    public function _getFHIRTypeName(): string
-    {
-        return $this->_name;
-    }
-
-    public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
-    {
-        return $this->_fhirVersion;
-    }
-
     public function getId(): null|<?php echo $resourceIDTypeInterface; ?>
 
     {
@@ -155,7 +131,8 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
         throw new \BadMethodCallException('xmlUnserialize not yet implemented');
     }
 
-    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null, null|<?php echo $serializeConfig; ?> $config = null): <?php echo $xmlWriterClass; ?>
+    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null,
+                                 null|<?php echo $serializeConfig; ?> $config = null): <?php echo $xmlWriterClass; ?>
 
     {
         if (null === $config) {
@@ -187,7 +164,9 @@ class <?php echo $coreFile; ?> implements <?php echo $resourceTypeInterface; ?>,
         return $xw;
     }
 
-    public static function jsonUnserialize(string|\stdClass $json, null|<?php echo $unserializeConfig; ?> $config = null, null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
+    public static function jsonUnserialize(string|\stdClass $json,
+                                           null|<?php echo $unserializeConfig; ?> $config = null,
+                                           null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
 
     {
         throw new \BadMethodCallException('jsonUnserialize not yet implemented');

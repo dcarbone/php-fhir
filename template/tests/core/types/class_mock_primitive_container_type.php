@@ -72,7 +72,6 @@ class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> impl
         <?php echo $xmlSerializationOptionsTrait; ?>,
         <?php echo $mockTypeFieldsTrait; ?>;
 
-
     private const _FHIR_VALIDATION_RULES = [];
 
     private array $_valueXMLLocations = [];
@@ -81,7 +80,9 @@ class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> impl
                                 array $fields = [],
                                 array $validationRuleMap = [],
                                 array $fhirComments = [],
-                                mixed $value = null)
+                                mixed $value = null,
+                                string $versionName = self::DEFAULT_MOCK_VERSION_NAME,
+                                string $semanticVersion = self::DEFAULT_MOCK_SEMANTIC_VERSION)
     {
         if (!isset($fields['value'])
             || !isset($fields['value']['class'])
@@ -94,7 +95,7 @@ class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> impl
         if (null !== $value) {
             $fields['value']['value'] = $value;
         }
-        parent::__construct($name, $fields, $validationRuleMap, $fhirComments);
+        parent::__construct($name, $fields, $validationRuleMap, $fhirComments, $versionName, $semanticVersion);
     }
 
     public function _nonValueFieldDefined(): bool

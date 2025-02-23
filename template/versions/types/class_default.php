@@ -35,7 +35,7 @@ $versionCoreFiles = $version->getVersionCoreFiles();
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $xmlLocationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_VALUE_XML_LOCATION);
 
-$verionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 // define some common things
 $typeKind = $type->getKind();
@@ -148,13 +148,13 @@ endif; ?>
     }
 <?php
 
-if (!$type->isPrimitiveType() && !$type->hasConcreteParent() && $type->isResourceType()) : ?>
+if (!$type->hasParent()) : ?>
 
     /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
     public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
 
     {
-        return <?php echo $verionClass; ?>::getFHIRVersion();
+        return <?php echo $versionClass; ?>::getFHIRVersion();
     }
 <?php endif;
 if ($type->isContainedType()) : ?>

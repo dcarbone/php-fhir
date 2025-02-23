@@ -163,15 +163,16 @@ if (!$type->isAbstract()
         $this->assertEquals('<?php echo $strVal; ?>', (string)$type);
 <?php endforeach; ?>
     }
-<?php elseif (!$version->getSourceMetadata()->isDSTU1()) :
-    if ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
 
-    public function testGetFHIRVersion()
+    public function testCanGetTypeFHIRVersion()
     {
         $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>();
         $this->assertEquals(<?php echo $versionClass->getFullyQualifiedName(true); ?>::getFHIRVersion(), $type->_getFHIRVersion());
     }
-<?php   if ($type->hasResourceTypeParent()
+
+<?php elseif (!$version->getSourceMetadata()->isDSTU1()) :
+    if ($type->isResourceType() || $type->hasResourceTypeParent()) :
+        if ($type->hasResourceTypeParent()
             && $type !== $bundleType
             && 'DomainResource' !== $type->getFHIRName()
             && !$type->getKind()->isResourceContainer($version)) : ?>

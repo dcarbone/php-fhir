@@ -132,12 +132,16 @@ class ImportUtils
 
         $logger->debug(sprintf('Compiling imports for Type "%s"...', $type->getFHIRName()));
 
-        $sourceMeta = $version->getSourceMetadata();
-
         $imports = $type->getImports();
 
         // immediately add self
         $imports->addImport($type->getFullyQualifiedNamespace(false), $type->getClassName());
+
+        // needed by any type without a parent to return the FHIR version of the type.
+        if (!$type->hasParent()) {
+            $imports->addCoreFileImportsByName(PHPFHIR_CLASSNAME_FHIR_VERSION)
+                ->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION);
+        }
 
         // few types are handled different.  this is lazy and I hate it, but here we are.
         if ($type->getFHIRName() === PHPFHIR_XHTML_TYPE_NAME || $type->getKind()->isResourceContainer($version)) {

@@ -28,7 +28,6 @@ $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYP
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
-$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $resourceIDInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE);
 
 $imports->addCoreFileImports(
@@ -36,7 +35,6 @@ $imports->addCoreFileImports(
     $serializeConfigClass,
     $unserializeConfigClass,
     $xmlWriterClass,
-    $fhirVersion,
     $resourceIDInterface,
 );
 
@@ -52,14 +50,6 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
 
 {
-    /**
-     * Must return the FHIR version of this type.
-     *
-     * @return <?php echo $fhirVersion->getFullyQualifiedName(true); ?>
-
-     */
-    public function _getFHIRVersion(): <?php echo $fhirVersion; ?>;
-
     /**
      * Must return the root XMLNS value found in the source.  Null indicates no "xmlns" was found.  Only defined when
      * unserializing XML, and only used when serializing XML.

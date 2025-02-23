@@ -37,6 +37,7 @@ $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME
 $unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $serializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 
+$mockAbstractTypeClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_ABSTRACT_MOCK_TYPE);
 $mockTypeFieldsTrait = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_TRAIT_MOCK_TYPE_FIELDS);
 
 $imports->addCoreFileImports(
@@ -52,6 +53,7 @@ $imports->addCoreFileImports(
     $unserializeConfig,
     $serializeConfig,
 
+    $mockAbstractTypeClass,
     $mockTypeFieldsTrait,
 );
 
@@ -64,7 +66,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> implements <?php echo $elementTypeInterface; ?>, <?php echo $commentContainerInterface; ?>, \Iterator
+class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> implements <?php echo $elementTypeInterface; ?>, <?php echo $commentContainerInterface; ?>, \Iterator
 
 {
     use <?php echo $typeValidationTrait; ?>,
@@ -75,26 +77,22 @@ class <?php echo $coreFile; ?> implements <?php echo $elementTypeInterface; ?>, 
 
     private const _FHIR_VALIDATION_RULES = [];
 
-    protected string $_name;
-
     private array $_valueXMLLocations = [];
 
     public function __construct(string $name,
                                 array $fields = [],
                                 array $validationRuleMap = [],
-                                array $fhirComments = [])
+                                array $fhirComments = [],
+                                string $versionName = self::DEFAULT_MOCK_VERSION_NAME,
+                                string $semanticVersion = self::DEFAULT_MOCK_SEMANTIC_VERSION)
     {
-        $this->_name = $name;
+        parent::__construct($name, $versionName, $semanticVersion);
+
         $this->_setFHIRComments($fhirComments);
         foreach($validationRuleMap as $field => $rules) {
             $this->_setFieldValidationRules($field, $rules);
         }
         $this->_processFields($fields);
-    }
-
-    public function _getFHIRTypeName(): string
-    {
-        return $this->_name;
     }
 
     public static function xmlUnserialize(\SimpleXMLElement $element,
