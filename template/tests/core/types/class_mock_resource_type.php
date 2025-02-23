@@ -131,7 +131,8 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
         throw new \BadMethodCallException('xmlUnserialize not yet implemented');
     }
 
-    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null, null|<?php echo $serializeConfig; ?> $config = null): <?php echo $xmlWriterClass; ?>
+    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null,
+                                 null|<?php echo $serializeConfig; ?> $config = null): <?php echo $xmlWriterClass; ?>
 
     {
         if (null === $config) {
@@ -163,7 +164,9 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
         return $xw;
     }
 
-    public static function jsonUnserialize(string|\stdClass $json, null|<?php echo $unserializeConfig; ?> $config = null, null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
+    public static function jsonUnserialize(string|\stdClass $json,
+                                           null|<?php echo $unserializeConfig; ?> $config = null,
+                                           null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
 
     {
         throw new \BadMethodCallException('jsonUnserialize not yet implemented');

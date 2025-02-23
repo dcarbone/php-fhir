@@ -78,6 +78,7 @@ abstract class <?php echo $coreFile; ?> implements <?php echo $typeInterface; ?>
     }
 
     public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
+
     {
         return $this->_fhirVersion;
     }
