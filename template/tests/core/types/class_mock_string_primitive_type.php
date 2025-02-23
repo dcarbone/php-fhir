@@ -22,18 +22,23 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$testCoreFiles = $config->getCoreTestFiles();
+$imports = $coreFile->getImports();
 
 $primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE);
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 $jsonSerializableOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS);
 $xmlSerializationOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_XML_SERIALIZATION_OPTIONS);
 
-$imports = $coreFile->getImports();
+$mockAbstractTypeClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_ABSTRACT_MOCK_TYPE);
+
 $imports->addCoreFileImports(
     $primitiveTypeInterface,
     $typeValidationTrait,
     $jsonSerializableOptionsTrait,
     $xmlSerializationOptionsTrait,
+
+    $mockAbstractTypeClass,
 );
 
 ob_start();
@@ -45,7 +50,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> implements <?php echo $primitiveTypeInterface; ?>
+class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> implements <?php echo $primitiveTypeInterface; ?>
 
 {
     use <?php echo $typeValidationTrait; ?>,
@@ -54,24 +59,20 @@ class <?php echo $coreFile; ?> implements <?php echo $primitiveTypeInterface; ?>
 
     private const _FHIR_VALIDATION_RULES = [];
 
-    private string $_name;
-
     protected string $value;
 
     public function __construct(string $name = 'mock-string-primitive',
                                 null|string $value = null,
-                                array $validationRuleMap = [])
+                                array $validationRuleMap = [],
+                                string $versionName = 'mock',
+                                string $semanticVersion = 'v99.99.99')
     {
-        $this->_name = $name;
+        parent::__construct($name, $versionName, $semanticVersion);
+
         $this->setValue($value);
         foreach($validationRuleMap as $field => $rules) {
             $this->_setFieldValidationRules($field, $rules);
         }
-    }
-
-    public function _getFHIRTypeName(): string
-    {
-        return $this->_name;
     }
 
     public function getValue(): null|string

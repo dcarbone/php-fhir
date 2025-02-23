@@ -59,7 +59,9 @@ class <?php echo $coreFile; ?> extends <?php echo $mockPrimitiveContainerClass; 
     public function __construct(string|<?php echo $mockStringpPrimitiveClass; ?> $value,
                                 array $fields = [],
                                 array $validationRuleMap = [],
-                                array $fhirComments = [])
+                                array $fhirComments = [],
+                                string $versionName = 'mock',
+                                string $semanticVersion = 'v99.99.99')
     {
         parent::__construct(
             name: 'id',
@@ -76,6 +78,8 @@ class <?php echo $coreFile; ?> extends <?php echo $mockPrimitiveContainerClass; 
                 ],
             ] + $validationRuleMap,
             fhirComments: $fhirComments,
+            versionName: $versionName,
+            semanticVersion: $semanticVersion,
         );
     }
 }

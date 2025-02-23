@@ -81,7 +81,9 @@ class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> impl
                                 array $fields = [],
                                 array $validationRuleMap = [],
                                 array $fhirComments = [],
-                                mixed $value = null)
+                                mixed $value = null,
+                                string $versionName = 'mock',
+                                string $semanticVersion = 'v99.99.99')
     {
         if (!isset($fields['value'])
             || !isset($fields['value']['class'])
@@ -94,7 +96,7 @@ class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> impl
         if (null !== $value) {
             $fields['value']['value'] = $value;
         }
-        parent::__construct($name, $fields, $validationRuleMap, $fhirComments);
+        parent::__construct($name, $fields, $validationRuleMap, $fhirComments, $versionName, $semanticVersion);
     }
 
     public function _nonValueFieldDefined(): bool
