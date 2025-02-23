@@ -28,13 +28,9 @@ $imports = $coreFile->getImports();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 
-$typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
-
 $imports->addCoreFileImports(
     $typeInterface,
     $fhirVersion,
-
-    $typeValidationTrait,
 );
 
 ob_start();
@@ -49,10 +45,6 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 abstract class <?php echo $coreFile; ?> implements <?php echo $typeInterface; ?>
 
 {
-    use <?php echo $typeValidationTrait; ?>;
-
-    private const _FHIR_VALIDATION_RULES = [];
-
     protected string $_name;
     protected <?php echo $fhirVersion; ?> $_fhirVersion;
 
