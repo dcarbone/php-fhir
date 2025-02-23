@@ -24,10 +24,21 @@ use DCarbone\PHPFHIR\Utilities\TypeHintUtils;
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type */
 
-// define some common things
+$imports = $type->getImports();
+$coreFiles = $version->getConfig()->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
+
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
+
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
+
+$imports->addCoreFileImports(
+    $fhirVersion,
+    $versionClass,
+);
+
 $typeKind = $type->getKind();
 $typeClassName = $type->getClassName();
-$typeImports = $type->getImports();
 $primitiveType = $type->getPrimitiveType();
 $valueProperty = $type->getProperties()->getProperty(PHPFHIR_VALUE_PROPERTY_NAME);
 
@@ -125,6 +136,12 @@ if (!$type->hasParent()) : ?>
     }
 <?php if (!$type->hasParent()) : ?>
 
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+    public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
+
+    {
+        return <?php echo $versionClass; ?>::getFHIRVersion();
+    }
 <?php   if ($stringSerializable) : ?>
     /**
      * Specify whether this value must be represented as a string when serializing to JSON.

@@ -24,12 +24,21 @@ use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
+$versionCoreFiles = $version->getVersionCoreFiles();
 $imports = $type->getimports();
 
 $primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
+$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 
-$imports->addCoreFileImports($primitiveTypeInterface, $typeValidationTrait);
+$versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
+
+$imports->addCoreFileImports(
+    $primitiveTypeInterface,
+    $typeValidationTrait,
+    $fhirVersion,
+    $versionClass,
+);
 
 $xmlName = NameUtils::getTypeXMLElementName($type);
 
@@ -67,6 +76,13 @@ class <?php echo $type->getClassName(); ?> implements <?php echo $primitiveTypeI
     public function _getFHIRTypeName(): string
     {
         return 'XHTML';
+    }
+
+    /* <?php echo basename(__FILE__) . ':' . __LINE__; ?> */
+    public function _getFHIRVersion(): <?php echo $fhirVersion; ?>
+
+    {
+        return <?php echo $versionClass; ?>::getFHIRVersion();
     }
 
     /**
