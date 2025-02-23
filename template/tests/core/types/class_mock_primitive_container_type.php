@@ -72,7 +72,6 @@ class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> impl
         <?php echo $xmlSerializationOptionsTrait; ?>,
         <?php echo $mockTypeFieldsTrait; ?>;
 
-
     private const _FHIR_VALIDATION_RULES = [];
 
     private array $_valueXMLLocations = [];

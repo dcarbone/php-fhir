@@ -55,7 +55,6 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?> extends <?php echo $mockPrimitiveContainerClass; ?> implements <?php echo $resourceIDTypeInterface; ?>
 
 {
-
     public function __construct(string|<?php echo $mockStringpPrimitiveClass; ?> $value,
                                 array $fields = [],
                                 array $validationRuleMap = [],
