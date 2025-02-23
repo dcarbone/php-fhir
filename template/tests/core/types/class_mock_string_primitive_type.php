@@ -64,8 +64,8 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
     public function __construct(string $name = 'mock-string-primitive',
                                 null|string $value = null,
                                 array $validationRuleMap = [],
-                                string $versionName = 'mock',
-                                string $semanticVersion = 'v99.99.99')
+                                string $versionName = self::DEFAULT_MOCK_VERSION_NAME,
+                                string $semanticVersion = self::DEFAULT_MOCK_SEMANTIC_VERSION)
     {
         parent::__construct($name, $versionName, $semanticVersion);
 

@@ -45,12 +45,15 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 abstract class <?php echo $coreFile; ?> implements <?php echo $typeInterface; ?>
 
 {
+    public const DEFAULT_MOCK_VERSION_NAME = 'mock';
+    public const DEFAULT_MOCK_SEMANTIC_VERSION = 'v99.99.99';
+
     protected string $_name;
     protected <?php echo $fhirVersion; ?> $_fhirVersion;
 
     public function __construct(string $name,
-                                string $versionName = 'mock',
-                                string $semanticVersion = 'v99.99.99')
+                                string $versionName = self::DEFAULT_MOCK_VERSION_NAME,
+                                string $semanticVersion = self::DEFAULT_MOCK_SEMANTIC_VERSION)
     {
         $this->_name = $name;
 

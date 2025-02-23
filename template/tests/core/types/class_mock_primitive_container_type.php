@@ -82,8 +82,8 @@ class <?php echo $coreFile; ?> extends <?php echo $mockElementTypeClass; ?> impl
                                 array $validationRuleMap = [],
                                 array $fhirComments = [],
                                 mixed $value = null,
-                                string $versionName = 'mock',
-                                string $semanticVersion = 'v99.99.99')
+                                string $versionName = self::DEFAULT_MOCK_VERSION_NAME,
+                                string $semanticVersion = self::DEFAULT_MOCK_SEMANTIC_VERSION)
     {
         if (!isset($fields['value'])
             || !isset($fields['value']['class'])
