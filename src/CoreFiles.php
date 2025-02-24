@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR;
 
 /*
- * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\CoreFiles\CoreFile;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 class CoreFiles
@@ -27,7 +28,7 @@ class CoreFiles
     /** @var string */
     private string $_templateDir;
 
-    /** @var \DCarbone\PHPFHIR\CoreFile[] */
+    /** @var \DCarbone\PHPFHIR\CoreFiles\CoreFile[] */
     private array $_files;
 
     /**
@@ -114,7 +115,7 @@ class CoreFiles
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\CoreFile[]
+     * @return \DCarbone\PHPFHIR\CoreFiles\CoreFile[]
      */
     public function getIterator(): iterable
     {

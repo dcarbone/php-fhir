@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace DCarbone\PHPFHIR;
+
 /*
  * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -16,24 +18,9 @@
  * limitations under the License.
  */
 
-/** @var \DCarbone\PHPFHIR\Config $config */
-/** @var \DCarbone\PHPFHIR\CoreFiles\CoreFile $coreFile */
-
-ob_start();
-echo '<?php ';?>declare(strict_types=1);
-
-namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
-
-<?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
-
-interface <?php echo $coreFile; ?>
-
+class CompositeTypes
 {
-    /**
-     * Must return the formatted string representation of this type's "value" field.
-     *
-     * @return string
-     */
-    public function _getValueAsString(): string;
+    private array $_types;
+
+
 }
-<?php return ob_get_clean();

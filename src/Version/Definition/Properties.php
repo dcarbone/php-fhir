@@ -34,17 +34,6 @@ class Properties implements \Countable
     /** @var bool */
     private bool $_sorted = false;
 
-    /** @var \DCarbone\PHPFHIR\Version\Definition\Type */
-    private Type $_type;
-
-    /**
-     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
-     */
-    public function __construct(Type $type)
-    {
-        $this->_type = $type;
-    }
-
     /**
      * @return array
      */
@@ -59,14 +48,6 @@ class Properties implements \Countable
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Version\Definition\Type
-     */
-    public function getType(): Type
-    {
-        return $this->_type;
-    }
-
-    /**
      * Add a property to this type's property list.  The returned property instance MAY NOT be the one you provide!  If
      * the type already has a property of this same name, the original property instance will be returned.
      *
@@ -78,12 +59,7 @@ class Properties implements \Countable
         $pname = $property->getName();
         $pref = $property->getRef();
         if (null === $pname && null === $pref) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Cannot add Property to Type "%s" as it has no $name or $ref defined',
-                    $this->getType()->getFHIRName()
-                )
-            );
+            throw new \InvalidArgumentException('Cannot add Property as it has no $name or $ref defined');
         }
         foreach ($this->_properties as $current) {
             if ($property === $current) {
@@ -92,22 +68,8 @@ class Properties implements \Countable
             $cname = $current->getName();
             $cref = $current->getRef();
             if (null !== $pname && null !== $cname && $pname === $cname) {
-                $this->_type->getConfig()->getLogger()->notice(
-                    sprintf(
-                        'Type "%s" already has Property "%s" (name), probably some duplicate definition nonsense. Keeping original.',
-                        $this->getType()->getFHIRName(),
-                        $property->getName()
-                    )
-                );
                 return $current;
             } elseif (null !== $pref && null !== $cref && $cref === $pref) {
-                $this->_type->getConfig()->getLogger()->notice(
-                    sprintf(
-                        'Type "%s" already has Property "%s" (ref), probably some duplicate definition nonsense. Keeping original.',
-                        $this->getType()->getFHIRName(),
-                        $property->getRef()
-                    )
-                );
                 return $current;
             }
         }
@@ -147,7 +109,7 @@ class Properties implements \Countable
      */
     public function removeProperty(Property $target): void
     {
-        foreach($this->_properties as $i => $property) {
+        foreach ($this->_properties as $i => $property) {
             if ($property === $target) {
                 unset($this->_properties[$i]);
                 $this->_properties = array_values($this->_properties);
@@ -163,7 +125,7 @@ class Properties implements \Countable
      */
     public function removePropertyByName(string $name): null|Property
     {
-        foreach($this->_properties as $i => $property) {
+        foreach ($this->_properties as $i => $property) {
             if ($property->getName() === $name) {
                 unset($this->_properties[$i]);
                 $this->_properties = array_values($this->_properties);
@@ -174,23 +136,37 @@ class Properties implements \Countable
     }
 
     /**
-     * Returns an iterator containing all properties, including those inherited from parent types
-     *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
     public function getIterator(): iterable
     {
+        if ([] === $this->_properties) {
+            return new \EmptyIterator();
+        }
         return new \ArrayIterator($this->_properties);
     }
 
     /**
-     * Returns an indexed iterator containing only properties local to this type.
-     *
      * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
      */
     public function getIndexedIterator(): iterable
     {
+        if ([] === $this->_properties) {
+            return new \EmptyIterator();
+        }
         return \SplFixedArray::fromArray($this->_properties, preserveKeys: false);
+    }
+
+    /**
+     * @return \DCarbone\PHPFHIR\Version\Definition\Property[]
+     */
+    public function getSortedIterator(): iterable
+    {
+        if ([] === $this->_properties) {
+            return new \EmptyIterator();
+        }
+        $this->_sort();
+        return new \ArrayIterator($this->_sortedProperties);
     }
 
     /**

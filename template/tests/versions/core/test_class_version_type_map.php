@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright 2024-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
-/** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+/** @var \DCarbone\PHPFHIR\CoreFiles\CoreFile $coreFile */
 /** @var \DCarbone\PHPFHIR\Version $version */
 
 $versionCoreFiles = $version->getVersionCoreFiles();

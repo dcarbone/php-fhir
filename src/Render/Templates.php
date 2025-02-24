@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Render;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\CoreFile;
+use DCarbone\PHPFHIR\CoreFiles\CoreFile;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
@@ -32,7 +32,7 @@ abstract class Templates
 {
     /**
      * @param \DCarbone\PHPFHIR\Config $config
-     * @param \DCarbone\PHPFHIR\CoreFile $coreFile
+     * @param \DCarbone\PHPFHIR\CoreFiles\CoreFile $coreFile
      * @param array $kwargs
      * @return string
      */

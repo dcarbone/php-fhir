@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Builder;
  */
 
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\CoreFile;
+use DCarbone\PHPFHIR\CoreFiles\CoreFile;
 use DCarbone\PHPFHIR\Utilities\ExceptionUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
@@ -116,7 +116,7 @@ class Imports implements \Countable
     /**
      * Add specific core file to imported list with optional explicit alias.
      *
-     * @param \DCarbone\PHPFHIR\CoreFile $coreFile
+     * @param \DCarbone\PHPFHIR\CoreFiles\CoreFile $coreFile
      * @param string|null $alias
      * @return \DCarbone\PHPFHIR\Builder\Import
      */
