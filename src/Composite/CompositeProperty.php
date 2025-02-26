@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DCarbone\PHPFHIR;
+namespace DCarbone\PHPFHIR\Composite;
 
 /*
  * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -18,9 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
-class CompositeTypes
+class CompositeProperty
 {
-    private array $_types;
-
 
 }

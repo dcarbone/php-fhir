@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DCarbone\PHPFHIR;
+namespace DCarbone\PHPFHIR\Composite;
 
 /*
  * Copyright 2016-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,26 +19,35 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Enum\TypeKindEnum;
+use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Properties;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
 class CompositeType
 {
     private string $_name;
+    private TypeKindEnum $_typeKind;
     private Properties $_properties;
     /** @var \DCarbone\PHPFHIR\Version\Definition\Type[] */
     private array $_verionTypes = [];
     private bool $_compiled = false;
 
-    public function __construct(string $name)
+    public function __construct(string       $name,
+                                TypeKindEnum $kind)
     {
         $this->_name = $name;
+        $this->_typeKind = $kind;
         $this->_properties = new Properties();
     }
 
     public function getName(): string
     {
         return $this->_name;
+    }
+
+    public function getKind(): TypeKindEnum
+    {
+        return $this->_typeKind;
     }
 
     public function getProperties(): Properties
@@ -51,13 +60,13 @@ class CompositeType
         return $this->_compiled;
     }
 
-    public function addVersionType(Type $type): void
+    public function addVersionType(Version $version, Type $type): void
     {
         if ($this->_compiled) {
             throw new \LogicException(sprintf(
                 'Composite type "%s" is already compiled, cannot add Version "%s" type "%s"',
                 $this->_name,
-                $type->getVersion()->getName(),
+                $version->getName(),
                 $type->getFHIRName(),
             ));
         }
@@ -66,7 +75,7 @@ class CompositeType
                 'Composite type "%s" is of kind "%s", cannot add Version "%s" type "%s" of kind "%s"',
                 $this->_name,
                 $this->_typeKind->name,
-                $type->getVersion()->getName(),
+                $version->getName(),
                 $type->getFHIRName(),
                 $type->getKind()->name,
             ));
@@ -99,17 +108,17 @@ class CompositeType
 
         $fulLMap = [];
 
-        foreach ($this->_verionTypes as $vt) {
+        foreach($this->_verionTypes as $vt) {
             $vn = $vt->getVersion()->getName();
             $fulLMap[$vn] = [];
-            foreach ($vt->getAllPropertiesIndexedIterator() as $typeProp) {
+            foreach($vt->getAllPropertiesIndexedIterator() as $typeProp) {
                 $fulLMap[$vn][] = $typeProp->getName();
             }
         }
 
         $commonNames = [];
 
-        foreach ($fulLMap as $propMap) {
+        foreach($fulLMap as $propMap) {
             $commonNames = array_intersect(...$fulLMap);
         }
 

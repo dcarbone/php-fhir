@@ -18,17 +18,19 @@ namespace DCarbone\PHPFHIR\Utilities;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\CompositeType;
+use DCarbone\PHPFHIR\Composite\CompositeType;
+use DCarbone\PHPFHIR\Composite\CompositeTypes;
 use DCarbone\PHPFHIR\Config;
 
 class CompositeTypeUtils
 {
-    public static function buildCompositeTypes(Config $config): void
+    public static function buildCompositeTypes(Config $config): CompositeTypes
     {
-
+        $types = new CompositeTypes();
         foreach($config->getVersionsIterator() as $version) {
-            $patient = $version->getDefinition()->getTypes()->getTypeByName('Patient');
-
+            $type = $version->getDefinition()->getTypes()->getTypeByName('Patient');
+            $types->addType($version, $type);
         }
+        return $types;
     }
 }

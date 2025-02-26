@@ -153,29 +153,6 @@ STRING;
     return $out;
 }
 
-/**
- * TODO: Figure out what to do with Windows...
- *
- * @param string $q
- * @return bool
- */
-function ask(string $q): bool
-{
-    global $ins, $null;
-    echo "{$q} [enter \"yes\" or \"no\"]: ";
-    while (0 !== stream_select($ins, $null, $null, null)) {
-        foreach ($ins as $in) {
-            $resp = stream_get_line($in, 8, PHP_EOL);
-            if (is_string($resp)) {
-                return str_starts_with(strtolower($resp), 'y');
-            }
-            return false;
-        }
-    }
-    // some kind of error checking?
-    return false;
-}
-
 // ----- parameter parsing
 
 if ($argc > 1) {
