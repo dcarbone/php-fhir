@@ -40,7 +40,7 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo $coreFile; ?> extends TestCase
 {
-    private const _CAREPLAN_JSON = <<<JSON
+    private const _CAREPLAN_JSON = <<<EOD
 H4sIAAAAAAAAA61TW0/bMBR+36+I8sQkjJMmTpOqq4SAaUiThqDaHgYPjn3cekriyHa5CPW/7zil
 MJC4jC0Pufn4O+e7+Da24MzKCpjf9BBP4gNu4aThXbwba4nfXNaM5awgucoYqVXGCS/ymgjBZA5J
 nlQ8xdoWPI8nt3FvjdINAv2Ml973E0qXzXjP2AVVS23pylFhLNAzb1fCrywcgtKd9tp0uEbCGhE4
@@ -54,7 +54,7 @@ YFFW3lWsg98W5sDbQfw/Zzu4W6AJ5Gla5WOi+FgRpXK8VYUiWcGF4uiBqrNBLb7J8yY6Eo+tbsKg
 G7/eZ3KW5CxFk9kTlzHCLZLj4XhH3kT80mgZwTVYoR08b/nf7HvmxDRGDNsDpYeRPu8fn34/PvoR
 ffl2dnI83/8ar9ch2f9JhnFaJKh0+UiGQ4A+qi1wv0TEiHcywjgtho8tJRftWFjoFuhdxh8J8l6E
 f5fmYv3hN1dgy4chBgAA
-JSON;
+EOD;
 
     private function _getCarePlanJson(): string
     {
