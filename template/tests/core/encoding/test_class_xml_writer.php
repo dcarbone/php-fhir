@@ -22,15 +22,15 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $imports = $coreFile->getImports();
-$imports->addCoreFileImportsByName(
-    PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
-    PHPFHIR_ENCODING_CLASSNAME_XML_WRITER,
-);
-
 $coreFiles = $config->getCoreFiles();
 
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
+
+$imports->addCoreFileImports(
+    $xmlWriterClass,
+    $serializeConfigClass
+);
 
 ob_start();
 echo "<?php\n\n";?>
@@ -40,7 +40,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 use PHPUnit\Framework\TestCase;
 
-class <?php echo PHPFHIR_TEST_ENCODING_CLASSSNAME_XML_WRITER; ?> extends TestCase
+class <?php echo $coreFile; ?> extends TestCase
 {
     public function testCanConstructWithDefaultConfig()
     {

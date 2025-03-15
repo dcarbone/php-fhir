@@ -14,7 +14,6 @@
   "keywords": [
     "php",
     "fhir",
-    "ehr",
     "hl7",
     "php-fhir"
   ],
@@ -32,6 +31,7 @@
     "composer/semver": "^3.4"
   },
   "require-dev": {
+    "ext-zlib": "*",
     "phpunit/phpunit": "^10.5 || ^11.0",
     "monolog/monolog": "^3.2.0",
     "spatie/temporary-directory": "^1.0"
@@ -58,8 +58,5 @@
     "psr-4": {
       "DCarbone\\PHPFHIRTests\\": "tests/"
     }
-  },
-  "suggest": {
-    "ext-zip": "To enable unzipping of downloaded source files"
   }
 }

@@ -27,10 +27,12 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
+$jsonFieldExtractor = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_TRAIT_MOCK_JSON_FIELD_EXTRACTOR);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $fhirVersion,
+    $jsonFieldExtractor,
 );
 
 ob_start();
@@ -45,6 +47,8 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 abstract class <?php echo $coreFile; ?> implements <?php echo $typeInterface; ?>
 
 {
+    use <?php echo $jsonFieldExtractor; ?>;
+
     public const DEFAULT_MOCK_VERSION_NAME = 'mock';
     public const DEFAULT_MOCK_SEMANTIC_VERSION = 'v99.99.99';
 
