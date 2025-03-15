@@ -112,7 +112,7 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
                                            <?php echo $unserializeConfig; ?> $config,
                                            null|<?php echo $elementTypeInterface; ?> $type = null): self
     {
-        if (null ===
+        throw new \BadMethodCallException('jsonUnserialize not yet implemented');
     }
 
     public function __toString(): string
