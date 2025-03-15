@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Composite\CompositeTypes;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
@@ -62,6 +63,7 @@ class Builder
         // write php-fhir core entities
         if ($coreFiles) {
             $this->writeLibraryCoreEntities();
+            $this->writeLibraryCoreCompositeTypeEntities(...$this->config->getVersionNames());
             $this->writeLibraryTestClasses();
         }
 
@@ -163,6 +165,34 @@ class Builder
             }
             $log->endBreak(sprintf('FHIR Version %s Type Class Generation', $version->getName()));
         }
+    }
+
+    public function writeLibraryCoreCompositeTypeEntities(string ...$versionNames): void
+    {
+        $log = $this->config->getLogger();
+
+        $log->startBreak('Building composite types');
+
+        $cts = new CompositeTypes();
+
+        foreach($versionNames as $versionName) {
+            $version = $this->config->getVersion($versionName);
+            $definition = $version->getDefinition();
+            if (!$definition->isDefined()) {
+                $definition->buildDefinition();
+            }
+            foreach($definition->getTypes()->getIterator() as $type) {
+                $cts->addType($version, $type);
+            }
+        }
+
+        var_dump(count($cts));
+
+        foreach($cts->getIterator() as $ct) {
+            $ct->compile();
+        }
+
+        $log->endBreak('Building composite types');
     }
 
     /**

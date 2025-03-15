@@ -494,6 +494,7 @@ abstract class TypeDecorator
                 $base->getFHIRName(),
                 $currentParent->getFHIRName()
             ));
+            $base->setKind(TypeKindEnum::from($base->getFHIRName()));
         } else {
             $log->info(sprintf(
                 'Changing DSTU1 type "%s" parent from type "%s" to "%s"',
@@ -501,6 +502,7 @@ abstract class TypeDecorator
                 $currentParent->getFHIRName(),
                 $newParent->getFHIRName(),
             ));
+            $base->setKind($newParent->getKind());
         }
 
         $base->setParentType($newParent);
