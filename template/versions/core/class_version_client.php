@@ -338,7 +338,7 @@ foreach($version->getDefinition()->getTypes()->getNameSortedIterator() as $rsc) 
         $this->_requireOK($rc);
         return match($format) {
             <?php echo $serializeFormatEnum; ?>::JSON => <?php echo $rsc->getClassName(); ?>::jsonUnserialize(
-                json: $rc->resp,
+                decoded: $rc->resp,
                 config: $this->_version->getConfig()->getUnserializeConfig(),
             ),
             <?php echo $serializeFormatEnum; ?>::XML => <?php echo $rsc->getClassName(); ?>::xmlUnserialize(
@@ -367,7 +367,7 @@ foreach($version->getDefinition()->getTypes()->getNameSortedIterator() as $rsc) 
         $class = $this->_version->getTypeMap()::getTypeClassname($resourceType->name);
         return match ($rc->getResponseFormat()) {
             <?php echo $serializeFormatEnum; ?>::JSON => $class::jsonUnserialize(
-                json: $rc->resp,
+                decoded: $rc->resp,
                 config: $this->_version->getConfig()->getUnserializeConfig(),
             ),
             <?php echo $serializeFormatEnum; ?>::XML => $class::xmlUnserialize(
