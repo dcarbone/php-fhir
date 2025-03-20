@@ -25,13 +25,15 @@ $coreFiles = $config->getCoreFiles();
 $testCoreFiles = $config->getCoreTestFiles();
 $imports = $coreFile->getImports();
 
-$elementTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_ELEMENT_TYPE);
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
+$resourceIDTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE);
 $commentContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER);
 $commentContainerTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_COMMENT_CONTAINER);
+$sourceXMLNSTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_SOURCE_XMLNS);
 
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
-$jsonSerializableOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS);
+$decodedSerializableOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS);
 $xmlSerializationOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_XML_SERIALIZATION_OPTIONS);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
@@ -39,15 +41,19 @@ $serializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAM
 
 $mockAbstractTypeClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_ABSTRACT_MOCK_TYPE);
 $mockTypeFieldsTrait = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_TRAIT_MOCK_TYPE_FIELDS);
+$mockStringpPrimitiveClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_STRING_PRIMITIVE_TYPE);
+$mockResourceIDClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_ID_TYPE);
 
 $imports->addCoreFileImports(
-    $elementTypeInterface,
+    $resourceTypeInterface,
+    $resourceIDTypeInterface,
     $commentContainerInterface,
     $commentContainerTrait,
+    $sourceXMLNSTrait,
 
     $typeValidationTrait,
 
-    $jsonSerializableOptionsTrait,
+    $decodedSerializableOptionsTrait,
     $xmlSerializationOptionsTrait,
     $xmlWriterClass,
     $unserializeConfig,
@@ -55,6 +61,8 @@ $imports->addCoreFileImports(
 
     $mockAbstractTypeClass,
     $mockTypeFieldsTrait,
+    $mockStringpPrimitiveClass,
+    $mockResourceIDClass,
 );
 
 ob_start();
@@ -66,13 +74,14 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> implements <?php echo $elementTypeInterface; ?>, <?php echo $commentContainerInterface; ?>, \Iterator
+class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> implements <?php echo $resourceTypeInterface; ?>, <?php echo $commentContainerInterface; ?>, \Iterator
 
 {
     use <?php echo $typeValidationTrait; ?>,
-        <?php echo $jsonSerializableOptionsTrait; ?>,
+        <?php echo $decodedSerializableOptionsTrait; ?>,
         <?php echo $xmlSerializationOptionsTrait; ?>,
         <?php echo $commentContainerTrait; ?>,
+        <?php echo $sourceXMLNSTrait; ?>,
         <?php echo $mockTypeFieldsTrait; ?>;
 
     private const _FHIR_VALIDATION_RULES = [];
@@ -80,6 +89,7 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
     private array $_valueXMLLocations = [];
 
     public function __construct(string $name,
+                                null|string|<?php echo $mockStringpPrimitiveClass; ?>|<?php echo $mockResourceIDClass; ?> $id = null,
                                 array $fields = [],
                                 array $validationRuleMap = [],
                                 array $fhirComments = [],
@@ -89,30 +99,76 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
         parent::__construct($name, $versionName, $semanticVersion);
 
         $this->_setFHIRComments($fhirComments);
+
+        $fields['id'] = [
+            'class' => <?php echo $mockResourceIDClass; ?>::class,
+            'value' => match (true) {
+                $id instanceof <?php echo $mockResourceIDClass; ?> => $id,
+                default => new <?php echo $mockResourceIDClass; ?>($id ?? uniqid()),
+            },
+        ];
+
         foreach($validationRuleMap as $field => $rules) {
             $this->_setFieldValidationRules($field, $rules);
         }
+
         $this->_processFields($fields);
     }
 
-    public static function xmlUnserialize(\SimpleXMLElement $element,
-                                          <?php echo $unserializeConfig; ?> $config,
-                                          null|<?php echo $elementTypeInterface; ?> $type = null): self
+    public function getId(): null|<?php echo $resourceIDTypeInterface; ?>
+
+    {
+        return $this->_doGet('id');
+    }
+
+    public static function xmlUnserialize(\SimpleXMLElement|string $element,
+                                          null|<?php echo $unserializeConfig; ?> $config = null,
+                                          null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
+
     {
         throw new \BadMethodCallException('xmlUnserialize not yet implemented');
     }
 
-    public function xmlSerialize(<?php echo $xmlWriterClass; ?> $xw,
-                                 <?php echo $serializeConfig; ?> $config): void
+    public function xmlSerialize(null|<?php echo $xmlWriterClass; ?> $xw = null,
+                                 null|<?php echo $serializeConfig; ?> $config = null): <?php echo $xmlWriterClass; ?>
+
     {
+        if (null === $config) {
+            $config = new <?php echo $serializeConfig; ?>();
+        }
+        if (null === $xw) {
+            $xw = new XMLWriter($config);
+        }
+        if (!$xw->isOpen()) {
+            $xw->openMemory();
+        }
+        if (!$xw->isDocStarted()) {
+            $docStarted = true;
+            $xw->startDocument();
+        }
+        if (!$xw->isRootOpen()) {
+            $rootOpened = true;
+            $xw->openRootNode($this->_name, $this->_getSourceXMLNS());
+        }
+
         $this->_xmlSerialize($xw, $config);
+
+        if ($rootOpened ?? false) {
+            $xw->endElement();
+        }
+        if ($docStarted ?? false) {
+            $xw->endDocument();
+        }
+        return $xw;
     }
 
-    public static function jsonUnserialize(\stdClass $json,
-                                           <?php echo $unserializeConfig; ?> $config,
-                                           null|<?php echo $elementTypeInterface; ?> $type = null): self
+    public static function jsonUnserialize(string|\stdClass $decoded,
+                                           null|<?php echo $unserializeConfig; ?> $config = null,
+                                           null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
+
     {
-        throw new \BadMethodCallException('jsonUnserialize not yet implemented');
+        $fields = self::_buildFieldsFromJSON($decoded);
+        return new static(name: $decoded->resourceType, id: $fields['id']['value'], fields: $fields);
     }
 
     public function __toString(): string

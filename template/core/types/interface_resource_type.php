@@ -86,12 +86,12 @@ interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>
                                  null|<?php echo $serializeConfigClass; ?> $config = null): <?php echo $xmlWriterClass; ?>;
 
     /**
-     * @param string|\stdClass $json Encoded or decoded JSON.
+     * @param string|\stdClass $decoded Encoded or decoded JSON.
      * @param null|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $coreFile->getFullyQualifiedName(true); ?> $type Instance of this class to unserialize into.  If left null, a new instance will be created.
      * @return static
      */
-    public static function jsonUnserialize(string|\stdClass $json,
+    public static function jsonUnserialize(string|\stdClass $decoded,
                                            null|<?php echo $unserializeConfigClass; ?> $config = null,
                                            null|<?php echo $coreFile; ?> $type = null): self;
 }

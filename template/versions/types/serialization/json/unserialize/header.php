@@ -42,14 +42,14 @@ $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASS
 
 ob_start(); ?>
     /**
-     * @param <?php if ($isResource) : ?>string|<?php endif; ?>\stdClass $json
+     * @param <?php if ($isResource) : ?>string|<?php endif; ?>\stdClass $decoded
      * @param <?php if ($isResource) : ?>null|<?php endif; echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $config
      * @param null|<?php echo $type->getFullyQualifiedClassName(true); ?> $type
      * @return <?php echo $type->getFullyQualifiedClassName(true); ?>
 
      * @throws \Exception
      */
-    public static function jsonUnserialize(<?php if ($isResource) : ?>string|<?php endif; ?>\stdClass $json,
+    public static function jsonUnserialize(<?php if ($isResource) : ?>string|<?php endif; ?>\stdClass $decoded,
                                            <?php if ($isResource) : ?>null|<?php endif; echo $unserializeConfigClass ?> $config<?php if ($isResource) : ?> = null<?php endif;?>,
                                            null|<?php echo $typeInterface; ?> $type = null): self
     {
@@ -71,18 +71,18 @@ ob_start(); ?>
         if (null === $config) {
             $config = (new <?php echo $versionClass; ?>())->getConfig()->getUnserializeConfig();
         }
-        if (is_string($json)) {
-            $json = json_decode(json: $json,
+        if (is_string($decoded)) {
+            $decoded = json_decode(json: $decoded,
                                 associative: false,
                                 depth: $config->getJSONDecodeMaxDepth(),
                                 flags: $config->getJSONDecodeOpts());
         }
 <?php endif;
 if ($type->hasConcreteParent()) : ?>
-        parent::jsonUnserialize($json, $config, $type); <?php
+        parent::jsonUnserialize($decoded, $config, $type); <?php
 elseif (!$type->hasCommentContainerParent() && $type->isCommentContainer()) : ?>
-        if (isset($json->{<?php echo $constantsClass; ?>::JSON_FIELD_FHIR_COMMENTS})) {
-            $type->_setFHIRComments((array)$json->{<?php echo $constantsClass; ?>::JSON_FIELD_FHIR_COMMENTS});
+        if (isset($decoded->{<?php echo $constantsClass; ?>::JSON_FIELD_FHIR_COMMENTS})) {
+            $type->_setFHIRComments((array)$decoded->{<?php echo $constantsClass; ?>::JSON_FIELD_FHIR_COMMENTS});
         }<?php endif;
 
 return ob_get_clean();

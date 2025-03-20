@@ -195,7 +195,7 @@ if (!$type->isAbstract()
         $this->assertJSON($rc->getResp());
         $this->assertEquals(200, $rc->getCode(), sprintf('Configured test endpoint "%s" returned non-200 response code', $this->_getTestEndpoint()));
         $bundle = <?php echo $bundleType->getClassName(); ?>::jsonUnserialize(
-            json: $rc->getResp(),
+            decoded: $rc->getResp(),
             config: $this->_version->getConfig()->getUnserializeConfig(),
         );
         $entry = $bundle->getEntry();
@@ -229,7 +229,7 @@ if (!$type->isAbstract()
         $this->assertJSON($rc->getResp());
         $this->assertEquals(200, $rc->getCode(), sprintf('Configured test endpoint "%s" returned non-200 response code', $this->_getTestEndpoint()));
         $bundle = <?php echo $bundleType->getClassName(); ?>::jsonUnserialize(
-            json: $rc->getResp(),
+            decoded: $rc->getResp(),
         );
         $entry = $bundle->getEntry();
         $this->assertNotCount(0, $entry);
