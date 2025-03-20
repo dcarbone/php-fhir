@@ -195,7 +195,13 @@ class <?php echo $coreFile; ?>
     public static function parseJSON(<?php echo $versionInterface; ?> $version, string $input): null|<?php echo $resourceTypeInterface; ?>
 
     {
-        $decoded = json_decode($input, true, $version->getConfig()->getUnserializeConfig()->getJSONDecodeMaxDepth());
+        $config = $version->getConfig()->getUnserializeConfig();
+        $decoded = json_decode(
+            json: $input,
+            associative: false,
+            depth: $config->getJSONDecodeMaxDepth(),
+            flags: $config->getJSONDecodeOpts(),
+        );
         $err = json_last_error();
         if (JSON_ERROR_NONE !== $err) {
             throw new \DomainException(sprintf(
@@ -205,7 +211,7 @@ class <?php echo $coreFile; ?>
             ));
         }
 
-        return static::parseArray($version, $decoded);
+        return static::parseStdClass($version, $decoded);
     }
 
     /**

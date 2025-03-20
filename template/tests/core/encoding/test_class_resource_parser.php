@@ -27,10 +27,13 @@ $imports = $coreFile->getImports();
 
 $resourcepParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER);
 
+$mockVersionClass = $coreTestFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_VERSION);
 $mockResourceClass = $coreTestFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
 
 $imports->addCoreFileImports(
     $resourcepParserClass,
+
+    $mockVersionClass,
     $mockResourceClass,
 );
 
@@ -68,10 +71,10 @@ EOD;
 
     public function testCanJSONUnserializeResource()
     {
+        $version = new <?php echo $mockVersionClass; ?>();
         $json = $this->_getCarePlanJSON();
-        $decoded = json_decode($json);
-        $rsc = <?php echo $mockResourceClass; ?>::jsonUnserialize($decoded);
-        $encoded = json_encode($decoded);
+        $rsc = <?php echo $resourcepParserClass; ?>::parse($version, $json);
+        $encoded = json_encode($rsc);
         $this->assertJsonStringEqualsJsonString($encoded, $json);
     }
 }

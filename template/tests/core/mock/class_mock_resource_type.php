@@ -25,7 +25,6 @@ $coreFiles = $config->getCoreFiles();
 $testCoreFiles = $config->getCoreTestFiles();
 $imports = $coreFile->getImports();
 
-$fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 $resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 $resourceIDTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_ID_TYPE);
 $commentContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_COMMENT_CONTAINER);
@@ -46,7 +45,6 @@ $mockStringpPrimitiveClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TES
 $mockResourceIDClass = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_ID_TYPE);
 
 $imports->addCoreFileImports(
-    $fhirVersion,
     $resourceTypeInterface,
     $resourceIDTypeInterface,
     $commentContainerInterface,
@@ -102,15 +100,13 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
 
         $this->_setFHIRComments($fhirComments);
 
-        if (isset($id)) {
-            $fields['id'] = [
-                'class' => <?php echo $mockResourceIDClass; ?>::class,
-                'value' => match (true) {
-                    $id instanceof <?php echo $mockResourceIDClass; ?> => $id,
-                    default => new <?php echo $mockResourceIDClass; ?>($id ?? uniqid()),
-                },
-            ];
-        }
+        $fields['id'] = [
+            'class' => <?php echo $mockResourceIDClass; ?>::class,
+            'value' => match (true) {
+                $id instanceof <?php echo $mockResourceIDClass; ?> => $id,
+                default => new <?php echo $mockResourceIDClass; ?>($id ?? uniqid()),
+            },
+        ];
 
         foreach($validationRuleMap as $field => $rules) {
             $this->_setFieldValidationRules($field, $rules);
@@ -172,7 +168,7 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
 
     {
         $fields = self::_buildFieldsFromJSON($decoded);
-        return new static(name: $decoded->resourceType, fields: $fields);
+        return new static(name: $decoded->resourceType, id: $fields['id']['value'], fields: $fields);
     }
 
     public function __toString(): string

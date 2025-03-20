@@ -450,7 +450,7 @@ trait <?php echo $coreFile; ?>
             if (!$primitiveContainer) {
                 $out->{$field} = $value;
             } else {
-                $out->{$field}->getValue();
+                $out->{$field} = $value->getValue();
             }
         }
 
