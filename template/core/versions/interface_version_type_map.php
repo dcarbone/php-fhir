@@ -89,9 +89,9 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
     public static function mustGetContainedTypeClassnameFromXML(\SimpleXMLElement $node): string;
 
     /**
-     * @param \stdClass $json
+     * @param \stdClass $decoded
      * @return string Fully qualified class name of contained resource type
      */
-    public static function mustGetContainedTypeClassnameFromJSON(\stdClass $json): string;
+    public static function mustGetContainedTypeClassnameFromJSON(\stdClass $decoded): string;
 }
 <?php return ob_get_clean();

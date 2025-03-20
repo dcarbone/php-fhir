@@ -34,7 +34,7 @@ $sourceXMLNSTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_SOUR
 
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
-$jsonSerializableOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS);
+$decodedSerializableOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS);
 $xmlSerializationOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_XML_SERIALIZATION_OPTIONS);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
@@ -55,7 +55,7 @@ $imports->addCoreFileImports(
 
     $typeValidationTrait,
 
-    $jsonSerializableOptionsTrait,
+    $decodedSerializableOptionsTrait,
     $xmlSerializationOptionsTrait,
     $xmlWriterClass,
     $unserializeConfig,
@@ -80,7 +80,7 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
 
 {
     use <?php echo $typeValidationTrait; ?>,
-        <?php echo $jsonSerializableOptionsTrait; ?>,
+        <?php echo $decodedSerializableOptionsTrait; ?>,
         <?php echo $xmlSerializationOptionsTrait; ?>,
         <?php echo $commentContainerTrait; ?>,
         <?php echo $sourceXMLNSTrait; ?>,
@@ -102,13 +102,15 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
 
         $this->_setFHIRComments($fhirComments);
 
-        $fields['id'] = [
-            'class' => <?php echo $mockResourceIDClass; ?>::class,
-            'value' => match (true) {
-                $id instanceof <?php echo $mockResourceIDClass; ?> => $id,
-                default => new <?php echo $mockResourceIDClass; ?>($id ?? uniqid()),
-            },
-        ];
+        if (isset($id)) {
+            $fields['id'] = [
+                'class' => <?php echo $mockResourceIDClass; ?>::class,
+                'value' => match (true) {
+                    $id instanceof <?php echo $mockResourceIDClass; ?> => $id,
+                    default => new <?php echo $mockResourceIDClass; ?>($id ?? uniqid()),
+                },
+            ];
+        }
 
         foreach($validationRuleMap as $field => $rules) {
             $this->_setFieldValidationRules($field, $rules);
@@ -164,12 +166,13 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
         return $xw;
     }
 
-    public static function jsonUnserialize(string|\stdClass $json,
+    public static function jsonUnserialize(string|\stdClass $decoded,
                                            null|<?php echo $unserializeConfig; ?> $config = null,
                                            null|<?php echo $resourceTypeInterface; ?> $type = null): <?php echo $resourceTypeInterface; ?>
 
     {
-        throw new \BadMethodCallException('jsonUnserialize not yet implemented');
+        $fields = self::_buildFieldsFromJSON($decoded);
+        return new static(name: $decoded->resourceType, fields: $fields);
     }
 
     public function __toString(): string

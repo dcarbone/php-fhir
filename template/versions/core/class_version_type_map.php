@@ -174,24 +174,24 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
     }
 
     /**
-     * @param \stdClass $json
+     * @param \stdClass $decoded
      * @return string Fully qualified class name of contained resource type
      * @throws \UnexpectedValueException
      * @throws \DomainException
      */
-    public static function mustGetContainedTypeClassnameFromJSON(\stdClass $json): string
+    public static function mustGetContainedTypeClassnameFromJSON(\stdClass $decoded): string
     {
-        if (!isset($json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>)) {
+        if (!isset($decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>)) {
             throw new \DomainException(sprintf(
                 'Unable to determine contained Resource type from input (missing "%s" key).  Keys: ["%s"]',
                 <?php echo $constantsClass; ?>::JSON_FIELD_RESOURCE_TYPE,
-                implode('","', array_keys((array)$json))
+                implode('","', array_keys((array)$decoded))
             ));
         }
-        if (isset(self::_CONTAINABLE_TYPES[$json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>])) {
-            return self::_CONTAINABLE_TYPES[$json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>];
+        if (isset(self::_CONTAINABLE_TYPES[$decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>])) {
+            return self::_CONTAINABLE_TYPES[$decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>];
         }
-        throw self::createdInvalidContainedTypeException($json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>);
+        throw self::createdInvalidContainedTypeException($decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>);
     }
 
     /**

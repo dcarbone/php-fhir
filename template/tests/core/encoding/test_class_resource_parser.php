@@ -22,12 +22,16 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
 $coreFiles = $config->getCoreFiles();
+$coreTestFiles = $config->getCoreTestFiles();
 $imports = $coreFile->getImports();
 
 $resourcepParserClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_RESOURCE_PARSER);
 
+$mockResourceClass = $coreTestFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
+
 $imports->addCoreFileImports(
     $resourcepParserClass,
+    $mockResourceClass,
 );
 
 ob_start();
@@ -40,6 +44,7 @@ use PHPUnit\Framework\TestCase;
 
 class <?php echo $coreFile; ?> extends TestCase
 {
+    // base64 encoded gzip'd CarePlan resource JSON.
     private const _CAREPLAN_JSON = <<<EOD
 H4sIAAAAAAAAA61TW0/bMBR+36+I8sQkjJMmTpOqq4SAaUiThqDaHgYPjn3cekriyHa5CPW/7zil
 MJC4jC0Pufn4O+e7+Da24MzKCpjf9BBP4gNu4aThXbwba4nfXNaM5awgucoYqVXGCS/ymgjBZA5J
@@ -56,10 +61,18 @@ ffl2dnI83/8ar9ch2f9JhnFaJKh0+UiGQ4A+qi1wv0TEiHcywjgtho8tJRftWFjoFuhdxh8J8l6E
 f5fmYv3hN1dgy4chBgAA
 EOD;
 
-    private function _getCarePlanJson(): string
+    private function _getCarePlanJSON(): string
     {
         return gzdecode(base64_decode(self::_CAREPLAN_JSON, strict: true));
     }
 
+    public function testCanJSONUnserializeResource()
+    {
+        $json = $this->_getCarePlanJSON();
+        $decoded = json_decode($json);
+        $rsc = <?php echo $mockResourceClass; ?>::jsonUnserialize($decoded);
+        $encoded = json_encode($decoded);
+        $this->assertJsonStringEqualsJsonString($encoded, $json);
+    }
 }
 <?php return ob_get_clean();

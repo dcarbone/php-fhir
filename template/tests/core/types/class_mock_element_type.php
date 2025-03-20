@@ -108,7 +108,7 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
         $this->_xmlSerialize($xw, $config);
     }
 
-    public static function jsonUnserialize(\stdClass $json,
+    public static function jsonUnserialize(\stdClass $decoded,
                                            <?php echo $unserializeConfig; ?> $config,
                                            null|<?php echo $elementTypeInterface; ?> $type = null): self
     {

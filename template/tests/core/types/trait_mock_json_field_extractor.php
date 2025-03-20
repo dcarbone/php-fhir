@@ -47,11 +47,11 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 trait <?php echo $coreFile; ?>
 
 {
-    protected function _buildFieldsFromJSON(\stdClass $json): array
+    protected static function _buildFieldsFromJSON(\stdClass $decoded): array
     {
         $fields = [];
 
-        foreach($json as $name => $value) {
+        foreach($decoded as $name => $value) {
             // quick check for collection field.
             $collection = is_array($value);
 
@@ -86,13 +86,13 @@ trait <?php echo $coreFile; ?>
                 foreach($value as $v) {
                     $field['value'][] = new $field['class'](
                         name: $name,
-                        fields: $this->_buildFieldsFromJson($v)
+                        fields: static::_buildFieldsFromJson($v)
                     );
                 }
             } else {
                 $field['value'] = new $field['class'](
                     name: $name,
-                    fields: $this->_buildFieldsFromJson($value)
+                    fields: static::_buildFieldsFromJson($value)
                 );
             }
 
