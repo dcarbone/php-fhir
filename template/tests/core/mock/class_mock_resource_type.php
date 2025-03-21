@@ -33,7 +33,7 @@ $sourceXMLNSTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_TRAIT_SOUR
 
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 
-$decodedSerializableOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS);
+$jsonSerializableOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_JSON_SERIALIZATION_OPTIONS);
 $xmlSerializationOptionsTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_TRAIT_XML_SERIALIZATION_OPTIONS);
 $xmlWriterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_XML_WRITER);
 $unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
@@ -53,7 +53,7 @@ $imports->addCoreFileImports(
 
     $typeValidationTrait,
 
-    $decodedSerializableOptionsTrait,
+    $jsonSerializableOptionsTrait,
     $xmlSerializationOptionsTrait,
     $xmlWriterClass,
     $unserializeConfig,
@@ -78,7 +78,7 @@ class <?php echo $coreFile; ?> extends <?php echo $mockAbstractTypeClass; ?> imp
 
 {
     use <?php echo $typeValidationTrait; ?>,
-        <?php echo $decodedSerializableOptionsTrait; ?>,
+        <?php echo $jsonSerializableOptionsTrait; ?>,
         <?php echo $xmlSerializationOptionsTrait; ?>,
         <?php echo $commentContainerTrait; ?>,
         <?php echo $sourceXMLNSTrait; ?>,
