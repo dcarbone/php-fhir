@@ -43,6 +43,7 @@ jobs:
         uses: ./.github/actions/bootstrap
         with:
           php-version: ${{ matrix.php-version }}
+
       - name: 'Run tests'
         # language=sh
         run: ./vendor/bin/phpunit -c 'phpunit/Builder.xml'

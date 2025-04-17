@@ -123,6 +123,7 @@ if ($type->hasLocalProperties()) : ?>
         if ('' !== $documentation) : ?>
 
      <?php endif; ?>*/
+    #[<?php echo $property->getValueFHIRType()->getClassName(); ?>]
     protected <?php echo TypeHintUtils::propertyDeclarationHint($version, $property, false); ?> $<?php echo $property->getName(); ?>;
 <?php
 // -- end directly implemented properties

@@ -51,6 +51,7 @@ namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
 class <?php echo $type->getClassName(); ?> implements <?php echo $primitiveTypeInterface; ?>
 
 {
