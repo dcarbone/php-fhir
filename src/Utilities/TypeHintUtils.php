@@ -65,7 +65,7 @@ class TypeHintUtils
 
         if ($asArray) {
             $hintTypes[] = array_map(function (string $v) {
-                return sprintf('%s[]', $v);
+                return sprintf('iterable<%s>', $v);
             }, $hintTypes);
         }
 
@@ -229,13 +229,13 @@ class TypeHintUtils
             $versionCoreFiles = $version->getVersionCoreFiles();
             $containedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
             if ($property->isCollection()) {
-                return "{$containedTypeInterface->getFullyQualifiedName(true)}[]";
+                return "iterable<{$containedTypeInterface->getFullyQualifiedName(true)}>";
             }
             return ($nullable ? 'null|' : '') . $containedTypeInterface->getFullyQualifiedName(true);
         }
 
         if ($property->isCollection()) {
-            return "{$pt->getFullyQualifiedClassName(true)}[]";
+            return "iterable<{$pt->getFullyQualifiedClassName(true)}>";
         }
 
         return ($nullable ? 'null|' : '') . $pt->getFullyQualifiedClassName(true);
@@ -280,7 +280,7 @@ class TypeHintUtils
         }
 
         if (!$ignoreCollection && $property->isCollection()) {
-            $hintTypes = array_map(fn(string $n) => "{$n}[]", $hintTypes);
+            $hintTypes = array_map(fn(string $n) => "iterable<{$n}>", $hintTypes);
         }
 
         if ($nullable) {

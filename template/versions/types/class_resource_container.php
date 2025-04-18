@@ -55,6 +55,7 @@ echo '<?php ';?>declare(strict_types=1);
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
 class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContainerInterface; ?>
 
 {

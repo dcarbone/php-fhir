@@ -193,13 +193,14 @@ class Property
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Version\Definition\Type $_valueFHIRType
+     * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return \DCarbone\PHPFHIR\Version\Definition\Property
      */
-    public function setValueFHIRType(Type $_valueFHIRType): Property
+    public function setValueFHIRType(Type $type): Property
     {
-        $this->_valueFHIRType = $_valueFHIRType;
-        $this->_valueFHIRTypeName = $_valueFHIRType->getFHIRName();
+        $this->_valueFHIRType = $type;
+        $this->_valueFHIRTypeName = $type->getFHIRName();
+        $type->setUsedAsProperty();
         return $this;
     }
 
