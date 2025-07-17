@@ -31,7 +31,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
-interface <?php echo PHPFHIR_CLIENT_INTERFACE_CLIENT; ?>
+interface <?php echo $coreFile; ?>
 
 {
     /**
@@ -41,6 +41,6 @@ interface <?php echo PHPFHIR_CLIENT_INTERFACE_CLIENT; ?>
      * @return <?php echo $respClass->getFullyQualifiedName(true); ?>
 
      */
-    public function exec(<?php echo PHPFHIR_CLIENT_CLASSNAME_REQUEST; ?> $request): <?php echo PHPFHIR_CLIENT_CLASSNAME_RESPONSE; ?>;
+    public function exec(<?php echo $reqClass; ?> $request): <?php echo $respClass; ?>;
 }
 <?php return ob_get_clean();

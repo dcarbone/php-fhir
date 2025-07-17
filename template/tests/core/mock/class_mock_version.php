@@ -75,7 +75,7 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
         return self::NAME;
     }
 
-    public static function getFHIRVersion(): FHIRVersion
+    public static function getFHIRVersion(): <?php echo $fhirVersion; ?>
     {
         if (!isset(self::$_fhirVersion)) {
             self::$_fhirVersion = new <?php echo $fhirVersion; ?>(
@@ -108,12 +108,12 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
         throw new \BadMethodCallException('Not implemented');
     }
 
-    public function getConfig(): VersionConfigInterface
+    public function getConfig(): <?php echo $versionConfigInterface; ?>
     {
         return $this->_config;
     }
 
-    public function getTypeMap(): VersionTypeMapInterface
+    public function getTypeMap(): <?php echo $versionTypeMapInterface; ?>
     {
         if (!isset(self::$_typeMap)) {
             self::$_typeMap = new <?php echo $mockVersionTypeMap; ?>();
