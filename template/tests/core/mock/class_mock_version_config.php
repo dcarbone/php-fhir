@@ -60,11 +60,13 @@ class <?php echo $coreFile; ?> implements <?php echo $versionConfigInterface; ?>
     }
 
     public function getUnserializeConfig(): <?php echo $unserializeConfig; ?>
+
     {
         return $this->_unserializeConfig;
     }
 
-    public function getSerializeConfig(): <?php $serializeConfig; ?>
+    public function getSerializeConfig(): <?php echo $serializeConfig; ?>
+
     {
         return $this->_serializeConfig;
     }

@@ -76,6 +76,7 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     }
 
     public static function getFHIRVersion(): <?php echo $fhirVersion; ?>
+
     {
         if (!isset(self::$_fhirVersion)) {
             self::$_fhirVersion = new <?php echo $fhirVersion; ?>(
@@ -109,11 +110,13 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     }
 
     public function getConfig(): <?php echo $versionConfigInterface; ?>
+
     {
         return $this->_config;
     }
 
     public function getTypeMap(): <?php echo $versionTypeMapInterface; ?>
+
     {
         if (!isset(self::$_typeMap)) {
             self::$_typeMap = new <?php echo $mockVersionTypeMap; ?>();
