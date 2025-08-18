@@ -38,7 +38,7 @@ jobs:
           - '8.4'
     name: 'Builder Tests - PHP ${{ matrix.php-version }}'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: 'Bootstrap'
         uses: ./.github/actions/bootstrap
         with:
@@ -62,7 +62,7 @@ jobs:
           - 'R5'
     name: 'Download ${{ matrix.test-target }} Source'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/load-fhir-xsd
         with:
           version: '${{ matrix.test-target }}'
@@ -94,7 +94,7 @@ jobs:
         ports:
           - '8080:8080'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: 'Bootstrap'
         uses: ./.github/actions/bootstrap
         with:
