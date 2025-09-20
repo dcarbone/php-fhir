@@ -29,6 +29,7 @@ $coreFiles = $version->getConfig()->getCoreFiles();
 $versionCoreFiles = $version->getVersionCoreFiles();
 
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
+$constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 
 $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
@@ -53,6 +54,10 @@ $stringSerializable = $primitiveType->isOneOf(
     PrimitiveTypeEnum::POSITIVE_INTEGER,
     PrimitiveTypeEnum::UNSIGNED_INTEGER,
 );
+
+if ($primitiveType->isOneOf(PrimitiveTypeEnum::DATE, PrimitiveTypeEnum::DATETIME, PrimitiveTypeEnum::INSTANT, PrimitiveTypeEnum::TIME)) {
+    $imports->addCoreFileImports($constantsClass);
+}
 
 ob_start();
 
