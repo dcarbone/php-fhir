@@ -171,7 +171,7 @@ if (!$type->isAbstract()
     }
 <?php if ($primitiveType->isOneOf(PrimitiveTypeEnum::DATE, PrimitiveTypeEnum::DATETIME, PrimitiveTypeEnum::INSTANT, PrimitiveTypeEnum::TIME)): ?>
 
-    public function testCanGetValueAsDateTime()
+    public function testCanSetValueAsDateTime()
     {
         $date = \DateTime::createFromFormat("Y-m-d\TH:i:sP", '2020-02-02T20:20:20+00:00');
         $type = new <?php echo $type->getClassName(); ?>(value: $date);
