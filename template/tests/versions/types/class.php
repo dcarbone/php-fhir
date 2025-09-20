@@ -169,8 +169,25 @@ if (!$type->isAbstract()
         $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>();
         $this->assertEquals(<?php echo $versionClass->getFullyQualifiedName(true); ?>::getFHIRVersion(), $type->_getFHIRVersion());
     }
+<?php if ($primitiveType->isOneOf(PrimitiveTypeEnum::DATE, PrimitiveTypeEnum::DATETIME, PrimitiveTypeEnum::INSTANT, PrimitiveTypeEnum::TIME)): ?>
 
-<?php elseif (!$version->getSourceMetadata()->isDSTU1()) :
+    public function testCanGetValueAsDateTime()
+    {
+        $date = \DateTime::createFromFormat("Y-m-d\TH:i:sP", '2020-02-02T20:20:20+00:00');
+        $type = new <?php echo $type->getClassName(); ?>(value: $date);
+<?php if ($primitiveType === PrimitiveTypeEnum::TIME): ?>
+        $this->assertEquals($date->format('H:i:s'), $type->_getValueAsString());
+<?php elseif ($primitiveType === PrimitiveTypeEnum::DATE): ?>
+        $this->assertEquals($date->format('Y-m-d'), $type->_getValueAsString());
+<?php elseif ($primitiveType === PrimitiveTypeEnum::INSTANT): ?>
+        $this->assertEquals($date->format('Y-m-d\TH:i:s\.uP'), $type->_getValueAsString());
+<?php elseif ($primitiveType === PrimitiveTypeEnum::DATETIME): ?>
+        $this->assertEquals($date->format('Y-m-d\TH:i:s\.uP'), $type->_getValueAsString());
+<?php endif; ?>
+    }
+<?php
+endif;
+elseif (!$version->getSourceMetadata()->isDSTU1()) :
     if ($type->isResourceType() || $type->hasResourceTypeParent()) :
         if ($type->hasResourceTypeParent()
             && $type !== $bundleType
