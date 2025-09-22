@@ -171,7 +171,7 @@ if (!$type->isAbstract()
     }
 <?php if ($primitiveType->isOneOf(PrimitiveTypeEnum::DATE, PrimitiveTypeEnum::DATETIME, PrimitiveTypeEnum::INSTANT, PrimitiveTypeEnum::TIME)): ?>
 
-    public function testCanSetValueAsDateTime()
+    public function testCanSetValueWithDateTime()
     {
         $date = \DateTime::createFromFormat("Y-m-d\TH:i:sP", '2020-02-02T20:20:20+00:00');
         $type = new <?php echo $type->getClassName(); ?>(value: $date);
@@ -185,8 +185,7 @@ if (!$type->isAbstract()
         $this->assertEquals($date->format('Y-m-d\TH:i:s\.uP'), $type->_getValueAsString());
 <?php endif; ?>
     }
-<?php
-endif;
+<?php endif;
 elseif (!$version->getSourceMetadata()->isDSTU1()) :
     if ($type->isResourceType() || $type->hasResourceTypeParent()) :
         if ($type->hasResourceTypeParent()
