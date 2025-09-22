@@ -34,7 +34,7 @@
     "ext-zlib": "*",
     "phpunit/phpunit": "^10.5 || ^11.0",
     "monolog/monolog": "^3.2.0",
-    "spatie/temporary-directory": "^1.0"
+    "spatie/temporary-directory": "^1.0 || ^2.0"
   },
   "replace": {
     "php-fhir/parser": "*",
