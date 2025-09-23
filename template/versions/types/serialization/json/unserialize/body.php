@@ -69,7 +69,7 @@ foreach($type->getProperties()->getIterator() as $property) :
             || property_exists($decoded, self::<?php echo $propConstExt; ?>)) {
 <?php if ($property->isCollection()) : ?>
             $vals = (array)($decoded-><?php echo $propName; ?> ?? []);
-            $exts = (array)($decoded-><?php echo $propConstExt; ?> ?? []);
+            $exts = (array)($decoded-><?php echo $propNameExt; ?> ?? []);
             $valCnt = count($vals);
             $extCnt = count($exts);
             if ($extCnt > $valCnt) {
