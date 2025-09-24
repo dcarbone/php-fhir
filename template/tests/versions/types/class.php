@@ -187,6 +187,14 @@ if (!$type->isAbstract()
     }
 <?php endif;
 elseif ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+    function testCanUnserializeExtendedFields()
+    {
+        $json = new \stdClass();
+        $json->_id = new \stdClass();
+        $json->_id->extension = new \stdClass();
+        $type = <?php echo $type->getClassName() ?>::jsonUnserialize($json);
+        $this->assertNotEmpty($type->getId()->getExtension());
+    }
 
     public function testCanExecuteValidations()
     {
