@@ -203,6 +203,13 @@ elseif ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
         $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
     }
 
+    public function testCanJsonUnmarshalWithNoResourceType()
+    {
+        $dec = new \stdClass();
+        $resource = <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+        $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+    }
+
     public function testJsonUnmarshalThrowsExceptionWithWrongResourceType()
     {
         $this->expectException(\DomainException::class);
