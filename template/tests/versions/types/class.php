@@ -186,7 +186,17 @@ if (!$type->isAbstract()
 <?php endif; ?>
     }
 <?php endif;
-elseif (!$version->getSourceMetadata()->isDSTU1()) :
+elseif (!$version->getSourceMetadata()->isDSTU1()) : ?>
+
+    public function testJsonUnmarshalThrowsExceptionWithWrongResourceType()
+    {
+        $this->expectException(\DomainException::class);
+
+        $dec = new \stdClass();
+        $dec-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = 'NotAResource';
+        <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+    }
+<?php
     if ($type->isResourceType() || $type->hasResourceTypeParent()) :
         if ($type->hasResourceTypeParent()
             && $type !== $bundleType
