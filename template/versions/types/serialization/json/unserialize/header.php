@@ -58,6 +58,13 @@ ob_start(); ?>
             throw new \RuntimeException(sprintf('%s::xmlUnserialize: Cannot unserialize directly into root type', static::class));
         }<?php else : ?>
         if (null === $type) {
+            if (isset($decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>) && $decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> !== static::FHIR_TYPE_NAME) {
+                throw new \DomainException(sprintf(
+                    '%s::jsonUnserialize - Cannot unmarshal data for resource type "%s" into this type.',
+                    ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                    $decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>,
+                ));
+            }
             $type = new static();
         }<?php endif; ?> else if (!($type instanceof <?php echo $type->getClassName(); ?>)) {
             throw new \RuntimeException(sprintf(

@@ -171,7 +171,7 @@ if (!$type->isAbstract()
     }
 <?php if ($primitiveType->isOneOf(PrimitiveTypeEnum::DATE, PrimitiveTypeEnum::DATETIME, PrimitiveTypeEnum::INSTANT, PrimitiveTypeEnum::TIME)): ?>
 
-    public function testCanSetValueAsDateTime()
+    public function testCanSetValueWithDateTime()
     {
         $date = \DateTime::createFromFormat("Y-m-d\TH:i:sP", '2020-02-02T20:20:20+00:00');
         $type = new <?php echo $type->getClassName(); ?>(value: $date);
@@ -185,10 +185,41 @@ if (!$type->isAbstract()
         $this->assertEquals($date->format('Y-m-d\TH:i:s\.uP'), $type->_getValueAsString());
 <?php endif; ?>
     }
+<?php endif;
+elseif ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+
+    public function testCanExecuteValidations()
+    {
+        $type = new <?php echo $type->getclassName(); ?>();
+        $errs = $type->_getValidationErrors();
+        $this->assertIsArray($errs);
+    }
+
+    public function testCanJsonUnmarshalWithCorrectResourceType()
+    {
+        $dec = new \stdClass();
+        $dec-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = '<?php echo $type->getFHIRName(); ?>';
+        $resource = <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+        $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+    }
+
+    public function testCanJsonUnmarshalWithNoResourceType()
+    {
+        $dec = new \stdClass();
+        $resource = <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+        $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+    }
+
+    public function testJsonUnmarshalThrowsExceptionWithWrongResourceType()
+    {
+        $this->expectException(\DomainException::class);
+
+        $dec = new \stdClass();
+        $dec-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = 'NotAResource';
+        <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+    }
 <?php
-endif;
-elseif (!$version->getSourceMetadata()->isDSTU1()) :
-    if ($type->isResourceType() || $type->hasResourceTypeParent()) :
+    if (!$version->getSourceMetadata()->isDSTU1()) :
         if ($type->hasResourceTypeParent()
             && $type !== $bundleType
             && 'DomainResource' !== $type->getFHIRName()
@@ -319,15 +350,7 @@ elseif (!$version->getSourceMetadata()->isDSTU1()) :
         $xw = $bundle->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig());
         $this->assertXmlStringEqualsXmlString($rc->getResp(), $xw->outputMemory());
     }
-<?php   endif; ?>
-
-    public function testCanExecuteValidations()
-    {
-        $type = new <?php echo $type->getclassName(); ?>();
-        $errs = $type->_getValidationErrors();
-        $this->assertIsArray($errs);
-    }
-<?php
-    endif;
+<?php   endif;
+    endif; // end dstu2+ integration tests
 endif; ?>}
 <?php return ob_get_clean();

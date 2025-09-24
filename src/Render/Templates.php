@@ -22,7 +22,6 @@ use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\CoreFile;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
-use DCarbone\PHPFHIR\Version\Definition\Types;
 
 /**
  * Class TemplateBuilder
