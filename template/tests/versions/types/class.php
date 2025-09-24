@@ -186,7 +186,22 @@ if (!$type->isAbstract()
 <?php endif; ?>
     }
 <?php endif;
-elseif (!$version->getSourceMetadata()->isDSTU1()) : ?>
+elseif ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+
+    public function testCanExecuteValidations()
+    {
+        $type = new <?php echo $type->getclassName(); ?>();
+        $errs = $type->_getValidationErrors();
+        $this->assertIsArray($errs);
+    }
+
+    public function testCanJsonUnmarshalWithCorrectResourceType()
+    {
+        $dec = new \stdClass();
+        $dec-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = '<?php echo $type->getFHIRName(); ?>';
+        $resource = <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+        $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+    }
 
     public function testJsonUnmarshalThrowsExceptionWithWrongResourceType()
     {
@@ -197,7 +212,7 @@ elseif (!$version->getSourceMetadata()->isDSTU1()) : ?>
         <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
     }
 <?php
-    if ($type->isResourceType() || $type->hasResourceTypeParent()) :
+    if (!$version->getSourceMetadata()->isDSTU1()) :
         if ($type->hasResourceTypeParent()
             && $type !== $bundleType
             && 'DomainResource' !== $type->getFHIRName()
@@ -328,15 +343,7 @@ elseif (!$version->getSourceMetadata()->isDSTU1()) : ?>
         $xw = $bundle->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig());
         $this->assertXmlStringEqualsXmlString($rc->getResp(), $xw->outputMemory());
     }
-<?php   endif; ?>
-
-    public function testCanExecuteValidations()
-    {
-        $type = new <?php echo $type->getclassName(); ?>();
-        $errs = $type->_getValidationErrors();
-        $this->assertIsArray($errs);
-    }
-<?php
-    endif;
+<?php   endif;
+    endif; // end dstu2+ integration tests
 endif; ?>}
 <?php return ob_get_clean();
