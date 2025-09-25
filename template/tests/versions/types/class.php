@@ -45,6 +45,19 @@ $versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_EN
 $imports = new Imports($version->getConfig(), $type->getFullyQualifiedTestNamespace(false), $type->getTestClassName());
 $imports->addVersionTypeImports($type);
 
+$properties = iterator_to_array($type->getProperties()->getIterator());
+$collectionProps = array_filter(
+        $properties,
+        fn($property) => $property->isCollection() &&
+                $property->getValueFHIRType() !== null && (
+                        $property->getValueFHIRType()->isPrimitiveContainer() || $property->getValueFHIRType()->hasPrimitiveContainerParent()
+                )
+);
+
+if (count($collectionProps) > 0) {
+    $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION);
+}
+
 if (!$type->isAbstract()
     && $type !== $bundleType
     && !$type->getKind()->isResourceContainer($version)
@@ -128,6 +141,36 @@ if (!$type->isAbstract()
         $type = new <?php echo $type->getClassName(); ?>();
         $this->assertEquals('<?php echo $type->getFHIRName(); ?>', $type->_getFHIRTypeName());
     }
+
+<?php if (count($collectionProps) > 0) :?>
+    function testCanUnserializeExtensionsOfCollectionProperties()
+    {
+        $json = new \stdClass();
+
+        $ext = new \stdClass();
+        $ext->url = "http://foobar";
+        $ext->valueString = "foobar";
+        $extension = new \stdClass();
+        $extension->extension = [$ext];
+
+<?php foreach ($collectionProps as $collectionProp): ?>
+        $json-><?php echo $collectionProp->getName() ?> = "null";
+        $json-><?php echo $collectionProp->getExtName() ?> = [$extension];
+<?php endforeach; ?>
+
+        $version = new <?php echo $versionClass; ?>();
+        $type = <?php echo $type->getClassName() ?>::jsonUnserialize($json, $version->getConfig()->getUnserializeConfig());
+
+<?php foreach ($collectionProps as $collectionProp): ?>
+        $extensions = $type-><?php echo $collectionProp->getGetterName() ?>()[0]->getExtension();
+        $this->assertCount(1, $extensions);
+        $extension = $extensions[0];
+        $this->assertEquals("http://foobar", $extension->getUrl());
+        $this->assertEquals("foobar", $extension->getValueString());
+<?php endforeach; ?>
+    }
+
+<?php endif; ?>
 <?php if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) :
     $primitiveType = match(true) {
         ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent()) => $type->getPrimitiveType(),
@@ -187,6 +230,22 @@ if (!$type->isAbstract()
     }
 <?php endif;
 elseif ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+    function testCanUnserializeExtendedFields()
+    {
+        $json = new \stdClass();
+        $json->_id = new \stdClass();
+        $json->_id->extension = new \stdClass();
+        $json->_id->extension->url = "http://foobar";
+        $json->_id->extension->valueString = "foobar";
+        $type = <?php echo $type->getClassName() ?>::jsonUnserialize($json);
+
+        $extensions = $type->getId()->getExtension();
+        $this->assertCount(1, $extensions);
+        $extension = $extensions[0];
+
+        $this->assertEquals($json->_id->extension->url, $extension->getUrl());
+        $this->assertEquals($json->_id->extension->valueString, $extension->getValueString());
+    }
 
     public function testCanExecuteValidations()
     {
