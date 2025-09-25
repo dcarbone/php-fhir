@@ -141,8 +141,8 @@ if (!$type->isAbstract()
         $type = new <?php echo $type->getClassName(); ?>();
         $this->assertEquals('<?php echo $type->getFHIRName(); ?>', $type->_getFHIRTypeName());
     }
-
 <?php if (count($collectionProps) > 0) :?>
+
     function testCanUnserializeExtensionsOfCollectionProperties()
     {
         $json = new \stdClass();
@@ -169,9 +169,8 @@ if (!$type->isAbstract()
         $this->assertEquals("foobar", $extension->getValueString());
 <?php endforeach; ?>
     }
-
-<?php endif; ?>
-<?php if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) :
+<?php endif;
+if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) :
     $primitiveType = match(true) {
         ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent()) => $type->getPrimitiveType(),
         $type->isPrimitiveContainer() => $type->getProperties()->getProperty('value')->getValueFHIRType()->getPrimitiveType(),
@@ -188,6 +187,7 @@ if (!$type->isAbstract()
         default => ['randomstring'],
     };
 ?>
+
     public function testCanConstructWithString()
     {
 <?php foreach($strVals as $strVal) : ?>
@@ -230,6 +230,7 @@ if (!$type->isAbstract()
     }
 <?php endif;
 elseif ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+
     function testCanUnserializeExtendedFields()
     {
         $json = new \stdClass();
