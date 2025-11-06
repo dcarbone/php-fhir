@@ -94,7 +94,7 @@ class <?php echo $type->getClassName(); ?> implements <?php echo $resourceContai
     public function getContainedType(): null|<?php echo $containedTypeInterface; ?>
 
     {
-        return $this->contained ?? null;
+        return $this->containedType ?? null;
     }
 
     /**
