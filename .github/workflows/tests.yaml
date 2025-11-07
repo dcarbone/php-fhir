@@ -1,5 +1,21 @@
 name: Tests
 
+permissions:
+  actions: none
+  attestations: none
+  checks: none
+  contents: read
+  deployments: none
+  id-token: none
+  issues: none
+  models: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  security-events: none
+  statuses: none
+
 on:
   workflow_dispatch:
 
@@ -38,11 +54,12 @@ jobs:
           - '8.4'
     name: 'Builder Tests - PHP ${{ matrix.php-version }}'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: 'Bootstrap'
         uses: ./.github/actions/bootstrap
         with:
           php-version: ${{ matrix.php-version }}
+
       - name: 'Run tests'
         # language=sh
         run: ./vendor/bin/phpunit -c 'phpunit/Builder.xml'
@@ -61,7 +78,7 @@ jobs:
           - 'R5'
     name: 'Download ${{ matrix.test-target }} Source'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/load-fhir-xsd
         with:
           version: '${{ matrix.test-target }}'
@@ -93,7 +110,7 @@ jobs:
         ports:
           - '8080:8080'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: 'Bootstrap'
         uses: ./.github/actions/bootstrap
         with:

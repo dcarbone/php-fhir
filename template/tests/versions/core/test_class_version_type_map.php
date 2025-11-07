@@ -59,16 +59,16 @@ class <?php echo $coreFile; ?> extends TestCase
 
     public function testGetTypeClassnameWithJSONMissingResourceType()
     {
-        $json = new \stdClass();
-        $json->jimmy = 'Observation';
-        $this->assertNull(<?php echo $typeMapClass; ?>::getTypeClassname($json));
+        $decoded = new \stdClass();
+        $decoded->jimmy = 'Observation';
+        $this->assertNull(<?php echo $typeMapClass; ?>::getTypeClassname($decoded));
     }
 
     public function testGetTypeClassnameWithJSONInvalidResourceType()
     {
-        $json = new \stdClass();
-        $json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = 'Steve';
-        $this->assertNull(<?php echo $typeMapClass; ?>::getTypeClassname($json));
+        $decoded = new \stdClass();
+        $decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = 'Steve';
+        $this->assertNull(<?php echo $typeMapClass; ?>::getTypeClassname($decoded));
     }
 
     public function testGetTypeClassnameWithTypeName()
@@ -140,12 +140,12 @@ endforeach; ?>
     if ($type->isAbstract()) {
         continue;
     } ?>
-        $json = new \stdClass();
-        $json-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = '<?php echo $type->getFHIRName(); ?>';
+        $decoded = new \stdClass();
+        $decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = '<?php echo $type->getFHIRName(); ?>';
 <?php if ($type->isContainedType()) : ?>
-        $this->assertTrue(<?php echo $typeMapClass; ?>::isContainableType($json), sprintf('Expected input "%s" to return true.', var_export($json, true)));
+        $this->assertTrue(<?php echo $typeMapClass; ?>::isContainableType($decoded), sprintf('Expected input "%s" to return true.', var_export($decoded, true)));
 <?php else : ?>
-        $this->assertFalse(<?php echo $typeMapClass; ?>::isContainableType($json), sprintf('Expected input "%s" to return false.', var_export($json, true)));
+        $this->assertFalse(<?php echo $typeMapClass; ?>::isContainableType($decoded), sprintf('Expected input "%s" to return false.', var_export($decoded, true)));
 <?php endif;
 endforeach; ?>
     }

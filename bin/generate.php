@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
- * Download and generation script for all major FHIR versions
+ * Generation helper script for PHP-FHIR.
  *
  * Copyright 2017 Pim Koeman (pim@dataground.com)
  * Copyright 2017-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -129,9 +129,9 @@ Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
 - Flags:
     --help          Print this help text 
                         ex: ./bin/generate.sh --help
-    --onlyCore      Only gnerate Core classes.  Mutually exclusive with --onlyLibrary and --onlyTests
+    --onlyCore      Only gnerate Core classes.  Mutually exclusive with --onlyLibrary
                         ex: ./bin/generate.sh --onlyCore
-    --onlyLibrary   Only generate Library classes.  Mutually exclusive with --onlyTests
+    --onlyLibrary   Only generate Library classes.  Mutually exclusive with --onlyCore
                         ex: ./bin/generate.sh --onlyLibrary
     --config        Specify location of config
                         default: {$config_location_def}

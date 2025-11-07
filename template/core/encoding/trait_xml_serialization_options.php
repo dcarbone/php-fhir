@@ -50,8 +50,7 @@ trait <?php echo $coreFile; ?>
     }
 
     /**
-     * Set the location a particular field's value must be placed when serializing this type to XML.  Each type has
-     * a limited number of fields that may be serialized to XML
+     * Set the location a particular field's value must be placed when serializing this type to XML.
      *
      * @param string $field Name of field on this type.
      * @throws \DomainException

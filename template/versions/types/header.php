@@ -47,6 +47,9 @@ if ('' !== $classDocumentation) : ?>/**
 <?php echo $classDocumentation; ?>
  */
 <?php endif;
+if ($type->isUsedAsProperty()) : ?>
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+<?php endif;
 // -- class definition
 if ($type->isAbstract()) : ?>abstract <?php endif; ?>class <?php echo $type->getClassName(); ?><?php if (null !== $parentType) : ?> extends <?php echo $parentType->getClassName(); endif; ?>
 <?php if ([] !== $interfaces) : ?> implements <?php echo implode(', ', array_keys($interfaces)); endif; ?>

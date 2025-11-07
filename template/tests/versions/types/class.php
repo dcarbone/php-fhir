@@ -45,6 +45,19 @@ $versionTypeEnum = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_EN
 $imports = new Imports($version->getConfig(), $type->getFullyQualifiedTestNamespace(false), $type->getTestClassName());
 $imports->addVersionTypeImports($type);
 
+$properties = iterator_to_array($type->getProperties()->getIterator());
+$collectionProps = array_filter(
+        $properties,
+        fn($property) => $property->isCollection() &&
+                $property->getValueFHIRType() !== null && (
+                        $property->getValueFHIRType()->isPrimitiveContainer() || $property->getValueFHIRType()->hasPrimitiveContainerParent()
+                )
+);
+
+if (count($collectionProps) > 0) {
+    $imports->addVersionCoreFileImportsByName($version, PHPFHIR_VERSION_CLASSNAME_VERSION);
+}
+
 if (!$type->isAbstract()
     && $type !== $bundleType
     && !$type->getKind()->isResourceContainer($version)
@@ -128,7 +141,36 @@ if (!$type->isAbstract()
         $type = new <?php echo $type->getClassName(); ?>();
         $this->assertEquals('<?php echo $type->getFHIRName(); ?>', $type->_getFHIRTypeName());
     }
-<?php if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) :
+<?php if (count($collectionProps) > 0) :?>
+
+    function testCanUnserializeExtensionsOfCollectionProperties()
+    {
+        $json = new \stdClass();
+
+        $ext = new \stdClass();
+        $ext->url = "http://foobar";
+        $ext->valueString = "foobar";
+        $extension = new \stdClass();
+        $extension->extension = [$ext];
+
+<?php foreach ($collectionProps as $collectionProp): ?>
+        $json-><?php echo $collectionProp->getName() ?> = "null";
+        $json-><?php echo $collectionProp->getExtName() ?> = [$extension];
+<?php endforeach; ?>
+
+        $version = new <?php echo $versionClass; ?>();
+        $type = <?php echo $type->getClassName() ?>::jsonUnserialize($json, $version->getConfig()->getUnserializeConfig());
+
+<?php foreach ($collectionProps as $collectionProp): ?>
+        $extensions = $type-><?php echo $collectionProp->getGetterName() ?>()[0]->getExtension();
+        $this->assertCount(1, $extensions);
+        $extension = $extensions[0];
+        $this->assertEquals("http://foobar", $extension->getUrl());
+        $this->assertEquals("foobar", $extension->getValueString());
+<?php endforeach; ?>
+    }
+<?php endif;
+if ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent() || $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent()) :
     $primitiveType = match(true) {
         ($type->isPrimitiveType() || $type->hasPrimitiveTypeParent()) => $type->getPrimitiveType(),
         $type->isPrimitiveContainer() => $type->getProperties()->getProperty('value')->getValueFHIRType()->getPrimitiveType(),
@@ -145,6 +187,7 @@ if (!$type->isAbstract()
         default => ['randomstring'],
     };
 ?>
+
     public function testCanConstructWithString()
     {
 <?php foreach($strVals as $strVal) : ?>
@@ -169,9 +212,74 @@ if (!$type->isAbstract()
         $type = new <?php echo $type->getFullyQualifiedClassName(true); ?>();
         $this->assertEquals(<?php echo $versionClass->getFullyQualifiedName(true); ?>::getFHIRVersion(), $type->_getFHIRVersion());
     }
+<?php if ($primitiveType->isOneOf(PrimitiveTypeEnum::DATE, PrimitiveTypeEnum::DATETIME, PrimitiveTypeEnum::INSTANT, PrimitiveTypeEnum::TIME)): ?>
 
-<?php elseif (!$version->getSourceMetadata()->isDSTU1()) :
-    if ($type->isResourceType() || $type->hasResourceTypeParent()) :
+    public function testCanSetValueWithDateTime()
+    {
+        $date = \DateTime::createFromFormat("Y-m-d\TH:i:sP", '2020-02-02T20:20:20+00:00');
+        $type = new <?php echo $type->getClassName(); ?>(value: $date);
+<?php if ($primitiveType === PrimitiveTypeEnum::TIME): ?>
+        $this->assertEquals($date->format('H:i:s'), $type->_getValueAsString());
+<?php elseif ($primitiveType === PrimitiveTypeEnum::DATE): ?>
+        $this->assertEquals($date->format('Y-m-d'), $type->_getValueAsString());
+<?php elseif ($primitiveType === PrimitiveTypeEnum::INSTANT): ?>
+        $this->assertEquals($date->format('Y-m-d\TH:i:s\.uP'), $type->_getValueAsString());
+<?php elseif ($primitiveType === PrimitiveTypeEnum::DATETIME): ?>
+        $this->assertEquals($date->format('Y-m-d\TH:i:s\.uP'), $type->_getValueAsString());
+<?php endif; ?>
+    }
+<?php endif;
+elseif ($type->isResourceType() || $type->hasResourceTypeParent()) : ?>
+
+    function testCanUnserializeExtendedFields()
+    {
+        $json = new \stdClass();
+        $json->_id = new \stdClass();
+        $json->_id->extension = new \stdClass();
+        $json->_id->extension->url = "http://foobar";
+        $json->_id->extension->valueString = "foobar";
+        $type = <?php echo $type->getClassName() ?>::jsonUnserialize($json);
+
+        $extensions = $type->getId()->getExtension();
+        $this->assertCount(1, $extensions);
+        $extension = $extensions[0];
+
+        $this->assertEquals($json->_id->extension->url, $extension->getUrl());
+        $this->assertEquals($json->_id->extension->valueString, $extension->getValueString());
+    }
+
+    public function testCanExecuteValidations()
+    {
+        $type = new <?php echo $type->getclassName(); ?>();
+        $errs = $type->_getValidationErrors();
+        $this->assertIsArray($errs);
+    }
+
+    public function testCanJsonUnmarshalWithCorrectResourceType()
+    {
+        $dec = new \stdClass();
+        $dec-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = '<?php echo $type->getFHIRName(); ?>';
+        $resource = <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+        $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+    }
+
+    public function testCanJsonUnmarshalWithNoResourceType()
+    {
+        $dec = new \stdClass();
+        $resource = <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+        $this->assertInstanceOf(<?php echo $type->getclassname(); ?>::class, $resource);
+    }
+
+    public function testJsonUnmarshalThrowsExceptionWithWrongResourceType()
+    {
+        $this->expectException(\DomainException::class);
+
+        $dec = new \stdClass();
+        $dec-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> = 'NotAResource';
+        <?php echo $type->getClassName(); ?>::jsonUnserialize(decoded: $dec);
+    }
+<?php
+    if (!$version->getSourceMetadata()->isDSTU1()) :
         if ($type->hasResourceTypeParent()
             && $type !== $bundleType
             && 'DomainResource' !== $type->getFHIRName()
@@ -195,7 +303,7 @@ if (!$type->isAbstract()
         $this->assertJSON($rc->getResp());
         $this->assertEquals(200, $rc->getCode(), sprintf('Configured test endpoint "%s" returned non-200 response code', $this->_getTestEndpoint()));
         $bundle = <?php echo $bundleType->getClassName(); ?>::jsonUnserialize(
-            json: $rc->getResp(),
+            decoded: $rc->getResp(),
             config: $this->_version->getConfig()->getUnserializeConfig(),
         );
         $entry = $bundle->getEntry();
@@ -229,7 +337,7 @@ if (!$type->isAbstract()
         $this->assertJSON($rc->getResp());
         $this->assertEquals(200, $rc->getCode(), sprintf('Configured test endpoint "%s" returned non-200 response code', $this->_getTestEndpoint()));
         $bundle = <?php echo $bundleType->getClassName(); ?>::jsonUnserialize(
-            json: $rc->getResp(),
+            decoded: $rc->getResp(),
         );
         $entry = $bundle->getEntry();
         $this->assertNotCount(0, $entry);
@@ -302,15 +410,7 @@ if (!$type->isAbstract()
         $xw = $bundle->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig());
         $this->assertXmlStringEqualsXmlString($rc->getResp(), $xw->outputMemory());
     }
-<?php   endif; ?>
-
-    public function testCanExecuteValidations()
-    {
-        $type = new <?php echo $type->getclassName(); ?>();
-        $errs = $type->_getValidationErrors();
-        $this->assertIsArray($errs);
-    }
-<?php
-    endif;
+<?php   endif;
+    endif; // end dstu2+ integration tests
 endif; ?>}
 <?php return ob_get_clean();
