@@ -38,7 +38,7 @@ Full documentation is maintained on the **[project wiki](https://github.com/dcar
 | PHPFHIR Version | PHP Versions | FHIR Versions                   | Supported |
 |-----------------|--------------|---------------------------------|-----------|
 | v4              | 8.1+         | DSTU1, DSTU2, STU3, R4, R4B, R5 | **Yes**   |
-| v3              | 8.1+         | DSTU1, DSTU2, STU3, R4, R4B, R5 | No        |
+| v3              | 8.1–8.4      | DSTU1, DSTU2, STU3, R4, R4B, R5 | No        |
 | v2              | 5.4–7.4      | DSTU1, DSTU2, STU3, R4          | No        |
 
 ---
