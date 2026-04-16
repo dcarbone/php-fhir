@@ -25,7 +25,7 @@ class VersionDefaultConfig
         'libxmlOptMask',
         'jsonDecodeMaxDepth',
         'jsonDecodeOpts',
-        'jsonDecodeOptsMask',
+        'jsonDecodeOptMask',
     ];
 
     private const _SERIALIZE_CONFIG_KEYS = [
@@ -97,7 +97,7 @@ class VersionDefaultConfig
                     )),
                 'jsonDecodeMaxDepth' => intval($config[$k]),
                 'jsonDecodeOpts' => intval($config[$k]),
-                'jsonDecodeOptMask '=> is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+}$}', $config[$k])
+                'jsonDecodeOptMask' => is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+}$}', $config[$k])
                     ? $config[$k]
                     : throw new \InvalidArgumentException(sprintf(
                         'Value provided to "jsonDecodeOptMask" is either not a string or is an invalid options mask: %s',
