@@ -67,7 +67,7 @@ class <?php echo $coreFile; ?>
     public function __construct(string $address,
                                 <?php echo $formatEnum; ?> $defaultFormat = <?php echo $formatEnum; ?>::XML,
                                 array $defaultQueryParams = [],
-                                array $curlOpts = [],
+                                array $curlOpts = [CURLOPT_FORBID_REUSE => true],
                                 bool $parseResponseHeaders = true)
     {
         $this->_address = $address;
