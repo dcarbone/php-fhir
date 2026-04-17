@@ -89,7 +89,7 @@ class VersionDefaultConfig
             }
             $this->_unserializeConfig[$k] = match ($k) {
                 'libxmlOpts' => intval($config[$k]),
-                'libxmlOptMask' => is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+}$}', $config[$k])
+                'libxmlOptMask' => is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+$}', $config[$k])
                     ? $config[$k]
                     : throw new \InvalidArgumentException(sprintf(
                         'Value provided to "libxmlOptMask" is either not a string or is an invalid options mask: %s',
@@ -97,7 +97,7 @@ class VersionDefaultConfig
                     )),
                 'jsonDecodeMaxDepth' => intval($config[$k]),
                 'jsonDecodeOpts' => intval($config[$k]),
-                'jsonDecodeOptMask '=> is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+}$}', $config[$k])
+                'jsonDecodeOptMask '=> is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+$}', $config[$k])
                     ? $config[$k]
                     : throw new \InvalidArgumentException(sprintf(
                         'Value provided to "jsonDecodeOptMask" is either not a string or is an invalid options mask: %s',
@@ -142,7 +142,7 @@ class VersionDefaultConfig
                 'overrideSourceXMLNS' => (bool)$config[$k],
                 'rootXMLNS' => null === $config[$k] ? null : (string)$config[$k],
                 'xhtmlLibxmlOpts' => intval($config[$k]),
-                'xhtmlLibxmlOptMask' => is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+}$}', $config[$k])
+                'xhtmlLibxmlOptMask' => is_string($config[$k]) && preg_match('{^[A-Z0-9_\s|]+$}', $config[$k])
                     ? $config[$k]
                     : throw new \InvalidArgumentException(sprintf(
                         'Value provided to "xhtmlLibxmlOptMask" is either not a string or is an invalid options mask: %s',
