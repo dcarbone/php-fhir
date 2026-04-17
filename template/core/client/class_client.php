@@ -162,7 +162,6 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
         $rc->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $rc->err = curl_error($ch);
         $rc->errno = curl_errno($ch);
-        curl_close($ch);
 
         if (0 === $rc->errno) {
             if ($parseResponseHeaders) {
