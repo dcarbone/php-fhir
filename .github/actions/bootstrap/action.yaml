@@ -72,7 +72,7 @@ runs:
 
     - name: 'Save composer dep cache'
       if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"
