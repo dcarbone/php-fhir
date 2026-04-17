@@ -43,7 +43,7 @@ on:
 
 jobs:
   builder-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -52,6 +52,7 @@ jobs:
           - '8.2'
           - '8.3'
           - '8.4'
+          - '8.5'
     name: 'Builder Tests - PHP ${{ matrix.php-version }}'
     steps:
       - uses: actions/checkout@v6
@@ -65,7 +66,7 @@ jobs:
         run: ./vendor/bin/phpunit -c 'phpunit/Builder.xml'
 
   load-fhir-source:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
@@ -84,7 +85,7 @@ jobs:
           version: '${{ matrix.test-target }}'
 
   run:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs:
       - load-fhir-source
     strategy:
@@ -95,6 +96,7 @@ jobs:
           - '8.2'
           - '8.3'
           - '8.4'
+          - '8.5'
         test-target:
           - 'Core'
           - 'DSTU1'
@@ -122,6 +124,8 @@ jobs:
         with:
           version: '${{ matrix.test-target }}'
       - name: 'Run tests'
+        env:
+          TEST_TARGET: '${{ matrix.test-target }}'
         # language=sh
         run: |
-          ./vendor/bin/phpunit -c 'phpunit/${{ matrix.test-target }}.xml'
+          ./vendor/bin/phpunit -c "phpunit/${TEST_TARGET}.xml"
