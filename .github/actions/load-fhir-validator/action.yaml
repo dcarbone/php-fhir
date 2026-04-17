@@ -31,7 +31,7 @@ runs:
         echo "cache-key=fhir-validator-${FHIR_VALIDATOR_VERSION}-2" >> $GITHUB_OUTPUT
 
     - name: 'Init validator cache'
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: validator-cache
       with:
         path: |

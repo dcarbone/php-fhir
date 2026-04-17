@@ -54,7 +54,7 @@ runs:
         echo "url=${FHIR_XSD_URL}" >> $GITHUB_OUTPUT
         echo "zip-filename=${_zip_filename}" >> $GITHUB_OUTPUT
 
-    - uses: actions/cache@v4
+    - uses: actions/cache@v5
       id: cache
       with:
         path: '${{ steps.vars.outputs.cache-dir }}'

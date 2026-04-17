@@ -58,7 +58,7 @@ runs:
 
     - name: 'Init composer dep cache'
       id: cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"

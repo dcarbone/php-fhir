@@ -49,7 +49,7 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CONFIG; ?> extends TestCase
         $this->assertEquals('http://example.com', $c->getAddress());
         $this->assertEquals(<?php echo $serializeFormatEnum; ?>::XML, $c->getDefaultFormat());
         $this->assertEmpty($c->getDefaultQueryParams());
-        $this->assertEquals([CURLOPT_FORBID_REUSE => true], $c->getCurlOpts());
+        $this->assertEmpty($c->getCurlOpts());
         $this->assertTrue($c->getParseResponseHeaders());
     }
 
