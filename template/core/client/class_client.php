@@ -203,14 +203,5 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
             return "Content-Type: application/fhir+{$format->value}; fhirVersion={$ver->getFHIRShortVersion()}";
         }
     }
-
-    protected function _buildBody(<?php echo $resourceTypeInterface; ?> $resource,
-                                  <?php echo $formatEnum; ?> $format): string
-    {
-        return match ($format) {
-            <?php echo $formatEnum; ?>::JSON => json_encode($resource),
-            <?php echo $formatEnum; ?>::XML => $resource->xmlSerialize(config: $this->_version->getConfig()->getSerializeConfig()),
-        };
-    }
 }
 <?php return ob_get_clean();
