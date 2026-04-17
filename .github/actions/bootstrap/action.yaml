@@ -11,16 +11,19 @@ runs:
   steps:
     - name: 'Define vars'
       id: vars
+      env:
+        PHP_VERSION: '${{ inputs.php-version }}'
       shell: bash -e {0}
       # language=sh
       run: |
         _phpunit_version=
-        case "${{ inputs.php-version }}" in
+        case "${PHP_VERSION}" in
           8.1) _phpunit_version='10.5' ;;
           8.2) _phpunit_version='11.1' ;;
           8.3) _phpunit_version='11.1' ;;
-          8.4) _phpunit_version='11.1' ;;
-          *) echo "Unsupported PHP version: ${{ inputs.php-version }}" && exit 1 ;;
+          8.4) _phpunit_version='13.0' ;;
+          8.5) _phpunit_version='13.0' ;;
+          *) echo "Unsupported PHP version: ${PHP_VERSION}" && exit 1 ;;
         esac
         echo "phpunit-version=${_phpunit_version}" >> $GITHUB_OUTPUT
 
@@ -37,11 +40,13 @@ runs:
         force: true
 
     - name: 'Set composer dep versions'
+      env:
+        PHPUNIT_VERSION: '${{ steps.vars.outputs.phpunit-version }}'
       shell: bash -e {0}
       # language=sh
       run: |
         tmpf="$(mktemp)"
-        jq -rcM '."require-dev"."phpunit/phpunit" = "^${{ steps.vars.outputs.phpunit-version }}"' composer.json > "${tmpf}"
+        jq -rcM ".\"require-dev\".\"phpunit/phpunit\" = \"^${PHPUNIT_VERSION}\"" composer.json > "${tmpf}"
         mv "${tmpf}" composer.json
 
     - name: 'Get composer cache directory'
@@ -53,7 +58,7 @@ runs:
 
     - name: 'Init composer dep cache'
       id: cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"
@@ -67,7 +72,7 @@ runs:
 
     - name: 'Save composer dep cache'
       if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"
