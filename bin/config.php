@@ -60,5 +60,9 @@ return [
             'name' => 'R5',
             'schemaPath' => __DIR__ . '/../input/R5',
         ],
+        [
+            'name' => 'R6B4',
+            'schemaPath' => __DIR__ . '/../input/R6B4',
+        ]
     ],
 ];
