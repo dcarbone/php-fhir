@@ -31,6 +31,18 @@ class SourceMetadata
     private string $_fhirGenerationDate;
     private string $_fhirVersion;
 
+    /**
+     * The base version string with any pre-release suffix stripped.
+     * e.g. 'v6.0.0-ballot4' -> 'v6.0.0'.
+     * Used for all Semver range comparisons.
+     */
+    private string $_fhirVersionBase;
+
+    /**
+     * The pre-release identifier, if any (e.g. 'ballot4').  Null for GA releases.
+     */
+    private null|string $_fhirPreRelease = null;
+
     public function __construct(string $schemPath)
     {
         $this->_schemaPath = $schemPath;
@@ -65,14 +77,14 @@ class SourceMetadata
     }
 
     /**
-     * Return the shortenend representation of the FHIR semantic version containing only Manjor.Minor values.
+     * Return the shortenend representation of the FHIR semantic version containing only Major.Minor values.
      *
      * @return string
      */
     public function getShortVersion(): string
     {
         $this->_compile();
-        $v = ltrim($this->_fhirVersion);
+        $v = ltrim($this->_fhirVersionBase, 'v');
         return match (substr_count($v, '.')) {
             1 => $v,
             2 => substr($v, 0, strrpos($v, '.')),
@@ -82,13 +94,43 @@ class SourceMetadata
 
     /**
      * Returns an integer representation of the FHIR semantic version.
+     * Pre-release suffixes are ignored; the integer is derived from the base
+     * version only, so 'v6.0.0-ballot4' and 'v6.0.0' produce the same value.
+     * Use isPreRelease() to distinguish ballot from GA releases.
      *
      * @return int
      */
     public function getVersionInteger(): int
     {
         $this->_compile();
-        return intval(sprintf("%'.-08s", str_replace(['v', '.'], '', $this->_fhirVersion)));
+        return intval(sprintf("%'.-08s", str_replace(['v', '.'], '', $this->_fhirVersionBase)));
+    }
+
+    /**
+     * Returns the pre-release identifier extracted from the FHIR version string,
+     * or null if this is a GA release.
+     *
+     * e.g. 'v6.0.0-ballot4' -> 'ballot4'
+     *      'v5.0.0'         -> null
+     *
+     * @return string|null
+     */
+    public function getPreRelease(): null|string
+    {
+        $this->_compile();
+        return $this->_fhirPreRelease;
+    }
+
+    /**
+     * Returns true when the FHIR source version carries a pre-release suffix
+     * (e.g. '-ballot4').
+     *
+     * @return bool
+     */
+    public function isPreRelease(): bool
+    {
+        $this->_compile();
+        return null !== $this->_fhirPreRelease;
     }
 
     /**
@@ -98,42 +140,59 @@ class SourceMetadata
      */
     public function isDSTU1(): bool
     {
-        return Semver::satisfies($this->getSemanticVersion(false), '< v1.0.0');
+        return Semver::satisfies($this->_getVersionBase(), '< v1.0.0');
     }
 
     public function isDSTU2(): bool
     {
-        $semver = $this->getSemanticVersion(false);
-        return Semver::satisfies($semver, '>= v1.0.0')
-            && Semver::satisfies($semver, '< v3.0.0');
+        $base = $this->_getVersionBase();
+        return Semver::satisfies($base, '>= v1.0.0')
+            && Semver::satisfies($base, '< v3.0.0');
     }
 
     public function isSTU3(): bool
     {
-        $semver = $this->getSemanticVersion(false);
-        return Semver::satisfies($semver, '>= v3.0.0')
-            && Semver::satisfies($semver, '< v4.0.0');
+        $base = $this->_getVersionBase();
+        return Semver::satisfies($base, '>= v3.0.0')
+            && Semver::satisfies($base, '< v4.0.0');
     }
 
     public function isR4(): bool
     {
-        $semver = $this->getSemanticVersion(false);
-        return Semver::satisfies($semver, '>= v4.0.0')
-            && Semver::satisfies($semver, '< v4.3.0');
+        $base = $this->_getVersionBase();
+        return Semver::satisfies($base, '>= v4.0.0')
+            && Semver::satisfies($base, '< v4.3.0');
     }
 
     public function isR4B(): bool
     {
-        $semver = $this->getSemanticVersion(false);
-        return Semver::satisfies($semver, '>= v4.3.0')
-            && Semver::satisfies($semver, '< v5.0.0');
+        $base = $this->_getVersionBase();
+        return Semver::satisfies($base, '>= v4.3.0')
+            && Semver::satisfies($base, '< v5.0.0');
     }
 
     public function isR5(): bool
     {
-        $semver = $this->getSemanticVersion(false);
-        return Semver::satisfies($semver, '>= v5.0.0')
-            && Semver::satisfies($semver, '< v6.0.0');
+        $base = $this->_getVersionBase();
+        return Semver::satisfies($base, '>= v5.0.0')
+            && Semver::satisfies($base, '< v6.0.0');
+    }
+
+    public function isR6(): bool
+    {
+        $base = $this->_getVersionBase();
+        return Semver::satisfies($base, '>= v6.0.0')
+            && Semver::satisfies($base, '< v7.0.0');
+    }
+
+    /**
+     * Returns the compiled base version (without pre-release suffix) for use
+     * in Semver range comparisons.
+     */
+    private function _getVersionBase(): string
+    {
+        $this->_compile();
+        return $this->_fhirVersionBase;
     }
 
     private function _compile(): void
@@ -180,6 +239,15 @@ class SourceMetadata
                         $version = trim($version);
                         if (str_starts_with($version, 'v')) {
                             $this->_fhirVersion = $version;
+                            // Split off any pre-release suffix (e.g. 'v6.0.0-ballot4').
+                            $dashPos = strpos($version, '-');
+                            if (false !== $dashPos) {
+                                $this->_fhirVersionBase  = substr($version, 0, $dashPos);
+                                $this->_fhirPreRelease   = substr($version, $dashPos + 1);
+                            } else {
+                                $this->_fhirVersionBase = $version;
+                                $this->_fhirPreRelease  = null;
+                            }
                         } else {
                             throw new \LogicException(
                                 sprintf(

@@ -42,6 +42,17 @@ class SourceMetadataTest extends TestCase
         $instance = $rc->newInstanceWithoutConstructor();
 
         $rc->getProperty('_fhirVersion')->setValue($instance, $fhirVersion);
+
+        // Replicate the pre-release parsing that _compile() performs.
+        $dashPos = strpos($fhirVersion, '-');
+        if (false !== $dashPos) {
+            $rc->getProperty('_fhirVersionBase')->setValue($instance, substr($fhirVersion, 0, $dashPos));
+            $rc->getProperty('_fhirPreRelease')->setValue($instance, substr($fhirVersion, $dashPos + 1));
+        } else {
+            $rc->getProperty('_fhirVersionBase')->setValue($instance, $fhirVersion);
+            $rc->getProperty('_fhirPreRelease')->setValue($instance, null);
+        }
+
         $rc->getProperty('_compiled')->setValue($instance, true);
 
         return $instance;
@@ -81,12 +92,6 @@ class SourceMetadataTest extends TestCase
 
     // -------------------------------------------------------------------------
     // getShortVersion
-    // NOTE: getShortVersion() currently calls  ltrim($this->_fhirVersion)  which
-    // strips only whitespace, NOT the leading 'v'.  The correct call would be
-    // ltrim($this->_fhirVersion, 'v').  Every version stored with a 'v' prefix
-    // will therefore include that 'v' in the returned short version.
-    // The expected values below reflect the CORRECT / INTENDED behaviour; the
-    // tests for versions with a 'v' prefix will FAIL until the bug is fixed.
     // -------------------------------------------------------------------------
 
     /** @dataProvider provideShortVersionCases */
@@ -100,33 +105,27 @@ class SourceMetadataTest extends TestCase
     {
         // [ raw stored value, expected short version (Major.Minor only) ]
         return [
-            'DSTU1'      => ['v0.0.82',       '0.0'],   // FAILS: currently returns 'v0.0'
-            'DSTU2'      => ['v1.0.2',         '1.0'],   // FAILS: currently returns 'v1.0'
-            'STU3'       => ['v3.0.2',         '3.0'],   // FAILS: currently returns 'v3.0'
-            'R4'         => ['v4.0.1',         '4.0'],   // FAILS: currently returns 'v4.0'
-            'R4B'        => ['v4.3.0',         '4.3'],   // FAILS: currently returns 'v4.3'
-            'R5'         => ['v5.0.0',         '5.0'],   // FAILS: currently returns 'v5.0'
-            // v6 ballot: the '-ballot4' pre-release suffix appears after the patch
-            // segment, so strrpos('.') still finds the second dot and the result
-            // should be Major.Minor without any 'v' prefix or ballot tag.
-            'R6 ballot4' => ['v6.0.0-ballot4', '6.0'],  // FAILS: currently returns 'v6.0'
+            'DSTU1'      => ['v0.0.82',        '0.0'],
+            'DSTU2'      => ['v1.0.2',          '1.0'],
+            'STU3'       => ['v3.0.2',          '3.0'],
+            'R4'         => ['v4.0.1',          '4.0'],
+            'R4B'        => ['v4.3.0',          '4.3'],
+            'R5'         => ['v5.0.0',          '5.0'],
+            // Pre-release suffix is stripped before the dot-count; result is still Major.Minor.
+            'R6 ballot4' => ['v6.0.0-ballot4',  '6.0'],
         ];
     }
 
     // -------------------------------------------------------------------------
     // getVersionInteger
     // The format string "%'.-08s" effectively right-zero-pads the stripped digit
-    // string to 8 characters (the '.' custom pad char is overridden by the '0'
-    // flag in the width specifier, producing zero-fill).  intval() then reads
-    // the full numeric value.
+    // string to 8 characters, then intval() reads the full numeric value.
     //
     //   'v5.0.0'  -> strip -> '500'  -> right-pad to 8 -> '50000000' -> 50000000
-    //   'v0.0.82' -> strip -> '0082' -> right-pad to 8 -> '00820000' -> 820000
+    //   'v0.0.82' -> strip -> '0082' -> right-pad to 8 -> '00820000' ->   820000
     //
-    // For 'v6.0.0-ballot4' the intermediate string is '600-ballot4' which is
-    // already longer than 8 chars so no padding occurs.  intval() stops at the
-    // '-' giving 600 – identical to a clean 'v6.0.0', so ballot/pre-release
-    // versions are indistinguishable via getVersionInteger().
+    // Pre-release versions use the base version, so 'v6.0.0-ballot4' and a clean
+    // 'v6.0.0' both produce 60000000.  Use isPreRelease() to tell them apart.
     // -------------------------------------------------------------------------
 
     /** @dataProvider provideVersionIntegerCases */
@@ -138,17 +137,15 @@ class SourceMetadataTest extends TestCase
 
     public static function provideVersionIntegerCases(): array
     {
-        // [ raw stored value, expected integer ]
         return [
-            'DSTU1'      => ['v0.0.82',        820000],
-            'DSTU2'      => ['v1.0.2',         10200000],
-            'STU3'       => ['v3.0.2',         30200000],
-            'R4'         => ['v4.0.1',         40100000],
-            'R4B'        => ['v4.3.0',         43000000],
-            'R5'         => ['v5.0.0',         50000000],
-            // '600-ballot4' is already >8 chars; no padding applied.
-            // intval('600-ballot4') = 600 – same as clean v6.0.0.
-            'R6 ballot4' => ['v6.0.0-ballot4', 600],
+            'DSTU1'      => ['v0.0.82',          820000],
+            'DSTU2'      => ['v1.0.2',          10200000],
+            'STU3'       => ['v3.0.2',          30200000],
+            'R4'         => ['v4.0.1',          40100000],
+            'R4B'        => ['v4.3.0',          43000000],
+            'R5'         => ['v5.0.0',          50000000],
+            // Uses base version 'v6.0.0', identical to a GA v6.0.0 release.
+            'R6 ballot4' => ['v6.0.0-ballot4',  60000000],
         ];
     }
 
@@ -246,36 +243,70 @@ class SourceMetadataTest extends TestCase
     public static function provideIsR5Cases(): array
     {
         return [
-            'v4.3.0 not R5' => ['v4.3.0', false],
-            'v5.0.0 is R5'  => ['v5.0.0', true],
-            'v5.0.1 is R5'  => ['v5.0.1', true],
+            'v4.3.0 not R5'         => ['v4.3.0',         false],
+            'v5.0.0 is R5'          => ['v5.0.0',          true],
+            'v5.0.1 is R5'          => ['v5.0.1',          true],
+            // ballot uses the base version 'v6.0.0' for the range check,
+            // which is NOT in [5.0.0, 6.0.0).
+            'v6.0.0-ballot4 not R5' => ['v6.0.0-ballot4', false],
+        ];
+    }
+
+    /** @dataProvider provideIsR6Cases */
+    public function testIsR6(string $raw, bool $expected): void
+    {
+        $this->assertSame($expected, $this->buildMetadata($raw)->isR6());
+    }
+
+    public static function provideIsR6Cases(): array
+    {
+        return [
+            'v5.0.0 not R6'         => ['v5.0.0',          false],
+            'v6.0.0-ballot4 is R6'  => ['v6.0.0-ballot4',  true],
         ];
     }
 
     // -------------------------------------------------------------------------
-    // Ballot / pre-release version behaviour
-    //
-    // Composer Semver does NOT accept 'ballot4' as a valid pre-release
-    // identifier ('ballot' is non-numeric and Semver only allows alphanumeric
-    // dot-separated identifiers in a specific format).  As a result, ANY call
-    // to an is*() method with 'v6.0.0-ballot4' throws UnexpectedValueException.
-    //
-    // Both tests below document that exception and will pass once (and only
-    // once) the version string reaches an is*() call.  The real fix requires
-    // either normalising the ballot suffix before passing it to Semver, or
-    // adding a dedicated isBallot() / isR6Ballot() guard that matches before
-    // the Semver range checks.
+    // getPreRelease / isPreRelease
     // -------------------------------------------------------------------------
 
-    public function testBallot4ThrowsOnDSTU1Check(): void
+    /** @dataProvider providePreReleaseCases */
+    public function testGetPreRelease(string $raw, null|string $expectedSuffix): void
     {
-        $this->expectException(\UnexpectedValueException::class);
-        $this->buildMetadata('v6.0.0-ballot4')->isDSTU1();
+        $this->assertSame($expectedSuffix, $this->buildMetadata($raw)->getPreRelease());
     }
 
-    public function testBallot4ThrowsOnIsR5Check(): void
+    /** @dataProvider providePreReleaseCases */
+    public function testIsPreRelease(string $raw, null|string $expectedSuffix): void
     {
-        $this->expectException(\UnexpectedValueException::class);
-        $this->buildMetadata('v6.0.0-ballot4')->isR5();
+        $this->assertSame($expectedSuffix !== null, $this->buildMetadata($raw)->isPreRelease());
+    }
+
+    public static function providePreReleaseCases(): array
+    {
+        return [
+            'v5.0.0 GA'              => ['v5.0.0',         null],
+            'v6.0.0-ballot4 prerel'  => ['v6.0.0-ballot4', 'ballot4'],
+        ];
+    }
+
+    // -------------------------------------------------------------------------
+    // Cross-check: ballot version is R6 and pre-release, not any earlier range.
+    // -------------------------------------------------------------------------
+
+    public function testBallot4ClassifiesCorrectly(): void
+    {
+        $meta = $this->buildMetadata('v6.0.0-ballot4');
+
+        $this->assertTrue($meta->isPreRelease(),  'v6.0.0-ballot4 must be flagged as pre-release');
+        $this->assertSame('ballot4', $meta->getPreRelease());
+
+        $this->assertFalse($meta->isDSTU1(), 'v6.0.0-ballot4 must not be DSTU1');
+        $this->assertFalse($meta->isDSTU2(), 'v6.0.0-ballot4 must not be DSTU2');
+        $this->assertFalse($meta->isSTU3(),  'v6.0.0-ballot4 must not be STU3');
+        $this->assertFalse($meta->isR4(),    'v6.0.0-ballot4 must not be R4');
+        $this->assertFalse($meta->isR4B(),   'v6.0.0-ballot4 must not be R4B');
+        $this->assertFalse($meta->isR5(),    'v6.0.0-ballot4 must not be R5');
+        $this->assertTrue($meta->isR6(),     'v6.0.0-ballot4 must be R6');
     }
 }
