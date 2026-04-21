@@ -63,6 +63,7 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public const FHIR_SEMANTIC_VERSION = '<?php echo $sourceMeta->getSemanticVersion(false); ?>';
     public const FHIR_SHORT_VERSION = '<?php echo $sourceMeta->getShortVersion(); ?>';
     public const FHIR_VERSION_INTEGER = <?php echo $sourceMeta->getVersionInteger(); ?>;
+    public const FHIR_PRE_RELEASE = <?php echo var_export($sourceMeta->getPreRelease(), true); ?>;
     public const FHIR_GENERATION_DATE = '<?php echo $sourceMeta->getSourceGenerationDate(); ?>';
 
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
@@ -110,10 +111,11 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     {
         if (!isset(self::$_fhirVersion)) {
             self::$_fhirVersion = new <?php echo $fhirVersion; ?>(
-                self::NAME,
-                self::FHIR_SEMANTIC_VERSION,
-                self::FHIR_SHORT_VERSION,
-                self::FHIR_VERSION_INTEGER,
+                versionName: self::NAME,
+                fhirSemanticVersion: self::FHIR_SEMANTIC_VERSION,
+                fhirShortVersion: self::FHIR_SHORT_VERSION,
+                fhirVersionInteger: self::FHIR_VERSION_INTEGER,
+                fhirPreRelease: self::FHIR_PRE_RELEASE,
             );
         }
         return self::$_fhirVersion;
@@ -141,6 +143,22 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public function getFHIRVersionInteger(): int
     {
         return self::FHIR_VERSION_INTEGER;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getFHIRPreRelease(): null|string
+    {
+        return self::FHIR_PRE_RELEASE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFHIRPreRelease(): bool
+    {
+        return null !== self::FHIR_PRE_RELEASE;
     }
 
     /**

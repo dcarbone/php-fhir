@@ -38,21 +38,25 @@ class <?php echo $coreFile; ?> implements \JsonSerializable
     public const STU3_MIN_VERSION_INTEGER = 30000000;
     public const R4_MIN_VERSION_INTEGER = 40000000;
     public const R5_MIN_VERSION_INTEGER = 50000000;
+    public const R6_MIN_VERSION_INTEGER = 60000000;
 
     private string $_versionName;
     private string $_fhirSemanticVersion;
     private string $_fhirShortVersion;
     private int $_fhirVersionInteger;
+    private null|string $_fhirPreRelease;
 
     public function __construct(string $versionName,
                                 string $fhirSemanticVersion,
                                 string $fhirShortVersion,
-                                int $fhirVersionInteger)
+                                int $fhirVersionInteger,
+                                null|string $fhirPreRelease = null)
     {
         $this->_versionName = $versionName;
         $this->_fhirSemanticVersion = $fhirSemanticVersion;
         $this->_fhirShortVersion = $fhirShortVersion;
         $this->_fhirVersionInteger = $fhirVersionInteger;
+        $this->_fhirPreRelease = $fhirPreRelease;
     }
 
     public function getName(): string
@@ -75,6 +79,16 @@ class <?php echo $coreFile; ?> implements \JsonSerializable
         return $this->_fhirVersionInteger;
     }
 
+    public function getFHIRPreRelease(): null|string
+    {
+        return $this->_fhirPreRelease;
+    }
+
+    public function isFHIRPreRelease(): bool
+    {
+        return null !== $this->_fhirPreRelease;
+    }
+
     public function jsonSerialize(): \stdClass
     {
         $out = new \stdClass();
@@ -82,6 +96,7 @@ class <?php echo $coreFile; ?> implements \JsonSerializable
         $out->fhirSemanticVersion = $this->_fhirSemanticVersion;
         $out->fhirShortversion = $this->_fhirShortVersion;
         $out->fhirVersionInteger = $this->_fhirVersionInteger;
+        $out->fhirPreRelease = $this->_fhirPreRelease;
         return $out;
     }
 

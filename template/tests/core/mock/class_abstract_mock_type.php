@@ -57,7 +57,8 @@ abstract class <?php echo $coreFile; ?> implements <?php echo $typeInterface; ?>
 
     public function __construct(string $name,
                                 string $versionName = self::DEFAULT_MOCK_VERSION_NAME,
-                                string $semanticVersion = self::DEFAULT_MOCK_SEMANTIC_VERSION)
+                                string $semanticVersion = self::DEFAULT_MOCK_SEMANTIC_VERSION,
+                                null|string $preRelease = null)
     {
         $this->_name = $name;
 
@@ -69,10 +70,11 @@ abstract class <?php echo $coreFile; ?> implements <?php echo $typeInterface; ?>
         };
 
         $this->_fhirVersion = new <?php echo $fhirVersion; ?>(
-            $versionName,
-            $semanticVersion,
-            $shortVersion,
-            intval(sprintf("%'.-08s", str_replace(['v', '.'], '', $semanticVersion))),
+            versionName: $versionName,
+            fhirSemanticVersion: $semanticVersion,
+            fhirShortVersion: $shortVersion,
+            fhirVersionInteger: intval(sprintf("%'.-08s", str_replace(['v', '.'], '', $semanticVersion))),
+            fhirPreRelease: $preRelease,
         );
     }
 
