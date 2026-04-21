@@ -83,6 +83,21 @@ interface <?php echo $coreFile; ?>
     public function getFHIRVersionInteger(): int;
 
     /**
+     * Must return the pre-release identifier from the FHIR version string (e.g. 'ballot4'),
+     * or null when this is a GA release.
+     *
+     * @return null|string
+     */
+    public function getFHIRPreRelease(): null|string;
+
+    /**
+     * Must return true when the FHIR source version is a pre-release (e.g. a ballot build).
+     *
+     * @return bool
+     */
+    public function isFHIRPreRelease(): bool;
+
+    /**
      * Must return the date this FHIR version's source was generated
      *
      * @return string
