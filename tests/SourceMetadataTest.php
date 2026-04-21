@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DCarbone\PHPFHIRTests;
 
@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIRTests;
  */
 
 use DCarbone\PHPFHIR\Version\SourceMetadata;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SourceMetadataTest extends TestCase
@@ -62,14 +63,14 @@ class SourceMetadataTest extends TestCase
     // getSemanticVersion
     // -------------------------------------------------------------------------
 
-    /** @dataProvider provideSemanticVersionCases */
+    #[DataProvider('provideSemanticVersionCases')]
     public function testGetSemanticVersionUntrimmed(string $raw, string $expectedUntrimmed): void
     {
         $meta = $this->buildMetadata($raw);
         $this->assertSame($expectedUntrimmed, $meta->getSemanticVersion(false));
     }
 
-    /** @dataProvider provideSemanticVersionCases */
+    #[DataProvider('provideSemanticVersionCases')]
     public function testGetSemanticVersionTrimmed(string $raw, string $expectedUntrimmed, string $expectedTrimmed): void
     {
         $meta = $this->buildMetadata($raw);
@@ -94,7 +95,7 @@ class SourceMetadataTest extends TestCase
     // getShortVersion
     // -------------------------------------------------------------------------
 
-    /** @dataProvider provideShortVersionCases */
+    #[DataProvider('provideShortVersionCases')]
     public function testGetShortVersion(string $raw, string $expected): void
     {
         $meta = $this->buildMetadata($raw);
@@ -128,7 +129,7 @@ class SourceMetadataTest extends TestCase
     // 'v6.0.0' both produce 60000000.  Use isPreRelease() to tell them apart.
     // -------------------------------------------------------------------------
 
-    /** @dataProvider provideVersionIntegerCases */
+    #[DataProvider('provideVersionIntegerCases')]
     public function testGetVersionInteger(string $raw, int $expected): void
     {
         $meta = $this->buildMetadata($raw);
@@ -153,7 +154,7 @@ class SourceMetadataTest extends TestCase
     // is* range helpers
     // -------------------------------------------------------------------------
 
-    /** @dataProvider provideIsDSTU1Cases */
+    #[DataProvider('provideIsDSTU1Cases')]
     public function testIsDSTU1(string $raw, bool $expected): void
     {
         $this->assertSame($expected, $this->buildMetadata($raw)->isDSTU1());
@@ -169,7 +170,7 @@ class SourceMetadataTest extends TestCase
         ];
     }
 
-    /** @dataProvider provideIsDSTU2Cases */
+    #[DataProvider('provideIsDSTU2Cases')]
     public function testIsDSTU2(string $raw, bool $expected): void
     {
         $this->assertSame($expected, $this->buildMetadata($raw)->isDSTU2());
@@ -185,7 +186,7 @@ class SourceMetadataTest extends TestCase
         ];
     }
 
-    /** @dataProvider provideIsSTU3Cases */
+    #[DataProvider('provideIsSTU3Cases')]
     public function testIsSTU3(string $raw, bool $expected): void
     {
         $this->assertSame($expected, $this->buildMetadata($raw)->isSTU3());
@@ -201,7 +202,7 @@ class SourceMetadataTest extends TestCase
         ];
     }
 
-    /** @dataProvider provideIsR4Cases */
+    #[DataProvider('provideIsR4Cases')]
     public function testIsR4(string $raw, bool $expected): void
     {
         $this->assertSame($expected, $this->buildMetadata($raw)->isR4());
@@ -218,7 +219,7 @@ class SourceMetadataTest extends TestCase
         ];
     }
 
-    /** @dataProvider provideIsR4BCases */
+    #[DataProvider('provideIsR4BCases')]
     public function testIsR4B(string $raw, bool $expected): void
     {
         $this->assertSame($expected, $this->buildMetadata($raw)->isR4B());
@@ -234,7 +235,7 @@ class SourceMetadataTest extends TestCase
         ];
     }
 
-    /** @dataProvider provideIsR5Cases */
+    #[DataProvider('provideIsR5Cases')]
     public function testIsR5(string $raw, bool $expected): void
     {
         $this->assertSame($expected, $this->buildMetadata($raw)->isR5());
@@ -252,7 +253,7 @@ class SourceMetadataTest extends TestCase
         ];
     }
 
-    /** @dataProvider provideIsR6Cases */
+    #[DataProvider('provideIsR6Cases')]
     public function testIsR6(string $raw, bool $expected): void
     {
         $this->assertSame($expected, $this->buildMetadata($raw)->isR6());
@@ -270,13 +271,13 @@ class SourceMetadataTest extends TestCase
     // getPreRelease / isPreRelease
     // -------------------------------------------------------------------------
 
-    /** @dataProvider providePreReleaseCases */
+    #[DataProvider('providePreReleaseCases')]
     public function testGetPreRelease(string $raw, null|string $expectedSuffix): void
     {
         $this->assertSame($expectedSuffix, $this->buildMetadata($raw)->getPreRelease());
     }
 
-    /** @dataProvider providePreReleaseCases */
+    #[DataProvider('providePreReleaseCases')]
     public function testIsPreRelease(string $raw, null|string $expectedSuffix): void
     {
         $this->assertSame($expectedSuffix !== null, $this->buildMetadata($raw)->isPreRelease());
