@@ -35,11 +35,11 @@ Full documentation is maintained on the **[project wiki](https://github.com/dcar
 
 ## Support Matrix
 
-| PHPFHIR Version | PHP Versions | FHIR Versions                   | Supported |
-|-----------------|--------------|---------------------------------|-----------|
-| v4              | 8.1+         | DSTU1, DSTU2, STU3, R4, R4B, R5 | **Yes**   |
-| v3              | 8.1–8.4      | DSTU1, DSTU2, STU3, R4, R4B, R5 | No        |
-| v2              | 5.4–7.4      | DSTU1, DSTU2, STU3, R4          | No        |
+| PHPFHIR Version | PHP Versions  | FHIR Versions                                     | Supported |
+|-----------------|---------------|---------------------------------------------------|-----------|
+| v4              | >= 8.1        | DSTU1, DSTU2, STU3, R4, R4B, R5, R6 (pre-release) | **Yes**   |
+| v3              | >= 8.1, < 8.5 | DSTU1, DSTU2, STU3, R4, R4B, R5                   | No        |
+| v2              | 5.4–7.4       | DSTU1, DSTU2, STU3, R4                            | No        |
 
 ---
 
