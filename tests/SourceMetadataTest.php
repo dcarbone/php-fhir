@@ -63,31 +63,43 @@ class SourceMetadataTest extends TestCase
     // getSemanticVersion
     // -------------------------------------------------------------------------
 
-    #[DataProvider('provideSemanticVersionCases')]
-    public function testGetSemanticVersionUntrimmed(string $raw, string $expectedUntrimmed): void
+    #[DataProvider('provideSemanticVersionUntrimmedCases')]
+    public function testGetSemanticVersionUntrimmed(string $raw, string $expected): void
     {
         $meta = $this->buildMetadata($raw);
-        $this->assertSame($expectedUntrimmed, $meta->getSemanticVersion(false));
+        $this->assertSame($expected, $meta->getSemanticVersion(false));
     }
 
-    #[DataProvider('provideSemanticVersionCases')]
-    public function testGetSemanticVersionTrimmed(string $raw, string $expectedUntrimmed, string $expectedTrimmed): void
+    #[DataProvider('provideSemanticVersionTrimmedCases')]
+    public function testGetSemanticVersionTrimmed(string $raw, string $expected): void
     {
         $meta = $this->buildMetadata($raw);
-        $this->assertSame($expectedTrimmed, $meta->getSemanticVersion(true));
+        $this->assertSame($expected, $meta->getSemanticVersion(true));
     }
 
-    public static function provideSemanticVersionCases(): array
+    public static function provideSemanticVersionUntrimmedCases(): array
     {
-        // [ raw stored value, expected untrimmed, expected trimmed ]
         return [
-            'DSTU1'          => ['v0.0.82',         'v0.0.82',         '0.0.82'],
-            'DSTU2'          => ['v1.0.2',           'v1.0.2',           '1.0.2'],
-            'STU3'           => ['v3.0.2',           'v3.0.2',           '3.0.2'],
-            'R4'             => ['v4.0.1',           'v4.0.1',           '4.0.1'],
-            'R4B'            => ['v4.3.0',           'v4.3.0',           '4.3.0'],
-            'R5'             => ['v5.0.0',           'v5.0.0',           '5.0.0'],
-            'R6 ballot4'     => ['v6.0.0-ballot4',   'v6.0.0-ballot4',   '6.0.0-ballot4'],
+            'DSTU1'      => ['v0.0.82',        'v0.0.82'],
+            'DSTU2'      => ['v1.0.2',          'v1.0.2'],
+            'STU3'       => ['v3.0.2',          'v3.0.2'],
+            'R4'         => ['v4.0.1',          'v4.0.1'],
+            'R4B'        => ['v4.3.0',          'v4.3.0'],
+            'R5'         => ['v5.0.0',          'v5.0.0'],
+            'R6 ballot4' => ['v6.0.0-ballot4',  'v6.0.0-ballot4'],
+        ];
+    }
+
+    public static function provideSemanticVersionTrimmedCases(): array
+    {
+        return [
+            'DSTU1'      => ['v0.0.82',        '0.0.82'],
+            'DSTU2'      => ['v1.0.2',          '1.0.2'],
+            'STU3'       => ['v3.0.2',          '3.0.2'],
+            'R4'         => ['v4.0.1',          '4.0.1'],
+            'R4B'        => ['v4.3.0',          '4.3.0'],
+            'R5'         => ['v5.0.0',          '5.0.0'],
+            'R6 ballot4' => ['v6.0.0-ballot4',  '6.0.0-ballot4'],
         ];
     }
 
