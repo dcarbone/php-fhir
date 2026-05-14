@@ -55,7 +55,7 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     private <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $_serializeConfig;
 
     /** @var null|<?php echo $clientConfigClass->getFullyQualifiedName(true); ?> */
-    private null|<?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> $_clientConfig;
+    private null|<?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> $_clientConfig = null;
 
     /**
      * <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> constructor.
@@ -145,6 +145,11 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
         } elseif (is_string($config)) {
             $this->_clientConfig = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>(address: $config);
         } elseif (is_array($config)) {
+            if (!isset($config['address']) || '' === trim($config['address'])) {
+                throw new \InvalidArgumentException(
+                    'Client config array must contain a non-empty "address" key.'
+                );
+            }
             $this->_clientConfig = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>(
                 address: $config['address'],
                 defaultFormat: isset($config['defaultFormat']) ? <?php echo $serializeFormatEnum; ?>::from($config['defaultFormat']) : <?php echo $serializeFormatEnum; ?>::XML,

@@ -137,5 +137,40 @@ class <?php echo $coreFile; ?> extends TestCase
         $vc->setClientConfig(null);
         $this->assertNull($vc->getClientConfig());
     }
+
+    // Fix: $_clientConfig must be null by default (typed-property initialisation)
+    public function testClientConfigPropertyIsNullWithoutEverCallingSet(): void
+    {
+        // Construct, then immediately read — must not throw a typed-property error
+        $vc = new <?php echo $versionConfigClass; ?>();
+        $this->assertNull($vc->getClientConfig());
+
+        // Also verify that a second fresh instance is independent
+        $vc2 = new <?php echo $versionConfigClass; ?>();
+        $this->assertNull($vc2->getClientConfig());
+    }
+
+    // Fix: array branch must throw when 'address' key is absent
+    public function testSetClientConfigArrayWithoutAddressThrows(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $vc = new <?php echo $versionConfigClass; ?>();
+        $vc->setClientConfig(['defaultQueryParams' => ['_pretty' => 'true']]);
+    }
+
+    // Fix: array branch must throw when 'address' key is an empty string
+    public function testSetClientConfigArrayWithEmptyAddressThrows(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $vc = new <?php echo $versionConfigClass; ?>();
+        $vc->setClientConfig(['address' => '   ']);
+    }
+
+    // Fix: constructing via clientConfig array without address must throw
+    public function testConstructWithClientConfigArrayWithoutAddressThrows(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new <?php echo $versionConfigClass; ?>(clientConfig: ['parseResponseHeaders' => false]);
+    }
 }
 <?php return ob_get_clean();
