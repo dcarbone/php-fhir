@@ -25,6 +25,7 @@ $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
     PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
     PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT,
     PHPFHIR_CLIENT_CLASSNAME_CONFIG,
 );
 
@@ -32,6 +33,7 @@ $coreFiles = $config->getCoreFiles();
 
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+$serializeFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 $clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 
 ob_start();
@@ -145,10 +147,10 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
         } elseif (is_array($config)) {
             $this->_clientConfig = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>(
                 address: $config['address'],
-                defaultFormat: $config['defaultFormat'] ?? null,
+                defaultFormat: isset($config['defaultFormat']) ? <?php echo $serializeFormatEnum; ?>::from($config['defaultFormat']) : <?php echo $serializeFormatEnum; ?>::XML,
                 defaultQueryParams: $config['defaultQueryParams'] ?? [],
                 curlOpts: $config['curlOpts'] ?? [],
-                parseResponseHeaders: $config['parseResponseHeaders'] ?? null,
+                parseResponseHeaders: $config['parseResponseHeaders'] ?? true,
             );
         } else {
             $this->_clientConfig = $config;

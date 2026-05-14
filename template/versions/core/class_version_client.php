@@ -134,6 +134,7 @@ class <?php echo $coreFile; ?>
         return new static(new <?php echo $clientClass; ?>($clientConfig), $version);
     }
 
+
     /**
      * Queries for one <?php if ($sourceMeta->isDSTU1()) : ?>resource<?php else : ?>or more resources<?php endif; ?> of a given type, returning the raw response fromm the server.
      *

@@ -132,14 +132,14 @@ class VersionDefaultConfigTest extends TestCase
         $c = new VersionDefaultConfig();
         $c->setClientConfig([
             'address'              => 'https://fhir.example.com',
-            'defaultFormat'        => 'JSON',
+            'defaultFormat'        => 'json',
             'defaultQueryParams'   => ['_count' => '10'],
             'curlOpts'             => [CURLOPT_TIMEOUT => 30],
             'parseResponseHeaders' => false,
         ]);
         $cfg = $c->getClientConfig();
         $this->assertSame('https://fhir.example.com', $cfg['address']);
-        $this->assertSame('JSON', $cfg['defaultFormat']);
+        $this->assertSame('json', $cfg['defaultFormat']);
         $this->assertSame(['_count' => '10'], $cfg['defaultQueryParams']);
         $this->assertSame([CURLOPT_TIMEOUT => 30], $cfg['curlOpts']);
         $this->assertFalse($cfg['parseResponseHeaders']);
@@ -149,7 +149,7 @@ class VersionDefaultConfigTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $c = new VersionDefaultConfig();
-        $c->setClientConfig(['address' => 'https://fhir.example.com', 'defaultFormat' => 'CSV']);
+        $c->setClientConfig(['address' => 'https://fhir.example.com', 'defaultFormat' => 'csv']);
     }
 
     public function testSetClientConfigClearsOnSubsequentCall(): void

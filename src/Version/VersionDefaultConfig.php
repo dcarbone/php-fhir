@@ -43,7 +43,7 @@ class VersionDefaultConfig
         'parseResponseHeaders',
     ];
 
-    private const _CLIENT_CONFIG_VALID_FORMATS = ['JSON', 'XML'];
+    private const _CLIENT_CONFIG_VALID_FORMATS = ['json', 'xml'];
 
     /** @var array */
     private array $_unserializeConfig = [];
@@ -208,8 +208,8 @@ class VersionDefaultConfig
             }
             $this->_clientConfig[$k] = match ($k) {
                 'address' => (string)$config[$k],
-                'defaultFormat' => in_array($config[$k], self::_CLIENT_CONFIG_VALID_FORMATS, true)
-                    ? $config[$k]
+                'defaultFormat' => in_array(strtolower((string)$config[$k]), self::_CLIENT_CONFIG_VALID_FORMATS, true)
+                    ? strtolower((string)$config[$k])
                     : throw new \InvalidArgumentException(sprintf(
                         'Value "%s" is not a valid defaultFormat; must be one of: %s',
                         $config[$k],

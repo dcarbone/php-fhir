@@ -67,6 +67,7 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public const FHIR_GENERATION_DATE = '<?php echo $sourceMeta->getSourceGenerationDate(); ?>';
 
     private const _GENERATED_CONFIG = <?php echo pretty_var_export($version->getDefaultConfig()->toArray(), 1); ?>;
+    public const GENERATED_CLIENT_CONFIG = <?php echo var_export($version->getDefaultConfig()->getClientConfig(), true); ?>;
 
     private static <?php echo $fhirVersion; ?> $_fhirVersion;
 
@@ -83,7 +84,12 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public function __construct(null|array|<?php echo $versionConfigInterface ?> $config = null)
     {
         if (!is_object($config)) {
-            $config = new <?php echo $versionConfigClass; ?>(array_merge(self::_GENERATED_CONFIG, (array)$config));
+            $merged = array_merge(self::_GENERATED_CONFIG, (array)$config);
+            $config = new <?php echo $versionConfigClass; ?>(
+                unserializeConfig: $merged['unserializeConfig'] ?? null,
+                serializeConfig: $merged['serializeConfig'] ?? null,
+                clientConfig: $merged['clientConfig'] ?? null,
+            );
         } else if (!($config instanceof <?php echo $versionConfigClass; ?>)) {
             throw new \InvalidArgumentException(sprintf(
                 '$config must be an instance of \\%s, %s given',
