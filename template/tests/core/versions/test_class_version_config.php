@@ -26,6 +26,7 @@ $imports->addCoreFileImportsByName(
     PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
     PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
     PHPFHIR_CLASSNAME_VERSION_CONFIG,
+    PHPFHIR_CLIENT_CLASSNAME_CONFIG,
 );
 
 $coreFiles = $config->getCoreFiles();
@@ -33,6 +34,7 @@ $coreFiles = $config->getCoreFiles();
 $versionConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERSION_CONFIG);
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+$clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 
 ob_start();
 echo "<?php\n\n";?>
@@ -91,6 +93,49 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertFalse($sc->getOverrideSourceXMLNS());
         $this->assertNull($sc->getRootXMLNS());
         $this->assertEquals(<?php echo PHPFHIR_DEFAULT_LIBXML_OPTS; ?>, $sc->getXHTMLLibxmlOpts());
+    }
+
+    public function testClientConfigIsNullByDefault(): void
+    {
+        $vc = new <?php echo $versionConfigClass; ?>();
+        $this->assertNull($vc->getClientConfig());
+    }
+
+    public function testCanConstructWithClientConfigString(): void
+    {
+        $vc = new <?php echo $versionConfigClass; ?>(clientConfig: 'https://fhir.example.com');
+        $cc = $vc->getClientConfig();
+        $this->assertInstanceOf(<?php echo $clientConfigClass; ?>::class, $cc);
+        $this->assertEquals('https://fhir.example.com', $cc->getAddress());
+    }
+
+    public function testCanConstructWithClientConfigArray(): void
+    {
+        $vc = new <?php echo $versionConfigClass; ?>(clientConfig: [
+            'address'             => 'https://fhir.example.com',
+            'defaultQueryParams'  => ['_pretty' => 'true'],
+            'parseResponseHeaders' => false,
+        ]);
+        $cc = $vc->getClientConfig();
+        $this->assertInstanceOf(<?php echo $clientConfigClass; ?>::class, $cc);
+        $this->assertEquals('https://fhir.example.com', $cc->getAddress());
+        $this->assertEquals(['_pretty' => 'true'], $cc->getDefaultQueryParams());
+        $this->assertFalse($cc->getParseResponseHeaders());
+    }
+
+    public function testCanConstructWithClientConfigObject(): void
+    {
+        $obj = new <?php echo $clientConfigClass; ?>(address: 'https://fhir.example.com');
+        $vc  = new <?php echo $versionConfigClass; ?>(clientConfig: $obj);
+        $this->assertSame($obj, $vc->getClientConfig());
+    }
+
+    public function testSetClientConfigNull(): void
+    {
+        $vc = new <?php echo $versionConfigClass; ?>(clientConfig: 'https://fhir.example.com');
+        $this->assertNotNull($vc->getClientConfig());
+        $vc->setClientConfig(null);
+        $this->assertNull($vc->getClientConfig());
     }
 }
 <?php return ob_get_clean();

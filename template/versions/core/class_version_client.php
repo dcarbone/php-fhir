@@ -27,6 +27,8 @@ $config = $version->getConfig();
 $coreFiles = $config->getCoreFiles();
 
 $clientInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_INTERFACE_CLIENT);
+$clientClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
+$clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 $serializeFormatEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_SERIALIZE_FORMAT);
 $clientSortEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_ENUM_SORT_DIRECTION);
 $clientRequestClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_REQUEST);
@@ -53,6 +55,8 @@ $imports = $coreFile->getImports();
 $imports
     ->addCoreFileImports(
         $clientInterface,
+        $clientClass,
+        $clientConfigClass,
         $serializeFormatEnum,
         $clientSortEnum,
         $clientRequestClass,
@@ -109,6 +113,25 @@ class <?php echo $coreFile; ?>
     {
         $this->_client = $client;
         $this->_version = $version;
+    }
+
+    /**
+     * Constructs a <?php echo $coreFile; ?> using the client config defined on the version's config.
+     *
+     * @param <?php echo $versionClass->getFullyQualifiedName(true); ?> $version
+     * @return static
+     * @throws \InvalidArgumentException if no client config is set on the version config
+     */
+    public static function fromVersion(<?php echo $versionClass; ?> $version): static
+    {
+        $clientConfig = $version->getConfig()->getClientConfig();
+        if (null === $clientConfig) {
+            throw new \InvalidArgumentException(sprintf(
+                'Cannot create %s from version config: no client config is defined.',
+                static::class,
+            ));
+        }
+        return new static(new <?php echo $clientClass; ?>($clientConfig), $version);
     }
 
     /**

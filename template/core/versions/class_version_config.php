@@ -25,12 +25,14 @@ $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
     PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
     PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_CLIENT_CLASSNAME_CONFIG,
 );
 
 $coreFiles = $config->getCoreFiles();
 
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+$clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -50,13 +52,18 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
     /** @var <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> */
     private <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?> $_serializeConfig;
 
+    /** @var null|<?php echo $clientConfigClass->getFullyQualifiedName(true); ?> */
+    private null|<?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> $_clientConfig;
+
     /**
      * <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> constructor.
      * @param null|array|<?php echo $serializeConfigClass->getFullyQualifiedName(true); ?> $serializeConfig
      * @param null|array|<?php echo $unserializeConfigClass->getFullyQualifiedName(true); ?> $unserializeConfig
+     * @param null|string|array|<?php echo $clientConfigClass->getFullyQualifiedName(true); ?> $clientConfig
      */
     public function __construct(null|array|<?php echo $unserializeConfigClass; ?> $unserializeConfig = null,
-                                null|array|<?php echo $serializeConfigClass; ?> $serializeConfig = null)
+                                null|array|<?php echo $serializeConfigClass; ?> $serializeConfig = null,
+                                null|string|array|<?php echo $clientConfigClass; ?> $clientConfig = null)
     {
         if (null === $unserializeConfig) {
             $unserializeConfig = new <?php echo $unserializeConfigClass; ?>();
@@ -66,6 +73,9 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
             $serializeConfig = new <?php echo $serializeConfigClass; ?>();
         }
         $this->setSerializeConfig($serializeConfig);
+        if (null !== $clientConfig) {
+            $this->setClientConfig($clientConfig);
+        }
     }
 
     /**
@@ -120,6 +130,40 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
 
     {
         return $this->_serializeConfig;
+    }
+
+    /**
+     * @param null|string|array|<?php echo $clientConfigClass->getFullyQualifiedName(true); ?> $config
+     * @return self
+     */
+    public function setClientConfig(null|string|array|<?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?> $config): self
+    {
+        if (null === $config) {
+            $this->_clientConfig = null;
+        } elseif (is_string($config)) {
+            $this->_clientConfig = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>(address: $config);
+        } elseif (is_array($config)) {
+            $this->_clientConfig = new <?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>(
+                address: $config['address'],
+                defaultFormat: $config['defaultFormat'] ?? null,
+                defaultQueryParams: $config['defaultQueryParams'] ?? [],
+                curlOpts: $config['curlOpts'] ?? [],
+                parseResponseHeaders: $config['parseResponseHeaders'] ?? null,
+            );
+        } else {
+            $this->_clientConfig = $config;
+        }
+        return $this;
+    }
+
+    /**
+     * @return null|<?php echo $clientConfigClass->getFullyQualifiedName(true); ?>
+
+     */
+    public function getClientConfig(): null|<?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>
+
+    {
+        return $this->_clientConfig;
     }
 }
 <?php return ob_get_clean();

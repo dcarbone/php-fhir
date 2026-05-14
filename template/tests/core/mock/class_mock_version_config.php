@@ -29,12 +29,14 @@ $versionConfigInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_
 
 $unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 $serializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
+$clientConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 
 $imports->addCoreFileImports(
     $versionConfigInterface,
 
     $unserializeConfig,
     $serializeConfig,
+    $clientConfig,
 );
 
 ob_start();
@@ -69,6 +71,12 @@ class <?php echo $coreFile; ?> implements <?php echo $versionConfigInterface; ?>
 
     {
         return $this->_serializeConfig;
+    }
+
+    public function getClientConfig(): null|<?php echo $clientConfig; ?>
+
+    {
+        return null;
     }
 }
 <?php return ob_get_clean();

@@ -25,12 +25,14 @@ $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
     PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG,
     PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_CLIENT_CLASSNAME_CONFIG,
 );
 
 $coreFiles = $config->getCoreFiles();
 
 $serializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG);
 $unserializeConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
+$clientConfigClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -58,5 +60,12 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_CONFIG; ?>
      * @return <?php echo $serializeConfigClass->getFullyQualifiedName(true); ?>
      */
     public function getSerializeConfig(): <?php echo PHPFHIR_ENCODING_CLASSNAME_SERIALIZE_CONFIG; ?>;
+
+    /**
+     * Must return the client config to use for this version, or null if not set
+     *
+     * @return null|<?php echo $clientConfigClass->getFullyQualifiedName(true); ?>
+     */
+    public function getClientConfig(): null|<?php echo PHPFHIR_CLIENT_CLASSNAME_CONFIG; ?>;
 }
 <?php return ob_get_clean();

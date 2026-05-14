@@ -88,4 +88,105 @@ class VersionDefaultConfigTest extends TestCase
         $c->setSerializeConfig([]);
         $this->assertEmpty($c->getSerializeConfig());
     }
+
+    // -------------------------------------------------------------------------
+    // Client config tests
+    // -------------------------------------------------------------------------
+
+    public function testClientConfigIsEmptyArrayByDefault(): void
+    {
+        $c = new VersionDefaultConfig();
+        $this->assertSame([], $c->getClientConfig());
+    }
+
+    public function testSetClientConfigAcceptsEmptyArray(): void
+    {
+        $c = new VersionDefaultConfig();
+        $c->setClientConfig([]);
+        $this->assertSame([], $c->getClientConfig());
+    }
+
+    public function testSetClientConfigRequiresAddressKey(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $c = new VersionDefaultConfig();
+        $c->setClientConfig(['defaultFormat' => 'JSON']);
+    }
+
+    public function testSetClientConfigRejectsEmptyAddress(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $c = new VersionDefaultConfig();
+        $c->setClientConfig(['address' => '   ']);
+    }
+
+    public function testSetClientConfigAcceptsAddressOnly(): void
+    {
+        $c = new VersionDefaultConfig();
+        $c->setClientConfig(['address' => 'https://fhir.example.com']);
+        $this->assertSame('https://fhir.example.com', $c->getClientConfig()['address']);
+    }
+
+    public function testSetClientConfigAcceptsFullConfig(): void
+    {
+        $c = new VersionDefaultConfig();
+        $c->setClientConfig([
+            'address'              => 'https://fhir.example.com',
+            'defaultFormat'        => 'JSON',
+            'defaultQueryParams'   => ['_count' => '10'],
+            'curlOpts'             => [CURLOPT_TIMEOUT => 30],
+            'parseResponseHeaders' => false,
+        ]);
+        $cfg = $c->getClientConfig();
+        $this->assertSame('https://fhir.example.com', $cfg['address']);
+        $this->assertSame('JSON', $cfg['defaultFormat']);
+        $this->assertSame(['_count' => '10'], $cfg['defaultQueryParams']);
+        $this->assertSame([CURLOPT_TIMEOUT => 30], $cfg['curlOpts']);
+        $this->assertFalse($cfg['parseResponseHeaders']);
+    }
+
+    public function testSetClientConfigRejectsInvalidDefaultFormat(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $c = new VersionDefaultConfig();
+        $c->setClientConfig(['address' => 'https://fhir.example.com', 'defaultFormat' => 'CSV']);
+    }
+
+    public function testSetClientConfigClearsOnSubsequentCall(): void
+    {
+        $c = new VersionDefaultConfig();
+        $c->setClientConfig(['address' => 'https://fhir.example.com', 'defaultFormat' => 'JSON']);
+        $c->setClientConfig([]);
+        $this->assertSame([], $c->getClientConfig());
+    }
+
+    public function testFromArrayHandlesClientConfig(): void
+    {
+        $c = VersionDefaultConfig::fromArray([
+            'clientConfig' => ['address' => 'https://fhir.example.com'],
+        ]);
+        $this->assertSame('https://fhir.example.com', $c->getClientConfig()['address']);
+    }
+
+    public function testToArrayIncludesClientConfigWhenSet(): void
+    {
+        $c = new VersionDefaultConfig();
+        $c->setClientConfig(['address' => 'https://fhir.example.com']);
+        $arr = $c->toArray();
+        $this->assertArrayHasKey('clientConfig', $arr);
+        $this->assertSame('https://fhir.example.com', $arr['clientConfig']['address']);
+    }
+
+    public function testToArrayOmitsClientConfigWhenEmpty(): void
+    {
+        $c = new VersionDefaultConfig();
+        $arr = $c->toArray();
+        $this->assertArrayNotHasKey('clientConfig', $arr);
+    }
+
+    public function testConstructorAcceptsClientConfigParam(): void
+    {
+        $c = new VersionDefaultConfig(clientConfig: ['address' => 'https://fhir.example.com']);
+        $this->assertSame('https://fhir.example.com', $c->getClientConfig()['address']);
+    }
 }

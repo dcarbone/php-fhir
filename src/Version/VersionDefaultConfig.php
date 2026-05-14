@@ -3,7 +3,7 @@
 namespace DCarbone\PHPFHIR\Version;
 
 /*
- * Copyright 2018-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,20 +35,35 @@ class VersionDefaultConfig
         'xhtmlLibxmlOptMask',
     ];
 
+    private const _CLIENT_CONFIG_KEYS = [
+        'address',
+        'defaultFormat',
+        'defaultQueryParams',
+        'curlOpts',
+        'parseResponseHeaders',
+    ];
+
+    private const _CLIENT_CONFIG_VALID_FORMATS = ['JSON', 'XML'];
+
     /** @var array */
     private array $_unserializeConfig = [];
     /** @var array */
     private array $_serializeConfig = [];
+    /** @var array */
+    private array $_clientConfig = [];
 
     /**
      * @param array $unserializeConfig
      * @param array $serializeConfig
+     * @param array $clientConfig
      */
     public function __construct(array $unserializeConfig = [],
-                                array $serializeConfig = [])
+                                array $serializeConfig = [],
+                                array $clientConfig = [])
     {
         $this->setUnserializeConfig($unserializeConfig);
         $this->setSerializeConfig($serializeConfig);
+        $this->setClientConfig($clientConfig);
     }
 
     public static function fromArray(array $config): self
@@ -57,7 +72,8 @@ class VersionDefaultConfig
         foreach ($config as $k => $v) {
             match($k) {
                 'unserializeConfig' => $c->setUnserializeConfig($v),
-                'serializeConfig' => $c->setSerializeConfig($v),
+                'serializeConfig'   => $c->setSerializeConfig($v),
+                'clientConfig'      => $c->setClientConfig($v),
                 default => throw new \UnexpectedValueException(sprintf(
                     'Unknown configuration field "%s" specified',
                     $k
@@ -171,6 +187,58 @@ class VersionDefaultConfig
         return $this->_serializeConfig;
     }
 
+    /**
+     * @param array $config
+     * @return self
+     */
+    public function setClientConfig(array $config): self
+    {
+        $this->_clientConfig = [];
+        if ([] === $config) {
+            return $this;
+        }
+        if (!array_key_exists('address', $config) || '' === trim((string)$config['address'])) {
+            throw new \InvalidArgumentException(
+                'Client config must include a non-empty "address" key.'
+            );
+        }
+        foreach (self::_CLIENT_CONFIG_KEYS as $k) {
+            if (!array_key_exists($k, $config)) {
+                continue;
+            }
+            $this->_clientConfig[$k] = match ($k) {
+                'address' => (string)$config[$k],
+                'defaultFormat' => in_array($config[$k], self::_CLIENT_CONFIG_VALID_FORMATS, true)
+                    ? $config[$k]
+                    : throw new \InvalidArgumentException(sprintf(
+                        'Value "%s" is not a valid defaultFormat; must be one of: %s',
+                        $config[$k],
+                        implode(', ', self::_CLIENT_CONFIG_VALID_FORMATS),
+                    )),
+                'defaultQueryParams' => is_array($config[$k])
+                    ? $config[$k]
+                    : throw new \InvalidArgumentException('"defaultQueryParams" must be an array.'),
+                'curlOpts' => is_array($config[$k])
+                    ? $config[$k]
+                    : throw new \InvalidArgumentException('"curlOpts" must be an array.'),
+                'parseResponseHeaders' => (bool)$config[$k],
+                default => throw new \UnexpectedValueException(sprintf(
+                    'Unknown client config key "%s"',
+                    $k,
+                )),
+            };
+        }
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getClientConfig(): array
+    {
+        return $this->_clientConfig;
+    }
+
     public function toArray(): array
     {
         $out = [];
@@ -179,6 +247,9 @@ class VersionDefaultConfig
         }
         if ([] !== $this->_serializeConfig) {
             $out['serializeConfig'] = $this->_serializeConfig;
+        }
+        if ([] !== $this->_clientConfig) {
+            $out['clientConfig'] = $this->_clientConfig;
         }
         return $out;
     }
