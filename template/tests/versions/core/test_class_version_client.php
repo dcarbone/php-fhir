@@ -29,7 +29,6 @@ $versionCoreFiles = $version->getVersionCoreFiles();
 $versionClientClass    = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_CLIENT);
 $versionClass          = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 $versionConfigClass    = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_VERSION_CONFIG);
-$clientClass           = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CLIENT);
 $clientConfigClass     = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLIENT_CLASSNAME_CONFIG);
 
 $imports = $coreFile->getImports();
@@ -37,7 +36,6 @@ $imports->addCoreFileImports(
     $versionClientClass,
     $versionClass,
     $versionConfigClass,
-    $clientClass,
     $clientConfigClass,
 );
 
@@ -54,17 +52,64 @@ class <?php echo $coreFile; ?> extends TestCase
 {
     // -------------------------------------------------------------------------
     // fromVersion() — exception path
+    // Only meaningful when no default client config was baked in at generation
+    // time; if GENERATED_CLIENT_CONFIG is non-empty, new Version() already has
+    // a client config and fromVersion() will not throw.
     // -------------------------------------------------------------------------
 
     public function testFromVersionThrowsWhenNoClientConfigSet(): void
     {
+        if ([] !== <?php echo $versionClass; ?>::GENERATED_CLIENT_CONFIG) {
+            $this->markTestSkipped(
+                'GENERATED_CLIENT_CONFIG is non-empty for this version; '
+                . 'new Version() always has a client config so this exception path cannot be triggered.',
+            );
+        }
         $this->expectException(\InvalidArgumentException::class);
         $version = new <?php echo $versionClass; ?>();
         <?php echo $versionClientClass; ?>::fromVersion($version);
     }
 
     // -------------------------------------------------------------------------
-    // fromVersion() — success paths
+    // GENERATED_CLIENT_CONFIG propagation path
+    // Skipped unless a clientConfig was configured at generation time.
+    // -------------------------------------------------------------------------
+
+    public function testGeneratedClientConfigPropagatesIntoVersionConstructor(): void
+    {
+        if ([] === <?php echo $versionClass; ?>::GENERATED_CLIENT_CONFIG) {
+            $this->markTestSkipped(
+                'GENERATED_CLIENT_CONFIG is empty for this version; '
+                . 'configure a default clientConfig during generation to activate this test.',
+            );
+        }
+        // new Version() with no args must merge GENERATED_CLIENT_CONFIG and expose the client config.
+        $version = new <?php echo $versionClass; ?>();
+        $clientConfig = $version->getConfig()->getClientConfig();
+        $this->assertNotNull($clientConfig, 'getClientConfig() must return a Config when GENERATED_CLIENT_CONFIG is non-empty.');
+        $this->assertEquals(
+            <?php echo $versionClass; ?>::GENERATED_CLIENT_CONFIG['address'],
+            $clientConfig->getAddress(),
+            'The address baked into GENERATED_CLIENT_CONFIG must survive the Version constructor.',
+        );
+    }
+
+    public function testFromVersionSucceedsWhenGeneratedClientConfigIsPresent(): void
+    {
+        if ([] === <?php echo $versionClass; ?>::GENERATED_CLIENT_CONFIG) {
+            $this->markTestSkipped(
+                'GENERATED_CLIENT_CONFIG is empty for this version; '
+                . 'configure a default clientConfig during generation to activate this test.',
+            );
+        }
+        // fromVersion() must build a client from the propagated config without throwing.
+        $version = new <?php echo $versionClass; ?>();
+        $client = <?php echo $versionClientClass; ?>::fromVersion($version);
+        $this->assertInstanceOf(<?php echo $versionClientClass; ?>::class, $client);
+    }
+
+    // -------------------------------------------------------------------------
+    // fromVersion() — explicit success paths (always run)
     // -------------------------------------------------------------------------
 
     public function testFromVersionReturnsInstanceWithStringClientConfig(): void
@@ -99,8 +144,7 @@ class <?php echo $coreFile; ?> extends TestCase
         $version = new <?php echo $versionClass; ?>(new <?php echo $versionConfigClass; ?>(
             clientConfig: 'https://fhir.example.com',
         ));
-        $client = <?php echo $versionClientClass; ?>::fromVersion($version);
-        // The stored ClientInterface wraps the Config — verify the address survived construction.
+        <?php echo $versionClientClass; ?>::fromVersion($version);
         $this->assertEquals(
             'https://fhir.example.com',
             $version->getConfig()->getClientConfig()->getAddress(),
