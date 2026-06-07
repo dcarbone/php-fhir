@@ -38,7 +38,7 @@ abstract class Templates
     public static function renderCoreFile(Config $config, CoreFile $coreFile, array $kwargs): string
     {
         extract($kwargs);
-        return require $coreFile->getTemplateFile();
+        return self::normalize(require $coreFile->getTemplateFile());
     }
 
     /**
@@ -48,7 +48,7 @@ abstract class Templates
      */
     public static function renderVersionXHTMLTypeClass(Version $version, Type $type): string
     {
-        return require sprintf('%s/class_xhtml.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
+        return self::normalize(require sprintf('%s/class_xhtml.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR));
     }
 
     /**
@@ -59,11 +59,11 @@ abstract class Templates
     public static function renderVersionTypeClass(Version $version, Type $type): string
     {
         if ($type->getKind()->isResourceContainer($version)) {
-            return require sprintf('%s/class_resource_container.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
+            return self::normalize(require sprintf('%s/class_resource_container.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR));
         } else if ($type->isPrimitiveType() && !$type->hasPrimitiveTypeParent()) {
-            return require sprintf('%s/class_primitive.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
+            return self::normalize(require sprintf('%s/class_primitive.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR));
         }
-        return require sprintf('%s/class_default.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR);
+        return self::normalize(require sprintf('%s/class_default.php', PHPFHIR_TEMPLATE_VERSION_TYPES_DIR));
     }
 
     /**
@@ -73,6 +73,24 @@ abstract class Templates
      */
     public static function renderVersionTypeClassTest(Version $version, Type $type): string
     {
-        return require sprintf('%s/class.php', PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR);
+        return self::normalize(require sprintf('%s/class.php', PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR));
+    }
+
+    /**
+     * Normalize whitespace in rendered template output.
+     *
+     * Templates are PHP files rendered via output buffering, so indented inline control
+     * structures (e.g. "    <?php endif; ?>") emit their leading indentation as whitespace-only
+     * or trailing-whitespace lines. Normalizing here, at the single render chokepoint, keeps
+     * every generated file free of trailing whitespace and ending in exactly one newline,
+     * without editing each template.
+     *
+     * @param string $rendered
+     * @return string
+     */
+    private static function normalize(string $rendered): string
+    {
+        $rendered = preg_replace('/[ \t]+$/m', '', $rendered);
+        return rtrim($rendered, "\r\n") . "\n";
     }
 }
