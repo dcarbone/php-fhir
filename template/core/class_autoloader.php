@@ -68,7 +68,7 @@ abstract class <?php echo $coreFile; ?>
     public static function register(): bool
     {
         if (!self::$_registered) {
-            self::$_registered = spl_autoload_register(__CLASS__ . '::loadClass');
+            self::$_registered = spl_autoload_register(self::class . '::loadClass');
         }
         return self::$_registered;
     }
@@ -76,7 +76,7 @@ abstract class <?php echo $coreFile; ?>
     public static function unregister(): bool
     {
         if (self::$_registered) {
-            if (spl_autoload_unregister(__CLASS__ . '::loadClass')) {
+            if (spl_autoload_unregister(self::class . '::loadClass')) {
                 self::$_registered = false;
                 return true;
             }

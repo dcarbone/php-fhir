@@ -88,7 +88,7 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
             throw new \InvalidArgumentException(sprintf(
                 '$config must be an instance of \\%s, %s given',
                 <?php echo $versionConfigClass; ?>::class,
-                get_class($config)
+                $config::class
             ));
         }
         $this->_config = $config;

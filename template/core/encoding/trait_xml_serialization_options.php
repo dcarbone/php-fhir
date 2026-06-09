@@ -61,7 +61,7 @@ trait <?php echo $coreFile; ?>
             throw new \DomainException(sprintf(
                 'Field "%s" on Type "%s" does not contain a value that is serializable as an attribute',
                 $field,
-                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                ltrim(substr(self::class, (int)strrpos(self::class, '\\')), '\\'),
             ));
         }
         $this->_valueXMLLocations[$field] = $valueXMLLocation;
@@ -81,7 +81,7 @@ trait <?php echo $coreFile; ?>
             throw new \DomainException(sprintf(
                 'Field "%s" on Type "%s" does not contain a value that is serializable as an attribute',
                 $field,
-                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                ltrim(substr(self::class, (int)strrpos(self::class, '\\')), '\\'),
             ));
         }
         return $this->_valueXMLLocations[$field];
