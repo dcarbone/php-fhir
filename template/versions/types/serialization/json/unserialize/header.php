@@ -61,7 +61,7 @@ ob_start(); ?>
             if (isset($decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>) && $decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?> !== static::FHIR_TYPE_NAME) {
                 throw new \DomainException(sprintf(
                     '%s::jsonUnserialize - Cannot unmarshal data for resource type "%s" into this type.',
-                    ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                    ltrim(substr(self::class, (int)strrpos(self::class, '\\')), '\\'),
                     $decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>,
                 ));
             }
@@ -69,9 +69,9 @@ ob_start(); ?>
         }<?php endif; ?> else if (!($type instanceof <?php echo $type->getClassName(); ?>)) {
             throw new \RuntimeException(sprintf(
                 '%s::jsonUnserialize - $type must be instance of \\%s or null, %s seen.',
-                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                ltrim(substr(self::class, (int)strrpos(self::class, '\\')), '\\'),
                 static::class,
-                get_class($type)
+                $type::class
             ));
         }
 <?php if ($isResource) : ?>

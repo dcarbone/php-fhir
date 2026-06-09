@@ -61,9 +61,9 @@ ob_start(); ?>
         }<?php endif; ?> else if (!($type instanceof <?php echo $type->getClassName(); ?>)) {
             throw new \RuntimeException(sprintf(
                 '%s::xmlUnserialize - $type must be instance of \\%s or null, %s seen.',
-                ltrim(substr(__CLASS__, (int)strrpos(__CLASS__, '\\')), '\\'),
+                ltrim(substr(self::class, (int)strrpos(self::class, '\\')), '\\'),
                 static::class,
-                get_class($type)
+                $type::class
             ));
         }
 <?php if ($isResource) : ?>
