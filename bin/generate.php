@@ -3,8 +3,8 @@
 /**
  * Generation helper script for PHP-FHIR.
  *
- * Copyright 2017 Pim Koeman (pim@dataground.com)
- * Copyright 2017-2025 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2017-2026 Pim Koeman (pim@dataground.com)
+ * Copyright 2017-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ function help_text(): string
 
 PHP-FHIR: Tools for creating PHP classes from the HL7 FHIR Specification
 
-Copyright 2016-2024 Daniel Carbone (daniel.p.carbone@gmail.com)
+Copyright 2016-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
 
 - Links: 
     Source:         https://github.com/dcarbone/php-fhir
