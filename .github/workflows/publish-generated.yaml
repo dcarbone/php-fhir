@@ -1,0 +1,267 @@
+name: "Publish Generated Code"
+
+permissions:
+  actions: "none"
+  attestations: "none"
+  checks: "none"
+  contents: "read"
+  deployments: "none"
+  id-token: "none"
+  issues: "none"
+  models: "none"
+  discussions: "none"
+  packages: "none"
+  pages: "none"
+  pull-requests: "none"
+  security-events: "none"
+  statuses: "none"
+
+on:
+  release:
+    types:
+      - "published"
+
+env:
+  PHP_VERSION: "8.1"
+
+jobs:
+  # -----------------------------------------------------------------------
+  # Download all FHIR XSD sources in parallel so the generation job can
+  # find them under input/<VERSION>/ on the runner.
+  #
+  # NOTE: this version list and the "Restore <VERSION> XSD cache" steps in
+  # generate-and-publish below must be kept in sync by hand — GitHub
+  # Actions does not allow the `env` context inside `strategy.matrix`
+  # (it's evaluated before `env` is populated), and it does not support
+  # looping over `uses:` steps within a single job.
+  # -----------------------------------------------------------------------
+  load-fhir-source:
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 15
+    strategy:
+      fail-fast: true
+      matrix:
+        version:
+          - 'DSTU1'
+          - 'DSTU2'
+          - 'STU3'
+          - 'R4'
+          - 'R4B'
+          - 'R5'
+    name: 'Load FHIR ${{ matrix.version }} XSD'
+    steps:
+      - uses: "actions/checkout@v7"
+
+      - name: 'Load FHIR ${{ matrix.version }} XSD'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: '${{ matrix.version }}'
+
+  # -----------------------------------------------------------------------
+  # Run the generator once all XSD sources are available, then push the
+  # output to dcarbone/php-fhir-generated and create a matching release.
+  # -----------------------------------------------------------------------
+  generate-and-publish:
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    needs:
+      - "load-fhir-source"
+
+    # Use PHP 8.1 – the minimum supported version for v3.
+    steps:
+      - uses: "actions/checkout@v7"
+
+      # ---- restore every FHIR XSD cache that was populated above ----------
+      - name: 'Restore DSTU1 XSD cache'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'DSTU1'
+
+      - name: 'Restore DSTU2 XSD cache'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'DSTU2'
+
+      - name: 'Restore STU3 XSD cache'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'STU3'
+
+      - name: 'Restore R4 XSD cache'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'R4'
+
+      - name: 'Restore R4B XSD cache'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'R4B'
+
+      - name: 'Restore R5 XSD cache'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'R5'
+
+      # ---- PHP + Composer --------------------------------------------------
+      - name: 'Install PHP'
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: '${{ env.PHP_VERSION }}'
+          extensions: "libxml simplexml json zip"
+          ini-values: "precision=20"
+
+      - name: 'Install jq'
+        uses: "dcarbone/install-jq-action@v3"
+        with:
+          force: true
+
+      - name: 'Get composer cache directory'
+        id: "composer-cache"
+        # language=bash
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: 'Cache composer deps'
+        uses: "actions/cache@v5"
+        with:
+          path: '${{ steps.composer-cache.outputs.dir }}'
+          key: "composer-${{ runner.os }}-${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock') }}"
+
+      - name: 'Install composer deps'
+        # language=bash
+        run: |
+          composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      # ---- Run the generator -----------------------------------------------
+      - name: 'Run php-fhir generator'
+        # language=bash
+        run: |
+          php bin/generate.php \
+            --config bin/config.php \
+            --logLevel info
+
+      # ---- Clean up generated output with Rector ---------------------------
+      - name: 'Run Rector quality gate on generated output'
+        # language=bash
+        run: |
+          composer rector:generated
+
+      # ---- SSH signing setup -----------------------------------------------
+      - name: 'Configure SSH signing key'
+        id: "ssh-signing"
+        env:
+          SSH_SIGNING_KEY: '${{ secrets.SSH_SIGNING_KEY }}'
+        # language=bash
+        run: |
+          mkdir -p "${HOME}/.ssh"
+          printf '%s\n' "${SSH_SIGNING_KEY}" > "${HOME}/.ssh/signing_key"
+          chmod 600 "${HOME}/.ssh/signing_key"
+          ssh-keygen -y -f "${HOME}/.ssh/signing_key" > "${HOME}/.ssh/signing_key.pub"
+          echo "key-path=${HOME}/.ssh/signing_key" >> "${GITHUB_OUTPUT}"
+
+      # ---- Clone the generated repo and push new output --------------------
+      - name: 'Checkout php-fhir-generated'
+        uses: "actions/checkout@v7"
+        with:
+          repository: "dcarbone/php-fhir-generated"
+          token: '${{ secrets.GENERATED_REPO_TOKEN }}'
+          path: "generated-repo"
+          ref: "main"
+
+      - name: 'Sync generated output into cloned repo'
+        # language=bash
+        run: |
+          # Sanity-check that the generator actually produced output before
+          # we destroy what's currently on main — an empty/partial generator
+          # run must never result in an empty repo being pushed.
+          if [ -z "$(ls -A output/src 2>/dev/null)" ] || [ -z "$(ls -A output/tests 2>/dev/null)" ]; then
+            echo "::error::Generated output/src or output/tests is empty — aborting sync to avoid wiping generated-repo." >&2
+            exit 1
+          fi
+          
+          # Remove only the generated directories so repo-level files
+          # (README, composer.json, LICENSE, etc.) are left untouched.
+          rm -rf generated-repo/src generated-repo/tests
+          
+          # Copy freshly generated files.
+          cp -r output/src/.   generated-repo/src/
+          cp -r output/tests/. generated-repo/tests/
+
+      - name: 'Commit and push to php-fhir-generated main'
+        id: "commit"
+        env:
+          RELEASE_TAG:          '${{ github.event.release.tag_name }}'
+          SSH_SIGNING_KEY_PATH: '${{ steps.ssh-signing.outputs.key-path }}'
+        working-directory: "generated-repo"
+        # language=bash
+        run: |
+          git config user.name  "Daniel Carbone (PHPFHIR Generator)"
+          git config user.email "1392439+dcarbone@users.noreply.github.com"
+          git config gpg.format ssh
+          git config user.signingkey "${SSH_SIGNING_KEY_PATH}"
+          
+          git add --all -- src/ tests/
+          
+          if git diff --cached --quiet; then
+            echo "No changes to commit – generated output is identical to current main."
+            echo "has-changes=false" >> "${GITHUB_OUTPUT}"
+          else
+            git commit -S -m "chore: regenerate from php-fhir ${RELEASE_TAG}"
+          
+            # Retry the push a few times in case main moved between checkout
+            # and push (e.g. a concurrent run or manual commit landed first).
+            _attempt=1
+            _max_attempts=3
+            until git push origin main; do
+              if [ "${_attempt}" -ge "${_max_attempts}" ]; then
+                echo "::error::Failed to push to main after ${_max_attempts} attempts." >&2
+                exit 1
+              fi
+              echo "Push rejected (attempt ${_attempt}/${_max_attempts}) – fetching and rebasing before retry."
+              git fetch origin main
+              git rebase -S origin/main
+              _attempt=$((_attempt + 1))
+            done
+          
+            echo "has-changes=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: 'Create tag and release in php-fhir-generated'
+        env:
+          GH_TOKEN: '${{ secrets.GENERATED_REPO_TOKEN }}'
+          RELEASE_TAG: '${{ github.event.release.tag_name }}'
+          RELEASE_NAME: '${{ github.event.release.name }}'
+          RELEASE_BODY: '${{ github.event.release.body }}'
+          RELEASE_PRERELEASE: '${{ github.event.release.prerelease }}'
+        working-directory: "generated-repo"
+        # language=bash
+        run: |
+          # Idempotent by remote tag existence rather than this run's diff
+          # outcome: if a prior run already pushed the commit but failed
+          # before/during this step (e.g. a transient gh API error), a retry
+          # would see "no changes" (has-changes=false) even though the
+          # release itself was never created. Checking the remote tag
+          # directly covers that gap instead of silently skipping forever.
+          if gh release view "${RELEASE_TAG}" --repo dcarbone/php-fhir-generated >/dev/null 2>&1; then
+            echo "Release ${RELEASE_TAG} already exists on php-fhir-generated — nothing to do."
+            exit 0
+          fi
+          
+          _prerelease_flag=""
+          if [ "${RELEASE_PRERELEASE}" = "true" ]; then
+            _prerelease_flag="--prerelease"
+          fi
+          
+          gh release create "${RELEASE_TAG}" \
+            --repo dcarbone/php-fhir-generated \
+            --target main \
+            --title "${RELEASE_NAME}" \
+            --notes "${RELEASE_BODY}" \
+            ${_prerelease_flag}
+
+      # ---- Clean up signing key material regardless of job outcome ---------
+      - name: 'Remove SSH signing key material'
+        if: "always()"
+        # language=bash
+        run: |
+          rm -f "${HOME}/.ssh/signing_key" "${HOME}/.ssh/signing_key.pub"

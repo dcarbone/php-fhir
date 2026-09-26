@@ -32,9 +32,10 @@
   },
   "require-dev": {
     "ext-zlib": "*",
-    "phpunit/phpunit": "^10.5 || ^11.0",
+    "phpunit/phpunit": "^10.5.62 || ^11.5.50 || ^12.5.23 || ^13.1.7",
     "monolog/monolog": "^3.2.0",
-    "spatie/temporary-directory": "^1.0 || ^2.0"
+    "spatie/temporary-directory": "^1.0 || ^2.0",
+    "rector/rector": "^2.6"
   },
   "replace": {
     "php-fhir/parser": "*",
@@ -58,5 +59,9 @@
     "psr-4": {
       "DCarbone\\PHPFHIRTests\\": "tests/"
     }
+  },
+  "scripts": {
+    "rector:generated": "rector process --config=rector-generated.php",
+    "rector:generated:dry-run": "rector process --config=rector-generated.php --dry-run"
   }
 }

@@ -47,7 +47,7 @@ trait <?php echo $coreFile; ?>
      * Returns whether the provided field should be JSON serialized as an object, rather than an array of objects, when
      * it contains a singular element.
      *
-     * @return true
+     * @return bool
      */
     public function _getJSONFieldElideSingletonArray(string $field): bool
     {

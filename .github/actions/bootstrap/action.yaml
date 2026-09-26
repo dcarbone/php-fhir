@@ -7,13 +7,13 @@ inputs:
     description: 'PHP version to use for tests'
 
 runs:
-  using: composite
+  using: "composite"
   steps:
     - name: 'Define vars'
-      id: vars
+      id: "vars"
       env:
         PHP_VERSION: '${{ inputs.php-version }}'
-      shell: bash -e {0}
+      shell: "bash -e {0}"
       # language=sh
       run: |
         _phpunit_version=
@@ -28,21 +28,21 @@ runs:
         echo "phpunit-version=${_phpunit_version}" >> $GITHUB_OUTPUT
 
     - name: 'Install PHP'
-      uses: shivammathur/setup-php@v2
+      uses: "shivammathur/setup-php@v2"
       with:
         php-version: ${{ inputs.php-version }}
-        extensions: libxml simplexml json zip
-        ini-values: precision=20
+        extensions: "libxml simplexml json zip"
+        ini-values: "precision=20"
 
     - name: 'Install jq'
-      uses: dcarbone/install-jq-action@v3
+      uses: "dcarbone/install-jq-action@v3"
       with:
         force: true
 
     - name: 'Set composer dep versions'
       env:
         PHPUNIT_VERSION: '${{ steps.vars.outputs.phpunit-version }}'
-      shell: bash -e {0}
+      shell: "bash -e {0}"
       # language=sh
       run: |
         tmpf="$(mktemp)"
@@ -50,29 +50,30 @@ runs:
         mv "${tmpf}" composer.json
 
     - name: 'Get composer cache directory'
-      id: composer-cache
-      shell: bash -e {0}
+      id: "composer-cache"
+      shell: "bash -e {0}"
       # language=sh
       run: |
         echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: 'Init composer dep cache'
-      id: cache
-      uses: actions/cache@v5
+      id: "cache"
+      uses: "actions/cache@v5"
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"
 
     - name: 'Install composer deps'
-      shell: bash -e {0}
+      shell: "bash -e {0}"
       # language=sh
       run: |
         rm composer.lock
         composer update --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
     - name: 'Save composer dep cache'
-      if: steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true
-      uses: actions/cache/save@v5
+      if: "steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true"
+      uses: "actions/cache/save@v5"
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"
+
