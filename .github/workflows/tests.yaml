@@ -133,7 +133,7 @@ jobs:
         # Generated output differs only per test-target, not per PHP version, so this only needs
         # to run once per target rather than once per (php-version, test-target) matrix cell.
         # Starts lenient (non-blocking) per php-fhir#198; flip to blocking once proven noise-free.
-        if: matrix.php-version == '8.3'
+        if: "matrix.php-version == '8.3'"
         continue-on-error: true
         # language=sh
         run: composer rector:generated:dry-run

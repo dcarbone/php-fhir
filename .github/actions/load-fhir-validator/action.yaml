@@ -40,14 +40,14 @@ runs:
         key: '${{ steps.vars.outputs.cache-key }}'
 
     - name: 'Install Java'
-      if: "steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true"
+      if: "steps.validator-cache.outputs.cache-hit != 'true' && steps.validator-cache.outputs.cache-hit != true"
       uses: "actions/setup-java@v5"
       with:
         distribution: 'zulu'
         java-version: 18
 
     - name: 'Download and cache extensions'
-      if: "steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true"
+      if: "steps.validator-cache.outputs.cache-hit != 'true' && steps.validator-cache.outputs.cache-hit != true"
       env:
         VALIDATOR_VERSION: '${{ inputs.version }}'
         VALIDATOR_FILENAME: '${{ inputs.filename }}'

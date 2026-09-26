@@ -24,6 +24,9 @@ use PHPUnit\Framework\TestCase;
 class TemplatesTest extends TestCase
 {
     /**
+     * ReflectionMethod::setAccessible() has been a no-op since PHP 8.1 and is
+     * deprecated in PHP 8.3 – we do not call it here.
+     *
      * @param string $rendered
      * @return string
      * @throws \ReflectionException
@@ -31,7 +34,6 @@ class TemplatesTest extends TestCase
     private function _pruneUnusedImports(string $rendered): string
     {
         $method = new \ReflectionMethod(Templates::class, 'pruneUnusedImports');
-        $method->setAccessible(true);
         return $method->invoke(null, $rendered);
     }
 
