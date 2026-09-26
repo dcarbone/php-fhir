@@ -28,9 +28,16 @@ jobs:
   # -----------------------------------------------------------------------
   # Download all FHIR XSD sources in parallel so the generation job can
   # find them under input/<VERSION>/ on the runner.
+  #
+  # NOTE: this version list and the "Restore <VERSION> XSD cache" steps in
+  # generate-and-publish below must be kept in sync by hand — GitHub
+  # Actions does not allow the `env` context inside `strategy.matrix`
+  # (it's evaluated before `env` is populated), and it does not support
+  # looping over `uses:` steps within a single job.
   # -----------------------------------------------------------------------
   load-fhir-source:
     runs-on: "ubuntu-latest"
+    timeout-minutes: 15
     strategy:
       fail-fast: true
       matrix:
@@ -56,6 +63,7 @@ jobs:
   # -----------------------------------------------------------------------
   generate-and-publish:
     runs-on: "ubuntu-latest"
+    timeout-minutes: 30
     needs:
       - "load-fhir-source"
 
@@ -130,7 +138,7 @@ jobs:
         run: |
           php bin/generate.php \
             --config bin/config.php \
-            --logLevel debug
+            --logLevel info
 
       # ---- Clean up generated output with Rector ---------------------------
       - name: 'Run Rector quality gate on generated output'
@@ -142,11 +150,11 @@ jobs:
       - name: 'Configure SSH signing key'
         id: "ssh-signing"
         env:
-          GPG_PRIVATE_KEY: '${{ secrets.GPG_PRIVATE_KEY }}'
+          SSH_SIGNING_KEY: '${{ secrets.SSH_SIGNING_KEY }}'
         # language=bash
         run: |
           mkdir -p "${HOME}/.ssh"
-          printf '%s\n' "${GPG_PRIVATE_KEY}" > "${HOME}/.ssh/signing_key"
+          printf '%s\n' "${SSH_SIGNING_KEY}" > "${HOME}/.ssh/signing_key"
           chmod 600 "${HOME}/.ssh/signing_key"
           ssh-keygen -y -f "${HOME}/.ssh/signing_key" > "${HOME}/.ssh/signing_key.pub"
           echo "key-path=${HOME}/.ssh/signing_key" >> "${GITHUB_OUTPUT}"
@@ -163,6 +171,14 @@ jobs:
       - name: 'Sync generated output into cloned repo'
         # language=bash
         run: |
+          # Sanity-check that the generator actually produced output before
+          # we destroy what's currently on main — an empty/partial generator
+          # run must never result in an empty repo being pushed.
+          if [ -z "$(ls -A output/src 2>/dev/null)" ] || [ -z "$(ls -A output/tests 2>/dev/null)" ]; then
+            echo "::error::Generated output/src or output/tests is empty — aborting sync to avoid wiping generated-repo." >&2
+            exit 1
+          fi
+          
           # Remove only the generated directories so repo-level files
           # (README, composer.json, LICENSE, etc.) are left untouched.
           rm -rf generated-repo/src generated-repo/tests
@@ -180,7 +196,7 @@ jobs:
         # language=bash
         run: |
           git config user.name  "Daniel Carbone (PHPFHIR Generator)"
-          git config user.email "daniel.p.carbone@gmail.com"
+          git config user.email "1392439+dcarbone@users.noreply.github.com"
           git config gpg.format ssh
           git config user.signingkey "${SSH_SIGNING_KEY_PATH}"
           
@@ -191,7 +207,22 @@ jobs:
             echo "has-changes=false" >> "${GITHUB_OUTPUT}"
           else
             git commit -S -m "chore: regenerate from php-fhir ${RELEASE_TAG}"
-            git push origin main
+          
+            # Retry the push a few times in case main moved between checkout
+            # and push (e.g. a concurrent run or manual commit landed first).
+            _attempt=1
+            _max_attempts=3
+            until git push origin main; do
+              if [ "${_attempt}" -ge "${_max_attempts}" ]; then
+                echo "::error::Failed to push to main after ${_max_attempts} attempts." >&2
+                exit 1
+              fi
+              echo "Push rejected (attempt ${_attempt}/${_max_attempts}) – fetching and rebasing before retry."
+              git fetch origin main
+              git rebase origin/main
+              _attempt=$((_attempt + 1))
+            done
+          
             echo "has-changes=true" >> "${GITHUB_OUTPUT}"
           fi
 
@@ -217,3 +248,10 @@ jobs:
             --title "${RELEASE_NAME}" \
             --notes "${RELEASE_BODY}" \
             ${_prerelease_flag}
+
+      # ---- Clean up signing key material regardless of job outcome ---------
+      - name: 'Remove SSH signing key material'
+        if: "always()"
+        # language=bash
+        run: |
+          rm -f "${HOME}/.ssh/signing_key" "${HOME}/.ssh/signing_key.pub"

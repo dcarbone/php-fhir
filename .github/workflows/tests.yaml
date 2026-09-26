@@ -105,7 +105,7 @@ jobs:
           - 'R4'
           - 'R4B'
           - 'R5'
-    name: '${{ matrix.test-target }} - PHP ${{ matrix.php-version }} - PHPUnit ${{ matrix.phpunit-version }}'
+    name: '${{ matrix.test-target }} - PHP ${{ matrix.php-version }}'
     services:
       php-fhir-test-server:
         image: "ghcr.io/dcarbone/php-fhir-test-server:latest"
