@@ -43,7 +43,7 @@ jobs:
           - 'R5'
     name: 'Load FHIR ${{ matrix.version }} XSD'
     steps:
-      - uses: "actions/checkout@v6"
+      - uses: "actions/checkout@v7"
 
       - name: 'Load FHIR ${{ matrix.version }} XSD'
         uses: "./.github/actions/load-fhir-xsd"
@@ -61,7 +61,7 @@ jobs:
 
     # Use PHP 8.1 – the minimum supported version for v3.
     steps:
-      - uses: "actions/checkout@v6"
+      - uses: "actions/checkout@v7"
 
       # ---- restore every FHIR XSD cache that was populated above ----------
       - name: 'Restore DSTU1 XSD cache'
@@ -132,6 +132,12 @@ jobs:
             --config bin/config.php \
             --logLevel debug
 
+      # ---- Clean up generated output with Rector ---------------------------
+      - name: 'Run Rector quality gate on generated output'
+        # language=bash
+        run: |
+          composer rector:generated
+
       # ---- SSH signing setup -----------------------------------------------
       - name: 'Configure SSH signing key'
         id: "ssh-signing"
@@ -147,7 +153,7 @@ jobs:
 
       # ---- Clone the generated repo and push new output --------------------
       - name: 'Checkout php-fhir-generated'
-        uses: "actions/checkout@v6"
+        uses: "actions/checkout@v7"
         with:
           repository: "dcarbone/php-fhir-generated"
           token: '${{ secrets.GENERATED_REPO_TOKEN }}'
