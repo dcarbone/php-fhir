@@ -219,7 +219,7 @@ jobs:
               fi
               echo "Push rejected (attempt ${_attempt}/${_max_attempts}) – fetching and rebasing before retry."
               git fetch origin main
-              git rebase origin/main
+              git rebase -S origin/main
               _attempt=$((_attempt + 1))
             done
           
@@ -227,7 +227,6 @@ jobs:
           fi
 
       - name: 'Create tag and release in php-fhir-generated'
-        if: "steps.commit.outputs.has-changes == 'true'"
         env:
           GH_TOKEN: '${{ secrets.GENERATED_REPO_TOKEN }}'
           RELEASE_TAG: '${{ github.event.release.tag_name }}'
@@ -237,6 +236,17 @@ jobs:
         working-directory: "generated-repo"
         # language=bash
         run: |
+          # Idempotent by remote tag existence rather than this run's diff
+          # outcome: if a prior run already pushed the commit but failed
+          # before/during this step (e.g. a transient gh API error), a retry
+          # would see "no changes" (has-changes=false) even though the
+          # release itself was never created. Checking the remote tag
+          # directly covers that gap instead of silently skipping forever.
+          if gh release view "${RELEASE_TAG}" --repo dcarbone/php-fhir-generated >/dev/null 2>&1; then
+            echo "Release ${RELEASE_TAG} already exists on php-fhir-generated — nothing to do."
+            exit 0
+          fi
+          
           _prerelease_flag=""
           if [ "${RELEASE_PRERELEASE}" = "true" ]; then
             _prerelease_flag="--prerelease"
