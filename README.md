@@ -15,6 +15,12 @@ project, grab the pre-built package:
 
 **➡️ [dcarbone/php-fhir-generated](https://github.com/dcarbone/php-fhir-generated)**
 
+That package is kept in sync automatically: every GitHub release published from this repository
+triggers a pipeline that regenerates all supported FHIR versions, runs a [Rector](https://github.com/rectorphp/rector)
+cleanup pass (see [Contributing → Code Quality](https://github.com/dcarbone/php-fhir/wiki/Contributing#code-quality-rector-on-generated-output)),
+and pushes a matching commit + release to `php-fhir-generated`. You never need to run the generator
+yourself unless you want a custom namespace, a subset of versions, or non-default behavior.
+
 ---
 
 ## 📖 Documentation
