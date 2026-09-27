@@ -21,6 +21,14 @@ on:
     types:
       - "published"
 
+# Serialize runs against the shared dcarbone/php-fhir-generated target repo so two releases
+# published in quick succession (or a manual re-run) can't race each other's git push/tag/release
+# calls. Never cancel an in-flight run - a partially-pushed generated-repo commit or a released-
+# but-not-yet-tagged state would be left behind; queue instead and let each run finish in order.
+concurrency:
+  group: "publish-generated"
+  cancel-in-progress: false
+
 env:
   PHP_VERSION: "8.1"
 
@@ -141,6 +149,17 @@ jobs:
             --logLevel info
 
       # ---- Clean up generated output with Rector ---------------------------
+      - name: 'Restore Rector cache'
+        # This job generates every FHIR version in one tree, unlike tests.yaml's per-target
+        # matrix, so a single cache scope covers the whole run. The run-id suffix on `key`
+        # guarantees a save every run, while `restore-keys` seeds from the most recent prior run.
+        uses: "actions/cache@v5"
+        with:
+          path: ".rector-cache/generated"
+          key: "rector-generated-release-${{ github.run_id }}"
+          restore-keys: |
+            rector-generated-release-
+
       - name: 'Run Rector quality gate on generated output'
         # language=bash
         run: |
