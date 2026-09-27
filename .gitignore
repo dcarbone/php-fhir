@@ -4,3 +4,4 @@ tmp/
 vendor/
 /*.iml
 /.*.cache
+.rector-cache/

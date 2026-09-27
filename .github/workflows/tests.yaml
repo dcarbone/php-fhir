@@ -129,6 +129,18 @@ jobs:
         # language=sh
         run: |
           ./vendor/bin/phpunit -c "phpunit/${TEST_TARGET}.xml"
+      - name: 'Restore Rector cache'
+        # Only meaningful when the Rector step below actually runs (see its comment). Keyed per
+        # test-target since each target's generated tree is distinct; the run-id suffix on `key`
+        # guarantees a save every run, while `restore-keys` picks up the most recent prior cache
+        # for that target to seed it.
+        if: "matrix.php-version == '8.3'"
+        uses: "actions/cache@v5"
+        with:
+          path: ".rector-cache/generated"
+          key: "rector-generated-${{ matrix.test-target }}-${{ github.run_id }}"
+          restore-keys: |
+            rector-generated-${{ matrix.test-target }}-
       - name: 'Rector quality gate on generated output'
         # Generated output differs only per test-target, not per PHP version, so this only needs
         # to run once per target rather than once per (php-version, test-target) matrix cell.

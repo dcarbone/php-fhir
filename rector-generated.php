@@ -68,6 +68,22 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/output/tests',
     ]);
 
+    // Persist per-file "already clean" results between runs. Rector hashes each file's content
+    // plus this config's rule/set fingerprint, so a stale or foreign-version cache is simply
+    // ignored rather than producing incorrect output - safe to restore from CI cache blindly.
+    // CI (.github/workflows/tests.yaml, .github/workflows/publish-generated.yaml) persists this
+    // directory across runs via actions/cache so unchanged generated files are skipped entirely
+    // instead of being re-parsed/re-analyzed every run.
+    $rectorConfig->cacheDirectory(__DIR__ . '/.rector-cache/generated');
+
+    // Explicit rather than relying on Rector's own default (also parallel, but we don't want
+    // behavior here to drift silently if that default ever changes). Rector auto-detects and caps
+    // the process count to the actual core count on the machine, so leaving maxNumberOfProcess at
+    // its own default keeps that auto-scaling behavior (4 vCPUs on GitHub-hosted `ubuntu-latest`,
+    // more locally). We only raise processTimeout, since CI cores are slower than a typical dev
+    // machine and the default 120s can be tight for a large per-worker batch.
+    $rectorConfig->parallel(processTimeout: 300, jobSize: 16);
+
     // matches composer.json's "php": "^8.1" floor - never emit syntax newer than what generated
     // code is allowed to require.
     $rectorConfig->phpVersion(PhpVersion::PHP_81);
