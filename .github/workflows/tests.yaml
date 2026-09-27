@@ -135,7 +135,7 @@ jobs:
         # guarantees a save every run, while `restore-keys` picks up the most recent prior cache
         # for that target to seed it.
         if: "matrix.php-version == '8.3'"
-        uses: "actions/cache@v5"
+        uses: "actions/cache@v6"
         with:
           path: ".rector-cache/generated"
           key: "rector-generated-${{ matrix.test-target }}-${{ github.run_id }}"
