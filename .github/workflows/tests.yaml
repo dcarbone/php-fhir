@@ -148,4 +148,4 @@ jobs:
         if: "matrix.php-version == '8.3'"
         continue-on-error: true
         # language=sh
-        run: composer rector:generated:dry-run
+        run: "composer rector:generated:dry-run"
