@@ -119,41 +119,24 @@ jobs:
             --iterations=5 \
             --github-action-benchmark="${RUNNER_TEMP}/benchmark-results.json"
 
-      - name: 'Ensure gh-pages branch'
-        id: "pages"
-        env:
-          CAN_CREATE: "${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}"
-        # The trend action stores history on gh-pages. Create it (empty, orphan) on the first push to main; elsewhere
-        # skip trend recording until it exists. Matrix jobs race here, so re-check after a failed push.
-        # language=sh
-        run: |
-          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
-            echo "exists=true" >> "${GITHUB_OUTPUT}"
-            exit 0
-          fi
-          if [ "${CAN_CREATE}" = "true" ]; then
-            _empty_tree="$(git hash-object -t tree /dev/null)"
-            _commit="$(GIT_AUTHOR_NAME='github-actions[bot]' GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com' \
-              GIT_COMMITTER_NAME='github-actions[bot]' GIT_COMMITTER_EMAIL='41898282+github-actions[bot]@users.noreply.github.com' \
-              git commit-tree "${_empty_tree}" -m 'Initialize benchmark history')"
-            git push -q origin "${_commit}:refs/heads/gh-pages" || true
-          fi
-          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
-            echo "exists=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "exists=false" >> "${GITHUB_OUTPUT}"
-            echo "::notice::gh-pages does not exist yet; skipping trend recording."
-          fi
+      - name: 'Upload results'
+        uses: "actions/upload-artifact@v7"
+        with:
+          name: 'benchmark-${{ matrix.test-target }}-php${{ matrix.php-version }}'
+          path: '${{ runner.temp }}/benchmark-results.json'
+          if-no-files-found: "error"
+          retention-days: 7
 
+      # Pull requests compare against the history on gh-pages but never publish; only the publish job below writes it.
       - name: 'Restore tracked files'
-        if: "steps.pages.outputs.exists == 'true'"
-        # The bootstrap action rewrites composer.json and removes composer.lock; the trend action must switch to
+        if: "github.event_name == 'pull_request'"
+        # The bootstrap action rewrites composer.json and removes composer.lock; the compare step must switch to
         # gh-pages and refuses to do so with a dirty working tree. Untracked/ignored output is left untouched.
         # language=sh
         run: "git checkout -- ."
 
-      - name: 'Record results'
-        if: "steps.pages.outputs.exists == 'true'"
+      - name: 'Compare against history'
+        if: "github.event_name == 'pull_request'"
         uses: "benchmark-action/github-action-benchmark@v1"
         with:
           name: 'Unserialize ${{ matrix.test-target }} (PHP ${{ matrix.php-version }})'
@@ -161,9 +144,125 @@ jobs:
           output-file-path: '${{ runner.temp }}/benchmark-results.json'
           benchmark-data-dir-path: 'benchmarks/${{ matrix.test-target }}-php${{ matrix.php-version }}'
           github-token: '${{ secrets.GITHUB_TOKEN }}'
-          # Only main publishes history; pull requests are compared against it.
-          auto-push: "${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}"
+          auto-push: false
           alert-threshold: '150%'
           comment-on-alert: true
           fail-on-alert: false
           summary-always: true
+
+  # Publishes every matrix result to gh-pages as ONE signed commit. Doing it per matrix job raced on the branch, and the
+  # action's own commits are unsigned, which the branch protection rejects.
+  publish:
+    if: "github.event_name == 'push' && github.ref == 'refs/heads/main'"
+    needs: "benchmarks"
+    runs-on: "ubuntu-latest"
+    concurrency:
+      group: "benchmarks-publish"
+      cancel-in-progress: false
+    steps:
+      - uses: "actions/checkout@v7"
+
+      - uses: "actions/download-artifact@v8"
+        with:
+          pattern: "benchmark-*"
+          path: "${{ runner.temp }}/results"
+
+      # The action is invoked once per result set with auto-push disabled, so it only commits locally; the commits are
+      # then squashed and signed below. The PHP version in the names/paths must match the benchmarks matrix.
+      - name: 'Record DSTU2'
+        uses: "benchmark-action/github-action-benchmark@v1"
+        with:
+          name: 'Unserialize DSTU2 (PHP 8.3)'
+          tool: 'customSmallerIsBetter'
+          output-file-path: '${{ runner.temp }}/results/benchmark-DSTU2-php8.3/benchmark-results.json'
+          benchmark-data-dir-path: 'benchmarks/DSTU2-php8.3'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          auto-push: false
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: false
+      - name: 'Record STU3'
+        uses: "benchmark-action/github-action-benchmark@v1"
+        with:
+          name: 'Unserialize STU3 (PHP 8.3)'
+          tool: 'customSmallerIsBetter'
+          output-file-path: '${{ runner.temp }}/results/benchmark-STU3-php8.3/benchmark-results.json'
+          benchmark-data-dir-path: 'benchmarks/STU3-php8.3'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          auto-push: false
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: false
+      - name: 'Record R4'
+        uses: "benchmark-action/github-action-benchmark@v1"
+        with:
+          name: 'Unserialize R4 (PHP 8.3)'
+          tool: 'customSmallerIsBetter'
+          output-file-path: '${{ runner.temp }}/results/benchmark-R4-php8.3/benchmark-results.json'
+          benchmark-data-dir-path: 'benchmarks/R4-php8.3'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          auto-push: false
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: false
+      - name: 'Record R4B'
+        uses: "benchmark-action/github-action-benchmark@v1"
+        with:
+          name: 'Unserialize R4B (PHP 8.3)'
+          tool: 'customSmallerIsBetter'
+          output-file-path: '${{ runner.temp }}/results/benchmark-R4B-php8.3/benchmark-results.json'
+          benchmark-data-dir-path: 'benchmarks/R4B-php8.3'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          auto-push: false
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: false
+      - name: 'Record R5'
+        uses: "benchmark-action/github-action-benchmark@v1"
+        with:
+          name: 'Unserialize R5 (PHP 8.3)'
+          tool: 'customSmallerIsBetter'
+          output-file-path: '${{ runner.temp }}/results/benchmark-R5-php8.3/benchmark-results.json'
+          benchmark-data-dir-path: 'benchmarks/R5-php8.3'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          auto-push: false
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: false
+
+      - name: 'Sign and push gh-pages'
+        env:
+          SSH_SIGNING_KEY: '${{ secrets.SSH_SIGNING_KEY }}'
+          COMMIT_SHA: '${{ github.sha }}'
+        # language=sh
+        run: |
+          mkdir -p "${HOME}/.ssh"
+          printf '%s\n' "${SSH_SIGNING_KEY}" > "${HOME}/.ssh/signing_key"
+          chmod 600 "${HOME}/.ssh/signing_key"
+          ssh-keygen -y -f "${HOME}/.ssh/signing_key" > "${HOME}/.ssh/signing_key.pub"
+
+          git config user.name 'Daniel Carbone (PHPFHIR Generator)'
+          git config user.email '1392439+dcarbone@users.noreply.github.com'
+          git config gpg.format ssh
+          git config user.signingkey "${HOME}/.ssh/signing_key"
+
+          git fetch origin gh-pages
+          git checkout gh-pages
+          # Collapse the action's unsigned local commits into one signed commit on top of the remote tip.
+          git reset --soft FETCH_HEAD
+          if git diff --cached --quiet; then
+            echo "No benchmark changes to publish."
+            exit 0
+          fi
+          git commit -S -m "add benchmark results for ${COMMIT_SHA}"
+
+          _attempt=1
+          until git push origin gh-pages:gh-pages; do
+            if [ "${_attempt}" -ge 3 ]; then
+              echo "::error::Failed to push gh-pages after 3 attempts." >&2
+              exit 1
+            fi
+            _attempt=$((_attempt + 1))
+            git fetch origin gh-pages
+            git rebase -S FETCH_HEAD
+          done
