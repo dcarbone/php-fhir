@@ -1,0 +1,169 @@
+<AllergyIntolerance xmlns="http://hl7.org/fhir">
+  <id value="example"/>
+
+      <!--   an identifier used for this allergic propensity (adverse reaction risk)   -->
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: AllergyIntolerance</b><a name="example"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource AllergyIntolerance "example" </p></div><p><b>identifier</b>: <span title="  an identifier used for this allergic propensity (adverse reaction risk)  ">id: 49476534</span></p><p><b>clinicalStatus</b>: <span title="  this individual has had several reactions  ">Active <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/5.1.0/CodeSystem-allergyintolerance-clinical.html">AllergyIntolerance Clinical Status Codes</a>#active)</span></span></p><p><b>verificationStatus</b>: Confirmed <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/5.1.0/CodeSystem-allergyintolerance-verification.html">AllergyIntolerance Verification Status</a>#confirmed)</span></p><p><b>type</b>: <span title="  note: it's often unknown whether an allergy is mediated by an immune response, and not as significant as once thought  ">Allergy <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-allergy-intolerance-type.html">Allergy Intolerance Type</a>#allergy)</span></span></p><p><b>category</b>: <span title="  this categorization is implied by &#34;cashew nut&#34; and therefore basically &#xA;    redundant, but many systems collect this field anyway, since it's either &#xA;    useful when the substance is not coded, or it's quicker to sort/filter on&#xA;    than using terminology based reasoning  ">food</span></p><p><b>criticality</b>: <span title="  there is no question that the allergy is real and serious  ">high</span></p><p><b>code</b>: <span title="  Allergy or intolerance code (substance, product, condition or negated/excluded statement) or text. A few times, &#xA;    there's a full description of a complex substance/product - in these caes, use the&#xA;    extension [url] to refer to a Substance resource.  ">Cashew nuts <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#227493005)</span></span></p><p><b>patient</b>: <span title="  the patient that actually has the risk of adverse reaction  "><a href="patient-example.html">Patient/example</a> "Peter CHALMERS"</span></p><p><b>onset</b>: <span title="  when the allergy was first noted (in this case the same as reaction.onset of the first occurrence)  ">2004</span></p><p><b>recordedDate</b>: <span title="  the date that this entry was recorded  ">2014-10-09T14:58:00+11:00</span></p><blockquote><p><b>participant</b></p><p><b>function</b>: Author <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/5.1.0/CodeSystem-provenance-participant-type.html">Provenance participant type</a>#author)</span></p><p><b>actor</b>: <a href="practitioner-example.html">Practitioner/example</a> "Adam CAREFUL"</p></blockquote><blockquote><p><b>participant</b></p><p><b>function</b>: Informant <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/5.1.0/CodeSystem-provenance-participant-type.html">Provenance participant type</a>#informant)</span></p><p><b>actor</b>: <a href="patient-example.html">Patient/example</a> "Peter CHALMERS"</p></blockquote><p><b>lastOccurrence</b>: <span title="  last happened June 2012. Typically, systems either track lastOccurrence,&#xA;     or a list of events.  ">2012-06</span></p><p><b>note</b>: <span title="  an additional note about the allergy propensity by the recorder  ">The criticality is high becasue of the observed anaphylactic reaction when challenged with cashew extract.</span></p><blockquote><p><b>reaction</b></p><p><b>substance</b>: <span title="  &#xA;      It's possible to list specific things to which the patient responded,&#xA;      e.g. chocolate (that happened to contain cashew nuts). This event has&#xA;      such a specific substance. Note that systems should ensure that what&#xA;      goes in here does not conflict with the substance above, and systems&#xA;      processing the data can be sure that what is here does not contravene&#xA;      the substance above&#xA;     ">cashew nut allergenic extract Injectable Product <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/5.1.0/CodeSystem-v3-rxNorm.html">RxNorm</a>#1160593)</span></span></p><h3>Manifestations</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Anaphylactic reaction <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#39579001)</span></td></tr></table><p><b>description</b>: Challenge Protocol. Severe reaction to subcutaneous cashew extract. Epinephrine administered</p><p><b>onset</b>: 2012-06-12</p><p><b>severity</b>: severe</p><p><b>exposureRoute</b>: Subcutaneous route <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#34206005)</span></p></blockquote><blockquote><p><b>reaction</b></p><h3>Manifestations</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Urticaria <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#64305001)</span></td></tr></table><p><b>onset</b>: 2004</p><p><b>severity</b>: moderate</p><p><b>note</b>: <span title="  an additional note about the reaction by the recorder  ">The patient reports that the onset of urticaria was within 15 minutes of eating cashews.</span></p></blockquote></div></text><identifier>
+    <system value="http://acme.com/ids/patients/risks"/>
+    <value value="49476534"/>
+  </identifier>
+
+      <!--   this individual has had several reactions   -->   
+  <clinicalStatus>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical"/>
+      <code value="active"/>
+      <display value="Active"/>
+    </coding>
+  </clinicalStatus>
+
+  <verificationStatus>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/allergyintolerance-verification"/>
+      <code value="confirmed"/>
+      <display value="Confirmed"/>
+    </coding>
+  </verificationStatus>
+  
+      <!--   note: it's often unknown whether an allergy is mediated by an immune response, and not as significant as once thought   -->
+  <type>
+    <coding>
+      <system value="http://hl7.org/fhir/allergy-intolerance-type"/>
+      <code value="allergy"/>
+      <display value="Allergy"/>
+    </coding>
+  </type>  
+      <!--   this categorization is implied by "cashew nut" and therefore basically 
+    redundant, but many systems collect this field anyway, since it's either 
+    useful when the substance is not coded, or it's quicker to sort/filter on
+    than using terminology based reasoning   -->
+
+  
+  <category value="food"/>
+     
+      <!--   there is no question that the allergy is real and serious   --> 
+  <criticality value="high"/>
+  
+      <!--   Allergy or intolerance code (substance, product, condition or negated/excluded statement) or text. A few times, 
+    there's a full description of a complex substance/product - in these caes, use the
+    extension [url] to refer to a Substance resource.   -->
+  <code>
+    <coding>
+      <system value="http://snomed.info/sct"/>
+      <code value="227493005"/>
+      <display value="Cashew nuts"/>
+    </coding>
+  </code>
+ 
+      <!--   the patient that actually has the risk of adverse reaction   -->
+  <patient>
+    <reference value="Patient/example"/>
+  </patient>
+
+      <!--   when the allergy was first noted (in this case the same as reaction.onset of the first occurrence)   --> 
+  <onsetDateTime value="2004"/>
+
+      <!--   the date that this entry was recorded   -->  
+  <recordedDate value="2014-10-09T14:58:00+11:00"/>
+  
+  <participant> 
+    <function> 
+      <coding> 
+        <system value="http://terminology.hl7.org/CodeSystem/provenance-participant-type"/> 
+        <code value="author"/> 
+        <display value="Author"/> 
+      </coding> 
+    </function> 
+    <actor> 
+      <reference value="Practitioner/example"/> 
+    </actor> 
+  </participant> 
+
+      <!--   the patient is the reporter in this case   -->
+  <participant> 
+    <function> 
+      <coding> 
+        <system value="http://terminology.hl7.org/CodeSystem/provenance-participant-type"/> 
+        <code value="informant"/> 
+        <display value="Informant"/> 
+      </coding> 
+    </function> 
+    <actor> 
+      <reference value="Patient/example"/> 
+    </actor> 
+  </participant>
+
+      <!--   last happened June 2012. Typically, systems either track lastOccurrence,
+     or a list of events.   -->
+  <lastOccurrence value="2012-06"/>
+  
+      <!--   an additional note about the allergy propensity by the recorder   -->
+  <note>
+    <text value="The criticality is high becasue of the observed anaphylactic reaction when challenged with cashew extract."/>
+  </note>  
+  
+      <!--   past events. There's no claim that this is all the events, and 
+     that should not be assumed   -->
+  <reaction> 
+        <!--   
+      It's possible to list specific things to which the patient responded,
+      e.g. chocolate (that happened to contain cashew nuts). This event has
+      such a specific substance. Note that systems should ensure that what
+      goes in here does not conflict with the substance above, and systems
+      processing the data can be sure that what is here does not contravene
+      the substance above
+      -->
+    <substance>
+      <coding>
+        <system value="http://www.nlm.nih.gov/research/umls/rxnorm"/>
+        <code value="1160593"/>
+        <display value="cashew nut allergenic extract Injectable Product"/>
+      </coding>  
+    </substance>
+    <manifestation>
+		<concept>
+		  <coding>
+			<system value="http://snomed.info/sct"/>
+			<code value="39579001"/>
+			<display value="Anaphylactic reaction"/>
+		  </coding>
+		</concept>
+    </manifestation>
+    <description value="Challenge Protocol. Severe reaction to subcutaneous cashew extract. Epinephrine administered"/>
+    <onset value="2012-06-12"/>
+    <severity value="severe"/>
+    <exposureRoute>
+      <coding>
+        <system value="http://snomed.info/sct"/>
+        <code value="34206005"/>
+        <display value="Subcutaneous route"/>
+      </coding>
+    </exposureRoute>
+  </reaction>
+
+      <!--   this was the first occurrence   -->
+  <reaction> 
+    <manifestation>
+		<concept>
+		  <coding>
+			<system value="http://snomed.info/sct"/>
+			<code value="64305001"/>
+			<display value="Urticaria"/>
+		  </coding>
+		</concept>
+    </manifestation>
+    <onset value="2004"/>
+    <severity value="moderate"/>
+        <!--   an additional note about the reaction by the recorder   -->
+    <note>
+      <text value="The patient reports that the onset of urticaria was within 15 minutes of eating cashews."/>
+    </note>  
+  </reaction>
+  
+</AllergyIntolerance>

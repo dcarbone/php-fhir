@@ -1,0 +1,402 @@
+<Citation xmlns="http://hl7.org/fhir">
+  <id value="citation-example-research-doi"/>
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: Citation</b><a name="citation-example-research-doi"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource Citation "citation-example-research-doi" </p></div><p><b>identifier</b>: FEvIR Object Identifier: 60</p><p><b>name</b>: NInFEACitation</p><p><b>title</b>: NInFEA Citation</p><p><b>status</b>: active</p><p><b>date</b>: 2021-09-24T10:41:01.74Z</p><p><b>publisher</b>: Computable Publishing LLC</p><p><b>contact</b>: <a href="mailto:support@computablepublishing.com">support@computablepublishing.com</a></p><p><b>description</b>: A citation of a dataset</p><p><b>copyright</b>: https://creativecommons.org/licenses/by-nc-sa/4.0/</p><blockquote><p><b>summary</b></p><p><b>style</b>: as reported on PhysioNet <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>text</b>: Pani, D., Sulas, E., Urru, M., Sameni, R., Raffo, L., &amp; Tumbarello, R. (2020). NInFEA: Non-Invasive Multimodal Foetal ECG-Doppler Dataset for Antenatal Cardiology Research (version 1.0.0). PhysioNet. https://doi.org/10.13026/c4n5-3b04.</p></blockquote><blockquote><p><b>summary</b></p><p><b>style</b>: Computable Publishing <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (citation-summary-style#comppub)</span></p><p><b>text</b>: NInFEA: Non-Invasive Multimodal Foetal ECG-Doppler Dataset for Antenatal Cardiology Research [Dataset], version 1.0.0. Contributors: Danilo Pani, Eleonora Sulas, Monica Urru, Reza Sameni, Luigi Raffo, Roberto Tumbarello. In: PhysioNet, DOI 10.13026/c4n5-3b04. Published November 12, 2020. Accessed March 17, 2021. Available at: https://physionet.org/content/ninfea/1.0.0/.</p></blockquote><blockquote><p><b>citedArtifact</b></p><p><b>identifier</b>: id: 10.13026/c4n5-3b04</p><p><b>relatedIdentifier</b>: id: 10.1038/s41597-021-00811-3</p><p><b>dateAccessed</b>: 2021-03-17</p><h3>Versions</h3><table class="grid"><tr><td>-</td><td><b>Value</b></td></tr><tr><td>*</td><td>1.0.0</td></tr></table><h3>Titles</h3><table class="grid"><tr><td>-</td><td><b>Type</b></td><td><b>Language</b></td><td><b>Text</b></td></tr><tr><td>*</td><td>primary-human-use <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td><td>English <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (Tags for the Identification of Languages[4.0.1]#en)</span></td><td>NInFEA: Non-Invasive Multimodal Foetal ECG-Doppler Dataset for Antenatal Cardiology Research</td></tr></table><h3>Abstracts</h3><table class="grid"><tr><td>-</td><td><b>Type</b></td><td><b>Language</b></td><td><b>Text</b></td></tr><tr><td>*</td><td>Primary human use <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-cited-artifact-abstract-type.html">Cited Artifact Abstract Type</a>#primary-human-use)</span></td><td>English <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/5.1.0/CodeSystem-v3-ietf3066.html">Tags for the Identification of Languages</a>#en)</span></td><td>The development of algorithms for the extraction of the foetal ECG (fECG) from non-invasive recordings is hampered by the lack of publicly-available reference datasets, which could be used to benchmark different algorithms while providing a ground truth on the foetal heart activity when an invasive scalp lead is unavailable. By enriching the electrophysiological recordings with simultaneous multimodal signals, these datasets could also help the investigation of the foetal cardiac physiology, providing ground truth for the analysis in early pregnancy, when the fECG is not directly accessible.  The Non-Invasive Multimodal Foetal ECG-Doppler Dataset for Antenatal Cardiology Research (NInFEA) is the first open-access dataset featuring simultaneous non-invasive electrophysiological recordings, fetal pulsed-wave Doppler (PWD) and maternal respiration signals. The dataset includes 60 entries from 39 voluntary pregnant women, between the 21st and the 27th week of gestation. Every entry is composed of 27 electrophysiological channels (2048 Hz, 22 bits, acquired by means of the TMSi Porti7 system), maternal respiration signal (through a resistive thoracic belt), synchronised foetal trans-abdominal PWD and clinical annotations provided by expert clinicians at the time of the signal collection.</td></tr></table><blockquote><p><b>relatesTo</b></p><p><b>type</b>: derived-from</p><p><b>classifier</b>: original publication <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>citation</b>: Sulas, E., Urru, M., Tumbarello, R., Raffo, L., Sameni, R., Pani, D., A non-invasive multimodal foetal ECG–Doppler dataset for antenatal cardiology research. Sci Data 8, 30 (2021). https://doi.org/10.1038/s41597-021-00811-3</p><h3>Documents</h3><table class="grid"><tr><td>-</td><td><b>Url</b></td></tr><tr><td>*</td><td><a href="https://doi.org/10.1038/s41597-021-00811-3">https://doi.org/10.1038/s41597-021-00811-3</a></td></tr></table></blockquote><blockquote><p><b>relatesTo</b></p><p><b>type</b>: depends-on</p><p><b>classifier</b>: ontology <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>display</b>: Experimental Factor Ontology</p><h3>Documents</h3><table class="grid"><tr><td>-</td><td><b>Url</b></td></tr><tr><td>*</td><td><a href="http://data.bioontology.org/ontologies/EFO">http://data.bioontology.org/ontologies/EFO</a></td></tr></table></blockquote><blockquote><p><b>publicationForm</b></p><h3>PublishedIns</h3><table class="grid"><tr><td>-</td><td><b>Type</b></td><td><b>Title</b></td><td><b>Publisher</b></td></tr><tr><td>*</td><td>Database <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-published-in-type.html">Published In Type[5.0.0]</a>#D019991)</span></td><td>PhysioNet</td><td><span>: MIT Laboratory for Computational Physiology</span></td></tr></table><p><b>articleDate</b>: 2020-11-12</p><p><b>language</b>: English <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (Tags for the Identification of Languages[4.0.1]#en)</span></p><p><b>copyright</b>: https://physionet.org/content/ninfea/view-license/1.0.0/ and https://physionet.org/content/ninfea/1.0.0/LICENSE.txt</p></blockquote><blockquote><p><b>webLocation</b></p><p><b>classifier</b>: Webpage <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-artifact-url-classifier.html">Artifact Url Classifier[5.0.0]</a>#webpage)</span></p><p><b>url</b>: <a href="https://physionet.org/content/ninfea/1.0.0/">https://physionet.org/content/ninfea/1.0.0/</a></p></blockquote><blockquote><p><b>webLocation</b></p><p><b>classifier</b>: DOI Based <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-artifact-url-classifier.html">Artifact Url Classifier[5.0.0]</a>#doi-based)</span></p><p><b>url</b>: <a href="https://doi.org/10.13026/c4n5-3b04">https://doi.org/10.13026/c4n5-3b04</a></p></blockquote><blockquote><p><b>webLocation</b></p><p><b>classifier</b>: original publication <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-artifact-url-classifier.html">Artifact Url Classifier[5.0.0]</a>#doi-based "DOI Based")</span></p><p><b>url</b>: <a href="https://doi.org/10.1038/s41597-021-00811-3">https://doi.org/10.1038/s41597-021-00811-3</a></p></blockquote><blockquote><p><b>webLocation</b></p><p><b>classifier</b>: Compressed file <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-artifact-url-classifier.html">Artifact Url Classifier[5.0.0]</a>#compressed-file)</span></p><p><b>url</b>: <a href="https://physionet.org/static/published-projects/ninfea/ninfea-non-invasive-multimodal-foetal-ecg-doppler-dataset-for-antenatal-cardiology-research-1.0.0.zip">https://physionet.org/static/published-projects/ninfea/ninfea-non-invasive-multimodal-foetal-ecg-doppler-dataset-for-antenatal-cardiology-research-1.0.0.zip</a></p></blockquote><blockquote><p><b>webLocation</b></p><p><b>classifier</b>: DOI-for-metadata <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>url</b>: <a href="https://doi.org/10.6084/m9.figshare.13283492">https://doi.org/10.6084/m9.figshare.13283492</a></p></blockquote><blockquote><p><b>classification</b></p><p><b>classifier</b>: Knowledge Artifact Type <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-cited-artifact-classification-type.html">Cited Artifact Classification Type</a>#knowledge-artifact-type)</span>, Dataset <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-citation-artifact-classifier.html">Citation Artifact Classifier[5.0.0]</a>#D064886)</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: ecg <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (efo#EFO_0004327 "electrocardiography")</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: foetus <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (obo#FMA_63919)</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: pwd <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: doppler <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: foetal ecg <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: maternal ecg <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: pwd envelope <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: non-invasive <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: cardiology <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#394579002 "Cardiology (qualifier value)")</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: early pregnancy <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#314204000 "Early stage of pregnancy (finding)")</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: antenatal <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: topic <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: fecg <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#75444003 "Fetal electrocardiogram (procedure)")</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: subject type <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: Homo sapiens <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (NCBITAXON#9606)</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: use context <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: gestational age <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (efo#EFO_0005112)</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: use context <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: electrocardiography <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (efo#EFO_0004327)</span></p></blockquote><blockquote><p><b>classification</b></p><p><b>type</b>: use context <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>classifier</b>: heart electrical impulse conduction trait <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (obo#VT_2000017)</span></p></blockquote><blockquote><p><b>contributorship</b></p><blockquote><p><b>summary</b></p><p><b>type</b>: Author string <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-contributor-summary-type.html">Contributor Summary Type[5.0.0]</a>#author-string)</span></p><p><b>source</b>: copied-from-article <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>value</b>: Danilo Pani, Eleonora Sulas, Monica Urru, Reza Sameni, Luigi Raffo, Roberto Tumbarello</p></blockquote><blockquote><p><b>summary</b></p><p><b>type</b>: acknowledgements <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>source</b>: copied-from-article <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>value</b>: The authors wish to thank the Pediatric Cardiology and Congenital Heart Disease Unit, Brotzu Hospital (Cagliari, Italy), where the dataset was collected, and all the voluntary pregnant women for their kindness in giving their signals for this research. The authors gratefully thank Alessandra Cadoni, Graziella Secchi, Luisa Aru, Elisa Farris, Chiara Fenu, Elisa Gusai, Giulia Baldazzi, Giulia Pili for their support in the recording of the signals included in this dataset.  Part of this research was supported by the Italian Government—Progetti di InteresseNazionale (PRIN) under the grant agreement 2017RR5EW3 - ICT4MOMs project.  Eleonora Sulas is grateful to Sardinia Regional Government for supporting her PhD scholarship (P.O.R.F.S.E., European Social Fund 2014-2020).  Reza Sameni acknowledges the funding from the European Research Council Advanced Grant Number 320684, on Challenges in the Extraction and Separation of Sources (CHESS) for his contribution in this research, provided during his appointment at GIPSA-lab, Grenoble Alpes University, Grenoble, France.</p></blockquote></blockquote></blockquote></div></text><identifier>
+    <type>
+      <text value="FEvIR Object Identifier"/>
+    </type>
+    <system value="https://fevir.net"/>
+    <value value="60"/>
+    <assigner>
+      <display value="Computable Publishing LLC"/>
+    </assigner>
+  </identifier>
+  <name value="NInFEACitation"/>
+  <title value="NInFEA Citation"/>
+  <status value="active"/>
+  <date value="2021-09-24T10:41:01.740Z"/>
+  <publisher value="Computable Publishing LLC"/>
+  <contact>
+    <telecom>
+      <system value="email"/>
+      <value value="support@computablepublishing.com"/>
+    </telecom>
+  </contact>
+  <description value="A citation of a dataset"/>
+  <copyright value="https://creativecommons.org/licenses/by-nc-sa/4.0/"/>
+  <summary>
+    <style>
+      <text value="as reported on PhysioNet"/>
+    </style>
+    <text value="Pani, D., Sulas, E., Urru, M., Sameni, R., Raffo, L., &amp; Tumbarello, R. (2020). NInFEA: Non-Invasive Multimodal Foetal ECG-Doppler Dataset for Antenatal Cardiology Research (version 1.0.0). PhysioNet. https://doi.org/10.13026/c4n5-3b04."/>
+  </summary>
+  <summary>
+    <style>
+      <coding>
+        <system value="http://terminology.hl7.org/ValueSet/citation-summary-style"/>
+        <code value="comppub"/>
+        <display value="Computable Publishing"/>
+      </coding>
+    </style>
+    <text value="NInFEA: Non-Invasive Multimodal Foetal ECG-Doppler Dataset for Antenatal Cardiology Research [Dataset], version 1.0.0. Contributors: Danilo Pani, Eleonora Sulas, Monica Urru, Reza Sameni, Luigi Raffo, Roberto Tumbarello. In: PhysioNet, DOI 10.13026/c4n5-3b04. Published November 12, 2020. Accessed March 17, 2021. Available at: https://physionet.org/content/ninfea/1.0.0/."/>
+  </summary>
+  <citedArtifact>
+    <identifier>
+      <system value="https://doi.org"/>
+      <value value="10.13026/c4n5-3b04"/>
+    </identifier>
+    <relatedIdentifier>
+      <system value="https://doi.org"/>
+      <value value="10.1038/s41597-021-00811-3"/>
+    </relatedIdentifier>
+    <dateAccessed value="2021-03-17"/>
+    <version>
+      <value value="1.0.0"/>
+    </version>
+    <title>
+      <type>
+        <text value="primary-human-use"/>
+      </type>
+      <language>
+        <coding>
+          <system value="urn:ietf:bcp:47"/>
+          <version value="4.0.1"/>
+          <code value="en"/>
+          <display value="English"/>
+        </coding>
+      </language>
+      <text value="NInFEA: Non-Invasive Multimodal Foetal ECG-Doppler Dataset for Antenatal Cardiology Research"/>
+    </title>
+    <abstract>
+      <type>
+        <coding>
+          <system value="http://hl7.org/fhir/cited-artifact-abstract-type"/>
+          <code value="primary-human-use"/>
+          <display value="Primary human use"/>
+        </coding>
+      </type>
+      <language>
+        <coding>
+          <system value="urn:ietf:bcp:47"/>
+          <code value="en"/>
+          <display value="English"/>
+        </coding>
+      </language>
+      <text value="The development of algorithms for the extraction of the foetal ECG (fECG) from non-invasive recordings is hampered by the lack of publicly-available reference datasets, which could be used to benchmark different algorithms while providing a ground truth on the foetal heart activity when an invasive scalp lead is unavailable. By enriching the electrophysiological recordings with simultaneous multimodal signals, these datasets could also help the investigation of the foetal cardiac physiology, providing ground truth for the analysis in early pregnancy, when the fECG is not directly accessible.  The Non-Invasive Multimodal Foetal ECG-Doppler Dataset for Antenatal Cardiology Research (NInFEA) is the first open-access dataset featuring simultaneous non-invasive electrophysiological recordings, fetal pulsed-wave Doppler (PWD) and maternal respiration signals. The dataset includes 60 entries from 39 voluntary pregnant women, between the 21st and the 27th week of gestation. Every entry is composed of 27 electrophysiological channels (2048 Hz, 22 bits, acquired by means of the TMSi Porti7 system), maternal respiration signal (through a resistive thoracic belt), synchronised foetal trans-abdominal PWD and clinical annotations provided by expert clinicians at the time of the signal collection."/>
+    </abstract>
+    <relatesTo>
+      <type value="derived-from"/>
+      <classifier>
+        <text value="original publication"/>
+      </classifier>
+      <citation value="Sulas, E., Urru, M., Tumbarello, R., Raffo, L., Sameni, R., Pani, D., A non-invasive multimodal foetal ECG–Doppler dataset for antenatal cardiology research. Sci Data 8, 30 (2021). https://doi.org/10.1038/s41597-021-00811-3"/>
+      <document>
+        <url value="https://doi.org/10.1038/s41597-021-00811-3"/>
+      </document>
+    </relatesTo>
+    <relatesTo>
+      <type value="depends-on"/>
+      <classifier>
+        <text value="ontology"/>
+      </classifier>
+      <display value="Experimental Factor Ontology"/>
+      <document>
+        <url value="http://data.bioontology.org/ontologies/EFO"/>
+      </document>
+    </relatesTo>
+    <publicationForm>
+      <publishedIn>
+        <type>
+          <coding>
+            <system value="http://hl7.org/fhir/published-in-type"/>
+            <version value="5.0.0"/>
+            <code value="D019991"/>
+            <display value="Database"/>
+          </coding>
+        </type>
+        <title value="PhysioNet"/>
+        <publisher>
+          <display value="MIT Laboratory for Computational Physiology"/>
+        </publisher>
+      </publishedIn>
+      <articleDate value="2020-11-12"/>
+      <language>
+        <coding>
+          <system value="urn:ietf:bcp:47"/>
+          <version value="4.0.1"/>
+          <code value="en"/>
+          <display value="English"/>
+        </coding>
+      </language>
+      <copyright value="https://physionet.org/content/ninfea/view-license/1.0.0/ and https://physionet.org/content/ninfea/1.0.0/LICENSE.txt"/>
+    </publicationForm>
+    <webLocation>
+      <classifier>
+        <coding>
+          <system value="http://hl7.org/fhir/artifact-url-classifier"/>
+          <version value="5.0.0"/>
+          <code value="webpage"/>
+          <display value="Webpage"/>
+        </coding>
+      </classifier>
+      <url value="https://physionet.org/content/ninfea/1.0.0/"/>
+    </webLocation>
+    <webLocation>
+      <classifier>
+        <coding>
+          <system value="http://hl7.org/fhir/artifact-url-classifier"/>
+          <version value="5.0.0"/>
+          <code value="doi-based"/>
+          <display value="DOI Based"/>
+        </coding>
+      </classifier>
+      <url value="https://doi.org/10.13026/c4n5-3b04"/>
+    </webLocation>
+    <webLocation>
+      <classifier>
+        <coding>
+          <system value="http://hl7.org/fhir/artifact-url-classifier"/>
+          <version value="5.0.0"/>
+          <code value="doi-based"/>
+          <display value="DOI Based"/>
+        </coding>
+        <text value="original publication"/>
+      </classifier>
+      <url value="https://doi.org/10.1038/s41597-021-00811-3"/>
+    </webLocation>
+    <webLocation>
+      <classifier>
+        <coding>
+          <system value="http://hl7.org/fhir/artifact-url-classifier"/>
+          <version value="5.0.0"/>
+          <code value="compressed-file"/>
+          <display value="Compressed file"/>
+        </coding>
+      </classifier>
+      <url value="https://physionet.org/static/published-projects/ninfea/ninfea-non-invasive-multimodal-foetal-ecg-doppler-dataset-for-antenatal-cardiology-research-1.0.0.zip"/>
+    </webLocation>
+    <webLocation>
+      <classifier>
+        <text value="DOI-for-metadata"/>
+      </classifier>
+      <url value="https://doi.org/10.6084/m9.figshare.13283492"/>
+    </webLocation>
+    <classification>
+      <classifier>
+        <coding>
+          <system value="http://hl7.org/fhir/cited-artifact-classification-type"/>
+          <code value="knowledge-artifact-type"/>
+          <display value="Knowledge Artifact Type"/>
+        </coding>
+      </classifier>
+      <classifier>
+        <coding>
+          <system value="http://hl7.org/fhir/citation-artifact-classifier"/>
+          <version value="5.0.0"/>
+          <code value="D064886"/>
+          <display value="Dataset"/>
+        </coding>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://www.ebi.ac.uk/efo"/>
+          <code value="EFO_0004327"/>
+          <display value="electrocardiography"/>
+        </coding>
+        <text value="ecg"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://purl.obolibrary.org/obo"/>
+          <code value="FMA_63919"/>
+          <display value="foetus"/>
+        </coding>
+        <text value="foetus"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <text value="pwd"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <text value="doppler"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <text value="foetal ecg"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <text value="maternal ecg"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <text value="pwd envelope"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <text value="non-invasive"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://snomed.info/sct"/>
+          <code value="394579002"/>
+          <display value="Cardiology (qualifier value)"/>
+        </coding>
+        <text value="cardiology"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://snomed.info/sct"/>
+          <code value="314204000"/>
+          <display value="Early stage of pregnancy (finding)"/>
+        </coding>
+        <text value="early pregnancy"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <text value="antenatal"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="topic"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://snomed.info/sct"/>
+          <code value="75444003"/>
+          <display value="Fetal electrocardiogram (procedure)"/>
+        </coding>
+        <text value="fecg"/>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="subject type"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://purl.bioontology.org/ontology/NCBITAXON"/>
+          <code value="9606"/>
+          <display value="Homo sapiens"/>
+        </coding>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="use context"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://www.ebi.ac.uk/efo"/>
+          <code value="EFO_0005112"/>
+          <display value="gestational age"/>
+        </coding>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="use context"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://www.ebi.ac.uk/efo"/>
+          <code value="EFO_0004327"/>
+          <display value="electrocardiography"/>
+        </coding>
+      </classifier>
+    </classification>
+    <classification>
+      <type>
+        <text value="use context"/>
+      </type>
+      <classifier>
+        <coding>
+          <system value="http://purl.obolibrary.org/obo"/>
+          <code value="VT_2000017"/>
+          <display value="heart electrical impulse conduction trait"/>
+        </coding>
+      </classifier>
+    </classification>
+    <contributorship>
+      <summary>
+        <type>
+          <coding>
+            <system value="http://hl7.org/fhir/contributor-summary-type"/>
+            <version value="5.0.0"/>
+            <code value="author-string"/>
+            <display value="Author string"/>
+          </coding>
+        </type>
+        <source>
+          <text value="copied-from-article"/>
+        </source>
+        <value value="Danilo Pani, Eleonora Sulas, Monica Urru, Reza Sameni, Luigi Raffo, Roberto Tumbarello"/>
+      </summary>
+      <summary>
+        <type>
+          <text value="acknowledgements"/>
+        </type>
+        <source>
+          <text value="copied-from-article"/>
+        </source>
+        <value value="The authors wish to thank the Pediatric Cardiology and Congenital Heart Disease Unit, Brotzu Hospital (Cagliari, Italy), where the dataset was collected, and all the voluntary pregnant women for their kindness in giving their signals for this research. The authors gratefully thank Alessandra Cadoni, Graziella Secchi, Luisa Aru, Elisa Farris, Chiara Fenu, Elisa Gusai, Giulia Baldazzi, Giulia Pili for their support in the recording of the signals included in this dataset.  Part of this research was supported by the Italian Government—Progetti di InteresseNazionale (PRIN) under the grant agreement 2017RR5EW3 - ICT4MOMs project.  Eleonora Sulas is grateful to Sardinia Regional Government for supporting her PhD scholarship (P.O.R.F.S.E., European Social Fund 2014-2020).  Reza Sameni acknowledges the funding from the European Research Council Advanced Grant Number 320684, on Challenges in the Extraction and Separation of Sources (CHESS) for his contribution in this research, provided during his appointment at GIPSA-lab, Grenoble Alpes University, Grenoble, France."/>
+      </summary>
+    </contributorship>
+  </citedArtifact>
+</Citation>

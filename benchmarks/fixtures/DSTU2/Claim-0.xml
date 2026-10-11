@@ -1,0 +1,1 @@
+<Claim><id value="1428"/><meta><versionId value="1"/><lastUpdated value="2018-11-11T16:36:56.089+00:00"/></meta><diagnosis><diagnosis><code value="F17.220"/></diagnosis></diagnosis><patient><reference value="Patient/1424"/></patient></Claim>

@@ -1,0 +1,120 @@
+<AuditEvent xmlns="http://hl7.org/fhir">
+	<id value="example-error"/>
+	<meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text>
+		<status value="generated"/>
+		<div xmlns="http://www.w3.org/1999/xhtml">Recording that an error has happened due to a client requesting that an Observation resource be Created on the Patient endpoint. Note that the OperationOutcome from failed transaction is recorded as an AuditEvent.entity.</div>
+	</text>
+	<contained>
+		  <!--  contained OperationOutcome from failed transaction  -->
+		<OperationOutcome>
+			<id value="o1"/>
+			<issue>
+				<severity value="error"/>
+				<code value="invalid"/>
+				<details>
+					<text value="Invalid pointer operation"/>
+				</details>
+			</issue>
+		</OperationOutcome>
+	</contained>
+	<category>
+		<coding>
+			<system value="http://terminology.hl7.org/CodeSystem/audit-event-type"/>
+			<code value="rest"/>
+			<display value="Restful Operation"/>
+		</coding>
+	</category>
+	<code>
+		<coding>
+			<system value="http://hl7.org/fhir/restful-interaction"/>
+			<code value="create"/>
+			<display value="create"/>
+		</coding>
+	</code>
+	<action value="C"/>
+	<recorded value="2017-09-07T23:42:24Z"/>
+	<outcome>
+		<code>
+			<system value="http://hl7.org/fhir/issue-severity"/>
+			<code value="error"/>
+			<display value="Error"/>
+		</code>
+		<detail>
+			<text value="Invalid request to create an Operation resource on the Patient endpoint."/>
+		</detail>
+	</outcome>
+	<agent>
+		<type>
+			<coding>
+				<system value="http://terminology.hl7.org/CodeSystem/extra-security-role-type"/>
+				<code value="humanuser"/>
+				<display value="human user"/>
+			</coding>
+		</type>
+		<who>
+			<identifier>
+				<value value="95"/>
+			</identifier>
+			<display value="Grahame Grieve"/>
+		</who>
+		<requestor value="true"/>
+	</agent>
+	<agent>
+		  <!--  Source active participant, the software making the . AlternativeUserId - Process ID  -->
+		<extension url="http://hl7.org/fhir/StructureDefinition/auditevent-AlternativeUserID">
+			<valueIdentifier>
+				<type>
+					<text value="process ID"/>
+				</type>
+				<value value="6580"/>
+			</valueIdentifier>
+		</extension>
+		<type>
+			<coding>
+				<system value="http://dicom.nema.org/resources/ontology/DCM"/>
+				<code value="110153"/>
+				<display value="Source Role ID"/>
+			</coding>
+		</type>
+		<who>
+			<identifier>
+				<system value="urn:oid:2.16.840.1.113883.4.2"/>
+				<value value="2.16.840.1.113883.4.2"/>
+			</identifier>
+		</who>
+		<requestor value="false"/>
+		<networkString value="Workstation1.ehr.familyclinic.com"/>
+
+	</agent>
+	<source>
+		<observer>
+			<identifier>
+				<value value="hl7connect.healthintersections.com.au"/>
+			</identifier>
+			<display value="Cloud"/>
+		</observer>
+		<type>
+			<coding>
+				<system value="http://terminology.hl7.org/CodeSystem/security-source-type"/>
+				<code value="3"/>
+				<display value="Web Server"/>
+			</coding>
+		</type>
+	</source>
+
+	<entity>
+		  <!--  record the OperationOutcome returned to the client  -->
+		<what>
+			<reference value="#o1"/>
+			<display value="transaction failed"/>
+		</what>
+
+	</entity>
+</AuditEvent>

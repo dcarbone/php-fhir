@@ -1,0 +1,1 @@
+{"id":"250545","meta":{"versionId":"1","lastUpdated":"2020-01-31T11:55:44.897+00:00"},"type":{"coding":[{"system":"http:\/\/hl7.org\/fhir\/v2\/0487","code":"BLD","display":"Whole blood"}]},"subject":{"reference":"Patient\/1834"},"resourceType":"Specimen"}

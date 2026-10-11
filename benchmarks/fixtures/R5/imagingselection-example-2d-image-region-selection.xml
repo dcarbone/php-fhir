@@ -1,0 +1,54 @@
+<ImagingSelection xmlns="http://hl7.org/fhir">
+  <id value="example-2d-image-region-selection"/>
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: ImagingSelection</b><a name="example-2d-image-region-selection"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource ImagingSelection "example-2d-image-region-selection" </p></div><p><b>identifier</b>: id: urn:oid:1.2.840.113747.20080222.3248567223100954657132726086516575.2.1</p><p><b>status</b>: available</p><p><b>subject</b>: <span/></p><p><b>code</b>: Region selected from image <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>studyUid</b>: 1.2.840.113747.20080222.324856729726854657132726086516575</p><p><b>derivedFrom</b>: <span/></p><p><b>seriesUid</b>: 1.2.840.113747.20080222.324856729726954657132726086516575.1</p><p><b>frameOfReferenceUid</b>: 1.2.840.113747.20080222.324856823100954657132726086516575.0</p><blockquote><p><b>instance</b></p><p><b>uid</b>: 1.2.840.113747.20080222.324856729726823100132726086516575.1.0</p><p><b>sopClass</b>: urn:oid:1.2.840.10008.5.1.4.1.1.2 (Details: urn:ietf:rfc:3986 code urn:oid:1.2.840.10008.5.1.4.1.1.2 = 'urn:oid:1.2.840.10008.5.1.4.1.1.2', stated as 'null')</p><h3>ImageRegion2Ds</h3><table class="grid"><tr><td>-</td><td><b>RegionType</b></td><td><b>Coordinate</b></td></tr><tr><td>*</td><td>polyline</td><td>0.25, 0.25, 0.75, 0.25, 0.75, 0.75, 0.25, 0.75</td></tr></table></blockquote></div></text><identifier>
+    <system value="urn:dicom:uid"/>
+    <value value="urn:oid:1.2.840.113747.20080222.3248567223100954657132726086516575.2.1"/>
+  </identifier>
+ <status value="available"/> 
+  <subject>
+    <type value="Patient"/>
+    <identifier>
+      <system value="https://fhirhospital.org"/>
+      <value value="NTCGFHHKYUYKDPQX"/>
+    </identifier>
+  </subject>
+  <code>
+    <text value="Region selected from image"/>
+  </code>
+  <studyUid value="1.2.840.113747.20080222.324856729726854657132726086516575"/>
+  <derivedFrom>
+    <type value="ImagingStudy"/>
+    <identifier>
+      <system value="urn:dicom:uid"/>
+      <value value="1.2.840.113747.20080222.324856729726954657132726086516575"/>
+    </identifier>
+  </derivedFrom>
+  <seriesUid value="1.2.840.113747.20080222.324856729726954657132726086516575.1"/>
+  <frameOfReferenceUid value="1.2.840.113747.20080222.324856823100954657132726086516575.0"/>
+  <instance>
+    <uid value="1.2.840.113747.20080222.324856729726823100132726086516575.1.0"/>
+    <sopClass>
+      <system value="urn:ietf:rfc:3986"/>
+      <code value="urn:oid:1.2.840.10008.5.1.4.1.1.2"/>
+    </sopClass>
+    <imageRegion2D>
+      <regionType value="polyline"/>
+      <coordinate value="0.25"/>
+      <coordinate value="0.25"/>
+      <coordinate value="0.75"/>
+      <coordinate value="0.25"/>
+      <coordinate value="0.75"/>
+      <coordinate value="0.75"/>
+      <coordinate value="0.25"/>
+      <coordinate value="0.75"/>
+    </imageRegion2D>
+  </instance>
+
+</ImagingSelection>

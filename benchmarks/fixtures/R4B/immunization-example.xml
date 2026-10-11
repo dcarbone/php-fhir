@@ -1,0 +1,106 @@
+<Immunization xmlns="http://hl7.org/fhir">
+	<id value="example"/>
+	<meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative</b></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource "example" </p></div><p><b>identifier</b>: id: urn:oid:1.3.6.1.4.1.21367.2005.3.7.1234</p><p><b>status</b>: completed</p><p><b>vaccineCode</b>: Fluvax (Influenza) <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (unknown#FLUVAX)</span></p><p><b>patient</b>: <a href="patient-example.html">Patient/example</a> "Peter CHALMERS"</p><p><b>encounter</b>: <a href="encounter-example.html">Encounter/example</a></p><p><b>occurrence</b>: 2013-01-10</p><p><b>primarySource</b>: true</p><p><b>location</b>: <a href="location-1.html">Location/1</a> "South Wing, second floor"</p><p><b>manufacturer</b>: <a href="organization-hl7.html">Organization/hl7</a> "Health Level Seven International"</p><p><b>lotNumber</b>: AAJN11K</p><p><b>expirationDate</b>: 2015-02-15</p><p><b>site</b>: left arm <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/3.1.0/CodeSystem-v3-ActSite.html">ActSite</a>#LA)</span></p><p><b>route</b>: Injection, intramuscular <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/3.1.0/CodeSystem-v3-RouteOfAdministration.html">RouteOfAdministration</a>#IM)</span></p><p><b>doseQuantity</b>: 5 mg<span style="background: LightGoldenRodYellow"> (Details: UCUM code mg = 'mg')</span></p><blockquote><p><b>performer</b></p><p><b>function</b>: Ordering Provider <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/3.1.0/CodeSystem-v2-0443.html">providerRole</a>#OP)</span></p><p><b>actor</b>: <a href="practitioner-example.html">Practitioner/example</a> "Adam CAREFUL"</p></blockquote><blockquote><p><b>performer</b></p><p><b>function</b>: Administering Provider <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/3.1.0/CodeSystem-v2-0443.html">providerRole</a>#AP)</span></p><p><b>actor</b>: <a href="practitioner-example.html">Practitioner/example</a> "Adam CAREFUL"</p></blockquote><p><b>note</b>: Notes on adminstration of vaccine</p><p><b>reasonCode</b>: Procedure to meet occupational requirement <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#429060002)</span></p><p><b>isSubpotent</b>: true</p><h3>Educations</h3><table class="grid"><tr><td>-</td><td><b>DocumentType</b></td><td><b>PublicationDate</b></td><td><b>PresentationDate</b></td></tr><tr><td>*</td><td>253088698300010311120702</td><td>2012-07-02</td><td>2013-01-10</td></tr></table><p><b>programEligibility</b>: Not Eligible <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-immunization-program-eligibility.html">Immunization Event Program Eligibility</a>#ineligible)</span></p><p><b>fundingSource</b>: Private <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="codesystem-immunization-funding-source.html">Immunization Event Funding Source</a>#private)</span></p></div></text><identifier>
+		<system value="urn:ietf:rfc:3986"/>
+		<value value="urn:oid:1.3.6.1.4.1.21367.2005.3.7.1234"/>
+	</identifier>
+	<status value="completed"/>
+	<vaccineCode>
+		<coding>
+			<system value="urn:oid:1.2.36.1.2001.1005.17"/>
+			<code value="FLUVAX"/>
+		</coding>
+		<text value="Fluvax (Influenza)"/>
+	</vaccineCode>
+	<patient>
+		<reference value="Patient/example"/>
+	</patient>
+	<encounter>
+		<reference value="Encounter/example"/>
+	</encounter>
+	<occurrenceDateTime value="2013-01-10"/>
+	<primarySource value="true"/>
+	<location>
+		<reference value="Location/1"/>
+	</location>
+	<manufacturer>
+		<reference value="Organization/hl7"/>
+	</manufacturer>
+	<lotNumber value="AAJN11K"/>
+	<expirationDate value="2015-02-15"/>
+	<site>
+		<coding>
+			<system value="http://terminology.hl7.org/CodeSystem/v3-ActSite"/>
+			<code value="LA"/>
+			<display value="left arm"/>
+		</coding>
+	</site>
+	<route>
+		<coding>
+			<system value="http://terminology.hl7.org/CodeSystem/v3-RouteOfAdministration"/>
+			<code value="IM"/>
+			<display value="Injection, intramuscular"/>
+		</coding>
+	</route>
+	<doseQuantity>
+		<value value="5"/>
+		<system value="http://unitsofmeasure.org"/>
+		<code value="mg"/>
+	</doseQuantity>
+	<performer>
+		<function>
+			<coding>
+				<system value="http://terminology.hl7.org/CodeSystem/v2-0443"/>
+				<code value="OP"/>
+			</coding>
+		</function>
+    	<actor>
+     		<reference value="Practitioner/example"/>
+    	</actor>
+	</performer>
+	<performer>
+		<function>
+			<coding>
+				<system value="http://terminology.hl7.org/CodeSystem/v2-0443"/>
+				<code value="AP"/>
+			</coding>
+		</function>
+    	<actor>
+     		<reference value="Practitioner/example"/>
+    	</actor>
+	</performer>
+	<note>
+		<text value="Notes on adminstration of vaccine"/>
+	</note>
+	<reasonCode>
+		<coding>
+			<system value="http://snomed.info/sct"/>
+			<code value="429060002"/>
+		</coding>
+	</reasonCode>
+	<isSubpotent value="true"/>
+	<education>
+		<documentType value="253088698300010311120702"/>
+		<publicationDate value="2012-07-02"/>
+		<presentationDate value="2013-01-10"/>
+	</education>
+	<programEligibility>
+		<coding>
+			<system value="http://terminology.hl7.org/CodeSystem/immunization-program-eligibility"/>
+			<code value="ineligible"/>
+		</coding>
+	</programEligibility>
+	<fundingSource>
+		<coding>
+			<system value="http://terminology.hl7.org/CodeSystem/immunization-funding-source"/>
+			<code value="private"/>
+		</coding>
+	</fundingSource>
+</Immunization>

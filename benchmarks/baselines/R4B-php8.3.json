@@ -1,0 +1,94 @@
+{
+    "php": "8.3.6",
+    "version": "R4B",
+    "results": [
+        {
+            "key": "decode|xml|200",
+            "strategy": "decode",
+            "format": "xml",
+            "entries": 200,
+            "inputBytes": 672699,
+            "ms": 4.442823,
+            "peakBytes": 13136,
+            "retainedBytes": 992,
+            "peakRssBytes": 3145728
+        },
+        {
+            "key": "tree|xml|200",
+            "strategy": "tree",
+            "format": "xml",
+            "entries": 200,
+            "inputBytes": 672699,
+            "ms": 16.995842,
+            "peakBytes": 7115296,
+            "retainedBytes": 7112400,
+            "peakRssBytes": 4509696
+        },
+        {
+            "key": "decode|json|200",
+            "strategy": "decode",
+            "format": "json",
+            "entries": 200,
+            "inputBytes": 533167,
+            "ms": 2.343228,
+            "peakBytes": 3210864,
+            "retainedBytes": 3210864,
+            "peakRssBytes": 1015808
+        },
+        {
+            "key": "tree|json|200",
+            "strategy": "tree",
+            "format": "json",
+            "entries": 200,
+            "inputBytes": 533167,
+            "ms": 12.781302,
+            "peakBytes": 7301144,
+            "retainedBytes": 4743136,
+            "peakRssBytes": 2043904
+        },
+        {
+            "key": "decode|xml|1000",
+            "strategy": "decode",
+            "format": "xml",
+            "entries": 1000,
+            "inputBytes": 3331322,
+            "ms": 24.950336,
+            "peakBytes": 13136,
+            "retainedBytes": 992,
+            "peakRssBytes": 33210368
+        },
+        {
+            "key": "tree|xml|1000",
+            "strategy": "tree",
+            "format": "xml",
+            "entries": 1000,
+            "inputBytes": 3331322,
+            "ms": 109.112192,
+            "peakBytes": 35544800,
+            "retainedBytes": 35540696,
+            "peakRssBytes": 60280832
+        },
+        {
+            "key": "decode|json|1000",
+            "strategy": "decode",
+            "format": "json",
+            "entries": 1000,
+            "inputBytes": 2640347,
+            "ms": 14.68532,
+            "peakBytes": 15936320,
+            "retainedBytes": 15936320,
+            "peakRssBytes": 13721600
+        },
+        {
+            "key": "tree|json|1000",
+            "strategy": "tree",
+            "format": "json",
+            "entries": 1000,
+            "inputBytes": 2640347,
+            "ms": 80.78275,
+            "peakBytes": 36394472,
+            "retainedBytes": 23762808,
+            "peakRssBytes": 31330304
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+<NutritionProduct xmlns="http://hl7.org/fhir">
+	<id value="example"/>
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text>
+    <status value="generated"/>
+    <div xmlns="http://www.w3.org/1999/xhtml">[Put rendering here]</div>
+  </text>
+	<code>
+		<coding>
+			<system value="http://snomed.info/sct"/>
+			<code value="227507002"/>
+		</coding>
+	</code>
+	<status value="active"/>
+  <category>
+		<coding>
+			<system value="http://snomed.info/sct"/>
+			<code value="227313005"/>
+		</coding>
+	</category>
+	<instance>
+		<identifier>
+			<system value="http://example.org/foodserials"/>
+			<value value="77239487"/>
+		</identifier>
+	</instance>
+</NutritionProduct>

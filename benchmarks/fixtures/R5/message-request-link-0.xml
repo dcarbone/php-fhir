@@ -1,0 +1,3 @@
+<MessageHeader xmlns="http://hl7.org/fhir"><id value="267b18ce-3d37-4581-9baa-6fada338038b"/><text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml">
+						<p xmlns="http://www.w3.org/1999/xhtml">This message is a request to link Patient records 654321 (Patient Donald DUCK @ Acme Healthcare, Inc) and 123456 (Patient Donald D DUCK @ Acme Healthcare, Inc)</p>
+					</div></text><eventCoding><system value="http://example.org/fhir/message-events"/><code value="patient-link"/></eventCoding><source><endpointUrl value="http://example.org/clients/ehr-lite"/></source><focus><reference value="http://acme.com/ehr/fhir/Patient/pat1"/></focus><focus><reference value="http://acme.com/ehr/fhir/Patient/pat12"/></focus></MessageHeader>

@@ -1,0 +1,1 @@
+{"id":"f1514ec6-bf42-4d2d-8fda-ab636c142f37","meta":{"versionId":"1","lastUpdated":"2019-10-23T21:16:34.540+00:00"},"subject":{"reference":"Patient\/82234"},"code":{"coding":[{"system":"http:\/\/snomed.info\/sct","code":"104177005","display":"Blood culture for bacteria, including anaerobic screen"}]},"status":"completed","resourceType":"ProcedureRequest"}

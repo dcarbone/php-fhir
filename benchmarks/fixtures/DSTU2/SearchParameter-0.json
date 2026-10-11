@@ -1,0 +1,1 @@
+{"id":"261734","meta":{"versionId":"1","lastUpdated":"2020-07-15T16:49:39.211+00:00"},"name":"Issed Date","status":"active","code":"issued","base":"Condition","type":"date","xpath":"Condition.issued","xpathUsage":"normal","resourceType":"SearchParameter"}

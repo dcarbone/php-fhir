@@ -1,0 +1,32 @@
+<Subscription xmlns="http://hl7.org/fhir">
+	<id value="admission"/>
+	<meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: Subscription</b><a name="admission"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource Subscription "admission" </p></div><p><b>name</b>: AdmissionExample</p><p><b>status</b>: active</p><p><b>topic</b>: <a href="http://example.org/R5/SubscriptionTopic/admission">http://example.org/R5/SubscriptionTopic/admission</a></p><p><b>end</b>: 7 Aug 2019, 9:15:18 pm</p><p><b>reason</b>: subscription for beginning of a clinical encounter for patient 123</p><h3>FilterBies</h3><table class="grid"><tr><td>-</td><td><b>FilterParameter</b></td><td><b>Value</b></td></tr><tr><td>*</td><td>patient</td><td>Patient/123</td></tr></table><p><b>channelType</b>: rest-hook (Details: [not stated] code rest-hook = 'rest-hook', stated as 'null')</p><p><b>endpoint</b>: <a href="https://example.org/Endpoints/P123">https://example.org/Endpoints/P123</a></p><h3>Parameters</h3><table class="grid"><tr><td>-</td><td><b>Name</b></td><td><b>Value</b></td></tr><tr><td>*</td><td>Authorization</td><td>Bearer secret-token-abc-123</td></tr></table><p><b>heartbeatPeriod</b>: 60</p><p><b>timeout</b>: 5</p><p><b>contentType</b>: application/fhir+json</p><p><b>content</b>: id-only</p><p><b>maxCount</b>: 100</p></div></text><name value="AdmissionExample"/>
+	<status value="active"/>
+	<topic value="http://example.org/R5/SubscriptionTopic/admission"/>
+	<end value="2019-08-07T11:15:18Z"/>
+	<reason value="subscription for beginning of a clinical encounter for patient 123"/>
+	<filterBy>
+		<filterParameter value="patient"/>
+		<value value="Patient/123"/>
+	</filterBy>
+	<channelType>
+		<code value="rest-hook"/>
+	</channelType>
+	<endpoint value="https://example.org/Endpoints/P123"/>
+  <parameter>
+    <name value="Authorization"/>
+    <value value="Bearer secret-token-abc-123"/>
+  </parameter>
+	<heartbeatPeriod value="60"/>
+	<timeout value="5"/>
+	<contentType value="application/fhir+json"/>
+	<content value="id-only"/>
+	<maxCount value="100"/>
+</Subscription>

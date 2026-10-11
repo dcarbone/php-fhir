@@ -1,0 +1,1 @@
+<ReferralRequest><id value="2810656"/><meta><extension url="http://hapifhir.io/fhir/StructureDefinition/resource-meta-source"><valueUri value="#JWRIxFctwR5jNAba"/></extension><versionId value="1"/><lastUpdated value="2021-06-06T19:56:40.793+00:00"/></meta><reasonCode><text value="Pneumologie"/></reasonCode><description value="Durere de cap, oboseala"/></ReferralRequest>

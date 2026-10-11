@@ -1,0 +1,43 @@
+<Provenance xmlns="http://hl7.org/fhir"> 
+  <id value="consent-signature"/>
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative</b></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource "consent-signature" </p></div><p><b>target</b>: <a href="consent-consent-example-signature.html">Consent/consent-example-signature</a></p><p><b>recorded</b>: 26/05/2016 2:41:10 PM</p><h3>Agents</h3><table class="grid"><tr><td>-</td><td><b>Role</b></td><td><b>Who</b></td></tr><tr><td>*</td><td>author (originator) <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/3.1.0/CodeSystem-v3-ParticipationType.html">ParticipationType</a>#AUT)</span></td><td><a href="todo.html">Patient/72</a></td></tr></table></div></text><target>
+    <reference value="Consent/consent-example-signature"/>
+  </target>
+ 
+  <!--   the provenance is recorded at the same time as 
+    the resource - batched together   -->
+  <recorded value="2016-05-26T00:41:10-04:00"/>
+ 
+  <agent> 
+    <role>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v3-ParticipationType"/>
+        <code value="AUT"/>
+      </coding>
+    </role>
+    <who>
+      <reference value="Patient/72"/>
+    </who>
+  </agent>
+  <signature>
+    <type>
+      <system value="urn:iso-astm:E1762-95:2013"/>
+      <code value="1.2.840.10065.1.12.1.1"/>
+      <display value="Author's Signature"/>
+    </type>
+    <when value="2016-05-26T00:41:10-04:00"/>
+    <who>
+      <reference value="Patient/72"/>
+    </who>
+	<targetFormat value="application/fhir+xml"/>
+	<sigFormat value="application/signature+xml"/>
+    <data value="dGhpcyBibG9iIGlzIHNuaXBwZWQ="/>
+  </signature>
+</Provenance>

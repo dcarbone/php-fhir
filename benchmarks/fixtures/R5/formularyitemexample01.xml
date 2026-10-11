@@ -1,0 +1,26 @@
+<FormularyItem xmlns="http://hl7.org/fhir">
+  <id value="formularyitemexample01"/>
+
+      <!--   insert contents here   -->
+  
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: FormularyItem</b><a name="formularyitemexample01"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource FormularyItem "formularyitemexample01" </p></div><p><b>code</b>: <span title="  insert contents here  ">Phenoxymethylpenicillin 125mg/5mL oral solution (product) <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#323418000; v2#22571011000036102 "phenoxymethylpenicillin 125 mg / 5 mL oral liquid, 5 mL measure")</span></span></p></div></text><code>
+    <coding>
+      <system value="http://snomed.info/sct"/>
+      <code value="323418000"/>
+      <display value="Phenoxymethylpenicillin 125mg/5mL oral solution (product)"/>
+    </coding>  
+    <coding>
+      <system value="http://nehta.gov.au/amt/v2"/>
+      <code value="22571011000036102"/>
+      <display value="phenoxymethylpenicillin 125 mg / 5 mL oral liquid, 5 mL measure"/>
+    </coding>  
+  </code>  
+  
+</FormularyItem>
