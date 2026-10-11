@@ -7,32 +7,32 @@
             "strategy": "decode",
             "format": "xml",
             "entries": 200,
-            "inputBytes": 291349,
-            "ms": 1.893399,
+            "inputBytes": 291371,
+            "ms": 2.012604,
             "peakBytes": 13136,
             "retainedBytes": 992,
-            "peakRssBytes": 1597440
+            "peakRssBytes": 1728512
         },
         {
             "key": "tree|xml|200",
             "strategy": "tree",
             "format": "xml",
             "entries": 200,
-            "inputBytes": 291349,
-            "ms": 12.294136,
-            "peakBytes": 6235840,
-            "retainedBytes": 6233152,
-            "peakRssBytes": 4636672
+            "inputBytes": 291371,
+            "ms": 13.389438,
+            "peakBytes": 6235872,
+            "retainedBytes": 6233184,
+            "peakRssBytes": 4751360
         },
         {
             "key": "decode|json|200",
             "strategy": "decode",
             "format": "json",
             "entries": 200,
-            "inputBytes": 235205,
-            "ms": 1.280256,
-            "peakBytes": 2299184,
-            "retainedBytes": 2299184,
+            "inputBytes": 235267,
+            "ms": 1.360589,
+            "peakBytes": 2299216,
+            "retainedBytes": 2299216,
             "peakRssBytes": 1323008
         },
         {
@@ -40,43 +40,43 @@
             "strategy": "tree",
             "format": "json",
             "entries": 200,
-            "inputBytes": 235205,
-            "ms": 10.516552,
-            "peakBytes": 5877200,
-            "retainedBytes": 3884904,
-            "peakRssBytes": 2686976
+            "inputBytes": 235267,
+            "ms": 11.346364,
+            "peakBytes": 5877232,
+            "retainedBytes": 3884936,
+            "peakRssBytes": 2682880
         },
         {
             "key": "decode|xml|1000",
             "strategy": "decode",
             "format": "xml",
             "entries": 1000,
-            "inputBytes": 1465004,
-            "ms": 10.644252,
+            "inputBytes": 1465125,
+            "ms": 11.009819,
             "peakBytes": 13136,
             "retainedBytes": 992,
-            "peakRssBytes": 13615104
+            "peakRssBytes": 13619200
         },
         {
             "key": "tree|xml|1000",
             "strategy": "tree",
             "format": "xml",
             "entries": 1000,
-            "inputBytes": 1465004,
-            "ms": 68.067125,
-            "peakBytes": 31959216,
-            "retainedBytes": 31956384,
-            "peakRssBytes": 40382464
+            "inputBytes": 1465125,
+            "ms": 73.648171,
+            "peakBytes": 31959392,
+            "retainedBytes": 31956560,
+            "peakRssBytes": 40386560
         },
         {
             "key": "decode|json|1000",
             "strategy": "decode",
             "format": "json",
             "entries": 1000,
-            "inputBytes": 1181330,
-            "ms": 7.619658,
-            "peakBytes": 11686824,
-            "retainedBytes": 11686824,
+            "inputBytes": 1181671,
+            "ms": 8.236092,
+            "peakBytes": 11687000,
+            "retainedBytes": 11687000,
             "peakRssBytes": 10739712
         },
         {
@@ -84,11 +84,11 @@
             "strategy": "tree",
             "format": "json",
             "entries": 1000,
-            "inputBytes": 1181330,
-            "ms": 59.598518,
-            "peakBytes": 29731944,
-            "retainedBytes": 19748800,
-            "peakRssBytes": 26238976
+            "inputBytes": 1181671,
+            "ms": 65.351706,
+            "peakBytes": 29732120,
+            "retainedBytes": 19748976,
+            "peakRssBytes": 26263552
         }
     ]
 }
