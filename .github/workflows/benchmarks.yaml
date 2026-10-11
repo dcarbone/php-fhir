@@ -78,10 +78,13 @@ jobs:
       - name: 'Run php-fhir generator'
         env:
           TEST_TARGET: '${{ matrix.test-target }}'
+          PHPFHIR_TEST_TARGET: '${{ matrix.test-target }}'
+        # phpunit/config.php only references the target version's schema path; bin/config.php requires every version's
+        # input to exist, but only the target is downloaded here.
         # language=sh
         run: |
           php bin/generate.php \
-            --config bin/config.php \
+            --config phpunit/config.php \
             --versions "${TEST_TARGET}" \
             --logLevel warning
 
