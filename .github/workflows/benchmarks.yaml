@@ -160,9 +160,31 @@ jobs:
       group: "benchmarks-publish"
       cancel-in-progress: false
     steps:
+      # The concurrency group only serializes publishers, it does not order them by commit. A run that finishes after a
+      # newer commit has landed on main would append stale data (the action compares against the last stored result),
+      # so superseded commits skip publishing. This runs once the concurrency lock is held, i.e. immediately before
+      # any write.
+      - name: 'Check commit is still main head'
+        id: "head"
+        env:
+          GH_TOKEN: '${{ github.token }}'
+          REPO: '${{ github.repository }}'
+          COMMIT_SHA: '${{ github.sha }}'
+        # language=sh
+        run: |
+          _head="$(gh api "repos/${REPO}/commits/main" --jq '.sha')"
+          if [ "${_head}" = "${COMMIT_SHA}" ]; then
+            echo "current=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "current=false" >> "${GITHUB_OUTPUT}"
+            echo "::notice::${COMMIT_SHA} is superseded by ${_head}; skipping benchmark publish."
+          fi
+
       - uses: "actions/checkout@v7"
+        if: "steps.head.outputs.current == 'true'"
 
       - uses: "actions/download-artifact@v8"
+        if: "steps.head.outputs.current == 'true'"
         with:
           pattern: "benchmark-*"
           path: "${{ runner.temp }}/results"
@@ -170,6 +192,7 @@ jobs:
       # The action is invoked once per result set with auto-push disabled, so it only commits locally; the commits are
       # then squashed and signed below. The PHP version in the names/paths must match the benchmarks matrix.
       - name: 'Record DSTU2'
+        if: "steps.head.outputs.current == 'true'"
         uses: "benchmark-action/github-action-benchmark@v1"
         with:
           name: 'Unserialize DSTU2 (PHP 8.3)'
@@ -182,6 +205,7 @@ jobs:
           comment-on-alert: true
           fail-on-alert: false
       - name: 'Record STU3'
+        if: "steps.head.outputs.current == 'true'"
         uses: "benchmark-action/github-action-benchmark@v1"
         with:
           name: 'Unserialize STU3 (PHP 8.3)'
@@ -194,6 +218,7 @@ jobs:
           comment-on-alert: true
           fail-on-alert: false
       - name: 'Record R4'
+        if: "steps.head.outputs.current == 'true'"
         uses: "benchmark-action/github-action-benchmark@v1"
         with:
           name: 'Unserialize R4 (PHP 8.3)'
@@ -206,6 +231,7 @@ jobs:
           comment-on-alert: true
           fail-on-alert: false
       - name: 'Record R4B'
+        if: "steps.head.outputs.current == 'true'"
         uses: "benchmark-action/github-action-benchmark@v1"
         with:
           name: 'Unserialize R4B (PHP 8.3)'
@@ -218,6 +244,7 @@ jobs:
           comment-on-alert: true
           fail-on-alert: false
       - name: 'Record R5'
+        if: "steps.head.outputs.current == 'true'"
         uses: "benchmark-action/github-action-benchmark@v1"
         with:
           name: 'Unserialize R5 (PHP 8.3)'
@@ -231,6 +258,7 @@ jobs:
           fail-on-alert: false
 
       - name: 'Sign and push gh-pages'
+        if: "steps.head.outputs.current == 'true'"
         env:
           SSH_SIGNING_KEY: '${{ secrets.SSH_SIGNING_KEY }}'
           COMMIT_SHA: '${{ github.sha }}'
