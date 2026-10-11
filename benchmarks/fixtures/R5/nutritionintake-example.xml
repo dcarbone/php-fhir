@@ -1,0 +1,174 @@
+<NutritionIntake xmlns="http://hl7.org/fhir">
+	    <!--   id = example  file name = nutritionintake-example.xml  Name=Simple   Description = General NutritionIntake Example edited by Jean Duteau & Becky Gradl  -->
+	<id value="example"/>
+	<meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: NutritionIntake</b><a name="example"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource NutritionIntake "example" </p></div><p><b>identifier</b>: id: 1144223344</p><p><b>status</b>: completed</p><p><b>code</b>: Inpatient <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><p><b>subject</b>: <span>: Paula Patient Chalmers</span></p><p><b>encounter</b>: <a href="encounter-example.html">Encounter/example</a></p><p><b>occurrence</b>: 2019-08-02T12:45:18+04:00</p><p><b>reported</b>: <a href="practitionerrole-example.html">PractitionerRole/example</a></p><blockquote><p><b>consumedItem</b></p><p><b>type</b>: food <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><h3>NutritionProducts</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Grill Sandwich <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 100 percent<span style="background: LightGoldenRodYellow"> (Details: UCUM code % = '%')</span></p></blockquote><blockquote><p><b>consumedItem</b></p><p><b>type</b>: food <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><h3>NutritionProducts</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>French Fries Spiral Battered <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 100 percent<span style="background: LightGoldenRodYellow"> (Details: UCUM code % = '%')</span></p></blockquote><blockquote><p><b>consumedItem</b></p><p><b>type</b>: food <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><h3>NutritionProducts</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Tomato Soup Healthy Request <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 50 percent<span style="background: LightGoldenRodYellow"> (Details: UCUM code % = '%')</span></p></blockquote><blockquote><p><b>consumedItem</b></p><p><b>type</b>: food <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><h3>NutritionProducts</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Side Garden Salad <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 50 percent<span style="background: LightGoldenRodYellow"> (Details: UCUM code % = '%')</span></p></blockquote><blockquote><p><b>consumedItem</b></p><p><b>type</b>: fluid <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></p><h3>NutritionProducts</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Ice Tea Unsweetened <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 100 percent<span style="background: LightGoldenRodYellow"> (Details: UCUM code % = '%')</span></p></blockquote><blockquote><p><b>ingredientLabel</b></p><h3>Nutrients</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Total Calories <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 313 kilocalorie<span style="background: LightGoldenRodYellow"> (Details: UCUM code kcal = 'kcal')</span></p></blockquote><blockquote><p><b>ingredientLabel</b></p><h3>Nutrients</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Protein <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 10.4 grams<span style="background: LightGoldenRodYellow"> (Details: UCUM code g = 'g')</span></p></blockquote><blockquote><p><b>ingredientLabel</b></p><h3>Nutrients</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Fat (Total) <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 18.00 grams<span style="background: LightGoldenRodYellow"> (Details: UCUM code g = 'g')</span></p></blockquote><blockquote><p><b>ingredientLabel</b></p><h3>Nutrients</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Carbohydrate <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 26.47 grams<span style="background: LightGoldenRodYellow"> (Details: UCUM code g = 'g')</span></p></blockquote><blockquote><p><b>ingredientLabel</b></p><h3>Nutrients</h3><table class="grid"><tr><td>-</td><td><b>Concept</b></td></tr><tr><td>*</td><td>Sodium <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> ()</span></td></tr></table><p><b>amount</b>: 770 Milligrams<span style="background: LightGoldenRodYellow"> (Details: UCUM code mg = 'mg')</span></p></blockquote></div></text><identifier>
+		<system value="http://example.org"/>
+		<value value="1144223344"/>
+	</identifier>
+	<status value="completed"/>
+	<code>
+		<text value="Inpatient"/>
+	</code>
+	<subject>
+		<display value="Paula Patient Chalmers"/>
+	</subject>
+	<encounter>
+		<reference value="Encounter/example"/>
+	</encounter>
+	<occurrenceDateTime value="2019-08-02T12:45:18+04:00"/>
+	<reportedReference>
+		<reference value="PractitionerRole/example"/>
+	</reportedReference>
+	<consumedItem>
+		<type>
+			<text value="food"/>
+		</type>
+		<nutritionProduct>
+			<concept>
+				<text value="Grill Sandwich"/>
+			</concept>
+		</nutritionProduct>
+		<amount> 
+			<value value="100"/> 
+			<unit value="percent"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="%"/> 
+		</amount> 
+	</consumedItem>
+	<consumedItem>
+		<type>
+			<text value="food"/>
+		</type>
+		<nutritionProduct>
+			<concept>
+				<text value="French Fries Spiral Battered"/>
+			</concept>
+		</nutritionProduct>
+		<amount> 
+			<value value="100"/> 
+			<unit value="percent"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="%"/> 
+		</amount> 
+	</consumedItem>
+	<consumedItem>
+		<type>
+			<text value="food"/>
+		</type>
+		<nutritionProduct>
+			<concept>
+				<text value="Tomato Soup Healthy Request"/>
+			</concept>
+		</nutritionProduct>
+		<amount> 
+			<value value="50"/> 
+			<unit value="percent"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="%"/> 
+		</amount> 
+	</consumedItem>
+	<consumedItem>
+		<type>
+			<text value="food"/>
+		</type>
+		<nutritionProduct>
+			<concept>
+				<text value="Side Garden Salad"/>
+			</concept>
+		</nutritionProduct>
+		<amount> 
+			<value value="50"/> 
+			<unit value="percent"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="%"/> 
+		</amount> 
+	</consumedItem>
+	<consumedItem>
+		<type>
+			<text value="fluid"/>
+		</type>
+		<nutritionProduct>
+			<concept>
+				<text value="Ice Tea Unsweetened"/>
+			</concept>
+		</nutritionProduct>
+		<amount> 
+			<value value="100"/> 
+			<unit value="percent"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="%"/> 
+		</amount> 
+	</consumedItem>
+	<ingredientLabel>
+		<nutrient>
+			<concept>
+				<text value="Total Calories"/>
+			</concept>
+		</nutrient>
+		<amount> 
+			<value value="313"/> 
+			<unit value="kilocalorie"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="kcal"/> 
+		</amount> 
+	</ingredientLabel>
+	<ingredientLabel>
+		<nutrient>
+			<concept>
+				<text value="Protein"/>
+			</concept>
+		</nutrient>
+		<amount> 
+			<value value="10.4"/> 
+			<unit value="grams"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="g"/> 
+		</amount> 
+	</ingredientLabel>
+	<ingredientLabel>
+		<nutrient>
+			<concept>
+				<text value="Fat (Total)"/>
+			</concept>
+		</nutrient>
+		<amount> 
+			<value value="18.00"/> 
+			<unit value="grams"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="g"/> 
+		</amount> 
+	</ingredientLabel>
+	<ingredientLabel>
+		<nutrient>
+			<concept>
+				<text value="Carbohydrate"/>
+			</concept>
+		</nutrient>
+		<amount> 
+			<value value="26.47"/> 
+			<unit value="grams"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="g"/> 
+		</amount> 
+	</ingredientLabel>	
+	<ingredientLabel>
+		<nutrient>
+			<concept>
+				<text value="Sodium"/>
+			</concept>
+		</nutrient> 
+		<amount> 
+			<value value="770"/> 
+			<unit value="Milligrams"/> 
+			<system value="http://unitsofmeasure.org"/> 
+			<code value="mg"/> 
+		</amount> 
+	</ingredientLabel>
+</NutritionIntake>

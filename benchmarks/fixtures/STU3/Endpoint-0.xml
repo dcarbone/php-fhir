@@ -1,0 +1,1 @@
+<Endpoint><id value="2755875"/><meta><extension url="http://hapifhir.io/fhir/StructureDefinition/resource-meta-source"><valueUri value="#vut80sX1iZsDatuH"/></extension><versionId value="1"/><lastUpdated value="2020-10-12T02:28:42.444+00:00"/></meta><address value="http://localhost:8042/instances/6cca6e6e-4f5ac150-dd734261-b58f7210-58af7f66/file"/></Endpoint>

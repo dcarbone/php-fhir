@@ -1,0 +1,169 @@
+name: "Benchmarks"
+
+# Benchmarks run against the generated code AFTER the Rector pass, mirroring publish-generated.yaml, since that is what
+# consumers receive.
+#
+# Memory regressions are asserted by the PHPUnit "Benchmarks" suite (deterministic, compared against the committed
+# baselines in benchmarks/baselines).  Timing is far too noisy on shared runners to assert, so the full result set is
+# instead recorded as a trend and compared against the previous run on main, alerting on large regressions.
+
+permissions:
+  actions: "none"
+  attestations: "none"
+  checks: "none"
+  contents: "write"
+  deployments: "none"
+  id-token: "none"
+  issues: "none"
+  models: "none"
+  discussions: "none"
+  packages: "none"
+  pages: "none"
+  pull-requests: "write"
+  security-events: "none"
+  statuses: "none"
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - "main"
+    paths:
+      - '.github/workflows/benchmarks.yaml'
+      - 'benchmarks/**'
+      - 'phpunit/Benchmarks.xml'
+      - 'src/**'
+      - 'template/**'
+      - 'composer.json'
+
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - '.github/workflows/benchmarks.yaml'
+      - 'benchmarks/**'
+      - 'phpunit/Benchmarks.xml'
+      - 'src/**'
+      - 'template/**'
+      - 'composer.json'
+
+jobs:
+  benchmarks:
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        # Baselines are per PHP minor version (see benchmarks/baselines); add a version here once its baselines exist.
+        php-version:
+          - '8.3'
+        test-target:
+          - 'DSTU2'
+          - 'STU3'
+          - 'R4'
+          - 'R4B'
+          - 'R5'
+    name: 'Benchmarks ${{ matrix.test-target }} - PHP ${{ matrix.php-version }}'
+    steps:
+      - uses: "actions/checkout@v7"
+      - name: 'Bootstrap'
+        uses: "./.github/actions/bootstrap"
+        with:
+          php-version: '${{ matrix.php-version }}'
+      - name: 'Load FHIR ${{ matrix.test-target }} Source'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: '${{ matrix.test-target }}'
+
+      - name: 'Run php-fhir generator'
+        env:
+          TEST_TARGET: '${{ matrix.test-target }}'
+          PHPFHIR_TEST_TARGET: '${{ matrix.test-target }}'
+        # phpunit/config.php only references the target version's schema path; bin/config.php requires every version's
+        # input to exist, but only the target is downloaded here.
+        # language=sh
+        run: |
+          php bin/generate.php \
+            --config phpunit/config.php \
+            --versions "${TEST_TARGET}" \
+            --logLevel warning
+
+      - name: 'Restore Rector cache'
+        uses: "actions/cache@v6"
+        with:
+          path: ".rector-cache/generated"
+          key: "rector-generated-bench-${{ matrix.test-target }}-${{ github.run_id }}"
+          restore-keys: |
+            rector-generated-bench-${{ matrix.test-target }}-
+
+      - name: 'Run Rector on generated output'
+        # language=sh
+        run: "composer rector:generated"
+
+      - name: 'Memory regression tests'
+        env:
+          PHPFHIR_TEST_TARGET: '${{ matrix.test-target }}'
+          # Skip regeneration so the Rector-transformed output is what actually gets measured.
+          PHPFHIR_TEST_SKIP_GENERATE: "true"
+        # language=sh
+        run: "./vendor/bin/phpunit -c 'phpunit/Benchmarks.xml'"
+
+      - name: 'Run benchmarks'
+        env:
+          TEST_TARGET: '${{ matrix.test-target }}'
+        # language=sh
+        run: |
+          php benchmarks/run.php \
+            --version="${TEST_TARGET}" \
+            --sizes=200,1000 \
+            --iterations=5 \
+            --github-action-benchmark="${RUNNER_TEMP}/benchmark-results.json"
+
+      - name: 'Ensure gh-pages branch'
+        id: "pages"
+        env:
+          CAN_CREATE: "${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}"
+        # The trend action stores history on gh-pages. Create it (empty, orphan) on the first push to main; elsewhere
+        # skip trend recording until it exists. Matrix jobs race here, so re-check after a failed push.
+        # language=sh
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          if [ "${CAN_CREATE}" = "true" ]; then
+            _empty_tree="$(git hash-object -t tree /dev/null)"
+            _commit="$(GIT_AUTHOR_NAME='github-actions[bot]' GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com' \
+              GIT_COMMITTER_NAME='github-actions[bot]' GIT_COMMITTER_EMAIL='41898282+github-actions[bot]@users.noreply.github.com' \
+              git commit-tree "${_empty_tree}" -m 'Initialize benchmark history')"
+            git push -q origin "${_commit}:refs/heads/gh-pages" || true
+          fi
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+            echo "::notice::gh-pages does not exist yet; skipping trend recording."
+          fi
+
+      - name: 'Restore tracked files'
+        if: "steps.pages.outputs.exists == 'true'"
+        # The bootstrap action rewrites composer.json and removes composer.lock; the trend action must switch to
+        # gh-pages and refuses to do so with a dirty working tree. Untracked/ignored output is left untouched.
+        # language=sh
+        run: "git checkout -- ."
+
+      - name: 'Record results'
+        if: "steps.pages.outputs.exists == 'true'"
+        uses: "benchmark-action/github-action-benchmark@v1"
+        with:
+          name: 'Unserialize ${{ matrix.test-target }} (PHP ${{ matrix.php-version }})'
+          tool: 'customSmallerIsBetter'
+          output-file-path: '${{ runner.temp }}/benchmark-results.json'
+          benchmark-data-dir-path: 'benchmarks/${{ matrix.test-target }}-php${{ matrix.php-version }}'
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          # Only main publishes history; pull requests are compared against it.
+          auto-push: "${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}"
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: false
+          summary-always: true

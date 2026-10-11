@@ -1,0 +1,70 @@
+<SubscriptionTopic xmlns="http://hl7.org/fhir">
+	<id value="example"/>
+	<meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: SubscriptionTopic</b><a name="example"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource SubscriptionTopic "example" </p></div><p><b>url</b>: <code>http://example.org/FHIR/R5/SubscriptionTopic/example</code></p><p><b>identifier</b>: id: urn:uuid:1caa02ba-051b-4602-8856-65921748ae76</p><p><b>version</b>: 1.0.0-beta.1</p><p><b>title</b>: example</p><p><b>status</b>: draft</p><p><b>date</b>: 2019-01-01</p><p><b>description</b>: Example topic for completed encounters</p><blockquote><p><b>resourceTrigger</b></p><p><b>description</b>: An Encounter has been completed</p><p><b>resource</b>: <a href="encounter.html">Encounter</a></p><p><b>supportedInteraction</b>: update</p><h3>QueryCriteria</h3><table class="grid"><tr><td>-</td><td><b>Previous</b></td><td><b>ResultForCreate</b></td><td><b>Current</b></td><td><b>ResultForDelete</b></td><td><b>RequireBoth</b></td></tr><tr><td>*</td><td>status:not=completed</td><td>test-passes</td><td>status=completed</td><td>test-fails</td><td>true</td></tr></table><p><b>fhirPathCriteria</b>: (%previous.empty() | (%previous.status != 'completed')) and (%current.status = 'completed')</p></blockquote><blockquote><p><b>canFilterBy</b></p><p><b>description</b>: Filter based on the subject of an encounter.</p><p><b>resource</b>: <a href="encounter.html">Encounter</a></p><p><b>filterParameter</b>: subject</p></blockquote><blockquote><p><b>canFilterBy</b></p><p><b>description</b>: Filter based on the group membership of the subject of an encounter.</p><p><b>resource</b>: <a href="encounter.html">Encounter</a></p><p><b>filterParameter</b>: _in</p></blockquote><blockquote><p><b>canFilterBy</b></p><p><b>description</b>: Filter based on the length of an encounter.</p><p><b>resource</b>: <a href="encounter.html">Encounter</a></p><p><b>filterParameter</b>: length</p><p><b>comparator</b>: gt, lt, ge, le</p></blockquote><blockquote><p><b>canFilterBy</b></p><p><b>description</b>: Filter based on the account for billing an encounter.</p><p><b>resource</b>: <a href="encounter.html">Encounter</a></p><p><b>filterParameter</b>: account</p><p><b>modifier</b>: missing, not, identifier</p></blockquote><h3>NotificationShapes</h3><table class="grid"><tr><td>-</td><td><b>Resource</b></td><td><b>Include</b></td></tr><tr><td>*</td><td><a href="encounter.html">Encounter</a></td><td>Encounter:patient&amp;iterate=Patient.link, Encounter:practitioner, Encounter:service-provider, Encounter:account, Encounter:diagnosis, Encounter:observation, Encounter:location</td></tr></table></div></text><url value="http://example.org/FHIR/R5/SubscriptionTopic/example"/>
+	<identifier>
+    <system value="urn:ietf:rfc:3986"/>
+    <value value="urn:uuid:1caa02ba-051b-4602-8856-65921748ae76"/>
+  </identifier>
+  <version value="1.0.0-beta.1"/>
+  <title value="example"/>
+	<status value="draft"/>
+  <date value="2019-01-01"/>
+  <description value="Example topic for completed encounters"/>
+	<resourceTrigger>
+		<description value="An Encounter has been completed"/>
+		<resource value="http://hl7.org/fhir/StructureDefinition/Encounter"/>
+    <supportedInteraction value="update"/>
+		<queryCriteria>
+			<previous value="status:not=completed"/>
+      <resultForCreate value="test-passes"/>
+			<current value="status=completed"/>
+      <resultForDelete value="test-fails"/>
+			<requireBoth value="true"/>
+		</queryCriteria>
+		<fhirPathCriteria value="(%previous.empty() | (%previous.status != 'completed')) and (%current.status = 'completed')"/>
+	</resourceTrigger>
+  <canFilterBy>
+    <description value="Filter based on the subject of an encounter."/>
+    <resource value="Encounter"/>
+    <filterParameter value="subject"/>
+  </canFilterBy>
+  <canFilterBy>
+    <description value="Filter based on the group membership of the subject of an encounter."/>
+    <resource value="Encounter"/>
+    <filterParameter value="_in"/>
+  </canFilterBy>
+  <canFilterBy>
+    <description value="Filter based on the length of an encounter."/>
+    <resource value="Encounter"/>
+    <filterParameter value="length"/>
+    <comparator value="gt"/>
+    <comparator value="lt"/>
+    <comparator value="ge"/>
+    <comparator value="le"/>
+  </canFilterBy>
+  <canFilterBy>
+    <description value="Filter based on the account for billing an encounter."/>
+    <resource value="Encounter"/>
+    <filterParameter value="account"/>
+    <modifier value="missing"/>
+    <modifier value="not"/>
+    <modifier value="identifier"/>
+  </canFilterBy>
+  <notificationShape>
+    <resource value="Encounter"/>
+    <include value="Encounter:patient&amp;iterate=Patient.link"/>
+    <include value="Encounter:practitioner"/>
+    <include value="Encounter:service-provider"/>
+    <include value="Encounter:account"/>
+    <include value="Encounter:diagnosis"/>
+    <include value="Encounter:observation"/>
+    <include value="Encounter:location"/>
+  </notificationShape>
+</SubscriptionTopic>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         colors="true"
+         stopOnFailure="false"
+         displayDetailsOnIncompleteTests="true"
+         displayDetailsOnSkippedTests="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true">
+    <php>
+        <ini name="memory_limit" value="2048M"/>
+        <ini name="precision" value="17"/>
+        <!-- Not forced, so PHPFHIR_TEST_TARGET may be overridden from the environment. -->
+        <env name="PHPFHIR_TEST_TARGET" value="STU3"/>
+    </php>
+    <testsuites>
+        <testsuite name="Benchmarks">
+            <directory>../benchmarks/tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

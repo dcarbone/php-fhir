@@ -1,8 +1,32 @@
+# Packagist / `composer install --prefer-dist` builds archives with `git archive`, which honors export-ignore.
+# Only what is needed to use this package as a library (src/, files/, template/, bin/, composer.json, LICENSE)
+# should be shipped; everything below is development, CI, or generated-output tooling.
+
+# Repository / editor / CI metadata
+.gitignore export-ignore
+.gitattributes export-ignore
 /.github export-ignore
-/.gitignore export-ignore
-/.gitattributes export-ignore
-/README.md export-ignore
-/output export-ignore
-/input export-ignore
+/.idea export-ignore
+/php-fhir.iml export-ignore
+
+# Tooling caches
+/.rector-cache export-ignore
+/.php-cs-fixer.cache export-ignore
+/.phpunit.result.cache export-ignore
+
+# Tests, benchmarks, and the config that drives them
+/tests export-ignore
 /phpunit export-ignore
+/benchmarks export-ignore
+/rector-generated.php export-ignore
+
+# Generator working directories (schemas in, generated code out, scratch)
+/input export-ignore
+/output export-ignore
+/tmp export-ignore
+
+# Documentation lives in the wiki; consumers do not need a lockfile for a library
+/README.md export-ignore
+/composer.lock export-ignore
+
 fhir_test_resources.tar.gz export-ignore

@@ -1,0 +1,1 @@
+<CommunicationRequest><id value="2812693"/><meta><extension url="http://hapifhir.io/fhir/StructureDefinition/resource-meta-source"><valueUri value="#FSbaC8sUTIARmGSi"/></extension><versionId value="1"/><lastUpdated value="2021-08-08T09:39:19.514+00:00"/></meta><language value="English"/><status value="draft"/></CommunicationRequest>

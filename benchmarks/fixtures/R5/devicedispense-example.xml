@@ -1,0 +1,31 @@
+<DeviceDispense xmlns="http://hl7.org/fhir">
+<id value="example"/>
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text>
+    <status value="generated"/>
+    <div xmlns="http://www.w3.org/1999/xhtml">[Put rendering here]</div>
+  </text>
+  <status value="completed"/>
+  <device>
+    <concept>
+    <coding>
+        <system value="https://www.gs1.org/gtin"/>
+        <code value="00613994223838"/>
+        <display value="ADAPTA (TM) Pacemaker"/>
+    </coding>
+    </concept>
+  </device>
+  <subject>
+    <reference value="Patient/pat1"/>
+    <display value="Donald Duck"/> 
+  </subject>
+
+    <!--  insert contents here  -->
+  
+</DeviceDispense>

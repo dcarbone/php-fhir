@@ -1,0 +1,43 @@
+<Linkage xmlns="http://hl7.org/fhir">
+  <id value="example"/>
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text>
+    <status value="extensions"/><div xmlns="http://www.w3.org/1999/xhtml">
+  <p>
+     Links
+      defined by <a href="practitioner-example-f201-ab.html">Practitioner/f201</a> "Dokter Bronsig" 
+     :
+  </p>
+  <ul>
+    
+    <li>source: <a href="condition-example.html">Condition/example: Severe burn of left ear (Date: 24-May 2012)</a> </li>
+    
+    <li>alternate: <a href="condition-example-linkage.html">Condition/example-linkage: Severe burn of left ear (Date: 24-May 2012)</a> </li>
+    
+  </ul>
+</div>
+  </text>
+  <author>
+    <reference value="Practitioner/f201"/>
+  </author>
+  <item>
+    <type value="source"/>
+    <resource>
+      <reference value="Condition/example"/>
+      <display value="Severe burn of left ear (Date: 24-May 2012)"/>
+    </resource>
+  </item>
+  <item>
+    <type value="alternate"/>
+    <resource>
+      <reference value="Condition/example-linkage"/>
+      <display value="Severe burn of left ear (Date: 24-May 2012)"/>
+    </resource>
+  </item>
+</Linkage>

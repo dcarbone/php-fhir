@@ -1,0 +1,28 @@
+<MedicationKnowledge xmlns="http://hl7.org/fhir">
+  <id value="example"/>
+  <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: MedicationKnowledge</b><a name="example"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource MedicationKnowledge "example" </p></div><p><b>code</b>: Vancomycin Hydrochloride (VANCOMYCIN HYDROCHLORIDE) <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="http://terminology.hl7.org/5.1.0/CodeSystem-v3-ndc.html">National drug codes</a>#0409-6531-02)</span></p><p><b>status</b>: active</p><p><b>name</b>: Vancomycin Hydrochloride (VANCOMYCIN HYDROCHLORIDE)</p><h3>Definitionals</h3><table class="grid"><tr><td>-</td><td><b>DoseForm</b></td></tr><tr><td>*</td><td>Oral Dose Form (qualifier value) <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://browser.ihtsdotools.org/">SNOMED CT</a>#385268001)</span></td></tr></table></div></text><code>
+    <coding>
+      <system value="http://hl7.org/fhir/sid/ndc"/>
+      <code value="0409-6531-02"/>
+      <display value="Vancomycin Hydrochloride (VANCOMYCIN HYDROCHLORIDE)"/>
+    </coding>
+  </code>
+  <status value="active"/>
+  <name value="Vancomycin Hydrochloride (VANCOMYCIN HYDROCHLORIDE)"/>
+  <definitional>
+    <doseForm>
+      <coding>
+        <system value="http://snomed.info/sct"/>
+        <code value="385268001"/>
+        <display value="Oral Dose Form (qualifier value)"/>
+      </coding>
+    </doseForm>
+  </definitional>
+</MedicationKnowledge>

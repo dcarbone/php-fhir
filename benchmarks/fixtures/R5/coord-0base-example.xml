@@ -1,0 +1,44 @@
+<MolecularSequence xmlns="http://hl7.org/fhir">
+    <id value="coord-0-base"/>
+    <meta>
+    <security>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActReason"/>
+      <code value="HTEST"/>
+      <display value="test health data"/>
+    </security>
+  </meta>
+  <text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p><b>Generated Narrative: MolecularSequence</b><a name="coord-0-base"> </a></p><div style="display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%"><p style="margin-bottom: 0px">Resource MolecularSequence "coord-0-base" </p></div><p><b>type</b>: dna</p><blockquote><p><b>relative</b></p><p><b>coordinateSystem</b>: 0-based character counting <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki"> (<a href="https://loinc.org/">LOINC</a>#LA30101-2)</span></p><h3>StartingSequences</h3><table class="grid"><tr><td>-</td><td><b>Sequence[x]</b></td><td><b>WindowStart</b></td><td><b>WindowEnd</b></td><td><b>Strand</b></td></tr><tr><td>*</td><td>ACGTAGTC</td><td>0</td><td>8</td><td>watson</td></tr></table><blockquote><p><b>edit</b></p><p><b>start</b>: 2</p><p><b>end</b>: 2</p><p><b>replacementSequence</b>: ATG</p><p><b>replacedSequence</b>: -</p></blockquote><blockquote><p><b>edit</b></p><p><b>start</b>: 4</p><p><b>end</b>: 5</p><p><b>replacementSequence</b>: T</p><p><b>replacedSequence</b>: A</p></blockquote><blockquote><p><b>edit</b></p><p><b>start</b>: 6</p><p><b>end</b>: 7</p><p><b>replacementSequence</b>: -</p><p><b>replacedSequence</b>: T</p></blockquote></blockquote></div></text><type value="dna"/>
+    <relative>
+        <coordinateSystem>
+            <coding>
+                <system value="http://loinc.org"/>
+                <code value="LA30101-2"/>
+                <display value="0-based character counting"/>
+            </coding>
+        </coordinateSystem>
+        <startingSequence>
+            <sequenceString value="ACGTAGTC"/>
+            <windowStart value="0"/>
+            <windowEnd value="8"/>
+            <strand value="watson"/>
+        </startingSequence>
+        <edit>
+            <start value="2"/>
+            <end value="2"/>
+            <replacementSequence value="ATG"/>
+            <replacedSequence value="-"/>
+        </edit>
+        <edit>
+            <start value="4"/>
+            <end value="5"/>
+            <replacementSequence value="T"/>
+            <replacedSequence value="A"/>
+        </edit>
+        <edit>
+            <start value="6"/>
+            <end value="7"/>
+            <replacementSequence value="-"/>
+            <replacedSequence value="T"/>
+        </edit> 
+    </relative>
+</MolecularSequence>
