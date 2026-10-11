@@ -145,6 +145,13 @@ jobs:
             echo "::notice::gh-pages does not exist yet; skipping trend recording."
           fi
 
+      - name: 'Restore tracked files'
+        if: "steps.pages.outputs.exists == 'true'"
+        # The bootstrap action rewrites composer.json and removes composer.lock; the trend action must switch to
+        # gh-pages and refuses to do so with a dirty working tree. Untracked/ignored output is left untouched.
+        # language=sh
+        run: "git checkout -- ."
+
       - name: 'Record results'
         if: "steps.pages.outputs.exists == 'true'"
         uses: "benchmark-action/github-action-benchmark@v1"
