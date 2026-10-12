@@ -83,5 +83,90 @@ abstract class <?php echo $className; ?>
         }
         return self::_BASE_TYPES[$canonical] ?? null;
     }
+
+    /**
+     * Selects the profile class to unserialize a resource into, given the values of its "meta.profile".
+     *
+     * @param class-string $baseClassName Class of the resource's declared FHIR type.
+     * @param string[] $declared Canonical profile urls, in declaration order, optionally with a "|version" suffix.
+     * @param string $onUnknown "fallback" or "exception"
+     * @param string $onAmbiguous "firstDeclared", "fallback" or "exception"
+     * @param string $onVersionMismatch "ignoreVersion", "fallback" or "exception"
+     * @return null|class-string Null when the base class should be used.
+     * @throws \UnexpectedValueException
+     */
+    public static function resolve(string $baseClassName,
+                                   array $declared,
+                                   string $onUnknown,
+                                   string $onAmbiguous,
+                                   string $onVersionMismatch): null|string
+    {
+        $candidates = [];
+        foreach ($declared as $canonical) {
+            if (!is_string($canonical) || '' === $canonical) {
+                continue;
+            }
+            $class = self::getProfileClassname($canonical);
+            if (null === $class || !is_a($class, $baseClassName, true)) {
+                if ('exception' === $onUnknown) {
+                    throw new \UnexpectedValueException(sprintf(
+                        'Profile "%s" is not a known profile of "%s"',
+                        $canonical,
+                        $baseClassName
+                    ));
+                }
+                continue;
+            }
+            $pos = strpos($canonical, '|');
+            if (false !== $pos && 'ignoreVersion' !== $onVersionMismatch) {
+                $declaredVersion = substr($canonical, $pos + 1);
+                $generatedVersion = $class::PROFILE_VERSION;
+                if (null !== $generatedVersion && $declaredVersion !== $generatedVersion) {
+                    if ('exception' === $onVersionMismatch) {
+                        throw new \UnexpectedValueException(sprintf(
+                            'Profile "%s" was generated from version "%s"',
+                            $canonical,
+                            $generatedVersion
+                        ));
+                    }
+                    continue;
+                }
+            }
+            if (!in_array($class, $candidates, true)) {
+                $candidates[] = $class;
+            }
+        }
+
+        if ([] === $candidates) {
+            return null;
+        }
+        if (1 === count($candidates)) {
+            return $candidates[0];
+        }
+
+        // the most specific profile is the one that refines all of the others
+        foreach ($candidates as $candidate) {
+            $refinesAll = true;
+            foreach ($candidates as $other) {
+                if ($candidate !== $other && !is_a($candidate, $other, true)) {
+                    $refinesAll = false;
+                    break;
+                }
+            }
+            if ($refinesAll) {
+                return $candidate;
+            }
+        }
+
+        return match ($onAmbiguous) {
+            'firstDeclared' => $candidates[0],
+            'fallback' => null,
+            default => throw new \UnexpectedValueException(sprintf(
+                'Ambiguous profiles declared for "%s": ["%s"]',
+                $baseClassName,
+                implode('","', $candidates)
+            )),
+        };
+    }
 }
 <?php return ob_get_clean();

@@ -154,6 +154,101 @@ class GenerateScriptTest extends TestCase
         $this->assertFileExists(dirname($files[0], 2) . '/ProfileAutoloader.php');
     }
 
+    public function testGeneratedParserResolvesProfiles(): void
+    {
+        $this->useRealSchema();
+        $root = $this->_tmpdir->path('');
+        $url = 'http://example.org/StructureDefinition/my-patient';
+        // require a name so a bare Patient violates the profile
+        file_put_contents($root . '/core/package/StructureDefinition-my-patient.json', json_encode([
+            'resourceType' => 'StructureDefinition',
+            'id' => 'my-patient',
+            'url' => $url,
+            'name' => 'MyPatient',
+            'kind' => 'resource',
+            'abstract' => false,
+            'type' => 'Patient',
+            'baseDefinition' => 'http://hl7.org/fhir/StructureDefinition/Patient',
+            'derivation' => 'constraint',
+            'differential' => ['element' => [['id' => 'Patient.name', 'path' => 'Patient.name', 'min' => 1]]],
+        ]));
+        mkdir($root . '/tests', 0777, true);
+        file_put_contents($this->_config, '<?php return ' . var_export([
+                'libraryPath' => $root . '/out',
+                'testsPath' => $root . '/tests',
+                'libraryNamespacePrefix' => '\\Gen',
+                'versions' => [
+                    [
+                        'name' => 'R4',
+                        'schemaPath' => dirname(__DIR__, 2) . '/input/R4',
+                        'defaultConfig' => ['unserializeConfig' => ['profileResolution' => 'auto']],
+                        'profiles' => ['packages' => [['name' => 'hl7.fhir.us.core', 'source' => $root . '/core']]],
+                    ],
+                ],
+            ], true) . ';');
+        [$code, $out] = $this->runScript('--versions', 'R4', '--profiles');
+        $this->assertSame(0, $code, $out);
+
+        $script = $root . '/parse.php';
+        file_put_contents($script, '<?php
+            require ' . var_export($root . '/out/Gen/Autoloader.php', true) . ';
+            \Gen\Autoloader::register();
+            require ' . var_export($root . '/out/Gen/Versions/R4/Profiles/ProfileAutoloader.php', true) . ';
+            \Gen\Versions\R4\Profiles\ProfileAutoloader::register();
+            $url = ' . var_export($url, true) . ';
+            $parse = static function (array $cfg, string $input): string {
+                $v = new \Gen\Versions\R4\Version(["unserializeConfig" => $cfg + ["profileResolution" => "auto"]]);
+                try {
+                    return get_class(\Gen\Encoding\ResourceParser::parse($v, $input));
+                } catch (\Throwable $e) {
+                    return "EXC " . $e::class;
+                }
+            };
+            $good = ["resourceType" => "Patient", "meta" => ["profile" => [$url . "|1.0.0"]], "name" => [["family" => "F"]]];
+            $bad = ["resourceType" => "Patient", "meta" => ["profile" => [$url]]];
+            $unknown = ["resourceType" => "Patient", "meta" => ["profile" => ["http://nope"]]];
+            $bundle = ["resourceType" => "Bundle", "type" => "collection", "entry" => [["resource" => $good]]];
+            $xml = "<Patient xmlns=\"http://hl7.org/fhir\"><meta><profile value=\"" . $url . "\"/></meta><name><family value=\"F\"/></name></Patient>";
+            $bundleType = \Gen\Encoding\ResourceParser::parse(new \Gen\Versions\R4\Version(["unserializeConfig" => ["profileResolution" => "auto"]]), json_encode($bundle))
+                ->getEntry()[0]->getResource();
+            echo json_encode([
+                "json" => $parse([], json_encode($good)),
+                "xml" => $parse([], $xml),
+                "bundle" => get_class($bundleType),
+                "off" => $parse(["profileResolution" => "off"], json_encode($good)),
+                "none" => $parse([], json_encode(["resourceType" => "Patient"])),
+                "unknownFallback" => $parse([], json_encode($unknown)),
+                "unknownException" => $parse(["onUnknownProfile" => "exception"], json_encode($unknown)),
+                "violationKeep" => $parse([], json_encode($bad)),
+                "violationFallback" => $parse(["onProfileViolation" => "fallback"], json_encode($bad)),
+                "violationException" => $parse(["onProfileViolation" => "exception"], json_encode($bad)),
+            ]);
+        ');
+        $proc = proc_open([PHP_BINARY, '-d', 'display_errors=stderr', $script], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        $this->assertIsResource($proc);
+        $stdout = stream_get_contents($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($proc);
+        $res = json_decode($stdout, true);
+        $this->assertIsArray($res, "OUT: " . $stdout . " ERR: " . $stderr);
+
+        $profile = 'Gen\\Versions\\R4\\Profiles\\';
+        $this->assertStringStartsWith($profile, $res['json']);
+        $this->assertStringEndsWith('MyPatient', $res['json']);
+        $this->assertSame($res['json'], $res['xml']);
+        $this->assertSame($res['json'], $res['bundle']);
+        $this->assertSame($res['json'], $res['violationKeep']);
+        $this->assertSame('EXC UnexpectedValueException', $res['violationException']);
+        $this->assertSame('EXC UnexpectedValueException', $res['unknownException']);
+
+        $base = 'Gen\\Versions\\R4\\Types\\FHIRResource\\FHIRDomainResource\\FHIRPatient';
+        foreach (['off', 'none', 'unknownFallback', 'violationFallback'] as $k) {
+            $this->assertSame($base, $res[$k], $k);
+        }
+    }
+
     public function testOnlyProfilesWithPackageFilterSucceeds(): void
     {
         $this->useRealSchema();

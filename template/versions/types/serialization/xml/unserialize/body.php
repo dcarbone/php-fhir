@@ -50,7 +50,7 @@ ob_start(); ?>
                 foreach ($ce->children() as $cen) {
                     /** @var <?php echo $containedTypeInterface->getFullyQualifiedName(true); ?> $cn */
                     $cn = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::mustGetContainedTypeClassnameFromXML($cen);
-                    $type-><?php echo $setter; ?>($cn::xmlUnserialize($cen, $config));
+                    $type-><?php echo $setter; ?>(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::xmlUnserializeResource($cn, $cen, $config));
                 }
 <?php   elseif ($propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
                 $type-><?php echo $setter; ?>($ce);

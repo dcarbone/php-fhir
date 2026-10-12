@@ -75,6 +75,7 @@ class ProfileWriter
 
         $fileMap[$profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_VIOLATION] = PHPFHIR_PROFILES_CLASSNAME_VIOLATION . '.php';
         $fileMap[$profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_VALIDATOR] = PHPFHIR_PROFILES_CLASSNAME_VALIDATOR . '.php';
+        $fileMap[$profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_MAP] = PHPFHIR_PROFILES_CLASSNAME_MAP . '.php';
         $written[] = self::_put(
             $libraryPath,
             $profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_VIOLATION,

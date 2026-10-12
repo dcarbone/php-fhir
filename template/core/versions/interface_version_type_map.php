@@ -24,12 +24,14 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $imports = $coreFile->getImports();
 
 $imports->addCoreFileImportsByName(
-    PHPFHIR_TYPES_INTERFACE_TYPE
+    PHPFHIR_TYPES_INTERFACE_TYPE,
+    PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
 );
 
 $coreFiles = $config->getCoreFiles();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -93,5 +95,33 @@ interface <?php echo PHPFHIR_INTERFACE_VERSION_TYPE_MAP; ?>
      * @return string Fully qualified class name of contained resource type
      */
     public static function mustGetContainedTypeClassnameFromJSON(\stdClass $decoded): string;
+
+    /**
+     * Must unserialize the decoded JSON resource into the provided class, or into a generated profile class derived
+     * from it when profile resolution is enabled in the provided config.
+     *
+     * @param class-string $className
+     * @param \stdClass $decoded
+     * @param <?php echo $unserializeConfig->getFullyQualifiedName(true); ?> $config
+     * @return <?php echo $typeInterface->getFullyQualifiedName(true); ?>
+
+     */
+    public static function jsonUnserializeResource(string $className,
+                                                   \stdClass $decoded,
+                                                   <?php echo $unserializeConfig; ?> $config): <?php echo $typeInterface; ?>;
+
+    /**
+     * Must unserialize the XML resource into the provided class, or into a generated profile class derived
+     * from it when profile resolution is enabled in the provided config.
+     *
+     * @param class-string $className
+     * @param \SimpleXMLElement $element
+     * @param <?php echo $unserializeConfig->getFullyQualifiedName(true); ?> $config
+     * @return <?php echo $typeInterface->getFullyQualifiedName(true); ?>
+
+     */
+    public static function xmlUnserializeResource(string $className,
+                                                  \SimpleXMLElement $element,
+                                                  <?php echo $unserializeConfig; ?> $config): <?php echo $typeInterface; ?>;
 }
 <?php return ob_get_clean();

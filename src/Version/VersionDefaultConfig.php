@@ -26,6 +26,19 @@ class VersionDefaultConfig
         'jsonDecodeMaxDepth',
         'jsonDecodeOpts',
         'jsonDecodeOptMask',
+        'profileResolution',
+        'onUnknownProfile',
+        'onAmbiguousProfile',
+        'onProfileVersionMismatch',
+        'onProfileViolation',
+    ];
+
+    private const _UNSERIALIZE_PROFILE_ENUMS = [
+        'profileResolution' => ['off', 'auto'],
+        'onUnknownProfile' => ['fallback', 'exception'],
+        'onAmbiguousProfile' => ['firstDeclared', 'fallback', 'exception'],
+        'onProfileVersionMismatch' => ['ignoreVersion', 'fallback', 'exception'],
+        'onProfileViolation' => ['keep', 'fallback', 'exception'],
     ];
 
     private const _SERIALIZE_CONFIG_KEYS = [
@@ -102,6 +115,17 @@ class VersionDefaultConfig
                     : throw new \InvalidArgumentException(sprintf(
                         'Value provided to "jsonDecodeOptMask" is either not a string or is an invalid options mask: %s',
                         $config[$k],
+                    )),
+                'profileResolution',
+                'onUnknownProfile',
+                'onAmbiguousProfile',
+                'onProfileVersionMismatch',
+                'onProfileViolation' => is_string($config[$k]) && in_array($config[$k], self::_UNSERIALIZE_PROFILE_ENUMS[$k], true)
+                    ? $config[$k]
+                    : throw new \InvalidArgumentException(sprintf(
+                        'Value provided to "%s" must be one of ["%s"]',
+                        $k,
+                        implode('","', self::_UNSERIALIZE_PROFILE_ENUMS[$k]),
                     )),
 
                 default => throw new \UnexpectedValueException(sprintf(

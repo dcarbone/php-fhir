@@ -27,12 +27,14 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $versionTypeMapInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_TYPE_MAP);
+$unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
 $mockResourceType = $testCoreFiles->getCoreFileByEntityName(PHPFHIR_TEST_CLASSNAME_MOCK_RESOURCE_TYPE);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $versionTypeMapInterface,
+    $unserializeConfig,
 
     $mockResourceType,
 );
@@ -86,6 +88,22 @@ class <?php echo $coreFile; ?> implements <?php echo $versionTypeMapInterface; ?
     public static function mustGetContainedTypeClassnameFromJSON(\stdClass $decoded): string
     {
         throw new \BadMethodCallException('Not implemented');
+    }
+
+    public static function jsonUnserializeResource(string $className,
+                                                   \stdClass $decoded,
+                                                   <?php echo $unserializeConfig; ?> $config): <?php echo $typeInterface; ?>
+
+    {
+        return $className::jsonUnserialize($decoded, $config);
+    }
+
+    public static function xmlUnserializeResource(string $className,
+                                                  \SimpleXMLElement $element,
+                                                  <?php echo $unserializeConfig; ?> $config): <?php echo $typeInterface; ?>
+
+    {
+        return $className::xmlUnserialize($element, $config);
     }
 }
 <?php return ob_get_clean();

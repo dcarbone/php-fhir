@@ -83,7 +83,11 @@ class <?php echo $coreFile; ?> implements <?php echo $versionInterface; ?>
     public function __construct(null|array|<?php echo $versionConfigInterface ?> $config = null)
     {
         if (!is_object($config)) {
-            $config = new <?php echo $versionConfigClass; ?>(array_merge(self::_GENERATED_CONFIG, (array)$config));
+            $config = array_merge(self::_GENERATED_CONFIG, (array)$config);
+            $config = new <?php echo $versionConfigClass; ?>(
+                unserializeConfig: $config['unserializeConfig'] ?? null,
+                serializeConfig: $config['serializeConfig'] ?? null,
+            );
         } else if (!($config instanceof <?php echo $versionConfigClass; ?>)) {
             throw new \InvalidArgumentException(sprintf(
                 '$config must be an instance of \\%s, %s given',

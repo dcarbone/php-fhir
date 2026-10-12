@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIRTests;
  */
 
 use DCarbone\PHPFHIR\Version\VersionDefaultConfig;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class VersionDefaultConfigTest extends TestCase
@@ -87,5 +88,42 @@ class VersionDefaultConfigTest extends TestCase
         $c = new VersionDefaultConfig();
         $c->setSerializeConfig([]);
         $this->assertEmpty($c->getSerializeConfig());
+    }
+
+    public function testSetUnserializeConfigAcceptsProfileKeys(): void
+    {
+        $c = new VersionDefaultConfig();
+        $c->setUnserializeConfig([
+            'profileResolution' => 'auto',
+            'onUnknownProfile' => 'exception',
+            'onAmbiguousProfile' => 'firstDeclared',
+            'onProfileVersionMismatch' => 'fallback',
+            'onProfileViolation' => 'keep',
+        ]);
+        $this->assertSame('auto', $c->getUnserializeConfig()['profileResolution']);
+        $this->assertSame('exception', $c->getUnserializeConfig()['onUnknownProfile']);
+        $this->assertSame('firstDeclared', $c->getUnserializeConfig()['onAmbiguousProfile']);
+        $this->assertSame('fallback', $c->getUnserializeConfig()['onProfileVersionMismatch']);
+        $this->assertSame('keep', $c->getUnserializeConfig()['onProfileViolation']);
+    }
+
+    public static function invalidProfileValuesProvider(): array
+    {
+        return [
+            'resolution' => ['profileResolution', 'always'],
+            'unknown' => ['onUnknownProfile', 'keep'],
+            'ambiguous' => ['onAmbiguousProfile', 'ignoreVersion'],
+            'version' => ['onProfileVersionMismatch', 'firstDeclared'],
+            'violation' => ['onProfileViolation', 'ignore'],
+            'non-string' => ['profileResolution', true],
+        ];
+    }
+
+    #[DataProvider('invalidProfileValuesProvider')]
+    public function testSetUnserializeConfigRejectsInvalidProfileValues(string $key, mixed $value): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage($key);
+        (new VersionDefaultConfig())->setUnserializeConfig([$key => $value]);
     }
 }
