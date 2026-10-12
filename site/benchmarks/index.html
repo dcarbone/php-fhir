@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>php-fhir benchmarks</title>
+  <style>
+    :root { --bg: #fff; --fg: #1b1f24; --muted: #5b6573; --card: #f5f7fa; --border: #dde2e8; --accent: #7a5af8; --grid: rgba(0,0,0,.08); }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0d1117; --fg: #e6edf3; --muted: #9aa5b1; --card: #161b22; --border: #2a313c; --accent: #a78bfa; --grid: rgba(255,255,255,.1); }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 78rem; margin: 0 auto; padding: 0 1.25rem 3rem; }
+    header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1.5rem; padding: 1.25rem 0; }
+    header h1 { margin: 0 auto 0 0; font-size: 1.4rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: center; margin-bottom: 1rem; }
+    .tabs { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .tab { padding: .35rem .8rem; border: 1px solid var(--border); border-radius: 999px; background: var(--card); color: var(--fg); cursor: pointer; font: inherit; }
+    .tab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    label { color: var(--muted); font-size: .9rem; }
+    select { font: inherit; margin-left: .35rem; padding: .25rem .4rem; border: 1px solid var(--border); border-radius: .4rem; background: var(--card); color: var(--fg); }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr)); }
+    .card { min-width: 0; background: var(--card); border: 1px solid var(--border); border-radius: .75rem; padding: .9rem 1rem 1rem; }
+    .card h2 { margin: 0 0 .5rem; font-size: 1rem; }
+    .card h2 small { color: var(--muted); font-weight: 400; }
+    .chart { position: relative; height: 16rem; }
+    details { margin-top: .6rem; font-size: .85rem; }
+    summary { cursor: pointer; color: var(--muted); }
+    .table-wrap { overflow-x: auto; max-height: 14rem; margin-top: .4rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: .2rem .5rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    #status { color: var(--muted); margin: 1rem 0; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>php-fhir benchmarks</h1>
+    <a href="../">Project home</a>
+    <a id="repo" href="https://github.com/dcarbone/php-fhir">GitHub</a>
+  </header>
+
+  <div class="controls">
+    <div class="tabs" id="versions" role="group" aria-label="FHIR version"></div>
+    <label>Metric <select id="metric"></select></label>
+    <label>Bundle entries <select id="size"></select></label>
+  </div>
+  <div id="status" role="status">Loading…</div>
+  <div class="grid" id="charts"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // Series names look like: "PHP 8.3 R4 tree xml 1000 entries - peak memory"
+  var NAME = /^PHP (\S+) (\S+) (\S+) (\S+) (\d+) entries - (.+)$/;
+  var COLORS = ['#7a5af8', '#16a34a', '#ea580c', '#0891b2', '#db2777', '#ca8a04', '#64748b'];
+  var OPERATIONS = {decode: 'Decode only (lower bound)', tree: 'Unserialize', serialize: 'Serialize'};
+  var OP_ORDER = ['tree', 'decode', 'serialize'];
+  var METRIC_ORDER = ['time', 'peak memory', 'retained memory', 'peak RSS'];
+
+  var data = window.BENCHMARK_DATA;
+  var status = document.getElementById('status');
+  if (!data || !data.entries) {
+    status.textContent = 'No benchmark data available yet.';
+    return;
+  }
+  if (data.repoUrl) { document.getElementById('repo').href = data.repoUrl; }
+
+  // Flatten every suite into one commit-ordered list of points.
+  var points = [];
+  Object.keys(data.entries).forEach(function (suite) {
+    data.entries[suite].forEach(function (e) {
+      var parsed = {};
+      e.benches.forEach(function (b) {
+        var m = NAME.exec(b.name);
+        if (m) { parsed[b.name] = {php: m[1], fhir: m[2], op: m[3], fmt: m[4], size: m[5], metric: m[6], unit: b.unit, value: b.value}; }
+      });
+      points.push({commit: e.commit, date: e.date, series: parsed});
+    });
+  });
+  points.sort(function (a, b) { return a.date - b.date; });
+
+  // Discover dimensions.
+  var fhirSet = {}, sizeSet = {}, metricSet = {}, units = {};
+  points.forEach(function (p) {
+    Object.keys(p.series).forEach(function (k) {
+      var s = p.series[k];
+      fhirSet[s.fhir] = 1; sizeSet[s.size] = 1; metricSet[s.metric] = 1; units[s.metric] = s.unit;
+    });
+  });
+  var FHIR_ORDER = ['DSTU2', 'STU3', 'R4', 'R4B', 'R5'];
+  var fhirs = Object.keys(fhirSet).sort(function (a, b) { return rank(FHIR_ORDER, a) - rank(FHIR_ORDER, b) || a.localeCompare(b); });
+  var sizes = Object.keys(sizeSet).sort(function (a, b) { return a - b; });
+  var metrics = Object.keys(metricSet).sort(function (a, b) { return rank(METRIC_ORDER, a) - rank(METRIC_ORDER, b) || a.localeCompare(b); });
+  if (!fhirs.length) { status.textContent = 'No benchmark data available yet.'; return; }
+
+  function rank(order, v) { var i = order.indexOf(v); return i < 0 ? order.length : i; }
+
+  var state = readHash();
+  var versionsEl = document.getElementById('versions');
+  var metricEl = document.getElementById('metric');
+  var sizeEl = document.getElementById('size');
+
+  fhirs.forEach(function (f) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'tab'; b.textContent = f; b.dataset.fhir = f;
+    b.addEventListener('click', function () { state.fhir = f; render(); });
+    versionsEl.appendChild(b);
+  });
+  metrics.forEach(function (m) { metricEl.add(new Option(m + ' (' + units[m] + ')', m)); });
+  sizes.forEach(function (s) { sizeEl.add(new Option(s, s)); });
+  metricEl.addEventListener('change', function () { state.metric = metricEl.value; render(); });
+  sizeEl.addEventListener('change', function () { state.size = sizeEl.value; render(); });
+
+  function readHash() {
+    var out = {};
+    new URLSearchParams(location.hash.replace(/^#/, '')).forEach(function (v, k) { out[k] = v; });
+    return out;
+  }
+  function writeHash() {
+    history.replaceState(null, '', '#fhir=' + encodeURIComponent(state.fhir) + '&metric=' + encodeURIComponent(state.metric) + '&size=' + encodeURIComponent(state.size));
+  }
+
+  function dataTable(g, phps) {
+    var d = document.createElement('details');
+    var sum = document.createElement('summary');
+    sum.textContent = 'Data table';
+    var box = document.createElement('div');
+    box.className = 'table-wrap';
+    var t = document.createElement('table');
+    var head = t.createTHead().insertRow();
+    ['Commit', 'Date'].concat(phps.map(function (x) { return 'PHP ' + x + ' (' + units[state.metric] + ')'; })).forEach(function (c) {
+      var th = document.createElement('th'); th.scope = 'col'; th.textContent = c; head.appendChild(th);
+    });
+    var body = t.createTBody();
+    points.forEach(function (p, idx) {
+      var row = body.insertRow();
+      var a = document.createElement('a');
+      a.textContent = p.commit.id.substring(0, 7);
+      if (p.commit.url) { a.href = p.commit.url; a.target = '_blank'; a.rel = 'noopener'; }
+      a.title = p.commit.message.split('\n')[0];
+      row.insertCell().appendChild(a);
+      row.insertCell().textContent = new Date(p.date).toISOString().substring(0, 10);
+      phps.forEach(function (php) {
+        var line = g.lines[php] || {};
+        row.insertCell().textContent = idx in line ? line[idx] : '–';
+      });
+    });
+    box.appendChild(t); d.appendChild(sum); d.appendChild(box);
+    return d;
+  }
+
+  var charts = [];
+  var cssVar = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+
+  function render() {
+    if (fhirs.indexOf(state.fhir) < 0) { state.fhir = fhirs.indexOf('R4') >= 0 ? 'R4' : fhirs[0]; }
+    if (metrics.indexOf(state.metric) < 0) { state.metric = metrics[0]; }
+    if (sizes.indexOf(state.size) < 0) { state.size = sizes[sizes.length - 1]; }
+    metricEl.value = state.metric; sizeEl.value = state.size;
+    Array.prototype.forEach.call(versionsEl.children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.fhir === state.fhir)); });
+    writeHash();
+
+    charts.forEach(function (c) { c.destroy(); });
+    charts = [];
+    var grid = document.getElementById('charts');
+    grid.textContent = '';
+
+    // Group the selected version/size/metric into one chart per operation+format, one line per PHP version.
+    var groups = {}, phpSet = {};
+    points.forEach(function (p, idx) {
+      Object.keys(p.series).forEach(function (k) {
+        var s = p.series[k];
+        if (s.fhir !== state.fhir || s.size !== state.size || s.metric !== state.metric) { return; }
+        var gk = s.op + '|' + s.fmt;
+        phpSet[s.php] = 1;
+        groups[gk] = groups[gk] || {op: s.op, fmt: s.fmt, lines: {}};
+        (groups[gk].lines[s.php] = groups[gk].lines[s.php] || {})[idx] = s.value;
+      });
+    });
+    var phps = Object.keys(phpSet).sort(function (a, b) { return parseFloat(a) - parseFloat(b); });
+    var keys = Object.keys(groups).sort(function (a, b) {
+      var x = groups[a], y = groups[b];
+      return rank(OP_ORDER, x.op) - rank(OP_ORDER, y.op) || rank(['xml', 'json'], x.fmt) - rank(['xml', 'json'], y.fmt);
+    });
+    status.textContent = keys.length
+      ? points.length + ' commit(s) · ' + phps.length + ' PHP version(s) · click a point or use the data table to open its commit'
+      : 'No data for this selection.';
+
+    // Charts are created only after every card is in the grid, otherwise the first one sizes itself to a one-column grid.
+    var pending = [];
+    var labels = points.map(function (p) { return p.commit.id.substring(0, 7); });
+    keys.forEach(function (gk) {
+      var g = groups[gk];
+      var card = document.createElement('div');
+      card.className = 'card';
+      var h = document.createElement('h2');
+      h.textContent = (OPERATIONS[g.op] || g.op) + ' ';
+      var sm = document.createElement('small');
+      sm.textContent = g.fmt.toUpperCase();
+      h.appendChild(sm);
+      var wrap = document.createElement('div');
+      wrap.className = 'chart';
+      var canvas = document.createElement('canvas');
+      canvas.setAttribute('role', 'img');
+      canvas.setAttribute('aria-label', (OPERATIONS[g.op] || g.op) + ' ' + g.fmt.toUpperCase() + ' ' + state.metric + ' (' + units[state.metric] + ') by commit, one line per PHP version. The data table below has the same values.');
+      wrap.appendChild(canvas); card.appendChild(h); card.appendChild(wrap); grid.appendChild(card);
+
+      card.appendChild(dataTable(g, phps));
+
+      var datasets = phps.map(function (php, i) {
+        var line = g.lines[php] || {};
+        return {
+          label: 'PHP ' + php,
+          data: points.map(function (_, idx) { return idx in line ? line[idx] : null; }),
+          borderColor: COLORS[i % COLORS.length],
+          backgroundColor: COLORS[i % COLORS.length],
+          tension: 0.15, spanGaps: true, pointRadius: 3, pointHoverRadius: 5
+        };
+      });
+      pending.push(function () { charts.push(new Chart(canvas, {
+        type: 'line',
+        data: {labels: labels, datasets: datasets},
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          interaction: {mode: 'nearest', intersect: false},
+          onClick: function (_, els) {
+            if (els.length && points[els[0].index].commit.url) { window.open(points[els[0].index].commit.url, '_blank'); }
+          },
+          scales: {
+            x: {ticks: {color: cssVar('--muted'), maxRotation: 0, autoSkip: true}, grid: {color: cssVar('--grid')}},
+            y: {beginAtZero: true, title: {display: true, text: units[state.metric], color: cssVar('--muted')}, ticks: {color: cssVar('--muted')}, grid: {color: cssVar('--grid')}}
+          },
+          plugins: {
+            legend: {labels: {color: cssVar('--fg'), usePointStyle: true}},
+            tooltip: {
+              callbacks: {
+                title: function (items) {
+                  var p = points[items[0].dataIndex];
+                  return p.commit.id.substring(0, 7) + ' · ' + new Date(p.date).toISOString().substring(0, 10);
+                },
+                afterTitle: function (items) { return points[items[0].dataIndex].commit.message.split('\n')[0]; },
+                label: function (ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y + ' ' + units[state.metric]; }
+              }
+            }
+          }
+        }
+      })); });
+    });
+    pending.forEach(function (create) { create(); });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
