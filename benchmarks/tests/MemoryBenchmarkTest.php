@@ -32,7 +32,7 @@ use function DCarbone\PHPFHIR\Benchmarks\runWorker;
 require_once __DIR__ . '/../lib.php';
 
 /**
- * Guards against memory regressions in unserialization.
+ * Guards against memory regressions in unserialization and serialization.
  *
  * PHP-allocator memory is deterministic for a given PHP minor version and fixture set, so measurements are compared to
  * a committed baseline (benchmarks/baselines/<version>-php<major.minor>.json).  Wall-clock time is intentionally NOT
@@ -45,7 +45,7 @@ require_once __DIR__ . '/../lib.php';
  * Tolerance may be adjusted with the PHPFHIR_BENCH_TOLERANCE env var (fraction, default 0.05).
  */
 #[Group('benchmark')]
-class UnserializeBenchmarkTest extends TestCase
+class MemoryBenchmarkTest extends TestCase
 {
     private const NAMESPACE = 'DCarbone\\PHPFHIRGenerated';
     private const ABSOLUTE_SLACK_BYTES = 262144;

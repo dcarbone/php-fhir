@@ -8,10 +8,10 @@
             "format": "xml",
             "entries": 200,
             "inputBytes": 913389,
-            "ms": 5.291399,
+            "ms": 7.5867,
             "peakBytes": 13136,
             "retainedBytes": 992,
-            "peakRssBytes": 3563520
+            "peakRssBytes": 3567616
         },
         {
             "key": "tree|xml|200",
@@ -19,10 +19,21 @@
             "format": "xml",
             "entries": 200,
             "inputBytes": 913389,
-            "ms": 21.302281,
+            "ms": 30.725433,
             "peakBytes": 8298264,
             "retainedBytes": 8295112,
-            "peakRssBytes": 5193728
+            "peakRssBytes": 5095424
+        },
+        {
+            "key": "serialize|xml|200",
+            "strategy": "serialize",
+            "format": "xml",
+            "entries": 200,
+            "inputBytes": 913389,
+            "ms": 16.517132,
+            "peakBytes": 775144,
+            "retainedBytes": 774920,
+            "peakRssBytes": 1040384
         },
         {
             "key": "decode|json|200",
@@ -30,10 +41,10 @@
             "format": "json",
             "entries": 200,
             "inputBytes": 669859,
-            "ms": 2.637023,
+            "ms": 3.32447,
             "peakBytes": 3621984,
             "retainedBytes": 3621984,
-            "peakRssBytes": 843776
+            "peakRssBytes": 868352
         },
         {
             "key": "tree|json|200",
@@ -41,10 +52,21 @@
             "format": "json",
             "entries": 200,
             "inputBytes": 669859,
-            "ms": 14.752296,
+            "ms": 20.868436,
             "peakBytes": 8421952,
             "retainedBytes": 5611912,
-            "peakRssBytes": 2142208
+            "peakRssBytes": 1998848
+        },
+        {
+            "key": "serialize|json|200",
+            "strategy": "serialize",
+            "format": "json",
+            "entries": 200,
+            "inputBytes": 669859,
+            "ms": 5.740183,
+            "peakBytes": 676512,
+            "retainedBytes": 672520,
+            "peakRssBytes": 913408
         },
         {
             "key": "decode|xml|1000",
@@ -52,10 +74,10 @@
             "format": "xml",
             "entries": 1000,
             "inputBytes": 4358471,
-            "ms": 29.811829,
+            "ms": 35.065284,
             "peakBytes": 13136,
             "retainedBytes": 992,
-            "peakRssBytes": 37957632
+            "peakRssBytes": 37961728
         },
         {
             "key": "tree|xml|1000",
@@ -63,10 +85,21 @@
             "format": "xml",
             "entries": 1000,
             "inputBytes": 4358471,
-            "ms": 120.425393,
+            "ms": 155.404865,
             "peakBytes": 40189472,
             "retainedBytes": 40186040,
-            "peakRssBytes": 66613248
+            "peakRssBytes": 66723840
+        },
+        {
+            "key": "serialize|xml|1000",
+            "strategy": "serialize",
+            "format": "xml",
+            "entries": 1000,
+            "inputBytes": 4358471,
+            "ms": 82.539584,
+            "peakBytes": 3564544,
+            "retainedBytes": 3564320,
+            "peakRssBytes": 7503872
         },
         {
             "key": "decode|json|1000",
@@ -74,10 +107,10 @@
             "format": "json",
             "entries": 1000,
             "inputBytes": 3063724,
-            "ms": 14.524388,
+            "ms": 17.854185,
             "peakBytes": 17334048,
             "retainedBytes": 17334048,
-            "peakRssBytes": 14540800
+            "peakRssBytes": 14532608
         },
         {
             "key": "tree|json|1000",
@@ -85,10 +118,21 @@
             "format": "json",
             "entries": 1000,
             "inputBytes": 3063724,
-            "ms": 83.042518,
+            "ms": 104.349307,
             "peakBytes": 41238208,
             "retainedBytes": 27698840,
-            "peakRssBytes": 34418688
+            "peakRssBytes": 34332672
+        },
+        {
+            "key": "serialize|json|1000",
+            "strategy": "serialize",
+            "format": "json",
+            "entries": 1000,
+            "inputBytes": 3063724,
+            "ms": 34.918228,
+            "peakBytes": 3068200,
+            "retainedBytes": 3064608,
+            "peakRssBytes": 4964352
         }
     ]
 }

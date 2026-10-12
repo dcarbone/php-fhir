@@ -56,7 +56,11 @@ jobs:
       matrix:
         # Baselines are per PHP minor version (see benchmarks/baselines); add a version here once its baselines exist.
         php-version:
+          - '8.1'
+          - '8.2'
           - '8.3'
+          - '8.4'
+          - '8.5'
         test-target:
           - 'DSTU2'
           - 'STU3'
@@ -128,22 +132,15 @@ jobs:
           retention-days: 7
 
   # Merges every matrix result into one result set and records it with a single call of the trend action, so history gets
-  # one entry (and, on main, one signed commit) per source commit. Doing it per matrix job raced on gh-pages, and the
-  # action's own commits are unsigned, which the branch protection rejects. Metric names already carry the version.
+  # one entry (and, on main, one signed commit and one push) per source commit. Doing it per matrix job raced on gh-pages,
+  # and the action's own commits are unsigned, which the branch protection rejects. Metric names carry the PHP and FHIR
+  # versions, so adding PHP versions to the benchmarks matrix needs no change here.
   report:
     needs: "benchmarks"
     runs-on: "ubuntu-latest"
-    strategy:
-      fail-fast: false
-      matrix:
-        # Keep in sync with the benchmarks job; one result set, history entry and gh-pages directory per PHP version.
-        php-version:
-          - '8.3'
-          - '8.4'
-          - '8.5'
-    name: 'Report - PHP ${{ matrix.php-version }}'
+    name: 'Report'
     concurrency:
-      group: "benchmarks-report-${{ github.event_name }}-${{ github.ref }}-php${{ matrix.php-version }}"
+      group: "benchmarks-report-${{ github.event_name }}-${{ github.ref }}"
       cancel-in-progress: false
     steps:
       # Concurrency only serializes publishers, it does not order them by commit. A run that finishes after a newer
@@ -176,21 +173,29 @@ jobs:
       - uses: "actions/download-artifact@v8"
         if: "steps.head.outputs.current == 'true'"
         with:
-          pattern: "benchmark-*-php${{ matrix.php-version }}"
+          pattern: "benchmark-*"
           path: "${{ runner.temp }}/results"
 
       - name: 'Merge results'
         if: "steps.head.outputs.current == 'true'"
         env:
           RESULTS_DIR: '${{ runner.temp }}/results'
-          PHP_VERSION: '${{ matrix.php-version }}'
           MERGED: '${{ runner.temp }}/benchmark-merged.json'
+        # Every FHIR version must be present for each PHP version that reported. The PHP version is prefixed onto each
+        # metric name so that all PHP/FHIR combinations live in the one result set.
         # language=sh
         run: |
-          for _v in DSTU2 STU3 R4 R4B R5; do
-            test -s "${RESULTS_DIR}/benchmark-${_v}-php${PHP_VERSION}/benchmark-results.json" || { echo "::error::Missing results for ${_v}" >&2; exit 1; }
+          _out="$(mktemp -d)"
+          _php_versions="$(find "${RESULTS_DIR}" -mindepth 1 -maxdepth 1 -type d -name 'benchmark-*-php*' | sed -E 's/.*-php//' | sort -u)"
+          test -n "${_php_versions}" || { echo "::error::No benchmark results found" >&2; exit 1; }
+          for _php in ${_php_versions}; do
+            for _v in DSTU2 STU3 R4 R4B R5; do
+              _f="${RESULTS_DIR}/benchmark-${_v}-php${_php}/benchmark-results.json"
+              test -s "${_f}" || { echo "::error::Missing results for ${_v} on PHP ${_php}" >&2; exit 1; }
+              jq --arg php "${_php}" 'map(.name = "PHP " + $php + " " + .name)' "${_f}" > "${_out}/${_v}-php${_php}.json"
+            done
           done
-          jq -s 'add' "${RESULTS_DIR}"/benchmark-*/benchmark-results.json > "${MERGED}"
+          jq -s 'add' "${_out}"/*.json > "${MERGED}"
           jq 'length' "${MERGED}"
 
       # Pull requests: compare only. Main: the action commits locally (unsigned) and the commit is re-signed below.
@@ -198,10 +203,10 @@ jobs:
         if: "steps.head.outputs.current == 'true'"
         uses: "benchmark-action/github-action-benchmark@v1"
         with:
-          name: 'Unserialize (PHP ${{ matrix.php-version }})'
+          name: 'Serialization'
           tool: 'customSmallerIsBetter'
           output-file-path: '${{ runner.temp }}/benchmark-merged.json'
-          benchmark-data-dir-path: 'benchmarks/php${{ matrix.php-version }}'
+          benchmark-data-dir-path: 'benchmarks'
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           auto-push: false
           alert-threshold: '150%'
