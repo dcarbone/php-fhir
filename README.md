@@ -33,6 +33,7 @@ Full documentation is maintained on the **[project wiki](https://github.com/dcar
 | [CLI Usage](https://github.com/dcarbone/php-fhir/wiki/CLI-Usage)                             | Running the generator from the command line                   |
 | [Configuration Reference](https://github.com/dcarbone/php-fhir/wiki/Configuration-Reference) | All `Config` and `VersionConfig` options                      |
 | [Architecture](https://github.com/dcarbone/php-fhir/wiki/Architecture)                       | How the generator pipeline works internally                   |
+| [Profiles](https://github.com/dcarbone/php-fhir/wiki/Profiles)                               | Generating classes for FHIR profiles such as US Core          |
 | [Generated Code](https://github.com/dcarbone/php-fhir/wiki/Generated-Code)                   | Understanding the output: namespaces, types, client, encoding |
 | [Testing](https://github.com/dcarbone/php-fhir/wiki/Testing)                                 | Running tests on the generator and on generated code          |
 | [Contributing](https://github.com/dcarbone/php-fhir/wiki/Contributing)                       | Developer workflow and code-style notes                       |

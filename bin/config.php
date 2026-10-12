@@ -53,27 +53,27 @@ return [
             'schemaPath' => __DIR__ . '/../input/R4',
 
             // Optional: generate profile classes from FHIR profile packages (e.g. US Core).
-            // 'profiles' => [
-            //     // Namespace segment, relative to the version namespace, to place profile classes in.
-            //     'namespace' => 'Profiles',
-            //     'packages' => [
-            //         [
-            //             // npm-style package name.  Required.
-            //             'name' => 'hl7.fhir.us.core',
-            //             // Path to the package .tgz file or an extracted package directory.  Required.
-            //             'source' => __DIR__ . '/../input/profiles/hl7.fhir.us.core.tgz',
-            //             // Namespace segment for this package.  Default is derived from name, ex: "UsCore".
-            //             'namespace' => 'UsCore',
-            //             // Glob patterns of profile ids / names to include and exclude.  Default is everything.
-            //             'include' => ['us-core-*'],
-            //             'exclude' => [],
-            //             // Local paths for packages this package depends on.
-            //             'dependencies' => [],
-            //             // Fail on unresolvable profile elements instead of warning and skipping.
-            //             'strict' => true,
-            //         ],
-            //     ],
-            // ],
+             'profiles' => [
+                 // Namespace segment, relative to the version namespace, to place profile classes in.
+                 'namespace' => 'Profiles',
+                 'packages' => [
+                     [
+                         // npm-style package name.  Required.
+                         'name' => 'hl7.fhir.us.core',
+                         // Path to the package .tgz file or an extracted package directory.  Required.
+                         'source' => __DIR__ . '/../input/us_core_stu9/package.tgz',
+                         // Namespace segment for this package.  Default is derived from name, ex: "UsCore".
+                         'namespace' => 'UsCore',
+                         // Glob patterns of profile ids / names to include and exclude.  Default is everything.
+                         'include' => ['us-core-*'],
+                         'exclude' => [],
+                         // Local paths for packages this package depends on.
+                         'dependencies' => [],
+                         // Fail on unresolvable profile elements instead of warning and skipping.
+                         'strict' => true,
+                     ],
+                 ],
+             ],
         ],
         [
             'name' => 'R4B',
