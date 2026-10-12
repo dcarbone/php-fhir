@@ -56,7 +56,11 @@ jobs:
       matrix:
         # Baselines are per PHP minor version (see benchmarks/baselines); add a version here once its baselines exist.
         php-version:
+          - '8.1'
+          - '8.2'
           - '8.3'
+          - '8.4'
+          - '8.5'
         test-target:
           - 'DSTU2'
           - 'STU3'
@@ -127,51 +131,34 @@ jobs:
           if-no-files-found: "error"
           retention-days: 7
 
-      # Pull requests compare against the history on gh-pages but never publish; only the publish job below writes it.
-      - name: 'Restore tracked files'
-        if: "github.event_name == 'pull_request'"
-        # The bootstrap action rewrites composer.json and removes composer.lock; the compare step must switch to
-        # gh-pages and refuses to do so with a dirty working tree. Untracked/ignored output is left untouched.
-        # language=sh
-        run: "git checkout -- ."
-
-      - name: 'Compare against history'
-        if: "github.event_name == 'pull_request'"
-        uses: "benchmark-action/github-action-benchmark@v1"
-        with:
-          name: 'Unserialize ${{ matrix.test-target }} (PHP ${{ matrix.php-version }})'
-          tool: 'customSmallerIsBetter'
-          output-file-path: '${{ runner.temp }}/benchmark-results.json'
-          benchmark-data-dir-path: 'benchmarks/${{ matrix.test-target }}-php${{ matrix.php-version }}'
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-          auto-push: false
-          alert-threshold: '150%'
-          comment-on-alert: true
-          fail-on-alert: false
-          summary-always: true
-
-  # Publishes every matrix result to gh-pages as ONE signed commit. Doing it per matrix job raced on the branch, and the
-  # action's own commits are unsigned, which the branch protection rejects.
-  publish:
-    if: "github.event_name == 'push' && github.ref == 'refs/heads/main'"
+  # Merges every matrix result into one result set and records it with a single call of the trend action, so history gets
+  # one entry (and, on main, one signed commit and one push) per source commit. Doing it per matrix job raced on gh-pages,
+  # and the action's own commits are unsigned, which the branch protection rejects. Metric names carry the PHP and FHIR
+  # versions, so adding PHP versions to the benchmarks matrix needs no change here.
+  report:
     needs: "benchmarks"
     runs-on: "ubuntu-latest"
+    name: 'Report'
     concurrency:
-      group: "benchmarks-publish"
+      group: "benchmarks-report-${{ github.event_name }}-${{ github.ref }}"
       cancel-in-progress: false
     steps:
-      # The concurrency group only serializes publishers, it does not order them by commit. A run that finishes after a
-      # newer commit has landed on main would append stale data (the action compares against the last stored result),
-      # so superseded commits skip publishing. This runs once the concurrency lock is held, i.e. immediately before
-      # any write.
+      # Concurrency only serializes publishers, it does not order them by commit. A run that finishes after a newer
+      # commit has landed on main would append stale data, so superseded commits skip publishing. Pull requests never
+      # publish and always proceed.
       - name: 'Check commit is still main head'
         id: "head"
         env:
           GH_TOKEN: '${{ github.token }}'
           REPO: '${{ github.repository }}'
           COMMIT_SHA: '${{ github.sha }}'
+          EVENT_NAME: '${{ github.event_name }}'
         # language=sh
         run: |
+          if [ "${EVENT_NAME}" != "push" ]; then
+            echo "current=true" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
           _head="$(gh api "repos/${REPO}/commits/main" --jq '.sha')"
           if [ "${_head}" = "${COMMIT_SHA}" ]; then
             echo "current=true" >> "${GITHUB_OUTPUT}"
@@ -189,76 +176,46 @@ jobs:
           pattern: "benchmark-*"
           path: "${{ runner.temp }}/results"
 
-      # The action is invoked once per result set with auto-push disabled, so it only commits locally; the commits are
-      # then squashed and signed below. The PHP version in the names/paths must match the benchmarks matrix.
-      - name: 'Record DSTU2'
+      - name: 'Merge results'
+        if: "steps.head.outputs.current == 'true'"
+        env:
+          RESULTS_DIR: '${{ runner.temp }}/results'
+          MERGED: '${{ runner.temp }}/benchmark-merged.json'
+        # Every FHIR version must be present for each PHP version that reported. The PHP version is prefixed onto each
+        # metric name so that all PHP/FHIR combinations live in the one result set.
+        # language=sh
+        run: |
+          _out="$(mktemp -d)"
+          _php_versions="$(find "${RESULTS_DIR}" -mindepth 1 -maxdepth 1 -type d -name 'benchmark-*-php*' | sed -E 's/.*-php//' | sort -u)"
+          test -n "${_php_versions}" || { echo "::error::No benchmark results found" >&2; exit 1; }
+          for _php in ${_php_versions}; do
+            for _v in DSTU2 STU3 R4 R4B R5; do
+              _f="${RESULTS_DIR}/benchmark-${_v}-php${_php}/benchmark-results.json"
+              test -s "${_f}" || { echo "::error::Missing results for ${_v} on PHP ${_php}" >&2; exit 1; }
+              jq --arg php "${_php}" 'map(.name = "PHP " + $php + " " + .name)' "${_f}" > "${_out}/${_v}-php${_php}.json"
+            done
+          done
+          jq -s 'add' "${_out}"/*.json > "${MERGED}"
+          jq 'length' "${MERGED}"
+
+      # Pull requests: compare only. Main: the action commits locally (unsigned) and the commit is re-signed below.
+      - name: 'Record results'
         if: "steps.head.outputs.current == 'true'"
         uses: "benchmark-action/github-action-benchmark@v1"
         with:
-          name: 'Unserialize DSTU2 (PHP 8.3)'
+          name: 'Serialization'
           tool: 'customSmallerIsBetter'
-          output-file-path: '${{ runner.temp }}/results/benchmark-DSTU2-php8.3/benchmark-results.json'
-          benchmark-data-dir-path: 'benchmarks/DSTU2-php8.3'
+          output-file-path: '${{ runner.temp }}/benchmark-merged.json'
+          benchmark-data-dir-path: 'benchmarks'
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           auto-push: false
           alert-threshold: '150%'
           comment-on-alert: true
           fail-on-alert: false
-      - name: 'Record STU3'
-        if: "steps.head.outputs.current == 'true'"
-        uses: "benchmark-action/github-action-benchmark@v1"
-        with:
-          name: 'Unserialize STU3 (PHP 8.3)'
-          tool: 'customSmallerIsBetter'
-          output-file-path: '${{ runner.temp }}/results/benchmark-STU3-php8.3/benchmark-results.json'
-          benchmark-data-dir-path: 'benchmarks/STU3-php8.3'
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-          auto-push: false
-          alert-threshold: '150%'
-          comment-on-alert: true
-          fail-on-alert: false
-      - name: 'Record R4'
-        if: "steps.head.outputs.current == 'true'"
-        uses: "benchmark-action/github-action-benchmark@v1"
-        with:
-          name: 'Unserialize R4 (PHP 8.3)'
-          tool: 'customSmallerIsBetter'
-          output-file-path: '${{ runner.temp }}/results/benchmark-R4-php8.3/benchmark-results.json'
-          benchmark-data-dir-path: 'benchmarks/R4-php8.3'
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-          auto-push: false
-          alert-threshold: '150%'
-          comment-on-alert: true
-          fail-on-alert: false
-      - name: 'Record R4B'
-        if: "steps.head.outputs.current == 'true'"
-        uses: "benchmark-action/github-action-benchmark@v1"
-        with:
-          name: 'Unserialize R4B (PHP 8.3)'
-          tool: 'customSmallerIsBetter'
-          output-file-path: '${{ runner.temp }}/results/benchmark-R4B-php8.3/benchmark-results.json'
-          benchmark-data-dir-path: 'benchmarks/R4B-php8.3'
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-          auto-push: false
-          alert-threshold: '150%'
-          comment-on-alert: true
-          fail-on-alert: false
-      - name: 'Record R5'
-        if: "steps.head.outputs.current == 'true'"
-        uses: "benchmark-action/github-action-benchmark@v1"
-        with:
-          name: 'Unserialize R5 (PHP 8.3)'
-          tool: 'customSmallerIsBetter'
-          output-file-path: '${{ runner.temp }}/results/benchmark-R5-php8.3/benchmark-results.json'
-          benchmark-data-dir-path: 'benchmarks/R5-php8.3'
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-          auto-push: false
-          alert-threshold: '150%'
-          comment-on-alert: true
-          fail-on-alert: false
+          summary-always: true
 
       - name: 'Sign and push gh-pages'
-        if: "steps.head.outputs.current == 'true'"
+        if: "steps.head.outputs.current == 'true' && github.event_name == 'push'"
         env:
           SSH_SIGNING_KEY: '${{ secrets.SSH_SIGNING_KEY }}'
           COMMIT_SHA: '${{ github.sha }}'
@@ -274,9 +231,9 @@ jobs:
           git config gpg.format ssh
           git config user.signingkey "${HOME}/.ssh/signing_key"
 
+          # Replace the action's single unsigned local commit with one signed commit on top of the remote tip.
           git fetch origin gh-pages
           git checkout gh-pages
-          # Collapse the action's unsigned local commits into one signed commit on top of the remote tip.
           git reset --soft FETCH_HEAD
           if git diff --cached --quiet; then
             echo "No benchmark changes to publish."

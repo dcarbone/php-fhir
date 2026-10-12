@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Unserialization benchmark harness.
+ * Unserialization / serialization benchmark harness.
  *
  * Builds large synthetic Bundle fixtures (XML and JSON) from the sample resources in benchmarks/fixtures/<version>,
  * then measures each unserialization strategy in an isolated PHP process, reporting time, peak memory and retained

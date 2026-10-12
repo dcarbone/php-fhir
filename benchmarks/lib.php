@@ -30,17 +30,21 @@ const SAMPLE_VERSION_NUMBERS = [
 ];
 
 /**
- * Registry of unserialization strategies.  To benchmark a new approach, add an entry here; each callable receives the
- * generated version object, the raw input string and the format, and must return the unserialized result (or, for
- * "decode", the intermediate tree).
+ * Registry of benchmark strategies.  To benchmark a new approach, add an entry here.
  *
- * @return array<string, array{desc: string, formats: string[], fn: callable}>
+ * - op "unserialize": the callable receives the generated version object, the raw input string and the format, and must
+ *   return the unserialized result (or, for "decode", the intermediate tree).
+ * - op "serialize": the callable receives the generated version object, an already unserialized Bundle (built outside
+ *   the measured region) and the format, and must return the serialized string.
+ *
+ * @return array<string, array{desc: string, op: string, formats: string[], fn: callable}>
  */
 function strategies(string $ns): array
 {
     $parser = $ns . '\\Encoding\\ResourceParser';
     return [
         'decode' => [
+            'op' => 'unserialize',
             'desc' => 'Built-in decode only (SimpleXMLElement / json_decode); no FHIR objects. Lower bound.',
             'formats' => ['xml', 'json'],
             'fn' => static function (object $version, string $input, string $format): mixed {
@@ -52,11 +56,20 @@ function strategies(string $ns): array
             },
         ],
         'tree' => [
+            'op' => 'unserialize',
             'desc' => 'Current behavior: decode into a full tree, then build FHIR objects (ResourceParser).',
             'formats' => ['xml', 'json'],
             'fn' => static fn(object $version, string $input, string $format): mixed => 'xml' === $format
                 ? $parser::parseXML($version, $input)
                 : $parser::parseJSON($version, $input),
+        ],
+        'serialize' => [
+            'op' => 'serialize',
+            'desc' => 'Current behavior: serialize an unserialized Bundle (XMLWriter / json_encode).',
+            'formats' => ['xml', 'json'],
+            'fn' => static fn(object $version, object $bundle, string $format): string => 'xml' === $format
+                ? $bundle->xmlSerialize()->outputMemory()
+                : json_encode($bundle, JSON_THROW_ON_ERROR),
         ],
     ];
 }

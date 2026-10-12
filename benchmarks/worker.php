@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Runs a single measured unserialization in an isolated process so peak memory is not polluted by earlier runs.
+ * Runs a single measured unserialization or serialization in an isolated process so peak memory is not polluted by earlier runs.
  * Not intended to be invoked directly; see run.php.  Prints one JSON object on stdout.
  *
  * Copyright 2018-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -49,12 +49,22 @@ try {
     $strategy = strategies($opts['namespace'])[$opts['strategy']] ?? throw new \RuntimeException('unknown strategy');
     $format = $opts['format'];
     $fn = $strategy['fn'];
+    $serialize = 'serialize' === ($strategy['op'] ?? 'unserialize');
+    $parse = static fn(string $raw): object => 'xml' === $format
+        ? ($opts['namespace'] . '\\Encoding\\ResourceParser')::parseXML($version, $raw)
+        : ($opts['namespace'] . '\\Encoding\\ResourceParser')::parseJSON($version, $raw);
 
     $input = (string)file_get_contents($opts['fixture']);
     $bytes = strlen($input);
 
-    // Warm up with one entry of every sample type so class loading is not attributed to the measured run.
-    $fn($version, (string)file_get_contents($opts['warmup']), $format);
+    // Warm up with one entry of every sample type so class loading is not attributed to the measured run.  Serialization
+    // is measured against an already built Bundle, so building it is part of the setup, not the measurement.
+    $warm = (string)file_get_contents($opts['warmup']);
+    $fn($version, $serialize ? $parse($warm) : $warm, $format);
+    unset($warm);
+    if ($serialize) {
+        $input = $parse($input);
+    }
 
     gc_collect_cycles();
     $baseMem = memory_get_usage();
@@ -73,7 +83,11 @@ try {
     $rssPeak = readProcStatusKB('VmHWM');
 
     $entries = null;
-    if (is_object($result) && method_exists($result, 'getEntry')) {
+    if ($serialize) {
+        if ('' === $result) {
+            throw new \RuntimeException('serialization produced no output');
+        }
+    } elseif (is_object($result) && method_exists($result, 'getEntry')) {
         $entries = count($result->getEntry());
     }
 
