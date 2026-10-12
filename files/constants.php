@@ -34,6 +34,7 @@ define('PHPFHIR_DEFAULT_JSON_DECODE_OPTS', eval('return ' . PHPFHIR_DEFAULT_JSON
 // namespace segments
 const PHPFHIR_NAMESPACE_VERSIONS = 'Versions';
 const PHPFHIR_NAMESPACE_TYPES = 'Types';
+const PHPFHIR_NAMESPACE_PROFILES = 'Profiles';
 const PHPFHIR_NAMESPACE_TESTS = 'Tests';
 
 // type suffixes

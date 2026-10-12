@@ -47,17 +47,18 @@ class Builder
      *
      * @param bool $coreFiles If true, will generate core PHPFHIR classes, interfaces, traits, and enums.
      * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
+     * @param bool $profiles If true, will generate profile classes for versions that have profile packages configured.
+     * @param null|array $profilePackages Array of profile package names to limit profile generation to. If null, all configured packages will be generated.
      * @throws \ErrorException
      * @throws \Exception
      */
     public function render(bool       $coreFiles = true,
                            bool       $testFiles = true,
-                           null|array $versionNames = null): void
+                           null|array $versionNames = null,
+                           bool       $profiles = true,
+                           null|array $profilePackages = null): void
     {
-        // register custom error handler to force explosions.
-        set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
-            throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
-        });
+        $this->registerErrorHandler();
 
         // write php-fhir core entities
         if ($coreFiles) {
@@ -83,6 +84,80 @@ class Builder
             // write fhir version type test classes
             $this->writeFHIRVersionTypeTestClasses(...$versionNames);
         }
+
+        // write fhir version profile classes
+        if ($profiles) {
+            $this->renderProfiles($versionNames, $profilePackages);
+        }
+    }
+
+    /**
+     * Generate profile classes for the configured profile packages of the provided versions.  Versions without any
+     * configured profile packages are skipped.
+     *
+     * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
+     * @param null|array $packageNames Array of profile package names to limit generation to. If null, all configured packages will be generated.
+     * @throws \InvalidArgumentException If a specified package is not configured for any of the specified versions.
+     */
+    public function renderProfiles(null|array $versionNames = null, null|array $packageNames = null): void
+    {
+        $this->registerErrorHandler();
+
+        if (null === $versionNames) {
+            $versionNames = $this->config->getVersionNames();
+        }
+
+        $this->assertProfilePackagesConfigured($versionNames, $packageNames);
+
+        foreach ($versionNames as $versionName) {
+            $profilesConfig = $this->config->getVersion($versionName)->getVersionConfig()->getProfilesConfig();
+            foreach ($profilesConfig->getPackages() as $package) {
+                if (null !== $packageNames && !in_array($package->getName(), $packageNames, true)) {
+                    continue;
+                }
+                // TODO: profile class generation is implemented in a later phase.
+                $this->log->warning(sprintf(
+                    'Profile class generation for package "%s" (version %s) is not yet implemented.',
+                    $package->getName(),
+                    $versionName,
+                ));
+            }
+        }
+    }
+
+    /**
+     * @param string[] $versionNames
+     * @param null|string[] $packageNames
+     * @throws \InvalidArgumentException
+     */
+    public function assertProfilePackagesConfigured(array $versionNames, null|array $packageNames): void
+    {
+        if (null === $packageNames) {
+            return;
+        }
+        foreach ($packageNames as $packageName) {
+            foreach ($versionNames as $versionName) {
+                $profilesConfig = $this->config->getVersion($versionName)->getVersionConfig()->getProfilesConfig();
+                if ($profilesConfig->hasPackage($packageName)) {
+                    continue 2;
+                }
+            }
+            throw new \InvalidArgumentException(sprintf(
+                'Profile package "%s" is not configured for any of the specified versions: %s',
+                $packageName,
+                implode(', ', $versionNames),
+            ));
+        }
+    }
+
+    /**
+     * Register custom error handler to force explosions.
+     */
+    private function registerErrorHandler(): void
+    {
+        set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
+            throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
+        });
     }
 
     public function writeLibraryCoreEntities(): void
