@@ -29,7 +29,68 @@ class ProfileClass
         private readonly string            $_className,
         private readonly string            $_baseTypeClassName,
         private readonly null|ProfileClass $_parent = null,
+        private readonly string            $_profilesNamespace = '',
+        private readonly array             $_compiled = ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []],
     ) {
+    }
+
+    /** Namespace, without leading slash, shared by the generated validator, map and autoloader. */
+    public function getProfilesNamespace(): string
+    {
+        return $this->_profilesNamespace;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function getRules(): array
+    {
+        return $this->_compiled['rules'];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    public function getSlices(): array
+    {
+        return $this->_compiled['slices'];
+    }
+
+    /** @return array<int, array<string, null|string>> */
+    public function getInvariants(): array
+    {
+        return $this->_compiled['invariants'];
+    }
+
+    /** @return string[] Constraints that could not be turned into rules, and why. */
+    public function getSkipped(): array
+    {
+        return $this->_compiled['skipped'];
+    }
+
+    /**
+     * Typed accessors for slices of the profile's own top-level elements, e.g. an "ssn" slice of "identifier"
+     * becomes getSsnIdentifier().
+     *
+     * @return array<int, array{method: string, getter: string, slice: int, single: bool}>
+     */
+    public function getSliceAccessors(): array
+    {
+        $out = [];
+        $used = [];
+        foreach ($this->_compiled['slices'] as $i => $slice) {
+            if (str_contains($slice['path'], '.') || str_contains($slice['path'], '[x]')) {
+                continue;
+            }
+            $method = 'get' . self::sanitizeClassName($slice['name']) . ucfirst($slice['path']);
+            if (isset($used[strtolower($method)])) {
+                continue;
+            }
+            $used[strtolower($method)] = true;
+            $out[] = [
+                'method' => $method,
+                'getter' => 'get' . ucfirst($slice['path']),
+                'slice' => $i,
+                'single' => 1 === ($slice['max'] ?? null),
+            ];
+        }
+        return $out;
     }
 
     public function getProfile(): Profile

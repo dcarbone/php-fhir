@@ -85,6 +85,16 @@ abstract class Templates
         return self::normalize(require sprintf('%s/class_profile.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }
 
+    public static function renderProfileViolation(string $copyright, string $namespace, string $className): string
+    {
+        return self::normalize(require sprintf('%s/class_profile_violation.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
+    }
+
+    public static function renderProfileValidator(string $copyright, string $namespace, string $className, string $violationClassName): string
+    {
+        return self::normalize(require sprintf('%s/class_profile_validator.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
+    }
+
     /**
      * @param array<string, string> $classMap profile url => fully qualified class name
      * @param array<string, string> $baseTypeMap profile url => FHIR type name

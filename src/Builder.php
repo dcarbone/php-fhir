@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Profiles\ProfileClasses;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
 use DCarbone\PHPFHIR\Profiles\ProfileSet;
 use DCarbone\PHPFHIR\Profiles\ProfileWriter;
+use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
@@ -138,7 +139,8 @@ class Builder
             $packages = [];
             foreach ($profilesConfig->getPackages() as $package) {
                 $log->info(sprintf('Reading profile package "%s"...', $package->getName()));
-                $set = ProfileSet::fromPackage(ProfilePackageReader::read($package, $fhirVersion), $package->isStrict());
+                $read = ProfilePackageReader::read($package, $fhirVersion);
+                $set = ProfileSet::fromPackage($read, $package->isStrict());
                 foreach ($set->getUnresolved() as $id => $base) {
                     $log->warning(sprintf(
                         'Profile "%s": base "%s" not found; extending the base type directly. Add its package to "dependencies" to fix.',
@@ -148,11 +150,18 @@ class Builder
                 }
                 $packages[$package->getName()] = ProfileClasses::build(
                     $set,
-                    $profilesNamespace . PHPFHIR_NAMESPACE_SEPARATOR . $package->getNamespace(),
+                    $profilesNamespace,
+                    $package->getNamespace(),
                     static fn(string $typeName): null|string => $definition->getTypes()
                         ->getTypeByName($typeName)
                         ?->getFullyQualifiedClassName(false),
+                    new ValueSetExpander($read),
                 );
+                foreach ($packages[$package->getName()] as $class) {
+                    foreach ($class->getSkipped() as $reason) {
+                        $log->info(sprintf('Profile "%s": %s', $class->getProfile()->getId(), $reason));
+                    }
+                }
                 $log->info(sprintf('Package "%s": %d profile classes', $package->getName(), count($packages[$package->getName()])));
             }
 

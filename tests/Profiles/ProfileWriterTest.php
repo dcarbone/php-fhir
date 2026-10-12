@@ -69,7 +69,7 @@ class ProfileWriterTest extends TestCase
 
     private function classes(array $sds, array $config = []): ProfileClasses
     {
-        return ProfileClasses::build($this->set($sds, $config), self::_NS . '\\Ig', self::resolver());
+        return ProfileClasses::build($this->set($sds, $config), self::_NS, 'Ig', self::resolver());
     }
 
     public function testSanitizeClassName(): void
@@ -119,7 +119,7 @@ class ProfileWriterTest extends TestCase
     {
         $this->expectException(ProfileDefinitionException::class);
         $this->expectExceptionMessage('was not generated');
-        ProfileClasses::build($this->set([self::structureDefinition('a')]), self::_NS . '\\Ig', static fn() => null);
+        ProfileClasses::build($this->set([self::structureDefinition('a')]), self::_NS, 'Ig', static fn() => null);
     }
 
     public function testWriteGeneratesLoadableClasses(): void
@@ -136,7 +136,7 @@ class ProfileWriterTest extends TestCase
         ]);
 
         $written = ProfileWriter::write($out, self::_NS, '/* copyright */', ['test.ig' => $classes]);
-        $this->assertCount(4, $written);
+        $this->assertCount(6, $written);
         foreach ($written as $file) {
             $this->assertFileExists($file);
         }
@@ -177,7 +177,7 @@ class ProfileWriterTest extends TestCase
         mkdir($out);
         $classes = $this->classes([self::structureDefinition('a')]);
         $written = ProfileWriter::write($out, self::_NS, '/* c */', ['test.ig' => $classes], ['other']);
-        $this->assertCount(2, $written);
+        $this->assertCount(4, $written);
         $this->assertFileDoesNotExist($out . '/Acme/Gen/Versions/R4/Profiles/Ig/A.php');
         $this->assertStringContainsString(self::_BASE . 'a', file_get_contents($out . '/Acme/Gen/Versions/R4/Profiles/ProfileMap.php'));
     }

@@ -27,12 +27,19 @@ class ProfileClasses implements \Countable, \IteratorAggregate
     private array $_byUrl = [];
 
     /**
-     * @param string $namespace Namespace the classes are generated into, without leading slash.
+     * @param string $profilesNamespace Namespace shared by everything profile related for the version, without leading slash.
+     * @param string $packageNamespace Namespace, relative to $profilesNamespace, the package's classes are generated into.
      * @param callable(string): (null|string) $baseTypeResolver Maps a FHIR type name to the fully qualified name, without
      *                                                        leading slash, of the generated class for it.
      * @throws \DCarbone\PHPFHIR\Profiles\ProfileDefinitionException
      */
-    public static function build(ProfileSet $set, string $namespace, callable $baseTypeResolver): self
+    public static function build(
+        ProfileSet        $set,
+        string            $profilesNamespace,
+        string            $packageNamespace,
+        callable          $baseTypeResolver,
+        null|ValueSetExpander $expander = null,
+    ): self
     {
         $own = [];
         foreach ($set->getProfiles() as $profile) {
@@ -83,7 +90,15 @@ class ProfileClasses implements \Countable, \IteratorAggregate
                 break;
             }
 
-            $classes->_byUrl[$url] = new ProfileClass($profile, $namespace, $className, ltrim($baseClass, '\\'), $parent);
+            $classes->_byUrl[$url] = new ProfileClass(
+                $profile,
+                $profilesNamespace . '\\' . $packageNamespace,
+                $className,
+                ltrim($baseClass, '\\'),
+                $parent,
+                $profilesNamespace,
+                ProfileRules::compile($profile, $expander),
+            );
         }
         return $classes;
     }
