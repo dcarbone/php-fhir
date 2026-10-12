@@ -18,7 +18,12 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Profiles\ProfileClasses;
+use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
+use DCarbone\PHPFHIR\Profiles\ProfileSet;
+use DCarbone\PHPFHIR\Profiles\ProfileWriter;
 use DCarbone\PHPFHIR\Render\Templates;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /**
@@ -109,19 +114,57 @@ class Builder
 
         $this->assertProfilePackagesConfigured($versionNames, $packageNames);
 
+        $log = $this->config->getLogger();
+
         foreach ($versionNames as $versionName) {
-            $profilesConfig = $this->config->getVersion($versionName)->getVersionConfig()->getProfilesConfig();
-            foreach ($profilesConfig->getPackages() as $package) {
-                if (null !== $packageNames && !in_array($package->getName(), $packageNames, true)) {
-                    continue;
-                }
-                // TODO: profile class generation is implemented in a later phase.
-                $this->log->warning(sprintf(
-                    'Profile class generation for package "%s" (version %s) is not yet implemented.',
-                    $package->getName(),
-                    $versionName,
-                ));
+            $version = $this->config->getVersion($versionName);
+            $profilesConfig = $version->getVersionConfig()->getProfilesConfig();
+            if (!$profilesConfig->hasPackages()) {
+                continue;
             }
+
+            $log->startBreak(sprintf('FHIR Version %s Profile Class Generation', $versionName));
+
+            $definition = $version->getDefinition();
+            if (!$definition->isDefined()) {
+                $log->startBreak("Parsing XSD Source for {$versionName}");
+                $definition->buildDefinition();
+                $log->endBreak("Parsing XSD Source for {$versionName}");
+            }
+
+            $profilesNamespace = $version->getFullyQualifiedName(false, $profilesConfig->getNamespace());
+            $fhirVersion = $version->getSourceMetadata()->getSemanticVersion(true);
+
+            $packages = [];
+            foreach ($profilesConfig->getPackages() as $package) {
+                $log->info(sprintf('Reading profile package "%s"...', $package->getName()));
+                $set = ProfileSet::fromPackage(ProfilePackageReader::read($package, $fhirVersion), $package->isStrict());
+                foreach ($set->getUnresolved() as $id => $base) {
+                    $log->warning(sprintf(
+                        'Profile "%s": base "%s" not found; extending the base type directly. Add its package to "dependencies" to fix.',
+                        $id,
+                        $base,
+                    ));
+                }
+                $packages[$package->getName()] = ProfileClasses::build(
+                    $set,
+                    $profilesNamespace . PHPFHIR_NAMESPACE_SEPARATOR . $package->getNamespace(),
+                    static fn(string $typeName): null|string => $definition->getTypes()
+                        ->getTypeByName($typeName)
+                        ?->getFullyQualifiedClassName(false),
+                );
+                $log->info(sprintf('Package "%s": %d profile classes', $package->getName(), count($packages[$package->getName()])));
+            }
+
+            ProfileWriter::write(
+                $this->config->getLibraryPath(),
+                $profilesNamespace,
+                CopyrightUtils::compileFullCopyrightComment($this->config, $version->getSourceMetadata()),
+                $packages,
+                $packageNames,
+            );
+
+            $log->endBreak(sprintf('FHIR Version %s Profile Class Generation', $versionName));
         }
     }
 

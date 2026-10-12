@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIR\Render;
 
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\CoreFile;
+use DCarbone\PHPFHIR\Profiles\ProfileClass;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
@@ -74,6 +75,31 @@ abstract class Templates
     public static function renderVersionTypeClassTest(Version $version, Type $type): string
     {
         return self::normalize(require sprintf('%s/class.php', PHPFHIR_TEMPLATE_TESTS_VERSIONS_TYPES_DIR));
+    }
+
+    /**
+     * @param string $copyright Pre-rendered copyright comment.
+     */
+    public static function renderProfileClass(string $copyright, ProfileClass $profileClass): string
+    {
+        return self::normalize(require sprintf('%s/class_profile.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
+    }
+
+    /**
+     * @param array<string, string> $classMap profile url => fully qualified class name
+     * @param array<string, string> $baseTypeMap profile url => FHIR type name
+     */
+    public static function renderProfileMap(string $copyright, string $namespace, string $className, array $classMap, array $baseTypeMap): string
+    {
+        return self::normalize(require sprintf('%s/class_profile_map.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
+    }
+
+    /**
+     * @param array<string, string> $fileMap fully qualified class name => path relative to the profiles directory
+     */
+    public static function renderProfileAutoloader(string $copyright, string $namespace, string $className, array $fileMap): string
+    {
+        return self::normalize(require sprintf('%s/class_profile_autoloader.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }
 
     /**

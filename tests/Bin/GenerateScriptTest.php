@@ -99,14 +99,64 @@ class GenerateScriptTest extends TestCase
         $this->assertStringContainsString($expected, $out);
     }
 
-    public function testOnlyProfilesSucceeds(): void
+    /**
+     * Points the R4 version at the real XSD schema and its profile package at a tiny generated package.
+     */
+    private function useRealSchema(): void
     {
+        $schema = dirname(__DIR__, 2) . '/input/R4';
+        if (!is_file($schema . '/fhir-base.xsd')) {
+            $this->markTestSkipped('R4 schema not available');
+        }
+        $root = $this->_tmpdir->path('');
+        $package = $root . '/core/package';
+        mkdir($package, 0777, true);
+        file_put_contents($package . '/package.json', json_encode([
+            'name' => 'hl7.fhir.us.core',
+            'version' => '1.0.0',
+            'fhirVersions' => ['4.0.1'],
+        ]));
+        file_put_contents($package . '/StructureDefinition-my-patient.json', json_encode([
+            'resourceType' => 'StructureDefinition',
+            'id' => 'my-patient',
+            'url' => 'http://example.org/StructureDefinition/my-patient',
+            'name' => 'MyPatient',
+            'kind' => 'resource',
+            'abstract' => false,
+            'type' => 'Patient',
+            'baseDefinition' => 'http://hl7.org/fhir/StructureDefinition/Patient',
+            'derivation' => 'constraint',
+            'differential' => ['element' => []],
+        ]));
+        file_put_contents($this->_config, '<?php return ' . var_export([
+                'libraryPath' => $root . '/out',
+                'versions' => [
+                    [
+                        'name' => 'R4',
+                        'schemaPath' => $schema,
+                        'profiles' => ['packages' => [['name' => 'hl7.fhir.us.core', 'source' => $root . '/core']]],
+                    ],
+                ],
+            ], true) . ';');
+    }
+
+    public function testOnlyProfilesGeneratesClasses(): void
+    {
+        $this->useRealSchema();
         [$code, $out] = $this->runScript('--onlyProfiles', '--versions', 'R4');
         $this->assertSame(0, $code, $out);
+        $dir = $this->_tmpdir->path('') . '/out';
+        $files = glob($dir . '/*/*/Versions/R4/Profiles/*/MyPatient.php')
+            ?: glob($dir . '/*/Versions/R4/Profiles/*/MyPatient.php')
+            ?: glob($dir . '/**/MyPatient.php');
+        $this->assertNotEmpty($files, $out);
+        $this->assertFileExists(dirname($files[0], 2) . '/ProfileMap.php');
+        $this->assertFileExists(dirname($files[0], 2) . '/ProfileAutoloader.php');
     }
 
     public function testOnlyProfilesWithPackageFilterSucceeds(): void
     {
+        $this->useRealSchema();
         [$code, $out] = $this->runScript('--onlyProfiles', '--profilePackages=hl7.fhir.us.core');
         $this->assertSame(0, $code, $out);
     }
