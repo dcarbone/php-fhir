@@ -19,14 +19,19 @@
     .controls { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: center; margin-bottom: 1rem; }
     .tabs { display: flex; flex-wrap: wrap; gap: .4rem; }
     .tab { padding: .35rem .8rem; border: 1px solid var(--border); border-radius: 999px; background: var(--card); color: var(--fg); cursor: pointer; font: inherit; }
-    .tab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .tab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
     label { color: var(--muted); font-size: .9rem; }
     select { font: inherit; margin-left: .35rem; padding: .25rem .4rem; border: 1px solid var(--border); border-radius: .4rem; background: var(--card); color: var(--fg); }
-    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr)); }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr)); }
     .card { min-width: 0; background: var(--card); border: 1px solid var(--border); border-radius: .75rem; padding: .9rem 1rem 1rem; }
     .card h2 { margin: 0 0 .5rem; font-size: 1rem; }
     .card h2 small { color: var(--muted); font-weight: 400; }
     .chart { position: relative; height: 16rem; }
+    details { margin-top: .6rem; font-size: .85rem; }
+    summary { cursor: pointer; color: var(--muted); }
+    .table-wrap { overflow-x: auto; max-height: 14rem; margin-top: .4rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: .2rem .5rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
     #status { color: var(--muted); margin: 1rem 0; }
   </style>
 </head>
@@ -43,7 +48,7 @@
     <label>Metric <select id="metric"></select></label>
     <label>Bundle entries <select id="size"></select></label>
   </div>
-  <div id="status">Loading…</div>
+  <div id="status" role="status">Loading…</div>
   <div class="grid" id="charts"></div>
 </div>
 
@@ -116,14 +121,40 @@
 
   function readHash() {
     var out = {};
-    location.hash.replace(/^#/, '').split('&').forEach(function (kv) {
-      var p = kv.split('=');
-      if (p[0]) { out[p[0]] = decodeURIComponent(p[1] || ''); }
-    });
+    new URLSearchParams(location.hash.replace(/^#/, '')).forEach(function (v, k) { out[k] = v; });
     return out;
   }
   function writeHash() {
     history.replaceState(null, '', '#fhir=' + encodeURIComponent(state.fhir) + '&metric=' + encodeURIComponent(state.metric) + '&size=' + encodeURIComponent(state.size));
+  }
+
+  function dataTable(g, phps) {
+    var d = document.createElement('details');
+    var sum = document.createElement('summary');
+    sum.textContent = 'Data table';
+    var box = document.createElement('div');
+    box.className = 'table-wrap';
+    var t = document.createElement('table');
+    var head = t.createTHead().insertRow();
+    ['Commit', 'Date'].concat(phps.map(function (x) { return 'PHP ' + x + ' (' + units[state.metric] + ')'; })).forEach(function (c) {
+      var th = document.createElement('th'); th.scope = 'col'; th.textContent = c; head.appendChild(th);
+    });
+    var body = t.createTBody();
+    points.forEach(function (p, idx) {
+      var row = body.insertRow();
+      var a = document.createElement('a');
+      a.textContent = p.commit.id.substring(0, 7);
+      if (p.commit.url) { a.href = p.commit.url; a.target = '_blank'; a.rel = 'noopener'; }
+      a.title = p.commit.message.split('\n')[0];
+      row.insertCell().appendChild(a);
+      row.insertCell().textContent = new Date(p.date).toISOString().substring(0, 10);
+      phps.forEach(function (php) {
+        var line = g.lines[php] || {};
+        row.insertCell().textContent = idx in line ? line[idx] : '–';
+      });
+    });
+    box.appendChild(t); d.appendChild(sum); d.appendChild(box);
+    return d;
   }
 
   var charts = [];
@@ -160,7 +191,7 @@
       return rank(OP_ORDER, x.op) - rank(OP_ORDER, y.op) || rank(['xml', 'json'], x.fmt) - rank(['xml', 'json'], y.fmt);
     });
     status.textContent = keys.length
-      ? points.length + ' commit(s) · ' + phps.length + ' PHP version(s) · click a point to open its commit'
+      ? points.length + ' commit(s) · ' + phps.length + ' PHP version(s) · click a point or use the data table to open its commit'
       : 'No data for this selection.';
 
     // Charts are created only after every card is in the grid, otherwise the first one sizes itself to a one-column grid.
@@ -178,7 +209,11 @@
       var wrap = document.createElement('div');
       wrap.className = 'chart';
       var canvas = document.createElement('canvas');
+      canvas.setAttribute('role', 'img');
+      canvas.setAttribute('aria-label', (OPERATIONS[g.op] || g.op) + ' ' + g.fmt.toUpperCase() + ' ' + state.metric + ' (' + units[state.metric] + ') by commit, one line per PHP version. The data table below has the same values.');
       wrap.appendChild(canvas); card.appendChild(h); card.appendChild(wrap); grid.appendChild(card);
+
+      card.appendChild(dataTable(g, phps));
 
       var datasets = phps.map(function (php, i) {
         var line = g.lines[php] || {};
