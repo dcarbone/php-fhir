@@ -1,0 +1,85 @@
+name: "Pages"
+
+# Publishes site/ to the root of the gh-pages branch. The benchmarks/ directory on that branch is owned by the
+# Benchmarks workflow and is left untouched. Commits are SSH-signed because gh-pages requires verified signatures.
+
+permissions:
+  actions: "none"
+  attestations: "none"
+  checks: "none"
+  contents: "write"
+  deployments: "none"
+  id-token: "none"
+  issues: "none"
+  models: "none"
+  discussions: "none"
+  packages: "none"
+  pages: "none"
+  pull-requests: "none"
+  security-events: "none"
+  statuses: "none"
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - "main"
+    paths:
+      - 'site/**'
+      - '.github/workflows/pages.yaml'
+
+concurrency:
+  group: "pages-publish"
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: "ubuntu-latest"
+    name: 'Publish site'
+    steps:
+      - uses: "actions/checkout@v7"
+
+      - name: 'Sign and push gh-pages'
+        env:
+          SSH_SIGNING_KEY: '${{ secrets.SSH_SIGNING_KEY }}'
+          COMMIT_SHA: '${{ github.sha }}'
+          SITE_DIR: '${{ runner.temp }}/site'
+        # language=sh
+        run: |
+          cp -r site "${SITE_DIR}"
+
+          mkdir -p "${HOME}/.ssh"
+          printf '%s\n' "${SSH_SIGNING_KEY}" > "${HOME}/.ssh/signing_key"
+          chmod 600 "${HOME}/.ssh/signing_key"
+          ssh-keygen -y -f "${HOME}/.ssh/signing_key" > "${HOME}/.ssh/signing_key.pub"
+
+          git config user.name 'Daniel Carbone (PHPFHIR Generator)'
+          git config user.email '1392439+dcarbone@users.noreply.github.com'
+          git config gpg.format ssh
+          git config user.signingkey "${HOME}/.ssh/signing_key"
+
+          git fetch origin gh-pages
+          git checkout -B gh-pages FETCH_HEAD
+
+          # Replace everything except the benchmark history and git metadata.
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'benchmarks' -exec rm -rf {} +
+          cp -r "${SITE_DIR}/." .
+
+          git add --all
+          if git diff --cached --quiet; then
+            echo "No site changes to publish."
+            exit 0
+          fi
+          git commit -S -m "publish site from ${COMMIT_SHA}"
+
+          _attempt=1
+          until git push origin gh-pages:gh-pages; do
+            if [ "${_attempt}" -ge 3 ]; then
+              echo "::error::Failed to push gh-pages after 3 attempts." >&2
+              exit 1
+            fi
+            _attempt=$((_attempt + 1))
+            git fetch origin gh-pages
+            git rebase -S FETCH_HEAD
+          done
