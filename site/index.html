@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>php-fhir — PHP classes from the HL7 FHIR specification</title>
+  <meta name="description" content="Generate fully-typed PHP models, JSON/XML (de)serialization, validation and a REST client from the official HL7 FHIR XSD schemas.">
+  <style>
+    :root {
+      --bg: #fff; --fg: #1b1f24; --muted: #5b6573; --card: #f5f7fa; --border: #dde2e8; --accent: #7a5af8;
+      --code: #0f172a; --code-fg: #e6edf3;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0d1117; --fg: #e6edf3; --muted: #9aa5b1; --card: #161b22; --border: #2a313c; --accent: #a78bfa; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 56rem; margin: 0 auto; padding: 0 1.25rem; }
+    header { border-bottom: 1px solid var(--border); }
+    nav { display: flex; gap: 1.25rem; align-items: center; padding: 1rem 0; flex-wrap: wrap; }
+    nav strong { margin-right: auto; font-size: 1.1rem; }
+    .hero { padding: 3.5rem 0 2.5rem; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin: 0 0 1rem; }
+    .hero p { font-size: 1.15rem; color: var(--muted); max-width: 42rem; margin: 0 0 1.5rem; }
+    .btn { display: inline-block; padding: .6rem 1.1rem; border-radius: .5rem; border: 1px solid var(--border); font-weight: 600; margin: 0 .5rem .5rem 0; }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn:hover { text-decoration: none; filter: brightness(1.08); }
+    h2 { margin: 2.5rem 0 1rem; font-size: 1.5rem; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: .75rem; padding: 1rem 1.15rem; }
+    .card h3 { margin: 0 0 .35rem; font-size: 1.05rem; }
+    .card p { margin: 0; color: var(--muted); font-size: .95rem; }
+    pre { background: var(--code); color: var(--code-fg); padding: 1rem 1.15rem; border-radius: .75rem; overflow-x: auto; font-size: .9rem; line-height: 1.5; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .pill { display: inline-block; padding: .15rem .6rem; margin: 0 .35rem .35rem 0; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-size: .9rem; }
+    footer { margin-top: 3.5rem; padding: 1.5rem 0 2.5rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <nav>
+      <strong>php-fhir</strong>
+      <a href="https://github.com/dcarbone/php-fhir/wiki">Docs</a>
+      <a href="benchmarks/">Benchmarks</a>
+      <a href="https://github.com/dcarbone/php-fhir-generated">Generated code</a>
+      <a href="https://packagist.org/packages/dcarbone/php-fhir">Packagist</a>
+      <a href="https://github.com/dcarbone/php-fhir">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Typed PHP for HL7&nbsp;FHIR, generated from the spec.</h1>
+    <p>php-fhir reads the official FHIR XSD schemas and produces a fully-typed PHP library: a model for every FHIR type, JSON and XML (de)serialization, validation, and a ready-to-use REST client.</p>
+    <a class="btn primary" href="https://github.com/dcarbone/php-fhir-generated">Get the pre-built package</a>
+    <a class="btn" href="https://github.com/dcarbone/php-fhir/wiki/Getting-Started">Run the generator</a>
+    <a class="btn" href="benchmarks/">Performance trends</a>
+  </section>
+
+  <section>
+    <h2>What you get</h2>
+    <div class="grid">
+      <div class="card"><h3>Every FHIR type</h3><p>Resources, data types and primitives as plain, fully-typed PHP classes.</p></div>
+      <div class="card"><h3>JSON &amp; XML</h3><p>Serialize and unserialize either format, with configurable behavior.</p></div>
+      <div class="card"><h3>Validation</h3><p>Rules derived from the schema, applied to the generated types.</p></div>
+      <div class="card"><h3>REST client</h3><p>A client for talking to FHIR servers, generated per version.</p></div>
+      <div class="card"><h3>Custom output</h3><p>Choose your namespace, versions and behavior when you generate it yourself.</p></div>
+      <div class="card"><h3>Tracked performance</h3><p>Serialization time and memory are benchmarked on every change.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Supported FHIR versions</h2>
+    <p>
+      <span class="pill">DSTU1</span><span class="pill">DSTU2</span><span class="pill">STU3</span><span class="pill">R4</span><span class="pill">R4B</span><span class="pill">R5</span><span class="pill">R6 (pre-release)</span>
+    </p>
+    <p>Requires PHP 8.1 or newer. Benchmarks cover DSTU2 and newer.</p>
+  </section>
+
+  <section>
+    <h2>Quick start</h2>
+    <p>Just want the models? Install the pre-built, always-in-sync package:</p>
+    <pre><code>composer require dcarbone/php-fhir-generated</code></pre>
+    <p>Want to generate your own?</p>
+    <pre><code>composer require dcarbone/php-fhir
+
+mkdir -p fhir-schemas/R4
+curl -Lo fhir-schemas/R4.zip https://hl7.org/fhir/R4/fhir-codegen-xsd.zip
+unzip fhir-schemas/R4.zip -d fhir-schemas/R4</code></pre>
+    <p>The <a href="https://github.com/dcarbone/php-fhir/wiki/Getting-Started">Getting Started</a> and <a href="https://github.com/dcarbone/php-fhir/wiki/CLI-Usage">CLI Usage</a> guides cover the rest.</p>
+  </section>
+
+  <section>
+    <h2>Documentation</h2>
+    <div class="grid">
+      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Getting-Started"><h3>Getting Started</h3><p>Prerequisites, installation and schemas.</p></a>
+      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Configuration-Reference"><h3>Configuration</h3><p>All Config and VersionConfig options.</p></a>
+      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Generated-Code"><h3>Generated code</h3><p>Namespaces, types, client and encoding.</p></a>
+      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Architecture"><h3>Architecture</h3><p>How the generator pipeline works.</p></a>
+      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Testing"><h3>Testing &amp; benchmarks</h3><p>Running tests and the benchmark harness.</p></a>
+      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Contributing"><h3>Contributing</h3><p>Developer workflow and code style.</p></a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Apache-2.0 licensed. &copy; Daniel Carbone. <a href="https://github.com/dcarbone/php-fhir">Source on GitHub</a>.</div>
+</footer>
+</body>
+</html>

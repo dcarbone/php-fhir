@@ -18,6 +18,7 @@
 /tests export-ignore
 /phpunit export-ignore
 /benchmarks export-ignore
+/site export-ignore
 /rector-generated.php export-ignore
 
 # Generator working directories (schemas in, generated code out, scratch)
