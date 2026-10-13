@@ -109,6 +109,16 @@ class ProfileElementTest extends TestCase
         $this->assertSame(['boolean', 'dateTime'], $e->getTypeCodes());
     }
 
+    public function testSystemPrimitiveTypeWithoutCodeIsSkipped(): void
+    {
+        $e = ProfileElement::fromArray([
+            'id' => 'Extension.id',
+            'path' => 'Extension.id',
+            'type' => [['_code' => ['extension' => []]]],
+        ]);
+        $this->assertSame([], $e->getTypeCodes());
+    }
+
     public function testTypeProfilesAndTargetProfiles(): void
     {
         $e = ProfileElement::fromArray([

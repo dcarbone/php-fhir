@@ -113,15 +113,53 @@ class ProfilePackage
      */
     public function addResource(array $resource): void
     {
+        $packed = self::packResource($resource);
+        if (null !== $packed) {
+            $this->addPackedResource($packed);
+        }
+    }
+
+    /**
+     * Prepares a resource for storage.  Packages can be enormous and resources are rarely read more than once, so
+     * they are kept compressed.
+     *
+     * @return null|array{type: string, id: string, url: null|string, data: array|string} Null if the resource is not retained.
+     * @internal Used by the reader while populating the package.
+     */
+    public static function packResource(array $resource): null|array
+    {
         $type = $resource['resourceType'] ?? null;
         $id = $resource['id'] ?? null;
         if (!in_array($type, self::RETAINED_RESOURCE_TYPES, true) || !is_string($id) || '' === $id) {
-            return;
+            return null;
         }
-        $this->_resources[$type][$id] = $resource;
-        if (isset($resource['url']) && is_string($resource['url'])) {
-            $this->_urlIndex[$type][$resource['url']] = $id;
+        $data = $resource;
+        if (function_exists('gzdeflate')) {
+            $data = gzdeflate(json_encode($resource, JSON_THROW_ON_ERROR), 1);
         }
+        return [
+            'type' => $type,
+            'id' => $id,
+            'url' => isset($resource['url']) && is_string($resource['url']) ? $resource['url'] : null,
+            'data' => $data,
+        ];
+    }
+
+    /**
+     * @param array{type: string, id: string, url: null|string, data: array|string} $packed
+     * @internal Used by the reader while populating the package.
+     */
+    public function addPackedResource(array $packed): void
+    {
+        $this->_resources[$packed['type']][$packed['id']] = $packed['data'];
+        if (null !== $packed['url']) {
+            $this->_urlIndex[$packed['type']][$packed['url']] = $packed['id'];
+        }
+    }
+
+    private static function _unpack(array|string $data): array
+    {
+        return is_string($data) ? json_decode(gzinflate($data), true, 512, JSON_THROW_ON_ERROR) : $data;
     }
 
     /**
@@ -148,21 +186,8 @@ class ProfilePackage
     public function getStructureDefinitions(): array
     {
         return array_filter(
-            $this->_resources[self::RESOURCE_STRUCTURE_DEFINITION],
+            array_map(self::_unpack(...), $this->_resources[self::RESOURCE_STRUCTURE_DEFINITION]),
             static fn(array $sd): bool => 'constraint' === ($sd['derivation'] ?? null),
-        );
-    }
-
-    /**
-     * Returns the profiles that pass the include / exclude filters of this package's config, indexed by id.
-     *
-     * @return array<string, array>
-     */
-    public function getSelectedStructureDefinitions(): array
-    {
-        return array_filter(
-            $this->getStructureDefinitions(),
-            fn(array $sd): bool => $this->_config->isProfileSelected((string)$sd['id'], (string)($sd['name'] ?? $sd['id'])),
         );
     }
 
@@ -171,7 +196,7 @@ class ProfilePackage
      */
     public function getValueSets(): array
     {
-        return $this->_resources[self::RESOURCE_VALUE_SET];
+        return array_map(self::_unpack(...), $this->_resources[self::RESOURCE_VALUE_SET]);
     }
 
     /**
@@ -179,7 +204,7 @@ class ProfilePackage
      */
     public function getCodeSystems(): array
     {
-        return $this->_resources[self::RESOURCE_CODE_SYSTEM];
+        return array_map(self::_unpack(...), $this->_resources[self::RESOURCE_CODE_SYSTEM]);
     }
 
     /**
@@ -205,7 +230,7 @@ class ProfilePackage
     {
         $url = self::stripCanonicalVersion($canonical);
         if (isset($this->_urlIndex[$type][$url])) {
-            return $this->_resources[$type][$this->_urlIndex[$type][$url]];
+            return self::_unpack($this->_resources[$type][$this->_urlIndex[$type][$url]]);
         }
         foreach ($this->_loadedDependencies as $dependency) {
             if (null !== ($found = $dependency->_resolve($type, $canonical))) {

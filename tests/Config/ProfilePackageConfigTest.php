@@ -71,8 +71,6 @@ class ProfilePackageConfigTest extends TestCase
         $this->assertSame($src, $c->getSource());
         $this->assertFalse($c->isSourceArchive());
         $this->assertSame('UsCore', $c->getNamespace());
-        $this->assertSame([], $c->getInclude());
-        $this->assertSame([], $c->getExclude());
         $this->assertSame([], $c->getDependencies());
         $this->assertTrue($c->isStrict());
     }
@@ -88,20 +86,15 @@ class ProfilePackageConfigTest extends TestCase
     public function testFromArrayAllKeys(): void
     {
         $src = $this->sourceDir();
-        $dep = $this->sourceDir('dep');
         $c = ProfilePackageConfig::fromArray([
             'name' => 'hl7.fhir.us.core',
             'source' => $src,
             'namespace' => '\\Custom\\Ns\\',
-            'include' => ['us-core-*'],
-            'exclude' => ['*-adi-*'],
-            'dependencies' => ['hl7.fhir.r4.core' => $dep],
+            'dependencies' => ['hl7.fhir.uv.sdc'],
             'strict' => false,
         ]);
         $this->assertSame('Custom\\Ns', $c->getNamespace());
-        $this->assertSame(['us-core-*'], $c->getInclude());
-        $this->assertSame(['*-adi-*'], $c->getExclude());
-        $this->assertSame(['hl7.fhir.r4.core' => $dep], $c->getDependencies());
+        $this->assertSame(['hl7.fhir.uv.sdc'], $c->getDependencies());
         $this->assertFalse($c->isStrict());
     }
 
@@ -179,63 +172,28 @@ class ProfilePackageConfigTest extends TestCase
         $this->assertSame('Abc', $c->getNamespace());
     }
 
-    public function testEmptyPatternRejected(): void
+    public function testDependencyMapRejected(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), include: ['ok', ' ']);
+        new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), dependencies: ['x.y' => $this->sourceDir('d')]);
     }
 
-    public function testNonStringPatternRejected(): void
+    public function testDependencyInvalidNameRejected(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), exclude: [1]);
+        new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), dependencies: ['Not A Name']);
     }
 
-    public function testDependencyWithMissingPathRejected(): void
+    public function testSelfDependencyRejected(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        new ProfilePackageConfig(
-            name: 'a.b',
-            source: $this->sourceDir(),
-            dependencies: ['x.y' => $this->_tmpdir->path('') . '/nope'],
-        );
+        $this->expectExceptionMessage('itself');
+        new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), dependencies: ['a.b']);
     }
 
-    public function testDependencyListRejected(): void
+    public function testDuplicateDependencyRejected(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), dependencies: [$this->sourceDir('d')]);
-    }
-
-    public function testIsProfileSelectedNoFilters(): void
-    {
-        $c = new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir());
-        $this->assertTrue($c->isProfileSelected('anything'));
-    }
-
-    public function testIsProfileSelectedInclude(): void
-    {
-        $c = new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), include: ['us-core-*']);
-        $this->assertTrue($c->isProfileSelected('us-core-patient'));
-        $this->assertFalse($c->isProfileSelected('other-patient'));
-    }
-
-    public function testIsProfileSelectedExcludeWins(): void
-    {
-        $c = new ProfilePackageConfig(
-            name: 'a.b',
-            source: $this->sourceDir(),
-            include: ['us-core-*'],
-            exclude: ['*-adi-*'],
-        );
-        $this->assertTrue($c->isProfileSelected('us-core-patient'));
-        $this->assertFalse($c->isProfileSelected('us-core-adi-documentreference'));
-    }
-
-    public function testIsProfileSelectedMatchesAnyCandidate(): void
-    {
-        $c = new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), include: ['USCorePatient']);
-        $this->assertTrue($c->isProfileSelected('us-core-patient', 'USCorePatient'));
-        $this->assertFalse($c->isProfileSelected('us-core-patient'));
+        new ProfilePackageConfig(name: 'a.b', source: $this->sourceDir(), dependencies: ['x.y', 'x.y']);
     }
 }

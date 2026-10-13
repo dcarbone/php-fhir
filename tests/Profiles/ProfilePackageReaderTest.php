@@ -112,24 +112,11 @@ class ProfilePackageReaderTest extends TestCase
         $this->assertNull($package->resolveValueSet('http://example.org/fhir/ValueSet/nope'));
     }
 
-    public function testIncludeExcludeSelection(): void
+    public function testStructureDefinitionsAreIndexedById(): void
     {
         $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());
-
         $all = ProfilePackageReader::read($this->config($source));
-        $this->assertSame(['my-observation', 'my-patient'], array_keys($all->getSelectedStructureDefinitions()));
-
-        $included = ProfilePackageReader::read($this->config($source, ['include' => ['my-pat*']]));
-        $this->assertSame(['my-patient'], array_keys($included->getSelectedStructureDefinitions()));
-        // selection never affects what is indexed
-        $this->assertCount(2, $included->getStructureDefinitions());
-
-        $excluded = ProfilePackageReader::read($this->config($source, ['exclude' => ['my-pat*']]));
-        $this->assertSame(['my-observation'], array_keys($excluded->getSelectedStructureDefinitions()));
-
-        // name is also matched
-        $byName = ProfilePackageReader::read($this->config($source, ['include' => ['MyObservation']]));
-        $this->assertSame(['my-observation'], array_keys($byName->getSelectedStructureDefinitions()));
+        $this->assertSame(['my-observation', 'my-patient'], array_keys($all->getStructureDefinitions()));
     }
 
     public static function versionProvider(): array
@@ -234,7 +221,7 @@ class ProfilePackageReaderTest extends TestCase
     public function testScalarJSONThrows(): void
     {
         $files = $this->standardFiles();
-        $files['scalar.json'] = '5';
+        $files['ValueSet-scalar.json'] = '5';
         $source = self::writePackageDir($this->_root . '/dir', $files);
         $this->expectException(ProfilePackageException::class);
         ProfilePackageReader::read($this->config($source));
@@ -264,20 +251,25 @@ class ProfilePackageReaderTest extends TestCase
         $source = self::writePackageDir($this->_root . '/dir', ['package.json' => self::manifest()]);
         $package = ProfilePackageReader::read($this->config($source));
         $this->assertSame([], $package->getStructureDefinitions());
-        $this->assertSame([], $package->getSelectedStructureDefinitions());
     }
 
-    public function testLoadsConfiguredDependenciesAndResolvesThroughThem(): void
+    public function testResolvesThroughProvidedDependencies(): void
     {
         $depFiles = [
             'package.json' => self::manifest('dep.ig', ['dependencies' => []]),
             'ValueSet-dep-vs.json' => self::valueSet('dep-vs'),
             'StructureDefinition-dep-ext.json' => self::structureDefinition('dep-ext', 'Extension'),
         ];
-        $dep = self::writePackageArchive($this->_root . '/dep.tgz', $depFiles);
+        $dep = ProfilePackageReader::read(
+            ProfilePackageConfig::fromArray([
+                'name' => 'dep.ig',
+                'source' => self::writePackageArchive($this->_root . '/dep.tgz', $depFiles),
+            ]),
+            '4.0.1',
+        );
         $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());
 
-        $package = ProfilePackageReader::read($this->config($source, ['dependencies' => ['dep.ig' => $dep]]), '4.0.1');
+        $package = ProfilePackageReader::read($this->config($source), '4.0.1', [$dep]);
 
         $this->assertSame(['dep.ig'], array_keys($package->getLoadedDependencies()));
         $this->assertSame('dep-vs', $package->resolveValueSet('http://example.org/fhir/ValueSet/dep-vs')['id']);
@@ -287,24 +279,6 @@ class ProfilePackageReaderTest extends TestCase
         );
         // dependency resources are not part of this package's own index.
         $this->assertSame(['my-vs'], array_keys($package->getValueSets()));
-    }
-
-    public function testDependencyNameMismatchThrows(): void
-    {
-        $dep = self::writePackageDir($this->_root . '/dep', ['package.json' => self::manifest('actual.name')]);
-        $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());
-        $this->expectException(ProfilePackageException::class);
-        ProfilePackageReader::read($this->config($source, ['dependencies' => ['dep.ig' => $dep]]));
-    }
-
-    public function testDependencyFHIRVersionMismatchThrows(): void
-    {
-        $dep = self::writePackageDir($this->_root . '/dep', [
-            'package.json' => self::manifest('dep.ig', ['fhirVersions' => ['5.0.0']]),
-        ]);
-        $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());
-        $this->expectException(ProfilePackageException::class);
-        ProfilePackageReader::read($this->config($source, ['dependencies' => ['dep.ig' => $dep]]), '4.0.1');
     }
 
     public function testStripCanonicalVersion(): void

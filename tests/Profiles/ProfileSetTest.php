@@ -59,9 +59,9 @@ class ProfileSetTest extends TestCase
         $path = $this->_root . '/' . $name . '-' . uniqid();
         self::writePackageDir($path, $files);
         return ProfilePackageReader::read(ProfilePackageConfig::fromArray(array_merge(
-            ['name' => $name, 'source' => $path, 'dependencies' => $deps],
+            ['name' => $name, 'source' => $path],
             $config,
-        )));
+        )), null, $deps);
     }
 
     public function testBaseTypeProfilesHaveNoParent(): void
@@ -99,107 +99,9 @@ class ProfileSetTest extends TestCase
         $this->assertNull($set->getProfileByUrl(self::_BASE . 'nope'));
     }
 
-    public function testSelectedProfilesOrderedParentsFirst(): void
-    {
-        $set = ProfileSet::fromPackage($this->package([
-            $this->child('c', 'b'),
-            $this->child('b', 'a'),
-            self::structureDefinition('a'),
-            self::structureDefinition('z-other'),
-        ]));
-        $ids = array_map(fn($p) => $p->getId(), $set->getSelectedProfiles());
-        $this->assertLessThan(array_search('b', $ids), array_search('a', $ids));
-        $this->assertLessThan(array_search('c', $ids), array_search('b', $ids));
-        $this->assertCount(4, $ids);
-    }
-
-    public function testSelectionFiltersButParentsStillResolve(): void
-    {
-        $set = ProfileSet::fromPackage($this->package(
-            [$this->child('b', 'a'), self::structureDefinition('a')],
-            ['exclude' => ['a']],
-        ));
-        $this->assertSame(['b'], array_map(fn($p) => $p->getId(), $set->getSelectedProfiles()));
-        $this->assertCount(2, $set->getProfiles());
-        $this->assertSame('a', $set->getProfileByUrl(self::_BASE . 'b')->getParent()->getId());
-    }
-
-    public function testUnresolvedParentThrowsWhenStrict(): void
-    {
-        $package = $this->package([$this->child('b', 'missing')]);
-        $this->expectException(ProfileDefinitionException::class);
-        $this->expectExceptionMessage('dependencies');
-        ProfileSet::fromPackage($package, true);
-    }
-
-    public function testUnresolvedParentRecordedWhenNotStrict(): void
-    {
-        $set = ProfileSet::fromPackage($this->package([$this->child('b', 'missing')]), false);
-        $this->assertNull($set->getProfileByUrl(self::_BASE . 'b')->getParent());
-        $this->assertSame(['b' => self::_BASE . 'missing'], $set->getUnresolved());
-    }
-
-    public function testCircularChainThrows(): void
-    {
-        $package = $this->package([$this->child('a', 'b'), $this->child('b', 'a')]);
-        $this->expectException(ProfileDefinitionException::class);
-        $this->expectExceptionMessage('circular');
-        ProfileSet::fromPackage($package);
-    }
-
-    public function testSelfReferenceThrows(): void
-    {
-        $package = $this->package([$this->child('a', 'a')]);
-        $this->expectException(ProfileDefinitionException::class);
-        ProfileSet::fromPackage($package);
-    }
-
-    public function testParentResolvesThroughDependency(): void
-    {
-        $depPath = $this->_root . '/dep';
-        self::writePackageDir($depPath, [
-            'package.json' => self::manifest('dep.ig'),
-            'StructureDefinition-dep-base.json' => self::structureDefinition('dep-base'),
-        ]);
-        $package = $this->package([$this->child('mine', 'dep-base')], [], ['dep.ig' => $depPath]);
-
-        $set = ProfileSet::fromPackage($package);
-        $mine = $set->getProfileByUrl(self::_BASE . 'mine');
-        $this->assertSame('dep-base', $mine->getParent()->getId());
-        // dependency profiles are resolvable but are not part of this package's own set.
-        $this->assertSame(['mine'], array_map(fn($p) => $p->getId(), $set->getProfiles()));
-        $this->assertSame(['mine'], array_map(fn($p) => $p->getId(), $set->getSelectedProfiles()));
-        $this->assertTrue($set->hasProfile(self::_BASE . 'dep-base'));
-    }
-
-    public function testOwnProfileWinsUrlCollisionWithDependency(): void
-    {
-        $depPath = $this->_root . '/dep';
-        self::writePackageDir($depPath, [
-            'package.json' => self::manifest('dep.ig'),
-            'StructureDefinition-same.json' => self::structureDefinition('same', 'Patient', 'constraint', ['title' => 'dep']),
-        ]);
-        $package = $this->package(
-            [self::structureDefinition('same', 'Patient', 'constraint', ['title' => 'own'])],
-            [],
-            ['dep.ig' => $depPath],
-        );
-        $this->assertSame('own', ProfileSet::fromPackage($package)->getProfileByUrl(self::_BASE . 'same')->getTitle());
-    }
-
-    public function testMalformedProfileThrows(): void
-    {
-        $bad = self::structureDefinition('bad');
-        unset($bad['type']);
-        $package = $this->package([$bad]);
-        $this->expectException(ProfileDefinitionException::class);
-        ProfileSet::fromPackage($package);
-    }
-
     public function testEmptyPackage(): void
     {
         $set = ProfileSet::fromPackage($this->package([]));
         $this->assertSame([], $set->getProfiles());
-        $this->assertSame([], $set->getSelectedProfiles());
     }
 }

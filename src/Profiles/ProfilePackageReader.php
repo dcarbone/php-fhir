@@ -33,10 +33,11 @@ class ProfilePackageReader
      * @param \DCarbone\PHPFHIR\Config\ProfilePackageConfig $config
      * @param null|string $fhirVersion The FHIR version (e.g. "4.0.1") the package must support.  If null, no version
      *                                 compatibility check is performed.
+     * @param \DCarbone\PHPFHIR\Profiles\ProfilePackage[] $dependencies Already read packages the package builds on.
      * @return \DCarbone\PHPFHIR\Profiles\ProfilePackage
      * @throws \DCarbone\PHPFHIR\Profiles\ProfilePackageException
      */
-    public static function read(ProfilePackageConfig $config, null|string $fhirVersion = null): ProfilePackage
+    public static function read(ProfilePackageConfig $config, null|string $fhirVersion = null, array $dependencies = []): ProfilePackage
     {
         $package = self::_readSource($config, $config->getSource(), $config->getName());
 
@@ -44,8 +45,8 @@ class ProfilePackageReader
             self::_assertFHIRVersionCompatible($package, $fhirVersion);
         }
 
-        foreach ($config->getDependencies() as $depName => $depPath) {
-            self::_loadDependency($package, $config, $depName, $depPath, $fhirVersion);
+        foreach ($dependencies as $dependency) {
+            $package->addLoadedDependency($dependency);
         }
 
         return $package;
@@ -89,31 +90,16 @@ class ProfilePackageReader
         ));
     }
 
-    private static function _loadDependency(ProfilePackage       $parent,
-                                            ProfilePackageConfig $rootConfig,
-                                            string               $name,
-                                            string               $path,
-                                            null|string          $fhirVersion): void
-    {
-        $depConfig = new ProfilePackageConfig(
-            name: $name,
-            source: $path,
-            namespace: 'Dependency',
-            strict: $rootConfig->isStrict(),
-        );
-        $dependency = self::_readSource($depConfig, $path, $name);
-        if (null !== $fhirVersion) {
-            self::_assertFHIRVersionCompatible($dependency, $fhirVersion);
-        }
-        $parent->addLoadedDependency($dependency);
-    }
-
     private static function _readSource(ProfilePackageConfig $config, string $source, string $expectedName): ProfilePackage
     {
         $manifest = null;
         $resources = [];
 
         foreach (self::_iterateFiles($source) as $relativeName => $contents) {
+            // packages can be huge (e.g. terminology); only decode the resource types that are used.
+            if (self::_MANIFEST_FILENAME !== $relativeName && 1 !== preg_match('{^(StructureDefinition|ValueSet|CodeSystem)-}', $relativeName)) {
+                continue;
+            }
             $json = self::_decode($contents, $relativeName, $source);
             if (self::_MANIFEST_FILENAME === $relativeName) {
                 $manifest = $json;
@@ -123,7 +109,11 @@ class ProfilePackageReader
             if ('.index.json' === $relativeName || !isset($json['resourceType'])) {
                 continue;
             }
-            $resources[] = $json;
+            // narrative is never used and is a large share of big packages.
+            unset($json['text']);
+            if (null !== ($packed = ProfilePackage::packResource($json))) {
+                $resources[] = $packed;
+            }
         }
 
         if (null === $manifest) {
@@ -153,7 +143,7 @@ class ProfilePackageReader
 
         $package = new ProfilePackage($config, $manifest);
         foreach ($resources as $resource) {
-            $package->addResource($resource);
+            $package->addPackedResource($resource);
         }
         return $package;
     }

@@ -121,6 +121,37 @@ class VersionProfilesConfigTest extends TestCase
         $c->addPackage(['name' => 'c.d', 'source' => $this->dir('two'), 'namespace' => 'same']);
     }
 
+    private function pkg(string $name, array $deps = []): array
+    {
+        return ['name' => $name, 'source' => $this->dir($name), 'namespace' => 'N' . str_replace('.', '', $name), 'dependencies' => $deps];
+    }
+
+    public function testPackagesAreOrderedDependenciesFirst(): void
+    {
+        $c = new VersionProfilesConfig(packages: [
+            $this->pkg('c.ig', ['b.ig']),
+            $this->pkg('b.ig', ['a.ig']),
+            $this->pkg('a.ig'),
+        ]);
+        $this->assertSame(['a.ig', 'b.ig', 'c.ig'], array_map(fn($p) => $p->getName(), $c->getOrderedPackages()));
+        $this->assertEqualsCanonicalizing(['a.ig', 'b.ig'], $c->getDependencyClosure('c.ig'));
+        $this->assertSame([], $c->getDependencyClosure('a.ig'));
+    }
+
+    public function testUnconfiguredDependencyRejected(): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('not configured');
+        new VersionProfilesConfig(packages: [$this->pkg('a.ig', ['missing.ig'])]);
+    }
+
+    public function testCircularDependencyRejected(): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('circular');
+        new VersionProfilesConfig(packages: [$this->pkg('a.ig', ['b.ig']), $this->pkg('b.ig', ['a.ig'])]);
+    }
+
     public function testGetUnknownPackageThrows(): void
     {
         $this->expectException(\OutOfBoundsException::class);

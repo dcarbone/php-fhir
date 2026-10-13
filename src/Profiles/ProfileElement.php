@@ -59,6 +59,10 @@ class ProfileElement
         $e->_min = isset($data['min']) ? self::_cardinality($data['min'], $e->_id) : null;
         $e->_max = isset($data['max']) ? self::_max($data['max'], $e->_id) : null;
         foreach ($data['type'] ?? [] as $type) {
+            // system primitive types (e.g. Element.id) carry their code only as an extension on "_code".
+            if (is_array($type) && !isset($type['code']) && isset($type['_code'])) {
+                continue;
+            }
             $e->_types[] = ProfileElementType::fromArray((array)$type);
         }
         $e->_fixedValue = ProfileFixedValue::fromElementArray($data);

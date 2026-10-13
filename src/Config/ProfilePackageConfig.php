@@ -27,16 +27,12 @@ class ProfilePackageConfig
 {
     private const _NAME_REGEX = '{^[a-z0-9][a-z0-9._\-]*$}';
     private const _IGNORED_NAME_SEGMENTS = ['hl7', 'fhir'];
-    private const _CONFIG_KEYS = ['name', 'source', 'namespace', 'include', 'exclude', 'dependencies', 'strict'];
+    private const _CONFIG_KEYS = ['name', 'source', 'namespace', 'dependencies', 'strict'];
 
     private string $_name;
     private string $_source;
     private string $_namespace;
     /** @var string[] */
-    private array $_include;
-    /** @var string[] */
-    private array $_exclude;
-    /** @var array<string, string> */
     private array $_dependencies;
     private bool $_strict;
 
@@ -44,16 +40,13 @@ class ProfilePackageConfig
      * @param string $name NPM-style package name, e.g. "hl7.fhir.us.core".
      * @param string $source Path to either a package .tgz file or an extracted package directory.
      * @param null|string $namespace Namespace segment to place classes under.  Derived from $name if null.
-     * @param string[] $include Glob patterns of profile ids / names to include.  Empty means all.
-     * @param string[] $exclude Glob patterns of profile ids / names to exclude.
-     * @param array<string, string> $dependencies Map of package name to local path for packages this one depends on.
+     * @param string[] $dependencies Names of other packages configured for the same version that this one builds on.
+     *                               They are generated first and their profiles, extensions and ValueSets are visible here.
      * @param bool $strict If true, unresolvable profile elements cause generation failure instead of a warning.
      */
     public function __construct(string      $name,
                                 string      $source,
                                 null|string $namespace = null,
-                                array       $include = [],
-                                array       $exclude = [],
                                 array       $dependencies = [],
                                 bool        $strict = true)
     {
@@ -81,21 +74,32 @@ class ProfilePackageConfig
         }
         $this->_namespace = $namespace;
 
-        $this->_include = self::_assertPatternList($include, $name, 'include');
-        $this->_exclude = self::_assertPatternList($exclude, $name, 'exclude');
-
         $this->_dependencies = [];
-        foreach ($dependencies as $depName => $depPath) {
-            if (!is_string($depName) || '' === trim($depName) || !is_string($depPath)) {
+        if (!array_is_list($dependencies)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Profile package "%s" dependencies must be a list of the names of other configured profile packages.',
+                $name,
+            ));
+        }
+        foreach ($dependencies as $depName) {
+            if (!is_string($depName) || 1 !== preg_match(self::_NAME_REGEX, trim($depName))) {
                 throw new \InvalidArgumentException(sprintf(
-                    'Profile package "%s" dependencies must be a map of package name to local path.',
+                    'Profile package "%s" dependencies must be a list of the names of other configured profile packages.',
                     $name,
                 ));
             }
-            $this->_dependencies[trim($depName)] = self::_assertReadablePath(
-                $depPath,
-                sprintf('Profile package "%s" dependency "%s" source', $name, $depName),
-            );
+            $depName = trim($depName);
+            if ($depName === $name) {
+                throw new \InvalidArgumentException(sprintf('Profile package "%s" cannot depend on itself.', $name));
+            }
+            if (in_array($depName, $this->_dependencies, true)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Profile package "%s" lists dependency "%s" more than once.',
+                    $name,
+                    $depName,
+                ));
+            }
+            $this->_dependencies[] = $depName;
         }
 
         $this->_strict = $strict;
@@ -125,8 +129,6 @@ class ProfilePackageConfig
             name: $config['name'],
             source: $config['source'],
             namespace: $config['namespace'] ?? null,
-            include: $config['include'] ?? [],
-            exclude: $config['exclude'] ?? [],
             dependencies: $config['dependencies'] ?? [],
             strict: $config['strict'] ?? true,
         );
@@ -168,48 +170,7 @@ class ProfilePackageConfig
     }
 
     /**
-     * @return string[]
-     */
-    public function getInclude(): array
-    {
-        return $this->_include;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getExclude(): array
-    {
-        return $this->_exclude;
-    }
-
-    /**
-     * Returns true if a profile with the provided id or name passes the include / exclude filters.
-     */
-    public function isProfileSelected(string ...$idsOrNames): bool
-    {
-        foreach ($idsOrNames as $candidate) {
-            foreach ($this->_exclude as $pattern) {
-                if (fnmatch($pattern, $candidate)) {
-                    return false;
-                }
-            }
-        }
-        if ([] === $this->_include) {
-            return true;
-        }
-        foreach ($idsOrNames as $candidate) {
-            foreach ($this->_include as $pattern) {
-                if (fnmatch($pattern, $candidate)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return array<string, string>
+     * @return string[] Names of the packages this one depends on.
      */
     public function getDependencies(): array
     {
@@ -234,24 +195,5 @@ class ProfilePackageConfig
             throw new \InvalidArgumentException(sprintf('%s "%s" must be a file or directory.', $what, $path));
         }
         return $path;
-    }
-
-    /**
-     * @return string[]
-     */
-    private static function _assertPatternList(array $patterns, string $name, string $key): array
-    {
-        $out = [];
-        foreach ($patterns as $pattern) {
-            if (!is_string($pattern) || '' === trim($pattern)) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Profile package "%s" "%s" must be a list of non-empty glob strings.',
-                    $name,
-                    $key,
-                ));
-            }
-            $out[] = trim($pattern);
-        }
-        return $out;
     }
 }

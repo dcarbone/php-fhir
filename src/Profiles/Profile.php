@@ -130,12 +130,9 @@ class Profile
                     $e,
                 );
             }
+            // some published packages repeat slice entries; the first one wins.
             if (isset($out[$element->getId()])) {
-                throw new ProfileDefinitionException(sprintf(
-                    'StructureDefinition "%s" declares element "%s" more than once.',
-                    $profileId,
-                    $element->getId(),
-                ));
+                continue;
             }
             $out[$element->getId()] = $element;
         }
@@ -326,6 +323,6 @@ class Profile
      */
     public function isBasedOnBaseType(): bool
     {
-        return 'http://hl7.org/fhir/StructureDefinition/' . $this->_type === $this->_baseDefinition;
+        return 'http://hl7.org/fhir/StructureDefinition/' . $this->_type === ProfilePackage::stripCanonicalVersion($this->_baseDefinition);
     }
 }

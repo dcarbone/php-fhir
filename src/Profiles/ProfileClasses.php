@@ -31,6 +31,8 @@ class ProfileClasses implements \Countable, \IteratorAggregate
      * @param string $packageNamespace Namespace, relative to $profilesNamespace, the package's classes are generated into.
      * @param callable(string): (null|string) $baseTypeResolver Maps a FHIR type name to the fully qualified name, without
      *                                                        leading slash, of the generated class for it.
+     * @param array<string, \DCarbone\PHPFHIR\Profiles\ProfileClass> $dependencyClasses Already generated classes of
+     *        dependency packages, by profile url, that may be used as parents.
      * @throws \DCarbone\PHPFHIR\Profiles\ProfileDefinitionException
      */
     public static function build(
@@ -39,33 +41,36 @@ class ProfileClasses implements \Countable, \IteratorAggregate
         string            $packageNamespace,
         callable          $baseTypeResolver,
         null|ValueSetExpander $expander = null,
+        array             $dependencyClasses = [],
     ): self
     {
-        $own = [];
-        foreach ($set->getProfiles() as $profile) {
-            $own[$profile->getUrl()] = $profile;
-        }
-
-        // selected profiles, plus any own ancestors they need in order to extend them.
         $wanted = [];
-        foreach ($set->getSelectedProfiles() as $profile) {
-            $wanted[$profile->getUrl()] = $profile;
-            foreach ($profile->getAncestors() as $ancestor) {
-                if (isset($own[$ancestor->getUrl()])) {
-                    $wanted[$ancestor->getUrl()] = $ancestor;
-                }
+        foreach ($set->getProfiles() as $profile) {
+            // extension definitions are used to resolve extension slices, not as classes of their own.
+            if ('Extension' !== $profile->getType()) {
+                $wanted[$profile->getUrl()] = $profile;
             }
         }
         uasort($wanted, static fn(Profile $a, Profile $b): int => count($a->getAncestors()) <=> count($b->getAncestors()));
+
+        // profiles sharing a name (it is not unique within a package) are named after their ids instead.
+        $nameCounts = [];
+        foreach ($wanted as $profile) {
+            $key = strtolower(ProfileClass::sanitizeClassName($profile->getName()));
+            $nameCounts[$key] = ($nameCounts[$key] ?? 0) + 1;
+        }
 
         $classes = new self();
         $names = [];
         foreach ($wanted as $url => $profile) {
             $className = ProfileClass::sanitizeClassName($profile->getName());
+            if ($nameCounts[strtolower($className)] > 1) {
+                $className = ProfileClass::sanitizeClassName($profile->getId());
+            }
             $key = strtolower($className);
             if (isset($names[$key])) {
                 throw new ProfileDefinitionException(sprintf(
-                    'Profiles "%s" and "%s" both produce class name "%s"; narrow the package include / exclude filters',
+                    'Profiles "%s" and "%s" both produce class name "%s"',
                     $names[$key],
                     $profile->getId(),
                     $className,
@@ -84,9 +89,7 @@ class ProfileClasses implements \Countable, \IteratorAggregate
 
             $parent = null;
             foreach ($profile->getAncestors() as $ancestor) {
-                if (isset($classes->_byUrl[$ancestor->getUrl()])) {
-                    $parent = $classes->_byUrl[$ancestor->getUrl()];
-                }
+                $parent = $classes->_byUrl[$ancestor->getUrl()] ?? $dependencyClasses[$ancestor->getUrl()] ?? null;
                 break;
             }
 

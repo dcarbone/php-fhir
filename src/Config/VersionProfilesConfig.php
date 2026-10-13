@@ -46,6 +46,7 @@ class VersionProfilesConfig
         foreach ($packages as $package) {
             $this->addPackage($package);
         }
+        $this->getOrderedPackages();
     }
 
     public static function fromArray(array $config): self
@@ -130,5 +131,66 @@ class VersionProfilesConfig
     public function getPackageNames(): array
     {
         return array_keys($this->_packages);
+    }
+
+    /**
+     * Packages ordered so that every package comes after the packages it depends on.
+     *
+     * @return \DCarbone\PHPFHIR\Config\ProfilePackageConfig[]
+     * @throws \DomainException If a dependency is not a configured package, or the dependencies are circular.
+     */
+    public function getOrderedPackages(): array
+    {
+        $ordered = [];
+        $state = [];
+        $visit = function (string $name, array $path) use (&$visit, &$ordered, &$state): void {
+            if (2 === ($state[$name] ?? 0)) {
+                return;
+            }
+            if (1 === ($state[$name] ?? 0)) {
+                throw new \DomainException(sprintf(
+                    'Profile package dependencies are circular: %s.',
+                    implode(' -> ', [...$path, $name]),
+                ));
+            }
+            $state[$name] = 1;
+            foreach ($this->_packages[$name]->getDependencies() as $dep) {
+                if (!isset($this->_packages[$dep])) {
+                    throw new \DomainException(sprintf(
+                        'Profile package "%s" depends on "%s", which is not configured.  Add "%s" to the same version\'s profile packages.',
+                        $name,
+                        $dep,
+                        $dep,
+                    ));
+                }
+                $visit($dep, [...$path, $name]);
+            }
+            $state[$name] = 2;
+            $ordered[] = $this->_packages[$name];
+        };
+        foreach (array_keys($this->_packages) as $name) {
+            $visit($name, []);
+        }
+        return $ordered;
+    }
+
+    /**
+     * Names of every package the named package depends on, directly or transitively.
+     *
+     * @return string[]
+     */
+    public function getDependencyClosure(string $name): array
+    {
+        $seen = [];
+        $stack = $this->getPackage($name)->getDependencies();
+        while ([] !== $stack) {
+            $dep = array_pop($stack);
+            if (isset($seen[$dep])) {
+                continue;
+            }
+            $seen[$dep] = true;
+            array_push($stack, ...$this->getPackage($dep)->getDependencies());
+        }
+        return array_keys($seen);
     }
 }

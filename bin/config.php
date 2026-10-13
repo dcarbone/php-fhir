@@ -53,27 +53,114 @@ return [
             'schemaPath' => __DIR__ . '/../input/R4',
 
             // Optional: generate profile classes from FHIR profile packages (e.g. US Core).
-             'profiles' => [
-                 // Namespace segment, relative to the version namespace, to place profile classes in.
-                 'namespace' => 'Profiles',
-                 'packages' => [
-                     [
-                         // npm-style package name.  Required.
-                         'name' => 'hl7.fhir.us.core',
-                         // Path to the package .tgz file or an extracted package directory.  Required.
-                         'source' => __DIR__ . '/../input/us_core_stu9/package.tgz',
-                         // Namespace segment for this package.  Default is derived from name, ex: "UsCore".
-                         'namespace' => 'UsCore',
-                         // Glob patterns of profile ids / names to include and exclude.  Default is everything.
-                         'include' => ['us-core-*'],
-                         'exclude' => [],
-                         // Local paths for packages this package depends on.
-                         'dependencies' => [],
-                         // Fail on unresolvable profile elements instead of warning and skipping.
-                         'strict' => true,
-                     ],
-                 ],
-             ],
+            'profiles' => [
+                // Namespace segment, relative to the version namespace, to place profile classes in.
+                'namespace' => 'Profiles',
+                'packages' => [
+                    [
+                        'name' => 'hl7.fhir.r4.core',
+                        'source' => __DIR__ . '/../input/profiles/hl7.fhir.r4.core/package.tgz',
+                        'namespace' => 'R4Core',
+                        'strict' => true,
+                    ],
+                    [
+                        'name' => 'hl7.terminology.r4',
+                        'source' => __DIR__ . '/../input/profiles/hl7.fhir.terminology/hl7.terminology.r4.tgz',
+                        'namespace' => 'TerminologyR4',
+                        'dependencies' => [
+                            'hl7.fhir.r4.core',
+                        ],
+                        'strict' => true,
+                    ],
+                    [
+                        'name' => 'hl7.fhir.uv.extensions.r4',
+                        'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.extensions.r4/package.tgz',
+                        'namespace' => 'ExtensionsR4',
+                        'dependencies' => [
+                            'hl7.fhir.r4.core',
+                            'hl7.terminology.r4',
+                        ],
+                        'strict' => true,
+                    ],
+                    [
+                        'name' => 'hl7.fhir.uv.xver-r5.r4',
+                        'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.xver-r5.r4/package.tgz',
+                        'namespace' => 'XverR5R4',
+                        'dependencies' => [
+                            'hl7.fhir.r4.core',
+                            'hl7.terminology.r4',
+                            'hl7.fhir.uv.extensions.r4',
+                        ],
+                        'strict' => true,
+                    ],
+                    [
+                        'name' => 'hl7.fhir.uv.tools.r4',
+                        'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.tools.r4/package.tgz',
+                        'namespace' => 'ToolsR4',
+                        'dependencies' => [
+                            'hl7.fhir.r4.core',
+                            'hl7.terminology.r4',
+                            'hl7.fhir.uv.extensions.r4',
+                        ],
+                        'strict' => true,
+                    ],
+                    [
+                        'name' => 'hl7.fhir.uv.smart-app-launch',
+                        'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.smart-app-launch/package.tgz',
+                        'namespace' => 'SmartAppLaunch',
+                        'dependencies' => [
+                            'hl7.fhir.r4.core',
+                            'hl7.terminology.r4',
+                            'hl7.fhir.uv.extensions.r4',
+                        ],
+                        'strict' => true,
+                    ],
+                    [
+                        'name' => 'us.cdc.phinvads',
+                        'source' => __DIR__ . '/../input/profiles/us.cdc.phinvads/package.tgz',
+                        'namespace' => 'PhinVads',
+                        'dependencies' => [
+                            'hl7.fhir.r4.core',
+                        ],
+                        'strict' => true,
+                    ],
+                    [
+                        'name' => 'hl7.fhir.uv.sdc.r4',
+                        'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.sdc.r4/package.r4.tgz',
+                        'namespace' => 'Sdc',
+                        'dependencies' => [
+                            'hl7.fhir.r4.core',
+                            'hl7.terminology.r4',
+                            'hl7.fhir.uv.xver-r5.r4',
+                            'hl7.fhir.uv.tools.r4',
+                            'hl7.fhir.uv.extensions.r4',
+                        ],
+                        'strict' => true,
+                    ],
+                    [
+                        // npm-style package name.  Required.
+                        'name' => 'hl7.fhir.us.core',
+                        // Path to the package .tgz file or an extracted package directory.  Required.
+                        'source' => __DIR__ . '/../input/profiles/us_core_stu9/package.tgz',
+                        // Namespace segment for this package.  Default is derived from name, ex: "UsCore".
+                        'namespace' => 'UsCore',
+                        // Names of other packages configured for this version that this one builds on.  They are generated first;
+                        // this package resolves base profiles, extensions and ValueSets through them, and its classes
+                        // may extend theirs.
+                        'dependencies' => [
+                            'hl7.fhir.r4.core',
+                            'hl7.fhir.uv.sdc.r4',
+                            'hl7.fhir.uv.smart-app-launch',
+                            'us.cdc.phinvads',
+                            'hl7.terminology.r4',
+                            'hl7.fhir.uv.extensions.r4',
+                            'hl7.fhir.uv.xver-r5.r4',
+                        ],
+                        // Fail on unresolvable profile elements instead of warning and skipping.
+                        'strict' => true,
+                    ],
+                ],
+            ],
         ],
         [
             'name' => 'R4B',

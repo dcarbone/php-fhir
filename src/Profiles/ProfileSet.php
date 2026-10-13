@@ -27,8 +27,6 @@ class ProfileSet
     private array $_byUrl = [];
     /** @var string[] urls of profiles that belong to the package itself, in package order */
     private array $_ownUrls = [];
-    /** @var string[] urls of own profiles that pass the package's include / exclude filters */
-    private array $_selectedUrls = [];
     /** @var array<string, string> profile id => base definition that could not be resolved */
     private array $_unresolved = [];
 
@@ -53,24 +51,42 @@ class ProfileSet
             }
         }
 
-        $selectedIds = array_keys($package->getSelectedStructureDefinitions());
         foreach ($package->getStructureDefinitions() as $sd) {
             $profile = Profile::fromStructureDefinition($sd);
             $set->_byUrl[$profile->getUrl()] = $profile;
             $set->_ownUrls[] = $profile->getUrl();
-            if (in_array($profile->getId(), $selectedIds, true)) {
-                $set->_selectedUrls[] = $profile->getUrl();
-            }
         }
 
+        $unconfigured = self::_collectUnconfiguredDependencies($package);
         foreach ($set->_byUrl as $profile) {
-            $set->_resolveParent($profile, $strict);
+            $set->_resolveParent($profile, $strict, $unconfigured);
         }
         foreach ($set->_byUrl as $profile) {
             $set->_assertAcyclic($profile);
         }
 
         return $set;
+    }
+
+    /**
+     * @return array<string, string> Declared dependencies, as name => version, that were not loaded.
+     */
+    private static function _collectUnconfiguredDependencies(ProfilePackage $package): array
+    {
+        $loaded = [$package->getName() => true];
+        foreach (self::_collectDependencies($package) as $dependency) {
+            $loaded[$dependency->getName()] = true;
+        }
+        $out = [];
+        foreach ([$package, ...self::_collectDependencies($package)] as $p) {
+            foreach ($p->getDeclaredDependencies() as $name => $version) {
+                // the core specification is represented by the generated base types.
+                if (!isset($loaded[$name]) && 1 !== preg_match('{^hl7\.fhir\.r\d+[a-z]?\.core$}', (string)$name)) {
+                    $out[$name] = (string)$version;
+                }
+            }
+        }
+        return $out;
     }
 
     /**
@@ -86,7 +102,10 @@ class ProfileSet
         return $out;
     }
 
-    private function _resolveParent(Profile $profile, bool $strict): void
+    /**
+     * @param array<string, string> $unconfigured Declared package dependencies that were not provided.
+     */
+    private function _resolveParent(Profile $profile, bool $strict, array $unconfigured = []): void
     {
         if ($profile->isBasedOnBaseType()) {
             return;
@@ -97,10 +116,22 @@ class ProfileSet
             return;
         }
         if ($strict) {
+            $hint = '';
+            if ([] !== $unconfigured) {
+                $names = [];
+                foreach ($unconfigured as $name => $version) {
+                    $names[] = '' === $version ? $name : sprintf('%s (%s)', $name, $version);
+                }
+                $hint = sprintf(
+                    '  The package declares dependencies that were not configured: %s.  Configure them as profile packages and list their names under "dependencies", or set "strict" to false to have such profiles extend their base type directly.',
+                    implode(', ', $names),
+                );
+            }
             throw new ProfileDefinitionException(sprintf(
-                'Unable to locate base definition "%s" of profile "%s".  If it lives in another package, add that package to the "dependencies" of the profile package config.',
+                'Unable to locate base definition "%s" of profile "%s".  If it lives in another package, configure that package and add its name to the "dependencies" of the profile package config.%s',
                 $profile->getBaseDefinition(),
                 $profile->getId(),
+                $hint,
             ));
         }
         $this->_unresolved[$profile->getId()] = $profile->getBaseDefinition();
@@ -142,19 +173,6 @@ class ProfileSet
     public function getProfiles(): array
     {
         return array_map(fn(string $url): Profile => $this->_byUrl[$url], $this->_ownUrls);
-    }
-
-    /**
-     * Own profiles that pass the package's include / exclude filters, ordered so that every profile comes after its
-     * parent profile (if that parent is also selected).
-     *
-     * @return \DCarbone\PHPFHIR\Profiles\Profile[]
-     */
-    public function getSelectedProfiles(): array
-    {
-        $profiles = array_map(fn(string $url): Profile => $this->_byUrl[$url], $this->_selectedUrls);
-        usort($profiles, static fn(Profile $a, Profile $b): int => count($a->getAncestors()) <=> count($b->getAncestors()));
-        return $profiles;
     }
 
     /**

@@ -96,22 +96,28 @@ class ProfileWriterTest extends TestCase
         $this->assertSame(self::_NS . '\\Ig\\ChildP', $child->getFullyQualifiedClassName(false));
     }
 
-    public function testExcludedParentIsStillGenerated(): void
+    public function testSharedNamesFallBackToIds(): void
     {
         $classes = $this->classes([
-            self::structureDefinition('parent-p'),
-            self::structureDefinition('child-p', 'Patient', 'constraint', ['baseDefinition' => self::_BASE . 'parent-p']),
-        ], ['include' => ['child-p']]);
-        $this->assertCount(2, $classes);
+            self::structureDefinition('a-one', 'Patient', 'constraint', ['name' => 'Same']),
+            self::structureDefinition('b-one', 'Patient', 'constraint', ['name' => 'same']),
+            self::structureDefinition('c-one', 'Patient', 'constraint', ['name' => 'Unique']),
+        ]);
+        $names = [];
+        foreach ($classes as $class) {
+            $names[] = $class->getClassName();
+        }
+        sort($names);
+        $this->assertSame(['AOne', 'BOne', 'Unique'], $names);
     }
 
-    public function testNameCollisionFails(): void
+    public function testSharedNamesAndIdsStillCollideFails(): void
     {
         $this->expectException(ProfileDefinitionException::class);
         $this->expectExceptionMessage('both produce class name');
         $this->classes([
-            self::structureDefinition('a', 'Patient', 'constraint', ['name' => 'Same']),
-            self::structureDefinition('b', 'Patient', 'constraint', ['name' => 'same']),
+            self::structureDefinition('a-one', 'Patient', 'constraint', ['name' => 'Same']),
+            self::structureDefinition('a_one', 'Patient', 'constraint', ['name' => 'same']),
         ]);
     }
 

@@ -97,6 +97,24 @@ class ProfileTest extends TestCase
         $this->assertNull($p->getDifferentialElement('Patient.name'));
     }
 
+    public function testVersionedBaseTypeDefinitionIsBaseType(): void
+    {
+        $p = Profile::fromStructureDefinition(self::patientSD(['baseDefinition' => 'http://hl7.org/fhir/StructureDefinition/Patient|4.0.1']));
+        $this->assertTrue($p->isBasedOnBaseType());
+    }
+
+    public function testDuplicateSnapshotElementsKeepFirst(): void
+    {
+        $sd = self::patientSD(['snapshot' => ['element' => [
+            self::element('Patient'),
+            self::element('Patient.identifier', ['min' => 1]),
+            self::element('Patient.identifier', ['min' => 2]),
+        ]]]);
+        $p = Profile::fromStructureDefinition($sd);
+        $this->assertCount(2, $p->getSnapshotElements());
+        $this->assertSame(1, $p->getSnapshotElements()['Patient.identifier']->getMin());
+    }
+
     public function testChildrenAndSlices(): void
     {
         $p = Profile::fromStructureDefinition(self::patientSD());
@@ -167,7 +185,6 @@ class ProfileTest extends TestCase
             'specialization' => [array_merge($ok, ['derivation' => 'specialization'])],
             'no element lists' => [array_diff_key($ok, ['differential' => 1])],
             'non-array elements' => [array_merge($ok, ['differential' => ['element' => 'nope']])],
-            'duplicate element ids' => [array_merge($ok, ['differential' => ['element' => [['id' => 'A', 'path' => 'A'], ['id' => 'A', 'path' => 'A']]]])],
             'invalid element' => [array_merge($ok, ['differential' => ['element' => [['id' => 'A']]]])],
         ];
     }

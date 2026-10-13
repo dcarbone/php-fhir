@@ -405,9 +405,19 @@ if (null !== $profile_packages) {
     }
 }
 
+// profile problems are configuration errors, so report them without a stack trace.
+$render_profiles = static function () use ($builder, $versions_to_generate, $profile_packages): void {
+    try {
+        $builder->renderProfiles($versions_to_generate, $profile_packages);
+    } catch (\DCarbone\PHPFHIR\Profiles\ProfileDefinitionException | \DCarbone\PHPFHIR\Profiles\ProfilePackageException $e) {
+        fwrite(STDERR, PHP_EOL . 'Profile generation failed: ' . $e->getMessage() . PHP_EOL);
+        exit(1);
+    }
+};
+
 // render entities based on flags.
 if ($only_profiles) {
-    $builder->renderProfiles($versions_to_generate, $profile_packages);
+    $render_profiles();
 } else {
     $builder->render(
         coreFiles: $generate_core,
@@ -415,7 +425,7 @@ if ($only_profiles) {
         profiles: false,
     );
     if ($generate_profiles) {
-        $builder->renderProfiles($versions_to_generate, $profile_packages);
+        $render_profiles();
     }
 }
 
