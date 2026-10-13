@@ -17,6 +17,7 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+use DCarbone\PHPFHIR\Enum\BindingStrengthEnum;
 use DCarbone\PHPFHIR\Profiles\ProfileBinding;
 use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
 use DCarbone\PHPFHIR\Profiles\ProfileElement;
@@ -83,6 +84,7 @@ class ProfileElementTest extends TestCase
             'bad max' => [['id' => 'A.b', 'path' => 'A.b', 'max' => 'many']],
             'int max' => [['id' => 'A.b', 'path' => 'A.b', 'max' => 1]],
             'type without code' => [['id' => 'A.b', 'path' => 'A.b', 'type' => [['profile' => ['x']]]]],
+            'binding with unknown strength' => [['id' => 'A.b', 'path' => 'A.b', 'binding' => ['strength' => 'bogus']]],
             'binding without strength' => [['id' => 'A.b', 'path' => 'A.b', 'binding' => ['valueSet' => 'x']]],
             'slicing without rules' => [['id' => 'A.b', 'path' => 'A.b', 'slicing' => ['ordered' => true]]],
             'bad discriminator' => [['id' => 'A.b', 'path' => 'A.b', 'slicing' => ['rules' => 'open', 'discriminator' => [['type' => 'value']]]]],
@@ -148,7 +150,7 @@ class ProfileElementTest extends TestCase
         $e = ProfileElement::fromArray(['id' => 'A.b', 'path' => 'A.b', $key => $value]);
         $fixed = $e->getFixedValue();
         $this->assertNotNull($fixed);
-        $this->assertSame($kind, $fixed->getKind());
+        $this->assertSame($kind, $fixed->getKind()->value);
         $this->assertSame('fixed' === $kind, $fixed->isFixed());
         $this->assertSame('pattern' === $kind, $fixed->isPattern());
         $this->assertSame($type, $fixed->getType());
@@ -169,7 +171,7 @@ class ProfileElementTest extends TestCase
             'binding' => ['strength' => 'required', 'valueSet' => 'http://x/vs|1', 'description' => 'desc'],
         ]);
         $b = $e->getBinding();
-        $this->assertSame(ProfileBinding::STRENGTH_REQUIRED, $b->getStrength());
+        $this->assertSame(BindingStrengthEnum::REQUIRED, $b->getStrength());
         $this->assertTrue($b->isRequired());
         $this->assertSame('http://x/vs|1', $b->getValueSet());
         $this->assertSame('desc', $b->getDescription());

@@ -23,11 +23,21 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class ProfileConstraint
 {
-    public function __construct(private readonly string      $key,
-                                private readonly string      $severity,
-                                private readonly string      $human,
-                                private readonly null|string $expression = null)
-    {
+    private readonly string $key;
+    private readonly string $severity;
+    private readonly string $human;
+    private readonly null|string $expression;
+
+    public function __construct(
+        string $key,
+        string $severity,
+        string $human,
+        null|string $expression = null,
+    ) {
+        $this->key = $key;
+        $this->severity = $severity;
+        $this->human = $human;
+        $this->expression = $expression;
     }
 
     public static function fromArray(array $data): self

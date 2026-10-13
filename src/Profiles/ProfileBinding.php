@@ -18,20 +18,25 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\BindingStrengthEnum;
+
 /**
  * A terminology binding on an element.
  */
 class ProfileBinding
 {
-    public const STRENGTH_REQUIRED = 'required';
-    public const STRENGTH_EXTENSIBLE = 'extensible';
-    public const STRENGTH_PREFERRED = 'preferred';
-    public const STRENGTH_EXAMPLE = 'example';
+    private readonly BindingStrengthEnum $strength;
+    private readonly null|string $valueSet;
+    private readonly null|string $description;
 
-    public function __construct(private readonly string      $strength,
-                                private readonly null|string $valueSet = null,
-                                private readonly null|string $description = null)
-    {
+    public function __construct(
+        BindingStrengthEnum $strength,
+        null|string $valueSet = null,
+        null|string $description = null,
+    ) {
+        $this->strength = $strength;
+        $this->valueSet = $valueSet;
+        $this->description = $description;
     }
 
     public static function fromArray(array $data): self
@@ -39,17 +44,21 @@ class ProfileBinding
         if (!isset($data['strength']) || !is_string($data['strength'])) {
             throw new ProfileDefinitionException('Binding is missing required string field "strength".');
         }
-        return new self($data['strength'], $data['valueSet'] ?? null, $data['description'] ?? null);
+        $strength = BindingStrengthEnum::tryFrom($data['strength']);
+        if (null === $strength) {
+            throw new ProfileDefinitionException(sprintf('Binding has unknown strength "%s".', $data['strength']));
+        }
+        return new self($strength, $data['valueSet'] ?? null, $data['description'] ?? null);
     }
 
-    public function getStrength(): string
+    public function getStrength(): BindingStrengthEnum
     {
         return $this->strength;
     }
 
     public function isRequired(): bool
     {
-        return self::STRENGTH_REQUIRED === $this->strength;
+        return BindingStrengthEnum::REQUIRED === $this->strength;
     }
 
     /** @return null|string Canonical url, possibly with a "|version" suffix. */

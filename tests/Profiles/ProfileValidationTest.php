@@ -17,6 +17,7 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
 use DCarbone\PHPFHIR\Profiles\Profile;
 use DCarbone\PHPFHIR\Profiles\ProfileClass;
 use DCarbone\PHPFHIR\Profiles\ProfileProperty;
@@ -41,15 +42,15 @@ class ProfileValidationTest extends TestCase
     private static TemporaryDirectory $_tmpdir;
     private static bool $_loaded = false;
 
-    private static function prop(string $field, bool $collection, string $typeKey, string $kind = ProfileProperty::KIND_COMPLEX, null|string $class = null): ProfileProperty
+    private static function prop(string $field, bool $collection, string $typeKey, ProfilePropertyKindEnum $kind = ProfilePropertyKindEnum::COMPLEX, null|string $class = null): ProfileProperty
     {
         return new ProfileProperty($field, 'get' . ucfirst($field), $collection, $typeKey, $class ?? self::_T . 'FHIR' . ucfirst($typeKey), $kind);
     }
 
     private static function navigator(): ProfileTypeNavigator
     {
-        $c = ProfileProperty::KIND_CONTAINER;
-        $p = ProfileProperty::KIND_PRIMITIVE;
+        $c = ProfilePropertyKindEnum::CONTAINER;
+        $p = ProfilePropertyKindEnum::PRIMITIVE;
         $types = [
             'Patient' => [
                 'name' => self::prop('name', true, 'HumanName'),

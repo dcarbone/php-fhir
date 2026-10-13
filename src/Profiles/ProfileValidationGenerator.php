@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
 use DCarbone\PHPFHIR\Builder\Imports;
 
 /**
@@ -49,12 +50,18 @@ final class ProfileValidationGenerator
     private bool $_needsCodeAllowed = false;
     /** @var array<string, array<string, int>> */
     private array $_fieldRules = [];
+    private readonly ProfileTypeNavigator $_nav;
+    private readonly Imports $_imports;
+    private readonly string $_root;
 
     private function __construct(
-        private readonly ProfileTypeNavigator $_nav,
-        private readonly Imports              $_imports,
-        private readonly string               $_root,
+        ProfileTypeNavigator $_nav,
+        Imports $_imports,
+        string $_root,
     ) {
+        $this->_nav = $_nav;
+        $this->_imports = $_imports;
+        $this->_root = $_root;
     }
 
     /**
@@ -395,7 +402,7 @@ final class ProfileValidationGenerator
     /** PHP expression for the raw scalar held by a primitive-ish object expression. */
     private static function _raw(ProfileProperty $prop, string $object, string $arrow = '->'): string
     {
-        return ProfileProperty::KIND_CONTAINER === $prop->kind
+        return ProfilePropertyKindEnum::CONTAINER === $prop->kind
             ? $object . $arrow . 'getValue()?->getValue()'
             : $object . $arrow . 'getValue()';
     }

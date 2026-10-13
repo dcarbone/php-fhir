@@ -23,6 +23,12 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 final class ProfileValidationCode
 {
+    public readonly string $body;
+    public readonly string $members;
+    public readonly array $sliceMatchers;
+    public readonly array $skipped;
+    public readonly array $fieldRules;
+
     /**
      * @param string $body Statements making up the body of _getValidationErrors(), appending to $errs.
      * @param string $members Constants and private static methods the body relies on.
@@ -33,11 +39,16 @@ final class ProfileValidationCode
      *        for the type's own validation.
      */
     public function __construct(
-        public readonly string $body = '',
-        public readonly string $members = '',
-        public readonly array  $sliceMatchers = [],
-        public readonly array  $skipped = [],
-        public readonly array  $fieldRules = [],
+        string $body = '',
+        string $members = '',
+        array $sliceMatchers = [],
+        array $skipped = [],
+        array $fieldRules = [],
     ) {
+        $this->body = $body;
+        $this->members = $members;
+        $this->sliceMatchers = $sliceMatchers;
+        $this->skipped = $skipped;
+        $this->fieldRules = $fieldRules;
     }
 }

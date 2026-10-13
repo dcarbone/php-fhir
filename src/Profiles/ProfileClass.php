@@ -27,18 +27,36 @@ class ProfileClass
 {
     private null|Imports $_imports = null;
     private null|ProfileValidationCode $_code = null;
+    private readonly Profile $_profile;
+    private readonly string $_namespace;
+    private readonly string $_className;
+    private readonly string $_baseTypeClassName;
+    private readonly null|ProfileClass $_parent;
+    private readonly string $_profilesNamespace;
+    private readonly array $_compiled;
+    private readonly null|ProfileTypeNavigator $_navigator;
+    private readonly array $_package;
 
     public function __construct(
-        private readonly Profile           $_profile,
-        private readonly string            $_namespace,
-        private readonly string            $_className,
-        private readonly string            $_baseTypeClassName,
-        private readonly null|ProfileClass $_parent = null,
-        private readonly string            $_profilesNamespace = '',
-        private readonly array             $_compiled = ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []],
-        private readonly null|ProfileTypeNavigator $_navigator = null,
-        private readonly array             $_package = [],
+        Profile $_profile,
+        string $_namespace,
+        string $_className,
+        string $_baseTypeClassName,
+        null|ProfileClass $_parent = null,
+        string $_profilesNamespace = '',
+        array $_compiled = ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []],
+        null|ProfileTypeNavigator $_navigator = null,
+        array $_package = [],
     ) {
+        $this->_profile = $_profile;
+        $this->_namespace = $_namespace;
+        $this->_className = $_className;
+        $this->_baseTypeClassName = $_baseTypeClassName;
+        $this->_parent = $_parent;
+        $this->_profilesNamespace = $_profilesNamespace;
+        $this->_compiled = $_compiled;
+        $this->_navigator = $_navigator;
+        $this->_package = $_package;
     }
 
     /**

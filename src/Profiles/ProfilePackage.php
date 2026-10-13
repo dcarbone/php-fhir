@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
+use DCarbone\PHPFHIR\Enum\ProfileResourceTypeEnum;
 
 /**
  * An in-memory index of the conformance resources found in a FHIR NPM-style package.
@@ -27,16 +28,6 @@ use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
  */
 class ProfilePackage
 {
-    public const RESOURCE_STRUCTURE_DEFINITION = 'StructureDefinition';
-    public const RESOURCE_VALUE_SET = 'ValueSet';
-    public const RESOURCE_CODE_SYSTEM = 'CodeSystem';
-
-    public const RETAINED_RESOURCE_TYPES = [
-        self::RESOURCE_STRUCTURE_DEFINITION,
-        self::RESOURCE_VALUE_SET,
-        self::RESOURCE_CODE_SYSTEM,
-    ];
-
     private ProfilePackageConfig $_config;
     private array $_manifest;
 
@@ -52,9 +43,9 @@ class ProfilePackage
     {
         $this->_config = $config;
         $this->_manifest = $manifest;
-        foreach (self::RETAINED_RESOURCE_TYPES as $type) {
-            $this->_resources[$type] = [];
-            $this->_urlIndex[$type] = [];
+        foreach (ProfileResourceTypeEnum::cases() as $type) {
+            $this->_resources[$type->value] = [];
+            $this->_urlIndex[$type->value] = [];
         }
     }
 
@@ -130,7 +121,7 @@ class ProfilePackage
     {
         $type = $resource['resourceType'] ?? null;
         $id = $resource['id'] ?? null;
-        if (!in_array($type, self::RETAINED_RESOURCE_TYPES, true) || !is_string($id) || '' === $id) {
+        if (!is_string($type) || null === ProfileResourceTypeEnum::tryFrom($type) || !is_string($id) || '' === $id) {
             return null;
         }
         $data = $resource;
@@ -186,7 +177,7 @@ class ProfilePackage
     public function getStructureDefinitions(): array
     {
         return array_filter(
-            array_map(self::_unpack(...), $this->_resources[self::RESOURCE_STRUCTURE_DEFINITION]),
+            array_map(self::_unpack(...), $this->_resources[ProfileResourceTypeEnum::STRUCTURE_DEFINITION->value]),
             static fn(array $sd): bool => 'constraint' === ($sd['derivation'] ?? null),
         );
     }
@@ -196,7 +187,7 @@ class ProfilePackage
      */
     public function getValueSets(): array
     {
-        return array_map(self::_unpack(...), $this->_resources[self::RESOURCE_VALUE_SET]);
+        return array_map(self::_unpack(...), $this->_resources[ProfileResourceTypeEnum::VALUE_SET->value]);
     }
 
     /**
@@ -204,7 +195,7 @@ class ProfilePackage
      */
     public function getCodeSystems(): array
     {
-        return array_map(self::_unpack(...), $this->_resources[self::RESOURCE_CODE_SYSTEM]);
+        return array_map(self::_unpack(...), $this->_resources[ProfileResourceTypeEnum::CODE_SYSTEM->value]);
     }
 
     /**
@@ -213,24 +204,24 @@ class ProfilePackage
      */
     public function resolveStructureDefinition(string $canonical): null|array
     {
-        return $this->_resolve(self::RESOURCE_STRUCTURE_DEFINITION, $canonical);
+        return $this->_resolve(ProfileResourceTypeEnum::STRUCTURE_DEFINITION, $canonical);
     }
 
     public function resolveValueSet(string $canonical): null|array
     {
-        return $this->_resolve(self::RESOURCE_VALUE_SET, $canonical);
+        return $this->_resolve(ProfileResourceTypeEnum::VALUE_SET, $canonical);
     }
 
     public function resolveCodeSystem(string $canonical): null|array
     {
-        return $this->_resolve(self::RESOURCE_CODE_SYSTEM, $canonical);
+        return $this->_resolve(ProfileResourceTypeEnum::CODE_SYSTEM, $canonical);
     }
 
-    private function _resolve(string $type, string $canonical): null|array
+    private function _resolve(ProfileResourceTypeEnum $type, string $canonical): null|array
     {
         $url = self::stripCanonicalVersion($canonical);
-        if (isset($this->_urlIndex[$type][$url])) {
-            return self::_unpack($this->_resources[$type][$this->_urlIndex[$type][$url]]);
+        if (isset($this->_urlIndex[$type->value][$url])) {
+            return self::_unpack($this->_resources[$type->value][$this->_urlIndex[$type->value][$url]]);
         }
         foreach ($this->_loadedDependencies as $dependency) {
             if (null !== ($found = $dependency->_resolve($type, $canonical))) {

@@ -18,23 +18,30 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\FixedValueKindEnum;
+
 /**
  * A fixed[x] or pattern[x] value declared on an element.
  */
 class ProfileFixedValue
 {
-    public const KIND_FIXED = 'fixed';
-    public const KIND_PATTERN = 'pattern';
+    private readonly FixedValueKindEnum $kind;
+    private readonly string $type;
+    private readonly mixed $value;
 
     /**
-     * @param string $kind One of the KIND_* constants.
+     * @param \DCarbone\PHPFHIR\Enum\FixedValueKindEnum $kind
      * @param string $type FHIR type of the value, e.g. "Uri" or "CodeableConcept".
      * @param mixed $value The decoded JSON value.
      */
-    public function __construct(private readonly string $kind,
-                                private readonly string $type,
-                                private readonly mixed  $value)
-    {
+    public function __construct(
+        FixedValueKindEnum $kind,
+        string $type,
+        mixed $value,
+    ) {
+        $this->kind = $kind;
+        $this->type = $type;
+        $this->value = $value;
     }
 
     /**
@@ -44,25 +51,25 @@ class ProfileFixedValue
     {
         foreach ($element as $key => $value) {
             if (1 === preg_match('{^(fixed|pattern)([A-Z][A-Za-z0-9]*)$}', (string)$key, $m)) {
-                return new self($m[1], $m[2], $value);
+                return new self(FixedValueKindEnum::from($m[1]), $m[2], $value);
             }
         }
         return null;
     }
 
-    public function getKind(): string
+    public function getKind(): FixedValueKindEnum
     {
         return $this->kind;
     }
 
     public function isFixed(): bool
     {
-        return self::KIND_FIXED === $this->kind;
+        return FixedValueKindEnum::FIXED === $this->kind;
     }
 
     public function isPattern(): bool
     {
-        return self::KIND_PATTERN === $this->kind;
+        return FixedValueKindEnum::PATTERN === $this->kind;
     }
 
     public function getType(): string

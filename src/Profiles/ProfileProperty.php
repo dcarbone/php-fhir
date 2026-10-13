@@ -18,17 +18,19 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
+
 /**
  * One property of a generated FHIR type, as far as profile validation code generation is concerned.
  */
 final class ProfileProperty
 {
-    /** A type with properties of its own. */
-    public const KIND_COMPLEX = 'complex';
-    /** A primitive wrapper, e.g. FHIRString; its raw value is $x->getValue()?->getValue(). */
-    public const KIND_CONTAINER = 'container';
-    /** A primitive value type, e.g. FHIRStringPrimitive; its raw value is $x->getValue(). */
-    public const KIND_PRIMITIVE = 'primitive';
+    public readonly string $field;
+    public readonly string $getter;
+    public readonly bool $collection;
+    public readonly string $typeKey;
+    public readonly string $className;
+    public readonly ProfilePropertyKindEnum $kind;
 
     /**
      * @param string $field FHIR name of the field, e.g. "birthDate".
@@ -36,20 +38,28 @@ final class ProfileProperty
      * @param bool $collection Whether the getter returns an array of values.
      * @param string $typeKey Opaque key of the property's type, to be handed back to the navigator.
      * @param string $className Fully qualified class name, without leading slash, of the property's type.
-     * @param string $kind One of the KIND_* constants.
+     * @param \DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum $kind COMPLEX is a type with properties of its own, CONTAINER a primitive
+     *                 wrapper such as FHIRString (raw value is $x->getValue()?->getValue()), PRIMITIVE a primitive
+     *                 value type such as FHIRStringPrimitive (raw value is $x->getValue()).
      */
     public function __construct(
-        public readonly string $field,
-        public readonly string $getter,
-        public readonly bool   $collection,
-        public readonly string $typeKey,
-        public readonly string $className,
-        public readonly string $kind = self::KIND_COMPLEX,
+        string $field,
+        string $getter,
+        bool $collection,
+        string $typeKey,
+        string $className,
+        ProfilePropertyKindEnum $kind = ProfilePropertyKindEnum::COMPLEX,
     ) {
+        $this->field = $field;
+        $this->getter = $getter;
+        $this->collection = $collection;
+        $this->typeKey = $typeKey;
+        $this->className = $className;
+        $this->kind = $kind;
     }
 
     public function isComplex(): bool
     {
-        return self::KIND_COMPLEX === $this->kind;
+        return ProfilePropertyKindEnum::COMPLEX === $this->kind;
     }
 }

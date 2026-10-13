@@ -26,9 +26,11 @@ namespace DCarbone\PHPFHIR\Profiles;
 class ValueSetExpander
 {
     private const _MAX_DEPTH = 10;
+    private readonly ProfilePackage $package;
 
-    public function __construct(private readonly ProfilePackage $package)
+    public function __construct(ProfilePackage $package)
     {
+        $this->package = $package;
     }
 
     /**

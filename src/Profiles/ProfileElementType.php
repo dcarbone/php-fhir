@@ -23,14 +23,22 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class ProfileElementType
 {
+    private readonly string $code;
+    private readonly array $profiles;
+    private readonly array $targetProfiles;
+
     /**
      * @param string[] $profiles Canonical urls of profiles the value must conform to.
      * @param string[] $targetProfiles Canonical urls of profiles the target of a Reference must conform to.
      */
-    public function __construct(private readonly string $code,
-                                private readonly array  $profiles = [],
-                                private readonly array  $targetProfiles = [])
-    {
+    public function __construct(
+        string $code,
+        array $profiles = [],
+        array $targetProfiles = [],
+    ) {
+        $this->code = $code;
+        $this->profiles = $profiles;
+        $this->targetProfiles = $targetProfiles;
     }
 
     public static function fromArray(array $data): self

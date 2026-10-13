@@ -23,14 +23,24 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class ProfileSlicing
 {
+    private readonly array $discriminators;
+    private readonly string $rules;
+    private readonly bool $ordered;
+    private readonly null|string $description;
+
     /**
      * @param array<array{type: string, path: string}> $discriminators
      */
-    public function __construct(private readonly array       $discriminators,
-                                private readonly string      $rules,
-                                private readonly bool        $ordered = false,
-                                private readonly null|string $description = null)
-    {
+    public function __construct(
+        array $discriminators,
+        string $rules,
+        bool $ordered = false,
+        null|string $description = null,
+    ) {
+        $this->discriminators = $discriminators;
+        $this->rules = $rules;
+        $this->ordered = $ordered;
+        $this->description = $description;
     }
 
     public static function fromArray(array $data): self

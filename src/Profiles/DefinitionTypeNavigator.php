@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
 use DCarbone\PHPFHIR\Version;
 
 /**
@@ -27,9 +28,11 @@ class DefinitionTypeNavigator implements ProfileTypeNavigator
 {
     /** @var array<string, array<string, \DCarbone\PHPFHIR\Version\Definition\Property>> */
     private array $_properties = [];
+    private readonly Version $_version;
 
-    public function __construct(private readonly Version $_version)
+    public function __construct(Version $_version)
     {
+        $this->_version = $_version;
     }
 
     public function getProperty(string $typeKey, string $field): null|ProfileProperty
@@ -74,9 +77,9 @@ class DefinitionTypeNavigator implements ProfileTypeNavigator
             return null;
         }
         $kind = match (true) {
-            $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() => ProfileProperty::KIND_CONTAINER,
-            $type->isPrimitiveType() => ProfileProperty::KIND_PRIMITIVE,
-            default => ProfileProperty::KIND_COMPLEX,
+            $type->isPrimitiveContainer() || $type->hasPrimitiveContainerParent() => ProfilePropertyKindEnum::CONTAINER,
+            $type->isPrimitiveType() => ProfilePropertyKindEnum::PRIMITIVE,
+            default => ProfilePropertyKindEnum::COMPLEX,
         };
         return new ProfileProperty(
             $property->getName(),
