@@ -25,6 +25,9 @@ use DCarbone\PHPFHIR\Builder\Imports;
  */
 class ProfileClass
 {
+    private null|Imports $_imports = null;
+    private null|ProfileValidationCode $_code = null;
+
     public function __construct(
         private readonly Profile           $_profile,
         private readonly string            $_namespace,
@@ -60,9 +63,6 @@ class ProfileClass
         }
         return '' === $text ? null : $text;
     }
-
-    private null|Imports $_imports = null;
-    private null|ProfileValidationCode $_code = null;
 
     /** Generates the validation code, once, along with the imports it and the class need. */
     private function _build(): void
