@@ -50,10 +50,10 @@ class ProfilePackageConfigTest extends TestCase
     public static function deriveNamespaceProvider(): array
     {
         return [
-            'us core' => ['hl7.fhir.us.core', 'UsCore'],
-            'extensions' => ['hl7.fhir.uv.extensions.r4', 'UvExtensionsR4'],
-            'no hl7 prefix' => ['us.cdc.phinvads', 'UsCdcPhinvads'],
-            'dashes' => ['my-custom_ig', 'MyCustomIg'],
+            'us core' => ['hl7.fhir.us.core', 'USCore'],
+            'extensions' => ['hl7.fhir.uv.extensions.r4', 'UVExtensionsR4'],
+            'no hl7 prefix' => ['us.cdc.phinvads', 'USCDCPhinvads'],
+            'dashes' => ['my-custom_ig', 'MYCustomIG'],
         ];
     }
 
@@ -70,7 +70,7 @@ class ProfilePackageConfigTest extends TestCase
         $this->assertSame('hl7.fhir.us.core', $c->getName());
         $this->assertSame($src, $c->getSource());
         $this->assertFalse($c->isSourceArchive());
-        $this->assertSame('UsCore', $c->getNamespace());
+        $this->assertSame('USCore', $c->getNamespace());
         $this->assertSame([], $c->getDependencies());
         $this->assertTrue($c->isStrict());
     }

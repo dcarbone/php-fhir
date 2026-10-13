@@ -38,6 +38,7 @@ namespace <?php echo $namespace; ?>;
 
 <?php echo $copyright; ?>
 
+
 <?php echo \DCarbone\PHPFHIR\Utilities\ImportUtils::compileImportStatements($imports); ?>
 
 /**

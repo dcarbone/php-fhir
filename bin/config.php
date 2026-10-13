@@ -118,7 +118,7 @@ return [
                     [
                         'name' => 'us.cdc.phinvads',
                         'source' => __DIR__ . '/../input/profiles/us.cdc.phinvads/package.tgz',
-                        'namespace' => 'PhinVads',
+                        'namespace' => 'PHINVADS',
                         'dependencies' => [
                             'hl7.fhir.r4.core',
                         ],
@@ -127,7 +127,7 @@ return [
                     [
                         'name' => 'hl7.fhir.uv.sdc.r4',
                         'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.sdc.r4/package.r4.tgz',
-                        'namespace' => 'Sdc',
+                        'namespace' => 'SDC',
                         'dependencies' => [
                             'hl7.fhir.r4.core',
                             'hl7.terminology.r4',
@@ -142,8 +142,8 @@ return [
                         'name' => 'hl7.fhir.us.core',
                         // Path to the package .tgz file or an extracted package directory.  Required.
                         'source' => __DIR__ . '/../input/profiles/us_core_stu9/package.tgz',
-                        // Namespace segment for this package.  Default is derived from name, ex: "UsCore".
-                        'namespace' => 'UsCore',
+                        // Namespace segment for this package.  Default is derived from name, ex: "USCore".
+                        'namespace' => 'USCore',
                         // Names of other packages configured for this version that this one builds on.  They are generated first;
                         // this package resolves base profiles, extensions and ValueSets through them, and its classes
                         // may extend theirs.

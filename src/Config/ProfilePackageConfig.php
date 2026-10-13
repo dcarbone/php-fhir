@@ -135,7 +135,7 @@ class ProfilePackageConfig
     }
 
     /**
-     * Converts a package name into a PascalCase namespace segment, e.g. "hl7.fhir.us.core" => "UsCore".
+     * Converts a package name into a PascalCase namespace segment, upper casing segments of three characters or fewer, e.g. "hl7.fhir.us.core" => "USCore".
      *
      * @param string $packageName
      * @return string
@@ -146,7 +146,12 @@ class ProfilePackageConfig
         while ([] !== $segments && in_array($segments[0], self::_IGNORED_NAME_SEGMENTS, true)) {
             array_shift($segments);
         }
-        return implode('', array_map('ucfirst', $segments));
+        $out = '';
+        foreach ($segments as $segment) {
+            // short segments are acronyms: "us", "uv", "sdc", "r4"
+            $out .= strlen($segment) <= 3 ? strtoupper($segment) : ucfirst($segment);
+        }
+        return $out;
     }
 
     public function getName(): string

@@ -32,6 +32,7 @@ class Profile
     private string $_name;
     private null|string $_title;
     private null|string $_version;
+    private null|string $_copyright;
     private null|string $_status;
     private null|string $_description;
     private string $_type;
@@ -82,6 +83,7 @@ class Profile
         $p->_url = $sd['url'];
         $p->_name = $sd['name'];
         $p->_title = isset($sd['title']) && is_string($sd['title']) ? $sd['title'] : null;
+        $p->_copyright = isset($sd['copyright']) && is_string($sd['copyright']) && '' !== trim($sd['copyright']) ? trim($sd['copyright']) : null;
         $p->_version = isset($sd['version']) && is_string($sd['version']) ? $sd['version'] : null;
         $p->_status = isset($sd['status']) && is_string($sd['status']) ? $sd['status'] : null;
         $p->_description = isset($sd['description']) && is_string($sd['description']) ? $sd['description'] : null;
@@ -157,6 +159,11 @@ class Profile
     public function getTitle(): null|string
     {
         return $this->_title;
+    }
+
+    public function getCopyright(): null|string
+    {
+        return $this->_copyright;
     }
 
     public function getVersion(): null|string

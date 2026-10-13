@@ -89,7 +89,7 @@ class VersionProfilesConfigTest extends TestCase
         $this->assertSame(['hl7.fhir.us.core', 'my.ig'], $c->getPackageNames());
         $this->assertTrue($c->hasPackage('my.ig'));
         $this->assertFalse($c->hasPackage('nope'));
-        $this->assertSame('UsCore', $c->getPackage('hl7.fhir.us.core')->getNamespace());
+        $this->assertSame('USCore', $c->getPackage('hl7.fhir.us.core')->getNamespace());
         $this->assertCount(2, $c->getPackages());
     }
 

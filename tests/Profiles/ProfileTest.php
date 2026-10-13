@@ -202,4 +202,11 @@ class ProfileTest extends TestCase
         $this->expectExceptionMessage('"named"');
         Profile::fromStructureDefinition($sd);
     }
+
+    public function testCopyright(): void
+    {
+        $this->assertNull(Profile::fromStructureDefinition(self::patientSD())->getCopyright());
+        $this->assertNull(Profile::fromStructureDefinition(self::patientSD(['copyright' => '  ']))->getCopyright());
+        $this->assertSame('(c) HL7', Profile::fromStructureDefinition(self::patientSD(['copyright' => " (c) HL7\n"]))->getCopyright());
+    }
 }

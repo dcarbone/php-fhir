@@ -211,4 +211,17 @@ class ProfileWriterTest extends TestCase
         $this->expectException(ProfileDefinitionException::class);
         ProfileWriter::write($out, self::_NS, '/* c */', ['one' => $classes, 'two' => $classes]);
     }
+
+    public function testProfileCopyrightFollowsLibraryCopyright(): void
+    {
+        $classes = $this->classes([
+            self::structureDefinition('with', 'Patient', 'constraint', ['copyright' => "Used by permission.\nAll rights */ reserved."]),
+            self::structureDefinition('without'),
+        ]);
+        $comment = "/*!\n * php-fhir\n *\n * FHIR Copyright Notice:\n *\n * HL7\n */";
+        $with = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass($comment, $classes->getByUrl(self::_BASE . 'with'));
+        $this->assertStringContainsString(" * HL7\n *\n * Profile Copyright Notice:\n *\n * Used by permission.\n * All rights * / reserved.\n */\n", $with);
+        $without = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass($comment, $classes->getByUrl(self::_BASE . 'without'));
+        $this->assertStringNotContainsString('Profile Copyright Notice', $without);
+    }
 }
