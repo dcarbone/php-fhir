@@ -22,6 +22,15 @@
 /** @var array<string, string> $classMap profile url => fully qualified class name, without leading slash */
 /** @var array<string, string> $baseTypeMap profile url => FHIR type name */
 
+$imports = new \DCarbone\PHPFHIR\Builder\Imports(null, $namespace, $className);
+$imports->addImport('', 'UnexpectedValueException');
+$classNames = [];
+foreach ($classMap as $url => $fqcn) {
+    $pos = strrpos($fqcn, '\\');
+    $import = $imports->addImport(substr($fqcn, 0, $pos), substr($fqcn, $pos + 1));
+    $classNames[$url] = $import->getImportedName();
+}
+
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
 
@@ -29,6 +38,7 @@ namespace <?php echo $namespace; ?>;
 
 <?php echo $copyright; ?>
 
+<?php echo \DCarbone\PHPFHIR\Utilities\ImportUtils::compileImportStatements($imports); ?>
 
 /**
  * Index of the generated profile classes, keyed by canonical profile url.
@@ -39,7 +49,7 @@ abstract class <?php echo $className; ?>
     /** @var array<string, class-string> */
     private const _PROFILES = [
 <?php foreach ($classMap as $url => $fqcn) : ?>
-        <?php echo var_export($url, true); ?> => \<?php echo $fqcn; ?>::class,
+        <?php echo var_export($url, true); ?> => <?php echo $classNames[$url]; ?>::class,
 <?php endforeach; ?>
     ];
 
@@ -93,7 +103,7 @@ abstract class <?php echo $className; ?>
      * @param string $onAmbiguous "firstDeclared", "fallback" or "exception"
      * @param string $onVersionMismatch "ignoreVersion", "fallback" or "exception"
      * @return null|class-string Null when the base class should be used.
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public static function resolve(string $baseClassName,
                                    array $declared,
@@ -109,7 +119,7 @@ abstract class <?php echo $className; ?>
             $class = self::getProfileClassname($canonical);
             if (null === $class || !is_a($class, $baseClassName, true)) {
                 if ('exception' === $onUnknown) {
-                    throw new \UnexpectedValueException(sprintf(
+                    throw new UnexpectedValueException(sprintf(
                         'Profile "%s" is not a known profile of "%s"',
                         $canonical,
                         $baseClassName
@@ -123,7 +133,7 @@ abstract class <?php echo $className; ?>
                 $generatedVersion = $class::PROFILE_VERSION;
                 if (null !== $generatedVersion && $declaredVersion !== $generatedVersion) {
                     if ('exception' === $onVersionMismatch) {
-                        throw new \UnexpectedValueException(sprintf(
+                        throw new UnexpectedValueException(sprintf(
                             'Profile "%s" was generated from version "%s"',
                             $canonical,
                             $generatedVersion
@@ -161,7 +171,7 @@ abstract class <?php echo $className; ?>
         return match ($onAmbiguous) {
             'firstDeclared' => $candidates[0],
             'fallback' => null,
-            default => throw new \UnexpectedValueException(sprintf(
+            default => throw new UnexpectedValueException(sprintf(
                 'Ambiguous profiles declared for "%s": ["%s"]',
                 $baseClassName,
                 implode('","', $candidates)

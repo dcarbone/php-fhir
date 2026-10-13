@@ -2,6 +2,8 @@
 
 namespace DCarbone\PHPFHIR\Profiles;
 
+use DCarbone\PHPFHIR\Builder\Imports;
+
 /*
  * Copyright 2016-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -131,6 +133,65 @@ class ProfileClass
         return null !== $this->_parent
             ? $this->_parent->getFullyQualifiedClassName(true)
             : '\\' . $this->_baseTypeClassName;
+    }
+
+    /**
+     * Imports needed by the class, including the validator and violation classes.
+     */
+    public function getImports(): Imports
+    {
+        $imports = new Imports(null, $this->_namespace, $this->_className);
+        foreach ([$this->_extendsFQN(), $this->_validatorFQN(), $this->_violationFQN()] as $fqn) {
+            [$name, $ns] = $this->_split($fqn);
+            $imports->addImport($ns, $name);
+        }
+        return $imports;
+    }
+
+    /** Name, as written in the class body, of the class this one extends. */
+    public function getExtendsName(Imports $imports): string
+    {
+        return $this->_importedName($imports, $this->_extendsFQN());
+    }
+
+    public function getValidatorName(Imports $imports): string
+    {
+        return $this->_importedName($imports, $this->_validatorFQN());
+    }
+
+    public function getViolationName(Imports $imports): string
+    {
+        return $this->_importedName($imports, $this->_violationFQN());
+    }
+
+    private function _importedName(Imports $imports, string $fqn): string
+    {
+        [$name, $ns] = $this->_split($fqn);
+        return $imports->getImportByClassAndNamespace($name, $ns)?->getImportedName() ?? $name;
+    }
+
+    private function _extendsFQN(): string
+    {
+        return null !== $this->_parent
+            ? $this->_parent->getFullyQualifiedClassName(false)
+            : $this->_baseTypeClassName;
+    }
+
+    private function _validatorFQN(): string
+    {
+        return $this->_profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_VALIDATOR;
+    }
+
+    private function _violationFQN(): string
+    {
+        return $this->_profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_VIOLATION;
+    }
+
+    /** @return array{0: string, 1: string} class name, namespace */
+    private function _split(string $fqn): array
+    {
+        $pos = strrpos($fqn, '\\');
+        return [substr($fqn, $pos + 1), substr($fqn, 0, $pos)];
     }
 
     public static function sanitizeClassName(string $name): string

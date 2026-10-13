@@ -74,7 +74,7 @@ class ProfileWriter
         string         $profilesNamespace,
         string         $copyright,
         string         $packageName,
-        ProfileClasses $classes,
+        iterable       $classes,
         array          &$index,
         bool           $write = true,
     ): array {

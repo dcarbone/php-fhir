@@ -139,53 +139,6 @@ class Builder
 
             $ordered = $profilesConfig->getOrderedPackages();
 
-            // read every package, dependencies first, so that dependents can resolve through them.
-            $reads = [];
-            $sets = [];
-            foreach ($ordered as $package) {
-                $log->info(sprintf('Reading profile package "%s"...', $package->getName()));
-                $dependencies = array_map(
-                    static fn(string $depName): ProfilePackage => $reads[$depName],
-                    $package->getDependencies(),
-                );
-                $reads[$package->getName()] = ProfilePackageReader::read($package, $fhirVersion, $dependencies);
-                $sets[$package->getName()] = ProfileSet::fromPackage($reads[$package->getName()], $package->isStrict());
-                foreach ($sets[$package->getName()]->getUnresolved() as $id => $base) {
-                    $log->warning(sprintf(
-                        'Profile "%s": base "%s" not found; extending the base type directly. Configure its package and add it to "dependencies" to fix.',
-                        $id,
-                        $base,
-                    ));
-                }
-            }
-
-            $packages = [];
-            foreach ($ordered as $package) {
-                $name = $package->getName();
-                $dependencyClasses = [];
-                foreach ($profilesConfig->getDependencyClosure($name) as $depName) {
-                    foreach ($packages[$depName] as $url => $class) {
-                        $dependencyClasses[$url] = $class;
-                    }
-                }
-                $packages[$name] = ProfileClasses::build(
-                    $sets[$name],
-                    $profilesNamespace,
-                    $package->getNamespace(),
-                    static fn(string $typeName): null|string => $definition->getTypes()
-                        ->getTypeByName($typeName)
-                        ?->getFullyQualifiedClassName(false),
-                    new ValueSetExpander($reads[$name]),
-                    $dependencyClasses,
-                );
-                foreach ($packages[$name] as $class) {
-                    foreach ($class->getSkipped() as $reason) {
-                        $log->info(sprintf('Profile "%s": %s', $class->getProfile()->getId(), $reason));
-                    }
-                }
-                $log->info(sprintf('Package "%s": %d profile classes', $name, count($packages[$name])));
-            }
-
             // packages that were asked for are written together with everything they depend on, as their classes extend
             // the dependencies' classes.
             $writePackages = null;
@@ -199,13 +152,82 @@ class Builder
                 $writePackages = array_values(array_unique($writePackages));
             }
 
-            ProfileWriter::write(
-                $this->config->getLibraryPath(),
-                $profilesNamespace,
-                CopyrightUtils::compileFullCopyrightComment($this->config, $version->getSourceMetadata()),
-                $packages,
-                $writePackages,
-            );
+            $copyright = CopyrightUtils::compileFullCopyrightComment($this->config, $version->getSourceMetadata());
+            $index = ProfileWriter::newIndex();
+
+            // one package at a time, dependencies first.  Everything a later package cannot need is released as we go,
+            // as large package sets are memory hungry.
+            $reads = [];
+            $classesByPackage = [];
+            foreach ($ordered as $i => $package) {
+                $name = $package->getName();
+                $log->info(sprintf('Reading profile package "%s"...', $name));
+                $dependencies = array_map(
+                    static fn(string $depName): ProfilePackage => $reads[$depName],
+                    $package->getDependencies(),
+                );
+                $reads[$name] = ProfilePackageReader::read($package, $fhirVersion, $dependencies);
+                $set = ProfileSet::fromPackage($reads[$name], $package->isStrict());
+                foreach ($set->getUnresolved() as $id => $base) {
+                    $log->warning(sprintf(
+                        'Profile "%s": base "%s" not found; extending the base type directly. Configure its package and add it to "dependencies" to fix.',
+                        $id,
+                        $base,
+                    ));
+                }
+
+                $dependencyClasses = [];
+                foreach ($profilesConfig->getDependencyClosure($name) as $depName) {
+                    foreach ($classesByPackage[$depName] ?? [] as $url => $class) {
+                        $dependencyClasses[$url] = $class;
+                    }
+                }
+                $classes = ProfileClasses::build(
+                    $set,
+                    $profilesNamespace,
+                    $package->getNamespace(),
+                    static fn(string $typeName): null|string => $definition->getTypes()
+                        ->getTypeByName($typeName)
+                        ?->getFullyQualifiedClassName(false),
+                    new ValueSetExpander($reads[$name]),
+                    $dependencyClasses,
+                );
+                unset($set, $dependencyClasses);
+                foreach ($classes as $class) {
+                    foreach ($class->getSkipped() as $reason) {
+                        $log->info(sprintf('Profile "%s": %s', $class->getProfile()->getId(), $reason));
+                    }
+                }
+                $log->info(sprintf('Package "%s": %d profile classes', $name, count($classes)));
+
+                ProfileWriter::writeClasses(
+                    $this->config->getLibraryPath(),
+                    $profilesNamespace,
+                    $copyright,
+                    $name,
+                    $classes,
+                    $index,
+                    null === $writePackages || in_array($name, $writePackages, true),
+                );
+
+                $classesByPackage[$name] = $classes;
+                unset($classes);
+
+                // release whatever no later package depends on.
+                $needed = [];
+                foreach (array_slice($ordered, $i + 1) as $later) {
+                    foreach ($profilesConfig->getDependencyClosure($later->getName()) as $depName) {
+                        $needed[$depName] = true;
+                    }
+                }
+                foreach (array_keys($reads) as $readName) {
+                    if (!isset($needed[$readName])) {
+                        unset($reads[$readName], $classesByPackage[$readName]);
+                    }
+                }
+            }
+
+            ProfileWriter::writeSupport($this->config->getLibraryPath(), $profilesNamespace, $copyright, $index);
 
             $log->endBreak(sprintf('FHIR Version %s Profile Class Generation', $versionName));
         }

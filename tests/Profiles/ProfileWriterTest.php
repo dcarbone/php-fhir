@@ -96,6 +96,23 @@ class ProfileWriterTest extends TestCase
         $this->assertSame(self::_NS . '\\Ig\\ChildP', $child->getFullyQualifiedClassName(false));
     }
 
+    public function testRenderedClassImportsReferencedClasses(): void
+    {
+        $classes = $this->classes([
+            self::structureDefinition('parent-p'),
+            self::structureDefinition('child-p', 'Patient', 'constraint', ['baseDefinition' => self::_BASE . 'parent-p']),
+        ]);
+        $out = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass('', $classes->getByUrl(self::_BASE . 'child-p'));
+        $parentOut = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass('', $classes->getByUrl(self::_BASE . 'parent-p'));
+        $this->assertStringContainsString('use Acme\\Gen\\Versions\\R4\\Types\\FHIRPatient;', $parentOut);
+        $this->assertStringContainsString('class ParentP extends FHIRPatient', $parentOut);
+        $this->assertStringNotContainsString('use ' . self::_NS . '\\Ig\\ParentP;', $out); // same namespace
+        $this->assertStringContainsString('use ' . self::_NS . '\\ProfileValidator;', $out);
+        $this->assertStringContainsString('class ChildP extends ParentP', $out);
+        $this->assertStringContainsString('ProfileValidator::validate(', $out);
+        $this->assertStringNotContainsString('extends \\', $out);
+    }
+
     public function testSharedNamesFallBackToIds(): void
     {
         $classes = $this->classes([

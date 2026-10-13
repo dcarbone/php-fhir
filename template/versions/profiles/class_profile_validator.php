@@ -41,7 +41,7 @@ abstract class <?php echo $className; ?>
      * @param mixed $resource Anything that can be json encoded to a FHIR resource or element.
      * @param array<int, array<string, mixed>> $rules
      * @param array<int, array<string, mixed>> $slices
-     * @return \<?php echo $namespace; ?>\<?php echo $violationClassName; ?>[]
+     * @return <?php echo $violationClassName; ?>[]
      */
     public static function validate(mixed $resource, array $rules, array $slices): array
     {
@@ -85,7 +85,10 @@ abstract class <?php echo $className; ?>
             foreach ($entries as [$key, $values, $isList]) {
                 if (isset($rule['types']) && str_ends_with($last, '[x]')) {
                     $suffix = substr($key, strlen($last) - 3);
-                    $allowed = array_map('ucfirst', $rule['types']);
+                    $allowed = [];
+                    foreach ($rule['types'] as $type) {
+                        $allowed[] = ucfirst($type);
+                    }
                     if (!in_array($suffix, $allowed, true)) {
                         $violations[] = new <?php echo $violationClassName; ?>($parentPath . $key, <?php echo $violationClassName; ?>::RULE_TYPE, sprintf(
                             'type %s is not allowed, expected one of: %s',

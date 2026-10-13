@@ -20,9 +20,9 @@
 /** @var \DCarbone\PHPFHIR\Profiles\ProfileClass $profileClass */
 
 $profile = $profileClass->getProfile();
-$ns = $profileClass->getProfilesNamespace();
-$validator = '\\' . $ns . '\\' . PHPFHIR_PROFILES_CLASSNAME_VALIDATOR;
-$violation = '\\' . $ns . '\\' . PHPFHIR_PROFILES_CLASSNAME_VIOLATION;
+$imports = $profileClass->getImports();
+$validator = $profileClass->getValidatorName($imports);
+$violation = $profileClass->getViolationName($imports);
 $accessors = $profileClass->getSliceAccessors();
 $slices = $profileClass->getSlices();
 
@@ -33,6 +33,7 @@ namespace <?php echo $profileClass->getNamespace(); ?>;
 
 <?php echo $copyright; ?>
 
+<?php echo \DCarbone\PHPFHIR\Utilities\ImportUtils::compileImportStatements($imports); ?>
 
 /**
  * Class <?php echo $profileClass->getClassName(); ?>
@@ -46,7 +47,7 @@ namespace <?php echo $profileClass->getNamespace(); ?>;
  * Constrains: <?php echo $profile->getType(); ?>
 
  */
-class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileClass->getExtendsClassName(); ?>
+class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileClass->getExtendsName($imports); ?>
 
 {
     public const PROFILE_URL = <?php echo var_export($profile->getUrl(), true); ?>;
@@ -120,10 +121,13 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
      */
     public function <?php echo $accessor['method']; ?>(): array
     {
-        return array_values(array_filter(
-            $this-><?php echo $accessor['getter']; ?>(),
-            static fn(object $item): bool => <?php echo $validator; ?>::matchesSlice($item, self::PROFILE_SLICES[<?php echo $accessor['slice']; ?>]['match']),
-        ));
+        $matched = [];
+        foreach ($this-><?php echo $accessor['getter']; ?>() as $item) {
+            if (<?php echo $validator; ?>::matchesSlice($item, self::PROFILE_SLICES[<?php echo $accessor['slice']; ?>]['match'])) {
+                $matched[] = $item;
+            }
+        }
+        return $matched;
     }
 <?php endif; ?>
 <?php endforeach; ?>
