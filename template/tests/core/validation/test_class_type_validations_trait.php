@@ -201,5 +201,49 @@ class <?php echo $coreFile; ?> extends TestCase
         $errs = $type->_getValidationErrors();
         $this->assertCount(2, $errs, var_export($errs, true));
     }
+
+    public function testUnsetCollectionFieldViolatesMinOccurs()
+    {
+        $type = new <?php echo $mockElement; ?>(
+            name: 'mock',
+            validationRuleMap: [
+                'code' => [<?php echo $minOccursRule; ?>::NAME => 1],
+            ],
+        );
+        $errs = $type->_getValidationErrors();
+        $this->assertCount(1, $errs, var_export($errs, true));
+        $this->assertArrayHasKey('code', $errs);
+        $this->assertArrayHasKey(<?php echo $minOccursRule; ?>::NAME, $errs['code']);
+    }
+
+    public function testUnsetCollectionFieldWithoutMinimumHasNoErrors()
+    {
+        $type = new <?php echo $mockElement; ?>(
+            name: 'mock',
+            validationRuleMap: [
+                'code' => [
+                    <?php echo $minOccursRule; ?>::NAME => 0,
+                    <?php echo $maxOccursRule; ?>::NAME => 2,
+                ],
+            ],
+        );
+        $errs = $type->_getValidationErrors();
+        $this->assertEmpty($errs, var_export($errs, true));
+    }
+
+    public function testUnsetCollectionFieldOnlyRunsMinOccurs()
+    {
+        $type = new <?php echo $mockElement; ?>(
+            name: 'mock',
+            validationRuleMap: [
+                'code' => [
+                    <?php echo $minOccursRule; ?>::NAME => 1,
+                    <?php echo $patternMatchRule; ?>::NAME => '/^[a-z]+$/',
+                ],
+            ],
+        );
+        $errs = $type->_getValidationErrors();
+        $this->assertSame([<?php echo $minOccursRule; ?>::NAME], array_keys($errs['code'] ?? []), var_export($errs, true));
+    }
 }
 <?php return ob_get_clean();

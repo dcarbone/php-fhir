@@ -30,7 +30,7 @@ echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $profileClass->getNamespace(); ?>;
 
-<?php echo \DCarbone\PHPFHIR\Utilities\CopyrightUtils::appendProfileCopyright($copyright, $profile->getCopyright()); ?>
+<?php echo \DCarbone\PHPFHIR\Utilities\CopyrightUtils::appendProfileCopyright($copyright, $profileClass->getCopyrightNotice()); ?>
 
 
 <?php echo \DCarbone\PHPFHIR\Utilities\ImportUtils::compileImportStatements($imports); ?>

@@ -34,7 +34,31 @@ class ProfileClass
         private readonly string            $_profilesNamespace = '',
         private readonly array             $_compiled = ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []],
         private readonly null|ProfileTypeNavigator $_navigator = null,
+        private readonly array             $_package = [],
     ) {
+    }
+
+    /**
+     * Text for the "Profile Copyright Notice" of the class header: where the profile comes from, how the package is
+     * licensed, and the copyright statement of the profile itself.
+     */
+    public function getCopyrightNotice(): null|string
+    {
+        $lines = [];
+        if (isset($this->_package['name'])) {
+            $lines[] = sprintf('Package: %s %s', $this->_package['name'], $this->_package['version'] ?? '');
+        }
+        if (isset($this->_package['author'])) {
+            $lines[] = 'Author: ' . $this->_package['author'];
+        }
+        if (isset($this->_package['license'])) {
+            $lines[] = 'License: ' . $this->_package['license'];
+        }
+        $text = rtrim(implode("\n", $lines));
+        if (null !== $this->_profile->getCopyright()) {
+            $text .= ('' === $text ? '' : "\n\n") . $this->_profile->getCopyright();
+        }
+        return '' === $text ? null : $text;
     }
 
     private null|Imports $_imports = null;

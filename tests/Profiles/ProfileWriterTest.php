@@ -220,8 +220,22 @@ class ProfileWriterTest extends TestCase
         ]);
         $comment = "/*!\n * php-fhir\n *\n * FHIR Copyright Notice:\n *\n * HL7\n */";
         $with = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass($comment, $classes->getByUrl(self::_BASE . 'with'));
-        $this->assertStringContainsString(" * HL7\n *\n * Profile Copyright Notice:\n *\n * Used by permission.\n * All rights * / reserved.\n */\n", $with);
+        $this->assertStringContainsString(" * HL7\n *\n * Profile Copyright Notice:\n *\n * Package: test.ig 1.0.0\n *\n * Used by permission.\n * All rights * / reserved.\n */\n", $with);
         $without = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass($comment, $classes->getByUrl(self::_BASE . 'without'));
-        $this->assertStringNotContainsString('Profile Copyright Notice', $without);
+        $this->assertStringNotContainsString('All rights', $without);
+        $this->assertStringContainsString(" *\n * Profile Copyright Notice:\n *\n * Package: test.ig 1.0.0\n */\n", $without);
+    }
+
+    public function testPackageLicenseAndAuthorInHeader(): void
+    {
+        $path = $this->_root . '/pkg-lic';
+        self::writePackageDir($path, [
+            'package.json' => self::manifest('test.ig', ['license' => 'CC0-1.0', 'author' => 'HL7 International']),
+            'StructureDefinition-a.json' => self::structureDefinition('a'),
+        ]);
+        $set = ProfileSet::fromPackage(ProfilePackageReader::read(ProfilePackageConfig::fromArray(['name' => 'test.ig', 'source' => $path])));
+        $classes = ProfileClasses::build($set, self::_NS, 'Ig', self::resolver());
+        $out = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass("/*!\n * x\n */", $classes->getByUrl(self::_BASE . 'a'));
+        $this->assertStringContainsString(" * Package: test.ig 1.0.0\n * Author: HL7 International\n * License: CC0-1.0\n */\n", $out);
     }
 }

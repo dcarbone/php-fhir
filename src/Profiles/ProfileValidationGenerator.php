@@ -208,9 +208,18 @@ final class ProfileValidationGenerator
         }
         $this->_walk($segments, '$this', $this->_root, '', function (string $var, string $typeKey, string $path) use ($rule, $last, $entries, $base): void {
             $count = '$c';
-            $this->_emit($count . ' = 0;');
-            foreach ($entries as $prop) {
-                $this->_entry($prop, $var, $path, $count, $rule, $base);
+            $lines = $this->_capture(function () use ($entries, $var, $path, $count, $rule, $base): void {
+                foreach ($entries as $prop) {
+                    $this->_entry($prop, $var, $path, $count, $rule, $base);
+                }
+            });
+            // a lone collection that is only counted needs no zeroing first
+            $prefix = str_repeat(self::_PAD, $this->_indent) . $count . ' += ';
+            if (1 === count($lines) && str_starts_with($lines[0], $prefix)) {
+                $this->_emit($count . ' = ' . substr($lines[0], strlen($prefix)));
+            } else {
+                $this->_emit($count . ' = 0;');
+                array_push($this->_out, ...$lines);
             }
             $display = self::_esc($last);
             if (isset($rule['min'])) {
@@ -235,8 +244,8 @@ final class ProfileValidationGenerator
 
     /**
      * The maximum of a top-level collection is enforced by the type's own max_occurs rule; this hands it over and
-     * returns whatever is left for generated code.  Minimums stay generated: the type's min_occurs rule only visits
-     * properties that have been initialized, so it never notices a collection that was not set at all.
+     * returns whatever is left for generated code.  Minimums stay generated because a profile counts
+     * them across slices and nested paths, and has its own minimum that may differ from the type's.
      */
     private function _delegateOccurs(ProfileProperty $prop, array $rule): array
     {

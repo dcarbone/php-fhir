@@ -105,6 +105,7 @@ class ProfileClasses implements \Countable, \IteratorAggregate
                 $profilesNamespace,
                 ProfileRules::compile($profile, $expander),
                 $navigator,
+                $set->getPackageInfo(),
             );
         }
         return $classes;

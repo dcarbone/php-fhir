@@ -29,6 +29,8 @@ class ProfileSet
     private array $_ownUrls = [];
     /** @var array<string, string> profile id => base definition that could not be resolved */
     private array $_unresolved = [];
+    /** @var array<string, string> name, version and, if the manifest has them, license and author of the package */
+    private array $_packageInfo = [];
 
     private function __construct()
     {
@@ -42,6 +44,13 @@ class ProfileSet
     public static function fromPackage(ProfilePackage $package, bool $strict = true): self
     {
         $set = new self();
+        $manifest = $package->getManifest();
+        $set->_packageInfo = ['name' => $package->getName(), 'version' => $package->getVersion()];
+        foreach (['license', 'author'] as $key) {
+            if (isset($manifest[$key]) && is_string($manifest[$key]) && '' !== trim($manifest[$key])) {
+                $set->_packageInfo[$key] = trim($manifest[$key]);
+            }
+        }
 
         // dependencies first so own profiles win a url collision.
         foreach (self::_collectDependencies($package) as $dependency) {
@@ -66,6 +75,12 @@ class ProfileSet
         }
 
         return $set;
+    }
+
+    /** @return array<string, string> */
+    public function getPackageInfo(): array
+    {
+        return $this->_packageInfo;
     }
 
     /**

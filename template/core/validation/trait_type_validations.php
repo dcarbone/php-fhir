@@ -26,10 +26,12 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
+$minOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
+    $minOccursRule,
 );
 
 ob_start();
@@ -127,10 +129,12 @@ trait <?php echo $coreFile; ?>
     {
         $rules = $this->_getCombinedValidationRules();
         $errs = [];
+        $seen = [];
         foreach ($this as $prop => $value) {
             if (str_starts_with($prop, '_')) {
                 continue;
             }
+            $seen[$prop] = true;
             if (isset($rules[$prop])) {
                 foreach ($rules[$prop] as $rule => $constraint) {
                     $err = <?php echo $validatorClass; ?>::runRule($this, $prop, $rule, $constraint, $value);
@@ -154,6 +158,16 @@ trait <?php echo $coreFile; ?>
                         }
                     }
                 }
+            }
+        }
+        // collection properties are declared without a default, so they are skipped by the loop above until set.
+        foreach ($rules as $prop => $propRules) {
+            if (isset($seen[$prop]) || !isset($propRules[<?php echo $minOccursRule; ?>::NAME])) {
+                continue;
+            }
+            $err = <?php echo $validatorClass; ?>::runRule($this, $prop, <?php echo $minOccursRule; ?>::NAME, $propRules[<?php echo $minOccursRule; ?>::NAME], null);
+            if (null !== $err) {
+                $errs[$prop][<?php echo $minOccursRule; ?>::NAME] = $err;
             }
         }
         return $errs;
