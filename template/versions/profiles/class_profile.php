@@ -21,8 +21,7 @@
 
 $profile = $profileClass->getProfile();
 $imports = $profileClass->getImports();
-$validator = $profileClass->getValidatorName($imports);
-$violation = $profileClass->getViolationName($imports);
+$code = $profileClass->getValidationCode();
 $accessors = $profileClass->getSliceAccessors();
 $slices = $profileClass->getSlices();
 
@@ -47,7 +46,7 @@ namespace <?php echo $profileClass->getNamespace(); ?>;
  * Constrains: <?php echo $profile->getType(); ?>
 
  */
-class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileClass->getExtendsName($imports); ?>
+class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileClass->getExtendsName(); ?>
 
 {
     public const PROFILE_URL = <?php echo var_export($profile->getUrl(), true); ?>;
@@ -56,25 +55,13 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     public const PROFILE_BASE_TYPE = <?php echo var_export($profile->getType(), true); ?>;
 
     /**
-     * Cardinality, fixed / pattern value, choice type and required binding rules, by element path.
-     *
-     * @var array<int, array<string, mixed>>
-     */
-    public const PROFILE_RULES = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($profileClass->getRules(), 1); ?>;
-
-    /**
-     * Slices that can be matched by value, by sliced element path.
-     *
-     * @var array<int, array<string, mixed>>
-     */
-    public const PROFILE_SLICES = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($slices, 1); ?>;
-
-    /**
      * Invariants declared by the profile.  Informational only; these are not evaluated.
      *
      * @var array<int, array<string, null|string>>
      */
     public const PROFILE_INVARIANTS = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($profileClass->getInvariants(), 1); ?>;
+
+    private const _PROFILE_VALIDATION_RULES = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($code->fieldRules, 1); ?>;
 
     /**
      * @return string
@@ -85,45 +72,58 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     }
 
     /**
-     * Checks this instance against the profile.
+     * Maximum cardinality of this profile's top-level collections, enforced by the type's own validation rules.
      *
-     * @return <?php echo $violation; ?>[] Empty if the instance conforms.
+     * @return array
      */
-    public function validate(): array
+    public function _getCombinedValidationRules(): array
     {
-        return <?php echo $validator; ?>::validate($this, self::PROFILE_RULES, self::PROFILE_SLICES);
+        $out = parent::_getCombinedValidationRules();
+        foreach (self::_PROFILE_VALIDATION_RULES as $field => $rules) {
+            $out[$field] = array_merge($out[$field] ?? [], $rules);
+        }
+        return $out;
     }
 
     /**
-     * @return bool
+     * Executes the type's validation rules, then those of the profile.  Profile failures are keyed by element path,
+     * e.g. "name[0].family", and valued by a map of ["profile_{rule}" => message].
+     *
+     * @return array
      */
-    public function isValid(): bool
+    public function _getValidationErrors(): array
     {
-        return [] === $this->validate();
+        $errs = parent::_getValidationErrors();
+<?php if ('' !== $code->body) : ?>
+<?php echo $code->body; ?>
+
+<?php endif; ?>
+        return $errs;
     }
 <?php foreach ($accessors as $accessor) : ?>
 
     /**
 <?php if ($accessor['single']) : ?>
-     * @return null|object The "<?php echo $slices[$accessor['slice']]['name']; ?>" slice of <?php echo $slices[$accessor['slice']]['path']; ?>, if present.
+     * @return null|<?php echo $accessor['class']; ?> The "<?php echo $slices[$accessor['slice']]['name']; ?>" slice of <?php echo $slices[$accessor['slice']]['path']; ?>, if present.
      */
-    public function <?php echo $accessor['method']; ?>(): null|object
+    public function <?php echo $accessor['method']; ?>(): null|<?php echo $accessor['class']; ?>
+
     {
         foreach ($this-><?php echo $accessor['getter']; ?>() as $item) {
-            if (<?php echo $validator; ?>::matchesSlice($item, self::PROFILE_SLICES[<?php echo $accessor['slice']; ?>]['match'])) {
+            if (self::<?php echo $accessor['matcher']; ?>($item)) {
                 return $item;
             }
         }
         return null;
     }
 <?php else : ?>
-     * @return object[] The items of the "<?php echo $slices[$accessor['slice']]['name']; ?>" slice of <?php echo $slices[$accessor['slice']]['path']; ?>.
+     * @return <?php echo $accessor['class']; ?>[] The items of the "<?php echo $slices[$accessor['slice']]['name']; ?>" slice of <?php echo $slices[$accessor['slice']]['path']; ?>.
      */
     public function <?php echo $accessor['method']; ?>(): array
     {
         $matched = [];
         foreach ($this-><?php echo $accessor['getter']; ?>() as $item) {
-            if (<?php echo $validator; ?>::matchesSlice($item, self::PROFILE_SLICES[<?php echo $accessor['slice']; ?>]['match'])) {
+            if (self::<?php echo $accessor['matcher']; ?>($item)) {
                 $matched[] = $item;
             }
         }
@@ -131,5 +131,10 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     }
 <?php endif; ?>
 <?php endforeach; ?>
+<?php if ('' !== $code->members) : ?>
+
+<?php echo $code->members; ?>
+
+<?php endif; ?>
 }
 <?php return ob_get_clean();

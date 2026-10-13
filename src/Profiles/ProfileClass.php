@@ -33,7 +33,37 @@ class ProfileClass
         private readonly null|ProfileClass $_parent = null,
         private readonly string            $_profilesNamespace = '',
         private readonly array             $_compiled = ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []],
+        private readonly null|ProfileTypeNavigator $_navigator = null,
     ) {
+    }
+
+    private null|Imports $_imports = null;
+    private null|ProfileValidationCode $_code = null;
+
+    /** Generates the validation code, once, along with the imports it and the class need. */
+    private function _build(): void
+    {
+        if (null !== $this->_imports) {
+            return;
+        }
+        $imports = new Imports(null, $this->_namespace, $this->_className);
+        [$name, $ns] = $this->_split($this->_extendsFQN());
+        $imports->addImport($ns, $name);
+        $this->_code = null === $this->_navigator
+            ? new ProfileValidationCode()
+            : ProfileValidationGenerator::generate(
+                $this->_compiled,
+                $this->_profile->getType(),
+                $this->_navigator,
+                $imports,
+            );
+        $this->_imports = $imports;
+    }
+
+    public function getValidationCode(): ProfileValidationCode
+    {
+        $this->_build();
+        return $this->_code;
     }
 
     /** Namespace, without leading slash, shared by the generated validator, map and autoloader. */
@@ -63,21 +93,23 @@ class ProfileClass
     /** @return string[] Constraints that could not be turned into rules, and why. */
     public function getSkipped(): array
     {
-        return $this->_compiled['skipped'];
+        $this->_build();
+        return [...$this->_compiled['skipped'], ...$this->_code->skipped];
     }
 
     /**
      * Typed accessors for slices of the profile's own top-level elements, e.g. an "ssn" slice of "identifier"
      * becomes getSsnIdentifier().
      *
-     * @return array<int, array{method: string, getter: string, slice: int, single: bool}>
+     * @return array<int, array{method: string, getter: string, matcher: string, class: string, single: bool, slice: int}>
      */
     public function getSliceAccessors(): array
     {
+        $matchers = $this->getValidationCode()->sliceMatchers;
         $out = [];
         $used = [];
         foreach ($this->_compiled['slices'] as $i => $slice) {
-            if (str_contains($slice['path'], '.') || str_contains($slice['path'], '[x]')) {
+            if (!isset($matchers[$i]) || str_contains($slice['path'], '.') || str_contains($slice['path'], '[x]')) {
                 continue;
             }
             $method = 'get' . self::sanitizeClassName($slice['name']) . ucfirst($slice['path']);
@@ -88,8 +120,10 @@ class ProfileClass
             $out[] = [
                 'method' => $method,
                 'getter' => 'get' . ucfirst($slice['path']),
-                'slice' => $i,
+                'matcher' => $matchers[$i]['method'],
+                'class' => $matchers[$i]['class'],
                 'single' => 1 === ($slice['max'] ?? null),
+                'slice' => $i,
             ];
         }
         return $out;
@@ -136,32 +170,18 @@ class ProfileClass
     }
 
     /**
-     * Imports needed by the class, including the validator and violation classes.
+     * Imports needed by the class, including everything its generated validation code refers to.
      */
     public function getImports(): Imports
     {
-        $imports = new Imports(null, $this->_namespace, $this->_className);
-        foreach ([$this->_extendsFQN(), $this->_validatorFQN(), $this->_violationFQN()] as $fqn) {
-            [$name, $ns] = $this->_split($fqn);
-            $imports->addImport($ns, $name);
-        }
-        return $imports;
+        $this->_build();
+        return $this->_imports;
     }
 
     /** Name, as written in the class body, of the class this one extends. */
-    public function getExtendsName(Imports $imports): string
+    public function getExtendsName(): string
     {
-        return $this->_importedName($imports, $this->_extendsFQN());
-    }
-
-    public function getValidatorName(Imports $imports): string
-    {
-        return $this->_importedName($imports, $this->_validatorFQN());
-    }
-
-    public function getViolationName(Imports $imports): string
-    {
-        return $this->_importedName($imports, $this->_violationFQN());
+        return $this->_importedName($this->getImports(), $this->_extendsFQN());
     }
 
     private function _importedName(Imports $imports, string $fqn): string
@@ -175,16 +195,6 @@ class ProfileClass
         return null !== $this->_parent
             ? $this->_parent->getFullyQualifiedClassName(false)
             : $this->_baseTypeClassName;
-    }
-
-    private function _validatorFQN(): string
-    {
-        return $this->_profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_VALIDATOR;
-    }
-
-    private function _violationFQN(): string
-    {
-        return $this->_profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_VIOLATION;
     }
 
     /** @return array{0: string, 1: string} class name, namespace */

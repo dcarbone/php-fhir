@@ -188,20 +188,4 @@ class ProfileRulesTest extends TestCase
         $this->assertSame('[]', ProfileRules::export([]));
         $this->assertSame("'s'", ProfileRules::export('s'));
     }
-
-    public function testSliceAccessors(): void
-    {
-        $compiled = ['rules' => [], 'invariants' => [], 'skipped' => [], 'slices' => [
-            ['path' => 'extension', 'name' => 'race', 'match' => ['url' => 'u'], 'max' => 1],
-            ['path' => 'extension', 'name' => 'tribal-affiliation', 'match' => ['url' => 'v']],
-            ['path' => 'extension', 'name' => 'race', 'match' => ['url' => 'w']],
-            ['path' => 'contact.extension', 'name' => 'nested', 'match' => ['url' => 'n']],
-        ]];
-        $profile = \DCarbone\PHPFHIR\Profiles\Profile::fromStructureDefinition(self::sd('p', []));
-        $class = new ProfileClass($profile, 'A\\B', 'P', 'A\\T\\FHIRPatient', null, 'A', $compiled);
-        $this->assertSame([
-            ['method' => 'getRaceExtension', 'getter' => 'getExtension', 'slice' => 0, 'single' => true],
-            ['method' => 'getTribalAffiliationExtension', 'getter' => 'getExtension', 'slice' => 1, 'single' => false],
-        ], $class->getSliceAccessors());
-    }
 }

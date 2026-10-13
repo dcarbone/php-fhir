@@ -107,9 +107,7 @@ class ProfileWriterTest extends TestCase
         $this->assertStringContainsString('use Acme\\Gen\\Versions\\R4\\Types\\FHIRPatient;', $parentOut);
         $this->assertStringContainsString('class ParentP extends FHIRPatient', $parentOut);
         $this->assertStringNotContainsString('use ' . self::_NS . '\\Ig\\ParentP;', $out); // same namespace
-        $this->assertStringContainsString('use ' . self::_NS . '\\ProfileValidator;', $out);
         $this->assertStringContainsString('class ChildP extends ParentP', $out);
-        $this->assertStringContainsString('ProfileValidator::validate(', $out);
         $this->assertStringNotContainsString('extends \\', $out);
     }
 
@@ -159,7 +157,7 @@ class ProfileWriterTest extends TestCase
         ]);
 
         $written = ProfileWriter::write($out, self::_NS, '/* copyright */', ['test.ig' => $classes]);
-        $this->assertCount(6, $written);
+        $this->assertCount(4, $written);
         foreach ($written as $file) {
             $this->assertFileExists($file);
         }
@@ -200,7 +198,7 @@ class ProfileWriterTest extends TestCase
         mkdir($out);
         $classes = $this->classes([self::structureDefinition('a')]);
         $written = ProfileWriter::write($out, self::_NS, '/* c */', ['test.ig' => $classes], ['other']);
-        $this->assertCount(4, $written);
+        $this->assertCount(2, $written);
         $this->assertFileDoesNotExist($out . '/Acme/Gen/Versions/R4/Profiles/Ig/A.php');
         $this->assertStringContainsString(self::_BASE . 'a', file_get_contents($out . '/Acme/Gen/Versions/R4/Profiles/ProfileMap.php'));
     }

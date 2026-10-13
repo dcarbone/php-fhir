@@ -33,6 +33,8 @@ class ProfileClasses implements \Countable, \IteratorAggregate
      *                                                        leading slash, of the generated class for it.
      * @param array<string, \DCarbone\PHPFHIR\Profiles\ProfileClass> $dependencyClasses Already generated classes of
      *        dependency packages, by profile url, that may be used as parents.
+     * @param null|\DCarbone\PHPFHIR\Profiles\ProfileTypeNavigator $navigator Shape of the generated types.  Without it, the
+     *        classes are generated without any validation code.
      * @throws \DCarbone\PHPFHIR\Profiles\ProfileDefinitionException
      */
     public static function build(
@@ -42,6 +44,7 @@ class ProfileClasses implements \Countable, \IteratorAggregate
         callable          $baseTypeResolver,
         null|ValueSetExpander $expander = null,
         array             $dependencyClasses = [],
+        null|ProfileTypeNavigator $navigator = null,
     ): self
     {
         $wanted = [];
@@ -101,6 +104,7 @@ class ProfileClasses implements \Countable, \IteratorAggregate
                 $parent,
                 $profilesNamespace,
                 ProfileRules::compile($profile, $expander),
+                $navigator,
             );
         }
         return $classes;

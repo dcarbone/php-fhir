@@ -224,7 +224,7 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
         }
         $profiled = $profileClass::jsonUnserialize($decoded, $config);
         if ($config->getOnProfileViolation() !== $config::ON_PROFILE_VIOLATION_KEEP) {
-            $violations = $profiled->validate();
+            $violations = $profiled->_getValidationErrors();
             if ([] !== $violations) {
                 if ($config->getOnProfileViolation() === $config::ON_PROFILE_VIOLATION_FALLBACK) {
                     return $className::jsonUnserialize($decoded, $config);
@@ -266,7 +266,7 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
         }
         $profiled = $profileClass::xmlUnserialize($element, $config);
         if ($config->getOnProfileViolation() !== $config::ON_PROFILE_VIOLATION_KEEP) {
-            $violations = $profiled->validate();
+            $violations = $profiled->_getValidationErrors();
             if ([] !== $violations) {
                 if ($config->getOnProfileViolation() === $config::ON_PROFILE_VIOLATION_FALLBACK) {
                     return $className::xmlUnserialize($element, $config);
@@ -307,10 +307,16 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
      */
     private static function _createProfileViolationException(string $profileClass, array $violations): \UnexpectedValueException
     {
+        $parts = [];
+        foreach ($violations as $path => $errs) {
+            foreach ($errs as $rule => $message) {
+                $parts[] = sprintf('%s [%s]: %s', $path, $rule, $message);
+            }
+        }
         return new \UnexpectedValueException(sprintf(
             'Resource violates profile "%s": %s',
             $profileClass::PROFILE_URL,
-            implode('; ', array_map('strval', $violations))
+            implode('; ', $parts)
         ));
     }
 

@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Profiles\DefinitionTypeNavigator;
 use DCarbone\PHPFHIR\Profiles\ProfileClasses;
 use DCarbone\PHPFHIR\Profiles\ProfilePackage;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
@@ -153,6 +154,7 @@ class Builder
             }
 
             $copyright = CopyrightUtils::compileFullCopyrightComment($this->config, $version->getSourceMetadata());
+            $navigator = new DefinitionTypeNavigator($version);
             $index = ProfileWriter::newIndex();
 
             // one package at a time, dependencies first.  Everything a later package cannot need is released as we go,
@@ -191,6 +193,7 @@ class Builder
                         ?->getFullyQualifiedClassName(false),
                     new ValueSetExpander($reads[$name]),
                     $dependencyClasses,
+                    $navigator,
                 );
                 unset($set, $dependencyClasses);
                 foreach ($classes as $class) {
