@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * One property of a generated FHIR type, as far as profile validation code generation is concerned.
@@ -61,5 +62,13 @@ final class ProfileProperty
     public function isComplex(): bool
     {
         return ProfilePropertyKindEnum::COMPLEX === $this->kind;
+    }
+
+    /**
+     * @return string Name of the type's constant holding the field name, e.g. "FIELD_BIRTH_DATE".
+     */
+    public function getFieldConstantName(): string
+    {
+        return 'FIELD_' . NameUtils::getConstName($this->field);
     }
 }

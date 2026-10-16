@@ -18,18 +18,21 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * limitations under the License.
  */
 use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
+use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Profiles\Profile;
 use DCarbone\PHPFHIR\Profiles\ProfileClass;
+use DCarbone\PHPFHIR\Profiles\ProfilePhpExpression;
 use DCarbone\PHPFHIR\Profiles\ProfileProperty;
+use DCarbone\PHPFHIR\Profiles\ProfileRules;
 use DCarbone\PHPFHIR\Profiles\ProfileTypeNavigator;
-use DCarbone\PHPFHIR\Profiles\ProfileWriter;
-use PHPUnit\Framework\Attributes\DataProvider;
+use DCarbone\PHPFHIR\Profiles\ProfileValidationGenerator;
+use DCarbone\PHPFHIR\Render\Templates;
 use PHPUnit\Framework\TestCase;
-use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 /**
- * Renders a profile class whose validation code is generated against fake typed classes, then runs it on hydrated
- * objects: nothing is serialized along the way.
+ * Checks the rule map generated for a profile against fake type definitions.  Running the rules is the job of the
+ * generated validation system, which has its own tests; what matters here is that every constraint ends up under the
+ * right path, with the right rule and constraint.
  */
 class ProfileValidationTest extends TestCase
 {
@@ -37,14 +40,10 @@ class ProfileValidationTest extends TestCase
 
     private const _NS = 'Acme\\Val\\R4\\Profiles';
     private const _T = 'Acme\\Val\\R4\\Types\\';
-    private const _CLASS = self::_NS . '\\Ig\\Sample';
 
-    private static TemporaryDirectory $_tmpdir;
-    private static bool $_loaded = false;
-
-    private static function prop(string $field, bool $collection, string $typeKey, ProfilePropertyKindEnum $kind = ProfilePropertyKindEnum::COMPLEX, null|string $class = null): ProfileProperty
+    private static function prop(string $field, bool $collection, string $typeKey, ProfilePropertyKindEnum $kind = ProfilePropertyKindEnum::COMPLEX): ProfileProperty
     {
-        return new ProfileProperty($field, 'get' . ucfirst($field), $collection, $typeKey, $class ?? self::_T . 'FHIR' . ucfirst($typeKey), $kind);
+        return new ProfileProperty($field, 'get' . ucfirst($field), $collection, $typeKey, self::_T . 'FHIR' . ucfirst($typeKey), $kind);
     }
 
     private static function navigator(): ProfileTypeNavigator
@@ -92,183 +91,168 @@ class ProfileValidationTest extends TestCase
         };
     }
 
-    /** Fake generated types: real getters over plain data. */
-    private static function defineTypes(): void
+    private static function generate(array $rules = [], array $slices = []): \DCarbone\PHPFHIR\Profiles\ProfileValidationCode
     {
-        $ns = 'namespace Acme\\Val\\R4\\Types;';
-        $getters = static function (array $collections, array $singles): string {
-            $out = '';
-            foreach ($collections as $f) {
-                $out .= sprintf('public function get%s(): array { return $this->d[%s] ?? []; }', ucfirst($f), var_export($f, true));
-            }
-            foreach ($singles as $f) {
-                $out .= sprintf('public function get%s(): null|object { return $this->d[%s] ?? null; }', ucfirst($f), var_export($f, true));
-            }
-            return $out;
-        };
-        $base = 'public function __construct(public array $d = []) {}';
-
-        eval($ns . 'class Prim { public function __construct(private mixed $v) {} public function getValue(): mixed { return $this->v; } }');
-        eval($ns . 'class Box { public function __construct(private mixed $v) {} public function getValue(): null|Prim { return null === $this->v ? null : new Prim($this->v); } }');
-        foreach (['Code', 'String', 'Uri', 'Boolean', 'DateTime', 'Integer'] as $n) {
-            eval($ns . 'class FHIR' . $n . ' extends Box {}');
-        }
-        eval($ns . 'class FHIRAttachment {}');
-        eval($ns . 'class FHIRHumanName { ' . $base . $getters([], ['family']) . ' }');
-        eval($ns . 'class FHIRCoding { ' . $base . $getters([], ['system', 'code']) . ' }');
-        eval($ns . 'class FHIRCodeableConcept { ' . $base . $getters(['coding'], []) . ' }');
-        eval($ns . 'class FHIRPatientContact { ' . $base . $getters(['relationship'], []) . ' }');
-        eval($ns . 'class FHIRIdentifier { ' . $base . $getters([], ['system']) . ' }');
-        eval($ns . 'class FHIRExtension { ' . $base . 'public function getUrl(): null|Prim { return isset($this->d["url"]) ? new Prim($this->d["url"]) : null; } }');
-        eval($ns . 'class FHIRPatient { ' . $base
-            . $getters(['name', 'photo', 'contact', 'extension', 'identifier'], ['language', 'gender', 'maritalStatus', 'deceasedBoolean', 'deceasedDateTime', 'deceasedInteger'])
-            . 'public function _getCombinedValidationRules(): array { return []; }'
-            . 'public function _getValidationErrors(): array { return []; } }');
+        return ProfileValidationGenerator::generate(
+            ['rules' => $rules, 'slices' => $slices, 'invariants' => [], 'skipped' => []],
+            'Patient',
+            self::navigator(),
+            new Imports(null, self::_NS . '\\Ig', 'Sample'),
+        );
     }
 
-    public static function setUpBeforeClass(): void
+    public function testTopLevelElementsAreKeyedByFieldConstant(): void
     {
-        self::$_tmpdir = new TemporaryDirectory(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ProfileValidationTest');
-        self::$_tmpdir->create();
-        if (self::$_loaded) {
-            return;
-        }
-        self::defineTypes();
+        $code = self::generate([
+            ['path' => 'name', 'min' => 1],
+            ['path' => 'photo', 'max' => 0],
+            ['path' => 'contact', 'max' => 2],
+        ]);
+        $this->assertSame([
+            'self::FIELD_NAME' => ['min_occurs' => 1],
+            'self::FIELD_PHOTO' => ['max_occurs' => 0],
+            'self::FIELD_CONTACT' => ['max_occurs' => 2],
+        ], $code->rules);
+        $this->assertSame([], $code->skipped);
+    }
 
-        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient'));
+    public function testNestedElementsAreKeyedByPath(): void
+    {
+        $code = self::generate([
+            ['path' => 'name.family', 'min' => 1, 'max' => 1],
+            ['path' => 'contact.relationship', 'codes' => [['http://r', 'C']]],
+        ]);
+        $this->assertSame([
+            "'name.family'" => ['min_occurs' => 1],
+            "'contact.relationship'" => ['code_binding' => [['http://r', 'C']]],
+        ], $code->rules);
+    }
+
+    public function testSingleValuedMaximumOfOneAddsNothing(): void
+    {
+        $this->assertSame([], self::generate([['path' => 'maritalStatus', 'max' => 1]])->rules);
+    }
+
+    public function testChoiceElement(): void
+    {
+        $code = self::generate([['path' => 'deceased[x]', 'max' => 1, 'types' => ['boolean', 'dateTime']]]);
+        $this->assertSame([
+            "'deceased[x]'" => [
+                'choice_occurs' => [
+                    'fields' => ['deceasedBoolean', 'deceasedDateTime', 'deceasedInteger'],
+                    'allowed' => ['deceasedBoolean', 'deceasedDateTime'],
+                    'max' => 1,
+                ],
+            ],
+        ], $code->rules);
+    }
+
+    public function testChoiceElementAllowingEveryVariantOmitsAllowed(): void
+    {
+        $code = self::generate([['path' => 'deceased[x]', 'max' => 1, 'types' => ['boolean', 'dateTime', 'integer']]]);
+        $this->assertSame([
+            "'deceased[x]'" => [
+                'choice_occurs' => [
+                    'fields' => ['deceasedBoolean', 'deceasedDateTime', 'deceasedInteger'],
+                    'max' => 1,
+                ],
+            ],
+        ], $code->rules);
+        $this->assertSame([], self::generate([['path' => 'deceased[x]', 'types' => ['boolean', 'dateTime', 'integer']]])->rules);
+    }
+
+    public function testFixedPatternAndBinding(): void
+    {
+        $pattern = ['coding' => [['system' => 's', 'code' => 'M']]];
+        $code = self::generate([
+            ['path' => 'language', 'fixed' => 'en'],
+            ['path' => 'maritalStatus', 'pattern' => $pattern],
+            ['path' => 'gender', 'codes' => [['http://g', 'male']]],
+        ]);
+        $this->assertSame([
+            'self::FIELD_LANGUAGE' => ['fixed_value' => 'en'],
+            'self::FIELD_MARITAL_STATUS' => ['pattern_value' => $pattern],
+            'self::FIELD_GENDER' => ['code_binding' => [['http://g', 'male']]],
+        ], $code->rules);
+    }
+
+    public function testSlicesShareTheirMatchConstantWithTheRules(): void
+    {
+        $code = self::generate([], [
+            ['path' => 'extension', 'name' => 'race', 'match' => ['url' => 'http://x/race'], 'max' => 1],
+            ['path' => 'identifier', 'name' => 'ssn', 'match' => ['system' => 'http://ssa.gov'], 'min' => 1, 'max' => 2],
+            ['path' => 'identifier', 'name' => 'other', 'match' => ['system' => 'http://other']],
+        ]);
+        $this->assertEquals([
+            'self::FIELD_EXTENSION' => ['slice_occurs' => [
+                ['name' => 'race', 'match' => new ProfilePhpExpression('self::_SLICE_MATCH_0'), 'max' => 1],
+            ]],
+            'self::FIELD_IDENTIFIER' => ['slice_occurs' => [
+                ['name' => 'ssn', 'match' => new ProfilePhpExpression('self::_SLICE_MATCH_1'), 'min' => 1, 'max' => 2],
+            ]],
+        ], $code->rules);
+        $this->assertSame(['_SLICE_MATCH_0', '_SLICE_MATCH_1', '_SLICE_MATCH_2'], array_column($code->sliceMatchers, 'constant'));
+        $this->assertStringContainsString("private const _SLICE_MATCH_1 = [\n        'system' => 'http://ssa.gov',\n    ];", $code->constants);
+        $this->assertSame([], $code->skipped);
+    }
+
+    public function testUnresolvableConstraintsAreSkipped(): void
+    {
+        $code = self::generate([
+            ['path' => 'nope', 'min' => 1],
+            ['path' => 'maritalStatus', 'pattern' => ['nope' => 'x']],
+            ['path' => 'language', 'fixed' => ['coding' => 'x']],
+            ['path' => 'deceased[x]', 'min' => 1, 'fixed' => 'x'],
+        ], [
+            ['path' => 'identifier', 'name' => 'bad', 'match' => ['nope' => 'x'], 'min' => 1],
+        ]);
+        $this->assertSame([
+            "'deceased[x]'" => ['choice_occurs' => ['fields' => ['deceasedBoolean', 'deceasedDateTime', 'deceasedInteger'], 'min' => 1]],
+        ], $code->rules);
+        $this->assertCount(5, $code->skipped, var_export($code->skipped, true));
+        $this->assertSame([], $code->sliceMatchers);
+    }
+
+    public function testRuleMapExport(): void
+    {
+        $code = self::generate([['path' => 'name', 'min' => 1], ['path' => 'name.family', 'min' => 1]]);
+        $this->assertSame(
+            "[\n    self::FIELD_NAME => [\n        'min_occurs' => 1,\n    ],\n    'name.family' => [\n        'min_occurs' => 1,\n    ],\n]",
+            ProfileRules::exportFieldRules($code->rules, 0),
+        );
+    }
+
+    public function testRenderedClassUsesRulesAndTightening(): void
+    {
         $compiled = [
-            'rules' => [
-                ['path' => 'name', 'min' => 1],
-                ['path' => 'name.family', 'min' => 1, 'max' => 1],
-                ['path' => 'photo', 'max' => 0],
-                ['path' => 'contact', 'max' => 2],
-                ['path' => 'deceased[x]', 'max' => 1, 'types' => ['boolean', 'dateTime']],
-                ['path' => 'language', 'fixed' => 'en'],
-                ['path' => 'maritalStatus', 'pattern' => ['coding' => [['system' => 's', 'code' => 'M']]]],
-                ['path' => 'gender', 'codes' => [['http://g', 'male'], ['http://g', 'female']]],
-                ['path' => 'contact.relationship', 'codes' => [['http://r', 'C']]],
-            ],
-            'slices' => [
-                ['path' => 'extension', 'name' => 'race', 'match' => ['url' => 'http://x/race'], 'max' => 1],
-                ['path' => 'identifier', 'name' => 'ssn', 'match' => ['system' => 'http://ssa.gov'], 'min' => 1, 'max' => 2],
-            ],
+            'rules' => [['path' => 'name', 'min' => 1], ['path' => 'name.family', 'min' => 1]],
+            'slices' => [['path' => 'identifier', 'name' => 'ssn', 'match' => ['system' => 'http://ssa.gov'], 'min' => 1, 'max' => 1]],
             'invariants' => [],
             'skipped' => [],
         ];
-        $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, $compiled, self::navigator());
+        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient'));
+        $support = ['matcher' => 'Acme\\Val\\R4\\Validation\\ValueMatcher', 'validator' => 'Acme\\Val\\R4\\Validation\\Validator'];
+        $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, $compiled, self::navigator(), [], $support);
+        $source = Templates::renderProfileClass('/* c */', $class);
 
-        $classes = new class($class) implements \IteratorAggregate {
-            public function __construct(private ProfileClass $c)
-            {
-            }
-
-            public function getIterator(): \Traversable
-            {
-                return new \ArrayIterator([$this->c->getProfile()->getUrl() => $this->c]);
-            }
-        };
-        ProfileWriter::write(self::$_tmpdir->path(''), self::_NS, '/* c */', ['pkg' => $classes], CoreEnumStubs::define());
-        require self::$_tmpdir->path('Acme/Val/R4/Profiles/Ig/Sample.php');
-        self::$_loaded = true;
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        self::$_tmpdir->delete();
-    }
-
-    private static function box(string $type, mixed $v): object
-    {
-        $c = self::_T . 'FHIR' . $type;
-        return new $c($v);
-    }
-
-    private static function obj(string $type, array $d): object
-    {
-        $c = self::_T . 'FHIR' . $type;
-        return new $c($d);
-    }
-
-    private static function concept(string $system, string $code): object
-    {
-        return self::obj('CodeableConcept', ['coding' => [self::obj('Coding', ['system' => self::box('Uri', $system), 'code' => self::box('Code', $code)])]]);
-    }
-
-    private static function patient(array $d = []): object
-    {
-        $class = self::_CLASS;
-        return new $class(array_merge([
-            'name' => [self::obj('HumanName', ['family' => self::box('String', 'F')])],
-            'identifier' => [self::obj('Identifier', ['system' => self::box('Uri', 'http://ssa.gov')])],
-        ], $d));
-    }
-
-    /** @return string[] "path@rule" for every error */
-    private static function errors(object $patient): array
-    {
-        $out = [];
-        foreach ($patient->_getValidationErrors() as $path => $rules) {
-            foreach ($rules as $rule => $message) {
-                $out[] = $path . '@' . $rule;
-            }
-        }
-        return $out;
-    }
-
-    public static function casesProvider(): array
-    {
-        $ext = static fn(string $url): object => self::obj('Extension', ['url' => $url]);
-        // built lazily: the fake types do not exist when providers run
-        $cases = [
-            'conforming' => [static fn(): object => self::patient(), []],
-            'empty' => [static fn(): object => self::patient(['name' => [], 'identifier' => []]), ['identifier:ssn@profile_slice_min', 'name@profile_min']],
-            'nested min' => [static fn(): object => self::patient(['name' => [self::obj('HumanName', [])]]), ['name[0].family@profile_min']],
-            'prohibited' => [static fn(): object => self::patient(['photo' => [self::obj('Attachment', [])]]), ['photo@profile_max']],
-            'choice allowed' => [static fn(): object => self::patient(['deceasedBoolean' => self::box('Boolean', true)]), []],
-            'choice other allowed' => [static fn(): object => self::patient(['deceasedDateTime' => self::box('DateTime', '2020-01-01')]), []],
-            'choice disallowed type' => [static fn(): object => self::patient(['deceasedInteger' => self::box('Integer', 3)]), ['deceasedInteger@profile_type']],
-            'choice max' => [static fn(): object => self::patient(['deceasedBoolean' => self::box('Boolean', true), 'deceasedDateTime' => self::box('DateTime', '2020')]), ['deceased[x]@profile_max']],
-            'fixed ok' => [static fn(): object => self::patient(['language' => self::box('Code', 'en')]), []],
-            'fixed bad' => [static fn(): object => self::patient(['language' => self::box('Code', 'fr')]), ['language@profile_fixed']],
-            'pattern ok' => [static fn(): object => self::patient(['maritalStatus' => self::concept('s', 'M')]), []],
-            'pattern bad' => [static fn(): object => self::patient(['maritalStatus' => self::concept('s', 'U')]), ['maritalStatus@profile_pattern']],
-            'code binding ok' => [static fn(): object => self::patient(['gender' => self::box('Code', 'male')]), []],
-            'code binding bad' => [static fn(): object => self::patient(['gender' => self::box('Code', 'other')]), ['gender@profile_binding']],
-            'concept binding ok' => [static fn(): object => self::patient(['contact' => [self::obj('PatientContact', ['relationship' => [self::concept('http://r', 'C')]])]]), []],
-            'concept binding bad system' => [static fn(): object => self::patient(['contact' => [self::obj('PatientContact', ['relationship' => [self::concept('http://other', 'C')]])]]), ['contact[0].relationship[0]@profile_binding']],
-            'concept binding bad code' => [static fn(): object => self::patient(['contact' => [self::obj('PatientContact', ['relationship' => [self::concept('http://r', 'Z')]])]]), ['contact[0].relationship[0]@profile_binding']],
-            'slice max' => [static fn(): object => self::patient(['extension' => [$ext('http://x/race'), $ext('http://x/race'), $ext('http://other')]]), ['extension:race@profile_slice_max']],
-        ];
-        return $cases;
-    }
-
-    #[DataProvider('casesProvider')]
-    public function testValidate(\Closure $patient, array $expected): void
-    {
-        $this->assertSame($expected, self::errors($patient()));
-    }
-
-    public function testTopLevelCardinalityDelegatedToTypeRules(): void
-    {
-        $this->assertSame(['contact' => ['max_occurs' => 2]], self::patient()->_getCombinedValidationRules());
-    }
-
-    public function testSliceAccessors(): void
-    {
-        $r = self::patient(['extension' => [self::obj('Extension', ['url' => 'http://other']), $mine = self::obj('Extension', ['url' => 'http://x/race'])]]);
-        $this->assertSame($mine, $r->getRaceExtension());
-        $this->assertNull(self::patient()->getRaceExtension());
-
-        $a = self::obj('Identifier', ['system' => self::box('Uri', 'http://ssa.gov')]);
-        $b = self::obj('Identifier', ['system' => self::box('Uri', 'other')]);
-        $c = self::obj('Identifier', ['system' => self::box('Uri', 'http://ssa.gov')]);
-        $this->assertSame([$a, $c], self::patient(['identifier' => [$a, $b, $c]])->getSsnIdentifier());
+        // must parse
+        token_get_all($source, TOKEN_PARSE);
+        $this->assertStringContainsString('use Acme\\Val\\R4\\Validation\\ValueMatcher;', $source);
+        $this->assertStringContainsString('use Acme\\Val\\R4\\Validation\\Validator;', $source);
+        $this->assertStringContainsString("self::FIELD_NAME => [\n            'min_occurs' => 1,", $source);
+        $this->assertStringContainsString("'name.family' => [", $source);
+        $this->assertStringContainsString('Validator::tighten(', $source);
+        $this->assertStringContainsString('public function getSsnIdentifier(): null|FHIRIdentifier', $source);
+        $this->assertStringContainsString('ValueMatcher::matches($item, self::_SLICE_MATCH_0)', $source);
+        $this->assertStringNotContainsString('function _getValidationErrors', $source);
     }
 
     public function testMetadataConstants(): void
     {
-        $class = self::_CLASS;
-        $this->assertSame('http://example.org/fhir/StructureDefinition/sample', $class::PROFILE_URL);
-        $this->assertSame([], $class::PROFILE_INVARIANTS);
+        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient'));
+        $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []], self::navigator());
+        $source = Templates::renderProfileClass('/* c */', $class);
+        token_get_all($source, TOKEN_PARSE);
+        $this->assertStringContainsString("PROFILE_URL = 'http://example.org/fhir/StructureDefinition/sample'", $source);
     }
 }

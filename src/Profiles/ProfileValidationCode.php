@@ -19,40 +19,32 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 /**
- * PHP source generated from a profile's rules, to be placed in the profile class.
+ * Rules and supporting constants generated from a profile's rules, to be placed in the profile class.
  */
 final class ProfileValidationCode
 {
-    public readonly string $body;
     public readonly string $constants;
-    public readonly string $methods;
+    public readonly array $rules;
     public readonly array $sliceMatchers;
     public readonly array $skipped;
-    public readonly array $fieldRules;
 
     /**
-     * @param string $body Statements making up the body of _getValidationErrors(), appending to $errs.
-     * @param string $constants Class constants the body relies on.
-     * @param string $methods Private static methods the body relies on.
-     * @param array<int, array{method: string, class: string}> $sliceMatchers By slice index, the private static method
-     *        that tells whether an item belongs to the slice, and the imported name of the item's class.
-     * @param string[] $skipped Rules that could not be turned into code, and why.
-     * @param array<string, array<string, int>> $fieldRules Maximum cardinality of top-level collections, as max_occurs rules
-     *        for the type's own validation.
+     * @param string $constants Class constants the rules rely on.
+     * @param array<string, array<string, mixed>> $rules By rule map key, written as a PHP expression such as
+     *        "self::FIELD_NAME" or "'contact.relationship'", the rules of the validation system and their constraints.
+     * @param array<int, array{constant: string, class: string}> $sliceMatchers By slice index, the constant holding
+     *        the slice's match pattern, and the imported name of the class of the items it matches.
+     * @param string[] $skipped Rules that could not be generated, and why.
      */
     public function __construct(
-        string $body = '',
         string $constants = '',
-        string $methods = '',
+        array $rules = [],
         array $sliceMatchers = [],
         array $skipped = [],
-        array $fieldRules = [],
     ) {
-        $this->body = $body;
         $this->constants = $constants;
-        $this->methods = $methods;
+        $this->rules = $rules;
         $this->sliceMatchers = $sliceMatchers;
         $this->skipped = $skipped;
-        $this->fieldRules = $fieldRules;
     }
 }

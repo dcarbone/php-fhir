@@ -36,6 +36,7 @@ class ProfileClass
     private readonly array $_compiled;
     private readonly null|ProfileTypeNavigator $_navigator;
     private readonly array $_package;
+    private readonly array $_support;
 
     public function __construct(
         Profile $_profile,
@@ -47,6 +48,7 @@ class ProfileClass
         array $_compiled = ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []],
         null|ProfileTypeNavigator $_navigator = null,
         array $_package = [],
+        array $_support = [],
     ) {
         $this->_profile = $_profile;
         $this->_namespace = $_namespace;
@@ -57,6 +59,7 @@ class ProfileClass
         $this->_compiled = $_compiled;
         $this->_navigator = $_navigator;
         $this->_package = $_package;
+        $this->_support = $_support;
     }
 
     /**
@@ -91,6 +94,10 @@ class ProfileClass
         $imports = new Imports(null, $this->_namespace, $this->_className);
         [$name, $ns] = $this->_split($this->_extendsFQN());
         $imports->addImport($ns, $name);
+        foreach ($this->_support as $fqn) {
+            [$name, $ns] = $this->_split($fqn);
+            $imports->addImport($ns, $name);
+        }
         $this->_code = null === $this->_navigator
             ? new ProfileValidationCode()
             : ProfileValidationGenerator::generate(
@@ -100,6 +107,23 @@ class ProfileClass
                 $imports,
             );
         $this->_imports = $imports;
+    }
+
+    /** Name, as written in the class body, of the core class that matches values against patterns. */
+    public function getValueMatcherName(): string
+    {
+        return $this->_supportName('matcher', 'ValueMatcher');
+    }
+
+    /** Name, as written in the class body, of the core class that holds the validation rule registry. */
+    public function getValidatorName(): string
+    {
+        return $this->_supportName('validator', 'Validator');
+    }
+
+    private function _supportName(string $key, string $default): string
+    {
+        return isset($this->_support[$key]) ? $this->_importedName($this->getImports(), $this->_support[$key]) : $default;
     }
 
     public function getValidationCode(): ProfileValidationCode
@@ -143,7 +167,7 @@ class ProfileClass
      * Typed accessors for slices of the profile's own top-level elements, e.g. an "ssn" slice of "identifier"
      * becomes getSsnIdentifier().
      *
-     * @return array<int, array{method: string, getter: string, matcher: string, class: string, single: bool, slice: int}>
+     * @return array<int, array{method: string, getter: string, constant: string, class: string, single: bool, slice: int}>
      */
     public function getSliceAccessors(): array
     {
@@ -162,7 +186,7 @@ class ProfileClass
             $out[] = [
                 'method' => $method,
                 'getter' => 'get' . ucfirst($slice['path']),
-                'matcher' => $matchers[$i]['method'],
+                'constant' => $matchers[$i]['constant'],
                 'class' => $matchers[$i]['class'],
                 'single' => 1 === ($slice['max'] ?? null),
                 'slice' => $i,

@@ -24,6 +24,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
+$constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validationRuleInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_INTERFACE_RULE);
 
@@ -33,8 +34,14 @@ $maxLengthRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RUL
 $patternRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH);
 $minOccursRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS);
 $maxOccursRuleClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MAX_OCCURS);
+$fixedValueRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_FIXED_VALUE);
+$patternValueRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_PATTERN_VALUE);
+$sliceOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_SLICE_OCCURS);
+$choiceOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_CHOICE_OCCURS);
+$codeBindingRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_CODE_BINDING);
 
 $imports->addCoreFileImports(
+    $constantsClass,
     $typeInterface,
     $validationRuleInterface,
 
@@ -44,6 +51,11 @@ $imports->addCoreFileImports(
     $patternRuleClass,
     $minOccursRuleClass,
     $maxOccursRuleClass,
+    $fixedValueRule,
+    $patternValueRule,
+    $sliceOccursRule,
+    $choiceOccursRule,
+    $codeBindingRule,
 );
 
 ob_start();
@@ -122,6 +134,35 @@ class <?php echo $coreFile; ?>
         throw new \OutOfBoundsException(sprintf('No rule named "%s" registered.', $rule));
     }
 
+    /**
+     * Applies the rules of a constraining definition, such as a profile, on top of the rules of its base.  Unlike a
+     * plain override, a constraint may only narrow its base: the greater of two minimums and the lesser of two
+     * maximums win.  Any other rule present in both is replaced by the constraining definition's.
+     *
+     * @param array $base Map of ["rule" => {constraint}] of the base definition.
+     * @param array $constraining Map of ["rule" => {constraint}] of the constraining definition.
+     * @return array
+     */
+    public static function tighten(array $base, array $constraining): array
+    {
+        foreach ($constraining as $rule => $constraint) {
+            if (!array_key_exists($rule, $base)) {
+                $base[$rule] = $constraint;
+            } elseif (<?php echo $minOccursRuleClass; ?>::NAME === $rule) {
+                $base[$rule] = max($base[$rule], $constraint);
+            } elseif (<?php echo $maxOccursRuleClass; ?>::NAME === $rule) {
+                $base[$rule] = match (true) {
+                    <?php echo $constantsClass; ?>::UNLIMITED === $base[$rule] => $constraint,
+                    <?php echo $constantsClass; ?>::UNLIMITED === $constraint => $base[$rule],
+                    default => min($base[$rule], $constraint),
+                };
+            } else {
+                $base[$rule] = $constraint;
+            }
+        }
+        return $base;
+    }
+
     public static function _init(): void
     {
         if (self::$_initialized) {
@@ -134,6 +175,11 @@ class <?php echo $coreFile; ?>
         self::$_rules[<?php echo $patternRuleClass; ?>::NAME] = new <?php echo $patternRuleClass; ?>();
         self::$_rules[<?php echo $minOccursRuleClass; ?>::NAME] = new <?php echo $minOccursRuleClass; ?>();
         self::$_rules[<?php echo $maxOccursRuleClass; ?>::NAME] = new <?php echo $maxOccursRuleClass; ?>();
+        self::$_rules[<?php echo $fixedValueRule; ?>::NAME] = new <?php echo $fixedValueRule; ?>();
+        self::$_rules[<?php echo $patternValueRule; ?>::NAME] = new <?php echo $patternValueRule; ?>();
+        self::$_rules[<?php echo $sliceOccursRule; ?>::NAME] = new <?php echo $sliceOccursRule; ?>();
+        self::$_rules[<?php echo $choiceOccursRule; ?>::NAME] = new <?php echo $choiceOccursRule; ?>();
+        self::$_rules[<?php echo $codeBindingRule; ?>::NAME] = new <?php echo $codeBindingRule; ?>();
     }
 }
 

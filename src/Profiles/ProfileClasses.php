@@ -40,6 +40,8 @@ class ProfileClasses implements Countable, IteratorAggregate
      *        dependency packages, by profile url, that may be used as parents.
      * @param null|ProfileTypeNavigator $navigator Shape of the generated types.  Without it, the
      *        classes are generated without any validation code.
+     * @param array<string, string> $support Fully qualified names, without leading slash, of the core classes the
+     *        generated classes use, by role: "matcher" (value matcher) and "validator" (rule registry).
      * @throws ProfileDefinitionException
      */
     public static function build(
@@ -50,6 +52,7 @@ class ProfileClasses implements Countable, IteratorAggregate
         null|ValueSetExpander $expander = null,
         array             $dependencyClasses = [],
         null|ProfileTypeNavigator $navigator = null,
+        array             $support = [],
     ): self
     {
         $wanted = [];
@@ -111,6 +114,7 @@ class ProfileClasses implements Countable, IteratorAggregate
                 ProfileRules::compile($profile, $expander),
                 $navigator,
                 $set->getPackageInfo(),
+                $support,
             );
         }
         return $classes;

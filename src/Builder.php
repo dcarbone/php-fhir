@@ -156,6 +156,10 @@ class Builder
             $copyright = CopyrightUtils::compileFullCopyrightComment($this->config, $version->getSourceMetadata());
             $navigator = new DefinitionTypeNavigator($version);
             $index = ProfileWriter::newIndex();
+            $support = [
+                'matcher' => $this->config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALUE_MATCHER)->getFullyQualifiedName(false),
+                'validator' => $this->config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR)->getFullyQualifiedName(false),
+            ];
 
             // one package at a time, dependencies first.  Everything a later package cannot need is released as we go,
             // as large package sets are memory hungry.
@@ -194,6 +198,7 @@ class Builder
                     new ValueSetExpander($reads[$name]),
                     $dependencyClasses,
                     $navigator,
+                    $support,
                 );
                 unset($set, $dependencyClasses);
                 foreach ($classes as $class) {

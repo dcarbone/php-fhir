@@ -231,10 +231,31 @@ class ProfileRules
     }
 
     /**
+     * Exports a rule map whose keys are already PHP expressions, e.g. "self::FIELD_NAME" or "'contact.relationship'".
+     *
+     * @param array<string, mixed> $rules
+     */
+    public static function exportFieldRules(array $rules, int $indent = 0): string
+    {
+        if ([] === $rules) {
+            return '[]';
+        }
+        $pad = str_repeat('    ', $indent + 1);
+        $out = "[\n";
+        foreach ($rules as $key => $fieldRules) {
+            $out .= $pad . $key . ' => ' . self::export($fieldRules, $indent + 1) . ",\n";
+        }
+        return $out . str_repeat('    ', $indent) . ']';
+    }
+
+    /**
      * Exports a compiled rule structure as a short-array literal, omitting keys for lists.
      */
     public static function export(mixed $value, int $indent = 0): string
     {
+        if ($value instanceof ProfilePhpExpression) {
+            return $value->code;
+        }
         if (!is_array($value)) {
             return var_export($value, true);
         }

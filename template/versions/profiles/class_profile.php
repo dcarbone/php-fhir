@@ -62,7 +62,7 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
      */
     public const PROFILE_INVARIANTS = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($profileClass->getInvariants(), 1); ?>;
 
-    private const _PROFILE_VALIDATION_RULES = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($code->fieldRules, 1); ?>;
+    private const _PROFILE_VALIDATION_RULES = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::exportFieldRules($code->rules, 1); ?>;
 <?php if ('' !== $code->constants) : ?>
 
 <?php echo $code->constants; ?>
@@ -78,7 +78,8 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     }
 
     /**
-     * Maximum cardinality of this profile's top-level collections, enforced by the type's own validation rules.
+     * Returns the type's validation rules with those of the profile applied on top.  A profile may only constrain its
+     * base: cardinalities are tightened, never loosened.
      *
      * @return array
      */
@@ -86,25 +87,9 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     {
         $out = parent::_getCombinedValidationRules();
         foreach (self::_PROFILE_VALIDATION_RULES as $field => $rules) {
-            $out[$field] = array_merge($out[$field] ?? [], $rules);
+            $out[$field] = <?php echo $profileClass->getValidatorName(); ?>::tighten($out[$field] ?? [], $rules);
         }
         return $out;
-    }
-
-    /**
-     * Executes the type's validation rules, then those of the profile.  Profile failures are keyed by element path,
-     * e.g. "name[0].family", and valued by a map of ["profile_{rule}" => message].
-     *
-     * @return array
-     */
-    public function _getValidationErrors(): array
-    {
-        $errs = parent::_getValidationErrors();
-<?php if ('' !== $code->body) : ?>
-<?php echo $code->body; ?>
-
-<?php endif; ?>
-        return $errs;
     }
 <?php foreach ($accessors as $accessor) : ?>
 
@@ -116,7 +101,7 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
 
     {
         foreach ($this-><?php echo $accessor['getter']; ?>() as $item) {
-            if (self::<?php echo $accessor['matcher']; ?>($item)) {
+            if (<?php echo $profileClass->getValueMatcherName(); ?>::matches($item, self::<?php echo $accessor['constant']; ?>)) {
                 return $item;
             }
         }
@@ -129,7 +114,7 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     {
         $matched = [];
         foreach ($this-><?php echo $accessor['getter']; ?>() as $item) {
-            if (self::<?php echo $accessor['matcher']; ?>($item)) {
+            if (<?php echo $profileClass->getValueMatcherName(); ?>::matches($item, self::<?php echo $accessor['constant']; ?>)) {
                 $matched[] = $item;
             }
         }
@@ -137,10 +122,5 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     }
 <?php endif; ?>
 <?php endforeach; ?>
-<?php if ('' !== $code->methods) : ?>
-
-<?php echo $code->methods; ?>
-
-<?php endif; ?>
 }
 <?php return ob_get_clean();

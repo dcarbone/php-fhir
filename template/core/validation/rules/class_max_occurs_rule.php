@@ -47,7 +47,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
 {
     public const NAME = 'max_occurs';
-    public const DESCRIPTION = 'Asserts that a given collection field has no more than the specified number of elements.';
+    public const DESCRIPTION = 'Asserts that a given collection field has no more than the specified number of elements, or is absent when the maximum is 0.';
 
     public function getName(): string
     {
@@ -61,7 +61,13 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
     public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
-        if (<?php echo $constantsClass; ?>::UNLIMITED === $constraint || !is_array($value) || [] === $value) {
+        if (<?php echo $constantsClass; ?>::UNLIMITED === $constraint) {
+            return null;
+        }
+        if (0 === $constraint && null !== $value && [] !== $value) {
+            return sprintf('Field "%s" on type "%s" must not be present', $field, $type->_getFHIRTypeName());
+        }
+        if (!is_array($value) || [] === $value) {
             return null;
         }
         $len = count($value);
