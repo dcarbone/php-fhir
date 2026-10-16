@@ -23,7 +23,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class ProfileSet
 {
-    /** @var array<string, \DCarbone\PHPFHIR\Profiles\Profile> canonical url => profile */
+    /** @var array<string, Profile> canonical url => profile */
     private array $_byUrl = [];
     /** @var string[] urls of profiles that belong to the package itself, in package order */
     private array $_ownUrls = [];
@@ -39,7 +39,7 @@ class ProfileSet
     /**
      * @param bool $strict If true, a profile whose base profile cannot be found raises an exception.  Otherwise the
      *                     profile is left without a parent and the problem is recorded, see {@see getUnresolved()}.
-     * @throws \DCarbone\PHPFHIR\Profiles\ProfileDefinitionException
+     * @throws ProfileDefinitionException
      */
     public static function fromPackage(ProfilePackage $package, bool $strict = true): self
     {
@@ -105,7 +105,7 @@ class ProfileSet
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Profiles\ProfilePackage[]
+     * @return ProfilePackage[]
      */
     private static function _collectDependencies(ProfilePackage $package): array
     {
@@ -183,11 +183,15 @@ class ProfileSet
     /**
      * Profiles that belong to the package itself, excluding those from dependencies.
      *
-     * @return \DCarbone\PHPFHIR\Profiles\Profile[]
+     * @return Profile[]
      */
     public function getProfiles(): array
     {
-        return array_map(fn(string $url): Profile => $this->_byUrl[$url], $this->_ownUrls);
+        $out = [];
+        foreach ($this->_ownUrls as $url) {
+            $out[] = $this->_byUrl[$url];
+        }
+        return $out;
     }
 
     /**

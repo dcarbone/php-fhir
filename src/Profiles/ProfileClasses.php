@@ -18,12 +18,17 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+use Traversable;
+
 /**
  * The set of profile classes generated for one profile package of one FHIR version.
  */
-class ProfileClasses implements \Countable, \IteratorAggregate
+class ProfileClasses implements Countable, IteratorAggregate
 {
-    /** @var array<string, \DCarbone\PHPFHIR\Profiles\ProfileClass> profile url => class */
+    /** @var array<string, ProfileClass> profile url => class */
     private array $_byUrl = [];
 
     /**
@@ -31,11 +36,11 @@ class ProfileClasses implements \Countable, \IteratorAggregate
      * @param string $packageNamespace Namespace, relative to $profilesNamespace, the package's classes are generated into.
      * @param callable(string): (null|string) $baseTypeResolver Maps a FHIR type name to the fully qualified name, without
      *                                                        leading slash, of the generated class for it.
-     * @param array<string, \DCarbone\PHPFHIR\Profiles\ProfileClass> $dependencyClasses Already generated classes of
+     * @param array<string, ProfileClass> $dependencyClasses Already generated classes of
      *        dependency packages, by profile url, that may be used as parents.
-     * @param null|\DCarbone\PHPFHIR\Profiles\ProfileTypeNavigator $navigator Shape of the generated types.  Without it, the
+     * @param null|ProfileTypeNavigator $navigator Shape of the generated types.  Without it, the
      *        classes are generated without any validation code.
-     * @throws \DCarbone\PHPFHIR\Profiles\ProfileDefinitionException
+     * @throws ProfileDefinitionException
      */
     public static function build(
         ProfileSet        $set,
@@ -116,20 +121,14 @@ class ProfileClasses implements \Countable, \IteratorAggregate
         return $this->_byUrl[$url] ?? null;
     }
 
-    /** @return \Traversable<string, \DCarbone\PHPFHIR\Profiles\ProfileClass> */
-    public function getIterator(): \Traversable
+    /** @return Traversable<string, ProfileClass> */
+    public function getIterator(): Traversable
     {
-        return new \ArrayIterator($this->_byUrl);
+        return new ArrayIterator($this->_byUrl);
     }
 
     public function count(): int
     {
         return count($this->_byUrl);
-    }
-
-    /** @return array<string, string> profile url => fully qualified class name without leading slash */
-    public function toClassMap(): array
-    {
-        return array_map(static fn(ProfileClass $c): string => $c->getFullyQualifiedClassName(false), $this->_byUrl);
     }
 }

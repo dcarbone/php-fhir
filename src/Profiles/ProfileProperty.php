@@ -38,7 +38,7 @@ final class ProfileProperty
      * @param bool $collection Whether the getter returns an array of values.
      * @param string $typeKey Opaque key of the property's type, to be handed back to the navigator.
      * @param string $className Fully qualified class name, without leading slash, of the property's type.
-     * @param \DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum $kind COMPLEX is a type with properties of its own, CONTAINER a primitive
+     * @param ProfilePropertyKindEnum $kind COMPLEX is a type with properties of its own, CONTAINER a primitive
      *                 wrapper such as FHIRString (raw value is $x->getValue()?->getValue()), PRIMITIVE a primitive
      *                 value type such as FHIRStringPrimitive (raw value is $x->getValue()).
      */

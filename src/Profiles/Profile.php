@@ -41,9 +41,9 @@ class Profile
     private bool $_abstract;
     /** @var array<array{type: string, expression: string}> */
     private array $_context = [];
-    /** @var array<string, \DCarbone\PHPFHIR\Profiles\ProfileElement> */
+    /** @var array<string, ProfileElement> */
     private array $_differential = [];
-    /** @var null|array<string, \DCarbone\PHPFHIR\Profiles\ProfileElement> */
+    /** @var null|array<string, ProfileElement> */
     private null|array $_snapshot = null;
 
     private null|Profile $_parent = null;
@@ -53,7 +53,7 @@ class Profile
     }
 
     /**
-     * @throws \DCarbone\PHPFHIR\Profiles\ProfileDefinitionException
+     * @throws ProfileDefinitionException
      */
     public static function fromStructureDefinition(array $sd): self
     {
@@ -114,7 +114,7 @@ class Profile
     }
 
     /**
-     * @return array<string, \DCarbone\PHPFHIR\Profiles\ProfileElement>
+     * @return array<string, ProfileElement>
      */
     private static function _elements(mixed $raw, string $profileId): array
     {
@@ -218,7 +218,7 @@ class Profile
         return $this->_context;
     }
 
-    /** @return array<string, \DCarbone\PHPFHIR\Profiles\ProfileElement> Indexed by element id. */
+    /** @return array<string, ProfileElement> Indexed by element id. */
     public function getDifferentialElements(): array
     {
         return $this->_differential;
@@ -229,7 +229,7 @@ class Profile
         return null !== $this->_snapshot;
     }
 
-    /** @return array<string, \DCarbone\PHPFHIR\Profiles\ProfileElement> Indexed by element id.  Empty if there is no snapshot. */
+    /** @return array<string, ProfileElement> Indexed by element id.  Empty if there is no snapshot. */
     public function getSnapshotElements(): array
     {
         return $this->_snapshot ?? [];
@@ -238,7 +238,7 @@ class Profile
     /**
      * The most complete element list available: the snapshot if there is one, otherwise the differential.
      *
-     * @return array<string, \DCarbone\PHPFHIR\Profiles\ProfileElement>
+     * @return array<string, ProfileElement>
      */
     public function getElements(): array
     {
@@ -258,7 +258,7 @@ class Profile
     /**
      * Direct children of the element with the provided id.
      *
-     * @return \DCarbone\PHPFHIR\Profiles\ProfileElement[]
+     * @return ProfileElement[]
      */
     public function getChildren(string $id): array
     {
@@ -274,7 +274,7 @@ class Profile
     /**
      * The slices of the element with the provided id, e.g. "Patient.extension" => "Patient.extension:race", etc.
      *
-     * @return array<string, \DCarbone\PHPFHIR\Profiles\ProfileElement> Indexed by slice name.
+     * @return array<string, ProfileElement> Indexed by slice name.
      */
     public function getSlices(string $id): array
     {
@@ -304,7 +304,7 @@ class Profile
     }
 
     /**
-     * @internal Set by {@see \DCarbone\PHPFHIR\Profiles\ProfileSet}.
+     * @internal Set by {@see ProfileSet}.
      */
     public function setParent(null|Profile $parent): void
     {
@@ -314,7 +314,7 @@ class Profile
     /**
      * Parent profiles, nearest first.
      *
-     * @return \DCarbone\PHPFHIR\Profiles\Profile[]
+     * @return Profile[]
      */
     public function getAncestors(): array
     {

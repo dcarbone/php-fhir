@@ -230,7 +230,16 @@ class Builder
                 }
             }
 
-            ProfileWriter::writeSupport($this->config->getLibraryPath(), $profilesNamespace, $copyright, $index);
+            $enums = [];
+            foreach ([
+                PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE,
+                PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE,
+                PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH,
+            ] as $entity) {
+                $enums[$entity] = $this->config->getCoreFiles()->getCoreFileByEntityName($entity)->getFullyQualifiedName(false);
+            }
+
+            ProfileWriter::writeSupport($this->config->getLibraryPath(), $profilesNamespace, $copyright, $index, $enums);
 
             $log->endBreak(sprintf('FHIR Version %s Profile Class Generation', $versionName));
         }

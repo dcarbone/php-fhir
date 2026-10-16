@@ -67,7 +67,7 @@ final class ProfileValidationGenerator
     /**
      * @param array{rules: array<int, array<string, mixed>>, slices: array<int, array<string, mixed>>} $compiled
      * @param string $rootType FHIR name of the type the profile constrains.
-     * @param \DCarbone\PHPFHIR\Builder\Imports $imports Imports of the class the code is for; classes are added as needed.
+     * @param Imports $imports Imports of the class the code is for; classes are added as needed.
      */
     public static function generate(
         array                $compiled,
@@ -180,7 +180,7 @@ final class ProfileValidationGenerator
         $this->_emit('}');
     }
 
-    /** @return \DCarbone\PHPFHIR\Profiles\ProfileProperty[] */
+    /** @return ProfileProperty[] */
     private function _entries(string $parentType, string $last): array
     {
         if (str_ends_with($last, '[x]')) {

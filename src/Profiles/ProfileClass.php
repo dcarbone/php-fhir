@@ -2,8 +2,6 @@
 
 namespace DCarbone\PHPFHIR\Profiles;
 
-use DCarbone\PHPFHIR\Builder\Imports;
-
 /*
  * Copyright 2016-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -19,6 +17,8 @@ use DCarbone\PHPFHIR\Builder\Imports;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+use DCarbone\PHPFHIR\Builder\Imports;
 
 /**
  * Everything the profile class template needs to know about one generated profile class.
@@ -249,7 +249,10 @@ class ProfileClass
     public static function sanitizeClassName(string $name): string
     {
         $parts = preg_split('/[^A-Za-z0-9]+/', $name, -1, PREG_SPLIT_NO_EMPTY);
-        $out = implode('', array_map(static fn(string $p): string => ucfirst($p), $parts));
+        $out = '';
+        foreach ($parts as $part) {
+            $out .= ucfirst($part);
+        }
         if ('' === $out) {
             throw new ProfileDefinitionException(sprintf('Cannot derive a class name from "%s"', $name));
         }

@@ -19,6 +19,12 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
+use Generator;
+use JsonException;
+use PharData;
+use PharFileInfo;
+use RecursiveIteratorIterator;
+use Throwable;
 
 /**
  * Reads FHIR NPM-style packages (https://hl7.org/fhir/packages.html) from either an extracted directory or a
@@ -30,12 +36,12 @@ class ProfilePackageReader
     private const _PACKAGE_DIR = 'package';
 
     /**
-     * @param \DCarbone\PHPFHIR\Config\ProfilePackageConfig $config
+     * @param ProfilePackageConfig $config
      * @param null|string $fhirVersion The FHIR version (e.g. "4.0.1") the package must support.  If null, no version
      *                                 compatibility check is performed.
-     * @param \DCarbone\PHPFHIR\Profiles\ProfilePackage[] $dependencies Already read packages the package builds on.
-     * @return \DCarbone\PHPFHIR\Profiles\ProfilePackage
-     * @throws \DCarbone\PHPFHIR\Profiles\ProfilePackageException
+     * @param ProfilePackage[] $dependencies Already read packages the package builds on.
+     * @return ProfilePackage
+     * @throws ProfilePackageException
      */
     public static function read(ProfilePackageConfig $config, null|string $fhirVersion = null, array $dependencies = []): ProfilePackage
     {
@@ -82,10 +88,14 @@ class ProfilePackageReader
                 return;
             }
         }
+        $declaredList = '';
+        foreach ($declared as $version) {
+            $declaredList .= ('' === $declaredList ? '' : ', ') . $version;
+        }
         throw new ProfilePackageException(sprintf(
             'Profile package "%s" supports FHIR version(s) [%s], which is not compatible with %s.',
             $package->getName(),
-            implode(', ', array_map('strval', $declared)),
+            $declaredList,
             $fhirVersion,
         ));
     }
@@ -151,9 +161,9 @@ class ProfilePackageReader
     /**
      * Yields the contents of the package manifest and every JSON file found in the package root, keyed by file name.
      *
-     * @return \Generator<string, string>
+     * @return Generator<string, string>
      */
-    private static function _iterateFiles(string $source): \Generator
+    private static function _iterateFiles(string $source): Generator
     {
         if (is_dir($source)) {
             yield from self::_iterateDirectory($source);
@@ -162,7 +172,7 @@ class ProfilePackageReader
         }
     }
 
-    private static function _iterateDirectory(string $dir): \Generator
+    private static function _iterateDirectory(string $dir): Generator
     {
         // extracted packages normally contain a "package" directory, but also allow pointing straight at it.
         $root = rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . self::_PACKAGE_DIR;
@@ -183,7 +193,7 @@ class ProfilePackageReader
         }
     }
 
-    private static function _iterateArchive(string $archive): \Generator
+    private static function _iterateArchive(string $archive): Generator
     {
         if (!extension_loaded('phar') || !extension_loaded('zlib')) {
             throw new ProfilePackageException(
@@ -191,8 +201,8 @@ class ProfilePackageReader
             );
         }
         try {
-            $phar = new \PharData($archive);
-        } catch (\Throwable $e) {
+            $phar = new PharData($archive);
+        } catch (Throwable $e) {
             throw new ProfilePackageException(
                 sprintf('Unable to open profile package archive "%s": %s', $archive, $e->getMessage()),
                 0,
@@ -202,8 +212,8 @@ class ProfilePackageReader
 
         $prefix = 'phar://' . $phar->getPath() . '/' . self::_PACKAGE_DIR . '/';
         $files = [];
-        foreach (new \RecursiveIteratorIterator($phar) as $entry) {
-            /** @var \PharFileInfo $entry */
+        foreach (new RecursiveIteratorIterator($phar) as $entry) {
+            /** @var PharFileInfo $entry */
             $path = $entry->getPathname();
             if (!str_starts_with($path, $prefix)) {
                 continue;
@@ -228,7 +238,7 @@ class ProfilePackageReader
     {
         try {
             $decoded = json_decode($contents, true, 512, JSON_THROW_ON_ERROR | JSON_BIGINT_AS_STRING);
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             throw new ProfilePackageException(
                 sprintf('Unable to decode "%s" in profile package "%s": %s', $name, $source, $e->getMessage()),
                 0,

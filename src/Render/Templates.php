@@ -86,20 +86,42 @@ abstract class Templates
     }
 
     /**
-     * @param array<string, string> $classMap profile url => fully qualified class name
-     * @param array<string, string> $baseTypeMap profile url => FHIR type name
+     * @param string[] $packageMaps Fully qualified names, without leading slash, of the profile package maps.
+     * @param array<string, string> $enums Fully qualified names, without leading slash, of the core option enums, by entity name.
      */
-    public static function renderProfileMap(string $copyright, string $namespace, string $className, array $classMap, array $baseTypeMap): string
+    public static function renderProfileMap(string $copyright, string $namespace, string $className, array $packageMaps, array $enums): string
     {
         return self::normalize(require sprintf('%s/class_profile_map.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }
 
     /**
-     * @param array<string, string> $fileMap fully qualified class name => path relative to the profiles directory
+     * @param array<string, string> $classMap profile url => fully qualified class name
+     * @param array<string, string> $baseTypeMap profile url => FHIR type name
      */
-    public static function renderProfileAutoloader(string $copyright, string $namespace, string $className, array $fileMap): string
+    public static function renderProfilePackageMap(string $copyright, string $namespace, string $className, array $classMap, array $baseTypeMap): string
+    {
+        return self::normalize(require sprintf('%s/class_profile_package_map.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
+    }
+
+    /**
+     * The autoloader of the whole profiles namespace, which hands off to each package's autoloader on demand.
+     *
+     * @param array<string, string> $fileMap fully qualified class name => path relative to the profiles directory
+     * @param array<int, array{namespace: string, autoloader: string, path: string}> $packages One entry per package:
+     *        its namespace, the fully qualified name of its autoloader and that autoloader's path relative to the
+     *        profiles directory.
+     */
+    public static function renderProfileAutoloader(string $copyright, string $namespace, string $className, array $fileMap, array $packages): string
     {
         return self::normalize(require sprintf('%s/class_profile_autoloader.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
+    }
+
+    /**
+     * @param array<string, string> $fileMap fully qualified class name => path relative to the package directory
+     */
+    public static function renderProfilePackageAutoloader(string $copyright, string $namespace, string $className, array $fileMap): string
+    {
+        return self::normalize(require sprintf('%s/class_profile_package_autoloader.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }
 
     /**

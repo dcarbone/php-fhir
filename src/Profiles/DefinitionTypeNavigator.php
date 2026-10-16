@@ -20,13 +20,14 @@ namespace DCarbone\PHPFHIR\Profiles;
 
 use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
 use DCarbone\PHPFHIR\Version;
+use DCarbone\PHPFHIR\Version\Definition\Property;
 
 /**
  * {@see \DCarbone\PHPFHIR\Profiles\ProfileTypeNavigator} over the types a version's definition produced.
  */
 class DefinitionTypeNavigator implements ProfileTypeNavigator
 {
-    /** @var array<string, array<string, \DCarbone\PHPFHIR\Version\Definition\Property>> */
+    /** @var array<string, array<string, Property>> */
     private array $_properties = [];
     private readonly Version $_version;
 
@@ -70,7 +71,7 @@ class DefinitionTypeNavigator implements ProfileTypeNavigator
         return $this->_properties[$typeKey];
     }
 
-    private function _convert(\DCarbone\PHPFHIR\Version\Definition\Property $property): null|ProfileProperty
+    private function _convert(Property $property): null|ProfileProperty
     {
         $type = $property->getValueFHIRType();
         if (null === $type || $type->getKind()->isResourceContainer($this->_version)) {

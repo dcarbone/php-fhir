@@ -77,8 +77,17 @@ class ValueSetExpander
             if (null === $remove) {
                 return null;
             }
-            $removeKeys = array_map(static fn(array $p): string => $p[0] . '|' . $p[1], $remove);
-            $out = array_filter($out, static fn(array $p): bool => !in_array($p[0] . '|' . $p[1], $removeKeys, true));
+            $removeKeys = [];
+            foreach ($remove as $p) {
+                $removeKeys[$p[0] . '|' . $p[1]] = true;
+            }
+            $kept = [];
+            foreach ($out as $p) {
+                if (!isset($removeKeys[$p[0] . '|' . $p[1]])) {
+                    $kept[] = $p;
+                }
+            }
+            $out = $kept;
         }
 
         return self::_unique($out);
@@ -131,11 +140,17 @@ class ValueSetExpander
                 $result = $expanded;
                 continue;
             }
-            $keys = array_map(static fn(array $p): string => $p[0] . '|' . $p[1], $expanded);
-            $result = array_values(array_filter(
-                $result,
-                static fn(array $p): bool => in_array($p[0] . '|' . $p[1], $keys, true),
-            ));
+            $keys = [];
+            foreach ($expanded as $p) {
+                $keys[$p[0] . '|' . $p[1]] = true;
+            }
+            $kept = [];
+            foreach ($result as $p) {
+                if (isset($keys[$p[0] . '|' . $p[1]])) {
+                    $kept[] = $p;
+                }
+            }
+            $result = $kept;
         }
         return $result;
     }

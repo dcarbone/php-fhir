@@ -36,7 +36,7 @@ class ProfilePackage
     /** @var array<string, array<string, string>> resource type => canonical url => id */
     private array $_urlIndex = [];
 
-    /** @var array<string, \DCarbone\PHPFHIR\Profiles\ProfilePackage> */
+    /** @var array<string, ProfilePackage> */
     private array $_loadedDependencies = [];
 
     public function __construct(ProfilePackageConfig $config, array $manifest)
@@ -83,7 +83,11 @@ class ProfilePackage
      */
     public function getFHIRVersions(): array
     {
-        return array_values((array)($this->_manifest['fhirVersions'] ?? []));
+        $out = [];
+        foreach ((array)($this->_manifest['fhirVersions'] ?? []) as $version) {
+            $out[] = $version;
+        }
+        return $out;
     }
 
     /**
@@ -162,7 +166,7 @@ class ProfilePackage
     }
 
     /**
-     * @return array<string, \DCarbone\PHPFHIR\Profiles\ProfilePackage>
+     * @return array<string, ProfilePackage>
      */
     public function getLoadedDependencies(): array
     {
@@ -176,10 +180,14 @@ class ProfilePackage
      */
     public function getStructureDefinitions(): array
     {
-        return array_filter(
-            array_map(self::_unpack(...), $this->_resources[ProfileResourceTypeEnum::STRUCTURE_DEFINITION->value]),
-            static fn(array $sd): bool => 'constraint' === ($sd['derivation'] ?? null),
-        );
+        $out = [];
+        foreach ($this->_resources[ProfileResourceTypeEnum::STRUCTURE_DEFINITION->value] as $id => $packed) {
+            $sd = self::_unpack($packed);
+            if ('constraint' === ($sd['derivation'] ?? null)) {
+                $out[$id] = $sd;
+            }
+        }
+        return $out;
     }
 
     /**
@@ -187,7 +195,11 @@ class ProfilePackage
      */
     public function getValueSets(): array
     {
-        return array_map(self::_unpack(...), $this->_resources[ProfileResourceTypeEnum::VALUE_SET->value]);
+        $out = [];
+        foreach ($this->_resources[ProfileResourceTypeEnum::VALUE_SET->value] as $id => $packed) {
+            $out[$id] = self::_unpack($packed);
+        }
+        return $out;
     }
 
     /**
@@ -195,7 +207,11 @@ class ProfilePackage
      */
     public function getCodeSystems(): array
     {
-        return array_map(self::_unpack(...), $this->_resources[ProfileResourceTypeEnum::CODE_SYSTEM->value]);
+        $out = [];
+        foreach ($this->_resources[ProfileResourceTypeEnum::CODE_SYSTEM->value] as $id => $packed) {
+            $out[$id] = self::_unpack($packed);
+        }
+        return $out;
     }
 
     /**

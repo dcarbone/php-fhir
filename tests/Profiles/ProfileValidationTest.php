@@ -167,7 +167,7 @@ class ProfileValidationTest extends TestCase
                 return new \ArrayIterator([$this->c->getProfile()->getUrl() => $this->c]);
             }
         };
-        ProfileWriter::write(self::$_tmpdir->path(''), self::_NS, '/* c */', ['pkg' => $classes]);
+        ProfileWriter::write(self::$_tmpdir->path(''), self::_NS, '/* c */', ['pkg' => $classes], CoreEnumStubs::define());
         require self::$_tmpdir->path('Acme/Val/R4/Profiles/Ig/Sample.php');
         self::$_loaded = true;
     }

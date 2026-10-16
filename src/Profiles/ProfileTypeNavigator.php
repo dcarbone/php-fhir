@@ -27,14 +27,14 @@ interface ProfileTypeNavigator
     /**
      * @param string $typeKey FHIR name of a type, or the key of a property's type.
      * @param string $field FHIR name of the field.
-     * @return null|\DCarbone\PHPFHIR\Profiles\ProfileProperty Null if the type has no such field, or it cannot be validated.
+     * @return null|ProfileProperty Null if the type has no such field, or it cannot be validated.
      */
     public function getProperty(string $typeKey, string $field): null|ProfileProperty;
 
     /**
      * Every concrete field of a choice element, e.g. "deceased" yields deceasedBoolean and deceasedDateTime.
      *
-     * @return \DCarbone\PHPFHIR\Profiles\ProfileProperty[]
+     * @return ProfileProperty[]
      */
     public function getChoiceProperties(string $typeKey, string $base): array;
 }

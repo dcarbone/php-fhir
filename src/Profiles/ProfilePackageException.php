@@ -18,9 +18,11 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
+use RuntimeException;
+
 /**
  * Thrown when a FHIR profile package cannot be read or is not usable for the configured version.
  */
-class ProfilePackageException extends \RuntimeException
+class ProfilePackageException extends RuntimeException
 {
 }

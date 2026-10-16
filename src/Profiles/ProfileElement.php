@@ -29,12 +29,12 @@ class ProfileElement
     private null|string $_sliceName;
     private null|int $_min;
     private null|int $_max;
-    /** @var \DCarbone\PHPFHIR\Profiles\ProfileElementType[] */
+    /** @var ProfileElementType[] */
     private array $_types = [];
     private null|ProfileFixedValue $_fixedValue;
     private null|ProfileBinding $_binding;
     private null|ProfileSlicing $_slicing;
-    /** @var \DCarbone\PHPFHIR\Profiles\ProfileConstraint[] */
+    /** @var ProfileConstraint[] */
     private array $_constraints = [];
     private bool $_mustSupport;
     private null|string $_contentReference;
@@ -173,7 +173,7 @@ class ProfileElement
         return null !== $this->_min && $this->_min > 0;
     }
 
-    /** @return \DCarbone\PHPFHIR\Profiles\ProfileElementType[] */
+    /** @return ProfileElementType[] */
     public function getTypes(): array
     {
         return $this->_types;
@@ -182,7 +182,11 @@ class ProfileElement
     /** @return string[] */
     public function getTypeCodes(): array
     {
-        return array_map(static fn(ProfileElementType $t): string => $t->getCode(), $this->_types);
+        $out = [];
+        foreach ($this->_types as $type) {
+            $out[] = $type->getCode();
+        }
+        return $out;
     }
 
     public function getFixedValue(): null|ProfileFixedValue
@@ -201,7 +205,7 @@ class ProfileElement
         return $this->_slicing;
     }
 
-    /** @return \DCarbone\PHPFHIR\Profiles\ProfileConstraint[] */
+    /** @return ProfileConstraint[] */
     public function getConstraints(): array
     {
         return $this->_constraints;

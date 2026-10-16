@@ -46,11 +46,19 @@ class ProfileElementType
         if (!isset($data['code']) || !is_string($data['code'])) {
             throw new ProfileDefinitionException('Element type is missing required string field "code".');
         }
-        return new self(
-            $data['code'],
-            array_values(array_filter((array)($data['profile'] ?? []), 'is_string')),
-            array_values(array_filter((array)($data['targetProfile'] ?? []), 'is_string')),
-        );
+        $profiles = [];
+        foreach ((array)($data['profile'] ?? []) as $profile) {
+            if (is_string($profile)) {
+                $profiles[] = $profile;
+            }
+        }
+        $targetProfiles = [];
+        foreach ((array)($data['targetProfile'] ?? []) as $profile) {
+            if (is_string($profile)) {
+                $targetProfiles[] = $profile;
+            }
+        }
+        return new self($data['code'], $profiles, $targetProfiles);
     }
 
     public function getCode(): string

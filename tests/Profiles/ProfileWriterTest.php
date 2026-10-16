@@ -156,21 +156,25 @@ class ProfileWriterTest extends TestCase
             self::structureDefinition('child-p', 'Patient', 'constraint', ['baseDefinition' => self::_BASE . 'parent-p']),
         ]);
 
-        $written = ProfileWriter::write($out, self::_NS, '/* copyright */', ['test.ig' => $classes]);
-        $this->assertCount(4, $written);
+        $written = ProfileWriter::write($out, self::_NS, '/* copyright */', ['test.ig' => $classes], CoreEnumStubs::define());
+        $this->assertCount(6, $written);
         foreach ($written as $file) {
             $this->assertFileExists($file);
         }
+        $this->assertFileExists($out . '/Acme/Gen/Versions/R4/Profiles/Ig/PackageAutoloader.php');
         $this->assertFileExists($out . '/Acme/Gen/Versions/R4/Profiles/Ig/ParentP.php');
 
         require $out . '/Acme/Gen/Versions/R4/Profiles/ProfileAutoloader.php';
         require $out . '/Acme/Gen/Versions/R4/Profiles/ProfileMap.php';
         $autoloader = self::_NS . '\\ProfileAutoloader';
+        $packageAutoloader = self::_NS . '\\Ig\\PackageAutoloader';
+        $this->assertFalse(class_exists($packageAutoloader, false));
         $this->assertTrue($autoloader::register());
 
         try {
             $childClass = self::_NS . '\\Ig\\ChildP';
             $child = new $childClass();
+            $this->assertTrue(class_exists($packageAutoloader, false), 'the package autoloader is loaded on demand');
             $this->assertInstanceOf(self::_NS . '\\Ig\\ParentP', $child);
             $this->assertInstanceOf('Acme\\Gen\\Versions\\R4\\Types\\FHIRPatient', $child);
             $this->assertSame(self::_BASE . 'child-p', $childClass::PROFILE_URL);
@@ -197,10 +201,10 @@ class ProfileWriterTest extends TestCase
         $out = $this->_root . '/out';
         mkdir($out);
         $classes = $this->classes([self::structureDefinition('a')]);
-        $written = ProfileWriter::write($out, self::_NS, '/* c */', ['test.ig' => $classes], ['other']);
-        $this->assertCount(2, $written);
+        $written = ProfileWriter::write($out, self::_NS, '/* c */', ['test.ig' => $classes], CoreEnumStubs::define(), ['other']);
+        $this->assertCount(4, $written);
         $this->assertFileDoesNotExist($out . '/Acme/Gen/Versions/R4/Profiles/Ig/A.php');
-        $this->assertStringContainsString(self::_BASE . 'a', file_get_contents($out . '/Acme/Gen/Versions/R4/Profiles/ProfileMap.php'));
+        $this->assertStringContainsString(self::_BASE . 'a', file_get_contents($out . '/Acme/Gen/Versions/R4/Profiles/Ig/PackageMap.php'));
     }
 
     public function testSameProfileInTwoPackagesFails(): void
@@ -209,7 +213,7 @@ class ProfileWriterTest extends TestCase
         mkdir($out);
         $classes = $this->classes([self::structureDefinition('a')]);
         $this->expectException(ProfileDefinitionException::class);
-        ProfileWriter::write($out, self::_NS, '/* c */', ['one' => $classes, 'two' => $classes]);
+        ProfileWriter::write($out, self::_NS, '/* c */', ['one' => $classes, 'two' => $classes], CoreEnumStubs::define());
     }
 
     public function testProfileCopyrightFollowsLibraryCopyright(): void

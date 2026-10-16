@@ -18,9 +18,11 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
+use RuntimeException;
+
 /**
  * Thrown when a StructureDefinition is malformed or cannot be turned into a usable profile.
  */
-class ProfileDefinitionException extends \RuntimeException
+class ProfileDefinitionException extends RuntimeException
 {
 }

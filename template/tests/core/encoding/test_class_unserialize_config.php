@@ -24,6 +24,11 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $imports = $coreFile->getImports();
 $imports->addCoreFileImportsByName(
     PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG,
+    PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION,
+    PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE,
+    PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE,
+    PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH,
+    PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION,
 );
 
 $coreFiles = $config->getCoreFiles();
@@ -52,6 +57,38 @@ class <?php echo PHPFHIR_TEST_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?> extends 
         $uc = new <?php echo $unserializeConfigClass; ?>(libxmlOpts: 123, jsonDecodeMaxDepth: 456);
         $this->assertEquals(123, $uc->getLibxmlOpts());
         $this->assertEquals(456, $uc->getJSONDecodeMaxDepth());
+    }
+
+    public function testProfileOptionDefaults()
+    {
+        $uc = new <?php echo $unserializeConfigClass; ?>();
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?>::OFF, $uc->getProfileResolution());
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::FALLBACK, $uc->getOnUnknownProfile());
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::EXCEPTION, $uc->getOnAmbiguousProfile());
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::IGNORE_VERSION, $uc->getOnProfileVersionMismatch());
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::KEEP, $uc->getOnProfileViolation());
+    }
+
+    public function testProfileOptionsAcceptEnumsAndStrings()
+    {
+        $uc = new <?php echo $unserializeConfigClass; ?>(
+            profileResolution: 'auto',
+            onUnknownProfile: <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::EXCEPTION,
+            onAmbiguousProfile: 'firstDeclared',
+            onProfileVersionMismatch: <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::FALLBACK,
+            onProfileViolation: 'exception',
+        );
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?>::AUTO, $uc->getProfileResolution());
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::EXCEPTION, $uc->getOnUnknownProfile());
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::FIRST_DECLARED, $uc->getOnAmbiguousProfile());
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::FALLBACK, $uc->getOnProfileVersionMismatch());
+        $this->assertSame(<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::EXCEPTION, $uc->getOnProfileViolation());
+    }
+
+    public function testInvalidProfileOptionStringThrows()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        (new <?php echo $unserializeConfigClass; ?>())->setOnProfileViolation('ignore');
     }
 }
 

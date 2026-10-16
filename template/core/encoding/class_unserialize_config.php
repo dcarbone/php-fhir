@@ -19,6 +19,22 @@
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
+$imports = $coreFile->getImports();
+$imports->addCoreFileImportsByName(
+    PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION,
+    PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE,
+    PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE,
+    PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH,
+    PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION,
+);
+
+$coreFiles = $config->getCoreFiles();
+$profileResolutionEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION);
+$onUnknownProfileEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE);
+$onAmbiguousProfileEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE);
+$onProfileVersionMismatchEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH);
+$onProfileViolationEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION);
+
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
 
@@ -26,69 +42,36 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo $config->getBasePHPFHIRCopyrightComment(true); ?>
 
+<?php echo \DCarbone\PHPFHIR\Utilities\ImportUtils::compileImportStatements($imports); ?>
+
 class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
 
 {
-    public const PROFILE_RESOLUTION_OFF = 'off';
-    public const PROFILE_RESOLUTION_AUTO = 'auto';
-    public const PROFILE_RESOLUTIONS = [self::PROFILE_RESOLUTION_OFF, self::PROFILE_RESOLUTION_AUTO];
-
-    public const ON_UNKNOWN_PROFILE_FALLBACK = 'fallback';
-    public const ON_UNKNOWN_PROFILE_EXCEPTION = 'exception';
-    public const ON_UNKNOWN_PROFILE_ACTIONS = [self::ON_UNKNOWN_PROFILE_FALLBACK, self::ON_UNKNOWN_PROFILE_EXCEPTION];
-
-    public const ON_AMBIGUOUS_PROFILE_FIRST_DECLARED = 'firstDeclared';
-    public const ON_AMBIGUOUS_PROFILE_FALLBACK = 'fallback';
-    public const ON_AMBIGUOUS_PROFILE_EXCEPTION = 'exception';
-    public const ON_AMBIGUOUS_PROFILE_ACTIONS = [
-        self::ON_AMBIGUOUS_PROFILE_FIRST_DECLARED,
-        self::ON_AMBIGUOUS_PROFILE_FALLBACK,
-        self::ON_AMBIGUOUS_PROFILE_EXCEPTION,
-    ];
-
-    public const ON_PROFILE_VERSION_MISMATCH_IGNORE_VERSION = 'ignoreVersion';
-    public const ON_PROFILE_VERSION_MISMATCH_FALLBACK = 'fallback';
-    public const ON_PROFILE_VERSION_MISMATCH_EXCEPTION = 'exception';
-    public const ON_PROFILE_VERSION_MISMATCH_ACTIONS = [
-        self::ON_PROFILE_VERSION_MISMATCH_IGNORE_VERSION,
-        self::ON_PROFILE_VERSION_MISMATCH_FALLBACK,
-        self::ON_PROFILE_VERSION_MISMATCH_EXCEPTION,
-    ];
-
-    public const ON_PROFILE_VIOLATION_KEEP = 'keep';
-    public const ON_PROFILE_VIOLATION_FALLBACK = 'fallback';
-    public const ON_PROFILE_VIOLATION_EXCEPTION = 'exception';
-    public const ON_PROFILE_VIOLATION_ACTIONS = [
-        self::ON_PROFILE_VIOLATION_KEEP,
-        self::ON_PROFILE_VIOLATION_FALLBACK,
-        self::ON_PROFILE_VIOLATION_EXCEPTION,
-    ];
-
     /** @var int */
     private int $_libxmlOpts = <?php echo PHPFHIR_DEFAULT_LIBXML_OPT_MASK; ?>;
     /** @var int */
     private int $_jsonDecodeMaxDepth = 512;
     /** @var int */
     private int $_jsonDecodeOpts = <?php echo PHPFHIR_DEFAULT_JSON_DECODE_OPT_MASK; ?>;
-    /** @var string */
-    private string $_profileResolution = self::PROFILE_RESOLUTION_OFF;
-    /** @var string */
-    private string $_onUnknownProfile = self::ON_UNKNOWN_PROFILE_FALLBACK;
-    /** @var string */
-    private string $_onAmbiguousProfile = self::ON_AMBIGUOUS_PROFILE_EXCEPTION;
-    /** @var string */
-    private string $_onProfileVersionMismatch = self::ON_PROFILE_VERSION_MISMATCH_IGNORE_VERSION;
-    /** @var string */
-    private string $_onProfileViolation = self::ON_PROFILE_VIOLATION_KEEP;
+    /** @var <?php echo $profileResolutionEnum->getFullyQualifiedName(true); ?> */
+    private <?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?> $_profileResolution = <?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?>::OFF;
+    /** @var <?php echo $onUnknownProfileEnum->getFullyQualifiedName(true); ?> */
+    private <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?> $_onUnknownProfile = <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::FALLBACK;
+    /** @var <?php echo $onAmbiguousProfileEnum->getFullyQualifiedName(true); ?> */
+    private <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?> $_onAmbiguousProfile = <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::EXCEPTION;
+    /** @var <?php echo $onProfileVersionMismatchEnum->getFullyQualifiedName(true); ?> */
+    private <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?> $_onProfileVersionMismatch = <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::IGNORE_VERSION;
+    /** @var <?php echo $onProfileViolationEnum->getFullyQualifiedName(true); ?> */
+    private <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?> $_onProfileViolation = <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::KEEP;
 
     public function __construct(null|int $libxmlOpts = null,
                                 null|int $jsonDecodeMaxDepth = null,
                                 null|int $jsonDecodeOpts = null,
-                                null|string $profileResolution = null,
-                                null|string $onUnknownProfile = null,
-                                null|string $onAmbiguousProfile = null,
-                                null|string $onProfileVersionMismatch = null,
-                                null|string $onProfileViolation = null)
+                                null|string|<?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?> $profileResolution = null,
+                                null|string|<?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?> $onUnknownProfile = null,
+                                null|string|<?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?> $onAmbiguousProfile = null,
+                                null|string|<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?> $onProfileVersionMismatch = null,
+                                null|string|<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?> $onProfileViolation = null)
     {
         if (null !== $libxmlOpts) {
             $this->setLibxmlOpts($libxmlOpts);
@@ -185,26 +168,31 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     /**
      * Whether to unserialize resources into generated profile classes based on their "meta.profile" values.  One of "off" (default) or "auto".
      *
-     * @param string $value
+     * @param string|<?php echo $profileResolutionEnum->getFullyQualifiedName(true); ?> $value
      * @return self
      */
-    public function setProfileResolution(string $value): self
+    public function setProfileResolution(string|<?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?> $value): self
     {
-        if (!in_array($value, self::PROFILE_RESOLUTIONS, true)) {
-            throw new \InvalidArgumentException(sprintf(
-                'profileResolution must be one of ["%s"], "%s" provided',
-                implode('","', self::PROFILE_RESOLUTIONS),
-                $value
-            ));
+        if (is_string($value)) {
+            $enum = <?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?>::tryFrom($value);
+            if (null === $enum) {
+                throw new \InvalidArgumentException(sprintf(
+                    'profileResolution must be one of ["%s"], "%s" provided',
+                    implode('","', array_column(<?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?>::cases(), 'value')),
+                    $value
+                ));
+            }
+            $value = $enum;
         }
         $this->_profileResolution = $value;
         return $this;
     }
 
     /**
-     * @return string
+     * @return <?php echo $profileResolutionEnum->getFullyQualifiedName(true); ?>
+
      */
-    public function getProfileResolution(): string
+    public function getProfileResolution(): <?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?>
     {
         return $this->_profileResolution;
     }
@@ -212,26 +200,31 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     /**
      * What to do when a declared profile has no generated class (or constrains a different type).  One of "fallback" (default; ignore it) or "exception".
      *
-     * @param string $value
+     * @param string|<?php echo $onUnknownProfileEnum->getFullyQualifiedName(true); ?> $value
      * @return self
      */
-    public function setOnUnknownProfile(string $value): self
+    public function setOnUnknownProfile(string|<?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?> $value): self
     {
-        if (!in_array($value, self::ON_UNKNOWN_PROFILE_ACTIONS, true)) {
-            throw new \InvalidArgumentException(sprintf(
-                'onUnknownProfile must be one of ["%s"], "%s" provided',
-                implode('","', self::ON_UNKNOWN_PROFILE_ACTIONS),
-                $value
-            ));
+        if (is_string($value)) {
+            $enum = <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::tryFrom($value);
+            if (null === $enum) {
+                throw new \InvalidArgumentException(sprintf(
+                    'onUnknownProfile must be one of ["%s"], "%s" provided',
+                    implode('","', array_column(<?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::cases(), 'value')),
+                    $value
+                ));
+            }
+            $value = $enum;
         }
         $this->_onUnknownProfile = $value;
         return $this;
     }
 
     /**
-     * @return string
+     * @return <?php echo $onUnknownProfileEnum->getFullyQualifiedName(true); ?>
+
      */
-    public function getOnUnknownProfile(): string
+    public function getOnUnknownProfile(): <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>
     {
         return $this->_onUnknownProfile;
     }
@@ -239,26 +232,31 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     /**
      * What to do when several declared profiles match and none is a refinement of all the others.  One of "exception" (default), "firstDeclared" or "fallback" (use the base type).
      *
-     * @param string $value
+     * @param string|<?php echo $onAmbiguousProfileEnum->getFullyQualifiedName(true); ?> $value
      * @return self
      */
-    public function setOnAmbiguousProfile(string $value): self
+    public function setOnAmbiguousProfile(string|<?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?> $value): self
     {
-        if (!in_array($value, self::ON_AMBIGUOUS_PROFILE_ACTIONS, true)) {
-            throw new \InvalidArgumentException(sprintf(
-                'onAmbiguousProfile must be one of ["%s"], "%s" provided',
-                implode('","', self::ON_AMBIGUOUS_PROFILE_ACTIONS),
-                $value
-            ));
+        if (is_string($value)) {
+            $enum = <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::tryFrom($value);
+            if (null === $enum) {
+                throw new \InvalidArgumentException(sprintf(
+                    'onAmbiguousProfile must be one of ["%s"], "%s" provided',
+                    implode('","', array_column(<?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::cases(), 'value')),
+                    $value
+                ));
+            }
+            $value = $enum;
         }
         $this->_onAmbiguousProfile = $value;
         return $this;
     }
 
     /**
-     * @return string
+     * @return <?php echo $onAmbiguousProfileEnum->getFullyQualifiedName(true); ?>
+
      */
-    public function getOnAmbiguousProfile(): string
+    public function getOnAmbiguousProfile(): <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>
     {
         return $this->_onAmbiguousProfile;
     }
@@ -266,26 +264,31 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     /**
      * What to do when a declared "url|version" does not match the generated profile version.  One of "ignoreVersion" (default), "fallback" (ignore the profile) or "exception".
      *
-     * @param string $value
+     * @param string|<?php echo $onProfileVersionMismatchEnum->getFullyQualifiedName(true); ?> $value
      * @return self
      */
-    public function setOnProfileVersionMismatch(string $value): self
+    public function setOnProfileVersionMismatch(string|<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?> $value): self
     {
-        if (!in_array($value, self::ON_PROFILE_VERSION_MISMATCH_ACTIONS, true)) {
-            throw new \InvalidArgumentException(sprintf(
-                'onProfileVersionMismatch must be one of ["%s"], "%s" provided',
-                implode('","', self::ON_PROFILE_VERSION_MISMATCH_ACTIONS),
-                $value
-            ));
+        if (is_string($value)) {
+            $enum = <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::tryFrom($value);
+            if (null === $enum) {
+                throw new \InvalidArgumentException(sprintf(
+                    'onProfileVersionMismatch must be one of ["%s"], "%s" provided',
+                    implode('","', array_column(<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::cases(), 'value')),
+                    $value
+                ));
+            }
+            $value = $enum;
         }
         $this->_onProfileVersionMismatch = $value;
         return $this;
     }
 
     /**
-     * @return string
+     * @return <?php echo $onProfileVersionMismatchEnum->getFullyQualifiedName(true); ?>
+
      */
-    public function getOnProfileVersionMismatch(): string
+    public function getOnProfileVersionMismatch(): <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>
     {
         return $this->_onProfileVersionMismatch;
     }
@@ -293,26 +296,31 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     /**
      * What to do when a resource unserialized into a profile class violates its constraints.  One of "keep" (default; keep the profile type), "fallback" (use the base type) or "exception".
      *
-     * @param string $value
+     * @param string|<?php echo $onProfileViolationEnum->getFullyQualifiedName(true); ?> $value
      * @return self
      */
-    public function setOnProfileViolation(string $value): self
+    public function setOnProfileViolation(string|<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?> $value): self
     {
-        if (!in_array($value, self::ON_PROFILE_VIOLATION_ACTIONS, true)) {
-            throw new \InvalidArgumentException(sprintf(
-                'onProfileViolation must be one of ["%s"], "%s" provided',
-                implode('","', self::ON_PROFILE_VIOLATION_ACTIONS),
-                $value
-            ));
+        if (is_string($value)) {
+            $enum = <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::tryFrom($value);
+            if (null === $enum) {
+                throw new \InvalidArgumentException(sprintf(
+                    'onProfileViolation must be one of ["%s"], "%s" provided',
+                    implode('","', array_column(<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::cases(), 'value')),
+                    $value
+                ));
+            }
+            $value = $enum;
         }
         $this->_onProfileViolation = $value;
         return $this;
     }
 
     /**
-     * @return string
+     * @return <?php echo $onProfileViolationEnum->getFullyQualifiedName(true); ?>
+
      */
-    public function getOnProfileViolation(): string
+    public function getOnProfileViolation(): <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>
     {
         return $this->_onProfileViolation;
     }

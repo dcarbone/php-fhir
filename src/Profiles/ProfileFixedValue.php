@@ -30,7 +30,7 @@ class ProfileFixedValue
     private readonly mixed $value;
 
     /**
-     * @param \DCarbone\PHPFHIR\Enum\FixedValueKindEnum $kind
+     * @param FixedValueKindEnum $kind
      * @param string $type FHIR type of the value, e.g. "Uri" or "CodeableConcept".
      * @param mixed $value The decoded JSON value.
      */

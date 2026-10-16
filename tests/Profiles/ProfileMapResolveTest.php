@@ -55,7 +55,9 @@ class ProfileMapResolveTest extends TestCase
             self::_OBS => self::_NS . '\\Obs',
         ];
         $baseTypeMap = [self::_A => 'Patient', self::_B => 'Patient', self::_C => 'Patient', self::_OBS => 'Observation'];
-        $code = Templates::renderProfileMap('/* c */', self::_NS, 'ProfileMap', $classMap, $baseTypeMap);
+        $code = Templates::renderProfilePackageMap('/* c */', self::_NS . '\\Pkg', 'PackageMap', $classMap, $baseTypeMap);
+        eval(substr($code, strlen('<?php')));
+        $code = Templates::renderProfileMap('/* c */', self::_NS, 'ProfileMap', [self::_NS . '\\Pkg\\PackageMap'], CoreEnumStubs::define());
         eval(substr($code, strlen('<?php')));
     }
 
@@ -64,8 +66,12 @@ class ProfileMapResolveTest extends TestCase
                                     string $onAmbiguous = 'exception',
                                     string $onVersionMismatch = 'ignoreVersion'): null|string
     {
+        $enums = CoreEnumStubs::define();
+        $unknown = $enums[CoreEnumStubs::ON_UNKNOWN_PROFILE];
+        $ambiguous = $enums[CoreEnumStubs::ON_AMBIGUOUS_PROFILE];
+        $mismatch = $enums[CoreEnumStubs::ON_PROFILE_VERSION_MISMATCH];
         $map = self::_MAP;
-        return $map::resolve(self::_PATIENT, $declared, $onUnknown, $onAmbiguous, $onVersionMismatch);
+        return $map::resolve(self::_PATIENT, $declared, $unknown::from($onUnknown), $ambiguous::from($onAmbiguous), $mismatch::from($onVersionMismatch));
     }
 
     private static function cls(string $short): string

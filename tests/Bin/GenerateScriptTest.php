@@ -152,6 +152,7 @@ class GenerateScriptTest extends TestCase
         $this->assertNotEmpty($files, $out);
         $this->assertFileExists(dirname($files[0], 2) . '/ProfileMap.php');
         $this->assertFileExists(dirname($files[0], 2) . '/ProfileAutoloader.php');
+        $this->assertFileExists(dirname($files[0]) . '/PackageAutoloader.php');
     }
 
     public function testGeneratedParserResolvesProfiles(): void

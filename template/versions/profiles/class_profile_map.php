@@ -19,16 +19,13 @@
 /** @var string $copyright */
 /** @var string $namespace */
 /** @var string $className */
-/** @var array<string, string> $classMap profile url => fully qualified class name, without leading slash */
-/** @var array<string, string> $baseTypeMap profile url => FHIR type name */
+/** @var string[] $packageMaps fully qualified names, without leading slash, of the per package maps */
+/** @var array<string, string> $enums fully qualified names, without leading slash, of the core option enums, by entity name */
 
 $imports = new \DCarbone\PHPFHIR\Builder\Imports(null, $namespace, $className);
 $imports->addImport('', 'UnexpectedValueException');
-$classNames = [];
-foreach ($classMap as $url => $fqcn) {
-    $pos = strrpos($fqcn, '\\');
-    $import = $imports->addImport(substr($fqcn, 0, $pos), substr($fqcn, $pos + 1));
-    $classNames[$url] = $import->getImportedName();
+foreach ([PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE, PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE, PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH] as $entity) {
+    $imports->addImport(substr($enums[$entity], 0, strrpos($enums[$entity], '\\')), $entity);
 }
 
 ob_start();
@@ -42,22 +39,16 @@ namespace <?php echo $namespace; ?>;
 <?php echo \DCarbone\PHPFHIR\Utilities\ImportUtils::compileImportStatements($imports); ?>
 
 /**
- * Index of the generated profile classes, keyed by canonical profile url.
+ * Entry point for looking up the generated profile classes.  The classes themselves are indexed per package, see the
+ * package maps, which are only loaded when a lookup reaches them.
  */
 abstract class <?php echo $className; ?>
 
 {
-    /** @var array<string, class-string> */
-    private const _PROFILES = [
-<?php foreach ($classMap as $url => $fqcn) : ?>
-        <?php echo var_export($url, true); ?> => <?php echo $classNames[$url]; ?>::class,
-<?php endforeach; ?>
-    ];
-
-    /** @var array<string, string> */
-    private const _BASE_TYPES = [
-<?php foreach ($baseTypeMap as $url => $type) : ?>
-        <?php echo var_export($url, true); ?> => <?php echo var_export($type, true); ?>,
+    /** @var string[] Loaded one at a time, and only when a lookup gets to them. */
+    private const _PACKAGE_MAPS = [
+<?php foreach ($packageMaps as $packageMap) : ?>
+        <?php echo var_export($packageMap, true); ?>,
 <?php endforeach; ?>
     ];
 
@@ -66,7 +57,13 @@ abstract class <?php echo $className; ?>
      */
     public static function getProfileClasses(): array
     {
-        return self::_PROFILES;
+        $out = [];
+        foreach (self::_PACKAGE_MAPS as $map) {
+            foreach ($map::getProfileClasses() as $url => $class) {
+                $out[$url] = $class;
+            }
+        }
+        return $out;
     }
 
     /**
@@ -79,7 +76,13 @@ abstract class <?php echo $className; ?>
         if (false !== $pos) {
             $canonical = substr($canonical, 0, $pos);
         }
-        return self::_PROFILES[$canonical] ?? null;
+        foreach (self::_PACKAGE_MAPS as $map) {
+            $class = $map::getProfileClassname($canonical);
+            if (null !== $class) {
+                return $class;
+            }
+        }
+        return null;
     }
 
     /**
@@ -92,7 +95,13 @@ abstract class <?php echo $className; ?>
         if (false !== $pos) {
             $canonical = substr($canonical, 0, $pos);
         }
-        return self::_BASE_TYPES[$canonical] ?? null;
+        foreach (self::_PACKAGE_MAPS as $map) {
+            $type = $map::getProfileBaseType($canonical);
+            if (null !== $type) {
+                return $type;
+            }
+        }
+        return null;
     }
 
     /**
@@ -100,17 +109,17 @@ abstract class <?php echo $className; ?>
      *
      * @param class-string $baseClassName Class of the resource's declared FHIR type.
      * @param string[] $declared Canonical profile urls, in declaration order, optionally with a "|version" suffix.
-     * @param string $onUnknown "fallback" or "exception"
-     * @param string $onAmbiguous "firstDeclared", "fallback" or "exception"
-     * @param string $onVersionMismatch "ignoreVersion", "fallback" or "exception"
+     * @param <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?> $onUnknown
+     * @param <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?> $onAmbiguous
+     * @param <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?> $onVersionMismatch
      * @return null|class-string Null when the base class should be used.
      * @throws UnexpectedValueException
      */
     public static function resolve(string $baseClassName,
                                    array $declared,
-                                   string $onUnknown,
-                                   string $onAmbiguous,
-                                   string $onVersionMismatch): null|string
+                                   <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?> $onUnknown,
+                                   <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?> $onAmbiguous,
+                                   <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?> $onVersionMismatch): null|string
     {
         $candidates = [];
         foreach ($declared as $canonical) {
@@ -119,7 +128,7 @@ abstract class <?php echo $className; ?>
             }
             $class = self::getProfileClassname($canonical);
             if (null === $class || !is_a($class, $baseClassName, true)) {
-                if ('exception' === $onUnknown) {
+                if (<?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::EXCEPTION === $onUnknown) {
                     throw new UnexpectedValueException(sprintf(
                         'Profile "%s" is not a known profile of "%s"',
                         $canonical,
@@ -129,11 +138,11 @@ abstract class <?php echo $className; ?>
                 continue;
             }
             $pos = strpos($canonical, '|');
-            if (false !== $pos && 'ignoreVersion' !== $onVersionMismatch) {
+            if (false !== $pos && <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::IGNORE_VERSION !== $onVersionMismatch) {
                 $declaredVersion = substr($canonical, $pos + 1);
                 $generatedVersion = $class::PROFILE_VERSION;
                 if (null !== $generatedVersion && $declaredVersion !== $generatedVersion) {
-                    if ('exception' === $onVersionMismatch) {
+                    if (<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::EXCEPTION === $onVersionMismatch) {
                         throw new UnexpectedValueException(sprintf(
                             'Profile "%s" was generated from version "%s"',
                             $canonical,
@@ -170,8 +179,8 @@ abstract class <?php echo $className; ?>
         }
 
         return match ($onAmbiguous) {
-            'firstDeclared' => $candidates[0],
-            'fallback' => null,
+            <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::FIRST_DECLARED => $candidates[0],
+            <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::FALLBACK => null,
             default => throw new UnexpectedValueException(sprintf(
                 'Ambiguous profiles declared for "%s": ["%s"]',
                 $baseClassName,

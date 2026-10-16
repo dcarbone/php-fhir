@@ -43,7 +43,10 @@ class ProfileRules
      */
     public static function compile(Profile $profile, null|ValueSetExpander $expander = null): array
     {
-        $chain = array_merge([$profile], $profile->getAncestors());
+        $chain = [$profile];
+        foreach ($profile->getAncestors() as $ancestor) {
+            $chain[] = $ancestor;
+        }
 
         $ids = [];
         foreach ($chain as $p) {
@@ -100,7 +103,7 @@ class ProfileRules
         return substr($element->getPath(), strpos($element->getPath(), '.') + 1);
     }
 
-    /** @param \DCarbone\PHPFHIR\Profiles\Profile[] $chain */
+    /** @param Profile[] $chain */
     private static function _effective(Profile $profile, array $chain, string $id): null|ProfileElement
     {
         if ($profile->hasSnapshot()) {
@@ -115,8 +118,8 @@ class ProfileRules
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Profiles\Profile[] $chain
-     * @return \DCarbone\PHPFHIR\Profiles\ProfileConstraint[]
+     * @param Profile[] $chain
+     * @return ProfileConstraint[]
      */
     private static function _differentialConstraints(array $chain, string $id): array
     {
@@ -142,10 +145,11 @@ class ProfileRules
         }
 
         if ($element->isChoice() && [] !== $element->getTypes()) {
-            $rule['types'] = array_values(array_unique(array_map(
-                static fn(ProfileElementType $t): string => $t->getCode(),
-                $element->getTypes(),
-            )));
+            $types = [];
+            foreach ($element->getTypes() as $type) {
+                $types[$type->getCode()] = $type->getCode();
+            }
+            $rule['types'] = array_values($types);
         }
 
         if (null !== ($fixed = $element->getFixedValue())) {
@@ -166,7 +170,7 @@ class ProfileRules
     }
 
     /**
-     * @param \DCarbone\PHPFHIR\Profiles\Profile[] $chain
+     * @param Profile[] $chain
      */
     private static function _compileSlice(Profile $profile, array $chain, ProfileElement $slice): null|array
     {

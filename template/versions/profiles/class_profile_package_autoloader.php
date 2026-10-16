@@ -19,7 +19,7 @@
 /** @var string $copyright */
 /** @var string $namespace */
 /** @var string $className */
-/** @var array<string, string> $fileMap fully qualified class name (no leading slash) => path relative to the profiles directory */
+/** @var array<string, string> $fileMap fully qualified class name (no leading slash) => path relative to the package directory */
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
