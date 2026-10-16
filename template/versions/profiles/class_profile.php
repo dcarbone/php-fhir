@@ -63,6 +63,11 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     public const PROFILE_INVARIANTS = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($profileClass->getInvariants(), 1); ?>;
 
     private const _PROFILE_VALIDATION_RULES = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($code->fieldRules, 1); ?>;
+<?php if ('' !== $code->constants) : ?>
+
+<?php echo $code->constants; ?>
+
+<?php endif; ?>
 
     /**
      * @return string
@@ -132,9 +137,9 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     }
 <?php endif; ?>
 <?php endforeach; ?>
-<?php if ('' !== $code->members) : ?>
+<?php if ('' !== $code->methods) : ?>
 
-<?php echo $code->members; ?>
+<?php echo $code->methods; ?>
 
 <?php endif; ?>
 }

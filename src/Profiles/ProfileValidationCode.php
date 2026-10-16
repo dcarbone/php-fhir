@@ -24,14 +24,16 @@ namespace DCarbone\PHPFHIR\Profiles;
 final class ProfileValidationCode
 {
     public readonly string $body;
-    public readonly string $members;
+    public readonly string $constants;
+    public readonly string $methods;
     public readonly array $sliceMatchers;
     public readonly array $skipped;
     public readonly array $fieldRules;
 
     /**
      * @param string $body Statements making up the body of _getValidationErrors(), appending to $errs.
-     * @param string $members Constants and private static methods the body relies on.
+     * @param string $constants Class constants the body relies on.
+     * @param string $methods Private static methods the body relies on.
      * @param array<int, array{method: string, class: string}> $sliceMatchers By slice index, the private static method
      *        that tells whether an item belongs to the slice, and the imported name of the item's class.
      * @param string[] $skipped Rules that could not be turned into code, and why.
@@ -40,13 +42,15 @@ final class ProfileValidationCode
      */
     public function __construct(
         string $body = '',
-        string $members = '',
+        string $constants = '',
+        string $methods = '',
         array $sliceMatchers = [],
         array $skipped = [],
         array $fieldRules = [],
     ) {
         $this->body = $body;
-        $this->members = $members;
+        $this->constants = $constants;
+        $this->methods = $methods;
         $this->sliceMatchers = $sliceMatchers;
         $this->skipped = $skipped;
         $this->fieldRules = $fieldRules;

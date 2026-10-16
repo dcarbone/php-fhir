@@ -87,7 +87,8 @@ final class ProfileValidationGenerator
         }
         return new ProfileValidationCode(
             implode("\n", $g->_out),
-            implode("\n\n", [...array_values($g->_constants), ...array_values($g->_methods)]),
+            implode("\n\n", $g->_constants),
+            implode("\n\n", $g->_methods),
             $g->_sliceMatchers,
             $g->_skipped,
             $g->_fieldRules,
