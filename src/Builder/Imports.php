@@ -27,7 +27,7 @@ use DCarbone\PHPFHIR\Version\Definition\Type;
 class Imports implements \Countable
 {
     /** @var \DCarbone\PHPFHIR\Config */
-    private Config $_config;
+    private null|Config $_config;
     /** @var string */
     private string $_localNamespace;
     /** @var string */
@@ -42,11 +42,11 @@ class Imports implements \Countable
     private int $_requiredImportCount = 0;
 
     /**
-     * @param \DCarbone\PHPFHIR\Config $config
+     * @param null|\DCarbone\PHPFHIR\Config $config Only required for core file lookups.
      * @param string $localNamespace Fully qualified namespace of local entity
      * @param string $localName Name of local entity (class, interface, enum, trait, etc.)
      */
-    public function __construct(Config $config, string $localNamespace, string $localName)
+    public function __construct(null|Config $config, string $localNamespace, string $localName)
     {
         $this->_config = $config;
         $this->_localNamespace = trim($localNamespace, PHPFHIR_NAMESPACE_SEPARATOR);
@@ -136,6 +136,9 @@ class Imports implements \Countable
     public function addCoreFileImportsByName(string ...$entityNames): self
     {
         foreach ($entityNames as $en) {
+            if (null === $this->_config) {
+                throw new \LogicException('Core file lookups require a config');
+            }
             $this->addCoreFileImport(
                 $this->_config->getCoreFiles()->getCoreFileByEntityName($en),
             );

@@ -26,10 +26,16 @@ $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $validatorClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
+$pathResolverClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_PATH_RESOLVER);
+$minOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS);
+$sliceOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_SLICE_OCCURS);
 
 $imports->addCoreFileImports(
     $typeInterface,
     $validatorClass,
+    $pathResolverClass,
+    $minOccursRule,
+    $sliceOccursRule,
 );
 
 ob_start();
@@ -125,12 +131,25 @@ trait <?php echo $coreFile; ?>
      */
     public function _getValidationErrors(): array
     {
-        $rules = $this->_getCombinedValidationRules();
+        return $this->_collectValidationErrors($this->_getCombinedValidationRules(), true);
+    }
+
+    /**
+     * Runs the given rules against this type.
+     *
+     * @param array $rules Map of ["fieldname" => ["rule" => {constraint}]].
+     * @param bool $descend Whether to also collect the validation errors of the types held by this type's fields.
+     * @return array
+     */
+    protected function _collectValidationErrors(array $rules, bool $descend): array
+    {
         $errs = [];
+        $seen = [];
         foreach ($this as $prop => $value) {
             if (str_starts_with($prop, '_')) {
                 continue;
             }
+            $seen[$prop] = true;
             if (isset($rules[$prop])) {
                 foreach ($rules[$prop] as $rule => $constraint) {
                     $err = <?php echo $validatorClass; ?>::runRule($this, $prop, $rule, $constraint, $value);
@@ -142,6 +161,9 @@ trait <?php echo $coreFile; ?>
                     }
                 }
             }
+            if (!$descend) {
+                continue;
+            }
             if ($value instanceof <?php echo $typeInterface; ?>) {
                 foreach ($value->_getValidationErrors() as $subPath => $subErrs) {
                     $errs["{$prop}.{$subPath}"] = $subErrs;
@@ -152,6 +174,40 @@ trait <?php echo $coreFile; ?>
                         foreach ($vv->_getValidationErrors() as $subPath => $subErrs) {
                             $errs["{$prop}.{$i}.{$subPath}"] = $subErrs;
                         }
+                    }
+                }
+            }
+        }
+        // collection properties are declared without a default, so they are skipped by the loop above until set.  The
+        // rules that care about absence still have to run for them.
+        foreach ($rules as $prop => $propRules) {
+            if (isset($seen[$prop]) || <?php echo $pathResolverClass; ?>::isPath($prop)) {
+                continue;
+            }
+            foreach ([<?php echo $minOccursRule; ?>::NAME, <?php echo $sliceOccursRule; ?>::NAME] as $rule) {
+                if (!isset($propRules[$rule])) {
+                    continue;
+                }
+                $err = <?php echo $validatorClass; ?>::runRule($this, $prop, $rule, $propRules[$rule], null);
+                if (null !== $err) {
+                    $errs[$prop][$rule] = $err;
+                }
+            }
+        }
+        // rules keyed by a dotted path are run against every instance the path resolves to.
+        foreach ($rules as $path => $pathRules) {
+            if (!<?php echo $pathResolverClass; ?>::isPath($path)) {
+                continue;
+            }
+            foreach (<?php echo $pathResolverClass; ?>::resolveParents($this, $path) as $resolved) {
+                // choice keys have no getter of their own; the choice rule reads each variant.
+                $value = str_ends_with($resolved['field'], <?php echo $pathResolverClass; ?>::CHOICE_SUFFIX)
+                    ? null
+                    : $resolved['type']->{'get' . $resolved['field']}();
+                foreach ($pathRules as $rule => $constraint) {
+                    $err = <?php echo $validatorClass; ?>::runRule($resolved['type'], $resolved['path'], $rule, $constraint, $value);
+                    if (null !== $err) {
+                        $errs[$resolved['path']][$rule] = $err;
                     }
                 }
             }

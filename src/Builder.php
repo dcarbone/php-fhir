@@ -18,8 +18,16 @@ namespace DCarbone\PHPFHIR;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Profiles\DefinitionTypeNavigator;
+use DCarbone\PHPFHIR\Profiles\ProfileClasses;
+use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
+use DCarbone\PHPFHIR\Profiles\ProfileSet;
+use DCarbone\PHPFHIR\Profiles\ProfileWriter;
+use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
 use DCarbone\PHPFHIR\Render\Templates;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
+use InvalidArgumentException;
 
 /**
  * Class Builder
@@ -47,17 +55,18 @@ class Builder
      *
      * @param bool $coreFiles If true, will generate core PHPFHIR classes, interfaces, traits, and enums.
      * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
+     * @param bool $profiles If true, will generate profile classes for versions that have profile packages configured.
+     * @param null|array $profilePackages Array of profile package names to limit profile generation to. If null, all configured packages will be generated.
      * @throws \ErrorException
      * @throws \Exception
      */
     public function render(bool       $coreFiles = true,
                            bool       $testFiles = true,
-                           null|array $versionNames = null): void
+                           null|array $versionNames = null,
+                           bool       $profiles = true,
+                           null|array $profilePackages = null): void
     {
-        // register custom error handler to force explosions.
-        set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
-            throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
-        });
+        $this->registerErrorHandler();
 
         // write php-fhir core entities
         if ($coreFiles) {
@@ -83,6 +92,203 @@ class Builder
             // write fhir version type test classes
             $this->writeFHIRVersionTypeTestClasses(...$versionNames);
         }
+
+        // write fhir version profile classes
+        if ($profiles) {
+            $this->renderProfiles($versionNames, $profilePackages);
+        }
+    }
+
+    /**
+     * Generate profile classes for the configured profile packages of the provided versions.  Versions without any
+     * configured profile packages are skipped.
+     *
+     * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
+     * @param null|array $packageNames Array of profile package names to limit generation to. If null, all configured packages will be generated.
+     * @throws InvalidArgumentException If a specified package is not configured for any of the specified versions.
+     */
+    public function renderProfiles(null|array $versionNames = null, null|array $packageNames = null): void
+    {
+        $this->registerErrorHandler();
+
+        if (null === $versionNames) {
+            $versionNames = $this->config->getVersionNames();
+        }
+
+        $this->assertProfilePackagesConfigured($versionNames, $packageNames);
+
+        $log = $this->config->getLogger();
+
+        foreach ($versionNames as $versionName) {
+            $version = $this->config->getVersion($versionName);
+            $profilesConfig = $version->getVersionConfig()->getProfilesConfig();
+            if (!$profilesConfig->hasPackages()) {
+                continue;
+            }
+
+            $log->startBreak(sprintf('FHIR Version %s Profile Class Generation', $versionName));
+
+            $definition = $version->getDefinition();
+            if (!$definition->isDefined()) {
+                $log->startBreak("Parsing XSD Source for {$versionName}");
+                $definition->buildDefinition();
+                $log->endBreak("Parsing XSD Source for {$versionName}");
+            }
+
+            $profilesNamespace = $version->getFullyQualifiedName(false, $profilesConfig->getNamespace());
+            $fhirVersion = $version->getSourceMetadata()->getSemanticVersion(true);
+
+            $ordered = $profilesConfig->getOrderedPackages();
+
+            // packages that were asked for are written together with everything they depend on, as their classes extend
+            // the dependencies' classes.
+            $writePackages = null;
+            if (null !== $packageNames) {
+                $writePackages = [];
+                foreach ($packageNames as $requested) {
+                    if (!$profilesConfig->hasPackage($requested)) {
+                        continue;
+                    }
+                    $writePackages[$requested] = true;
+                    foreach ($profilesConfig->getDependencyClosure($requested) as $depName) {
+                        $writePackages[$depName] = true;
+                    }
+                }
+            }
+
+            $copyright = CopyrightUtils::compileFullCopyrightComment($this->config, $version->getSourceMetadata());
+            $navigator = new DefinitionTypeNavigator($version);
+            $index = ProfileWriter::newIndex();
+            $support = [
+                'matcher' => $this->config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALUE_MATCHER)->getFullyQualifiedName(false),
+                'validator' => $this->config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR)->getFullyQualifiedName(false),
+                'profileInterface' => $this->config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE)->getFullyQualifiedName(false),
+            ];
+
+            // one package at a time, dependencies first.  Everything a later package cannot need is released as we go,
+            // as large package sets are memory hungry.
+            $reads = [];
+            $classesByPackage = [];
+            foreach ($ordered as $i => $package) {
+                $name = $package->getName();
+                $log->info(sprintf('Reading profile package "%s"...', $name));
+                $dependencies = [];
+                foreach ($package->getDependencies() as $depName) {
+                    $dependencies[] = $reads[$depName];
+                }
+                $reads[$name] = ProfilePackageReader::read($package, $fhirVersion, $dependencies);
+                $set = ProfileSet::fromPackage($reads[$name], $package->isStrict());
+                foreach ($set->getUnresolved() as $id => $base) {
+                    $log->warning(sprintf(
+                        'Profile "%s": base "%s" not found; extending the base type directly. Configure its package and add it to "dependencies" to fix.',
+                        $id,
+                        $base,
+                    ));
+                }
+
+                $dependencyClasses = [];
+                foreach ($profilesConfig->getDependencyClosure($name) as $depName) {
+                    foreach ($classesByPackage[$depName] ?? [] as $url => $class) {
+                        $dependencyClasses[$url] = $class;
+                    }
+                }
+                $classes = ProfileClasses::build(
+                    $set,
+                    $profilesNamespace,
+                    $package->getNamespace(),
+                    static fn(string $typeName): null|string => $definition->getTypes()
+                        ->getTypeByName($typeName)
+                        ?->getFullyQualifiedClassName(false),
+                    new ValueSetExpander($reads[$name]),
+                    $dependencyClasses,
+                    $navigator,
+                    $support,
+                    $version->getFullyQualifiedName(false, PHPFHIR_NAMESPACE_TYPES),
+                );
+                unset($set, $dependencyClasses);
+                foreach ($classes as $class) {
+                    foreach ($class->getSkipped() as $reason) {
+                        $log->info(sprintf('Profile "%s": %s', $class->getProfile()->getId(), $reason));
+                    }
+                }
+                $log->info(sprintf('Package "%s": %d profile classes', $name, count($classes)));
+
+                ProfileWriter::writeClasses(
+                    $this->config->getLibraryPath(),
+                    $profilesNamespace,
+                    $copyright,
+                    $name,
+                    $classes,
+                    $index,
+                    null === $writePackages || isset($writePackages[$name]),
+                );
+
+                $classesByPackage[$name] = $classes;
+                unset($classes);
+
+                // release whatever no later package depends on.
+                $needed = [];
+                foreach (array_slice($ordered, $i + 1) as $later) {
+                    foreach ($profilesConfig->getDependencyClosure($later->getName()) as $depName) {
+                        $needed[$depName] = true;
+                    }
+                }
+                foreach (array_keys($reads) as $readName) {
+                    if (!isset($needed[$readName])) {
+                        unset($reads[$readName], $classesByPackage[$readName]);
+                    }
+                }
+            }
+
+            $coreTypes = [];
+            foreach ([
+                PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE,
+                PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE,
+                PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH,
+                PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE,
+            ] as $entity) {
+                $coreTypes[$entity] = $this->config->getCoreFiles()->getCoreFileByEntityName($entity)->getFullyQualifiedName(false);
+            }
+
+            ProfileWriter::writeSupport($this->config->getLibraryPath(), $profilesNamespace, $copyright, $index, $coreTypes);
+
+            $log->endBreak(sprintf('FHIR Version %s Profile Class Generation', $versionName));
+        }
+    }
+
+    /**
+     * @param string[] $versionNames
+     * @param null|string[] $packageNames
+     * @throws InvalidArgumentException
+     */
+    public function assertProfilePackagesConfigured(array $versionNames, null|array $packageNames): void
+    {
+        if (null === $packageNames) {
+            return;
+        }
+        foreach ($packageNames as $packageName) {
+            foreach ($versionNames as $versionName) {
+                $profilesConfig = $this->config->getVersion($versionName)->getVersionConfig()->getProfilesConfig();
+                if ($profilesConfig->hasPackage($packageName)) {
+                    continue 2;
+                }
+            }
+            throw new InvalidArgumentException(sprintf(
+                'Profile package "%s" is not configured for any of the specified versions: %s',
+                $packageName,
+                implode(', ', $versionNames),
+            ));
+        }
+    }
+
+    /**
+     * Register custom error handler to force explosions.
+     */
+    private function registerErrorHandler(): void
+    {
+        set_error_handler(function ($errNum, $errStr, $errFile, $errLine) {
+            throw new \ErrorException($errStr, $errNum, 1, $errFile, $errLine);
+        });
     }
 
     public function writeLibraryCoreEntities(): void

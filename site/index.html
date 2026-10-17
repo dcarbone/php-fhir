@@ -67,6 +67,7 @@
       <div class="card"><h3>Every FHIR type</h3><p>Resources, data types and primitives as plain, fully-typed PHP classes.</p></div>
       <div class="card"><h3>JSON &amp; XML</h3><p>Serialize and unserialize either format, with configurable behavior.</p></div>
       <div class="card"><h3>Validation</h3><p>Rules derived from the schema, applied to the generated types.</p></div>
+      <div class="card"><h3>Profiles</h3><p>Optionally generate classes for profiles such as US Core, nested like the base types, validated by the regular rules and picked automatically from <code>meta.profile</code> when parsing.</p></div>
       <div class="card"><h3>REST client</h3><p>A client for talking to FHIR servers, generated per version.</p></div>
       <div class="card"><h3>Custom output</h3><p>Choose your namespace, versions and behavior when you generate it yourself.</p></div>
       <div class="card"><h3>Tracked performance</h3><p>Serialization time and memory are benchmarked on every change.</p></div>
@@ -91,6 +92,7 @@
 mkdir -p fhir-schemas/R4
 curl -Lo fhir-schemas/R4.zip https://hl7.org/fhir/R4/fhir-codegen-xsd.zip
 unzip fhir-schemas/R4.zip -d fhir-schemas/R4</code></pre>
+    <p>Need profiles such as US Core? Point a version at local implementation guide packages, and the packages they depend on; see the <a href="https://github.com/dcarbone/php-fhir/wiki/Profiles">Profiles</a> guide.</p>
     <p>The <a href="https://github.com/dcarbone/php-fhir/wiki/Getting-Started">Getting Started</a> and <a href="https://github.com/dcarbone/php-fhir/wiki/CLI-Usage">CLI Usage</a> guides cover the rest.</p>
   </section>
 
@@ -99,6 +101,7 @@ unzip fhir-schemas/R4.zip -d fhir-schemas/R4</code></pre>
     <div class="grid">
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Getting-Started"><h3>Getting Started</h3><p>Prerequisites, installation and schemas.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Configuration-Reference"><h3>Configuration</h3><p>All Config and VersionConfig options.</p></a>
+      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Profiles"><h3>Profiles</h3><p>Classes for FHIR profiles such as US Core.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Generated-Code"><h3>Generated code</h3><p>Namespaces, types, client and encoding.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Architecture"><h3>Architecture</h3><p>How the generator pipeline works.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Testing"><h3>Testing &amp; benchmarks</h3><p>Running tests and the benchmark harness.</p></a>

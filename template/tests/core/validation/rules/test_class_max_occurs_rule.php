@@ -96,5 +96,15 @@ class <?php echo $coreFile; ?> extends TestCase
         $err = $rule->assert($type, 'stuff', 2, $type->getStuff());
         $this->assertNotNull($err);
     }
+
+    public function testZeroMaximumProhibitsSingleValue()
+    {
+        $type = new <?php echo $mockResource; ?>(name: 'mock');
+        $rule = new <?php echo $maxOccursRule; ?>();
+        $this->assertNull($rule->assert($type, 'stuff', 0, null));
+        $this->assertNull($rule->assert($type, 'stuff', 0, []));
+        $this->assertNotNull($rule->assert($type, 'stuff', 0, new <?php echo $mockPrimitive; ?>(value: 'x')));
+        $this->assertNotNull($rule->assert($type, 'stuff', 0, [new <?php echo $mockPrimitive; ?>(value: 'x')]));
+    }
 }
 <?php return ob_get_clean();

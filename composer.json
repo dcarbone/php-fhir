@@ -30,6 +30,10 @@
     "psr/log": "^3.0",
     "composer/semver": "^3.4"
   },
+  "suggest": {
+    "ext-phar": "Required to read FHIR profile packages supplied as .tgz archives",
+    "ext-zlib": "Required to read FHIR profile packages supplied as .tgz archives"
+  },
   "require-dev": {
     "ext-zlib": "*",
     "phpunit/phpunit": "^10.5.62 || ^11.5.50 || ^12.5.23 || ^13.1.7",
