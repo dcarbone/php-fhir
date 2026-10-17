@@ -58,7 +58,7 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     /** @var <?php echo $onUnknownProfileEnum->getFullyQualifiedName(true); ?> */
     private <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?> $_onUnknownProfile = <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::FALLBACK;
     /** @var <?php echo $onAmbiguousProfileEnum->getFullyQualifiedName(true); ?> */
-    private <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?> $_onAmbiguousProfile = <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::EXCEPTION;
+    private <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?> $_onAmbiguousProfile = <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?>::FIRST_DECLARED;
     /** @var <?php echo $onProfileVersionMismatchEnum->getFullyQualifiedName(true); ?> */
     private <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?> $_onProfileVersionMismatch = <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::IGNORE_VERSION;
     /** @var <?php echo $onProfileViolationEnum->getFullyQualifiedName(true); ?> */
@@ -230,7 +230,7 @@ class <?php echo PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG; ?>
     }
 
     /**
-     * What to do when several declared profiles match and none is a refinement of all the others.  One of "exception" (default), "firstDeclared" or "fallback" (use the base type).
+     * What to do when several declared profiles match and none is a refinement of all the others.  One of "firstDeclared" (default), "fallback" (use the base type) or "exception".
      *
      * @param string|<?php echo $onAmbiguousProfileEnum->getFullyQualifiedName(true); ?> $value
      * @return self

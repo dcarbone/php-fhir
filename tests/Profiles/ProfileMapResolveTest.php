@@ -65,7 +65,7 @@ class ProfileMapResolveTest extends TestCase
 
     private static function resolve(array $declared,
                                     string $onUnknown = 'fallback',
-                                    string $onAmbiguous = 'exception',
+                                    string $onAmbiguous = 'firstDeclared',
                                     string $onVersionMismatch = 'ignoreVersion'): null|string
     {
         $stubs = CoreStubs::define();
