@@ -55,7 +55,9 @@ class ProfileMapResolveTest extends TestCase
             self::_OBS => self::_NS . '\\Obs',
         ];
         $baseTypeMap = [self::_A => 'Patient', self::_B => 'Patient', self::_C => 'Patient', self::_OBS => 'Observation'];
-        $code = Templates::renderProfilePackageMap('/* c */', self::_NS . '\\Pkg', 'PackageMap', $classMap, $baseTypeMap);
+        $code = Templates::renderProfilePackageMapInterface('/* c */', self::_NS, 'PackageMapInterface');
+        eval(substr($code, strlen('<?php')));
+        $code = Templates::renderProfilePackageMap('/* c */', self::_NS . '\\Pkg', 'PackageMap', $classMap, $baseTypeMap, self::_NS . '\\PackageMapInterface');
         eval(substr($code, strlen('<?php')));
         $code = Templates::renderProfileMap('/* c */', self::_NS, 'ProfileMap', [self::_NS . '\\Pkg\\PackageMap'], CoreEnumStubs::define());
         eval(substr($code, strlen('<?php')));

@@ -42,6 +42,8 @@ class ProfileClasses implements Countable, IteratorAggregate
      *        classes are generated without any validation code.
      * @param array<string, string> $support Fully qualified names, without leading slash, of the core classes the
      *        generated classes use, by role: "matcher" (value matcher) and "validator" (rule registry).
+     * @param string $typesNamespace Namespace, without leading slash, the generated types live under.  A profile class is
+     *        generated beneath its package's namespace at the same relative path its base type has beneath this one.
      * @throws ProfileDefinitionException
      */
     public static function build(
@@ -53,6 +55,7 @@ class ProfileClasses implements Countable, IteratorAggregate
         array             $dependencyClasses = [],
         null|ProfileTypeNavigator $navigator = null,
         array             $support = [],
+        string            $typesNamespace = '',
     ): self
     {
         $wanted = [];
@@ -104,9 +107,10 @@ class ProfileClasses implements Countable, IteratorAggregate
                 break;
             }
 
+            $packageFQN = $profilesNamespace . '\\' . $packageNamespace;
             $classes->_byUrl[$url] = new ProfileClass(
                 $profile,
-                $profilesNamespace . '\\' . $packageNamespace,
+                self::_nest($packageFQN, ltrim($baseClass, '\\'), $typesNamespace),
                 $className,
                 ltrim($baseClass, '\\'),
                 $parent,
@@ -115,9 +119,20 @@ class ProfileClasses implements Countable, IteratorAggregate
                 $navigator,
                 $set->getPackageInfo(),
                 $support,
+                $packageFQN,
             );
         }
         return $classes;
+    }
+
+    private static function _nest(string $packageFQN, string $baseClass, string $typesNamespace): string
+    {
+        $baseNamespace = substr($baseClass, 0, (int)strrpos($baseClass, '\\'));
+        if ('' === $typesNamespace || !str_starts_with($baseNamespace . '\\', $typesNamespace . '\\')) {
+            return $packageFQN;
+        }
+        $relative = trim(substr($baseNamespace, strlen($typesNamespace)), '\\');
+        return '' === $relative ? $packageFQN : $packageFQN . '\\' . $relative;
     }
 
     public function getByUrl(string $url): null|ProfileClass

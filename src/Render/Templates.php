@@ -98,7 +98,7 @@ abstract class Templates
      * @param array<string, string> $classMap profile url => fully qualified class name
      * @param array<string, string> $baseTypeMap profile url => FHIR type name
      */
-    public static function renderProfilePackageMap(string $copyright, string $namespace, string $className, array $classMap, array $baseTypeMap): string
+    public static function renderProfilePackageMap(string $copyright, string $namespace, string $className, array $classMap, array $baseTypeMap, string $interface): string
     {
         return self::normalize(require sprintf('%s/class_profile_package_map.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }
@@ -116,10 +116,23 @@ abstract class Templates
         return self::normalize(require sprintf('%s/class_profile_autoloader.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }
 
+    /** The contract every package map fulfils. */
+    public static function renderProfilePackageMapInterface(string $copyright, string $namespace, string $className): string
+    {
+        return self::normalize(require sprintf('%s/class_profile_package_map_interface.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
+    }
+
+    /** The contract every package autoloader fulfils. */
+    public static function renderProfilePackageAutoloaderInterface(string $copyright, string $namespace, string $className): string
+    {
+        return self::normalize(require sprintf('%s/class_profile_package_autoloader_interface.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
+    }
+
     /**
      * @param array<string, string> $fileMap fully qualified class name => path relative to the package directory
+     * @param string $interface Fully qualified name, without leading slash, of the package autoloader interface.
      */
-    public static function renderProfilePackageAutoloader(string $copyright, string $namespace, string $className, array $fileMap): string
+    public static function renderProfilePackageAutoloader(string $copyright, string $namespace, string $className, array $fileMap, string $interface): string
     {
         return self::normalize(require sprintf('%s/class_profile_package_autoloader.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }

@@ -146,13 +146,15 @@ class GenerateScriptTest extends TestCase
         [$code, $out] = $this->runScript('--onlyProfiles', '--versions', 'R4');
         $this->assertSame(0, $code, $out);
         $dir = $this->_tmpdir->path('') . '/out';
-        $files = glob($dir . '/*/*/Versions/R4/Profiles/*/MyPatient.php')
-            ?: glob($dir . '/*/Versions/R4/Profiles/*/MyPatient.php')
-            ?: glob($dir . '/**/MyPatient.php');
-        $this->assertNotEmpty($files, $out);
-        $this->assertFileExists(dirname($files[0], 2) . '/ProfileMap.php');
-        $this->assertFileExists(dirname($files[0], 2) . '/ProfileAutoloader.php');
-        $this->assertFileExists(dirname($files[0]) . '/PackageAutoloader.php');
+        $autoloaders = glob($dir . '/*/*/Versions/R4/Profiles/*/PackageAutoloader.php')
+            ?: glob($dir . '/*/Versions/R4/Profiles/*/PackageAutoloader.php');
+        $this->assertNotEmpty($autoloaders, $out);
+        $package = dirname($autoloaders[0]);
+        // profile classes are nested the way the types they constrain are
+        $this->assertFileExists($package . '/FHIRResource/FHIRDomainResource/MyPatient.php');
+        $this->assertFileExists($package . '/PackageMap.php');
+        $this->assertFileExists(dirname($package) . '/ProfileMap.php');
+        $this->assertFileExists(dirname($package) . '/ProfileAutoloader.php');
     }
 
     public function testGeneratedParserResolvesProfiles(): void

@@ -21,11 +21,14 @@
 /** @var string $className */
 /** @var array<string, string> $classMap profile url => fully qualified class name, without leading slash */
 /** @var array<string, string> $baseTypeMap profile url => FHIR type name */
+/** @var string $interface fully qualified name, without leading slash, of the package map interface */
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $namespace; ?>;
+
+use <?php echo $interface; ?>;
 
 <?php echo $copyright; ?>
 
@@ -33,7 +36,7 @@ namespace <?php echo $namespace; ?>;
 /**
  * Index of the generated profile classes of a single package, keyed by canonical profile url.
  */
-abstract class <?php echo $className; ?>
+abstract class <?php echo $className; ?> implements <?php echo substr($interface, (int)strrpos($interface, '\\') + 1); ?>
 
 {
     /** @var array<string, class-string> */

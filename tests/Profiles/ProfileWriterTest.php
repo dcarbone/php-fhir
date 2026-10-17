@@ -157,7 +157,7 @@ class ProfileWriterTest extends TestCase
         ]);
 
         $written = ProfileWriter::write($out, self::_NS, '/* copyright */', ['test.ig' => $classes], CoreEnumStubs::define());
-        $this->assertCount(6, $written);
+        $this->assertCount(8, $written);
         foreach ($written as $file) {
             $this->assertFileExists($file);
         }
@@ -196,13 +196,61 @@ class ProfileWriterTest extends TestCase
         }
     }
 
+    public function testClassesAreNestedLikeTheirBaseTypes(): void
+    {
+        $out = $this->_root . '/out';
+        mkdir($out);
+        $ns = 'Acme\\Nest\\Versions\\R4\\Profiles';
+        $types = 'Acme\\Nest\\Versions\\R4\\Types';
+        eval('namespace ' . $types . '\\FHIRResource\\FHIRDomainResource; class FHIRPatient {}');
+
+        $classes = ProfileClasses::build(
+            $this->set([
+                self::structureDefinition('parent-p'),
+                self::structureDefinition('child-p', 'Patient', 'constraint', ['baseDefinition' => self::_BASE . 'parent-p']),
+            ]),
+            $ns,
+            'Ig',
+            static fn(string $t): string => $types . '\\FHIRResource\\FHIRDomainResource\\FHIR' . $t,
+            null,
+            [],
+            null,
+            [],
+            $types,
+        );
+        $class = $classes->getByUrl(self::_BASE . 'child-p');
+        $this->assertSame($ns . '\\Ig\\FHIRResource\\FHIRDomainResource', $class->getNamespace());
+        $this->assertSame($ns . '\\Ig', $class->getPackageNamespace());
+
+        ProfileWriter::write($out, $ns, '/* copyright */', ['test.ig' => $classes], CoreEnumStubs::define());
+        $base = $out . '/Acme/Nest/Versions/R4/Profiles';
+        $this->assertFileExists($base . '/Ig/FHIRResource/FHIRDomainResource/ParentP.php');
+        $this->assertFileExists($base . '/Ig/FHIRResource/FHIRDomainResource/ChildP.php');
+        $this->assertFileExists($base . '/Ig/PackageMap.php');
+        $this->assertFileExists($base . '/Ig/PackageAutoloader.php');
+        $this->assertFileExists($base . '/ProfileMap.php');
+
+        require $base . '/ProfileAutoloader.php';
+        require $base . '/ProfileMap.php';
+        $autoloader = $ns . '\\ProfileAutoloader';
+        $autoloader::register();
+        try {
+            $childClass = $ns . '\\Ig\\FHIRResource\\FHIRDomainResource\\ChildP';
+            $this->assertInstanceOf($ns . '\\Ig\\FHIRResource\\FHIRDomainResource\\ParentP', new $childClass());
+            $map = $ns . '\\ProfileMap';
+            $this->assertSame($childClass, $map::getProfileClassname(self::_BASE . 'child-p'));
+        } finally {
+            $autoloader::unregister();
+        }
+    }
+
     public function testWritePackageFilterOnlyWritesRequestedClassesButMapCoversAll(): void
     {
         $out = $this->_root . '/out';
         mkdir($out);
         $classes = $this->classes([self::structureDefinition('a')]);
         $written = ProfileWriter::write($out, self::_NS, '/* c */', ['test.ig' => $classes], CoreEnumStubs::define(), ['other']);
-        $this->assertCount(4, $written);
+        $this->assertCount(6, $written);
         $this->assertFileDoesNotExist($out . '/Acme/Gen/Versions/R4/Profiles/Ig/A.php');
         $this->assertStringContainsString(self::_BASE . 'a', file_get_contents($out . '/Acme/Gen/Versions/R4/Profiles/Ig/PackageMap.php'));
     }

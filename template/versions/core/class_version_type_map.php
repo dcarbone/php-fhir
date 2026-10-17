@@ -221,6 +221,7 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
         if (!is_array($declared)) {
             $declared = [];
         }
+        /** @var null|class-string $profileClass */
         $profileClass = self::_resolveProfileClassname($className, $declared, $config);
         if (null === $profileClass) {
             return $className::jsonUnserialize($decoded, $config);
@@ -263,6 +264,7 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
                 }
             }
         }
+        /** @var null|class-string $profileClass */
         $profileClass = self::_resolveProfileClassname($className, $declared, $config);
         if (null === $profileClass) {
             return $className::xmlUnserialize($element, $config);

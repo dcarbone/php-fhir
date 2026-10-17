@@ -92,6 +92,7 @@ abstract class <?php echo $className; ?>
             return (bool)require self::_CLASS_MAP[$class];
         }
         foreach (self::_PACKAGE_AUTOLOADER_MAP as $i => [$prefix, $autoloader, $path]) {
+            /** @var class-string<PackageAutoloaderInterface> $autoloader */
             if (!str_starts_with($class, $prefix)) {
                 continue;
             }

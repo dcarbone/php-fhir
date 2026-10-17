@@ -199,6 +199,7 @@ class Builder
                     $dependencyClasses,
                     $navigator,
                     $support,
+                    $version->getFullyQualifiedName(false, PHPFHIR_NAMESPACE_TYPES),
                 );
                 unset($set, $dependencyClasses);
                 foreach ($classes as $class) {

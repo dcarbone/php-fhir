@@ -95,9 +95,10 @@ class ProfileWriter
                 ));
             }
             $index['urls'][$url] = $packageName;
-            $namespace = $class->getNamespace();
+            $namespace = $class->getPackageNamespace();
             $index['namespaces'][$namespace] = true;
-            $namespaces[$namespace]['fileMap'][$fqcn] = $class->getClassName() . '.php';
+            $relative = substr($class->getNamespace(), strlen($namespace) + 1);
+            $namespaces[$namespace]['fileMap'][$fqcn] = ('' === $relative ? '' : str_replace('\\', '/', $relative) . '/') . $class->getClassName() . '.php';
             $namespaces[$namespace]['classMap'][$url] = $fqcn;
             $namespaces[$namespace]['baseTypeMap'][$url] = $class->getProfile()->getType();
 
@@ -116,12 +117,14 @@ class ProfileWriter
                 PHPFHIR_PROFILES_CLASSNAME_PACKAGE_MAP,
                 $package['classMap'],
                 $package['baseTypeMap'],
+                $profilesNamespace . '\\' . PHPFHIR_PROFILES_INTERFACE_PACKAGE_MAP,
             ));
             $written[] = self::_put($libraryPath, $namespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_PACKAGE_AUTOLOADER, Templates::renderProfilePackageAutoloader(
                 $copyright,
                 $namespace,
                 PHPFHIR_PROFILES_CLASSNAME_PACKAGE_AUTOLOADER,
                 $package['fileMap'],
+                $profilesNamespace . '\\' . PHPFHIR_PROFILES_INTERFACE_PACKAGE_AUTOLOADER,
             ));
         }
         return $written;
@@ -148,6 +151,19 @@ class ProfileWriter
             ];
         }
         $fileMap = [$profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_MAP => PHPFHIR_PROFILES_CLASSNAME_MAP . '.php'];
+        foreach ([PHPFHIR_PROFILES_INTERFACE_PACKAGE_MAP, PHPFHIR_PROFILES_INTERFACE_PACKAGE_AUTOLOADER] as $interface) {
+            $fileMap[$profilesNamespace . '\\' . $interface] = $interface . '.php';
+        }
+        $written[] = self::_put($libraryPath, $profilesNamespace . '\\' . PHPFHIR_PROFILES_INTERFACE_PACKAGE_MAP, Templates::renderProfilePackageMapInterface(
+            $copyright,
+            $profilesNamespace,
+            PHPFHIR_PROFILES_INTERFACE_PACKAGE_MAP,
+        ));
+        $written[] = self::_put($libraryPath, $profilesNamespace . '\\' . PHPFHIR_PROFILES_INTERFACE_PACKAGE_AUTOLOADER, Templates::renderProfilePackageAutoloaderInterface(
+            $copyright,
+            $profilesNamespace,
+            PHPFHIR_PROFILES_INTERFACE_PACKAGE_AUTOLOADER,
+        ));
         $written[] = self::_put($libraryPath, $profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_MAP, Templates::renderProfileMap(
             $copyright,
             $profilesNamespace,

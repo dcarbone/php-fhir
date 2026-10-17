@@ -20,16 +20,19 @@
 /** @var string $namespace */
 /** @var string $className */
 /** @var array<string, string> $fileMap fully qualified class name (no leading slash) => path relative to the package directory */
+/** @var string $interface fully qualified name, without leading slash, of the package autoloader interface */
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $namespace; ?>;
 
+use <?php echo $interface; ?>;
+
 <?php echo $copyright; ?>
 
 
-abstract class <?php echo $className; ?>
+abstract class <?php echo $className; ?> implements <?php echo substr($interface, (int)strrpos($interface, '\\') + 1); ?>
 
 {
     /** @var array<string, string> */

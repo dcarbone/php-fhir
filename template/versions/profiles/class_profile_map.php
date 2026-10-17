@@ -59,6 +59,7 @@ abstract class <?php echo $className; ?>
     {
         $out = [];
         foreach (self::_PACKAGE_MAPS as $map) {
+            /** @var class-string<PackageMapInterface> $map */
             foreach ($map::getProfileClasses() as $url => $class) {
                 $out[$url] = $class;
             }
@@ -77,6 +78,7 @@ abstract class <?php echo $className; ?>
             $canonical = substr($canonical, 0, $pos);
         }
         foreach (self::_PACKAGE_MAPS as $map) {
+            /** @var class-string<PackageMapInterface> $map */
             $class = $map::getProfileClassname($canonical);
             if (null !== $class) {
                 return $class;
@@ -96,6 +98,7 @@ abstract class <?php echo $className; ?>
             $canonical = substr($canonical, 0, $pos);
         }
         foreach (self::_PACKAGE_MAPS as $map) {
+            /** @var class-string<PackageMapInterface> $map */
             $type = $map::getProfileBaseType($canonical);
             if (null !== $type) {
                 return $type;
@@ -126,6 +129,7 @@ abstract class <?php echo $className; ?>
             if (!is_string($canonical) || '' === $canonical) {
                 continue;
             }
+            /** @var null|class-string $class */
             $class = self::getProfileClassname($canonical);
             if (null === $class || !is_a($class, $baseClassName, true)) {
                 if (<?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::EXCEPTION === $onUnknown) {

@@ -37,6 +37,7 @@ class ProfileClass
     private readonly null|ProfileTypeNavigator $_navigator;
     private readonly array $_package;
     private readonly array $_support;
+    private readonly string $_packageNamespace;
 
     public function __construct(
         Profile $_profile,
@@ -49,6 +50,7 @@ class ProfileClass
         null|ProfileTypeNavigator $_navigator = null,
         array $_package = [],
         array $_support = [],
+        string $_packageNamespace = '',
     ) {
         $this->_profile = $_profile;
         $this->_namespace = $_namespace;
@@ -60,6 +62,7 @@ class ProfileClass
         $this->_navigator = $_navigator;
         $this->_package = $_package;
         $this->_support = $_support;
+        $this->_packageNamespace = '' === $_packageNamespace ? $_namespace : $_packageNamespace;
     }
 
     /**
@@ -204,6 +207,12 @@ class ProfileClass
     public function getNamespace(): string
     {
         return $this->_namespace;
+    }
+
+    /** Namespace, without leading slash, of the package the class belongs to.  The class itself is nested beneath it. */
+    public function getPackageNamespace(): string
+    {
+        return $this->_packageNamespace;
     }
 
     public function getClassName(): string
