@@ -19,7 +19,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
-use Generator;
+use DCarbone\PHPFHIR\Enum\ProfileResourceTypeEnum;
 use JsonException;
 use PharData;
 use PharFileInfo;
@@ -33,7 +33,12 @@ use Throwable;
 class ProfilePackageReader
 {
     private const _MANIFEST_FILENAME = 'package.json';
+    private const _INDEX_FILENAME = '.index.json';
     private const _PACKAGE_DIR = 'package';
+    /** Conventional "<type>-<id>.json" names of files holding one of the retained resource types. */
+    private const _RESOURCE_FILENAME_PATTERN = '{^(StructureDefinition|ValueSet|CodeSystem)-}';
+    /** Cheap test for files that may hold one of the retained resource types, before they are decoded. */
+    private const _RESOURCE_TYPE_PATTERN = '{"resourceType"\s*:\s*"(StructureDefinition|ValueSet|CodeSystem)"}';
 
     /**
      * @param ProfilePackageConfig $config
@@ -102,37 +107,15 @@ class ProfilePackageReader
 
     private static function _readSource(ProfilePackageConfig $config, string $source, string $expectedName): ProfilePackage
     {
-        $manifest = null;
-        $resources = [];
-
-        foreach (self::_iterateFiles($source) as $relativeName => $contents) {
-            // packages can be huge (e.g. terminology); only decode the resource types that are used.
-            if (self::_MANIFEST_FILENAME !== $relativeName && 1 !== preg_match('{^(StructureDefinition|ValueSet|CodeSystem)-}', $relativeName)) {
-                continue;
-            }
-            $json = self::_decode($contents, $relativeName, $source);
-            if (self::_MANIFEST_FILENAME === $relativeName) {
-                $manifest = $json;
-                continue;
-            }
-            // skip IG-internal and example files, which live in other directories or are not resources.
-            if ('.index.json' === $relativeName || !isset($json['resourceType'])) {
-                continue;
-            }
-            // narrative is never used and is a large share of big packages.
-            unset($json['text']);
-            if (null !== ($packed = ProfilePackage::packResource($json))) {
-                $resources[] = $packed;
-            }
-        }
-
-        if (null === $manifest) {
+        $files = self::_listFiles($source);
+        if (!isset($files[self::_MANIFEST_FILENAME])) {
             throw new ProfilePackageException(sprintf(
                 'Profile package source "%s" does not contain a "%s" file.',
                 $source,
                 self::_MANIFEST_FILENAME,
             ));
         }
+        $manifest = self::_decode(self::_readFile($files[self::_MANIFEST_FILENAME], $source), self::_MANIFEST_FILENAME, $source);
         foreach (['name', 'version'] as $key) {
             if (!isset($manifest[$key]) || !is_string($manifest[$key]) || '' === $manifest[$key]) {
                 throw new ProfilePackageException(sprintf(
@@ -151,6 +134,38 @@ class ProfilePackageReader
             ));
         }
 
+        $indexed = isset($files[self::_INDEX_FILENAME])
+            ? self::_indexedTypes(self::_decode(self::_readFile($files[self::_INDEX_FILENAME], $source), self::_INDEX_FILENAME, $source))
+            : [];
+
+        $resources = [];
+        foreach ($files as $name => $path) {
+            if (self::_MANIFEST_FILENAME === $name || self::_INDEX_FILENAME === $name) {
+                continue;
+            }
+            // packages can be huge (e.g. terminology), so only the resource types that are used are decoded.  File names
+            // are not standardised: besides the conventional "<type>-<id>.json" names, the package index says what a
+            // file holds, and files it does not list are checked for a resource type of interest before being decoded.
+            $conventional = 1 === preg_match(self::_RESOURCE_FILENAME_PATTERN, $name);
+            if (!$conventional && isset($indexed[$name]) && null === ProfileResourceTypeEnum::tryFrom($indexed[$name])) {
+                continue;
+            }
+            $contents = self::_readFile($path, $source);
+            if (!$conventional && !isset($indexed[$name]) && 1 !== preg_match(self::_RESOURCE_TYPE_PATTERN, $contents)) {
+                continue;
+            }
+            $json = self::_decode($contents, $name, $source);
+            unset($contents);
+            if (!isset($json['resourceType']) || !is_string($json['resourceType']) || null === ProfileResourceTypeEnum::tryFrom($json['resourceType'])) {
+                continue;
+            }
+            // narrative is never used and is a large share of big packages.
+            unset($json['text']);
+            if (null !== ($packed = ProfilePackage::packResource($json))) {
+                $resources[] = $packed;
+            }
+        }
+
         $package = new ProfilePackage($config, $manifest);
         foreach ($resources as $resource) {
             $package->addPackedResource($resource);
@@ -159,41 +174,55 @@ class ProfilePackageReader
     }
 
     /**
-     * Yields the contents of the package manifest and every JSON file found in the package root, keyed by file name.
-     *
-     * @return Generator<string, string>
+     * @return array<string, string> package index file name => resource type, for the files the index lists.
      */
-    private static function _iterateFiles(string $source): Generator
+    private static function _indexedTypes(array $index): array
     {
-        if (is_dir($source)) {
-            yield from self::_iterateDirectory($source);
-        } else {
-            yield from self::_iterateArchive($source);
+        $out = [];
+        foreach ($index['files'] ?? [] as $entry) {
+            if (is_array($entry) && isset($entry['filename'], $entry['resourceType']) && is_string($entry['filename']) && is_string($entry['resourceType'])) {
+                $out[$entry['filename']] = $entry['resourceType'];
+            }
         }
+        return $out;
     }
 
-    private static function _iterateDirectory(string $dir): Generator
+    /**
+     * Lists the JSON files directly inside the package directory.
+     *
+     * @return array<string, string> file name => path, sorted by name.
+     */
+    private static function _listFiles(string $source): array
+    {
+        $files = is_dir($source) ? self::_listDirectory($source) : self::_listArchive($source);
+        ksort($files, SORT_STRING);
+        return $files;
+    }
+
+    /** @return array<string, string> */
+    private static function _listDirectory(string $dir): array
     {
         // extracted packages normally contain a "package" directory, but also allow pointing straight at it.
         $root = rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . self::_PACKAGE_DIR;
         if (!is_dir($root)) {
             $root = $dir;
         }
-        $files = glob($root . DIRECTORY_SEPARATOR . '*.json');
-        if (false === $files) {
-            throw new ProfilePackageException(sprintf('Unable to list files in "%s".', $root));
-        }
-        sort($files, SORT_STRING);
-        foreach ($files as $file) {
-            $contents = file_get_contents($file);
-            if (false === $contents) {
-                throw new ProfilePackageException(sprintf('Unable to read "%s".', $file));
+        $files = [];
+        // glob skips dot files, such as the package index, unless asked for them.
+        foreach (['*.json', '.*.json'] as $pattern) {
+            $found = glob($root . DIRECTORY_SEPARATOR . $pattern);
+            if (false === $found) {
+                throw new ProfilePackageException(sprintf('Unable to list files in "%s".', $root));
             }
-            yield basename($file) => $contents;
+            foreach ($found as $file) {
+                $files[basename($file)] = $file;
+            }
         }
+        return $files;
     }
 
-    private static function _iterateArchive(string $archive): Generator
+    /** @return array<string, string> */
+    private static function _listArchive(string $archive): array
     {
         if (!extension_loaded('phar') || !extension_loaded('zlib')) {
             throw new ProfilePackageException(
@@ -224,14 +253,16 @@ class ProfilePackageReader
                 $files[$name] = $path;
             }
         }
-        ksort($files, SORT_STRING);
-        foreach ($files as $name => $path) {
-            $contents = file_get_contents($path);
-            if (false === $contents) {
-                throw new ProfilePackageException(sprintf('Unable to read "%s" from archive "%s".', $name, $archive));
-            }
-            yield $name => $contents;
+        return $files;
+    }
+
+    private static function _readFile(string $path, string $source): string
+    {
+        $contents = file_get_contents($path);
+        if (false === $contents) {
+            throw new ProfilePackageException(sprintf('Unable to read "%s" from profile package "%s".', $path, $source));
         }
+        return $contents;
     }
 
     private static function _decode(string $contents, string $name, string $source): array

@@ -102,4 +102,5 @@ class ProfileClassesTest extends TestCase
         $this->assertCount(1, $classes);
         $this->assertNotNull($classes->getByUrl(self::_BASE . 'a-patient'));
     }
+
 }

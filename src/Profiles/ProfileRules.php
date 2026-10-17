@@ -26,8 +26,9 @@ namespace DCarbone\PHPFHIR\Profiles;
  * snapshot when the profile has one, so inherited constraints are already merged.
  *
  * Rules are evaluated against the FHIR JSON form of a resource.  Not covered: constraints on elements inside a
- * slice, slice discriminators other than fixed / pattern values and extension urls, closed slicing, and invariants,
- * which are only carried along as metadata.
+ * slice, slice discriminators other than "value" / "pattern" on plain element paths, closed slicing, and invariants,
+ * which are only carried along as metadata.  Slices without discriminators are matched on all of their fixed / pattern
+ * values.
  *
  * @phpstan-type Rules array{
  *     rules: array<int, array<string, mixed>>,
@@ -38,6 +39,9 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class ProfileRules
 {
+    /** "$this", or a dotted path of plain element names.  Functions such as resolve() or extension() are not supported. */
+    private const _DISCRIMINATOR_PATH_PATTERN = '{^(\$this|[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*)$}';
+
     /**
      * @return array{rules: array<int, array<string, mixed>>, slices: array<int, array<string, mixed>>, invariants: array<int, array<string, null|string>>, skipped: string[]}
      */
@@ -174,32 +178,12 @@ class ProfileRules
      */
     private static function _compileSlice(Profile $profile, array $chain, ProfileElement $slice): null|array
     {
-        $match = [];
-
-        if (null !== ($own = $slice->getFixedValue()) && is_array($own->getValue())) {
-            $match = $own->getValue();
-        }
-
-        $prefix = $slice->getId() . '.';
-        foreach ($profile->getElements() as $child) {
-            if (!str_starts_with($child->getId(), $prefix) || null === $child->getFixedValue()) {
-                continue;
-            }
-            $relative = substr($child->getId(), strlen($prefix));
-            if (str_contains($relative, ':') || str_contains($relative, '[x]')) {
-                continue;
-            }
-            self::_nest($match, explode('.', $relative), $child->getFixedValue()->getValue());
-        }
-
-        foreach ($slice->getTypes() as $type) {
-            if ('Extension' === $type->getCode() && [] !== $type->getProfiles()) {
-                $match['url'] = ProfilePackage::stripCanonicalVersion($type->getProfiles()[0]);
-                break;
-            }
-        }
-
-        if ([] === $match) {
+        $slicedId = substr($slice->getId(), 0, (int)strrpos($slice->getId(), ':'));
+        $discriminators = self::_slicing($profile, $chain, $slicedId)?->getDiscriminators() ?? [];
+        $match = [] === $discriminators
+            ? self::_matchFixedValues($profile, $chain, $slice)
+            : self::_matchDiscriminators($profile, $chain, $slice, $discriminators);
+        if (null === $match) {
             return null;
         }
 
@@ -215,6 +199,144 @@ class ProfileRules
             $out['max'] = $slice->getMax();
         }
         return $out;
+    }
+
+    /**
+     * The slicing of a sliced element, which may be declared by any profile in the chain.
+     *
+     * @param Profile[] $chain
+     */
+    private static function _slicing(Profile $profile, array $chain, string $id): null|ProfileSlicing
+    {
+        if (null !== ($slicing = $profile->getElement($id)?->getSlicing())) {
+            return $slicing;
+        }
+        foreach ($chain as $p) {
+            if (null !== ($slicing = $p->getDifferentialElement($id)?->getSlicing())) {
+                return $slicing;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Without discriminators, every fixed / pattern value within the slice is taken to identify its members.
+     *
+     * @param Profile[] $chain
+     * @return null|array<string, mixed> Null if the slice cannot be matched.
+     */
+    private static function _matchFixedValues(Profile $profile, array $chain, ProfileElement $slice): null|array
+    {
+        $match = [];
+
+        if (null !== ($own = $slice->getFixedValue()) && is_array($own->getValue())) {
+            $match = $own->getValue();
+        }
+
+        $prefix = $slice->getId() . '.';
+        foreach (self::_sliceChildren($profile, $chain, $prefix) as $relative => $child) {
+            if (null === $child->getFixedValue() || str_contains($relative, ':') || str_contains($relative, '[x]')) {
+                continue;
+            }
+            self::_nest($match, explode('.', $relative), $child->getFixedValue()->getValue());
+        }
+
+        if (null !== ($url = self::_extensionUrl($slice))) {
+            $match['url'] = $url;
+        }
+
+        return [] === $match ? null : $match;
+    }
+
+    /**
+     * Matches slice members on the values at the discriminator paths only.  Only "value" and "pattern" discriminators
+     * on plain element paths are supported.
+     *
+     * @param Profile[] $chain
+     * @param array<int, array{type: string, path: string}> $discriminators
+     * @return null|array<string, mixed> Null if the slice cannot be matched.
+     */
+    private static function _matchDiscriminators(Profile $profile, array $chain, ProfileElement $slice, array $discriminators): null|array
+    {
+        $match = [];
+        foreach ($discriminators as $discriminator) {
+            if (('value' !== $discriminator['type'] && 'pattern' !== $discriminator['type'])
+                || 1 !== preg_match(self::_DISCRIMINATOR_PATH_PATTERN, $discriminator['path'])) {
+                return null;
+            }
+            $segments = '$this' === $discriminator['path'] ? [] : explode('.', $discriminator['path']);
+            if (!self::_matchDiscriminator($profile, $chain, $slice, $segments, $match)) {
+                return null;
+            }
+        }
+        return [] === $match ? null : $match;
+    }
+
+    /**
+     * Adds the value the slice requires at a discriminator path to $match.  The value may be declared at the path
+     * itself or, as part of a larger fixed / pattern value, on an element above it.
+     *
+     * @param Profile[] $chain
+     * @param string[] $segments Discriminator path relative to the slice, empty for "$this".
+     */
+    private static function _matchDiscriminator(Profile $profile, array $chain, ProfileElement $slice, array $segments, array &$match): bool
+    {
+        for ($n = count($segments); $n >= 0; $n--) {
+            $prefix = array_slice($segments, 0, $n);
+            $element = 0 === $n ? $slice : self::_effective($profile, $chain, $slice->getId() . '.' . implode('.', $prefix));
+            $value = $element?->getFixedValue()?->getValue();
+            if (null === $value) {
+                continue;
+            }
+            if ([] !== $prefix) {
+                self::_nest($match, $prefix, $value);
+                return true;
+            }
+            if (!is_array($value) || array_is_list($value)) {
+                return false;
+            }
+            $match = array_replace_recursive($match, $value);
+            return true;
+        }
+        if (['url'] === $segments && null !== ($url = self::_extensionUrl($slice))) {
+            $match['url'] = $url;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param Profile[] $chain
+     * @return array<string, ProfileElement> path relative to the slice => element
+     */
+    private static function _sliceChildren(Profile $profile, array $chain, string $prefix): array
+    {
+        $out = [];
+        $sources = $profile->hasSnapshot() ? [$profile->getElements()] : [];
+        if ([] === $sources) {
+            foreach ($chain as $p) {
+                $sources[] = $p->getDifferentialElements();
+            }
+        }
+        foreach ($sources as $elements) {
+            foreach ($elements as $child) {
+                if (str_starts_with($child->getId(), $prefix)) {
+                    $out[substr($child->getId(), strlen($prefix))] ??= $child;
+                }
+            }
+        }
+        return $out;
+    }
+
+    /** The url of the extension definition an extension slice is constrained to, if any. */
+    private static function _extensionUrl(ProfileElement $slice): null|string
+    {
+        foreach ($slice->getTypes() as $type) {
+            if ('Extension' === $type->getCode() && [] !== $type->getProfiles()) {
+                return ProfilePackage::stripCanonicalVersion($type->getProfiles()[0]);
+            }
+        }
+        return null;
     }
 
     private static function _nest(array &$target, array $segments, mixed $value): void

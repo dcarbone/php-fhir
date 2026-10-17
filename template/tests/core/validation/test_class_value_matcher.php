@@ -127,5 +127,10 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertTrue(<?php echo $valueMatcher; ?>::matches($cc, ['coding' => [['code' => 'a'], ['code' => 'b']]]));
         $this->assertFalse(<?php echo $valueMatcher; ?>::matches($cc, ['coding' => [['code' => 'a'], ['code' => 'z']]]));
     }
+
+    public function testComplexValueDoesNotMatchScalar()
+    {
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->coding('http://sys', 'c1'), 'c1'));
+    }
 }
 <?php return ob_get_clean();

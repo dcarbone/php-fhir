@@ -127,5 +127,14 @@ class <?php echo $coreFile; ?> extends TestCase
         $unset = new <?php echo $mockResource; ?>(name: 'mock', fields: ['code' => ['class' => <?php echo $mockPrimitive; ?>::class, 'collection' => true]]);
         $this->assertSame([], <?php echo $pathResolver; ?>::resolveParents($unset, 'code.value'));
     }
+
+    public function testUnwrapStopsAtComplexTypes()
+    {
+        $this->assertSame('a', <?php echo $pathResolver; ?>::unwrap(new <?php echo $mockPrimitive; ?>(value: 'a')));
+        $this->assertSame('b', <?php echo $pathResolver; ?>::unwrap('b'));
+        $this->assertNull(<?php echo $pathResolver; ?>::unwrap(null));
+        $contact = $this->buildResource()->getContact()[0];
+        $this->assertSame($contact, <?php echo $pathResolver; ?>::unwrap($contact));
+    }
 }
 <?php return ob_get_clean();

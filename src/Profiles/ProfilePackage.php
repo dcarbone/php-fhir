@@ -233,14 +233,18 @@ class ProfilePackage
         return $this->_resolve(ProfileResourceTypeEnum::CODE_SYSTEM, $canonical);
     }
 
-    private function _resolve(ProfileResourceTypeEnum $type, string $canonical): null|array
+    /**
+     * @param array<string, bool> $visited Names of the packages already searched, as dependencies are shared.
+     */
+    private function _resolve(ProfileResourceTypeEnum $type, string $canonical, array &$visited = []): null|array
     {
+        $visited[$this->getName()] = true;
         $url = self::stripCanonicalVersion($canonical);
         if (isset($this->_urlIndex[$type->value][$url])) {
             return self::_unpack($this->_resources[$type->value][$this->_urlIndex[$type->value][$url]]);
         }
-        foreach ($this->_loadedDependencies as $dependency) {
-            if (null !== ($found = $dependency->_resolve($type, $canonical))) {
+        foreach ($this->_loadedDependencies as $name => $dependency) {
+            if (!isset($visited[$name]) && null !== ($found = $dependency->_resolve($type, $canonical, $visited))) {
                 return $found;
             }
         }

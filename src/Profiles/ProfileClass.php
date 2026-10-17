@@ -97,7 +97,11 @@ class ProfileClass
         $imports = new Imports(null, $this->_namespace, $this->_className);
         [$name, $ns] = $this->_split($this->_extendsFQN());
         $imports->addImport($ns, $name);
-        foreach ($this->_support as $fqn) {
+        foreach ($this->_support as $key => $fqn) {
+            // the profile interface is implemented by the root of a profile hierarchy only.
+            if ('profileInterface' === $key && null !== $this->_parent) {
+                continue;
+            }
             [$name, $ns] = $this->_split($fqn);
             $imports->addImport($ns, $name);
         }
@@ -122,6 +126,17 @@ class ProfileClass
     public function getValidatorName(): string
     {
         return $this->_supportName('validator', 'Validator');
+    }
+
+    /**
+     * Name, as written in the class body, of the core interface implemented by profile classes.  Null if this class
+     * inherits it from its parent profile class, or if it is not available.
+     */
+    public function getProfileInterfaceName(): null|string
+    {
+        return null === $this->_parent && isset($this->_support['profileInterface'])
+            ? $this->_importedName($this->getImports(), $this->_support['profileInterface'])
+            : null;
     }
 
     private function _supportName(string $key, string $default): string
@@ -175,6 +190,7 @@ class ProfileClass
     public function getSliceAccessors(): array
     {
         $matchers = $this->getValidationCode()->sliceMatchers;
+        $inherited = $this->_inheritedSliceAccessorShapes();
         $out = [];
         $used = [];
         foreach ($this->_compiled['slices'] as $i => $slice) {
@@ -191,9 +207,25 @@ class ProfileClass
                 'getter' => 'get' . ucfirst($slice['path']),
                 'constant' => $matchers[$i]['constant'],
                 'class' => $matchers[$i]['class'],
-                'single' => 1 === ($slice['max'] ?? null),
+                // an override must keep the signature of the accessor it overrides, even if this profile narrows max
+                'single' => $inherited[strtolower($method)] ?? 1 === ($slice['max'] ?? null),
                 'slice' => $i,
             ];
+        }
+        return $out;
+    }
+
+    /**
+     * @return array<string, bool> lowercased method name => whether the nearest ancestor declaring it returns a single
+     *                             value.
+     */
+    private function _inheritedSliceAccessorShapes(): array
+    {
+        $out = [];
+        for ($parent = $this->_parent; null !== $parent; $parent = $parent->getParent()) {
+            foreach ($parent->getSliceAccessors() as $accessor) {
+                $out[strtolower($accessor['method'])] ??= $accessor['single'];
+            }
         }
         return $out;
     }

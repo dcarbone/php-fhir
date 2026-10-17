@@ -16,6 +16,10 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Profiles\ProfileRules;
+use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var string $copyright */
 /** @var \DCarbone\PHPFHIR\Profiles\ProfileClass $profileClass */
 
@@ -24,16 +28,18 @@ $imports = $profileClass->getImports();
 $code = $profileClass->getValidationCode();
 $accessors = $profileClass->getSliceAccessors();
 $slices = $profileClass->getSlices();
+$profileInterface = $profileClass->getProfileInterfaceName();
+$isRoot = null === $profileClass->getParent();
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
 
 namespace <?php echo $profileClass->getNamespace(); ?>;
 
-<?php echo \DCarbone\PHPFHIR\Utilities\CopyrightUtils::appendProfileCopyright($copyright, $profileClass->getCopyrightNotice()); ?>
+<?php echo CopyrightUtils::appendProfileCopyright($copyright, $profileClass->getCopyrightNotice()); ?>
 
 
-<?php echo \DCarbone\PHPFHIR\Utilities\ImportUtils::compileImportStatements($imports); ?>
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
  * Class <?php echo $profileClass->getClassName(); ?>
@@ -47,7 +53,7 @@ namespace <?php echo $profileClass->getNamespace(); ?>;
  * Constrains: <?php echo $profile->getType(); ?>
 
  */
-class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileClass->getExtendsName(); ?>
+class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileClass->getExtendsName(); ?><?php if (null !== $profileInterface) : ?> implements <?php echo $profileInterface; ?><?php endif; ?>
 
 {
     public const PROFILE_URL = <?php echo var_export($profile->getUrl(), true); ?>;
@@ -60,9 +66,9 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
      *
      * @var array<int, array<string, null|string>>
      */
-    public const PROFILE_INVARIANTS = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::export($profileClass->getInvariants(), 1); ?>;
+    public const PROFILE_INVARIANTS = <?php echo ProfileRules::export($profileClass->getInvariants(), 1); ?>;
 
-    private const _PROFILE_VALIDATION_RULES = <?php echo \DCarbone\PHPFHIR\Profiles\ProfileRules::exportFieldRules($code->rules, 1); ?>;
+    private const _PROFILE_VALIDATION_RULES = <?php echo ProfileRules::exportFieldRules($code->rules, 1); ?>;
 <?php if ('' !== $code->constants) : ?>
 
 <?php echo $code->constants; ?>
@@ -75,6 +81,51 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
     public static function _getProfileUrl(): string
     {
         return self::PROFILE_URL;
+    }
+
+    /**
+     * @return null|string
+     */
+    public static function _getProfileVersion(): null|string
+    {
+        return self::PROFILE_VERSION;
+    }
+<?php if ($isRoot) : ?>
+
+    /**
+     * Executes only the validation rules added or tightened by this profile and the profiles derived from it.
+     *
+     * @return array
+     */
+    public function _getProfileValidationErrors(): array
+    {
+        $combined = $this->_getCombinedValidationRules();
+        $rules = [];
+        foreach (static::_getProfileValidationRuleNames() as $field => $names) {
+            foreach ($names as $rule => $_) {
+                if (isset($combined[$field]) && array_key_exists($rule, $combined[$field])) {
+                    $rules[$field][$rule] = $combined[$field][$rule];
+                }
+            }
+        }
+        return $this->_collectValidationErrors($rules, false);
+    }
+<?php endif; ?>
+
+    /**
+     * Returns the rules set by this profile and the profiles it derives from, as a map of field => [rule => true].
+     *
+     * @return array<string, array<string, bool>>
+     */
+    protected static function _getProfileValidationRuleNames(): array
+    {
+        $out = <?php echo $isRoot ? '[]' : 'parent::_getProfileValidationRuleNames()'; ?>;
+        foreach (self::_PROFILE_VALIDATION_RULES as $field => $rules) {
+            foreach ($rules as $rule => $_) {
+                $out[$field][$rule] = true;
+            }
+        }
+        return $out;
     }
 
     /**

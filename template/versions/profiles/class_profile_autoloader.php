@@ -69,15 +69,24 @@ abstract class <?php echo $className; ?>
     }
 
     /**
+     * Unregisters this autoloader along with the package autoloaders it registered.
+     *
      * @return bool
      */
     public static function unregister(): bool
     {
-        if (self::$_registered && spl_autoload_unregister(self::class . '::loadClass')) {
-            self::$_registered = false;
-            return true;
+        if (!self::$_registered || !spl_autoload_unregister(self::class . '::loadClass')) {
+            return false;
         }
-        return false;
+        self::$_registered = false;
+        foreach (self::_PACKAGE_AUTOLOADER_MAP as $i => [, $autoloader]) {
+            /** @var class-string<PackageAutoloaderInterface> $autoloader */
+            if (self::$_packageRegistered[$i]) {
+                $autoloader::unregister();
+                self::$_packageRegistered[$i] = false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -99,7 +108,10 @@ abstract class <?php echo $className; ?>
             if (self::$_packageRegistered[$i]) {
                 return null;
             }
-            require $path;
+            // the autoloader is already loaded if this one was registered before.
+            if (!class_exists($autoloader, false)) {
+                require $path;
+            }
             $autoloader::register();
             self::$_packageRegistered[$i] = true;
             return $class === $autoloader ? true : $autoloader::loadClass($class);

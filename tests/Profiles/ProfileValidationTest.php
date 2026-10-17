@@ -25,6 +25,7 @@ use DCarbone\PHPFHIR\Profiles\ProfilePhpExpression;
 use DCarbone\PHPFHIR\Profiles\ProfileProperty;
 use DCarbone\PHPFHIR\Profiles\ProfileRules;
 use DCarbone\PHPFHIR\Profiles\ProfileTypeNavigator;
+use DCarbone\PHPFHIR\Profiles\ProfileValidationCode;
 use DCarbone\PHPFHIR\Profiles\ProfileValidationGenerator;
 use DCarbone\PHPFHIR\Render\Templates;
 use PHPUnit\Framework\TestCase;
@@ -75,8 +76,13 @@ class ProfileValidationTest extends TestCase
         ];
 
         return new class($types, $choices) implements ProfileTypeNavigator {
-            public function __construct(private array $types, private array $choices)
+            private array $types;
+            private array $choices;
+
+            public function __construct(array $types, array $choices)
             {
+                $this->types = $types;
+                $this->choices = $choices;
             }
 
             public function getProperty(string $typeKey, string $field): null|ProfileProperty
@@ -91,7 +97,7 @@ class ProfileValidationTest extends TestCase
         };
     }
 
-    private static function generate(array $rules = [], array $slices = []): \DCarbone\PHPFHIR\Profiles\ProfileValidationCode
+    private static function generate(array $rules = [], array $slices = []): ProfileValidationCode
     {
         return ProfileValidationGenerator::generate(
             ['rules' => $rules, 'slices' => $slices, 'invariants' => [], 'skipped' => []],
@@ -231,7 +237,11 @@ class ProfileValidationTest extends TestCase
             'skipped' => [],
         ];
         $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient'));
-        $support = ['matcher' => 'Acme\\Val\\R4\\Validation\\ValueMatcher', 'validator' => 'Acme\\Val\\R4\\Validation\\Validator'];
+        $support = [
+            'matcher' => 'Acme\\Val\\R4\\Validation\\ValueMatcher',
+            'validator' => 'Acme\\Val\\R4\\Validation\\Validator',
+            'profileInterface' => 'Acme\\Val\\Types\\ProfileTypeInterface',
+        ];
         $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, $compiled, self::navigator(), [], $support);
         $source = Templates::renderProfileClass('/* c */', $class);
 
@@ -245,6 +255,21 @@ class ProfileValidationTest extends TestCase
         $this->assertStringContainsString('public function getSsnIdentifier(): null|FHIRIdentifier', $source);
         $this->assertStringContainsString('ValueMatcher::matches($item, self::_SLICE_MATCH_0)', $source);
         $this->assertStringNotContainsString('function _getValidationErrors', $source);
+
+        // the root of a profile hierarchy implements the profile interface and runs the profile's own rules.
+        $this->assertStringContainsString('use Acme\\Val\\Types\\ProfileTypeInterface;', $source);
+        $this->assertStringContainsString('class Sample extends FHIRPatient implements ProfileTypeInterface', $source);
+        $this->assertStringContainsString('public function _getProfileValidationErrors(): array', $source);
+        $this->assertStringContainsString('$this->_collectValidationErrors($rules, false)', $source);
+        $this->assertStringContainsString("protected static function _getProfileValidationRuleNames(): array\n    {\n        \$out = [];", $source);
+
+        // a derived profile inherits both, adding its own rules to its parent's.
+        $child = new ProfileClass($profile, self::_NS . '\\Ig', 'Child', self::_T . 'FHIRPatient', $class, self::_NS, $compiled, self::navigator(), [], $support);
+        $source = Templates::renderProfileClass('/* c */', $child);
+        token_get_all($source, TOKEN_PARSE);
+        $this->assertStringNotContainsString('ProfileTypeInterface', $source);
+        $this->assertStringNotContainsString('function _getProfileValidationErrors', $source);
+        $this->assertStringContainsString('$out = parent::_getProfileValidationRuleNames();', $source);
     }
 
     public function testMetadataConstants(): void
@@ -254,5 +279,21 @@ class ProfileValidationTest extends TestCase
         $source = Templates::renderProfileClass('/* c */', $class);
         token_get_all($source, TOKEN_PARSE);
         $this->assertStringContainsString("PROFILE_URL = 'http://example.org/fhir/StructureDefinition/sample'", $source);
+    }
+
+    public function testSliceAccessorOverrideKeepsInheritedShape(): void
+    {
+        $slice = static fn(string $name, null|int $max): array => ['path' => 'identifier', 'name' => $name, 'match' => ['system' => 'http://' . $name]] + (null === $max ? [] : ['max' => $max]);
+        $compiled = static fn(array ...$slices): array => ['rules' => [], 'slices' => $slices, 'invariants' => [], 'skipped' => []];
+        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient'));
+        $parent = new ProfileClass($profile, self::_NS . '\\Ig', 'Base', self::_T . 'FHIRPatient', null, self::_NS, $compiled($slice('mrn', null)), self::navigator());
+        $child = new ProfileClass($profile, self::_NS . '\\Ig', 'Child', self::_T . 'FHIRPatient', $parent, self::_NS, $compiled($slice('mrn', 1), $slice('ssn', 1)), self::navigator());
+
+        $shapes = [];
+        foreach ($child->getSliceAccessors() as $accessor) {
+            $shapes[$accessor['method']] = $accessor['single'];
+        }
+        // the override keeps returning a list like the accessor it overrides, a new accessor may return a single value.
+        $this->assertSame(['getMrnIdentifier' => false, 'getSsnIdentifier' => true], $shapes);
     }
 }

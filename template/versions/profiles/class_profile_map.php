@@ -16,16 +16,19 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Builder\Imports;
+use DCarbone\PHPFHIR\Utilities\ImportUtils;
+
 /** @var string $copyright */
 /** @var string $namespace */
 /** @var string $className */
 /** @var string[] $packageMaps fully qualified names, without leading slash, of the per package maps */
-/** @var array<string, string> $enums fully qualified names, without leading slash, of the core option enums, by entity name */
+/** @var array<string, string> $coreTypes fully qualified names, without leading slash, of the core enums and interfaces referred to, by entity name */
 
-$imports = new \DCarbone\PHPFHIR\Builder\Imports(null, $namespace, $className);
+$imports = new Imports(null, $namespace, $className);
 $imports->addImport('', 'UnexpectedValueException');
-foreach ([PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE, PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE, PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH] as $entity) {
-    $imports->addImport(substr($enums[$entity], 0, strrpos($enums[$entity], '\\')), $entity);
+foreach ([PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE, PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE, PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH, PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE] as $entity) {
+    $imports->addImport(substr($coreTypes[$entity], 0, strrpos($coreTypes[$entity], '\\')), $entity);
 }
 
 ob_start();
@@ -36,7 +39,7 @@ namespace <?php echo $namespace; ?>;
 <?php echo $copyright; ?>
 
 
-<?php echo \DCarbone\PHPFHIR\Utilities\ImportUtils::compileImportStatements($imports); ?>
+<?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
  * Entry point for looking up the generated profile classes.  The classes themselves are indexed per package, see the
@@ -53,7 +56,7 @@ abstract class <?php echo $className; ?>
     ];
 
     /**
-     * @return array<string, class-string>
+     * @return array<string, class-string<<?php echo PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE; ?>>>
      */
     public static function getProfileClasses(): array
     {
@@ -69,7 +72,7 @@ abstract class <?php echo $className; ?>
 
     /**
      * @param string $canonical Canonical profile url, with or without a "|version" suffix.
-     * @return null|class-string
+     * @return null|class-string<<?php echo PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE; ?>>
      */
     public static function getProfileClassname(string $canonical): null|string
     {
@@ -115,7 +118,7 @@ abstract class <?php echo $className; ?>
      * @param <?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?> $onUnknown
      * @param <?php echo PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE; ?> $onAmbiguous
      * @param <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?> $onVersionMismatch
-     * @return null|class-string Null when the base class should be used.
+     * @return null|class-string<<?php echo PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE; ?>> Null when the base class should be used.
      * @throws UnexpectedValueException
      */
     public static function resolve(string $baseClassName,
@@ -129,7 +132,7 @@ abstract class <?php echo $className; ?>
             if (!is_string($canonical) || '' === $canonical) {
                 continue;
             }
-            /** @var null|class-string $class */
+            /** @var null|class-string<<?php echo PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE; ?>> $class */
             $class = self::getProfileClassname($canonical);
             if (null === $class || !is_a($class, $baseClassName, true)) {
                 if (<?php echo PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE; ?>::EXCEPTION === $onUnknown) {
@@ -144,7 +147,7 @@ abstract class <?php echo $className; ?>
             $pos = strpos($canonical, '|');
             if (false !== $pos && <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::IGNORE_VERSION !== $onVersionMismatch) {
                 $declaredVersion = substr($canonical, $pos + 1);
-                $generatedVersion = $class::PROFILE_VERSION;
+                $generatedVersion = $class::_getProfileVersion();
                 if (null !== $generatedVersion && $declaredVersion !== $generatedVersion) {
                     if (<?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH; ?>::EXCEPTION === $onVersionMismatch) {
                         throw new UnexpectedValueException(sprintf(

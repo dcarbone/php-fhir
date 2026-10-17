@@ -91,6 +91,29 @@ class ProfilePackageReaderTest extends TestCase
         }
     }
 
+    public function testFilesAreFoundByContentNotName(): void
+    {
+        $files = $this->standardFiles();
+        $files['.index.json'] = ['index-version' => 1, 'files' => [
+            ['filename' => 'terminology.json', 'resourceType' => 'ValueSet', 'id' => 'indexed-vs'],
+            // the index is trusted: a file it lists as another type is not decoded.
+            ['filename' => 'mislabelled.json', 'resourceType' => 'SearchParameter', 'id' => 'mislabelled'],
+        ]];
+        $files['terminology.json'] = self::valueSet('indexed-vs');
+        $files['mislabelled.json'] = self::structureDefinition('mislabelled');
+        $files['us-core-thing.json'] = self::structureDefinition('unindexed');
+        $files['example-patient.json'] = ['resourceType' => 'Patient', 'id' => 'example'];
+        $sources = [
+            'directory' => self::writePackageDir($this->_root . '/named-dir', $files),
+            'archive' => self::writePackageArchive($this->_root . '/named.tgz', $files),
+        ];
+        foreach ($sources as $label => $source) {
+            $package = ProfilePackageReader::read($this->config($source));
+            $this->assertSame(['my-observation', 'my-patient', 'unindexed'], array_keys($package->getStructureDefinitions()), $label);
+            $this->assertSame(['my-vs', 'indexed-vs'], array_keys($package->getValueSets()), $label);
+        }
+    }
+
     public function testSpecializationsAreNotProfiles(): void
     {
         $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());

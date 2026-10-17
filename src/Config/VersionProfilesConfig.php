@@ -19,6 +19,10 @@ namespace DCarbone\PHPFHIR\Config;
  */
 
 use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DomainException;
+use InvalidArgumentException;
+use OutOfBoundsException;
+use UnexpectedValueException;
 
 /**
  * Per-version profile generation configuration.
@@ -28,18 +32,18 @@ class VersionProfilesConfig
     private const _CONFIG_KEYS = ['namespace', 'packages'];
 
     private string $_namespace;
-    /** @var array<string, \DCarbone\PHPFHIR\Config\ProfilePackageConfig> */
+    /** @var array<string, ProfilePackageConfig> */
     private array $_packages = [];
 
     /**
      * @param null|string $namespace Namespace segment, relative to the version namespace, to place profiles under.
-     * @param array<array|\DCarbone\PHPFHIR\Config\ProfilePackageConfig> $packages
+     * @param array<array|ProfilePackageConfig> $packages
      */
     public function __construct(null|string $namespace = null, iterable $packages = [])
     {
         $namespace = trim($namespace ?? PHPFHIR_NAMESPACE_PROFILES, PHPFHIR_NAMESPACE_TRIM_CUTSET);
         if (!NameUtils::isValidNSName($namespace)) {
-            throw new \InvalidArgumentException(sprintf('"%s" is not a valid PHP namespace.', $namespace));
+            throw new InvalidArgumentException(sprintf('"%s" is not a valid PHP namespace.', $namespace));
         }
         $this->_namespace = $namespace;
 
@@ -53,7 +57,7 @@ class VersionProfilesConfig
     {
         foreach (array_keys($config) as $k) {
             if (!in_array($k, self::_CONFIG_KEYS, true)) {
-                throw new \UnexpectedValueException(sprintf(
+                throw new UnexpectedValueException(sprintf(
                     'Unknown profiles config key "%s".  Allowed: %s',
                     $k,
                     implode(', ', self::_CONFIG_KEYS),
@@ -61,7 +65,7 @@ class VersionProfilesConfig
             }
         }
         if (isset($config['packages']) && !is_iterable($config['packages'])) {
-            throw new \InvalidArgumentException('Profiles "packages" must be iterable.');
+            throw new InvalidArgumentException('Profiles "packages" must be iterable.');
         }
         return new self(
             namespace: $config['namespace'] ?? null,
@@ -75,14 +79,14 @@ class VersionProfilesConfig
             $package = ProfilePackageConfig::fromArray($package);
         }
         if (isset($this->_packages[$package->getName()])) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Profile package "%s" has already been added.',
                 $package->getName(),
             ));
         }
         foreach ($this->_packages as $existing) {
             if (0 === strcasecmp($existing->getNamespace(), $package->getNamespace())) {
-                throw new \DomainException(sprintf(
+                throw new DomainException(sprintf(
                     'Profile package "%s" namespace "%s" conflicts with package "%s".',
                     $package->getName(),
                     $package->getNamespace(),
@@ -112,13 +116,13 @@ class VersionProfilesConfig
     public function getPackage(string $name): ProfilePackageConfig
     {
         if (!isset($this->_packages[$name])) {
-            throw new \OutOfBoundsException(sprintf('Profile package "%s" is not configured.', $name));
+            throw new OutOfBoundsException(sprintf('Profile package "%s" is not configured.', $name));
         }
         return $this->_packages[$name];
     }
 
     /**
-     * @return \DCarbone\PHPFHIR\Config\ProfilePackageConfig[]
+     * @return ProfilePackageConfig[]
      */
     public function getPackages(): array
     {
@@ -136,8 +140,8 @@ class VersionProfilesConfig
     /**
      * Packages ordered so that every package comes after the packages it depends on.
      *
-     * @return \DCarbone\PHPFHIR\Config\ProfilePackageConfig[]
-     * @throws \DomainException If a dependency is not a configured package, or the dependencies are circular.
+     * @return ProfilePackageConfig[]
+     * @throws DomainException If a dependency is not a configured package, or the dependencies are circular.
      */
     public function getOrderedPackages(): array
     {
@@ -148,7 +152,7 @@ class VersionProfilesConfig
                 return;
             }
             if (1 === ($state[$name] ?? 0)) {
-                throw new \DomainException(sprintf(
+                throw new DomainException(sprintf(
                     'Profile package dependencies are circular: %s.',
                     implode(' -> ', [...$path, $name]),
                 ));
@@ -156,7 +160,7 @@ class VersionProfilesConfig
             $state[$name] = 1;
             foreach ($this->_packages[$name]->getDependencies() as $dep) {
                 if (!isset($this->_packages[$dep])) {
-                    throw new \DomainException(sprintf(
+                    throw new DomainException(sprintf(
                         'Profile package "%s" depends on "%s", which is not configured.  Add "%s" to the same version\'s profile packages.',
                         $name,
                         $dep,

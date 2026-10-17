@@ -41,6 +41,9 @@ require $autoloadClasspath;
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
+use DCarbone\PHPFHIR\Profiles\ProfilePackageException;
+use InvalidArgumentException;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
@@ -254,7 +257,13 @@ if ($argc > 1) {
                 break;
 
             case FLAG_PROFILE_PACKAGES:
-                $profile_packages = array_values(array_filter(array_map('trim', explode(',', (string)$next)), 'strlen'));
+                $profile_packages = [];
+                foreach (explode(',', (string)$next) as $profile_package) {
+                    $profile_package = trim($profile_package);
+                    if ('' !== $profile_package) {
+                        $profile_packages[] = $profile_package;
+                    }
+                }
                 if ([] === $profile_packages) {
                     echo 'Flag ' . FLAG_PROFILE_PACKAGES . ' requires at least one package name.' . PHP_EOL;
                     exit(1);
@@ -399,7 +408,7 @@ $builder = new Builder($config);
 if (null !== $profile_packages) {
     try {
         $builder->assertProfilePackagesConfigured($versions_to_generate, $profile_packages);
-    } catch (\InvalidArgumentException $e) {
+    } catch (InvalidArgumentException $e) {
         echo $e->getMessage() . PHP_EOL . PHP_EOL;
         exit(1);
     }
@@ -409,7 +418,7 @@ if (null !== $profile_packages) {
 $render_profiles = static function () use ($builder, $versions_to_generate, $profile_packages): void {
     try {
         $builder->renderProfiles($versions_to_generate, $profile_packages);
-    } catch (\DCarbone\PHPFHIR\Profiles\ProfileDefinitionException | \DCarbone\PHPFHIR\Profiles\ProfilePackageException $e) {
+    } catch (ProfileDefinitionException | ProfilePackageException $e) {
         fwrite(STDERR, PHP_EOL . 'Profile generation failed: ' . $e->getMessage() . PHP_EOL);
         exit(1);
     }

@@ -19,20 +19,22 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  */
 
 /**
- * Stand-ins for the generated core option enums that the generated profile code depends on.
+ * Stand-ins for the generated core enums and interfaces that the generated profile support code depends on.
  */
-final class CoreEnumStubs
+final class CoreStubs
 {
     public const NAMESPACE = 'Acme\\Gen\\Encoding';
+    public const TYPES_NAMESPACE = 'Acme\\Gen\\Types';
 
     public const ON_UNKNOWN_PROFILE = 'OnUnknownProfileEnum';
     public const ON_AMBIGUOUS_PROFILE = 'OnAmbiguousProfileEnum';
     public const ON_PROFILE_VERSION_MISMATCH = 'OnProfileVersionMismatchEnum';
+    public const PROFILE_TYPE_INTERFACE = 'ProfileTypeInterface';
 
     /**
-     * Defines the enums, if they are not defined yet.
+     * Defines the stand-ins, if they are not defined yet.
      *
-     * @return array<string, string> Fully qualified name of each enum, by entity name.
+     * @return array<string, string> Fully qualified name of each stand-in, by entity name.
      */
     public static function define(): array
     {
@@ -47,6 +49,14 @@ final class CoreEnumStubs
             if (!enum_exists($out[$name], false)) {
                 eval(sprintf('namespace %s; enum %s: string { %s }', self::NAMESPACE, $name, $cases));
             }
+        }
+        $out[self::PROFILE_TYPE_INTERFACE] = self::TYPES_NAMESPACE . '\\' . self::PROFILE_TYPE_INTERFACE;
+        if (!interface_exists($out[self::PROFILE_TYPE_INTERFACE], false)) {
+            eval(sprintf(
+                'namespace %s; interface %s { public static function _getProfileUrl(): string; public static function _getProfileVersion(): null|string; public function _getProfileValidationErrors(): array; }',
+                self::TYPES_NAMESPACE,
+                self::PROFILE_TYPE_INTERFACE,
+            ));
         }
         return $out;
     }

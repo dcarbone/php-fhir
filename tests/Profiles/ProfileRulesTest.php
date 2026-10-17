@@ -142,6 +142,52 @@ class ProfileRulesTest extends TestCase
         ], $c['slices']);
     }
 
+    public function testDiscriminatorsLimitMatchToTheirPaths(): void
+    {
+        $c = $this->compile([self::sd('p', [
+            self::el('Patient.identifier', ['slicing' => ['discriminator' => [['type' => 'value', 'path' => 'system']], 'rules' => 'open']]),
+            self::el('Patient.identifier:ssn', ['sliceName' => 'ssn', 'min' => 1]),
+            self::el('Patient.identifier:ssn.system', ['fixedUri' => 'http://ssa.gov']),
+            self::el('Patient.identifier:ssn.use', ['fixedCode' => 'official']),
+            self::el('Patient.contact', ['slicing' => ['discriminator' => [['type' => 'pattern', 'path' => 'relationship.coding.code']], 'rules' => 'open']]),
+            self::el('Patient.contact:vip', ['sliceName' => 'vip']),
+            self::el('Patient.contact:vip.relationship', ['patternCodeableConcept' => ['coding' => [['code' => 'V']]]]),
+            self::el('Patient.contact:vip.gender', ['fixedCode' => 'other']),
+        ])], 'p');
+        $this->assertSame([
+            ['path' => 'identifier', 'name' => 'ssn', 'match' => ['system' => 'http://ssa.gov'], 'min' => 1],
+            ['path' => 'contact', 'name' => 'vip', 'match' => ['relationship' => ['coding' => [['code' => 'V']]]]],
+        ], $c['slices']);
+    }
+
+    public function testDiscriminatorOnThisAndInheritedSlicing(): void
+    {
+        $c = $this->compile([
+            self::sd('base', [
+                self::el('Patient.identifier', ['slicing' => ['discriminator' => [['type' => 'pattern', 'path' => '$this']], 'rules' => 'open']]),
+            ]),
+            self::sd('child', [
+                self::el('Patient.identifier:mrn', ['sliceName' => 'mrn', 'patternIdentifier' => ['system' => 'http://mrn']]),
+                self::el('Patient.identifier:mrn.use', ['fixedCode' => 'usual']),
+            ], ['baseDefinition' => self::_BASE . 'base']),
+        ], 'child');
+        $this->assertSame([['path' => 'identifier', 'name' => 'mrn', 'match' => ['system' => 'http://mrn']]], $c['slices']);
+    }
+
+    public function testUnsupportedOrUnfixedDiscriminatorSkipsSlice(): void
+    {
+        $c = $this->compile([self::sd('p', [
+            self::el('Patient.extension', ['slicing' => ['discriminator' => [['type' => 'type', 'path' => '$this']], 'rules' => 'open']]),
+            self::el('Patient.extension:a', ['sliceName' => 'a', 'type' => [['code' => 'Extension', 'profile' => ['http://x/a']]]]),
+            self::el('Patient.identifier', ['slicing' => ['discriminator' => [['type' => 'value', 'path' => 'system']], 'rules' => 'open']]),
+            self::el('Patient.identifier:b', ['sliceName' => 'b']),
+            self::el('Patient.identifier:b.use', ['fixedCode' => 'usual']),
+            self::el('Patient.contact', ['slicing' => ['discriminator' => [['type' => 'value', 'path' => "extension('http://x').value"]], 'rules' => 'open']]),
+            self::el('Patient.contact:c', ['sliceName' => 'c']),
+        ])], 'p');
+        $this->assertSame([], $c['slices']);
+    }
+
     public function testUnmatchableSliceIsSkippedAndWithinSliceElementsIgnored(): void
     {
         $c = $this->compile([self::sd('p', [

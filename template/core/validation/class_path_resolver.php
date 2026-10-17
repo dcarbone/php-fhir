@@ -25,9 +25,11 @@ $coreFiles = $config->getCoreFiles();
 $imports = $coreFile->getImports();
 
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$valueContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE);
 
 $imports->addCoreFileImports(
     $typeInterface,
+    $valueContainerInterface,
 );
 
 ob_start();
@@ -107,14 +109,15 @@ class <?php echo $coreFile; ?>
     }
 
     /**
-     * Unwraps primitive containers until a raw scalar (or null) is reached.
+     * Unwraps primitives and primitive containers until a raw scalar (or null) is reached.  Complex types, which have
+     * no single value, are returned as-is.
      *
      * @param mixed $value
      * @return mixed
      */
     public static function unwrap(mixed $value): mixed
     {
-        while ($value instanceof <?php echo $typeInterface; ?>) {
+        while ($value instanceof <?php echo $valueContainerInterface; ?>) {
             $value = $value->getValue();
         }
         return $value;

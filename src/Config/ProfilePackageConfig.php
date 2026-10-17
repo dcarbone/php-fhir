@@ -19,6 +19,8 @@ namespace DCarbone\PHPFHIR\Config;
  */
 
 use DCarbone\PHPFHIR\Utilities\NameUtils;
+use InvalidArgumentException;
+use UnexpectedValueException;
 
 /**
  * Configuration for a single FHIR profile package (e.g. hl7.fhir.us.core) to generate profile classes from.
@@ -52,7 +54,7 @@ class ProfilePackageConfig
     {
         $name = trim($name);
         if ('' === $name || !preg_match(self::_NAME_REGEX, $name)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Profile package name "%s" is invalid: must be a lowercase, npm-style name such as "hl7.fhir.us.core".',
                 $name,
             ));
@@ -66,7 +68,7 @@ class ProfilePackageConfig
         }
         $namespace = trim($namespace, PHPFHIR_NAMESPACE_TRIM_CUTSET);
         if (!NameUtils::isValidNSName($namespace)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Profile package "%s" namespace "%s" is not a valid PHP namespace.  Specify "namespace" explicitly.',
                 $name,
                 $namespace,
@@ -76,24 +78,24 @@ class ProfilePackageConfig
 
         $this->_dependencies = [];
         if (!array_is_list($dependencies)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Profile package "%s" dependencies must be a list of the names of other configured profile packages.',
                 $name,
             ));
         }
         foreach ($dependencies as $depName) {
             if (!is_string($depName) || 1 !== preg_match(self::_NAME_REGEX, trim($depName))) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'Profile package "%s" dependencies must be a list of the names of other configured profile packages.',
                     $name,
                 ));
             }
             $depName = trim($depName);
             if ($depName === $name) {
-                throw new \InvalidArgumentException(sprintf('Profile package "%s" cannot depend on itself.', $name));
+                throw new InvalidArgumentException(sprintf('Profile package "%s" cannot depend on itself.', $name));
             }
             if (in_array($depName, $this->_dependencies, true)) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'Profile package "%s" lists dependency "%s" more than once.',
                     $name,
                     $depName,
@@ -109,7 +111,7 @@ class ProfilePackageConfig
     {
         foreach (array_keys($config) as $k) {
             if (!in_array($k, self::_CONFIG_KEYS, true)) {
-                throw new \UnexpectedValueException(sprintf(
+                throw new UnexpectedValueException(sprintf(
                     'Unknown profile package config key "%s".  Allowed: %s',
                     $k,
                     implode(', ', self::_CONFIG_KEYS),
@@ -117,13 +119,13 @@ class ProfilePackageConfig
             }
         }
         if (!isset($config['name'])) {
-            throw new \InvalidArgumentException('Profile package "name" is required.');
+            throw new InvalidArgumentException('Profile package "name" is required.');
         }
         if (!isset($config['source'])) {
-            throw new \InvalidArgumentException('Profile package "source" is required.');
+            throw new InvalidArgumentException('Profile package "source" is required.');
         }
         if (isset($config['strict']) && !is_bool($config['strict'])) {
-            throw new \InvalidArgumentException('Profile package "strict" must be a bool.');
+            throw new InvalidArgumentException('Profile package "strict" must be a bool.');
         }
         return new self(
             name: $config['name'],
@@ -190,14 +192,14 @@ class ProfilePackageConfig
     private static function _assertReadablePath(string $path, string $what): string
     {
         if ('' === trim($path) || !file_exists($path) || !is_readable($path)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 '%s "%s" either does not exist or is not readable.',
                 $what,
                 $path,
             ));
         }
         if (!is_dir($path) && !is_file($path)) {
-            throw new \InvalidArgumentException(sprintf('%s "%s" must be a file or directory.', $what, $path));
+            throw new InvalidArgumentException(sprintf('%s "%s" must be a file or directory.', $what, $path));
         }
         return $path;
     }

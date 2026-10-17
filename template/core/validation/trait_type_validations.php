@@ -131,7 +131,18 @@ trait <?php echo $coreFile; ?>
      */
     public function _getValidationErrors(): array
     {
-        $rules = $this->_getCombinedValidationRules();
+        return $this->_collectValidationErrors($this->_getCombinedValidationRules(), true);
+    }
+
+    /**
+     * Runs the given rules against this type.
+     *
+     * @param array $rules Map of ["fieldname" => ["rule" => {constraint}]].
+     * @param bool $descend Whether to also collect the validation errors of the types held by this type's fields.
+     * @return array
+     */
+    protected function _collectValidationErrors(array $rules, bool $descend): array
+    {
         $errs = [];
         $seen = [];
         foreach ($this as $prop => $value) {
@@ -149,6 +160,9 @@ trait <?php echo $coreFile; ?>
                         $errs[$prop][$rule] = $err;
                     }
                 }
+            }
+            if (!$descend) {
+                continue;
             }
             if ($value instanceof <?php echo $typeInterface; ?>) {
                 foreach ($value->_getValidationErrors() as $subPath => $subErrs) {

@@ -43,10 +43,10 @@ class ProfileMapResolveTest extends TestCase
         eval('namespace Acme\\Map\\R4\\Types; class FHIRPatient {} class FHIRObservation {}');
         // A is the root, B refines A, C is an unrelated sibling of A
         eval('namespace Acme\\Map\\R4\\Profiles;
-            class A extends \\Acme\\Map\\R4\\Types\\FHIRPatient { public const PROFILE_VERSION = "1.0.0"; }
-            class B extends A { public const PROFILE_VERSION = "2.0.0"; }
-            class C extends \\Acme\\Map\\R4\\Types\\FHIRPatient { public const PROFILE_VERSION = null; }
-            class Obs extends \\Acme\\Map\\R4\\Types\\FHIRObservation { public const PROFILE_VERSION = null; }');
+            class A extends \\Acme\\Map\\R4\\Types\\FHIRPatient { public static function _getProfileVersion(): null|string { return "1.0.0"; } }
+            class B extends A { public static function _getProfileVersion(): null|string { return "2.0.0"; } }
+            class C extends \\Acme\\Map\\R4\\Types\\FHIRPatient { public static function _getProfileVersion(): null|string { return null; } }
+            class Obs extends \\Acme\\Map\\R4\\Types\\FHIRObservation { public static function _getProfileVersion(): null|string { return null; } }');
 
         $classMap = [
             self::_A => self::_NS . '\\A',
@@ -59,7 +59,7 @@ class ProfileMapResolveTest extends TestCase
         eval(substr($code, strlen('<?php')));
         $code = Templates::renderProfilePackageMap('/* c */', self::_NS . '\\Pkg', 'PackageMap', $classMap, $baseTypeMap, self::_NS . '\\PackageMapInterface');
         eval(substr($code, strlen('<?php')));
-        $code = Templates::renderProfileMap('/* c */', self::_NS, 'ProfileMap', [self::_NS . '\\Pkg\\PackageMap'], CoreEnumStubs::define());
+        $code = Templates::renderProfileMap('/* c */', self::_NS, 'ProfileMap', [self::_NS . '\\Pkg\\PackageMap'], CoreStubs::define());
         eval(substr($code, strlen('<?php')));
     }
 
@@ -68,10 +68,10 @@ class ProfileMapResolveTest extends TestCase
                                     string $onAmbiguous = 'exception',
                                     string $onVersionMismatch = 'ignoreVersion'): null|string
     {
-        $enums = CoreEnumStubs::define();
-        $unknown = $enums[CoreEnumStubs::ON_UNKNOWN_PROFILE];
-        $ambiguous = $enums[CoreEnumStubs::ON_AMBIGUOUS_PROFILE];
-        $mismatch = $enums[CoreEnumStubs::ON_PROFILE_VERSION_MISMATCH];
+        $stubs = CoreStubs::define();
+        $unknown = $stubs[CoreStubs::ON_UNKNOWN_PROFILE];
+        $ambiguous = $stubs[CoreStubs::ON_AMBIGUOUS_PROFILE];
+        $mismatch = $stubs[CoreStubs::ON_PROFILE_VERSION_MISMATCH];
         $map = self::_MAP;
         return $map::resolve(self::_PATIENT, $declared, $unknown::from($onUnknown), $ambiguous::from($onAmbiguous), $mismatch::from($onVersionMismatch));
     }

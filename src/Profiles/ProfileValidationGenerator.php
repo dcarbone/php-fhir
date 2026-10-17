@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 use DCarbone\PHPFHIR\Builder\Imports;
+use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
 
 /**
  * Turns the compiled rules of a profile into entries for the generated class's rule map, to be run by the
@@ -30,14 +31,6 @@ use DCarbone\PHPFHIR\Builder\Imports;
  */
 final class ProfileValidationGenerator
 {
-    private const _MIN_OCCURS = 'min_occurs';
-    private const _MAX_OCCURS = 'max_occurs';
-    private const _FIXED_VALUE = 'fixed_value';
-    private const _PATTERN_VALUE = 'pattern_value';
-    private const _CODE_BINDING = 'code_binding';
-    private const _CHOICE_OCCURS = 'choice_occurs';
-    private const _SLICE_OCCURS = 'slice_occurs';
-
     /** @var array<string, array<string, mixed>> */
     private array $_rules = [];
     /** @var string[] */
@@ -124,9 +117,9 @@ final class ProfileValidationGenerator
         return var_export(implode('.', $segments), true);
     }
 
-    private function _set(string $key, string $rule, mixed $constraint): void
+    private function _set(string $key, ValidationRuleNameEnum $rule, mixed $constraint): void
     {
-        $this->_rules[$key][$rule] = $constraint;
+        $this->_rules[$key][$rule->value] = $constraint;
     }
 
     private function _rule(array $rule): void
@@ -156,12 +149,12 @@ final class ProfileValidationGenerator
         $prop = $entries[0];
         $key = $this->_key($segments, $prop);
         if (isset($rule['min'])) {
-            $this->_set($key, self::_MIN_OCCURS, $rule['min']);
+            $this->_set($key, ValidationRuleNameEnum::MIN_OCCURS, $rule['min']);
         }
         if (isset($rule['max']) && ($rule['max'] < 1 || $prop->collection)) {
-            $this->_set($key, self::_MAX_OCCURS, $rule['max']);
+            $this->_set($key, ValidationRuleNameEnum::MAX_OCCURS, $rule['max']);
         }
-        foreach (['fixed' => self::_FIXED_VALUE, 'pattern' => self::_PATTERN_VALUE] as $kind => $name) {
+        foreach (['fixed' => ValidationRuleNameEnum::FIXED_VALUE, 'pattern' => ValidationRuleNameEnum::PATTERN_VALUE] as $kind => $name) {
             if (!array_key_exists($kind, $rule)) {
                 continue;
             }
@@ -173,7 +166,7 @@ final class ProfileValidationGenerator
             $this->_set($key, $name, $rule[$kind]);
         }
         if (isset($rule['codes'])) {
-            $this->_set($key, self::_CODE_BINDING, $rule['codes']);
+            $this->_set($key, ValidationRuleNameEnum::CODE_BINDING, $rule['codes']);
         }
     }
 
@@ -205,7 +198,7 @@ final class ProfileValidationGenerator
             }
         }
         if (['fields'] !== array_keys($constraint)) {
-            $this->_set($key, self::_CHOICE_OCCURS, $constraint);
+            $this->_set($key, ValidationRuleNameEnum::CHOICE_OCCURS, $constraint);
         }
         foreach (['fixed', 'pattern', 'codes'] as $unsupported) {
             if (array_key_exists($unsupported, $rule)) {
@@ -248,7 +241,7 @@ final class ProfileValidationGenerator
             }
         }
         $key = $this->_key($segments, $prop);
-        $this->_rules[$key][self::_SLICE_OCCURS][] = $entry;
+        $this->_rules[$key][ValidationRuleNameEnum::SLICE_OCCURS->value][] = $entry;
     }
 
     private function _import(string $fqcn): string

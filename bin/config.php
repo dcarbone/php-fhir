@@ -156,7 +156,8 @@ return [
                             'hl7.fhir.uv.extensions.r4',
                             'hl7.fhir.uv.xver-r5.r4',
                         ],
-                        // Fail on unresolvable profile elements instead of warning and skipping.
+                        // Fail when the base definition of a profile cannot be found, instead of warning and having the profile extend its
+                        // base type directly.
                         'strict' => true,
                     ],
                 ],

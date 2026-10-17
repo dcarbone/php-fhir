@@ -23,6 +23,9 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class ProfileSet
 {
+    private const _CORE_CANONICAL_PREFIX = 'http://hl7.org/fhir/StructureDefinition/';
+    private const _CORE_PACKAGE_PATTERN = '{^hl7\.fhir\.r\d+[a-z]?\.core$}';
+
     /** @var array<string, Profile> canonical url => profile */
     private array $_byUrl = [];
     /** @var string[] urls of profiles that belong to the package itself, in package order */
@@ -52,8 +55,10 @@ class ProfileSet
             }
         }
 
+        $dependencies = self::_collectDependencies($package);
+
         // dependencies first so own profiles win a url collision.
-        foreach (self::_collectDependencies($package) as $dependency) {
+        foreach ($dependencies as $dependency) {
             foreach ($dependency->getStructureDefinitions() as $sd) {
                 $profile = Profile::fromStructureDefinition($sd);
                 $set->_byUrl[$profile->getUrl()] = $profile;
@@ -66,9 +71,18 @@ class ProfileSet
             $set->_ownUrls[] = $profile->getUrl();
         }
 
-        $unconfigured = self::_collectUnconfiguredDependencies($package);
-        foreach ($set->_byUrl as $profile) {
-            $set->_resolveParent($profile, $strict, $unconfigured);
+        $own = [];
+        foreach ($set->_ownUrls as $url) {
+            $own[$url] = true;
+        }
+        $unconfigured = self::_collectUnconfiguredDependencies($package, $dependencies);
+        foreach ($set->_byUrl as $url => $profile) {
+            // a dependency's profiles were checked, and their problems reported, when the dependency itself was built.
+            if (isset($own[$url])) {
+                $set->_resolveParent($profile, $strict, $unconfigured);
+            } else {
+                $set->_linkParent($profile);
+            }
         }
         foreach ($set->_byUrl as $profile) {
             $set->_assertAcyclic($profile);
@@ -84,19 +98,15 @@ class ProfileSet
     }
 
     /**
+     * @param array<string, ProfilePackage> $dependencies Every package the package builds on.
      * @return array<string, string> Declared dependencies, as name => version, that were not loaded.
      */
-    private static function _collectUnconfiguredDependencies(ProfilePackage $package): array
+    private static function _collectUnconfiguredDependencies(ProfilePackage $package, array $dependencies): array
     {
-        $loaded = [$package->getName() => true];
-        foreach (self::_collectDependencies($package) as $dependency) {
-            $loaded[$dependency->getName()] = true;
-        }
         $out = [];
-        foreach ([$package, ...self::_collectDependencies($package)] as $p) {
+        foreach ([$package, ...array_values($dependencies)] as $p) {
             foreach ($p->getDeclaredDependencies() as $name => $version) {
-                // the core specification is represented by the generated base types.
-                if (!isset($loaded[$name]) && 1 !== preg_match('{^hl7\.fhir\.r\d+[a-z]?\.core$}', (string)$name)) {
+                if ($name !== $package->getName() && !isset($dependencies[$name])) {
                     $out[$name] = (string)$version;
                 }
             }
@@ -105,16 +115,26 @@ class ProfileSet
     }
 
     /**
-     * @return ProfilePackage[]
+     * Every package the package builds on, directly or not, each once.
+     *
+     * @return array<string, ProfilePackage> name => package
      */
-    private static function _collectDependencies(ProfilePackage $package): array
+    private static function _collectDependencies(ProfilePackage $package, array &$out = []): array
     {
-        $out = [];
-        foreach ($package->getLoadedDependencies() as $dependency) {
-            $out[] = $dependency;
-            array_push($out, ...self::_collectDependencies($dependency));
+        foreach ($package->getLoadedDependencies() as $name => $dependency) {
+            if (!isset($out[$name])) {
+                $out[$name] = $dependency;
+                self::_collectDependencies($dependency, $out);
+            }
         }
         return $out;
+    }
+
+    private function _linkParent(Profile $profile): void
+    {
+        if (!$profile->isBasedOnBaseType() && null !== ($parent = $this->getProfileByUrl($profile->getBaseDefinition()))) {
+            $profile->setParent($parent);
+        }
     }
 
     /**
@@ -132,11 +152,16 @@ class ProfileSet
         }
         if ($strict) {
             $hint = '';
-            if ([] !== $unconfigured) {
-                $names = [];
-                foreach ($unconfigured as $name => $version) {
+            // the base types cover the core specification's resources and data types, but not the profiles it defines,
+            // e.g. vitalsigns, so the core package is only suggested when the base is one of those.
+            $coreBase = str_starts_with($profile->getBaseDefinition(), self::_CORE_CANONICAL_PREFIX);
+            $names = [];
+            foreach ($unconfigured as $name => $version) {
+                if ($coreBase || 1 !== preg_match(self::_CORE_PACKAGE_PATTERN, (string)$name)) {
                     $names[] = '' === $version ? $name : sprintf('%s (%s)', $name, $version);
                 }
+            }
+            if ([] !== $names) {
                 $hint = sprintf(
                     '  The package declares dependencies that were not configured: %s.  Configure them as profile packages and list their names under "dependencies", or set "strict" to false to have such profiles extend their base type directly.',
                     implode(', ', $names),

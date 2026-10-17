@@ -30,6 +30,7 @@ $imports = $coreFile->getImports();
 
 $constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$profileTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE);
 $typeMapInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_TYPE_MAP);
 $unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
@@ -43,6 +44,7 @@ $imports->addCoreFileImportsByName(
 $imports->addCoreFileImports(
     $constantsClass,
     $typeInterface,
+    $profileTypeInterface,
     $typeMapInterface,
     $unserializeConfig,
 
@@ -221,14 +223,14 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
         if (!is_array($declared)) {
             $declared = [];
         }
-        /** @var null|class-string $profileClass */
+        /** @var null|class-string<<?php echo $profileTypeInterface; ?>> $profileClass */
         $profileClass = self::_resolveProfileClassname($className, $declared, $config);
         if (null === $profileClass) {
             return $className::jsonUnserialize($decoded, $config);
         }
         $profiled = $profileClass::jsonUnserialize($decoded, $config);
         if ($config->getOnProfileViolation() !== <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::KEEP) {
-            $violations = $profiled->_getValidationErrors();
+            $violations = $profiled->_getProfileValidationErrors();
             if ([] !== $violations) {
                 if ($config->getOnProfileViolation() === <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::FALLBACK) {
                     return $className::jsonUnserialize($decoded, $config);
@@ -264,14 +266,14 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
                 }
             }
         }
-        /** @var null|class-string $profileClass */
+        /** @var null|class-string<<?php echo $profileTypeInterface; ?>> $profileClass */
         $profileClass = self::_resolveProfileClassname($className, $declared, $config);
         if (null === $profileClass) {
             return $className::xmlUnserialize($element, $config);
         }
         $profiled = $profileClass::xmlUnserialize($element, $config);
         if ($config->getOnProfileViolation() !== <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::KEEP) {
-            $violations = $profiled->_getValidationErrors();
+            $violations = $profiled->_getProfileValidationErrors();
             if ([] !== $violations) {
                 if ($config->getOnProfileViolation() === <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::FALLBACK) {
                     return $className::xmlUnserialize($element, $config);
@@ -286,7 +288,7 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
      * @param class-string $className
      * @param string[] $declared
      * @param <?php echo $unserializeConfig->getFullyQualifiedName(true); ?> $config
-     * @return null|class-string Null if the resource should be unserialized into $className
+     * @return null|class-string<<?php echo $profileTypeInterface; ?>> Null if the resource should be unserialized into $className
      */
     private static function _resolveProfileClassname(string $className, array $declared, <?php echo $unserializeConfig; ?> $config): null|string
     {
@@ -305,7 +307,7 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
     }
 
     /**
-     * @param class-string $profileClass
+     * @param class-string<<?php echo $profileTypeInterface; ?>> $profileClass
      * @param array $violations
      * @return \UnexpectedValueException
      */
@@ -319,7 +321,7 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
         }
         return new \UnexpectedValueException(sprintf(
             'Resource violates profile "%s": %s',
-            $profileClass::PROFILE_URL,
+            $profileClass::_getProfileUrl(),
             implode('; ', $parts)
         ));
     }

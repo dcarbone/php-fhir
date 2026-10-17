@@ -35,7 +35,7 @@ class ProfileWriter
      * @param string $profilesNamespace Fully qualified namespace of the version's profiles, without leading slash.
      * @param string $copyright Pre-rendered copyright comment.
      * @param array<string, ProfileClasses> $packages Package name => classes.
-     * @param array<string, string> $enums Fully qualified names, without leading slash, of the core option enums, by entity name.
+     * @param array<string, string> $coreTypes Fully qualified names, without leading slash, of the core enums and interfaces referred to, by entity name.
      * @param null|string[] $writePackages Package names to write class files for.  If null, all of them.  The map and
      *                                     autoloader always cover every package.
      * @return string[] Paths of the files written.
@@ -45,7 +45,7 @@ class ProfileWriter
         string     $profilesNamespace,
         string     $copyright,
         array      $packages,
-        array      $enums,
+        array      $coreTypes,
         null|array $writePackages = null,
     ): array {
         $written = [];
@@ -54,7 +54,7 @@ class ProfileWriter
             $write = null === $writePackages || in_array($packageName, $writePackages, true);
             array_push($written, ...self::writeClasses($libraryPath, $profilesNamespace, $copyright, $packageName, $classes, $index, $write));
         }
-        array_push($written, ...self::writeSupport($libraryPath, $profilesNamespace, $copyright, $index, $enums));
+        array_push($written, ...self::writeSupport($libraryPath, $profilesNamespace, $copyright, $index, $coreTypes));
         return $written;
     }
 
@@ -134,10 +134,10 @@ class ProfileWriter
      * Writes the profiles map and autoloader.
      *
      * @param array $index Index populated by {@see self::writeClasses()}.
-     * @param array<string, string> $enums Fully qualified names, without leading slash, of the core option enums, by entity name.
+     * @param array<string, string> $coreTypes Fully qualified names, without leading slash, of the core enums and interfaces referred to, by entity name.
      * @return string[] Paths of the files written.
      */
-    public static function writeSupport(string $libraryPath, string $profilesNamespace, string $copyright, array $index, array $enums): array
+    public static function writeSupport(string $libraryPath, string $profilesNamespace, string $copyright, array $index, array $coreTypes): array
     {
         $written = [];
         $packageMaps = [];
@@ -169,7 +169,7 @@ class ProfileWriter
             $profilesNamespace,
             PHPFHIR_PROFILES_CLASSNAME_MAP,
             $packageMaps,
-            $enums,
+            $coreTypes,
         ));
         $written[] = self::_put($libraryPath, $profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_AUTOLOADER, Templates::renderProfileAutoloader(
             $copyright,

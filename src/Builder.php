@@ -20,7 +20,6 @@ namespace DCarbone\PHPFHIR;
 
 use DCarbone\PHPFHIR\Profiles\DefinitionTypeNavigator;
 use DCarbone\PHPFHIR\Profiles\ProfileClasses;
-use DCarbone\PHPFHIR\Profiles\ProfilePackage;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
 use DCarbone\PHPFHIR\Profiles\ProfileSet;
 use DCarbone\PHPFHIR\Profiles\ProfileWriter;
@@ -28,6 +27,7 @@ use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
+use InvalidArgumentException;
 
 /**
  * Class Builder
@@ -105,7 +105,7 @@ class Builder
      *
      * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
      * @param null|array $packageNames Array of profile package names to limit generation to. If null, all configured packages will be generated.
-     * @throws \InvalidArgumentException If a specified package is not configured for any of the specified versions.
+     * @throws InvalidArgumentException If a specified package is not configured for any of the specified versions.
      */
     public function renderProfiles(null|array $versionNames = null, null|array $packageNames = null): void
     {
@@ -146,11 +146,14 @@ class Builder
             if (null !== $packageNames) {
                 $writePackages = [];
                 foreach ($packageNames as $requested) {
-                    if ($profilesConfig->hasPackage($requested)) {
-                        $writePackages = [...$writePackages, $requested, ...$profilesConfig->getDependencyClosure($requested)];
+                    if (!$profilesConfig->hasPackage($requested)) {
+                        continue;
+                    }
+                    $writePackages[$requested] = true;
+                    foreach ($profilesConfig->getDependencyClosure($requested) as $depName) {
+                        $writePackages[$depName] = true;
                     }
                 }
-                $writePackages = array_values(array_unique($writePackages));
             }
 
             $copyright = CopyrightUtils::compileFullCopyrightComment($this->config, $version->getSourceMetadata());
@@ -159,6 +162,7 @@ class Builder
             $support = [
                 'matcher' => $this->config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALUE_MATCHER)->getFullyQualifiedName(false),
                 'validator' => $this->config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR)->getFullyQualifiedName(false),
+                'profileInterface' => $this->config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE)->getFullyQualifiedName(false),
             ];
 
             // one package at a time, dependencies first.  Everything a later package cannot need is released as we go,
@@ -168,10 +172,10 @@ class Builder
             foreach ($ordered as $i => $package) {
                 $name = $package->getName();
                 $log->info(sprintf('Reading profile package "%s"...', $name));
-                $dependencies = array_map(
-                    static fn(string $depName): ProfilePackage => $reads[$depName],
-                    $package->getDependencies(),
-                );
+                $dependencies = [];
+                foreach ($package->getDependencies() as $depName) {
+                    $dependencies[] = $reads[$depName];
+                }
                 $reads[$name] = ProfilePackageReader::read($package, $fhirVersion, $dependencies);
                 $set = ProfileSet::fromPackage($reads[$name], $package->isStrict());
                 foreach ($set->getUnresolved() as $id => $base) {
@@ -216,7 +220,7 @@ class Builder
                     $name,
                     $classes,
                     $index,
-                    null === $writePackages || in_array($name, $writePackages, true),
+                    null === $writePackages || isset($writePackages[$name]),
                 );
 
                 $classesByPackage[$name] = $classes;
@@ -236,16 +240,17 @@ class Builder
                 }
             }
 
-            $enums = [];
+            $coreTypes = [];
             foreach ([
                 PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE,
                 PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE,
                 PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH,
+                PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE,
             ] as $entity) {
-                $enums[$entity] = $this->config->getCoreFiles()->getCoreFileByEntityName($entity)->getFullyQualifiedName(false);
+                $coreTypes[$entity] = $this->config->getCoreFiles()->getCoreFileByEntityName($entity)->getFullyQualifiedName(false);
             }
 
-            ProfileWriter::writeSupport($this->config->getLibraryPath(), $profilesNamespace, $copyright, $index, $enums);
+            ProfileWriter::writeSupport($this->config->getLibraryPath(), $profilesNamespace, $copyright, $index, $coreTypes);
 
             $log->endBreak(sprintf('FHIR Version %s Profile Class Generation', $versionName));
         }
@@ -254,7 +259,7 @@ class Builder
     /**
      * @param string[] $versionNames
      * @param null|string[] $packageNames
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function assertProfilePackagesConfigured(array $versionNames, null|array $packageNames): void
     {
@@ -268,7 +273,7 @@ class Builder
                     continue 2;
                 }
             }
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Profile package "%s" is not configured for any of the specified versions: %s',
                 $packageName,
                 implode(', ', $versionNames),

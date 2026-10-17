@@ -87,9 +87,9 @@ abstract class Templates
 
     /**
      * @param string[] $packageMaps Fully qualified names, without leading slash, of the profile package maps.
-     * @param array<string, string> $enums Fully qualified names, without leading slash, of the core option enums, by entity name.
+     * @param array<string, string> $coreTypes Fully qualified names, without leading slash, of the core enums and interfaces referred to, by entity name.
      */
-    public static function renderProfileMap(string $copyright, string $namespace, string $className, array $packageMaps, array $enums): string
+    public static function renderProfileMap(string $copyright, string $namespace, string $className, array $packageMaps, array $coreTypes): string
     {
         return self::normalize(require sprintf('%s/class_profile_map.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }

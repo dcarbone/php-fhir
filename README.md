@@ -116,6 +116,38 @@ See the [CLI Usage](https://github.com/dcarbone/php-fhir/wiki/CLI-Usage) and
 [Configuration Reference](https://github.com/dcarbone/php-fhir/wiki/Configuration-Reference)
 wiki pages for full details.
 
+### 4. Profiles (optional)
+
+Classes for FHIR profiles such as [US Core](https://hl7.org/fhir/us/core/) can be generated from local
+implementation guide packages. Pass a `profilesConfig` to the version, configuring every package the guide depends
+on as a package of its own and listing it under `dependencies`:
+
+```php
+new VersionConfig(
+    name: 'R4',
+    schemaPath: __DIR__ . '/fhir-schemas/R4',
+    profilesConfig: [
+        'packages' => [
+            ['name' => 'hl7.fhir.r4.core', 'source' => __DIR__ . '/input/hl7.fhir.r4.core.tgz'],
+            // ... the guide's other dependencies ...
+            [
+                'name' => 'hl7.fhir.us.core',
+                'source' => __DIR__ . '/input/hl7.fhir.us.core.tgz',
+                'dependencies' => ['hl7.fhir.r4.core', /* ... */],
+            ],
+        ],
+    ],
+),
+```
+
+US Core needs eight packages besides its own; [`bin/config.php`](bin/config.php) has the complete setup.
+
+Each profile class extends the type it constrains, is nested under a `Profiles` namespace mirroring the `Types`
+layout, and is checked by the regular validation system (cardinality, fixed/pattern values, bindings, slices). Set
+the `profileResolution` unserialize option to `auto` to have parsing pick the profile class from `meta.profile`.
+Profile generation is memory hungry; allow PHP at least 1 GB. See the
+[Profiles](https://github.com/dcarbone/php-fhir/wiki/Profiles) wiki page.
+
 ---
 
 ## Links
