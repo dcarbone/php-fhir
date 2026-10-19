@@ -21,7 +21,8 @@ namespace DCarbone\PHPFHIR\Profiles;
 /**
  * Expands ValueSets to a flat list of codes using only what is available in a profile package (and its loaded
  * dependencies).  ValueSets that cannot be fully enumerated that way - filters, code systems that are not in the
- * package, etc. - are reported as not expandable, rather than guessed at.
+ * package, etc. - are reported as not expandable, rather than guessed at.  A ValueSet's own expansion is used when it is
+ * complete; a paged one is ignored in favour of the compose definition.
  */
 class ValueSetExpander
 {
@@ -55,8 +56,10 @@ class ValueSetExpander
 
         if (isset($vs['expansion']['contains']) && is_array($vs['expansion']['contains'])) {
             $out = [];
-            self::_flattenContains($vs['expansion']['contains'], $out);
-            return self::_unique($out);
+            $entries = self::_flattenContains($vs['expansion']['contains'], $out);
+            if (self::_expansionIsComplete($vs['expansion'], $entries)) {
+                return self::_unique($out);
+            }
         }
 
         if (!isset($vs['compose']['include']) || !is_array($vs['compose']['include'])) {
@@ -155,16 +158,40 @@ class ValueSetExpander
         return $result;
     }
 
-    private static function _flattenContains(array $contains, array &$out): void
+    /**
+     * An expansion may be a single page of a larger one.  It only stands for the whole ValueSet when it starts at the
+     * beginning and lists at least as many entries as its declared total.
+     *
+     * @param array $expansion
+     * @param int $entries Number of entries listed in the expansion, including abstract and nested ones.
+     * @return bool
+     */
+    private static function _expansionIsComplete(array $expansion, int $entries): bool
     {
+        if (0 !== (int)($expansion['offset'] ?? 0)) {
+            return false;
+        }
+        return !isset($expansion['total']) || (int)$expansion['total'] <= $entries;
+    }
+
+    /**
+     * @param array $contains
+     * @param array $out Receives the [system, code] pair of every non-abstract entry.
+     * @return int Number of entries seen, including abstract and nested ones.
+     */
+    private static function _flattenContains(array $contains, array &$out): int
+    {
+        $entries = 0;
         foreach ($contains as $item) {
+            $entries++;
             if (isset($item['code']) && is_string($item['code']) && !($item['abstract'] ?? false)) {
                 $out[] = [$item['system'] ?? null, $item['code']];
             }
             if (isset($item['contains']) && is_array($item['contains'])) {
-                self::_flattenContains($item['contains'], $out);
+                $entries += self::_flattenContains($item['contains'], $out);
             }
         }
+        return $entries;
     }
 
     private static function _flattenConcepts(string $system, array $concepts, array &$out): void

@@ -42,14 +42,20 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 /**
- * Checks hydrated types against expected values, in the shape profile fixed / pattern values and slice matchers use:
+ * Checks hydrated types against expected values, in the shape profile fixed / pattern values and slice matchers use.
+ *
+ * matches() is a subset match, used for patterns and slice discrimination:
  *
  * - a scalar is compared with the raw value of a primitive;
  * - an associative array is a pattern: every field named must hold a matching value;
  * - a list means every entry must be matched by some value of the field.
  *
- * Fields that hold collections match when any of their values matches.  Anything not mentioned is ignored, so
- * a pattern is a subset match.
+ * Fields that hold collections match when any of their values matches.  Anything not mentioned is ignored.
+ *
+ * matchesEach() and equals() check every occurrence of a repeating element on its own, as a pattern or a fixed value
+ * must hold for each of them.  equals() is an exact match: a complex value must have the same fields and the same
+ * number of entries, in order, as the fixed value.  A primitive is compared on its value only, its id and extensions
+ * not being part of a fixed value.
  */
 class <?php echo $coreFile; ?>
 
@@ -70,6 +76,96 @@ class <?php echo $coreFile; ?>
             return true;
         }
         return self::_matchesAny($actual, $expected);
+    }
+
+    /**
+     * @param mixed $actual Primitive, complex type, or collection of either.
+     * @param mixed $expected
+     * @return bool True if every value, or every value of the collection, matches the pattern.
+     */
+    public static function matchesEach(mixed $actual, mixed $expected): bool
+    {
+        if (!is_array($actual)) {
+            return self::matches($actual, $expected);
+        }
+        foreach ($actual as $item) {
+            if (!self::matches($item, $expected)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param mixed $actual Primitive, complex type, or collection of either.
+     * @param mixed $expected
+     * @return bool True if every value, or every value of the collection, is exactly the fixed value.
+     */
+    public static function equals(mixed $actual, mixed $expected): bool
+    {
+        if (!is_array($actual)) {
+            return self::_equalsOne($actual, $expected);
+        }
+        foreach ($actual as $item) {
+            if (!self::_equalsOne($item, $expected)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static function _equalsOne(mixed $actual, mixed $expected): bool
+    {
+        if (null === $actual) {
+            return false;
+        }
+        if (!is_array($expected)) {
+            return self::_scalarMatches(<?php echo $pathResolver; ?>::unwrap($actual), $expected);
+        }
+        if (!$actual instanceof <?php echo $typeInterface; ?>) {
+            return false;
+        }
+        return self::_jsonEquals(json_decode(json_encode($actual), true), $expected);
+    }
+
+    /**
+     * @param mixed $actual JSON form of the instance value, decoded to arrays.
+     * @param mixed $expected JSON form of the fixed value.
+     * @return bool
+     */
+    private static function _jsonEquals(mixed $actual, mixed $expected): bool
+    {
+        if (!is_array($expected)) {
+            return !is_array($actual) && self::_scalarMatches($actual, $expected);
+        }
+        if (!is_array($actual)) {
+            return false;
+        }
+        if ([] === $expected || array_is_list($expected)) {
+            // a single entry may be written without its array.
+            if ([] !== $actual && !array_is_list($actual)) {
+                $actual = [$actual];
+            }
+            if (count($actual) !== count($expected)) {
+                return false;
+            }
+            foreach ($expected as $i => $one) {
+                if (!self::_jsonEquals($actual[$i], $one)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        unset($actual['fhir_comments']);
+        if (count($actual) !== count($expected)) {
+            return false;
+        }
+        foreach ($expected as $field => $wanted) {
+            if (!array_key_exists($field, $actual) || !self::_jsonEquals($actual[$field], $wanted)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static function _matchesAny(mixed $actual, mixed $expected): bool

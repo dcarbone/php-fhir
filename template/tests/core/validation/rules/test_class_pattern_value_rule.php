@@ -102,10 +102,13 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertNotNull((new <?php echo $rule; ?>())->assert($this->resource([]), 'code', ['coding' => [['system' => 's', 'code' => 'c']]], $cc));
     }
 
-    public function testCollectionOfValuesMatchesWhenAnyDoes()
+    public function testCollectionOfValuesMatchesOnlyWhenEveryOneDoes()
     {
-        $values = [$this->coding('s', 'x'), $this->coding('s', 'c')];
-        $this->assertNull((new <?php echo $rule; ?>())->assert($this->resource([]), 'code', ['code' => 'c'], $values));
+        $rule = new <?php echo $rule; ?>();
+        $mixed = [$this->coding('s', 'c'), $this->coding('other', 'c')];
+        $this->assertNotNull($rule->assert($this->resource([]), 'code', ['system' => 's'], $mixed));
+        $matching = [$this->coding('s', 'c'), $this->coding('s', 'd')];
+        $this->assertNull($rule->assert($this->resource([]), 'code', ['system' => 's'], $matching));
     }
 }
 <?php return ob_get_clean();

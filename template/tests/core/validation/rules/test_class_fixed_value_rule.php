@@ -60,14 +60,15 @@ class <?php echo $coreFile; ?> extends TestCase
         return [$name => ['class' => $class, 'collection' => $collection, 'value' => $value]];
     }
 
-    private function coding(string $system, string $code): <?php echo $mockElement; ?>
+    private function coding(string $system, string $code, null|string $display = null): <?php echo $mockElement; ?>
 
     {
-        return new <?php echo $mockElement; ?>(
-            name: 'Coding',
-            fields: $this->field('system', <?php echo $mockPrimitive; ?>::class, $this->prim($system))
-                + $this->field('code', <?php echo $mockPrimitive; ?>::class, $this->prim($code)),
-        );
+        $fields = $this->field('system', <?php echo $mockPrimitive; ?>::class, $this->prim($system))
+            + $this->field('code', <?php echo $mockPrimitive; ?>::class, $this->prim($code));
+        if (null !== $display) {
+            $fields += $this->field('display', <?php echo $mockPrimitive; ?>::class, $this->prim($display));
+        }
+        return new <?php echo $mockElement; ?>(name: 'Coding', fields: $fields);
     }
 
     private function codeableConcept(array $codings): <?php echo $mockElement; ?>
@@ -109,6 +110,32 @@ class <?php echo $coreFile; ?> extends TestCase
         $rule = new <?php echo $rule; ?>();
         $this->assertNull($rule->assert($type, 'code', ['system' => 's', 'code' => 'c'], $this->coding('s', 'c')));
         $this->assertNotNull($rule->assert($type, 'code', ['system' => 's', 'code' => 'c'], $this->coding('s', 'd')));
+    }
+
+    public function testComplexFixedValueRejectsAdditionalFields()
+    {
+        $type = $this->resource([]);
+        $rule = new <?php echo $rule; ?>();
+        $this->assertNotNull($rule->assert($type, 'code', ['system' => 's', 'code' => 'c'], $this->coding('s', 'c', 'C')));
+        $this->assertNull($rule->assert($type, 'code', ['system' => 's', 'code' => 'c', 'display' => 'C'], $this->coding('s', 'c', 'C')));
+    }
+
+    public function testComplexFixedValueRejectsAdditionalEntries()
+    {
+        $type = $this->resource([]);
+        $rule = new <?php echo $rule; ?>();
+        $fixed = ['coding' => [['system' => 's', 'code' => 'c']]];
+        $this->assertNull($rule->assert($type, 'code', $fixed, $this->codeableConcept([$this->coding('s', 'c')])));
+        $this->assertNotNull($rule->assert($type, 'code', $fixed, $this->codeableConcept([$this->coding('s', 'c'), $this->coding('s', 'd')])));
+    }
+
+    public function testEveryOccurrenceMustMatch()
+    {
+        $type = $this->resource([]);
+        $rule = new <?php echo $rule; ?>();
+        $this->assertNull($rule->assert($type, 'code', ['system' => 's', 'code' => 'c'], [$this->coding('s', 'c'), $this->coding('s', 'c')]));
+        $this->assertNotNull($rule->assert($type, 'code', ['system' => 's', 'code' => 'c'], [$this->coding('s', 'c'), $this->coding('s', 'd')]));
+        $this->assertNotNull($rule->assert($type, 'status', 'final', [$this->prim('final'), $this->prim('draft')]));
     }
 }
 <?php return ob_get_clean();

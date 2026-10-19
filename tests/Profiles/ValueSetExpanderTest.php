@@ -115,6 +115,42 @@ class ValueSetExpanderTest extends TestCase
         $this->assertSame([['s', 'a'], ['s', 'b']], $e->expand(self::_VS . 'a'));
     }
 
+    public function testCompleteExpansionWithTotalIsUsed(): void
+    {
+        $e = $this->expander([self::vs('a', ['expansion' => ['total' => 2, 'offset' => 0, 'contains' => [
+            ['system' => 's', 'code' => 'a'],
+            ['system' => 's', 'code' => 'b'],
+        ]]])]);
+        $this->assertSame([['s', 'a'], ['s', 'b']], $e->expand(self::_VS . 'a'));
+    }
+
+    public function testPagedExpansionFallsBackToCompose(): void
+    {
+        $compose = ['include' => [['system' => 's', 'concept' => [['code' => 'a'], ['code' => 'b'], ['code' => 'c']]]]];
+        $e = $this->expander([
+            self::vs('total', ['compose' => $compose, 'expansion' => ['total' => 3, 'contains' => [
+                ['system' => 's', 'code' => 'a'],
+            ]]]),
+            self::vs('offset', ['compose' => $compose, 'expansion' => ['offset' => 1, 'contains' => [
+                ['system' => 's', 'code' => 'b'],
+                ['system' => 's', 'code' => 'c'],
+            ]]]),
+        ]);
+        $all = [['s', 'a'], ['s', 'b'], ['s', 'c']];
+        $this->assertSame($all, $e->expand(self::_VS . 'total'));
+        $this->assertSame($all, $e->expand(self::_VS . 'offset'));
+    }
+
+    public function testPagedExpansionWithoutComposeIsNotExpandable(): void
+    {
+        $e = $this->expander([
+            self::vs('total', ['expansion' => ['total' => 3, 'contains' => [['system' => 's', 'code' => 'a']]]]),
+            self::vs('offset', ['expansion' => ['offset' => 1, 'contains' => [['system' => 's', 'code' => 'b']]]]),
+        ]);
+        $this->assertNull($e->expand(self::_VS . 'total'));
+        $this->assertNull($e->expand(self::_VS . 'offset'));
+    }
+
     public function testNestedValueSetsAndExclude(): void
     {
         $e = $this->expander([

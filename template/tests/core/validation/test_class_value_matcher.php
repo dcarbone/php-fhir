@@ -60,14 +60,15 @@ class <?php echo $coreFile; ?> extends TestCase
         return [$name => ['class' => $class, 'collection' => $collection, 'value' => $value]];
     }
 
-    private function coding(string $system, string $code): <?php echo $mockElement; ?>
+    private function coding(string $system, string $code, null|string $display = null): <?php echo $mockElement; ?>
 
     {
-        return new <?php echo $mockElement; ?>(
-            name: 'Coding',
-            fields: $this->field('system', <?php echo $mockPrimitive; ?>::class, $this->prim($system))
-                + $this->field('code', <?php echo $mockPrimitive; ?>::class, $this->prim($code)),
-        );
+        $fields = $this->field('system', <?php echo $mockPrimitive; ?>::class, $this->prim($system))
+            + $this->field('code', <?php echo $mockPrimitive; ?>::class, $this->prim($code));
+        if (null !== $display) {
+            $fields += $this->field('display', <?php echo $mockPrimitive; ?>::class, $this->prim($display));
+        }
+        return new <?php echo $mockElement; ?>(name: 'Coding', fields: $fields);
     }
 
     private function codeableConcept(array $codings): <?php echo $mockElement; ?>
@@ -126,6 +127,41 @@ class <?php echo $coreFile; ?> extends TestCase
         $cc = $this->codeableConcept([$this->coding('s1', 'a'), $this->coding('s2', 'b')]);
         $this->assertTrue(<?php echo $valueMatcher; ?>::matches($cc, ['coding' => [['code' => 'a'], ['code' => 'b']]]));
         $this->assertFalse(<?php echo $valueMatcher; ?>::matches($cc, ['coding' => [['code' => 'a'], ['code' => 'z']]]));
+    }
+
+    public function testMatchesEachRequiresEveryOccurrence()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matchesEach([$this->coding('s', 'a'), $this->coding('s', 'b')], ['system' => 's']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matchesEach([$this->coding('s', 'a'), $this->coding('t', 'b')], ['system' => 's']));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matchesEach($this->coding('s', 'a'), ['system' => 's']));
+        // within a value, a list entry still only has to match some entry of the field.
+        $cc = $this->codeableConcept([$this->coding('s1', 'a'), $this->coding('s2', 'b')]);
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matchesEach([$cc], ['coding' => [['code' => 'b']]]));
+    }
+
+    public function testEqualsIsExact()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::equals($this->prim('a'), 'a'));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::equals($this->coding('s', 'c'), ['system' => 's', 'code' => 'c']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($this->coding('s', 'c', 'C'), ['system' => 's', 'code' => 'c']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($this->coding('s', 'c'), ['system' => 's', 'code' => 'c', 'display' => 'C']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($this->coding('s', 'c'), 'c'));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals(null, ['code' => 'c']));
+    }
+
+    public function testEqualsComparesListsInFull()
+    {
+        $fixed = ['coding' => [['system' => 's1', 'code' => 'a'], ['system' => 's2', 'code' => 'b']]];
+        $this->assertTrue(<?php echo $valueMatcher; ?>::equals($this->codeableConcept([$this->coding('s1', 'a'), $this->coding('s2', 'b')]), $fixed));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($this->codeableConcept([$this->coding('s2', 'b'), $this->coding('s1', 'a')]), $fixed));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($this->codeableConcept([$this->coding('s1', 'a')]), $fixed));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($this->codeableConcept([$this->coding('s1', 'a'), $this->coding('s2', 'b'), $this->coding('s3', 'c')]), $fixed));
+    }
+
+    public function testEqualsRequiresEveryOccurrence()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::equals([$this->coding('s', 'c'), $this->coding('s', 'c')], ['system' => 's', 'code' => 'c']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals([$this->coding('s', 'c'), $this->coding('s', 'd')], ['system' => 's', 'code' => 'c']));
     }
 
     public function testComplexValueDoesNotMatchScalar()

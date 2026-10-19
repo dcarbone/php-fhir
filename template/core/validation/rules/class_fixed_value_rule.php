@@ -63,7 +63,7 @@ class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?
 
     public function assert(<?php echo $typeInterface; ?> $type, string $field, mixed $constraint, mixed $value): null|string
     {
-        if (null === $value || [] === $value || <?php echo $valueMatcher; ?>::matches($value, $constraint)) {
+        if (null === $value || [] === $value || <?php echo $valueMatcher; ?>::equals($value, $constraint)) {
             return null;
         }
         return sprintf('Field "%s" on type "%s" does not match the fixed value', $field, $type->_getFHIRTypeName());
