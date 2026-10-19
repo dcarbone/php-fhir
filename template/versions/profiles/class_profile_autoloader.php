@@ -90,7 +90,9 @@ abstract class <?php echo $className; ?>
     }
 
     /**
-     * Loads the autoloader of the package a class belongs to the first time one of its classes is asked for.
+     * Loads the autoloader of the package a class belongs to the first time one of its classes is asked for.  Package
+     * namespaces may be nested, so every package whose namespace the class is in is tried until one loads it.  Packages
+     * registered earlier are skipped, as their own autoloaders already had their turn.
      *
      * @param string $class
      * @return bool|null
@@ -102,11 +104,8 @@ abstract class <?php echo $className; ?>
         }
         foreach (self::_PACKAGE_AUTOLOADER_MAP as $i => [$prefix, $autoloader, $path]) {
             /** @var class-string<PackageAutoloaderInterface> $autoloader */
-            if (!str_starts_with($class, $prefix)) {
+            if (self::$_packageRegistered[$i] || !str_starts_with($class, $prefix)) {
                 continue;
-            }
-            if (self::$_packageRegistered[$i]) {
-                return null;
             }
             // the autoloader is already loaded if this one was registered before.
             if (!class_exists($autoloader, false)) {
@@ -114,7 +113,9 @@ abstract class <?php echo $className; ?>
             }
             $autoloader::register();
             self::$_packageRegistered[$i] = true;
-            return $class === $autoloader ? true : $autoloader::loadClass($class);
+            if ($class === $autoloader || $autoloader::loadClass($class)) {
+                return true;
+            }
         }
         return null;
     }

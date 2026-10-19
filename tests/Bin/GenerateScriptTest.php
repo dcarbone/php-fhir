@@ -211,6 +211,18 @@ class GenerateScriptTest extends TestCase
             $bad = ["resourceType" => "Patient", "meta" => ["profile" => [$url]]];
             $unknown = ["resourceType" => "Patient", "meta" => ["profile" => ["http://nope"]]];
             $bundle = ["resourceType" => "Bundle", "type" => "collection", "entry" => [["resource" => $good]]];
+            // nested resources and primitive extensions must survive unserializing a second time on fallback.
+            $nested = $bad + [
+                "contained" => [["resourceType" => "Organization", "id" => "org", "name" => "O"]],
+                "birthDate" => "2000-01-01",
+                "_birthDate" => ["id" => "bd"],
+            ];
+            $fallback = new \Gen\Versions\R4\Version(["unserializeConfig" => ["profileResolution" => "auto", "onProfileViolation" => "fallback"]]);
+            $nestedDecoded = json_decode(json_encode($nested));
+            $nestedBefore = json_encode($nestedDecoded);
+            $nestedType = \Gen\Encoding\ResourceParser::parse($fallback, $nestedDecoded);
+            $nestedBundle = ["resourceType" => "Bundle", "type" => "collection", "entry" => [["resource" => $nested]]];
+            $nestedEntry = \Gen\Encoding\ResourceParser::parse($fallback, json_encode($nestedBundle))->getEntry()[0]->getResource();
             $xml = "<Patient xmlns=\"http://hl7.org/fhir\"><meta><profile value=\"" . $url . "\"/></meta><name><family value=\"F\"/></name></Patient>";
             $bundleType = \Gen\Encoding\ResourceParser::parse(new \Gen\Versions\R4\Version(["unserializeConfig" => ["profileResolution" => "auto"]]), json_encode($bundle))
                 ->getEntry()[0]->getResource();
@@ -225,6 +237,11 @@ class GenerateScriptTest extends TestCase
                 "violationKeep" => $parse([], json_encode($bad)),
                 "violationFallback" => $parse(["onProfileViolation" => "fallback"], json_encode($bad)),
                 "violationException" => $parse(["onProfileViolation" => "exception"], json_encode($bad)),
+                "nestedFallback" => get_class($nestedType),
+                "nestedFallbackJSON" => $nestedType,
+                "nestedUnmodified" => $nestedBefore === json_encode($nestedDecoded),
+                "nestedEntryFallback" => get_class($nestedEntry),
+                "nestedEntryFallbackJSON" => $nestedEntry,
             ]);
         ');
         $proc = proc_open([PHP_BINARY, '-d', 'display_errors=stderr', $script], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
@@ -247,8 +264,14 @@ class GenerateScriptTest extends TestCase
         $this->assertSame('EXC UnexpectedValueException', $res['unknownException']);
 
         $base = 'Gen\\Versions\\R4\\Types\\FHIRResource\\FHIRDomainResource\\FHIRPatient';
-        foreach (['off', 'none', 'unknownFallback', 'violationFallback'] as $k) {
+        foreach (['off', 'none', 'unknownFallback', 'violationFallback', 'nestedFallback', 'nestedEntryFallback'] as $k) {
             $this->assertSame($base, $res[$k], $k);
+        }
+        $this->assertTrue($res['nestedUnmodified'], 'unserializing must not modify the decoded input');
+        foreach (['nestedFallbackJSON', 'nestedEntryFallbackJSON'] as $k) {
+            $this->assertEquals([['resourceType' => 'Organization', 'id' => 'org', 'name' => 'O']], $res[$k]['contained'], $k);
+            $this->assertSame('2000-01-01', $res[$k]['birthDate'], $k);
+            $this->assertSame(['id' => 'bd'], $res[$k]['_birthDate'], $k);
         }
     }
 

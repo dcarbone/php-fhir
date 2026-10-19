@@ -21,12 +21,17 @@ namespace DCarbone\PHPFHIR\Profiles;
 /**
  * Expands ValueSets to a flat list of codes using only what is available in a profile package (and its loaded
  * dependencies).  ValueSets that cannot be fully enumerated that way - filters, code systems that are not in the
- * package, etc. - are reported as not expandable, rather than guessed at.  A ValueSet's own expansion is used when it is
- * complete; a paged one is ignored in favour of the compose definition.
+ * package, etc. - are reported as not expandable, rather than guessed at.  A ValueSet's own expansion is used only when
+ * it can be shown to be complete; a paged or truncated one is ignored in favour of the compose definition.
  */
 class ValueSetExpander
 {
     private const _MAX_DEPTH = 10;
+    // expansion extensions stating that the expansion does not hold every code of the ValueSet.
+    private const _PARTIAL_EXPANSION_EXTENSIONS = [
+        'http://hl7.org/fhir/StructureDefinition/valueset-toocostly',
+        'http://hl7.org/fhir/StructureDefinition/valueset-unclosed',
+    ];
     private readonly ProfilePackage $package;
 
     public function __construct(ProfilePackage $package)
@@ -58,8 +63,9 @@ class ValueSetExpander
 
         if (isset($vs['expansion']['contains']) && is_array($vs['expansion']['contains'])) {
             $out = [];
-            $entries = self::_flattenContains($vs['expansion']['contains'], $out);
-            if (self::_expansionIsComplete($vs['expansion'], $entries)) {
+            $listed = [];
+            self::_flattenContains($vs['expansion']['contains'], $out, $listed);
+            if (self::_expansionIsComplete($vs['expansion'], count($listed))) {
                 return self::_unique($out);
             }
         }
@@ -161,39 +167,59 @@ class ValueSetExpander
     }
 
     /**
-     * An expansion may be a single page of a larger one.  It only stands for the whole ValueSet when it starts at the
-     * beginning and lists at least as many entries as its declared total.
+     * An expansion may be a single page of a larger one, or cut short.  It only stands for the whole ValueSet when it
+     * starts at the beginning, is not marked as partial, and the distinct codes it lists account for its declared total.
+     * Paging requested through the "count" parameter without a total cannot be shown to be complete.  Anything
+     * malformed counts as incomplete.
      *
      * @param array $expansion
-     * @param int $entries Number of entries listed in the expansion, including abstract and nested ones.
+     * @param int $codes Number of distinct codes listed in the expansion, abstract and nested ones included.
      * @return bool
      */
-    private static function _expansionIsComplete(array $expansion, int $entries): bool
+    private static function _expansionIsComplete(array $expansion, int $codes): bool
     {
-        if (0 !== (int)($expansion['offset'] ?? 0)) {
+        if (isset($expansion['offset']) && 0 !== $expansion['offset']) {
             return false;
         }
-        return !isset($expansion['total']) || (int)$expansion['total'] <= $entries;
+        foreach ($expansion['extension'] ?? [] as $extension) {
+            if (in_array($extension['url'] ?? null, self::_PARTIAL_EXPANSION_EXTENSIONS, true)) {
+                return false;
+            }
+        }
+        $paged = false;
+        foreach ($expansion['parameter'] ?? [] as $parameter) {
+            $name = $parameter['name'] ?? null;
+            if ('offset' === $name && 0 !== ($parameter['valueInteger'] ?? null)) {
+                return false;
+            }
+            if ('count' === $name) {
+                $paged = true;
+            }
+        }
+        if (!isset($expansion['total'])) {
+            return !$paged;
+        }
+        return is_int($expansion['total']) && $expansion['total'] <= $codes;
     }
 
     /**
      * @param array $contains
      * @param array $out Receives the [system, code] pair of every non-abstract entry.
-     * @return int Number of entries seen, including abstract and nested ones.
+     * @param array $listed Receives a key for every distinct code listed, abstract ones included.
      */
-    private static function _flattenContains(array $contains, array &$out): int
+    private static function _flattenContains(array $contains, array &$out, array &$listed): void
     {
-        $entries = 0;
         foreach ($contains as $item) {
-            $entries++;
-            if (isset($item['code']) && is_string($item['code']) && !($item['abstract'] ?? false)) {
-                $out[] = [$item['system'] ?? null, $item['code']];
+            if (isset($item['code']) && is_string($item['code'])) {
+                $listed[($item['system'] ?? '') . '|' . $item['code']] = true;
+                if (!($item['abstract'] ?? false)) {
+                    $out[] = [$item['system'] ?? null, $item['code']];
+                }
             }
             if (isset($item['contains']) && is_array($item['contains'])) {
-                $entries += self::_flattenContains($item['contains'], $out);
+                self::_flattenContains($item['contains'], $out, $listed);
             }
         }
-        return $entries;
     }
 
     private static function _flattenConcepts(string $system, array $concepts, array &$out): void

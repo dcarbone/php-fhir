@@ -266,6 +266,55 @@ class ProfileWriterTest extends TestCase
         }
     }
 
+    public function testNestedPackageNamespacesAreAllTried(): void
+    {
+        $out = $this->_root . '/out';
+        mkdir($out);
+        $ns = 'Acme\\Overlap\\Versions\\R4\\Profiles';
+        $types = 'Acme\\Overlap\\Versions\\R4\\Types';
+        eval('namespace ' . $types . '; class FHIRPatient {}');
+        $resolver = static fn(string $t): string => $types . '\\FHIR' . $t;
+
+        // the general package is indexed first, so its namespace is the first to match classes of the specific one.
+        $general = ProfileClasses::build($this->set([
+            self::structureDefinition('g-1'),
+            self::structureDefinition('g-2'),
+        ]), $ns, 'Vendor', $resolver);
+        $specific = ProfileClasses::build($this->set([
+            self::structureDefinition('s-1'),
+            self::structureDefinition('s-2'),
+        ]), $ns, 'Vendor\\IG', $resolver);
+        ProfileWriter::write($out, $ns, '/* copyright */', ['general' => $general, 'specific' => $specific], CoreStubs::define());
+
+        require $out . '/Acme/Overlap/Versions/R4/Profiles/ProfileAutoloader.php';
+        $autoloader = $ns . '\\ProfileAutoloader';
+        $generalAutoloader = $ns . '\\Vendor\\PackageAutoloader';
+        $specificAutoloader = $ns . '\\Vendor\\IG\\PackageAutoloader';
+
+        // neither package registered yet.
+        $autoloader::register();
+        try {
+            $this->assertTrue(class_exists($ns . '\\Vendor\\IG\\S1'));
+            $this->assertContains([$specificAutoloader, 'loadClass'], spl_autoload_functions());
+        } finally {
+            $autoloader::unregister();
+        }
+
+        // the general package registered already.
+        $autoloader::register();
+        try {
+            $this->assertTrue(class_exists($ns . '\\Vendor\\G1'));
+            $this->assertContains([$generalAutoloader, 'loadClass'], spl_autoload_functions());
+            $this->assertNotContains([$specificAutoloader, 'loadClass'], spl_autoload_functions());
+            $this->assertTrue(class_exists($ns . '\\Vendor\\IG\\S2'));
+            $this->assertContains([$specificAutoloader, 'loadClass'], spl_autoload_functions());
+            $this->assertTrue(class_exists($ns . '\\Vendor\\G2'));
+            $this->assertFalse(class_exists($ns . '\\Vendor\\IG\\Missing'));
+        } finally {
+            $autoloader::unregister();
+        }
+    }
+
     public function testWritePackageFilterOnlyWritesRequestedClassesButMapCoversAll(): void
     {
         $out = $this->_root . '/out';

@@ -21,6 +21,7 @@ namespace DCarbone\PHPFHIRTests\Profiles;
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
 use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
@@ -178,6 +179,69 @@ class ValueSetExpanderTest extends TestCase
             ['system' => 's', 'code' => 'c'],
         ]]])]);
         $this->assertSame([['s', 'b'], ['s', 'c']], $e->expand(self::_VS . 'a'));
+    }
+
+    /**
+     * Expansions that cannot be shown to hold every code: each falls back to compose when it has one, and is not
+     * expandable otherwise.
+     */
+    public static function incompleteExpansionsProvider(): array
+    {
+        $a = ['system' => 's', 'code' => 'a'];
+        $b = ['system' => 's', 'code' => 'b'];
+        return [
+            'nonzero offset' => [['offset' => 2, 'contains' => [$a, $b]]],
+            'total above listed codes' => [['total' => 3, 'contains' => [$a, $b]]],
+            'codeless group not counted' => [['total' => 2, 'contains' => [['display' => 'g', 'contains' => [$a]]]]],
+            'repeated code not counted' => [['total' => 2, 'contains' => [$a, ['system' => 's', 'code' => 'a']]]],
+            'same code, other system counted apart' => [['total' => 3, 'contains' => [$a, ['system' => 't', 'code' => 'a']]]],
+            'non-integer total' => [['total' => '2', 'contains' => [$a, $b]]],
+            'non-integer offset' => [['offset' => '0', 'contains' => [$a, $b]]],
+            'offset parameter' => [['parameter' => [['name' => 'offset', 'valueInteger' => 2]], 'contains' => [$a, $b]]],
+            'count parameter without total' => [['parameter' => [['name' => 'count', 'valueInteger' => 2]], 'contains' => [$a, $b]]],
+            'count parameter, total above listed codes' => [['total' => 5, 'parameter' => [['name' => 'count', 'valueInteger' => 2]], 'contains' => [$a, $b]]],
+            'too costly' => [['extension' => [['url' => 'http://hl7.org/fhir/StructureDefinition/valueset-toocostly', 'valueBoolean' => true]], 'contains' => [$a, $b]]],
+            'unclosed' => [['extension' => [['url' => 'http://hl7.org/fhir/StructureDefinition/valueset-unclosed', 'valueBoolean' => true]], 'contains' => [$a, $b]]],
+        ];
+    }
+
+    #[DataProvider('incompleteExpansionsProvider')]
+    public function testIncompleteExpansionIsNotUsed(array $expansion): void
+    {
+        $compose = ['include' => [['system' => 's', 'concept' => [['code' => 'a'], ['code' => 'b'], ['code' => 'c']]]]];
+        $e = $this->expander([
+            self::vs('withCompose', ['expansion' => $expansion, 'compose' => $compose]),
+            self::vs('withoutCompose', ['expansion' => $expansion]),
+        ]);
+        $this->assertSame([['s', 'a'], ['s', 'b'], ['s', 'c']], $e->expand(self::_VS . 'withCompose'));
+        $this->assertNull($e->expand(self::_VS . 'withoutCompose'));
+    }
+
+    public static function completeExpansionsProvider(): array
+    {
+        $a = ['system' => 's', 'code' => 'a'];
+        $b = ['system' => 's', 'code' => 'b'];
+        return [
+            'no paging information' => [['contains' => [$a, $b]]],
+            'zero offset, total met' => [['offset' => 0, 'total' => 2, 'contains' => [$a, $b]]],
+            'total below listed codes' => [['total' => 1, 'contains' => [$a, $b]]],
+            'zero offset parameter' => [['parameter' => [['name' => 'offset', 'valueInteger' => 0]], 'contains' => [$a, $b]]],
+            'count parameter, total met' => [['total' => 2, 'parameter' => [['name' => 'count', 'valueInteger' => 10]], 'contains' => [$a, $b]]],
+            'unrelated parameters and extensions' => [[
+                'parameter' => [['name' => 'excludeNotForUI', 'valueBoolean' => true]],
+                'extension' => [['url' => 'http://hl7.org/fhir/StructureDefinition/valueset-expansionSource', 'valueUri' => 'x']],
+                'contains' => [$a, $b],
+            ]],
+            'abstract code counted' => [['total' => 3, 'contains' => [['system' => 's', 'code' => 'g', 'abstract' => true], $a, $b]]],
+        ];
+    }
+
+    #[DataProvider('completeExpansionsProvider')]
+    public function testCompleteExpansionIsUsed(array $expansion): void
+    {
+        $compose = ['include' => [['system' => 's', 'concept' => [['code' => 'a'], ['code' => 'b'], ['code' => 'c']]]]];
+        $e = $this->expander([self::vs('a', ['expansion' => $expansion, 'compose' => $compose])]);
+        $this->assertSame([['s', 'a'], ['s', 'b']], $e->expand(self::_VS . 'a'));
     }
 
     public function testExpansionEntriesWithoutSystemOrCode(): void
