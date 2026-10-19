@@ -17,6 +17,7 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
 use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
@@ -168,6 +169,107 @@ class ValueSetExpanderTest extends TestCase
         $this->assertSame([['s', '2'], ['s', '3']], $e->expand(self::_VS . 'inter'));
         $this->assertSame([['s', '1'], ['s', '3']], $e->expand(self::_VS . 'minus'));
         $this->assertNull($e->expand(self::_VS . 'missing'));
+    }
+
+    public function testAbstractAndNestedEntriesCountTowardsTotal(): void
+    {
+        $e = $this->expander([self::vs('a', ['expansion' => ['total' => 3, 'contains' => [
+            ['system' => 's', 'code' => 'grp', 'abstract' => true, 'contains' => [['system' => 's', 'code' => 'b']]],
+            ['system' => 's', 'code' => 'c'],
+        ]]])]);
+        $this->assertSame([['s', 'b'], ['s', 'c']], $e->expand(self::_VS . 'a'));
+    }
+
+    public function testExpansionEntriesWithoutSystemOrCode(): void
+    {
+        $e = $this->expander([self::vs('a', ['expansion' => ['contains' => [
+            ['code' => 'x'],
+            ['display' => 'group', 'contains' => [['system' => 's', 'code' => 'y']]],
+        ]]])]);
+        $this->assertSame([[null, 'x'], ['s', 'y']], $e->expand(self::_VS . 'a'));
+    }
+
+    public function testExpansionDuplicatesAreRemoved(): void
+    {
+        $e = $this->expander([self::vs('a', ['expansion' => ['contains' => [
+            ['system' => 's', 'code' => 'x', 'contains' => [['system' => 's', 'code' => 'x']]],
+            ['system' => 't', 'code' => 'x'],
+        ]]])]);
+        $this->assertSame([['s', 'x'], ['t', 'x']], $e->expand(self::_VS . 'a'));
+    }
+
+    public function testComposeDuplicatesAreRemoved(): void
+    {
+        $e = $this->expander([self::vs('a', ['compose' => ['include' => [
+            ['system' => 's', 'concept' => [['code' => 'x'], ['code' => 'y']]],
+            ['system' => 's', 'concept' => [['code' => 'y'], ['code' => 'z']]],
+        ]]])]);
+        $this->assertSame([['s', 'x'], ['s', 'y'], ['s', 'z']], $e->expand(self::_VS . 'a'));
+    }
+
+    public function testPagedExpansionOfIncludedValueSet(): void
+    {
+        $paged = ['total' => 2, 'contains' => [['system' => 's', 'code' => 'a']]];
+        $e = $this->expander([
+            self::vs('pagedWithCompose', ['expansion' => $paged, 'compose' => ['include' => [
+                ['system' => 's', 'concept' => [['code' => 'a'], ['code' => 'b']]],
+            ]]]),
+            self::vs('pagedOnly', ['expansion' => $paged]),
+            self::vs('outer1', ['compose' => ['include' => [['valueSet' => [self::_VS . 'pagedWithCompose']]]]]),
+            self::vs('outer2', ['compose' => ['include' => [['valueSet' => [self::_VS . 'pagedOnly']]]]]),
+        ]);
+        $this->assertSame([['s', 'a'], ['s', 'b']], $e->expand(self::_VS . 'outer1'));
+        $this->assertNull($e->expand(self::_VS . 'outer2'));
+    }
+
+    public function testUnsupportedIncludesAreNotExpandable(): void
+    {
+        $e = $this->expander([
+            self::vs('base', ['compose' => ['include' => [['system' => 's', 'concept' => [['code' => 'x']]]]]]),
+            self::vs('empty', ['compose' => ['include' => [['version' => '1']]]]),
+            self::vs('both', ['compose' => ['include' => [['system' => 's', 'valueSet' => [self::_VS . 'base']]]]]),
+            self::vs('noCode', ['compose' => ['include' => [['system' => 's', 'concept' => [['display' => 'x']]]]]]),
+            self::vs('badExclude', ['compose' => [
+                'include' => [['valueSet' => [self::_VS . 'base']]],
+                'exclude' => [['system' => 's', 'filter' => [['property' => 'p', 'op' => '=', 'value' => 'v']]]],
+            ]]),
+            self::vs('noCompose', []),
+        ]);
+        foreach (['empty', 'both', 'noCode', 'badExclude', 'noCompose'] as $id) {
+            $this->assertNull($e->expand(self::_VS . $id), $id);
+        }
+    }
+
+    public function testEmptyResultIsNotExpandable(): void
+    {
+        $e = $this->expander([
+            self::vs('a', ['compose' => ['include' => [['system' => 's', 'concept' => [['code' => 'x']]]]]]),
+            self::vs('b', ['compose' => ['include' => [['system' => 's', 'concept' => [['code' => 'y']]]]]]),
+            self::vs('disjoint', ['compose' => ['include' => [['valueSet' => [self::_VS . 'a', self::_VS . 'b']]]]]),
+            self::vs('excludedAll', ['compose' => [
+                'include' => [['valueSet' => [self::_VS . 'a']]],
+                'exclude' => [['system' => 's', 'concept' => [['code' => 'x']]]],
+            ]]),
+            self::vs('abstractOnly', ['expansion' => ['contains' => [['system' => 's', 'code' => 'g', 'abstract' => true]]]]),
+        ]);
+        foreach (['disjoint', 'excludedAll', 'abstractOnly'] as $id) {
+            $this->assertNull($e->expand(self::_VS . $id), $id);
+        }
+    }
+
+    public function testNestingDepthIsLimited(): void
+    {
+        $chain = function (string $prefix, int $length): array {
+            $out = [];
+            for ($i = 0; $i < $length - 1; $i++) {
+                $out[] = self::vs($prefix . $i, ['compose' => ['include' => [['valueSet' => [self::_VS . $prefix . ($i + 1)]]]]]);
+            }
+            $out[] = self::vs($prefix . ($length - 1), ['compose' => ['include' => [['system' => 's', 'concept' => [['code' => 'x']]]]]]);
+            return $out;
+        };
+        $e = $this->expander(array_merge($chain('ok', 11), $chain('deep', 12)));
+        $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'ok0'));
+        $this->assertNull($e->expand(self::_VS . 'deep0'));
     }
 
     public function testCyclicValueSetsTerminate(): void

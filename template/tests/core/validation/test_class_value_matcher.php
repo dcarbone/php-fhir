@@ -103,7 +103,90 @@ class <?php echo $coreFile; ?> extends TestCase
         // beyond float precision: a float cast would call these equal
         $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('9007199254740993'), 9007199254740992));
         $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('0.1000000000000000001'), 0.1));
-        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('1e0'), 1));
+    }
+
+    public function testExponentNotationIsExpanded()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('1e0'), 1));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('1.5E+2'), 150));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('15e-1'), 1.5));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('-2.50e1'), -25));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('1e1'), 1));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('1e'), 1));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('e1'), 10));
+    }
+
+    public function testVerySmallFloats()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('0.0000005'), 0.0000005));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('0.00000050'), 5.0E-7));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('5e-7'), 0.0000005));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('-0.0000005'), -0.0000005));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('0.000000000000000000001'), 1e-21));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('0.000005'), 0.0000005));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('0'), 0.0000005));
+    }
+
+    public function testVeryLargeFloats()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('10000000000000000000000000'), 1e25));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('1.5e25'), 1.5e25));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('10000000000000000000000001'), 1e25));
+    }
+
+    public function testFloatsNeedingFullPrecision()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('0.30000000000000004'), 0.1 + 0.2));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('0.3'), 0.1 + 0.2));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('0.1'), 0.1));
+    }
+
+    public function testFloatComparisonIgnoresIniPrecision()
+    {
+        $precision = ini_get('precision');
+        $serializePrecision = ini_get('serialize_precision');
+        ini_set('precision', '3');
+        ini_set('serialize_precision', '17');
+        try {
+            $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('0.1'), 0.1));
+            $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('123456.789'), 123456.789));
+        } finally {
+            ini_set('precision', $precision);
+            ini_set('serialize_precision', $serializePrecision);
+        }
+    }
+
+    public function testZerosSignsAndLeadingZeros()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('-0.0'), 0));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('+0'), -0.0));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('0e5'), 0));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('007'), 7));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('00.50'), 0.5));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('-1'), 1));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('.5'), 0.5));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('5.'), 5));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim(' 5'), 5));
+    }
+
+    public function testNonFiniteAndOutOfRangeNumbersNeverMatch()
+    {
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('1'), INF));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('1'), NAN));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('1e1001'), 1));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('1e99999999999999999999'), 1));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches($this->prim('1e1000'), 1));
+    }
+
+    public function testRawScalars()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches(5, 5));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches(5, 5.0));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches(0.0000005, 5e-7));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches(true, true));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches('true', true));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches(1, true));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches(5, '5'));
     }
 
     public function testPatternIsSubsetMatch()
@@ -162,6 +245,66 @@ class <?php echo $coreFile; ?> extends TestCase
     {
         $this->assertTrue(<?php echo $valueMatcher; ?>::equals([$this->coding('s', 'c'), $this->coding('s', 'c')], ['system' => 's', 'code' => 'c']));
         $this->assertFalse(<?php echo $valueMatcher; ?>::equals([$this->coding('s', 'c'), $this->coding('s', 'd')], ['system' => 's', 'code' => 'c']));
+    }
+
+    public function testNullsAndEmptyCollections()
+    {
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches([], 'a'));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches([null], 'a'));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches([null, $this->prim('a')], 'a'));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matchesEach([null, $this->prim('a')], 'a'));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals([null, $this->prim('a')], 'a'));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matchesEach(null, 'a'));
+        // an absent value is the rules' concern, not the matcher's.
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matchesEach([], 'a'));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::equals([], 'a'));
+    }
+
+    public function testPatternListOnScalarField()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches([$this->prim('a'), $this->prim('b')], ['a', 'b']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::matches([$this->prim('a')], ['a', 'b']));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('a'), ['a']));
+    }
+
+    public function testEmptyPatternMatchesAnyValue()
+    {
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->coding('s', 'c'), []));
+        $this->assertTrue(<?php echo $valueMatcher; ?>::matches($this->prim('a'), []));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($this->coding('s', 'c'), []));
+    }
+
+    public function testEqualsAcceptsElidedSingletonList()
+    {
+        $cc = new <?php echo $mockElement; ?>(
+            name: 'CodeableConcept',
+            fields: $this->field('coding', <?php echo $mockElement; ?>::class, $this->coding('s', 'c')),
+        );
+        $this->assertTrue(<?php echo $valueMatcher; ?>::equals($cc, ['coding' => [['system' => 's', 'code' => 'c']]]));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($cc, ['coding' => [['system' => 's', 'code' => 'c'], ['system' => 's', 'code' => 'd']]]));
+    }
+
+    public function testEqualsIgnoresComments()
+    {
+        $coding = new <?php echo $mockElement; ?>(
+            name: 'Coding',
+            fields: $this->field('fhir_comments', <?php echo $mockPrimitive; ?>::class, $this->prim('note'))
+                + $this->field('code', <?php echo $mockPrimitive; ?>::class, $this->prim('c')),
+        );
+        $this->assertTrue(<?php echo $valueMatcher; ?>::equals($coding, ['code' => 'c']));
+    }
+
+    public function testEqualsComparesNestedNumbersByValue()
+    {
+        $quantity = new <?php echo $mockElement; ?>(
+            name: 'Quantity',
+            fields: $this->field('value', <?php echo $mockPrimitive; ?>::class, $this->prim('0.00000050'))
+                + $this->field('unit', <?php echo $mockPrimitive; ?>::class, $this->prim('mg')),
+        );
+        $this->assertTrue(<?php echo $valueMatcher; ?>::equals($quantity, ['value' => 5e-7, 'unit' => 'mg']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($quantity, ['value' => 5e-6, 'unit' => 'mg']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($quantity, ['value' => ['nested' => 1], 'unit' => 'mg']));
+        $this->assertFalse(<?php echo $valueMatcher; ?>::equals($quantity, ['value' => [5e-7], 'unit' => 'mg']));
     }
 
     public function testComplexValueDoesNotMatchScalar()

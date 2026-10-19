@@ -60,6 +60,11 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?>
 
 {
+    // sign, whole digits, fraction digits, exponent.
+    private const _NUMBER_PATTERN = '{^([+-]?)(\d+)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$}';
+    // well beyond any float, and keeps the expanded text of an exponent bounded.
+    private const _MAX_EXPONENT = 1000;
+
     /**
      * @param mixed $actual Primitive, complex type, or collection of either.
      * @param mixed $expected
@@ -210,11 +215,11 @@ class <?php echo $coreFile; ?>
     }
 
     /**
-     * Integer and decimal primitives hold their value as a string, so a numeric pattern value is compared as text with
-     * insignificant zeros removed, never by casting to float, which would lose digits.  Exponent notation is not matched.
+     * Integer and decimal primitives hold their value as a string, so a numeric value is compared as plain decimal text
+     * with the exponent applied and insignificant zeros removed, never by casting to float, which would lose digits.
      *
      * @param mixed $number
-     * @return null|string
+     * @return null|string Null if the value is not a finite number, or its exponent is out of range.
      */
     private static function _canonicalNumber(mixed $number): null|string
     {
@@ -222,16 +227,48 @@ class <?php echo $coreFile; ?>
             return (string)$number;
         }
         if (is_float($number)) {
-            $number = json_encode($number);
+            if (!is_finite($number)) {
+                return null;
+            }
+            $number = self::_shortestFloat($number);
         }
-        if (!is_string($number) || 1 !== preg_match('{^[+-]?\d+(\.\d+)?$}', $number)) {
+        if (!is_string($number) || 1 !== preg_match(self::_NUMBER_PATTERN, $number, $m)) {
             return null;
         }
-        $number = ltrim($number, '+');
-        if (str_contains($number, '.')) {
-            $number = rtrim(rtrim($number, '0'), '.');
+        $exponent = (int)($m[4] ?? 0);
+        if (abs($exponent) > self::_MAX_EXPONENT) {
+            return null;
         }
-        return '-0' === $number ? '0' : $number;
+        $digits = $m[2] . ($m[3] ?? '');
+        $point = strlen($m[2]) + $exponent;
+        if ($point < 1) {
+            $digits = str_repeat('0', 1 - $point) . $digits;
+            $point = 1;
+        } else if ($point > strlen($digits)) {
+            $digits .= str_repeat('0', $point - strlen($digits));
+        }
+        $whole = ltrim(substr($digits, 0, $point), '0');
+        $fraction = rtrim(substr($digits, $point), '0');
+        $out = ('' === $whole ? '0' : $whole) . ('' === $fraction ? '' : '.' . $fraction);
+        return ('-' === $m[1] && '0' !== $out) ? '-' . $out : $out;
+    }
+
+    /**
+     * The shortest text that reads back as the same float, independent of the "precision" and "serialize_precision"
+     * ini settings.
+     *
+     * @param float $number
+     * @return string
+     */
+    private static function _shortestFloat(float $number): string
+    {
+        for ($digits = 0; $digits < 16; $digits++) {
+            $text = sprintf('%.' . $digits . 'e', $number);
+            if ((float)$text === $number) {
+                return $text;
+            }
+        }
+        return sprintf('%.16e', $number);
     }
 }
 

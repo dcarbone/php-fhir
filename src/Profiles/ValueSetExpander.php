@@ -37,11 +37,13 @@ class ValueSetExpander
     /**
      * @param string $canonical ValueSet canonical url, optionally with a "|version" suffix.
      * @return null|array<int, array{0: null|string, 1: string}> [system, code] pairs, or null if the ValueSet is
-     *         not available or cannot be fully enumerated.
+     *         not available, cannot be fully enumerated, or enumerates to nothing.  A binding to no codes at all
+     *         would reject every value, which is far more likely a gap in the package than the intent.
      */
     public function expand(string $canonical): null|array
     {
-        return $this->_expand($canonical, 0);
+        $codes = $this->_expand($canonical, 0);
+        return [] === $codes ? null : $codes;
     }
 
     private function _expand(string $canonical, int $depth): null|array
