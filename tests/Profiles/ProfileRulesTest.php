@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * limitations under the License.
  */
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
-use DCarbone\PHPFHIR\Profiles\ProfileClass;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
 use DCarbone\PHPFHIR\Profiles\ProfileRules;
 use DCarbone\PHPFHIR\Profiles\ProfileSet;

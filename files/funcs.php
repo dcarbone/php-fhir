@@ -20,10 +20,6 @@ use DCarbone\PHPFHIR\Render\PHPExpression;
 
 /**
  * require_with is used to ensure a clean context per required template file.
- *
- * @param string $_filename
- * @param array $vars
- * @return mixed
  */
 function require_with(string $_filename, array $vars): mixed
 {
@@ -60,7 +56,6 @@ function require_with(string $_filename, array $vars): mixed
  * @param int $indent current indent level, only used during array exporting
  * @param int $indentSize number of spaces to output per indent level
  * @param bool $rawKeys if true, the root array's keys are written as-is rather than exported, e.g. "self::FIELD_NAME"
- * @return string
  */
 function pretty_var_export(mixed $var, int $indent = 0, int $indentSize = 4, bool $rawKeys = false): string
 {

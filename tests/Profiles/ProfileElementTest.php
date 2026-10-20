@@ -18,7 +18,6 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * limitations under the License.
  */
 use DCarbone\PHPFHIR\Enum\BindingStrengthEnum;
-use DCarbone\PHPFHIR\Profiles\ProfileBinding;
 use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
 use DCarbone\PHPFHIR\Profiles\ProfileElement;
 use PHPUnit\Framework\Attributes\DataProvider;
