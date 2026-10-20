@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -46,7 +47,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
-    public const NAME = 'choice_occurs';
+    public const NAME = '<?php echo ValidationRuleNameEnum::CHOICE_OCCURS->value; ?>';
     public const DESCRIPTION = 'Asserts that the number of set variants of a choice element is within bounds and that only allowed variants are set.';
 
     public function getName(): string

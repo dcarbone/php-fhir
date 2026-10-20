@@ -18,6 +18,7 @@
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /** @var string $copyright */
 /** @var string $namespace */
@@ -28,7 +29,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $imports = new Imports(null, $namespace, $className);
 $imports->addImport('', 'UnexpectedValueException');
 foreach ([PHPFHIR_ENCODING_ENUM_ON_UNKNOWN_PROFILE, PHPFHIR_ENCODING_ENUM_ON_AMBIGUOUS_PROFILE, PHPFHIR_ENCODING_ENUM_ON_PROFILE_VERSION_MISMATCH, PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE] as $entity) {
-    $imports->addImport(substr($coreTypes[$entity], 0, strrpos($coreTypes[$entity], '\\')), $entity);
+    $imports->addImport(...NameUtils::splitFullyQualifiedName($coreTypes[$entity]));
 }
 
 ob_start();

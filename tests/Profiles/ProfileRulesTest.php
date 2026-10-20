@@ -227,11 +227,4 @@ class ProfileRulesTest extends TestCase
         $this->assertSame([['key' => 'x-1', 'severity' => 'error', 'human' => 'Must be so', 'expression' => 'name.exists()', 'path' => 'name']], $c['invariants']);
         $this->assertSame([], $c['rules']);
     }
-
-    public function testExport(): void
-    {
-        $this->assertSame("[\n    'a' => [\n        1,\n        'x',\n    ],\n    'b' => NULL,\n]", ProfileRules::export(['a' => [1, 'x'], 'b' => null]));
-        $this->assertSame('[]', ProfileRules::export([]));
-        $this->assertSame("'s'", ProfileRules::export('s'));
-    }
 }

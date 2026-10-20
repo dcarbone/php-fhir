@@ -62,7 +62,7 @@ class ProfileClassesTest extends TestCase
 
     private function build(ProfileSet $set, string $ns, array $depClasses = []): ProfileClasses
     {
-        return ProfileClasses::build($set, 'Ns\\Profiles', $ns, static fn(string $t): string => 'Ns\\' . $t, null, $depClasses);
+        return ProfileClasses::build($set, 'Ns\\Profiles', $ns, TypeStubs::resolver('Ns'), null, $depClasses);
     }
 
     private function child(string $id, string $parentId): array
@@ -89,7 +89,7 @@ class ProfileClassesTest extends TestCase
         $dep = $this->package('dep.ig', [self::structureDefinition('dep-base')]);
         $mine = $this->package('mine.ig', [$this->child('mine', 'dep-base')], [], [$dep]);
         $classes = $this->build(ProfileSet::fromPackage($mine), 'Mine');
-        $this->assertSame('\\Ns\\Patient', $classes->getByUrl(self::_BASE . 'mine')->getExtendsClassName());
+        $this->assertSame('\\Ns\\Versions\\R4\\Types\\FHIRPatient', $classes->getByUrl(self::_BASE . 'mine')->getExtendsClassName());
     }
 
     public function testExtensionProfilesAreNotGenerated(): void
@@ -98,7 +98,7 @@ class ProfileClassesTest extends TestCase
             self::structureDefinition('a-ext', 'Extension'),
             self::structureDefinition('a-patient'),
         ]));
-        $classes = ProfileClasses::build($set, 'Ns\\Profiles', 'A', static fn(string $t): string => 'Ns\\' . $t);
+        $classes = ProfileClasses::build($set, 'Ns\\Profiles', 'A', TypeStubs::resolver('Ns'));
         $this->assertCount(1, $classes);
         $this->assertNotNull($classes->getByUrl(self::_BASE . 'a-patient'));
     }

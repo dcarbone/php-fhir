@@ -20,7 +20,6 @@ namespace DCarbone\PHPFHIR\Utilities;
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Version;
-use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
 class ImportUtils
@@ -40,22 +39,11 @@ class ImportUtils
         return implode("\n", $stmts) . "\n";
     }
 
-    public static function buildPropertyValidationRuleImports(Type $type, Property $property): void
-    {
-        $imports = $type->getImports();
-
-        foreach ($property->buildValidationMap($type) as $ruleClass => $_) {
-            $imports->addCoreFileImportsByName($ruleClass);
-        }
-    }
-
     public static function buildTypePropertiesImports(Version $version, Type $type): void
     {
         $imports = $type->getImports();
 
         foreach ($type->getAllPropertiesIndexedIterator() as $property) {
-            self::buildPropertyValidationRuleImports($type, $property);
-
             $propertyType = $property->getValueFHIRType();
             if (null === $propertyType) {
                 continue;

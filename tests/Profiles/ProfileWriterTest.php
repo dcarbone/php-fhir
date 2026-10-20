@@ -18,12 +18,12 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * limitations under the License.
  */
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
-use DCarbone\PHPFHIR\Profiles\ProfileClass;
 use DCarbone\PHPFHIR\Profiles\ProfileClasses;
 use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
 use DCarbone\PHPFHIR\Profiles\ProfileSet;
 use DCarbone\PHPFHIR\Profiles\ProfileWriter;
+use DCarbone\PHPFHIR\Render\Templates;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
@@ -64,21 +64,12 @@ class ProfileWriterTest extends TestCase
 
     private static function resolver(): \Closure
     {
-        return static fn(string $t): null|string => 'Acme\\Gen\\Versions\\R4\\Types\\FHIR' . $t;
+        return TypeStubs::resolver('Acme\\Gen');
     }
 
     private function classes(array $sds, array $config = []): ProfileClasses
     {
         return ProfileClasses::build($this->set($sds, $config), self::_NS, 'Ig', self::resolver());
-    }
-
-    public function testSanitizeClassName(): void
-    {
-        $this->assertSame('USCorePatient', ProfileClass::sanitizeClassName('USCorePatient'));
-        $this->assertSame('MyPatientProfile', ProfileClass::sanitizeClassName('my-patient_profile'));
-        $this->assertSame('Profile3dThing', ProfileClass::sanitizeClassName('3d thing'));
-        $this->expectException(ProfileDefinitionException::class);
-        ProfileClass::sanitizeClassName('---');
     }
 
     public function testBuildExtendsBaseTypeAndParent(): void
@@ -102,8 +93,8 @@ class ProfileWriterTest extends TestCase
             self::structureDefinition('parent-p'),
             self::structureDefinition('child-p', 'Patient', 'constraint', ['baseDefinition' => self::_BASE . 'parent-p']),
         ]);
-        $out = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass('', $classes->getByUrl(self::_BASE . 'child-p'));
-        $parentOut = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass('', $classes->getByUrl(self::_BASE . 'parent-p'));
+        $out = Templates::renderProfileClass('', $classes->getByUrl(self::_BASE . 'child-p'));
+        $parentOut = Templates::renderProfileClass('', $classes->getByUrl(self::_BASE . 'parent-p'));
         $this->assertStringContainsString('use Acme\\Gen\\Versions\\R4\\Types\\FHIRPatient;', $parentOut);
         $this->assertStringContainsString('class ParentP extends FHIRPatient', $parentOut);
         $this->assertStringNotContainsString('use ' . self::_NS . '\\Ig\\ParentP;', $out); // same namespace
@@ -233,12 +224,7 @@ class ProfileWriterTest extends TestCase
             ]),
             $ns,
             'Ig',
-            static fn(string $t): string => $types . '\\FHIRResource\\FHIRDomainResource\\FHIR' . $t,
-            null,
-            [],
-            null,
-            [],
-            $types,
+            TypeStubs::resolver('Acme\\Nest', 'Resource', 'DomainResource'),
         );
         $class = $classes->getByUrl(self::_BASE . 'child-p');
         $this->assertSame($ns . '\\Ig\\FHIRResource\\FHIRDomainResource', $class->getNamespace());
@@ -273,7 +259,7 @@ class ProfileWriterTest extends TestCase
         $ns = 'Acme\\Overlap\\Versions\\R4\\Profiles';
         $types = 'Acme\\Overlap\\Versions\\R4\\Types';
         eval('namespace ' . $types . '; class FHIRPatient {}');
-        $resolver = static fn(string $t): string => $types . '\\FHIR' . $t;
+        $resolver = TypeStubs::resolver('Acme\\Overlap');
 
         // the general package is indexed first, so its namespace is the first to match classes of the specific one.
         $general = ProfileClasses::build($this->set([
@@ -342,9 +328,9 @@ class ProfileWriterTest extends TestCase
             self::structureDefinition('without'),
         ]);
         $comment = "/*!\n * php-fhir\n *\n * FHIR Copyright Notice:\n *\n * HL7\n */";
-        $with = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass($comment, $classes->getByUrl(self::_BASE . 'with'));
+        $with = Templates::renderProfileClass($comment, $classes->getByUrl(self::_BASE . 'with'));
         $this->assertStringContainsString(" * HL7\n *\n * Profile Copyright Notice:\n *\n * Package: test.ig 1.0.0\n *\n * Used by permission.\n * All rights * / reserved.\n */\n", $with);
-        $without = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass($comment, $classes->getByUrl(self::_BASE . 'without'));
+        $without = Templates::renderProfileClass($comment, $classes->getByUrl(self::_BASE . 'without'));
         $this->assertStringNotContainsString('All rights', $without);
         $this->assertStringContainsString(" *\n * Profile Copyright Notice:\n *\n * Package: test.ig 1.0.0\n */\n", $without);
     }
@@ -358,7 +344,7 @@ class ProfileWriterTest extends TestCase
         ]);
         $set = ProfileSet::fromPackage(ProfilePackageReader::read(ProfilePackageConfig::fromArray(['name' => 'test.ig', 'source' => $path])));
         $classes = ProfileClasses::build($set, self::_NS, 'Ig', self::resolver());
-        $out = \DCarbone\PHPFHIR\Render\Templates::renderProfileClass("/*!\n * x\n */", $classes->getByUrl(self::_BASE . 'a'));
+        $out = Templates::renderProfileClass("/*!\n * x\n */", $classes->getByUrl(self::_BASE . 'a'));
         $this->assertStringContainsString(" * Package: test.ig 1.0.0\n * Author: HL7 International\n * License: CC0-1.0\n */\n", $out);
     }
 }

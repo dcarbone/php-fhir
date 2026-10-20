@@ -20,6 +20,8 @@ namespace DCarbone\PHPFHIR\Profiles;
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
+use DCarbone\PHPFHIR\Render\PHPExpression;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Turns the compiled rules of a profile into entries for the generated class's rule map, to be run by the
@@ -227,14 +229,14 @@ final class ProfileValidationGenerator
         $this->_constants[] = sprintf(
             "    /** @var array<string, mixed> */\n    private const %s = %s;",
             $constant,
-            ProfileRules::export($slice['match'], 1),
+            pretty_var_export($slice['match'], 1),
         );
-        $this->_sliceMatchers[$index] = ['constant' => $constant, 'class' => $this->_import($prop->className)];
+        $this->_sliceMatchers[$index] = ['constant' => $constant, 'class' => $this->_imports->addImport(...NameUtils::splitFullyQualifiedName($prop->className))->getImportedName()];
 
         if (!isset($slice['min']) && !isset($slice['max'])) {
             return;
         }
-        $entry = ['name' => $slice['name'], 'match' => new ProfilePhpExpression('self::' . $constant)];
+        $entry = ['name' => $slice['name'], 'match' => new PHPExpression('self::' . $constant)];
         foreach (['min', 'max'] as $bound) {
             if (isset($slice[$bound])) {
                 $entry[$bound] = $slice[$bound];
@@ -242,12 +244,6 @@ final class ProfileValidationGenerator
         }
         $key = $this->_key($segments, $prop);
         $this->_rules[$key][ValidationRuleNameEnum::SLICE_OCCURS->value][] = $entry;
-    }
-
-    private function _import(string $fqcn): string
-    {
-        $pos = strrpos($fqcn, '\\');
-        return $this->_imports->addImport(substr($fqcn, 0, $pos), substr($fqcn, $pos + 1))->getImportedName();
     }
 
     /** @return null|string Why the value cannot be checked against the property, or null if it can. */

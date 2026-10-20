@@ -79,7 +79,7 @@ endif;
         if ([] !== $validationMap) : ?>
         self::<?php echo $property->getFieldConstantName(); ?> => [
 <?php       foreach($validationMap as $k => $v) : ?>
-            <?php echo $k; ?>::NAME => <?php echo pretty_var_export($v, 3); ?>,
+            <?php echo var_export($k, true); ?> => <?php echo pretty_var_export($v, 3); ?>,
 <?php       endforeach; ?>
         ],
 <?php

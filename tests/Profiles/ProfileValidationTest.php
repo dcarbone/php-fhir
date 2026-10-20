@@ -21,12 +21,11 @@ use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Profiles\Profile;
 use DCarbone\PHPFHIR\Profiles\ProfileClass;
-use DCarbone\PHPFHIR\Profiles\ProfilePhpExpression;
 use DCarbone\PHPFHIR\Profiles\ProfileProperty;
-use DCarbone\PHPFHIR\Profiles\ProfileRules;
 use DCarbone\PHPFHIR\Profiles\ProfileTypeNavigator;
 use DCarbone\PHPFHIR\Profiles\ProfileValidationCode;
 use DCarbone\PHPFHIR\Profiles\ProfileValidationGenerator;
+use DCarbone\PHPFHIR\Render\PHPExpression;
 use DCarbone\PHPFHIR\Render\Templates;
 use PHPUnit\Framework\TestCase;
 
@@ -191,10 +190,10 @@ class ProfileValidationTest extends TestCase
         ]);
         $this->assertEquals([
             'self::FIELD_EXTENSION' => ['slice_occurs' => [
-                ['name' => 'race', 'match' => new ProfilePhpExpression('self::_SLICE_MATCH_0'), 'max' => 1],
+                ['name' => 'race', 'match' => new PHPExpression('self::_SLICE_MATCH_0'), 'max' => 1],
             ]],
             'self::FIELD_IDENTIFIER' => ['slice_occurs' => [
-                ['name' => 'ssn', 'match' => new ProfilePhpExpression('self::_SLICE_MATCH_1'), 'min' => 1, 'max' => 2],
+                ['name' => 'ssn', 'match' => new PHPExpression('self::_SLICE_MATCH_1'), 'min' => 1, 'max' => 2],
             ]],
         ], $code->rules);
         $this->assertSame(['_SLICE_MATCH_0', '_SLICE_MATCH_1', '_SLICE_MATCH_2'], array_column($code->sliceMatchers, 'constant'));
@@ -224,7 +223,7 @@ class ProfileValidationTest extends TestCase
         $code = self::generate([['path' => 'name', 'min' => 1], ['path' => 'name.family', 'min' => 1]]);
         $this->assertSame(
             "[\n    self::FIELD_NAME => [\n        'min_occurs' => 1,\n    ],\n    'name.family' => [\n        'min_occurs' => 1,\n    ],\n]",
-            ProfileRules::exportFieldRules($code->rules, 0),
+            pretty_var_export($code->rules, rawKeys: true),
         );
     }
 

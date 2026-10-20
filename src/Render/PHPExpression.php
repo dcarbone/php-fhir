@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DCarbone\PHPFHIR\Profiles;
+namespace DCarbone\PHPFHIR\Render;
 
 /*
  * Copyright 2016-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
@@ -19,9 +19,9 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 /**
- * Raw PHP source to be written as-is when a rule structure is exported, e.g. a reference to a class constant.
+ * Raw PHP source written as-is by pretty_var_export(), e.g. a reference to a class constant.
  */
-final class ProfilePhpExpression
+final class PHPExpression
 {
     public readonly string $code;
 

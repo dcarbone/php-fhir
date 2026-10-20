@@ -69,6 +69,6 @@ final class ProfileProperty
      */
     public function getFieldConstantName(): string
     {
-        return 'FIELD_' . NameUtils::getConstName($this->field);
+        return NameUtils::getFieldConstantName($this->field);
     }
 }

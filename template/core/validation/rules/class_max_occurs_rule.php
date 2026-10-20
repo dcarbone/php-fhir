@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -46,7 +47,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
-    public const NAME = 'max_occurs';
+    public const NAME = '<?php echo ValidationRuleNameEnum::MAX_OCCURS->value; ?>';
     public const DESCRIPTION = 'Asserts that a given collection field has no more than the specified number of elements, or is absent when the maximum is 0.';
 
     public function getName(): string

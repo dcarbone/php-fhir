@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Version\Definition;
  */
 
 use DCarbone\PHPFHIR\Enum\PropertyUseEnum;
+use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 class Property
@@ -403,7 +404,7 @@ class Property
      */
     public function getFieldConstantName(): string
     {
-        return 'FIELD_' . NameUtils::getConstName($this->getName());
+        return NameUtils::getFieldConstantName($this->getName());
     }
 
     /**
@@ -435,12 +436,12 @@ class Property
      */
     public function getGetterName(): string
     {
-        return sprintf('get%s', ucfirst($this->getName()));
+        return NameUtils::getGetterName($this->getName());
     }
 
     /**
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $local
-     * @return array
+     * @return array<string, mixed> Rule constraints, by {@see \DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum} value.
      */
     public function buildValidationMap(Type $local): array
     {
@@ -453,7 +454,7 @@ class Property
         }
 
         if (null !== $pattern) {
-            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH] = '/^' . addcslashes($pattern, '/\'') . '$/';
+            $map[ValidationRuleNameEnum::VALUE_PATTERN_MATCH->value] = '/^' . addcslashes($pattern, '/\'') . '$/';
         }
 
         $minOccurs = $this->getMinOccurs();
@@ -462,28 +463,28 @@ class Property
         $maxlength = $memberOf->getMaxLength();
 
         if (0 < $minOccurs) {
-            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS] = $minOccurs;
+            $map[ValidationRuleNameEnum::MIN_OCCURS->value] = $minOccurs;
         }
         if (null !== $maxOccurs && PHPFHIR_UNLIMITED !== $maxOccurs && 1 < $maxOccurs) {
-            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_MAX_OCCURS] = $maxOccurs;
+            $map[ValidationRuleNameEnum::MAX_OCCURS->value] = $maxOccurs;
         }
 
         if (0 < $minLength) {
-            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MIN_LENGTH] = $minLength;
+            $map[ValidationRuleNameEnum::VALUE_MIN_LENGTH->value] = $minLength;
         }
         if (PHPFHIR_UNLIMITED !== $maxlength) {
-            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_MAX_LENGTH] = $maxlength;
+            $map[ValidationRuleNameEnum::VALUE_MAX_LENGTH->value] = $maxlength;
         }
 
         if ($memberOf->isEnumerated()) {
-            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF] = [];
+            $map[ValidationRuleNameEnum::VALUE_ONE_OF->value] = [];
             foreach ($memberOf->getEnumeration()->getIterator() as $enum) {
-                $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF][] = $enum->getValue();
+                $map[ValidationRuleNameEnum::VALUE_ONE_OF->value][] = $enum->getValue();
             }
         } else if ($this->isValueProperty() && $local->isEnumerated()) {
-            $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF] = [];
+            $map[ValidationRuleNameEnum::VALUE_ONE_OF->value] = [];
             foreach ($local->getEnumeration()->getIterator() as $enum) {
-                $map[PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_ONE_OF][] = $enum->getValue();
+                $map[ValidationRuleNameEnum::VALUE_ONE_OF->value][] = $enum->getValue();
             }
         }
 

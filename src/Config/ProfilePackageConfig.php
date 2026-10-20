@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Config;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use InvalidArgumentException;
 use UnexpectedValueException;
@@ -61,7 +62,8 @@ class ProfilePackageConfig
         }
         $this->_name = $name;
 
-        $this->_source = self::_assertReadablePath($source, sprintf('Profile package "%s" source', $name));
+        FileUtils::assertPathReadable($source, sprintf('Profile package "%s" source', $name));
+        $this->_source = $source;
 
         if (null === $namespace) {
             $namespace = self::deriveNamespace($name);
@@ -187,20 +189,5 @@ class ProfilePackageConfig
     public function isStrict(): bool
     {
         return $this->_strict;
-    }
-
-    private static function _assertReadablePath(string $path, string $what): string
-    {
-        if ('' === trim($path) || !file_exists($path) || !is_readable($path)) {
-            throw new InvalidArgumentException(sprintf(
-                '%s "%s" either does not exist or is not readable.',
-                $what,
-                $path,
-            ));
-        }
-        if (!is_dir($path) && !is_file($path)) {
-            throw new InvalidArgumentException(sprintf('%s "%s" must be a file or directory.', $what, $path));
-        }
-        return $path;
     }
 }

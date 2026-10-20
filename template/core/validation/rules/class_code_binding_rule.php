@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -46,7 +47,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
-    public const NAME = 'code_binding';
+    public const NAME = '<?php echo ValidationRuleNameEnum::CODE_BINDING->value; ?>';
     public const DESCRIPTION = 'Asserts that a code, Coding or CodeableConcept holds a code from a required set of [system, code] pairs.';
 
     public function getName(): string

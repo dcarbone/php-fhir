@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Profiles\ProfileRules;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
@@ -66,9 +65,9 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
      *
      * @var array<int, array<string, null|string>>
      */
-    public const PROFILE_INVARIANTS = <?php echo ProfileRules::export($profileClass->getInvariants(), 1); ?>;
+    public const PROFILE_INVARIANTS = <?php echo pretty_var_export($profileClass->getInvariants(), 1); ?>;
 
-    private const _PROFILE_VALIDATION_RULES = <?php echo ProfileRules::exportFieldRules($code->rules, 1); ?>;
+    private const _PROFILE_VALIDATION_RULES = <?php echo pretty_var_export($code->rules, 1, rawKeys: true); ?>;
 <?php if ('' !== $code->constants) : ?>
 
 <?php echo $code->constants; ?>

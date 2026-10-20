@@ -27,6 +27,7 @@ use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 use InvalidArgumentException;
 
 /**
@@ -196,14 +197,11 @@ class Builder
                     $set,
                     $profilesNamespace,
                     $package->getNamespace(),
-                    static fn(string $typeName): null|string => $definition->getTypes()
-                        ->getTypeByName($typeName)
-                        ?->getFullyQualifiedClassName(false),
+                    static fn(string $typeName): null|Type => $definition->getTypes()->getTypeByName($typeName),
                     new ValueSetExpander($reads[$name]),
                     $dependencyClasses,
                     $navigator,
                     $support,
-                    $version->getFullyQualifiedName(false, PHPFHIR_NAMESPACE_TYPES),
                 );
                 unset($set, $dependencyClasses);
                 foreach ($classes as $class) {

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+
 /** @var string $copyright */
 /** @var string $namespace */
 /** @var string $className */
@@ -36,7 +38,7 @@ use <?php echo $interface; ?>;
 /**
  * Index of the generated profile classes of a single package, keyed by canonical profile url.
  */
-abstract class <?php echo $className; ?> implements <?php echo substr($interface, (int)strrpos($interface, '\\') + 1); ?>
+abstract class <?php echo $className; ?> implements <?php echo NameUtils::splitFullyQualifiedName($interface)[1]; ?>
 
 {
     /** @var array<string, class-string> */

@@ -97,8 +97,7 @@ class ProfileWriter
             $index['urls'][$url] = $packageName;
             $namespace = $class->getPackageNamespace();
             $index['namespaces'][$namespace] = true;
-            $relative = substr($class->getNamespace(), strlen($namespace) + 1);
-            $namespaces[$namespace]['fileMap'][$fqcn] = ('' === $relative ? '' : str_replace('\\', '/', $relative) . '/') . $class->getClassName() . '.php';
+            $namespaces[$namespace]['classes'][] = $fqcn;
             $namespaces[$namespace]['classMap'][$url] = $fqcn;
             $namespaces[$namespace]['baseTypeMap'][$url] = $class->getProfile()->getType();
 
@@ -110,7 +109,7 @@ class ProfileWriter
         // the package's map is cheap, and the profiles map covers every package whether or not its classes are written.
         foreach ($namespaces as $namespace => $package) {
             $mapFQCN = $namespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_PACKAGE_MAP;
-            $package['fileMap'][$mapFQCN] = PHPFHIR_PROFILES_CLASSNAME_PACKAGE_MAP . '.php';
+            $package['classes'][] = $mapFQCN;
             $written[] = self::_put($libraryPath, $mapFQCN, Templates::renderProfilePackageMap(
                 $copyright,
                 $namespace,
@@ -123,7 +122,7 @@ class ProfileWriter
                 $copyright,
                 $namespace,
                 PHPFHIR_PROFILES_CLASSNAME_PACKAGE_AUTOLOADER,
-                $package['fileMap'],
+                $package['classes'],
                 $profilesNamespace . '\\' . PHPFHIR_PROFILES_INTERFACE_PACKAGE_AUTOLOADER,
             ));
         }
@@ -147,12 +146,11 @@ class ProfileWriter
             $packages[] = [
                 'namespace' => $namespace,
                 'autoloader' => $namespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_PACKAGE_AUTOLOADER,
-                'path' => str_replace('\\', '/', substr($namespace, strlen($profilesNamespace) + 1)) . '/' . PHPFHIR_PROFILES_CLASSNAME_PACKAGE_AUTOLOADER . '.php',
             ];
         }
-        $fileMap = [$profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_MAP => PHPFHIR_PROFILES_CLASSNAME_MAP . '.php'];
+        $classes = [$profilesNamespace . '\\' . PHPFHIR_PROFILES_CLASSNAME_MAP];
         foreach ([PHPFHIR_PROFILES_INTERFACE_PACKAGE_MAP, PHPFHIR_PROFILES_INTERFACE_PACKAGE_AUTOLOADER] as $interface) {
-            $fileMap[$profilesNamespace . '\\' . $interface] = $interface . '.php';
+            $classes[] = $profilesNamespace . '\\' . $interface;
         }
         $written[] = self::_put($libraryPath, $profilesNamespace . '\\' . PHPFHIR_PROFILES_INTERFACE_PACKAGE_MAP, Templates::renderProfilePackageMapInterface(
             $copyright,
@@ -175,7 +173,7 @@ class ProfileWriter
             $copyright,
             $profilesNamespace,
             PHPFHIR_PROFILES_CLASSNAME_AUTOLOADER,
-            $fileMap,
+            $classes,
             $packages,
         ));
 
@@ -184,9 +182,7 @@ class ProfileWriter
 
     private static function _put(string $libraryPath, string $fqcn, string $contents): string
     {
-        $pos = strrpos($fqcn, '\\');
-        $path = FileUtils::compileNamespaceFilepath($libraryPath, substr($fqcn, 0, $pos))
-            . DIRECTORY_SEPARATOR . substr($fqcn, $pos + 1) . '.php';
+        $path = FileUtils::buildClassFilepath($libraryPath, $fqcn);
         FileUtils::mkdirRecurse($path);
         if (false === file_put_contents($path, $contents)) {
             throw new RuntimeException(sprintf('Unable to write profile file %s', $path));

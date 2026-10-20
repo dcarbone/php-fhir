@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Render\PHPExpression;
+
 /**
  * require_with is used to ensure a clean context per required template file.
  *
@@ -51,16 +53,21 @@ function require_with(string $_filename, array $vars): mixed
 }
 
 /**
- * Makes array var exporting less terrible.
+ * Makes array var exporting less terrible.  Keys are omitted for lists, and
+ * {@see \DCarbone\PHPFHIR\Render\PHPExpression} values are written as-is.
  *
  * @param mixed $var root var
  * @param int $indent current indent level, only used during array exporting
- * @param bool $indentFirst if true, indents the first line of the array
  * @param int $indentSize number of spaces to output per indent level
+ * @param bool $rawKeys if true, the root array's keys are written as-is rather than exported, e.g. "self::FIELD_NAME"
  * @return string
  */
-function pretty_var_export(mixed $var, int $indent = 0, bool $indentFirst = false, int $indentSize = 4): string
+function pretty_var_export(mixed $var, int $indent = 0, int $indentSize = 4, bool $rawKeys = false): string
 {
+    if ($var instanceof PHPExpression) {
+        return $var->code;
+    }
+
     if (!is_array($var)) {
         return var_export($var, true);
     }
@@ -69,20 +76,20 @@ function pretty_var_export(mixed $var, int $indent = 0, bool $indentFirst = fals
         return '[]';
     }
 
-    $out = sprintf("%s[", str_repeat(' ', $indentFirst ? $indent * $indentSize : 0));
+    $isList = !$rawKeys && array_is_list($var);
+    $out = '[';
     foreach ($var as $k => $v) {
         $literal = false;
-        $indentFirst = is_int($k);
         // handle output of option mask constant names.
         if (is_string($k) && str_ends_with($k, 'OptMask')) {
             $k = str_replace('OptMask', 'Opts', $k);
             $literal = true;
         }
-        $out = sprintf("%s\n%s%s => %s,",
+        $out = sprintf("%s\n%s%s%s,",
             $out,
             str_repeat(' ', ($indent + 1) * $indentSize),
-            var_export($k, true),
-            $literal ? $v : pretty_var_export($v, $indent + 1, $indentFirst, $indentSize),
+            $isList ? '' : ($rawKeys ? $k : var_export($k, true)) . ' => ',
+            $literal ? $v : pretty_var_export($v, $indent + 1, $indentSize),
         );
     }
     return sprintf("%s\n%s]", $out, str_repeat(' ', $indent * $indentSize));

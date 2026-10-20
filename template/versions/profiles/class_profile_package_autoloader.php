@@ -16,10 +16,13 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\FileUtils;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+
 /** @var string $copyright */
 /** @var string $namespace */
 /** @var string $className */
-/** @var array<string, string> $fileMap fully qualified class name (no leading slash) => path relative to the package directory */
+/** @var string[] $classes fully qualified names, without leading slash, of the classes beneath $namespace */
 /** @var string $interface fully qualified name, without leading slash, of the package autoloader interface */
 
 ob_start();
@@ -32,13 +35,13 @@ use <?php echo $interface; ?>;
 <?php echo $copyright; ?>
 
 
-abstract class <?php echo $className; ?> implements <?php echo substr($interface, (int)strrpos($interface, '\\') + 1); ?>
+abstract class <?php echo $className; ?> implements <?php echo NameUtils::splitFullyQualifiedName($interface)[1]; ?>
 
 {
     /** @var array<string, string> */
     private const _CLASS_MAP = [
-<?php foreach ($fileMap as $fqcn => $relativePath) : ?>
-        <?php echo var_export($fqcn, true); ?> => __DIR__ . <?php echo var_export('/' . $relativePath, true); ?>,
+<?php foreach ($classes as $fqcn) : ?>
+        <?php echo var_export($fqcn, true); ?> => <?php echo FileUtils::buildAutoloaderRelativeFilepath($namespace, $fqcn); ?>,
 <?php endforeach; ?>
     ];
 

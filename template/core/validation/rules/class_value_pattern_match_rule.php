@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -46,7 +47,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
-    public const NAME = 'value_pattern_match';
+    public const NAME = '<?php echo ValidationRuleNameEnum::VALUE_PATTERN_MATCH->value; ?>';
     public const DESCRIPTION = 'Asserts that a given string value matches the specified pattern.';
 
     public function getName(): string

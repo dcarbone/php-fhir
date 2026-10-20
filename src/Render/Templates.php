@@ -21,6 +21,7 @@ namespace DCarbone\PHPFHIR\Render;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\CoreFile;
 use DCarbone\PHPFHIR\Profiles\ProfileClass;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 
@@ -106,12 +107,11 @@ abstract class Templates
     /**
      * The autoloader of the whole profiles namespace, which hands off to each package's autoloader on demand.
      *
-     * @param array<string, string> $fileMap fully qualified class name => path relative to the profiles directory
-     * @param array<int, array{namespace: string, autoloader: string, path: string}> $packages One entry per package:
-     *        its namespace, the fully qualified name of its autoloader and that autoloader's path relative to the
-     *        profiles directory.
+     * @param string[] $classes Fully qualified names, without leading slash, of the classes beneath $namespace it loads.
+     * @param array<int, array{namespace: string, autoloader: string}> $packages One entry per package: its namespace
+     *        and the fully qualified name of its autoloader.
      */
-    public static function renderProfileAutoloader(string $copyright, string $namespace, string $className, array $fileMap, array $packages): string
+    public static function renderProfileAutoloader(string $copyright, string $namespace, string $className, array $classes, array $packages): string
     {
         return self::normalize(require sprintf('%s/class_profile_autoloader.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }
@@ -129,10 +129,10 @@ abstract class Templates
     }
 
     /**
-     * @param array<string, string> $fileMap fully qualified class name => path relative to the package directory
+     * @param string[] $classes Fully qualified names, without leading slash, of the classes beneath $namespace it loads.
      * @param string $interface Fully qualified name, without leading slash, of the package autoloader interface.
      */
-    public static function renderProfilePackageAutoloader(string $copyright, string $namespace, string $className, array $fileMap, string $interface): string
+    public static function renderProfilePackageAutoloader(string $copyright, string $namespace, string $className, array $classes, string $interface): string
     {
         return self::normalize(require sprintf('%s/class_profile_package_autoloader.php', PHPFHIR_TEMPLATE_VERSION_PROFILES_DIR));
     }
@@ -198,8 +198,7 @@ abstract class Templates
             if ('' !== $alias) {
                 $localName = $alias;
             } else {
-                $lastSeparator = strrpos($fqn, PHPFHIR_NAMESPACE_SEPARATOR);
-                $localName = false === $lastSeparator ? $fqn : substr($fqn, $lastSeparator + 1);
+                $localName = NameUtils::splitFullyQualifiedName($fqn)[1];
             }
 
             // search everywhere in the file _except_ this specific "use" line for a reference

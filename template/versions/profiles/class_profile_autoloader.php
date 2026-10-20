@@ -16,11 +16,13 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Utilities\FileUtils;
+
 /** @var string $copyright */
 /** @var string $namespace */
 /** @var string $className */
-/** @var array<string, string> $fileMap fully qualified class name (no leading slash) => path relative to the profiles directory */
-/** @var array<int, array{namespace: string, autoloader: string, path: string}> $packages */
+/** @var string[] $classes fully qualified names, without leading slash, of the classes beneath $namespace */
+/** @var array<int, array{namespace: string, autoloader: string}> $packages */
 
 ob_start();
 echo '<?php'; ?> declare(strict_types=1);
@@ -35,15 +37,15 @@ abstract class <?php echo $className; ?>
 {
     /** @var array<string, string> */
     private const _CLASS_MAP = [
-<?php foreach ($fileMap as $fqcn => $relativePath) : ?>
-        <?php echo var_export($fqcn, true); ?> => __DIR__ . <?php echo var_export('/' . $relativePath, true); ?>,
+<?php foreach ($classes as $fqcn) : ?>
+        <?php echo var_export($fqcn, true); ?> => <?php echo FileUtils::buildAutoloaderRelativeFilepath($namespace, $fqcn); ?>,
 <?php endforeach; ?>
     ];
 
     /** @var array<int, array{0: string, 1: string, 2: string}> package namespace prefix, autoloader class, autoloader path */
     private const _PACKAGE_AUTOLOADER_MAP = [
 <?php foreach ($packages as $package) : ?>
-        [<?php echo var_export($package['namespace'] . '\\', true); ?>, <?php echo var_export($package['autoloader'], true); ?>, __DIR__ . <?php echo var_export('/' . $package['path'], true); ?>],
+        [<?php echo var_export($package['namespace'] . '\\', true); ?>, <?php echo var_export($package['autoloader'], true); ?>, <?php echo FileUtils::buildAutoloaderRelativeFilepath($namespace, $package['autoloader']); ?>],
 <?php endforeach; ?>
     ];
 

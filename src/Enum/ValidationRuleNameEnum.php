@@ -19,13 +19,17 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 
 /**
- * Names of the generated validation rules that profile rule maps refer to.  These must match the "NAME" constants of
- * the generated rule classes.
+ * Names of the generated validation rules.  The rule classes' "NAME" constants are rendered from these, and the rule
+ * maps of generated types and profiles are keyed by them.
  */
 enum ValidationRuleNameEnum: string
 {
     case MIN_OCCURS = 'min_occurs';
     case MAX_OCCURS = 'max_occurs';
+    case VALUE_MIN_LENGTH = 'value_min_length';
+    case VALUE_MAX_LENGTH = 'value_max_length';
+    case VALUE_ONE_OF = 'value_one_of';
+    case VALUE_PATTERN_MATCH = 'value_pattern_match';
     case FIXED_VALUE = 'fixed_value';
     case PATTERN_VALUE = 'pattern_value';
     case CODE_BINDING = 'code_binding';

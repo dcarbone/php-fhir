@@ -20,6 +20,8 @@ namespace DCarbone\PHPFHIR\Profiles;
 
 use ArrayIterator;
 use Countable;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
+use DCarbone\PHPFHIR\Version\Definition\Type;
 use IteratorAggregate;
 use Traversable;
 
@@ -34,17 +36,17 @@ class ProfileClasses implements Countable, IteratorAggregate
     /**
      * @param string $profilesNamespace Namespace shared by everything profile related for the version, without leading slash.
      * @param string $packageNamespace Namespace, relative to $profilesNamespace, the package's classes are generated into.
-     * @param callable(string): (null|string) $baseTypeResolver Maps a FHIR type name to the fully qualified name, without
-     *                                                        leading slash, of the generated class for it.
+     * @param callable(string): (null|Type) $baseTypeResolver Maps a FHIR type name to its generated type.  A profile
+     *        class is generated beneath its package's namespace at the same relative path its base type's class has
+     *        beneath the types namespace.
      * @param array<string, ProfileClass> $dependencyClasses Already generated classes of
      *        dependency packages, by profile url, that may be used as parents.
      * @param null|ProfileTypeNavigator $navigator Shape of the generated types.  Without it, the
      *        classes are generated without any validation code.
      * @param array<string, string> $support Fully qualified names, without leading slash, of the core classes the
      *        generated classes use, by role: "matcher" (value matcher) and "validator" (rule registry).
-     * @param string $typesNamespace Namespace, without leading slash, the generated types live under.  A profile class is
-     *        generated beneath its package's namespace at the same relative path its base type has beneath this one.
      * @throws ProfileDefinitionException
+     * @throws \DomainException If no valid class name can be derived for a profile.
      */
     public static function build(
         ProfileSet        $set,
@@ -55,7 +57,6 @@ class ProfileClasses implements Countable, IteratorAggregate
         array             $dependencyClasses = [],
         null|ProfileTypeNavigator $navigator = null,
         array             $support = [],
-        string            $typesNamespace = '',
     ): self
     {
         $wanted = [];
@@ -70,16 +71,16 @@ class ProfileClasses implements Countable, IteratorAggregate
         // profiles sharing a name (it is not unique within a package) are named after their ids instead.
         $nameCounts = [];
         foreach ($wanted as $profile) {
-            $key = strtolower(ProfileClass::sanitizeClassName($profile->getName()));
+            $key = strtolower(NameUtils::sanitizeClassName($profile->getName(), 'Profile'));
             $nameCounts[$key] = ($nameCounts[$key] ?? 0) + 1;
         }
 
         $classes = new self();
         $names = [];
         foreach ($wanted as $url => $profile) {
-            $className = ProfileClass::sanitizeClassName($profile->getName());
+            $className = NameUtils::sanitizeClassName($profile->getName(), 'Profile');
             if ($nameCounts[strtolower($className)] > 1) {
-                $className = ProfileClass::sanitizeClassName($profile->getId());
+                $className = NameUtils::sanitizeClassName($profile->getId(), 'Profile');
             }
             $key = strtolower($className);
             if (isset($names[$key])) {
@@ -92,8 +93,8 @@ class ProfileClasses implements Countable, IteratorAggregate
             }
             $names[$key] = $profile->getId();
 
-            $baseClass = $baseTypeResolver($profile->getType());
-            if (null === $baseClass) {
+            $baseType = $baseTypeResolver($profile->getType());
+            if (null === $baseType) {
                 throw new ProfileDefinitionException(sprintf(
                     'Profile "%s" constrains type "%s", which was not generated for this FHIR version',
                     $profile->getId(),
@@ -107,12 +108,13 @@ class ProfileClasses implements Countable, IteratorAggregate
                 break;
             }
 
-            $packageFQN = $profilesNamespace . '\\' . $packageNamespace;
+            $packageFQN = $profilesNamespace . PHPFHIR_NAMESPACE_SEPARATOR . $packageNamespace;
+            $typeNamespace = $baseType->getNamespace();
             $classes->_byUrl[$url] = new ProfileClass(
                 $profile,
-                self::_nest($packageFQN, ltrim($baseClass, '\\'), $typesNamespace),
+                '' === $typeNamespace ? $packageFQN : $packageFQN . PHPFHIR_NAMESPACE_SEPARATOR . $typeNamespace,
                 $className,
-                ltrim($baseClass, '\\'),
+                $baseType->getFullyQualifiedClassName(false),
                 $parent,
                 $profilesNamespace,
                 ProfileRules::compile($profile, $expander),
@@ -123,16 +125,6 @@ class ProfileClasses implements Countable, IteratorAggregate
             );
         }
         return $classes;
-    }
-
-    private static function _nest(string $packageFQN, string $baseClass, string $typesNamespace): string
-    {
-        $baseNamespace = substr($baseClass, 0, (int)strrpos($baseClass, '\\'));
-        if ('' === $typesNamespace || !str_starts_with($baseNamespace . '\\', $typesNamespace . '\\')) {
-            return $packageFQN;
-        }
-        $relative = trim(substr($baseNamespace, strlen($typesNamespace)), '\\');
-        return '' === $relative ? $packageFQN : $packageFQN . '\\' . $relative;
     }
 
     public function getByUrl(string $url): null|ProfileClass

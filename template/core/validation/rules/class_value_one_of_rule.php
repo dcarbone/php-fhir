@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -46,7 +47,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
-    public const NAME = 'value_one_of';
+    public const NAME = '<?php echo ValidationRuleNameEnum::VALUE_ONE_OF->value; ?>';
     public const DESCRIPTION = 'Asserts that a given value is within the expected list of values.';
 
     public function getName(): string

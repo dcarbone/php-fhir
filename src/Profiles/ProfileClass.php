@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 use DCarbone\PHPFHIR\Builder\Imports;
+use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
  * Everything the profile class template needs to know about one generated profile class.
@@ -95,15 +96,13 @@ class ProfileClass
             return;
         }
         $imports = new Imports(null, $this->_namespace, $this->_className);
-        [$name, $ns] = $this->_split($this->_extendsFQN());
-        $imports->addImport($ns, $name);
+        $imports->addImport(...NameUtils::splitFullyQualifiedName($this->_extendsFQN()));
         foreach ($this->_support as $key => $fqn) {
             // the profile interface is implemented by the root of a profile hierarchy only.
             if ('profileInterface' === $key && null !== $this->_parent) {
                 continue;
             }
-            [$name, $ns] = $this->_split($fqn);
-            $imports->addImport($ns, $name);
+            $imports->addImport(...NameUtils::splitFullyQualifiedName($fqn));
         }
         $this->_code = null === $this->_navigator
             ? new ProfileValidationCode()
@@ -119,13 +118,13 @@ class ProfileClass
     /** Name, as written in the class body, of the core class that matches values against patterns. */
     public function getValueMatcherName(): string
     {
-        return $this->_supportName('matcher', 'ValueMatcher');
+        return $this->_supportName('matcher', PHPFHIR_VALIDATION_CLASSNAME_VALUE_MATCHER);
     }
 
     /** Name, as written in the class body, of the core class that holds the validation rule registry. */
     public function getValidatorName(): string
     {
-        return $this->_supportName('validator', 'Validator');
+        return $this->_supportName('validator', PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
     }
 
     /**
@@ -194,17 +193,18 @@ class ProfileClass
         $out = [];
         $used = [];
         foreach ($this->_compiled['slices'] as $i => $slice) {
-            if (!isset($matchers[$i]) || str_contains($slice['path'], '.') || str_contains($slice['path'], '[x]')) {
+            $sliceName = NameUtils::toPascalCase($slice['name']);
+            if ('' === $sliceName || !isset($matchers[$i]) || str_contains($slice['path'], '.') || str_contains($slice['path'], '[x]')) {
                 continue;
             }
-            $method = 'get' . self::sanitizeClassName($slice['name']) . ucfirst($slice['path']);
+            $method = NameUtils::getGetterName($sliceName . ucfirst($slice['path']));
             if (isset($used[strtolower($method)])) {
                 continue;
             }
             $used[strtolower($method)] = true;
             $out[] = [
                 'method' => $method,
-                'getter' => 'get' . ucfirst($slice['path']),
+                'getter' => NameUtils::getGetterName($slice['path']),
                 'constant' => $matchers[$i]['constant'],
                 'class' => $matchers[$i]['class'],
                 // an override must keep the signature of the accessor it overrides, even if this profile narrows max
@@ -293,7 +293,7 @@ class ProfileClass
 
     private function _importedName(Imports $imports, string $fqn): string
     {
-        [$name, $ns] = $this->_split($fqn);
+        [$ns, $name] = NameUtils::splitFullyQualifiedName($fqn);
         return $imports->getImportByClassAndNamespace($name, $ns)?->getImportedName() ?? $name;
     }
 
@@ -302,28 +302,5 @@ class ProfileClass
         return null !== $this->_parent
             ? $this->_parent->getFullyQualifiedClassName(false)
             : $this->_baseTypeClassName;
-    }
-
-    /** @return array{0: string, 1: string} class name, namespace */
-    private function _split(string $fqn): array
-    {
-        $pos = strrpos($fqn, '\\');
-        return [substr($fqn, $pos + 1), substr($fqn, 0, $pos)];
-    }
-
-    public static function sanitizeClassName(string $name): string
-    {
-        $parts = preg_split('/[^A-Za-z0-9]+/', $name, -1, PREG_SPLIT_NO_EMPTY);
-        $out = '';
-        foreach ($parts as $part) {
-            $out .= ucfirst($part);
-        }
-        if ('' === $out) {
-            throw new ProfileDefinitionException(sprintf('Cannot derive a class name from "%s"', $name));
-        }
-        if (ctype_digit($out[0])) {
-            $out = 'Profile' . $out;
-        }
-        return $out;
     }
 }
