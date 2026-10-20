@@ -116,34 +116,12 @@ jobs:
           version: 'R5'
 
       # ---- PHP + Composer --------------------------------------------------
-      - name: 'Install PHP'
-        uses: "shivammathur/setup-php@v2"
+      # The bootstrap action installs the PHPUnit version matching PHP_VERSION, re-resolving
+      # composer.lock, whose dev dependencies may require a newer PHP than the minimum supported one.
+      - name: 'Bootstrap PHP and Composer'
+        uses: "./.github/actions/bootstrap"
         with:
           php-version: '${{ env.PHP_VERSION }}'
-          extensions: "libxml simplexml json zip"
-          ini-values: "precision=20"
-
-      - name: 'Install jq'
-        uses: "dcarbone/install-jq-action@v4"
-        with:
-          force: true
-
-      - name: 'Get composer cache directory'
-        id: "composer-cache"
-        # language=bash
-        run: |
-          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: 'Cache composer deps'
-        uses: "actions/cache@v6"
-        with:
-          path: '${{ steps.composer-cache.outputs.dir }}'
-          key: "composer-${{ runner.os }}-${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock') }}"
-
-      - name: 'Install composer deps'
-        # language=bash
-        run: |
-          composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       # ---- Run the generator -----------------------------------------------
       - name: 'Run php-fhir generator'

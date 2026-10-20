@@ -1,5 +1,5 @@
 name: 'Bootstrap'
-description: 'Bootstraps the GHA runner for Builder tests'
+description: 'Installs PHP and the Composer dependencies, with the PHPUnit version matching the PHP version'
 
 inputs:
   php-version:
@@ -30,7 +30,7 @@ runs:
     - name: 'Install PHP'
       uses: "shivammathur/setup-php@v2"
       with:
-        php-version: ${{ inputs.php-version }}
+        php-version: '${{ inputs.php-version }}'
         extensions: "libxml simplexml json zip"
         ini-values: "precision=20"
 
@@ -60,7 +60,7 @@ runs:
       id: "cache"
       uses: "actions/cache@v6"
       with:
-        path: ${{ steps.composer-cache.outputs.dir }}
+        path: '${{ steps.composer-cache.outputs.dir }}'
         key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"
 
     - name: 'Install composer deps'
@@ -74,6 +74,6 @@ runs:
       if: "steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true"
       uses: "actions/cache/save@v6"
       with:
-        path: ${{ steps.composer-cache.outputs.dir }}
+        path: '${{ steps.composer-cache.outputs.dir }}'
         key: "composer-${{ runner.os }}-${{ inputs.php-version }}-${{ steps.vars.outputs.phpunit-version }}-${{ hashFiles('composer.lock') }}"
 
