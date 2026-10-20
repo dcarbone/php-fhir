@@ -33,11 +33,13 @@ class VersionConfig
     private string $_schemaPath;
     private string $_namespace;
     private VersionDefaultConfig $_defaultConfig;
+    private VersionProfilesConfig $_profilesConfig;
 
     public function __construct(string                          $name,
                                 string                          $schemaPath,
                                 null|string                     $namespace = null,
-                                null|array|VersionDefaultConfig $defaultConfig = null)
+                                null|array|VersionDefaultConfig $defaultConfig = null,
+                                null|array|VersionProfilesConfig $profilesConfig = null)
     {
         // ensure non-empty name
         if ('' === trim($name)) {
@@ -68,6 +70,12 @@ class VersionConfig
             $defaultConfig = VersionDefaultConfig::fromArray((array)$defaultConfig);
         }
         $this->_defaultConfig = $defaultConfig;
+
+        // construct profiles config instance.
+        if (!($profilesConfig instanceof VersionProfilesConfig)) {
+            $profilesConfig = VersionProfilesConfig::fromArray((array)$profilesConfig);
+        }
+        $this->_profilesConfig = $profilesConfig;
     }
 
     public static function fromArray(array $config): self
@@ -83,6 +91,7 @@ class VersionConfig
             schemaPath: $config['schemaPath'],
             namespace: $config['namespace'] ?? null,
             defaultConfig: $config['defaultConfig'] ?? null,
+            profilesConfig: $config['profiles'] ?? null,
         );
     }
 
@@ -104,5 +113,10 @@ class VersionConfig
     public function getDefaultConfig(): VersionDefaultConfig
     {
         return $this->_defaultConfig;
+    }
+
+    public function getProfilesConfig(): VersionProfilesConfig
+    {
+        return $this->_profilesConfig;
     }
 }

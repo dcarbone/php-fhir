@@ -41,6 +41,9 @@ require $autoloadClasspath;
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
+use DCarbone\PHPFHIR\Profiles\ProfilePackageException;
+use InvalidArgumentException;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
@@ -52,6 +55,10 @@ const FLAG_HELP = '--help';
 const FLAG_CONFIG = '--config';
 const FLAG_ONLY_CORE = '--onlyCore';
 const FLAG_ONLY_LIBRARY = '--onlyLibrary';
+const FLAG_PROFILES = '--profiles';
+const FLAG_NO_PROFILES = '--noProfiles';
+const FLAG_ONLY_PROFILES = '--onlyProfiles';
+const FLAG_PROFILE_PACKAGES = '--profilePackages';
 const FLAG_VERSIONS = '--versions';
 const FLAG_LOG_LEVEL = '--logLevel';
 
@@ -65,6 +72,10 @@ $config_file = null;
 $only_core = false;
 $only_library = false;
 $versions_to_generate = null;
+$profiles = false;
+$no_profiles = false;
+$only_profiles = false;
+$profile_packages = null;
 $log_level = LogLevel::WARNING;
 
 // ----- functions
@@ -136,6 +147,18 @@ Copyright 2016-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
     --config        Specify location of config
                         default: {$config_location_def}
                         ex: ./bin/generate.sh --config path/to/file
+    --profiles      Require profile class generation for the selected versions.  Fails if none of the selected
+                    versions have profile packages configured.  By default, profiles are generated for any
+                    version that has profile packages configured, except when --onlyCore is passed.
+                        ex: ./bin/generate.sh --profiles
+    --noProfiles    Skip profile class generation, even if configured.  Mutually exclusive with --profiles,
+                    --onlyProfiles, and --profilePackages
+                        ex: ./bin/generate.sh --noProfiles
+    --onlyProfiles  Only generate profile classes.  Mutually exclusive with --onlyCore and --onlyLibrary
+                        ex: ./bin/generate.sh --onlyProfiles --versions R4
+    --profilePackages
+                    Comma-separated list of profile package names to limit profile generation to
+                        ex: ./bin/generate.sh --profilePackages hl7.fhir.us.core
     --versions      Comma-separated list of specific versions to parse from config
                         ex: ./bin/generate.sh --versions STU3,R4
     --logLevel      Level of verbosity during generation
@@ -221,6 +244,35 @@ if ($argc > 1) {
                 }
                 break;
 
+            case FLAG_PROFILES:
+                $profiles = true;
+                break;
+
+            case FLAG_NO_PROFILES:
+                $no_profiles = true;
+                break;
+
+            case FLAG_ONLY_PROFILES:
+                $only_profiles = true;
+                break;
+
+            case FLAG_PROFILE_PACKAGES:
+                $profile_packages = [];
+                foreach (explode(',', (string)$next) as $profile_package) {
+                    $profile_package = trim($profile_package);
+                    if ('' !== $profile_package) {
+                        $profile_packages[] = $profile_package;
+                    }
+                }
+                if ([] === $profile_packages) {
+                    echo 'Flag ' . FLAG_PROFILE_PACKAGES . ' requires at least one package name.' . PHP_EOL;
+                    exit(1);
+                }
+                if (!$found_equal) {
+                    $i++;
+                }
+                break;
+
             case FLAG_ONLY_CORE:
                 $only_core = true;
                 break;
@@ -271,16 +323,29 @@ if ($only_core) {
 if ($only_library) {
     $only_count++;
 }
+if ($only_profiles) {
+    $only_count++;
+}
 if ($only_count > 1) {
     echo help_text();
     echo PHP_EOL;
-    echo "Flags " . FLAG_ONLY_CORE . " and " . FLAG_ONLY_LIBRARY . " are mutually exclusive." . PHP_EOL;
+    echo "Flags " . FLAG_ONLY_CORE . ", " . FLAG_ONLY_LIBRARY . ", and " . FLAG_ONLY_PROFILES . " are mutually exclusive." . PHP_EOL;
+    exit(1);
+}
+
+// profile flags
+if ($no_profiles && ($profiles || $only_profiles || null !== $profile_packages)) {
+    echo help_text();
+    echo PHP_EOL;
+    echo "Flag " . FLAG_NO_PROFILES . " cannot be combined with " . FLAG_PROFILES . ", " . FLAG_ONLY_PROFILES .
+        ", or " . FLAG_PROFILE_PACKAGES . "." . PHP_EOL;
     exit(1);
 }
 
 // determine what to generate
 $generate_core = $only_core || (0 === $only_count);
 $generate_library = $only_library || (0 === $only_count);
+$generate_profiles = !$no_profiles && ($only_profiles || $only_library || (0 === $only_count) || $profiles || null !== $profile_packages);
 
 // determine if monolog is present, otherwise use null logger
 if (class_exists('\\Monolog\\Logger')) {
@@ -318,15 +383,59 @@ foreach ($versions_to_generate as $vg) {
     }
 }
 
+// when profiles are explicitly requested, ensure there is something to generate.
+if ($profiles || $only_profiles || null !== $profile_packages) {
+    $has_packages = false;
+    foreach ($versions_to_generate as $vg) {
+        if ($config->getVersion($vg)->getVersionConfig()->getProfilesConfig()->hasPackages()) {
+            $has_packages = true;
+            break;
+        }
+    }
+    if (!$has_packages) {
+        echo 'None of the selected versions (' . implode(', ', $versions_to_generate) .
+            ') have profile packages configured.' . PHP_EOL . PHP_EOL;
+        exit(1);
+    }
+}
+
 echo PHP_EOL;
 
 // create builder
 $builder = new Builder($config);
 
+// test specified profile packages are defined for at least one selected version
+if (null !== $profile_packages) {
+    try {
+        $builder->assertProfilePackagesConfigured($versions_to_generate, $profile_packages);
+    } catch (InvalidArgumentException $e) {
+        echo $e->getMessage() . PHP_EOL . PHP_EOL;
+        exit(1);
+    }
+}
+
+// profile problems are configuration errors, so report them without a stack trace.
+$render_profiles = static function () use ($builder, $versions_to_generate, $profile_packages): void {
+    try {
+        $builder->renderProfiles($versions_to_generate, $profile_packages);
+    } catch (ProfileDefinitionException | ProfilePackageException $e) {
+        fwrite(STDERR, PHP_EOL . 'Profile generation failed: ' . $e->getMessage() . PHP_EOL);
+        exit(1);
+    }
+};
+
 // render entities based on flags.
-$builder->render(
-    coreFiles: $generate_core,
-    versionNames: $generate_library ? $versions_to_generate : [],
-);
+if ($only_profiles) {
+    $render_profiles();
+} else {
+    $builder->render(
+        coreFiles: $generate_core,
+        versionNames: $generate_library ? $versions_to_generate : [],
+        profiles: false,
+    );
+    if ($generate_profiles) {
+        $render_profiles();
+    }
+}
 
 echo PHP_EOL . 'Generation completed' . PHP_EOL;

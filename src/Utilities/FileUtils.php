@@ -21,6 +21,7 @@ namespace DCarbone\PHPFHIR\Utilities;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
+use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -54,6 +55,21 @@ class FileUtils
 
     /**
      * @param string $path
+     * @param string $what Description of the path for the error message, e.g. 'Schema path'.
+     * @throws \InvalidArgumentException If the path is not a readable file or directory.
+     */
+    public static function assertPathReadable(string $path, string $what): void
+    {
+        if ('' === trim($path) || !file_exists($path) || !is_readable($path)) {
+            throw new InvalidArgumentException(sprintf('%s "%s" either does not exist or is not readable.', $what, $path));
+        }
+        if (!is_dir($path) && !is_file($path)) {
+            throw new InvalidArgumentException(sprintf('%s "%s" must be a file or directory.', $what, $path));
+        }
+    }
+
+    /**
+     * @param string $path
      * @param int $dirPermMask
      */
     public static function mkdirRecurse(string $path, int $dirPermMask = 0777): void
@@ -77,15 +93,25 @@ class FileUtils
     }
 
     /**
+     * @param string $basepath
+     * @param string $classFQN Fully qualified class name, with or without leading slash.
+     * @return string Path of the file the class is written to beneath $basepath.
+     */
+    public static function buildClassFilepath(string $basepath, string $classFQN): string
+    {
+        [$namespace, $className] = NameUtils::splitFullyQualifiedName($classFQN);
+        return rtrim(self::compileNamespaceFilepath($basepath, $namespace), DIRECTORY_SEPARATOR)
+            . DIRECTORY_SEPARATOR . "{$className}.php";
+    }
+
+    /**
      * @param \DCarbone\PHPFHIR\Version $version
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
     public static function buildTypeClassFilepath(Version $version, Type $type): string
     {
-        return self::compileNamespaceFilepath($version->getConfig()->getLibraryPath(), $type->getFullyQualifiedNamespace(false))
-            . DIRECTORY_SEPARATOR
-            . "{$type->getClassName()}.php";
+        return self::buildClassFilepath($version->getConfig()->getLibraryPath(), $type->getFullyQualifiedClassName(false));
     }
 
     public static function buildTypeTestClassFilepath(Version $version, Type $type): string

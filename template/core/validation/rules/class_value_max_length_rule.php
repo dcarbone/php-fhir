@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
@@ -46,7 +47,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 class <?php echo $coreFile; ?> implements <?php echo $validationRuleInterface; ?>
 
 {
-    public const NAME = 'value_max_length';
+    public const NAME = '<?php echo ValidationRuleNameEnum::VALUE_MAX_LENGTH->value; ?>';
     public const DESCRIPTION = 'Asserts that a given string value is no more than x characters long.';
 
     public function getName(): string

@@ -30,18 +30,31 @@ $imports = $coreFile->getImports();
 
 $constantsClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_CONSTANTS);
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$profileTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PROFILE_TYPE);
 $typeMapInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION_TYPE_MAP);
+$unserializeConfig = $coreFiles->getCoreFileByEntityName(PHPFHIR_ENCODING_CLASSNAME_UNSERIALIZE_CONFIG);
 
 $versionConstants = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION_CONSTANTS);
 $versionContainedTypeInterface = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_INTERFACE_VERSION_CONTAINED_TYPE);
 
+$imports->addCoreFileImportsByName(
+    PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION,
+    PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION,
+);
 $imports->addCoreFileImports(
     $constantsClass,
     $typeInterface,
+    $profileTypeInterface,
     $typeMapInterface,
+    $unserializeConfig,
 
     $versionConstants,
     $versionContainedTypeInterface,
+);
+
+$imports->addImport(
+    $version->getFullyQualifiedName(false, $version->getVersionConfig()->getProfilesConfig()->getNamespace()),
+    PHPFHIR_PROFILES_CLASSNAME_MAP,
 );
 
 $types = $version->getDefinition()->getTypes();
@@ -117,9 +130,9 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
         if (is_string($input)) {
             return self::_TYPE_MAP[$input] ?? null;
         } else if ($input instanceof \SimpleXMLElement) {
-            return self::_TYPE_MAP[$input->getName()] ?? null;
+            return self::_TYPE_MAP[(string)$input->getName()] ?? null;
         } else if (isset($input-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>)) {
-            return self::_TYPE_MAP[$input-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>] ?? null;
+            return self::_TYPE_MAP[(string)$input-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>] ?? null;
         } else {
             return null;
         }
@@ -192,6 +205,125 @@ class <?php echo $coreFile; ?> implements <?php echo $typeMapInterface; ?>
             return self::_CONTAINABLE_TYPES[$decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>];
         }
         throw self::createdInvalidContainedTypeException($decoded-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>);
+    }
+
+    /**
+     * @param class-string $className
+     * @param \stdClass $decoded
+     * @param <?php echo $unserializeConfig->getFullyQualifiedName(true); ?> $config
+     * @return <?php echo $typeInterface->getFullyQualifiedName(true); ?>
+
+     */
+    public static function jsonUnserializeResource(string $className,
+                                                   \stdClass $decoded,
+                                                   <?php echo $unserializeConfig; ?> $config): <?php echo $typeInterface; ?>
+
+    {
+        $declared = $decoded->meta->profile ?? [];
+        if (!is_array($declared)) {
+            $declared = [];
+        }
+        /** @var null|class-string<<?php echo $profileTypeInterface; ?>> $profileClass */
+        $profileClass = self::_resolveProfileClassname($className, $declared, $config);
+        if (null === $profileClass) {
+            return $className::jsonUnserialize($decoded, $config);
+        }
+        $profiled = $profileClass::jsonUnserialize($decoded, $config);
+        if ($config->getOnProfileViolation() !== <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::KEEP) {
+            $violations = $profiled->_getProfileValidationErrors();
+            if ([] !== $violations) {
+                if ($config->getOnProfileViolation() === <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::FALLBACK) {
+                    return $className::jsonUnserialize($decoded, $config);
+                }
+                throw self::_createProfileViolationException($profileClass, $violations);
+            }
+        }
+        return $profiled;
+    }
+
+    /**
+     * @param class-string $className
+     * @param \SimpleXMLElement $element
+     * @param <?php echo $unserializeConfig->getFullyQualifiedName(true); ?> $config
+     * @return <?php echo $typeInterface->getFullyQualifiedName(true); ?>
+
+     */
+    public static function xmlUnserializeResource(string $className,
+                                                  \SimpleXMLElement $element,
+                                                  <?php echo $unserializeConfig; ?> $config): <?php echo $typeInterface; ?>
+
+    {
+        $declared = [];
+        if ($config->getProfileResolution() === <?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?>::AUTO) {
+            foreach ($element->children() as $child) {
+                if ('meta' !== $child->getName()) {
+                    continue;
+                }
+                foreach ($child->children() as $metaChild) {
+                    if ('profile' === $metaChild->getName() && isset($metaChild['value'])) {
+                        $declared[] = (string)$metaChild['value'];
+                    }
+                }
+            }
+        }
+        /** @var null|class-string<<?php echo $profileTypeInterface; ?>> $profileClass */
+        $profileClass = self::_resolveProfileClassname($className, $declared, $config);
+        if (null === $profileClass) {
+            return $className::xmlUnserialize($element, $config);
+        }
+        $profiled = $profileClass::xmlUnserialize($element, $config);
+        if ($config->getOnProfileViolation() !== <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::KEEP) {
+            $violations = $profiled->_getProfileValidationErrors();
+            if ([] !== $violations) {
+                if ($config->getOnProfileViolation() === <?php echo PHPFHIR_ENCODING_ENUM_ON_PROFILE_VIOLATION; ?>::FALLBACK) {
+                    return $className::xmlUnserialize($element, $config);
+                }
+                throw self::_createProfileViolationException($profileClass, $violations);
+            }
+        }
+        return $profiled;
+    }
+
+    /**
+     * @param class-string $className
+     * @param string[] $declared
+     * @param <?php echo $unserializeConfig->getFullyQualifiedName(true); ?> $config
+     * @return null|class-string<<?php echo $profileTypeInterface; ?>> Null if the resource should be unserialized into $className
+     */
+    private static function _resolveProfileClassname(string $className, array $declared, <?php echo $unserializeConfig; ?> $config): null|string
+    {
+        if ([] === $declared
+            || $config->getProfileResolution() !== <?php echo PHPFHIR_ENCODING_ENUM_PROFILE_RESOLUTION; ?>::AUTO
+            || !class_exists(<?php echo PHPFHIR_PROFILES_CLASSNAME_MAP; ?>::class)) {
+            return null;
+        }
+        return <?php echo PHPFHIR_PROFILES_CLASSNAME_MAP; ?>::resolve(
+            $className,
+            $declared,
+            $config->getOnUnknownProfile(),
+            $config->getOnAmbiguousProfile(),
+            $config->getOnProfileVersionMismatch(),
+        );
+    }
+
+    /**
+     * @param class-string<<?php echo $profileTypeInterface; ?>> $profileClass
+     * @param array $violations
+     * @return \UnexpectedValueException
+     */
+    private static function _createProfileViolationException(string $profileClass, array $violations): \UnexpectedValueException
+    {
+        $parts = [];
+        foreach ($violations as $path => $errs) {
+            foreach ($errs as $rule => $message) {
+                $parts[] = sprintf('%s [%s]: %s', $path, $rule, $message);
+            }
+        }
+        return new \UnexpectedValueException(sprintf(
+            'Resource violates profile "%s": %s',
+            $profileClass::_getProfileUrl(),
+            implode('; ', $parts)
+        ));
     }
 
     /**

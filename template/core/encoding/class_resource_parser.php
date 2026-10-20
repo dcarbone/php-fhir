@@ -109,7 +109,7 @@ class <?php echo $coreFile; ?>
                     implode('","', array_keys((array)$input))
                 ));
             }
-            return $className::jsonUnserialize($input, $version->getConfig()->getUnserializeConfig());
+            return $version->getTypeMap()::jsonUnserializeResource($className, $input, $version->getConfig()->getUnserializeConfig());
         }
         throw new \DomainException(sprintf(
             'Unable to determine FHIR Type from provided array: missing "%s" key.  Available keys: ["%s"]',
@@ -137,7 +137,7 @@ class <?php echo $coreFile; ?>
                 static::getPrintableStringInput($input->saveXML())
             ));
         }
-        return $fhirType::xmlUnserialize($input, $version->getConfig()->getUnserializeConfig());
+        return $version->getTypeMap()::xmlUnserializeResource($fhirType, $input, $version->getConfig()->getUnserializeConfig());
     }
 
     /**

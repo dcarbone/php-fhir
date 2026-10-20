@@ -33,6 +33,11 @@ $maxLenRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSN
 $patternMatchRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_VALUE_PATTERN_MATCH);
 $minOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MIN_OCCURS);
 $maxOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_MAX_OCCURS);
+$fixedValueRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_FIXED_VALUE);
+$patternValueRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_PATTERN_VALUE);
+$sliceOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_SLICE_OCCURS);
+$choiceOccursRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_CHOICE_OCCURS);
+$codeBindingRule = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_RULE_CLASSNAME_CODE_BINDING);
 
 $imports->addCoreFileImports(
     $validatorClass,
@@ -43,6 +48,11 @@ $imports->addCoreFileImports(
     $patternMatchRule,
     $minOccursRule,
     $maxOccursRule,
+    $fixedValueRule,
+    $patternValueRule,
+    $sliceOccursRule,
+    $choiceOccursRule,
+    $codeBindingRule,
 );
 
 ob_start();
@@ -59,7 +69,7 @@ class <?php echo $coreFile; ?> extends TestCase
     public function testValidatorHasBaseRules()
     {
         $rules = <?php echo $validatorClass; ?>::getRules();
-        $this->assertCount(6, $rules);
+        $this->assertCount(11, $rules);
 
         $this->assertArrayHasKey(<?php echo $valueOneOfRule; ?>::NAME, $rules);
         $this->assertInstanceOf(<?php echo $valueOneOfRule; ?>::class, $rules[<?php echo $valueOneOfRule; ?>::NAME]);
@@ -78,6 +88,52 @@ class <?php echo $coreFile; ?> extends TestCase
 
         $this->assertArrayHasKey(<?php echo $maxOccursRule; ?>::NAME, $rules);
         $this->assertInstanceOf(<?php echo $maxOccursRule; ?>::class, $rules[<?php echo $maxOccursRule; ?>::NAME]);
+
+        $this->assertArrayHasKey(<?php echo $fixedValueRule; ?>::NAME, $rules);
+        $this->assertInstanceOf(<?php echo $fixedValueRule; ?>::class, $rules[<?php echo $fixedValueRule; ?>::NAME]);
+
+        $this->assertArrayHasKey(<?php echo $patternValueRule; ?>::NAME, $rules);
+        $this->assertInstanceOf(<?php echo $patternValueRule; ?>::class, $rules[<?php echo $patternValueRule; ?>::NAME]);
+
+        $this->assertArrayHasKey(<?php echo $sliceOccursRule; ?>::NAME, $rules);
+        $this->assertInstanceOf(<?php echo $sliceOccursRule; ?>::class, $rules[<?php echo $sliceOccursRule; ?>::NAME]);
+
+        $this->assertArrayHasKey(<?php echo $choiceOccursRule; ?>::NAME, $rules);
+        $this->assertInstanceOf(<?php echo $choiceOccursRule; ?>::class, $rules[<?php echo $choiceOccursRule; ?>::NAME]);
+
+        $this->assertArrayHasKey(<?php echo $codeBindingRule; ?>::NAME, $rules);
+        $this->assertInstanceOf(<?php echo $codeBindingRule; ?>::class, $rules[<?php echo $codeBindingRule; ?>::NAME]);
+    }
+
+    public function testTightenAddsRulesMissingFromBase()
+    {
+        $out = <?php echo $validatorClass; ?>::tighten([<?php echo $minOccursRule; ?>::NAME => 1], [<?php echo $maxOccursRule; ?>::NAME => 3]);
+        $this->assertSame([<?php echo $minOccursRule; ?>::NAME => 1, <?php echo $maxOccursRule; ?>::NAME => 3], $out);
+    }
+
+    public function testTightenNeverLowersMinimum()
+    {
+        $this->assertSame([<?php echo $minOccursRule; ?>::NAME => 2], <?php echo $validatorClass; ?>::tighten([<?php echo $minOccursRule; ?>::NAME => 2], [<?php echo $minOccursRule; ?>::NAME => 1]));
+        $this->assertSame([<?php echo $minOccursRule; ?>::NAME => 3], <?php echo $validatorClass; ?>::tighten([<?php echo $minOccursRule; ?>::NAME => 2], [<?php echo $minOccursRule; ?>::NAME => 3]));
+        $this->assertSame([<?php echo $minOccursRule; ?>::NAME => 1], <?php echo $validatorClass; ?>::tighten([<?php echo $minOccursRule; ?>::NAME => 0], [<?php echo $minOccursRule; ?>::NAME => 1]));
+    }
+
+    public function testTightenNeverRaisesMaximum()
+    {
+        $this->assertSame([<?php echo $maxOccursRule; ?>::NAME => 2], <?php echo $validatorClass; ?>::tighten([<?php echo $maxOccursRule; ?>::NAME => 2], [<?php echo $maxOccursRule; ?>::NAME => 5]));
+        $this->assertSame([<?php echo $maxOccursRule; ?>::NAME => 1], <?php echo $validatorClass; ?>::tighten([<?php echo $maxOccursRule; ?>::NAME => 2], [<?php echo $maxOccursRule; ?>::NAME => 1]));
+    }
+
+    public function testTightenTreatsUnlimitedMaximumAsNoBound()
+    {
+        $this->assertSame([<?php echo $maxOccursRule; ?>::NAME => 4], <?php echo $validatorClass; ?>::tighten([<?php echo $maxOccursRule; ?>::NAME => -1], [<?php echo $maxOccursRule; ?>::NAME => 4]));
+        $this->assertSame([<?php echo $maxOccursRule; ?>::NAME => 4], <?php echo $validatorClass; ?>::tighten([<?php echo $maxOccursRule; ?>::NAME => 4], [<?php echo $maxOccursRule; ?>::NAME => -1]));
+    }
+
+    public function testTightenReplacesOtherRules()
+    {
+        $out = <?php echo $validatorClass; ?>::tighten([<?php echo $patternMatchRule; ?>::NAME => '/a/'], [<?php echo $patternMatchRule; ?>::NAME => '/b/']);
+        $this->assertSame([<?php echo $patternMatchRule; ?>::NAME => '/b/'], $out);
     }
 }
 <?php return ob_get_clean();

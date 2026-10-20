@@ -57,4 +57,27 @@ class DocumentationUtils
         }
         return '' === $out ? '' : (str_repeat(' ', $spaces) . $out . ($trailingNewline ? "\n" : ''));
     }
+
+    /**
+     * Makes arbitrary text, e.g. taken from a profile package, safe to write inside a block comment by breaking up any
+     * comment terminators it contains.
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function escapeCommentText(string $text): string
+    {
+        return str_replace('*/', '* /', $text);
+    }
+
+    /**
+     * Like {@see self::escapeCommentText()}, with line breaks also collapsed so the text stays on its comment line.
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function escapeCommentLine(string $text): string
+    {
+        return self::escapeCommentText(trim(preg_replace('{\s*\R\s*}', ' ', $text)));
+    }
 }

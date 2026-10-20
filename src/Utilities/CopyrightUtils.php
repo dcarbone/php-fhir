@@ -31,4 +31,22 @@ class CopyrightUtils
             implode("\n * ", $sourceMetadata->getFHIRCopyright())
         );
     }
+
+    /**
+     * Appends a profile's own copyright statement to a comment produced by {@see self::compileFullCopyrightComment()}.
+     */
+    public static function appendProfileCopyright(string $comment, null|string $profileCopyright): string
+    {
+        if (null === $profileCopyright) {
+            return $comment;
+        }
+        $lines = [];
+        foreach (preg_split('{\R}', DocumentationUtils::escapeCommentText($profileCopyright)) as $line) {
+            $lines[] = rtrim(' * ' . $line);
+        }
+        return substr($comment, 0, -strlen(' */'))
+            . " *\n * Profile Copyright Notice:\n *\n"
+            . implode("\n", $lines)
+            . "\n */";
+    }
 }

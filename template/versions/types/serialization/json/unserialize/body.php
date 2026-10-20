@@ -76,18 +76,20 @@ foreach($type->getProperties()->getIterator() as $property) :
                 $valCnt = $extCnt;
             }
             for ($i = 0; $i < $valCnt; $i++) {
-                $v = $exts[$i] ?? new \stdClass();
+                $v = isset($exts[$i]) ? clone $exts[$i] : new \stdClass();
                 $v->value = $vals[$i] ?? null;
                 $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize($v, $config));
             }
 <?php else : ?>
-            $v = $decoded-><?php echo $propNameExt; ?> ?? new \stdClass();
+            $v = isset($decoded-><?php echo $propNameExt; ?>) ? clone $decoded-><?php echo $propNameExt; ?> : new \stdClass();
             $v->value = $decoded-><?php echo $propName; ?> ?? null;
             $type-><?php echo $setter; ?>(<?php echo $propTypeClass; ?>::jsonUnserialize($v, $config));
 <?php endif; ?>
         }
 <?php
-    // for contained resources, we must extract the resourceType key and construct the corresponding class directly
+    // for contained resources, we must use the resourceType key to construct the corresponding class directly.  the key is
+    // left in place, as the decoded input must not be modified: it may be unserialized again, e.g. into the base type after
+    // a profile violation.  the resource's own unserialize checks that it matches.
     elseif ($propTypeKind->isResourceContainer($version)) : ?>
         if (isset($decoded-><?php echo $propName; ?>)) {
 <?php   if ($property->isCollection()) : ?>
@@ -99,14 +101,11 @@ foreach($type->getProperties()->getIterator() as $property) :
             }
             foreach($vals as $v) {
                 $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::mustGetContainedTypeClassnameFromJSON($v);
-                unset($v-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>);
-                $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize($v, $config));
+                $type-><?php echo $setter; ?>(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::jsonUnserializeResource($typeClassName, $v, $config));
             }
 <?php   else : ?>
             $typeClassName = <?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::mustGetContainedTypeClassnameFromJSON($decoded-><?php echo $propName; ?>);
-            $v = $decoded-><?php echo $propName; ?>;
-            unset($v-><?php echo PHPFHIR_JSON_FIELD_RESOURCE_TYPE; ?>);
-            $type-><?php echo $setter; ?>($typeClassName::jsonUnserialize($v, $config));
+            $type-><?php echo $setter; ?>(<?php echo PHPFHIR_VERSION_CLASSNAME_VERSION_TYPE_MAP; ?>::jsonUnserializeResource($typeClassName, $decoded-><?php echo $propName; ?>, $config));
 <?php   endif; ?>
         }
 <?php else : ?>

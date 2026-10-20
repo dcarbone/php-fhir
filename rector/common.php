@@ -38,9 +38,8 @@ use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Php80\Rector\FuncCall\ClassOnObjectRector;
 use Rector\ValueObject\PhpVersion;
 
+
 /*
- * Rector configuration for the GENERATED code tree (output/src, output/tests) only.
- *
  * This is deliberately separate from any rector config that might one day target the
  * generator's own `src/` - the risk profile, ruleset, and cadence for hand-written generator
  * code vs. machine-generated library code are different concerns.
@@ -62,19 +61,15 @@ use Rector\ValueObject\PhpVersion;
  * need to be evaluated and enabled individually, each verified the same way #195/#196/#197 were:
  * diff a full version-matrix generation, confirm phpunit + `php -l` parity, before merging.
  */
-return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->paths([
-        __DIR__ . '/output/src',
-        __DIR__ . '/output/tests',
-    ]);
-
+function _common_rector_config(RectorConfig $rectorConfig): void
+{
     // Persist per-file "already clean" results between runs. Rector hashes each file's content
     // plus this config's rule/set fingerprint, so a stale or foreign-version cache is simply
     // ignored rather than producing incorrect output - safe to restore from CI cache blindly.
     // CI (.github/workflows/tests.yaml, .github/workflows/publish-generated.yaml) persists this
     // directory across runs via actions/cache so unchanged generated files are skipped entirely
     // instead of being re-parsed/re-analyzed every run.
-    $rectorConfig->cacheDirectory(__DIR__ . '/.rector-cache/generated');
+    $rectorConfig->cacheDirectory(__DIR__ . '/../.rector-cache/cache');
 
     // Explicit rather than relying on Rector's own default (also parallel, but we don't want
     // behavior here to drift silently if that default ever changes). Rector auto-detects and caps
@@ -121,12 +116,4 @@ return static function (RectorConfig $rectorConfig): void {
     // Templates::pruneUnusedImports(). Rector performs full AST-based analysis here, so it can
     // catch anything the lightweight regex heuristic in the generator missed.
     $rectorConfig->removeUnusedImports();
-
-    // never touch the generator itself, only its output.
-    $rectorConfig->skip([
-        __DIR__ . '/src',
-        __DIR__ . '/bin',
-        __DIR__ . '/tests',
-        __DIR__ . '/template',
-    ]);
-};
+}

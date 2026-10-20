@@ -79,6 +79,11 @@ class <?php echo PHPFHIR_CLASSNAME_VERSION_CONFIG; ?> implements <?php echo PHPF
                 libxmlOpts: $config['libxmlOpts'] ?? null,
                 jsonDecodeMaxDepth: $config['jsonDecodeMaxDepth'] ?? null,
                 jsonDecodeOpts: $config['jsonDecodeOpts'] ?? null,
+                profileResolution: $config['profileResolution'] ?? null,
+                onUnknownProfile: $config['onUnknownProfile'] ?? null,
+                onAmbiguousProfile: $config['onAmbiguousProfile'] ?? null,
+                onProfileVersionMismatch: $config['onProfileVersionMismatch'] ?? null,
+                onProfileViolation: $config['onProfileViolation'] ?? null,
             );
         }
         $this->_unserializeConfig = $config;

@@ -219,6 +219,74 @@ class NameUtils
     }
 
     /**
+     * @param string $fieldName FHIR name of a field, e.g. "birthDate".
+     * @return string Name of the constant holding the field name, e.g. "FIELD_BIRTH_DATE".
+     */
+    public static function getFieldConstantName(string $fieldName): string
+    {
+        return 'FIELD_' . self::getConstName($fieldName);
+    }
+
+    /**
+     * @param string $fieldName FHIR name of a field, e.g. "birthDate".
+     * @return string Name of the field's getter method, e.g. "getBirthDate".
+     */
+    public static function getGetterName(string $fieldName): string
+    {
+        return 'get' . ucfirst($fieldName);
+    }
+
+    /**
+     * Joins the alphanumeric runs of $name, each with its first letter upper cased, e.g. "us-core.patient" =>
+     * "UsCorePatient".  The result may be empty, or start with a digit.
+     *
+     * @param string $name
+     * @return string
+     */
+    public static function toPascalCase(string $name): string
+    {
+        $out = '';
+        foreach (preg_split('{[^A-Za-z0-9]+}', $name, -1, PREG_SPLIT_NO_EMPTY) as $part) {
+            $out .= ucfirst($part);
+        }
+        return $out;
+    }
+
+    /**
+     * Derives a valid class name from arbitrary text, see {@see self::toPascalCase()}.
+     *
+     * @param string $name
+     * @param string $digitPrefix Prepended when the name would otherwise start with a digit.
+     * @return string
+     * @throws \DomainException If no valid class name can be derived.
+     */
+    public static function sanitizeClassName(string $name, string $digitPrefix = ''): string
+    {
+        $out = self::toPascalCase($name);
+        if ('' !== $out && ctype_digit($out[0])) {
+            $out = $digitPrefix . $out;
+        }
+        if (!self::isValidClassName($out)) {
+            throw new \DomainException(sprintf('Cannot derive a valid class name from "%s", got "%s".', $name, $out));
+        }
+        return $out;
+    }
+
+    /**
+     * @param string $fqn Fully qualified class name, with or without leading slash.
+     * @return array{0: string, 1: string} Namespace, without leading slash and empty if there is none, and class name.
+     */
+    public static function splitFullyQualifiedName(string $fqn): array
+    {
+        $fqn = ltrim($fqn, PHPFHIR_NAMESPACE_SEPARATOR);
+        $pos = strrpos($fqn, PHPFHIR_NAMESPACE_SEPARATOR);
+        if (false === $pos) {
+            return ['', $fqn];
+        }
+        return [substr($fqn, 0, $pos), substr($fqn, $pos + 1)];
+    }
+
+    /**
      * @param \DCarbone\PHPFHIR\Version\Definition\Type $type
      * @return string
      */
