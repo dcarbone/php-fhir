@@ -32,7 +32,7 @@ runs:
       with:
         php-version: '${{ inputs.php-version }}'
         extensions: "libxml simplexml json zip"
-        ini-values: "precision=20"
+        ini-values: "precision=20 memory_limit=1G"
 
     - name: 'Install jq'
       uses: "dcarbone/install-jq-action@v4"
