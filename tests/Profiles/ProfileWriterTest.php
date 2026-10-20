@@ -252,6 +252,33 @@ class ProfileWriterTest extends TestCase
         }
     }
 
+    /**
+     * A package controls the text written into the generated classes' comments, and must not be able to inject code.
+     */
+    public function testPackageTextCannotInjectCode(): void
+    {
+        $out = $this->_root . '/out';
+        mkdir($out);
+        $ns = 'Acme\\Inject\\Versions\\R4\\Profiles';
+        eval('namespace Acme\\Inject\\Versions\\R4\\Types; class FHIRPatient {}');
+
+        $payload = '*/ $GLOBALS[\'phpfhir_injected\'] = true; /*';
+        $url = 'https://example.org/*/patient ' . $payload;
+        $classes = ProfileClasses::build($this->set([
+            self::structureDefinition('evil-p', 'Patient', 'constraint', [
+                'url' => $url,
+                'title' => $payload,
+                'copyright' => $payload,
+            ]),
+        ]), $ns, 'Ig', TypeStubs::resolver('Acme\\Inject'));
+        ProfileWriter::write($out, $ns, '/* copyright */', ['test.ig' => $classes], CoreStubs::define());
+
+        unset($GLOBALS['phpfhir_injected']);
+        require $out . '/Acme/Inject/Versions/R4/Profiles/Ig/EvilP.php';
+        $this->assertArrayNotHasKey('phpfhir_injected', $GLOBALS);
+        $this->assertSame($url, constant($ns . '\\Ig\\EvilP::PROFILE_URL'));
+    }
+
     public function testNestedPackageNamespacesAreAllTried(): void
     {
         $out = $this->_root . '/out';

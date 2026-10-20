@@ -67,6 +67,7 @@
   "scripts": {
     "rector:generated": "rector process --config=./rector/generated.php",
     "rector:generated:dry-run": "rector process --config=./rector/generated.php --dry-run",
-    "rector:generator": "rector process --config=./rector/generator.php"
+    "rector:generator": "rector process --config=./rector/generator.php",
+    "rector:generator:dry-run": "rector process --config=./rector/generator.php --dry-run"
   }
 }

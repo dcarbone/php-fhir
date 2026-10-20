@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
+use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var string $copyright */
@@ -44,12 +45,12 @@ namespace <?php echo $profileClass->getNamespace(); ?>;
  * Class <?php echo $profileClass->getClassName(); ?>
 
  *
- * Profile: <?php echo $profile->getUrl(); ?>
+ * Profile: <?php echo DocumentationUtils::escapeCommentLine($profile->getUrl()); ?>
 
-<?php if (null !== $profile->getTitle()) : ?> * Title: <?php echo str_replace('*/', '* /', $profile->getTitle()); ?>
+<?php if (null !== $profile->getTitle()) : ?> * Title: <?php echo DocumentationUtils::escapeCommentLine($profile->getTitle()); ?>
 
 <?php endif; ?>
- * Constrains: <?php echo $profile->getType(); ?>
+ * Constrains: <?php echo DocumentationUtils::escapeCommentLine($profile->getType()); ?>
 
  */
 class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileClass->getExtendsName(); ?><?php if (null !== $profileInterface) : ?> implements <?php echo $profileInterface; ?><?php endif; ?>
@@ -145,7 +146,7 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
 
     /**
 <?php if ($accessor['single']) : ?>
-     * @return null|<?php echo $accessor['class']; ?> The "<?php echo $slices[$accessor['slice']]['name']; ?>" slice of <?php echo $slices[$accessor['slice']]['path']; ?>, if present.
+     * @return null|<?php echo $accessor['class']; ?> The "<?php echo DocumentationUtils::escapeCommentLine($slices[$accessor['slice']]['name']); ?>" slice of <?php echo DocumentationUtils::escapeCommentLine($slices[$accessor['slice']]['path']); ?>, if present.
      */
     public function <?php echo $accessor['method']; ?>(): null|<?php echo $accessor['class']; ?>
 
@@ -158,7 +159,7 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
         return null;
     }
 <?php else : ?>
-     * @return <?php echo $accessor['class']; ?>[] The items of the "<?php echo $slices[$accessor['slice']]['name']; ?>" slice of <?php echo $slices[$accessor['slice']]['path']; ?>.
+     * @return <?php echo $accessor['class']; ?>[] The items of the "<?php echo DocumentationUtils::escapeCommentLine($slices[$accessor['slice']]['name']); ?>" slice of <?php echo DocumentationUtils::escapeCommentLine($slices[$accessor['slice']]['path']); ?>.
      */
     public function <?php echo $accessor['method']; ?>(): array
     {

@@ -41,7 +41,7 @@ class CopyrightUtils
             return $comment;
         }
         $lines = [];
-        foreach (preg_split('{\R}', str_replace('*/', '* /', $profileCopyright)) as $line) {
+        foreach (preg_split('{\R}', DocumentationUtils::escapeCommentText($profileCopyright)) as $line) {
             $lines[] = rtrim(' * ' . $line);
         }
         return substr($comment, 0, -strlen(' */'))

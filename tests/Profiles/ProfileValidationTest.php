@@ -280,6 +280,42 @@ class ProfileValidationTest extends TestCase
         $this->assertStringContainsString("PROFILE_URL = 'http://example.org/fhir/StructureDefinition/sample'", $source);
     }
 
+    /**
+     * Text taken from a profile package is written into the class's comments, and must not be able to end them.
+     */
+    public function testPackageTextCannotEscapeComments(): void
+    {
+        $payload = '*/ $GLOBALS[\'phpfhir_injected\'] = true; /*';
+        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient', 'constraint', [
+            'url' => 'https://example.org/*/patient ' . $payload,
+            'title' => "Title {$payload}\nsecond line",
+            'copyright' => "Copyright {$payload}",
+        ]));
+        $compiled = [
+            'rules' => [],
+            'slices' => [['path' => 'identifier', 'name' => "ssn {$payload}", 'match' => ['system' => 'http://ssa.gov'], 'max' => 1]],
+            'invariants' => [],
+            'skipped' => [],
+        ];
+        $package = ['name' => "pkg {$payload}", 'version' => "1 {$payload}", 'author' => "author {$payload}", 'license' => "license {$payload}"];
+        $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, $compiled, self::navigator(), $package);
+        $source = Templates::renderProfileClass("/*!\n * c\n */", $class);
+
+        $this->assertNotSame([], $class->getSliceAccessors());
+        $this->assertStringContainsString(' * Profile: https://example.org/* /patient * / $GLOBALS', $source);
+        $this->assertStringContainsString(' * Title: Title * / $GLOBALS[\'phpfhir_injected\'] = true; /* second line', $source);
+        $this->assertStringContainsString('The "ssn * / $GLOBALS', $source);
+        // the values themselves are kept as they are.
+        $this->assertStringContainsString('PROFILE_URL = ' . var_export($profile->getUrl(), true), $source);
+
+        // the payload may only appear inside comments and string literals, never as code.
+        foreach (token_get_all($source, TOKEN_PARSE) as $token) {
+            if (is_array($token) && !in_array($token[0], [T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING], true)) {
+                $this->assertStringNotContainsString('phpfhir_injected', $token[1]);
+            }
+        }
+    }
+
     public function testSliceAccessorOverrideKeepsInheritedShape(): void
     {
         $slice = static fn(string $name, null|int $max): array => ['path' => 'identifier', 'name' => $name, 'match' => ['system' => 'http://' . $name]] + (null === $max ? [] : ['max' => $max]);
