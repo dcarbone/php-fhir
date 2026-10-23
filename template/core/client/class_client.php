@@ -124,7 +124,7 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
 
         $rc = new <?php echo $responseClass; ?>($request->method, $url, $format);
 
-        $curlOpts = self::_BASE_CURL_OPTS + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
+        $curlOpts = self::_BASE_CURL_OPTS + array_merge($this->_config->getCurlOpts(), $request->clientOptions ?? []);
 
         if ($parseResponseHeaders) {
             $rc->headers = new <?php echo $responseHeaderClass; ?>();
