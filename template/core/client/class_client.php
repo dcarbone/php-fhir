@@ -124,30 +124,7 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
 
         $rc = new <?php echo $responseClass; ?>($request->method, $url, $format);
 
-        $curlOpts = self::_BASE_CURL_OPTS + array_merge($this->_config->getCurlOpts(), $request->options ?? []);
-
-        if ($parseResponseHeaders) {
-            $rc->headers = new <?php echo $responseHeaderClass; ?>();
-            $curlOpts[CURLOPT_HEADER] = 1;
-            $curlOpts[CURLOPT_HEADERFUNCTION] = function($ch, string $line) use (&$rc): int {
-                    return $rc->headers->addLine($line);
-                };
-        }
-
-        if (!isset($curlOpts[CURLOPT_HTTPHEADER])) {
-            $curlOpts[CURLOPT_HTTPHEADER] = [];
-        }
-
-        if (<?php echo $httpMethodEnum; ?>::GET !== $request->method) {
-            $curlOpts[CURLOPT_CUSTOMREQUEST] = $request->method->value;
-            $curlOpts[CURLOPT_HTTPHEADER][] = "X-HTTP-Method-Override: {$request->method->value}";
-        }
-
-        $curlOpts[CURLOPT_HTTPHEADER][] = $this->_buildAcceptHeader($request, $format);
-
-        if (isset($request->resource)) {
-            $curlOpts[CURLOPT_HTTPHEADER][] = $this->_buildContentTypeHeader($request, $format);
-        }
+        $curlOpts = $this->_buildCurlOpts($request, $rc, $format, $parseResponseHeaders);
 
         $ch = curl_init($url);
         if (!curl_setopt_array($ch, $curlOpts)) {
@@ -172,6 +149,56 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
         }
 
         return $rc;
+    }
+
+    /**
+     * Builds the final curl options array for a request.
+     *
+     * Precedence, lowest to highest: built-in defaults, client config options, per-request options.
+     * CURLOPT_* constants are integers, so array_replace is used rather than array_merge (which renumbers integer
+     * keys).  CURLOPT_HTTPHEADER is a list and is concatenated across layers rather than replaced.
+     *
+     * @param <?php echo $requestClass->getFullyQualifiedName(true); ?> $request
+     * @param <?php echo $responseClass->getFullyQualifiedName(true); ?> $rc
+     * @param <?php echo $formatEnum->getFullyQualifiedName(true); ?> $format
+     * @param bool $parseResponseHeaders
+     * @return array
+     */
+    protected function _buildCurlOpts(<?php echo $requestClass; ?> $request,
+                                      <?php echo $responseClass; ?> $rc,
+                                      <?php echo $formatEnum; ?> $format,
+                                      bool $parseResponseHeaders): array
+    {
+        $configOpts = $this->_config->getCurlOpts();
+        $requestOpts = $request->clientOptions ?? [];
+
+        $curlOpts = array_replace(self::_BASE_CURL_OPTS, $configOpts, $requestOpts);
+
+        $curlOpts[CURLOPT_HTTPHEADER] = array_merge(
+            array_values($configOpts[CURLOPT_HTTPHEADER] ?? []),
+            array_values($requestOpts[CURLOPT_HTTPHEADER] ?? []),
+        );
+
+        if ($parseResponseHeaders) {
+            $rc->headers = new <?php echo $responseHeaderClass; ?>();
+            $curlOpts[CURLOPT_HEADER] = 1;
+            $curlOpts[CURLOPT_HEADERFUNCTION] = function($ch, string $line) use (&$rc): int {
+                    return $rc->headers->addLine($line);
+                };
+        }
+
+        if (<?php echo $httpMethodEnum; ?>::GET !== $request->method) {
+            $curlOpts[CURLOPT_CUSTOMREQUEST] = $request->method->value;
+            $curlOpts[CURLOPT_HTTPHEADER][] = "X-HTTP-Method-Override: {$request->method->value}";
+        }
+
+        $curlOpts[CURLOPT_HTTPHEADER][] = $this->_buildAcceptHeader($request, $format);
+
+        if (isset($request->resource)) {
+            $curlOpts[CURLOPT_HTTPHEADER][] = $this->_buildContentTypeHeader($request, $format);
+        }
+
+        return $curlOpts;
     }
 
     protected function _buildAcceptHeader(<?php echo $requestClass; ?> $request,
