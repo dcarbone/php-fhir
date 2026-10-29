@@ -277,12 +277,8 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
         $opts = $this->_buildCurlOpts($cl, $req, true);
 
         $ch = curl_init('http://example.com/Patient');
-        try {
-            // with array_merge-renumbered keys, curl_setopt_array fails on option 0
-            $this->assertTrue(curl_setopt_array($ch, $opts));
-        } finally {
-            curl_close($ch);
-        }
+        // with array_merge-renumbered keys, curl_setopt_array fails on option 0
+        $this->assertTrue(curl_setopt_array($ch, $opts));
     }
 }
 <?php return ob_get_clean();
