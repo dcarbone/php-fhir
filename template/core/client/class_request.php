@@ -126,10 +126,10 @@ class <?php echo $coreFile; ?>
     public bool $parseResponseHeaders;
 
     /**
-     * Extra client clientOptions.  Possible entries will vary depending on what client implementation you are using.
+     * Extra client options.  Possible entries will vary depending on what client implementation you are using.
      *
      * If using the provided client (@see <?php echo $clientClass->getFullyQualifiedName(true); ?> class),
-     * these must be valid PHP curl clientOptions.
+     * these must be valid PHP curl options.  They are applied on top of any options defined in the client config.
      */
     public array $clientOptions;
 
