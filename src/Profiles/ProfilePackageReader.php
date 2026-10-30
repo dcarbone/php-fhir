@@ -207,15 +207,20 @@ class ProfilePackageReader
         if (!is_dir($root)) {
             $root = $dir;
         }
+        // scandir rather than glob: it sees dot files (such as the package index) and is unaffected by glob
+        // metacharacters in the directory path.
+        $entries = @scandir($root, SCANDIR_SORT_NONE);
+        if (false === $entries) {
+            throw new ProfilePackageException(sprintf('Unable to list files in "%s".', $root));
+        }
         $files = [];
-        // glob skips dot files, such as the package index, unless asked for them.
-        foreach (['*.json', '.*.json'] as $pattern) {
-            $found = glob($root . DIRECTORY_SEPARATOR . $pattern);
-            if (false === $found) {
-                throw new ProfilePackageException(sprintf('Unable to list files in "%s".', $root));
+        foreach ($entries as $entry) {
+            if (0 !== strcasecmp(substr($entry, -5), '.json')) {
+                continue;
             }
-            foreach ($found as $file) {
-                $files[basename($file)] = $file;
+            $path = $root . DIRECTORY_SEPARATOR . $entry;
+            if (is_file($path)) {
+                $files[$entry] = $path;
             }
         }
         return $files;

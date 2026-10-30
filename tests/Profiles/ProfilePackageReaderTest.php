@@ -123,6 +123,13 @@ class ProfilePackageReaderTest extends TestCase
         $this->assertNotNull($package->resolveStructureDefinition('http://example.org/fhir/StructureDefinition/base-thing'));
     }
 
+    public function testDirectoryWithGlobMetacharactersIsReadable(): void
+    {
+        $source = self::writePackageDir($this->_root . '/weird [1] *dir?', $this->standardFiles());
+        $package = ProfilePackageReader::read($this->config($source));
+        $this->assertSame(['my-observation', 'my-patient'], array_keys($package->getStructureDefinitions()));
+    }
+
     public function testResolveByCanonicalWithAndWithoutVersion(): void
     {
         $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());

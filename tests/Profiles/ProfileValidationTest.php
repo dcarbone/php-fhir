@@ -166,6 +166,22 @@ class ProfileValidationTest extends TestCase
         $this->assertSame([], self::generate([['path' => 'deceased[x]', 'types' => ['boolean', 'dateTime', 'integer']]])->rules);
     }
 
+    public function testChoiceElementWithNoMatchingVariantIsSkipped(): void
+    {
+        // an empty "allowed" list would reject every variant; the mismatch is reported instead.
+        $code = self::generate([['path' => 'deceased[x]', 'min' => 1, 'types' => ['string']]]);
+        $this->assertSame([
+            "'deceased[x]'" => [
+                'choice_occurs' => [
+                    'fields' => ['deceasedBoolean', 'deceasedDateTime', 'deceasedInteger'],
+                    'min' => 1,
+                ],
+            ],
+        ], $code->rules);
+        $this->assertCount(1, $code->skipped);
+        $this->assertStringContainsString('string', $code->skipped[0]);
+    }
+
     public function testFixedPatternAndBinding(): void
     {
         $pattern = ['coding' => [['system' => 's', 'code' => 'M']]];

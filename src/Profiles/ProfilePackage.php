@@ -31,8 +31,10 @@ class ProfilePackage
     private ProfilePackageConfig $_config;
     private array $_manifest;
 
-    /** @var array<string, array<string, array>> resource type => id => resource */
+    /** @var array<string, array<string, array|string>> resource type => id => packed resource */
     private array $_resources = [];
+    /** @var array<string, true> ids of StructureDefinitions whose derivation is not "constraint" */
+    private array $_nonProfileSDs = [];
     /** @var array<string, array<string, string>> resource type => canonical url => id */
     private array $_urlIndex = [];
 
@@ -118,7 +120,7 @@ class ProfilePackage
      * Prepares a resource for storage.  Packages can be enormous and resources are rarely read more than once, so
      * they are kept compressed.
      *
-     * @return null|array{type: string, id: string, url: null|string, data: array|string} Null if the resource is not retained.
+     * @return null|array{type: string, id: string, url: null|string, derivation: null|string, data: array|string} Null if the resource is not retained.
      * @internal Used by the reader while populating the package.
      */
     public static function packResource(array $resource): null|array
@@ -136,12 +138,13 @@ class ProfilePackage
             'type' => $type,
             'id' => $id,
             'url' => isset($resource['url']) && is_string($resource['url']) ? $resource['url'] : null,
+            'derivation' => isset($resource['derivation']) && is_string($resource['derivation']) ? $resource['derivation'] : null,
             'data' => $data,
         ];
     }
 
     /**
-     * @param array{type: string, id: string, url: null|string, data: array|string} $packed
+     * @param array{type: string, id: string, url: null|string, derivation?: null|string, data: array|string} $packed
      * @internal Used by the reader while populating the package.
      */
     public function addPackedResource(array $packed): void
@@ -149,6 +152,14 @@ class ProfilePackage
         $this->_resources[$packed['type']][$packed['id']] = $packed['data'];
         if (null !== $packed['url']) {
             $this->_urlIndex[$packed['type']][$packed['url']] = $packed['id'];
+        }
+        if (ProfileResourceTypeEnum::STRUCTURE_DEFINITION->value === $packed['type']) {
+            // Recorded so profiles can be listed without inflating every base / specialization definition.
+            if ('constraint' === ($packed['derivation'] ?? null)) {
+                unset($this->_nonProfileSDs[$packed['id']]);
+            } else {
+                $this->_nonProfileSDs[$packed['id']] = true;
+            }
         }
     }
 
@@ -182,10 +193,10 @@ class ProfilePackage
     {
         $out = [];
         foreach ($this->_resources[ProfileResourceTypeEnum::STRUCTURE_DEFINITION->value] as $id => $packed) {
-            $sd = self::_unpack($packed);
-            if ('constraint' === ($sd['derivation'] ?? null)) {
-                $out[$id] = $sd;
+            if (isset($this->_nonProfileSDs[$id])) {
+                continue;
             }
+            $out[$id] = self::_unpack($packed);
         }
         return $out;
     }

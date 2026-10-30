@@ -60,13 +60,16 @@ class ProfileClasses implements Countable, IteratorAggregate
     ): self
     {
         $wanted = [];
+        $depths = [];
         foreach ($set->getProfiles() as $profile) {
             // extension definitions are used to resolve extension slices, not as classes of their own.
             if ('Extension' !== $profile->getType()) {
                 $wanted[$profile->getUrl()] = $profile;
+                $depths[$profile->getUrl()] = count($profile->getAncestors());
             }
         }
-        uasort($wanted, static fn(Profile $a, Profile $b): int => count($a->getAncestors()) <=> count($b->getAncestors()));
+        // parents must be built before their children.
+        uksort($wanted, static fn(string $a, string $b): int => $depths[$a] <=> $depths[$b]);
 
         // profiles sharing a name (it is not unique within a package) are named after their ids instead.
         $nameCounts = [];
@@ -102,10 +105,13 @@ class ProfileClasses implements Countable, IteratorAggregate
                 ));
             }
 
+            // nearest ancestor that has a class; a profile may derive from one that is not generated.
             $parent = null;
             foreach ($profile->getAncestors() as $ancestor) {
                 $parent = $classes->_byUrl[$ancestor->getUrl()] ?? $dependencyClasses[$ancestor->getUrl()] ?? null;
-                break;
+                if (null !== $parent) {
+                    break;
+                }
             }
 
             $packageFQN = $profilesNamespace . PHPFHIR_NAMESPACE_SEPARATOR . $packageNamespace;

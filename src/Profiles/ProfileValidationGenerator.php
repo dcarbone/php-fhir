@@ -190,9 +190,18 @@ final class ProfileValidationGenerator
             }
         }
         $constraint = ['fields' => $fields];
-        // allowing every variant restricts nothing.
-        if (isset($rule['types']) && $allowed !== $fields) {
-            $constraint['allowed'] = $allowed;
+        if (isset($rule['types'])) {
+            if ([] === $allowed) {
+                // an empty allowed list would reject every variant; the profile types are not ones this element has.
+                $this->_skipped[] = sprintf(
+                    '%s: none of the profile types (%s) are variants of this choice element',
+                    $rule['path'],
+                    implode(', ', $rule['types']),
+                );
+            } elseif ($allowed !== $fields) {
+                // allowing every variant restricts nothing.
+                $constraint['allowed'] = $allowed;
+            }
         }
         foreach (['min', 'max'] as $bound) {
             if (isset($rule[$bound])) {

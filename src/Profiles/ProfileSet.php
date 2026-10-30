@@ -28,7 +28,7 @@ class ProfileSet
 
     /** @var array<string, Profile> canonical url => profile */
     private array $_byUrl = [];
-    /** @var string[] urls of profiles that belong to the package itself, in package order */
+    /** @var array<string, true> urls of profiles defined by the package itself, in definition order */
     private array $_ownUrls = [];
     /** @var array<string, string> profile id => base definition that could not be resolved */
     private array $_unresolved = [];
@@ -68,13 +68,10 @@ class ProfileSet
         foreach ($package->getStructureDefinitions() as $sd) {
             $profile = Profile::fromStructureDefinition($sd);
             $set->_byUrl[$profile->getUrl()] = $profile;
-            $set->_ownUrls[] = $profile->getUrl();
+            $set->_ownUrls[$profile->getUrl()] = true;
         }
 
-        $own = [];
-        foreach ($set->_ownUrls as $url) {
-            $own[$url] = true;
-        }
+        $own = $set->_ownUrls;
         $unconfigured = self::_collectUnconfiguredDependencies($package, $dependencies);
         foreach ($set->_byUrl as $url => $profile) {
             // a dependency's profiles were checked, and their problems reported, when the dependency itself was built.
@@ -213,7 +210,7 @@ class ProfileSet
     public function getProfiles(): array
     {
         $out = [];
-        foreach ($this->_ownUrls as $url) {
+        foreach (array_keys($this->_ownUrls) as $url) {
             $out[] = $this->_byUrl[$url];
         }
         return $out;
