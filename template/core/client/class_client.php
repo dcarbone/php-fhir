@@ -155,14 +155,7 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
      * Builds the final curl options array for a request.
      *
      * Precedence, lowest to highest: built-in defaults, client config options, per-request options.
-     * CURLOPT_* constants are integers, so array_replace is used rather than array_merge (which renumbers integer
-     * keys).  CURLOPT_HTTPHEADER is a list and is concatenated across layers rather than replaced.
-     *
-     * @param <?php echo $requestClass->getFullyQualifiedName(true); ?> $request
-     * @param <?php echo $responseClass->getFullyQualifiedName(true); ?> $rc
-     * @param <?php echo $formatEnum->getFullyQualifiedName(true); ?> $format
-     * @param bool $parseResponseHeaders
-     * @return array
+     * CURLOPT_HTTPHEADER is merged by header name rather than replaced wholesale.
      */
     protected function _buildCurlOpts(<?php echo $requestClass; ?> $request,
                                       <?php echo $responseClass; ?> $rc,
@@ -174,9 +167,9 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
 
         $curlOpts = array_replace(self::_BASE_CURL_OPTS, $configOpts, $requestOpts);
 
-        $curlOpts[CURLOPT_HTTPHEADER] = array_merge(
-            array_values($configOpts[CURLOPT_HTTPHEADER] ?? []),
-            array_values($requestOpts[CURLOPT_HTTPHEADER] ?? []),
+        $curlOpts[CURLOPT_HTTPHEADER] = $this->_mergeHttpHeaders(
+            $configOpts[CURLOPT_HTTPHEADER] ?? [],
+            $requestOpts[CURLOPT_HTTPHEADER] ?? [],
         );
 
         if ($parseResponseHeaders) {
@@ -199,6 +192,48 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
         }
 
         return $curlOpts;
+    }
+
+    /**
+     * Merges config-level and request-level CURLOPT_HTTPHEADER lists.
+     *
+     * Header names are matched case-insensitively.  A request header replaces a config header of the same name
+     * (in the config header's original position); config headers with no request counterpart are retained, and
+     * request-only headers are appended.
+     *
+     * @param string[] $configHeaders
+     * @param string[] $requestHeaders
+     * @return string[]
+     */
+    protected function _mergeHttpHeaders(array $configHeaders, array $requestHeaders): array
+    {
+        $merged = [];
+        foreach ([$configHeaders, $requestHeaders] as $headers) {
+            foreach ($headers as $header) {
+                $header = (string)$header;
+                $name = self::_httpHeaderName($header);
+                if (null === $name) {
+                    $merged[] = $header;
+                } else {
+                    $merged[$name] = $header;
+                }
+            }
+        }
+        return array_values($merged);
+    }
+
+    /**
+     * Extracts the lower-cased header name from a curl-style header line, or null if there is none.
+     *
+     * Supports the curl "Name:" (unset header) and "Name;" (send header with empty value) forms.
+     */
+    private static function _httpHeaderName(string $header): null|string
+    {
+        $len = strcspn($header, ':;');
+        if (0 === $len || $len === strlen($header)) {
+            return null;
+        }
+        return strtolower(trim(substr($header, 0, $len)));
     }
 
     protected function _buildAcceptHeader(<?php echo $requestClass; ?> $request,

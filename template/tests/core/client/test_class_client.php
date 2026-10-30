@@ -64,10 +64,6 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
         $this->assertEquals('http://example.com', $cl->getConfig()->getAddress());
     }
 
-    /**
-     * Invokes the protected curl option builder.  ReflectionMethod::setAccessible() is a no-op since PHP 8.1
-     * and deprecated in 8.3, so it is not called.
-     */
     private function _buildCurlOpts(<?php echo $clientClientClass; ?> $cl,
                                     <?php echo $requestClass; ?> $req,
                                     bool $parseResponseHeaders = false): array
@@ -97,7 +93,6 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
         $this->assertArrayHasKey(CURLOPT_SSL_VERIFYPEER, $opts);
         $this->assertFalse($opts[CURLOPT_SSL_VERIFYPEER]);
 
-        // array_merge would have renumbered the integer CURLOPT_* keys to 0, 1, ...
         foreach (array_keys($opts) as $k) {
             $this->assertIsInt($k);
             $this->assertGreaterThan(0, $k, sprintf('Found renumbered curl option key %d', $k));
@@ -175,9 +170,7 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
 
         $opts = $this->_buildCurlOpts($cl, $req);
 
-        // request wins
         $this->assertSame(3, $opts[CURLOPT_TIMEOUT]);
-        // config values not overridden by request are retained
         $this->assertSame(5, $opts[CURLOPT_CONNECTTIMEOUT]);
         $this->assertSame('config-agent/1.0', $opts[CURLOPT_USERAGENT]);
     }
@@ -203,8 +196,85 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
 
         $this->assertContains('Authorization: Bearer abc123', $opts[CURLOPT_HTTPHEADER]);
         $this->assertContains('X-Request-ID: xyz', $opts[CURLOPT_HTTPHEADER]);
-        // headers list must remain a list (recursive replace would have clobbered index 0)
         $this->assertSame(array_values($opts[CURLOPT_HTTPHEADER]), $opts[CURLOPT_HTTPHEADER]);
+    }
+
+    public function testRequestHttpHeaderOverridesSameNamedConfigHeader()
+    {
+        $c = new <?php echo $clientConfigClass; ?>(
+            address: 'http://example.com',
+            curlOpts: [
+                CURLOPT_HTTPHEADER => [
+                    'X-Tenant: acme',
+                    'Authorization: Bearer stale',
+                    'X-Trace: 1',
+                ],
+            ],
+        );
+        $cl = new <?php echo $clientClientClass; ?>($c);
+        $req = new <?php echo $requestClass; ?>(
+            method: <?php echo $httpMethodEnum; ?>::GET,
+            path: '/Patient',
+            clientOptions: [
+                CURLOPT_HTTPHEADER => ['Authorization: Bearer fresh'],
+            ],
+        );
+
+        $headers = $this->_buildCurlOpts($cl, $req)[CURLOPT_HTTPHEADER];
+
+        $auth = array_values(array_filter($headers, fn(string $h) => str_starts_with(strtolower($h), 'authorization:')));
+        $this->assertCount(1, $auth, 'Exactly one Authorization header must be sent');
+        $this->assertSame('Authorization: Bearer fresh', $auth[0]);
+
+        $this->assertSame(['X-Tenant: acme', 'Authorization: Bearer fresh', 'X-Trace: 1'], array_slice($headers, 0, 3));
+    }
+
+    public function testHttpHeaderOverrideIsCaseInsensitive()
+    {
+        $c = new <?php echo $clientConfigClass; ?>(
+            address: 'http://example.com',
+            curlOpts: [
+                CURLOPT_HTTPHEADER => ['AUTHORIZATION: Bearer stale', 'x-tenant: acme'],
+            ],
+        );
+        $cl = new <?php echo $clientClientClass; ?>($c);
+        $req = new <?php echo $requestClass; ?>(
+            method: <?php echo $httpMethodEnum; ?>::GET,
+            path: '/Patient',
+            clientOptions: [
+                CURLOPT_HTTPHEADER => ['authorization: Bearer fresh', 'X-Tenant: globex'],
+            ],
+        );
+
+        $headers = $this->_buildCurlOpts($cl, $req)[CURLOPT_HTTPHEADER];
+
+        $this->assertNotContains('AUTHORIZATION: Bearer stale', $headers);
+        $this->assertNotContains('x-tenant: acme', $headers);
+        $this->assertContains('authorization: Bearer fresh', $headers);
+        $this->assertContains('X-Tenant: globex', $headers);
+    }
+
+    public function testRequestCanUnsetConfigHttpHeaderUsingCurlSyntax()
+    {
+        $c = new <?php echo $clientConfigClass; ?>(
+            address: 'http://example.com',
+            curlOpts: [
+                CURLOPT_HTTPHEADER => ['Authorization: Bearer stale'],
+            ],
+        );
+        $cl = new <?php echo $clientClientClass; ?>($c);
+        $req = new <?php echo $requestClass; ?>(
+            method: <?php echo $httpMethodEnum; ?>::GET,
+            path: '/Patient',
+            clientOptions: [
+                CURLOPT_HTTPHEADER => ['Authorization:'],
+            ],
+        );
+
+        $headers = $this->_buildCurlOpts($cl, $req)[CURLOPT_HTTPHEADER];
+
+        $this->assertNotContains('Authorization: Bearer stale', $headers);
+        $this->assertContains('Authorization:', $headers);
     }
 
     public function testUserHttpHeadersDoNotDisplaceGeneratedHeaders()
@@ -277,7 +347,6 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
         $opts = $this->_buildCurlOpts($cl, $req, true);
 
         $ch = curl_init('http://example.com/Patient');
-        // with array_merge-renumbered keys, curl_setopt_array fails on option 0
         $this->assertTrue(curl_setopt_array($ch, $opts));
     }
 }
