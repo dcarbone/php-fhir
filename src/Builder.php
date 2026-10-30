@@ -68,7 +68,19 @@ class Builder
                            null|array $profilePackages = null): void
     {
         $this->registerErrorHandler();
+        try {
+            $this->_render($coreFiles, $testFiles, $versionNames, $profiles, $profilePackages);
+        } finally {
+            restore_error_handler();
+        }
+    }
 
+    private function _render(bool       $coreFiles,
+                             bool       $testFiles,
+                             null|array $versionNames,
+                             bool       $profiles,
+                             null|array $profilePackages): void
+    {
         // write php-fhir core entities
         if ($coreFiles) {
             $this->writeLibraryCoreEntities();
@@ -96,7 +108,7 @@ class Builder
 
         // write fhir version profile classes
         if ($profiles) {
-            $this->renderProfiles($versionNames, $profilePackages);
+            $this->_renderProfiles($versionNames, $profilePackages);
         }
     }
 
@@ -111,7 +123,15 @@ class Builder
     public function renderProfiles(null|array $versionNames = null, null|array $packageNames = null): void
     {
         $this->registerErrorHandler();
+        try {
+            $this->_renderProfiles($versionNames, $packageNames);
+        } finally {
+            restore_error_handler();
+        }
+    }
 
+    private function _renderProfiles(null|array $versionNames, null|array $packageNames): void
+    {
         if (null === $versionNames) {
             $versionNames = $this->config->getVersionNames();
         }
@@ -280,7 +300,7 @@ class Builder
     }
 
     /**
-     * Register custom error handler to force explosions.
+     * Register custom error handler to force explosions.  Callers must pair this with restore_error_handler().
      */
     private function registerErrorHandler(): void
     {
