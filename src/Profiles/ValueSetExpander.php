@@ -32,7 +32,7 @@ class ValueSetExpander
         'http://hl7.org/fhir/StructureDefinition/valueset-unclosed',
     ];
     private readonly ProfilePackage $package;
-    /** @var array<string, null|array> expansion results keyed by versionless canonical */
+    /** @var array<string, null|array> results of requested expansions keyed by versionless canonical */
     private array $_cache = [];
     /** @var array<string, true> canonicals currently being expanded, used to break reference cycles */
     private array $_expanding = [];
@@ -50,23 +50,26 @@ class ValueSetExpander
      */
     public function expand(string $canonical): null|array
     {
-        $codes = $this->_expand($canonical);
-        return [] === $codes ? null : $codes;
+        // only requested ValueSets are retained; caching every included one would hold the codes of a deep chain
+        // once per level.
+        $key = ProfilePackage::stripCanonicalVersion($canonical);
+        if (!array_key_exists($key, $this->_cache)) {
+            $codes = $this->_expand($canonical);
+            $this->_cache[$key] = [] === $codes ? null : $codes;
+        }
+        return $this->_cache[$key];
     }
 
     private function _expand(string $canonical): null|array
     {
         $key = ProfilePackage::stripCanonicalVersion($canonical);
-        if (array_key_exists($key, $this->_cache)) {
-            return $this->_cache[$key];
-        }
         if (isset($this->_expanding[$key])) {
             // a ValueSet that (transitively) includes itself cannot be enumerated.
             return null;
         }
         $this->_expanding[$key] = true;
         try {
-            return $this->_cache[$key] = $this->_doExpand($canonical);
+            return $this->_doExpand($canonical);
         } finally {
             unset($this->_expanding[$key]);
         }

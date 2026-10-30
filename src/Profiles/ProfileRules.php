@@ -63,6 +63,7 @@ class ProfileRules
         $slices = [];
         $invariants = [];
         $skipped = [];
+        $sliceChildren = null;
 
         foreach (array_keys($ids) as $id) {
             $element = self::_effective($profile, $chain, $id);
@@ -81,7 +82,8 @@ class ProfileRules
             }
 
             if ($element->isSlice() && 1 === substr_count($id, ':') && !str_contains(substr($id, (int)strrpos($id, ':')), '.')) {
-                $slice = self::_compileSlice($profile, $chain, $element);
+                $sliceChildren ??= self::_sliceChildren($profile, $chain);
+                $slice = self::_compileSlice($profile, $chain, $element, $sliceChildren[$id] ?? []);
                 if (null === $slice) {
                     $skipped[] = sprintf('%s: slice cannot be matched (no fixed / pattern values or extension profile)', $id);
                 } else {
@@ -175,13 +177,14 @@ class ProfileRules
 
     /**
      * @param Profile[] $chain
+     * @param array<string, ProfileElement> $children Elements within the slice, keyed by path relative to it.
      */
-    private static function _compileSlice(Profile $profile, array $chain, ProfileElement $slice): null|array
+    private static function _compileSlice(Profile $profile, array $chain, ProfileElement $slice, array $children): null|array
     {
         $slicedId = substr($slice->getId(), 0, (int)strrpos($slice->getId(), ':'));
         $discriminators = self::_slicing($profile, $chain, $slicedId)?->getDiscriminators() ?? [];
         $match = [] === $discriminators
-            ? self::_matchFixedValues($profile, $chain, $slice)
+            ? self::_matchFixedValues($slice, $children)
             : self::_matchDiscriminators($profile, $chain, $slice, $discriminators);
         if (null === $match) {
             return null;
@@ -222,10 +225,10 @@ class ProfileRules
     /**
      * Without discriminators, every fixed / pattern value within the slice is taken to identify its members.
      *
-     * @param Profile[] $chain
+     * @param array<string, ProfileElement> $children Elements within the slice, keyed by path relative to it.
      * @return null|array<string, mixed> Null if the slice cannot be matched.
      */
-    private static function _matchFixedValues(Profile $profile, array $chain, ProfileElement $slice): null|array
+    private static function _matchFixedValues(ProfileElement $slice, array $children): null|array
     {
         $match = [];
 
@@ -233,8 +236,7 @@ class ProfileRules
             $match = $own->getValue();
         }
 
-        $prefix = $slice->getId() . '.';
-        foreach (self::_sliceChildren($profile, $chain, $prefix) as $relative => $child) {
+        foreach ($children as $relative => $child) {
             if (null === $child->getFixedValue() || str_contains($relative, ':') || str_contains($relative, '[x]')) {
                 continue;
             }
@@ -306,10 +308,13 @@ class ProfileRules
     }
 
     /**
+     * Groups every element lying within a top-level slice by that slice's id.  An element's slice is the part of its
+     * id up to the first "." after the first ":", so one pass covers every slice {@see compile()} handles.
+     *
      * @param Profile[] $chain
-     * @return array<string, ProfileElement> path relative to the slice => element
+     * @return array<string, array<string, ProfileElement>> slice id => path relative to the slice => element
      */
-    private static function _sliceChildren(Profile $profile, array $chain, string $prefix): array
+    private static function _sliceChildren(Profile $profile, array $chain): array
     {
         $out = [];
         $sources = $profile->hasSnapshot() ? [$profile->getElements()] : [];
@@ -320,9 +325,12 @@ class ProfileRules
         }
         foreach ($sources as $elements) {
             foreach ($elements as $child) {
-                if (str_starts_with($child->getId(), $prefix)) {
-                    $out[substr($child->getId(), strlen($prefix))] ??= $child;
+                $id = $child->getId();
+                $colon = strpos($id, ':');
+                if (false === $colon || false === ($dot = strpos($id, '.', $colon))) {
+                    continue;
                 }
+                $out[substr($id, 0, $dot)][substr($id, $dot + 1)] ??= $child;
             }
         }
         return $out;

@@ -130,6 +130,16 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertSame([<?php echo $maxOccursRule; ?>::NAME => 4], <?php echo $validatorClass; ?>::tighten([<?php echo $maxOccursRule; ?>::NAME => 4], [<?php echo $maxOccursRule; ?>::NAME => -1]));
     }
 
+    public function testTightenMergesChoiceConstraints()
+    {
+        $base = [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b', 'c'], 'allowed' => ['a', 'b'], 'max' => 1]];
+        $out = <?php echo $validatorClass; ?>::tighten($base, [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b', 'c'], 'min' => 1]]);
+        $this->assertSame(['fields' => ['a', 'b', 'c'], 'allowed' => ['a', 'b'], 'max' => 1, 'min' => 1], $out[<?php echo $choiceOccursRule; ?>::NAME]);
+
+        $out = <?php echo $validatorClass; ?>::tighten($base, [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b', 'c'], 'allowed' => ['b', 'c'], 'max' => 2]]);
+        $this->assertSame(['fields' => ['a', 'b', 'c'], 'allowed' => ['b'], 'max' => 1], $out[<?php echo $choiceOccursRule; ?>::NAME]);
+    }
+
     public function testTightenReplacesOtherRules()
     {
         $out = <?php echo $validatorClass; ?>::tighten([<?php echo $patternMatchRule; ?>::NAME => '/a/'], [<?php echo $patternMatchRule; ?>::NAME => '/b/']);

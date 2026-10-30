@@ -360,10 +360,10 @@ class ValueSetExpanderTest extends TestCase
         $cache = new \ReflectionProperty($e, '_cache');
         $this->assertSame([], $cache->getValue($e));
         $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'b|2.0'));
-        // the included ValueSet is cached along the way, keyed without a version.
-        $this->assertSame([self::_VS . 'a', self::_VS . 'b'], array_keys($cache->getValue($e)));
+        // only the requested ValueSet is cached, keyed without a version; included ones are not retained.
+        $this->assertSame([self::_VS . 'b'], array_keys($cache->getValue($e)));
         $this->assertNull($e->expand(self::_VS . 'nope'));
         $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'a'));
-        $this->assertSame([self::_VS . 'a', self::_VS . 'b', self::_VS . 'nope'], array_keys($cache->getValue($e)));
+        $this->assertSame([self::_VS . 'b', self::_VS . 'nope', self::_VS . 'a'], array_keys($cache->getValue($e)));
     }
 }

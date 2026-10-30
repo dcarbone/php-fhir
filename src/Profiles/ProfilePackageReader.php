@@ -37,8 +37,12 @@ class ProfilePackageReader
     private const _PACKAGE_DIR = 'package';
     /** Conventional "<type>-<id>.json" names of files holding one of the retained resource types. */
     private const _RESOURCE_FILENAME_PATTERN = '{^(StructureDefinition|ValueSet|CodeSystem)-}';
-    /** Cheap test for files that may hold one of the retained resource types, before they are decoded. */
-    private const _RESOURCE_TYPE_PATTERN = '{"resourceType"\s*:\s*"(StructureDefinition|ValueSet|CodeSystem)"}';
+    /**
+     * Cheap test for files that may hold one of the retained resource types, before they are decoded.  Anchored (\G)
+     * at the first "resourceType" key, which in published FHIR JSON is the top-level resource's, so a file holding
+     * other resources nested inside e.g. a Bundle is not decoded only to be discarded.
+     */
+    private const _RESOURCE_TYPE_PATTERN = '{\G"resourceType"\s*:\s*"(StructureDefinition|ValueSet|CodeSystem)"}';
 
     /**
      * @param ProfilePackageConfig $config
@@ -151,7 +155,7 @@ class ProfilePackageReader
                 continue;
             }
             $contents = self::_readFile($path, $source);
-            if (!$conventional && !isset($indexed[$name]) && 1 !== preg_match(self::_RESOURCE_TYPE_PATTERN, $contents)) {
+            if (!$conventional && !isset($indexed[$name]) && !self::_mayHoldRetainedType($contents)) {
                 continue;
             }
             $json = self::_decode($contents, $name, $source);
@@ -187,6 +191,12 @@ class ProfilePackageReader
         return $out;
     }
 
+    private static function _mayHoldRetainedType(string $contents): bool
+    {
+        $pos = strpos($contents, '"resourceType"');
+        return false !== $pos && 1 === preg_match(self::_RESOURCE_TYPE_PATTERN, $contents, $m, 0, $pos);
+    }
+
     /**
      * Lists the JSON files directly inside the package directory.
      *
@@ -215,7 +225,7 @@ class ProfilePackageReader
         }
         $files = [];
         foreach ($entries as $entry) {
-            if (0 !== strcasecmp(substr($entry, -5), '.json')) {
+            if (!str_ends_with($entry, '.json')) {
                 continue;
             }
             $path = $root . DIRECTORY_SEPARATOR . $entry;

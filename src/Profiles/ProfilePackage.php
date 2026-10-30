@@ -155,7 +155,10 @@ class ProfilePackage
         }
         if (ProfileResourceTypeEnum::STRUCTURE_DEFINITION->value === $packed['type']) {
             // Recorded so profiles can be listed without inflating every base / specialization definition.
-            if ('constraint' === ($packed['derivation'] ?? null)) {
+            $derivation = array_key_exists('derivation', $packed)
+                ? $packed['derivation']
+                : (self::_unpack($packed['data'])['derivation'] ?? null);
+            if ('constraint' === $derivation) {
                 unset($this->_nonProfileSDs[$packed['id']]);
             } else {
                 $this->_nonProfileSDs[$packed['id']] = true;

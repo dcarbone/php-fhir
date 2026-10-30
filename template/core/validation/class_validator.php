@@ -156,9 +156,30 @@ class <?php echo $coreFile; ?>
                     <?php echo $constantsClass; ?>::UNLIMITED === $constraint => $base[$rule],
                     default => min($base[$rule], $constraint),
                 };
+            } elseif (<?php echo $choiceOccursRule; ?>::NAME === $rule) {
+                $base[$rule] = self::_tightenChoice($base[$rule], $constraint);
             } else {
                 $base[$rule] = $constraint;
             }
+        }
+        return $base;
+    }
+
+    /**
+     * Allowed variants are intersected and bounds narrowed, so a profile never loosens its parent's choice.
+     */
+    private static function _tightenChoice(array $base, array $constraining): array
+    {
+        if (isset($constraining['allowed'])) {
+            $base['allowed'] = isset($base['allowed'])
+                ? array_values(array_intersect($base['allowed'], $constraining['allowed']))
+                : $constraining['allowed'];
+        }
+        if (isset($constraining['min'])) {
+            $base['min'] = max($base['min'] ?? 0, $constraining['min']);
+        }
+        if (isset($constraining['max'])) {
+            $base['max'] = isset($base['max']) ? min($base['max'], $constraining['max']) : $constraining['max'];
         }
         return $base;
     }

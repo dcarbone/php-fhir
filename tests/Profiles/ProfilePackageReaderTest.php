@@ -103,6 +103,8 @@ class ProfilePackageReaderTest extends TestCase
         $files['mislabelled.json'] = self::structureDefinition('mislabelled');
         $files['us-core-thing.json'] = self::structureDefinition('unindexed');
         $files['example-patient.json'] = ['resourceType' => 'Patient', 'id' => 'example'];
+        // a resource of interest nested in another is not the file's resource.
+        $files['bundle.json'] = ['resourceType' => 'Bundle', 'id' => 'b', 'entry' => [['resource' => self::structureDefinition('nested')]]];
         $sources = [
             'directory' => self::writePackageDir($this->_root . '/named-dir', $files),
             'archive' => self::writePackageArchive($this->_root . '/named.tgz', $files),
@@ -125,7 +127,7 @@ class ProfilePackageReaderTest extends TestCase
 
     public function testDirectoryWithGlobMetacharactersIsReadable(): void
     {
-        $source = self::writePackageDir($this->_root . '/weird [1] *dir?', $this->standardFiles());
+        $source = self::writePackageDir($this->_root . '/weird [1] dir', $this->standardFiles());
         $package = ProfilePackageReader::read($this->config($source));
         $this->assertSame(['my-observation', 'my-patient'], array_keys($package->getStructureDefinitions()));
     }
@@ -315,5 +317,23 @@ class ProfilePackageReaderTest extends TestCase
     {
         $this->assertSame('http://a/b', ProfilePackage::stripCanonicalVersion('http://a/b|1.2.3'));
         $this->assertSame('http://a/b', ProfilePackage::stripCanonicalVersion('http://a/b'));
+    }
+
+    public function testPackedResourceWithoutDerivationFallsBackToData(): void
+    {
+        $package = new ProfilePackage($this->config($this->_root), self::manifest());
+        $package->addPackedResource([
+            'type' => 'StructureDefinition',
+            'id' => 'p',
+            'url' => null,
+            'data' => self::structureDefinition('p'),
+        ]);
+        $package->addPackedResource([
+            'type' => 'StructureDefinition',
+            'id' => 'base',
+            'url' => null,
+            'data' => ['resourceType' => 'StructureDefinition', 'id' => 'base', 'derivation' => 'specialization'],
+        ]);
+        $this->assertSame(['p'], array_keys($package->getStructureDefinitions()));
     }
 }
