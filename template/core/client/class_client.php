@@ -155,6 +155,7 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
      * Builds the final curl options array for a request.
      *
      * Precedence, lowest to highest: built-in defaults, client config options, per-request options.
+     * CURLOPT_RETURNTRANSFER is required by exec() and is always forced to true.
      * CURLOPT_HTTPHEADER is merged by header name rather than replaced wholesale.
      */
     protected function _buildCurlOpts(<?php echo $requestClass; ?> $request,
@@ -166,6 +167,7 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
         $requestOpts = $request->clientOptions ?? [];
 
         $curlOpts = array_replace(self::_BASE_CURL_OPTS, $configOpts, $requestOpts);
+        $curlOpts[CURLOPT_RETURNTRANSFER] = true;
 
         $curlOpts[CURLOPT_HTTPHEADER] = $this->_mergeHttpHeaders(
             $configOpts[CURLOPT_HTTPHEADER] ?? [],

@@ -131,6 +131,25 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
         $this->assertTrue($opts[CURLOPT_RETURNTRANSFER]);
     }
 
+    public function testReturnTransferCannotBeDisabled()
+    {
+        $c = new <?php echo $clientConfigClass; ?>(
+            address: 'http://example.com',
+            curlOpts: [CURLOPT_RETURNTRANSFER => false],
+        );
+        $cl = new <?php echo $clientClientClass; ?>($c);
+        $req = new <?php echo $requestClass; ?>(<?php echo $httpMethodEnum; ?>::GET, '/Patient');
+        $this->assertTrue($this->_buildCurlOpts($cl, $req)[CURLOPT_RETURNTRANSFER]);
+
+        $cl = new <?php echo $clientClientClass; ?>('http://example.com');
+        $req = new <?php echo $requestClass; ?>(
+            method: <?php echo $httpMethodEnum; ?>::GET,
+            path: '/Patient',
+            clientOptions: [CURLOPT_RETURNTRANSFER => false],
+        );
+        $this->assertTrue($this->_buildCurlOpts($cl, $req)[CURLOPT_RETURNTRANSFER]);
+    }
+
     public function testRequestCurlOptsAreApplied()
     {
         $cl = new <?php echo $clientClientClass; ?>('http://example.com');
