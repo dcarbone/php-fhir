@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792458414481,
+  "lastUpdate": 1793320878482,
   "repoUrl": "https://github.com/dcarbone/php-fhir",
   "entries": {
     "Serialization": [
@@ -12047,6 +12047,6030 @@ window.BENCHMARK_DATA = {
           {
             "name": "PHP 8.5 STU3 serialize json 1000 entries - peak RSS",
             "value": 0.32,
+            "unit": "MB"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "daniel.p.carbone@gmail.com",
+            "name": "Daniel Carbone",
+            "username": "dcarbone"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "66fcbb437bf3a13483e770245f0b9ab539cc3c76",
+          "message": "Client fixes (#222)",
+          "timestamp": "2026-10-29T19:35:55-05:00",
+          "tree_id": "b84f9ce757ff3955b97ad03ab36576e374d26a62",
+          "url": "https://github.com/dcarbone/php-fhir/commit/66fcbb437bf3a13483e770245f0b9ab539cc3c76"
+        },
+        "date": 1793320878127,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "PHP 8.1 DSTU2 decode xml 200 entries - time",
+            "value": 1.76,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode xml 200 entries - peak memory",
+            "value": 0.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode xml 200 entries - peak RSS",
+            "value": 1.75,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree xml 200 entries - time",
+            "value": 20.25,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree xml 200 entries - peak memory",
+            "value": 3.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree xml 200 entries - retained memory",
+            "value": 3.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree xml 200 entries - peak RSS",
+            "value": 3.6,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize xml 200 entries - time",
+            "value": 11.27,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize xml 200 entries - peak memory",
+            "value": 0.26,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize xml 200 entries - retained memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize xml 200 entries - peak RSS",
+            "value": 0.48,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode json 200 entries - time",
+            "value": 1.02,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode json 200 entries - peak memory",
+            "value": 1.38,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode json 200 entries - retained memory",
+            "value": 1.38,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode json 200 entries - peak RSS",
+            "value": 1.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree json 200 entries - time",
+            "value": 19.18,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree json 200 entries - peak memory",
+            "value": 3.18,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree json 200 entries - retained memory",
+            "value": 2.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree json 200 entries - peak RSS",
+            "value": 2.02,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize json 200 entries - time",
+            "value": 6.71,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize json 200 entries - peak memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize json 200 entries - retained memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize json 200 entries - peak RSS",
+            "value": 2.07,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode xml 1000 entries - time",
+            "value": 9.31,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode xml 1000 entries - peak memory",
+            "value": 0.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode xml 1000 entries - peak RSS",
+            "value": 10.57,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree xml 1000 entries - time",
+            "value": 103.89,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree xml 1000 entries - peak memory",
+            "value": 15.47,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree xml 1000 entries - retained memory",
+            "value": 15.46,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree xml 1000 entries - peak RSS",
+            "value": 23.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize xml 1000 entries - time",
+            "value": 57.55,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize xml 1000 entries - peak memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize xml 1000 entries - retained memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize xml 1000 entries - peak RSS",
+            "value": 0.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode json 1000 entries - time",
+            "value": 5.04,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode json 1000 entries - peak memory",
+            "value": 6.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode json 1000 entries - retained memory",
+            "value": 6.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 decode json 1000 entries - peak RSS",
+            "value": 6.6,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree json 1000 entries - time",
+            "value": 95.24,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree json 1000 entries - peak memory",
+            "value": 15.82,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree json 1000 entries - retained memory",
+            "value": 10.18,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 tree json 1000 entries - peak RSS",
+            "value": 14.34,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize json 1000 entries - time",
+            "value": 38.41,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize json 1000 entries - peak memory",
+            "value": 15.78,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize json 1000 entries - retained memory",
+            "value": 15.78,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 DSTU2 serialize json 1000 entries - peak RSS",
+            "value": 12,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode xml 200 entries - time",
+            "value": 2.33,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode xml 200 entries - peak RSS",
+            "value": 1.82,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree xml 200 entries - time",
+            "value": 27.13,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree xml 200 entries - peak memory",
+            "value": 2.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree xml 200 entries - retained memory",
+            "value": 2.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree xml 200 entries - peak RSS",
+            "value": 3.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize xml 200 entries - time",
+            "value": 16.07,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize xml 200 entries - peak memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize xml 200 entries - retained memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize xml 200 entries - peak RSS",
+            "value": 0.49,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode json 200 entries - time",
+            "value": 1.44,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode json 200 entries - peak memory",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode json 200 entries - retained memory",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode json 200 entries - peak RSS",
+            "value": 1.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree json 200 entries - time",
+            "value": 27.97,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree json 200 entries - peak memory",
+            "value": 3.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree json 200 entries - retained memory",
+            "value": 1.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree json 200 entries - peak RSS",
+            "value": 1.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize json 200 entries - time",
+            "value": 10.64,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize json 200 entries - peak memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize json 200 entries - retained memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize json 200 entries - peak RSS",
+            "value": 2.18,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode xml 1000 entries - time",
+            "value": 12.64,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode xml 1000 entries - peak RSS",
+            "value": 10.49,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree xml 1000 entries - time",
+            "value": 148.86,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree xml 1000 entries - peak memory",
+            "value": 15.15,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree xml 1000 entries - retained memory",
+            "value": 15.15,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree xml 1000 entries - peak RSS",
+            "value": 23.27,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize xml 1000 entries - time",
+            "value": 86.86,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize xml 1000 entries - peak memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize xml 1000 entries - retained memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize xml 1000 entries - peak RSS",
+            "value": 1.5,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode json 1000 entries - time",
+            "value": 7.8,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode json 1000 entries - peak memory",
+            "value": 6.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode json 1000 entries - retained memory",
+            "value": 6.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 decode json 1000 entries - peak RSS",
+            "value": 6.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree json 1000 entries - time",
+            "value": 141.22,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree json 1000 entries - peak memory",
+            "value": 14.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree json 1000 entries - retained memory",
+            "value": 9.75,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 tree json 1000 entries - peak RSS",
+            "value": 13.55,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize json 1000 entries - time",
+            "value": 53.71,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize json 1000 entries - peak memory",
+            "value": 15.78,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize json 1000 entries - retained memory",
+            "value": 15.78,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 DSTU2 serialize json 1000 entries - peak RSS",
+            "value": 11.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode xml 200 entries - time",
+            "value": 2.29,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode xml 200 entries - peak RSS",
+            "value": 1.75,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree xml 200 entries - time",
+            "value": 25.37,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree xml 200 entries - peak memory",
+            "value": 3.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree xml 200 entries - retained memory",
+            "value": 3.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree xml 200 entries - peak RSS",
+            "value": 3.34,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize xml 200 entries - time",
+            "value": 14.44,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize xml 200 entries - peak memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize xml 200 entries - retained memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize xml 200 entries - peak RSS",
+            "value": 0.49,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode json 200 entries - time",
+            "value": 1.36,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode json 200 entries - peak memory",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode json 200 entries - retained memory",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode json 200 entries - peak RSS",
+            "value": 1.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree json 200 entries - time",
+            "value": 24.16,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree json 200 entries - peak memory",
+            "value": 3.08,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree json 200 entries - retained memory",
+            "value": 2.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree json 200 entries - peak RSS",
+            "value": 1.75,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize json 200 entries - time",
+            "value": 7.2,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize json 200 entries - peak memory",
+            "value": 0.22,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize json 200 entries - retained memory",
+            "value": 0.22,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize json 200 entries - peak RSS",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode xml 1000 entries - time",
+            "value": 11.84,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode xml 1000 entries - peak RSS",
+            "value": 10.46,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree xml 1000 entries - time",
+            "value": 131.47,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree xml 1000 entries - peak memory",
+            "value": 15.54,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree xml 1000 entries - retained memory",
+            "value": 15.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree xml 1000 entries - peak RSS",
+            "value": 23.57,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize xml 1000 entries - time",
+            "value": 75.87,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize xml 1000 entries - peak memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize xml 1000 entries - retained memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize xml 1000 entries - peak RSS",
+            "value": 1.5,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode json 1000 entries - time",
+            "value": 7.01,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode json 1000 entries - peak memory",
+            "value": 6.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode json 1000 entries - retained memory",
+            "value": 6.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 decode json 1000 entries - peak RSS",
+            "value": 6.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree json 1000 entries - time",
+            "value": 124.77,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree json 1000 entries - peak memory",
+            "value": 15.36,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree json 1000 entries - retained memory",
+            "value": 10.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 tree json 1000 entries - peak RSS",
+            "value": 13.91,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize json 1000 entries - time",
+            "value": 37.81,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize json 1000 entries - peak memory",
+            "value": 1.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize json 1000 entries - retained memory",
+            "value": 1,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 DSTU2 serialize json 1000 entries - peak RSS",
+            "value": 0.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode xml 200 entries - time",
+            "value": 2.87,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode xml 200 entries - peak RSS",
+            "value": 1.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree xml 200 entries - time",
+            "value": 35.01,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree xml 200 entries - peak memory",
+            "value": 3.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree xml 200 entries - retained memory",
+            "value": 3.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree xml 200 entries - peak RSS",
+            "value": 3.54,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize xml 200 entries - time",
+            "value": 20.48,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize xml 200 entries - peak memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize xml 200 entries - retained memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize xml 200 entries - peak RSS",
+            "value": 0.49,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode json 200 entries - time",
+            "value": 1.67,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode json 200 entries - peak memory",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode json 200 entries - retained memory",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode json 200 entries - peak RSS",
+            "value": 1.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree json 200 entries - time",
+            "value": 33.86,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree json 200 entries - peak memory",
+            "value": 3.08,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree json 200 entries - retained memory",
+            "value": 2.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree json 200 entries - peak RSS",
+            "value": 2.02,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize json 200 entries - time",
+            "value": 9.86,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize json 200 entries - peak memory",
+            "value": 0.22,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize json 200 entries - retained memory",
+            "value": 0.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize json 200 entries - peak RSS",
+            "value": 0.24,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode xml 1000 entries - time",
+            "value": 14.79,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode xml 1000 entries - peak RSS",
+            "value": 10.56,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree xml 1000 entries - time",
+            "value": 180.66,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree xml 1000 entries - peak memory",
+            "value": 15.54,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree xml 1000 entries - retained memory",
+            "value": 15.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree xml 1000 entries - peak RSS",
+            "value": 23.5,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize xml 1000 entries - time",
+            "value": 102.2,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize xml 1000 entries - peak memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize xml 1000 entries - retained memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize xml 1000 entries - peak RSS",
+            "value": 0.37,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode json 1000 entries - time",
+            "value": 8.8,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode json 1000 entries - peak memory",
+            "value": 6.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode json 1000 entries - retained memory",
+            "value": 6.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 decode json 1000 entries - peak RSS",
+            "value": 6.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree json 1000 entries - time",
+            "value": 172.58,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree json 1000 entries - peak memory",
+            "value": 15.36,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree json 1000 entries - retained memory",
+            "value": 10.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 tree json 1000 entries - peak RSS",
+            "value": 13.77,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize json 1000 entries - time",
+            "value": 51.29,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize json 1000 entries - peak memory",
+            "value": 1.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize json 1000 entries - retained memory",
+            "value": 1,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 DSTU2 serialize json 1000 entries - peak RSS",
+            "value": 1.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode xml 200 entries - time",
+            "value": 2.97,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode xml 200 entries - peak RSS",
+            "value": 1.75,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree xml 200 entries - time",
+            "value": 38.06,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree xml 200 entries - peak memory",
+            "value": 3.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree xml 200 entries - retained memory",
+            "value": 3.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree xml 200 entries - peak RSS",
+            "value": 3.63,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize xml 200 entries - time",
+            "value": 21.69,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize xml 200 entries - peak memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize xml 200 entries - retained memory",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize xml 200 entries - peak RSS",
+            "value": 0.5,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode json 200 entries - time",
+            "value": 1.75,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode json 200 entries - peak memory",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode json 200 entries - retained memory",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode json 200 entries - peak RSS",
+            "value": 1.07,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree json 200 entries - time",
+            "value": 36.61,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree json 200 entries - peak memory",
+            "value": 3.08,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree json 200 entries - retained memory",
+            "value": 2.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree json 200 entries - peak RSS",
+            "value": 1.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize json 200 entries - time",
+            "value": 10.33,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize json 200 entries - peak memory",
+            "value": 0.22,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize json 200 entries - retained memory",
+            "value": 0.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize json 200 entries - peak RSS",
+            "value": 0.24,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode xml 1000 entries - time",
+            "value": 15.34,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode xml 1000 entries - peak RSS",
+            "value": 10.56,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree xml 1000 entries - time",
+            "value": 192.05,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree xml 1000 entries - peak memory",
+            "value": 15.54,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree xml 1000 entries - retained memory",
+            "value": 15.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree xml 1000 entries - peak RSS",
+            "value": 23.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize xml 1000 entries - time",
+            "value": 110.28,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize xml 1000 entries - peak memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize xml 1000 entries - retained memory",
+            "value": 1.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize xml 1000 entries - peak RSS",
+            "value": 0.94,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode json 1000 entries - time",
+            "value": 9.14,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode json 1000 entries - peak memory",
+            "value": 6.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode json 1000 entries - retained memory",
+            "value": 6.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 decode json 1000 entries - peak RSS",
+            "value": 6.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree json 1000 entries - time",
+            "value": 182.45,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree json 1000 entries - peak memory",
+            "value": 15.36,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree json 1000 entries - retained memory",
+            "value": 10.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 tree json 1000 entries - peak RSS",
+            "value": 13.63,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize json 1000 entries - time",
+            "value": 56.63,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize json 1000 entries - peak memory",
+            "value": 1.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize json 1000 entries - retained memory",
+            "value": 1,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 DSTU2 serialize json 1000 entries - peak RSS",
+            "value": 1.31,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode xml 200 entries - time",
+            "value": 7.48,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 decode xml 200 entries - peak memory",
+            "value": 0.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode xml 200 entries - peak RSS",
+            "value": 3.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree xml 200 entries - time",
+            "value": 81.86,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 tree xml 200 entries - peak memory",
+            "value": 6.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree xml 200 entries - retained memory",
+            "value": 6.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree xml 200 entries - peak RSS",
+            "value": 4.24,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize xml 200 entries - time",
+            "value": 47.8,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize xml 200 entries - peak memory",
+            "value": 0.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize xml 200 entries - peak RSS",
+            "value": 0.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode json 200 entries - time",
+            "value": 4.07,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 decode json 200 entries - peak memory",
+            "value": 3.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode json 200 entries - retained memory",
+            "value": 3.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode json 200 entries - peak RSS",
+            "value": 1.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree json 200 entries - time",
+            "value": 79.79,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 tree json 200 entries - peak memory",
+            "value": 7.34,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree json 200 entries - retained memory",
+            "value": 4.65,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree json 200 entries - peak RSS",
+            "value": 2.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize json 200 entries - time",
+            "value": 26.88,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize json 200 entries - peak memory",
+            "value": 6.48,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize json 200 entries - retained memory",
+            "value": 6.48,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize json 200 entries - peak RSS",
+            "value": 1.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode xml 1000 entries - time",
+            "value": 46.24,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 decode xml 1000 entries - peak memory",
+            "value": 0.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode xml 1000 entries - peak RSS",
+            "value": 31.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree xml 1000 entries - time",
+            "value": 447.88,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 tree xml 1000 entries - peak memory",
+            "value": 34.03,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree xml 1000 entries - retained memory",
+            "value": 34.03,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree xml 1000 entries - peak RSS",
+            "value": 56.91,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize xml 1000 entries - time",
+            "value": 250.2,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize xml 1000 entries - peak memory",
+            "value": 3.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize xml 1000 entries - retained memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize xml 1000 entries - peak RSS",
+            "value": 7.24,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode json 1000 entries - time",
+            "value": 23.41,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 decode json 1000 entries - peak memory",
+            "value": 16.79,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode json 1000 entries - retained memory",
+            "value": 16.79,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 decode json 1000 entries - peak RSS",
+            "value": 14.38,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree json 1000 entries - time",
+            "value": 417.15,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 tree json 1000 entries - peak memory",
+            "value": 36.3,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree json 1000 entries - retained memory",
+            "value": 23.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 tree json 1000 entries - peak RSS",
+            "value": 30.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize json 1000 entries - time",
+            "value": 158.92,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize json 1000 entries - peak memory",
+            "value": 31.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize json 1000 entries - retained memory",
+            "value": 31.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4 serialize json 1000 entries - peak RSS",
+            "value": 20.5,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode xml 200 entries - time",
+            "value": 7.5,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode xml 200 entries - peak RSS",
+            "value": 3.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree xml 200 entries - time",
+            "value": 80.4,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 tree xml 200 entries - peak memory",
+            "value": 6.67,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree xml 200 entries - retained memory",
+            "value": 6.67,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree xml 200 entries - peak RSS",
+            "value": 4.08,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize xml 200 entries - time",
+            "value": 45.56,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize xml 200 entries - peak memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize xml 200 entries - peak RSS",
+            "value": 0.91,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode json 200 entries - time",
+            "value": 4.08,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 decode json 200 entries - peak memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode json 200 entries - retained memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode json 200 entries - peak RSS",
+            "value": 0.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree json 200 entries - time",
+            "value": 75.51,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 tree json 200 entries - peak memory",
+            "value": 6.82,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree json 200 entries - retained memory",
+            "value": 4.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree json 200 entries - peak RSS",
+            "value": 2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize json 200 entries - time",
+            "value": 25.11,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize json 200 entries - peak memory",
+            "value": 6.48,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize json 200 entries - retained memory",
+            "value": 6.48,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize json 200 entries - peak RSS",
+            "value": 2.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode xml 1000 entries - time",
+            "value": 46.06,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode xml 1000 entries - peak RSS",
+            "value": 31.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree xml 1000 entries - time",
+            "value": 422.75,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 tree xml 1000 entries - peak memory",
+            "value": 32.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree xml 1000 entries - retained memory",
+            "value": 32.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree xml 1000 entries - peak RSS",
+            "value": 56.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize xml 1000 entries - time",
+            "value": 237.38,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize xml 1000 entries - peak memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize xml 1000 entries - retained memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize xml 1000 entries - peak RSS",
+            "value": 7.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode json 1000 entries - time",
+            "value": 23.54,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 decode json 1000 entries - peak memory",
+            "value": 15.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode json 1000 entries - retained memory",
+            "value": 15.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 decode json 1000 entries - peak RSS",
+            "value": 13.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree json 1000 entries - time",
+            "value": 399.36,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 tree json 1000 entries - peak memory",
+            "value": 33.75,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree json 1000 entries - retained memory",
+            "value": 21.78,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 tree json 1000 entries - peak RSS",
+            "value": 28.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize json 1000 entries - time",
+            "value": 152.55,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize json 1000 entries - peak memory",
+            "value": 31.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize json 1000 entries - retained memory",
+            "value": 31.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4 serialize json 1000 entries - peak RSS",
+            "value": 22.87,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode xml 200 entries - time",
+            "value": 7.28,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode xml 200 entries - peak RSS",
+            "value": 3.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree xml 200 entries - time",
+            "value": 81.54,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 tree xml 200 entries - peak memory",
+            "value": 6.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree xml 200 entries - retained memory",
+            "value": 6.85,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree xml 200 entries - peak RSS",
+            "value": 4.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize xml 200 entries - time",
+            "value": 45.08,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize xml 200 entries - peak memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize xml 200 entries - peak RSS",
+            "value": 0.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode json 200 entries - time",
+            "value": 4.1,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 decode json 200 entries - peak memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode json 200 entries - retained memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode json 200 entries - peak RSS",
+            "value": 0.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree json 200 entries - time",
+            "value": 76.27,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 tree json 200 entries - peak memory",
+            "value": 7.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree json 200 entries - retained memory",
+            "value": 4.58,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree json 200 entries - peak RSS",
+            "value": 2.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize json 200 entries - time",
+            "value": 22.88,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize json 200 entries - peak memory",
+            "value": 0.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize json 200 entries - retained memory",
+            "value": 0.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize json 200 entries - peak RSS",
+            "value": 0.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode xml 1000 entries - time",
+            "value": 45.47,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode xml 1000 entries - peak RSS",
+            "value": 31.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree xml 1000 entries - time",
+            "value": 424.84,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 tree xml 1000 entries - peak memory",
+            "value": 33.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree xml 1000 entries - retained memory",
+            "value": 33.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree xml 1000 entries - peak RSS",
+            "value": 56.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize xml 1000 entries - time",
+            "value": 239.38,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize xml 1000 entries - peak memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize xml 1000 entries - retained memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize xml 1000 entries - peak RSS",
+            "value": 7.24,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode json 1000 entries - time",
+            "value": 23.46,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 decode json 1000 entries - peak memory",
+            "value": 15.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode json 1000 entries - retained memory",
+            "value": 15.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 decode json 1000 entries - peak RSS",
+            "value": 13.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree json 1000 entries - time",
+            "value": 398.11,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 tree json 1000 entries - peak memory",
+            "value": 34.67,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree json 1000 entries - retained memory",
+            "value": 22.7,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 tree json 1000 entries - peak RSS",
+            "value": 29.73,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize json 1000 entries - time",
+            "value": 126.46,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize json 1000 entries - peak memory",
+            "value": 3.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize json 1000 entries - retained memory",
+            "value": 3.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4 serialize json 1000 entries - peak RSS",
+            "value": 4.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode xml 200 entries - time",
+            "value": 5.69,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode xml 200 entries - peak RSS",
+            "value": 3.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree xml 200 entries - time",
+            "value": 62.5,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 tree xml 200 entries - peak memory",
+            "value": 6.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree xml 200 entries - retained memory",
+            "value": 6.85,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree xml 200 entries - peak RSS",
+            "value": 4.44,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize xml 200 entries - time",
+            "value": 35.36,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize xml 200 entries - peak memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize xml 200 entries - peak RSS",
+            "value": 0.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode json 200 entries - time",
+            "value": 3.74,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 decode json 200 entries - peak memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode json 200 entries - retained memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode json 200 entries - peak RSS",
+            "value": 0.95,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree json 200 entries - time",
+            "value": 60.66,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 tree json 200 entries - peak memory",
+            "value": 7.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree json 200 entries - retained memory",
+            "value": 4.58,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree json 200 entries - peak RSS",
+            "value": 2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize json 200 entries - time",
+            "value": 17.68,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize json 200 entries - peak memory",
+            "value": 0.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize json 200 entries - retained memory",
+            "value": 0.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize json 200 entries - peak RSS",
+            "value": 0.46,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode xml 1000 entries - time",
+            "value": 36.92,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode xml 1000 entries - peak RSS",
+            "value": 32.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree xml 1000 entries - time",
+            "value": 328.22,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 tree xml 1000 entries - peak memory",
+            "value": 33.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree xml 1000 entries - retained memory",
+            "value": 33.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree xml 1000 entries - peak RSS",
+            "value": 57.12,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize xml 1000 entries - time",
+            "value": 182.83,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize xml 1000 entries - peak memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize xml 1000 entries - retained memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize xml 1000 entries - peak RSS",
+            "value": 7.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode json 1000 entries - time",
+            "value": 21.02,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 decode json 1000 entries - peak memory",
+            "value": 15.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode json 1000 entries - retained memory",
+            "value": 15.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 decode json 1000 entries - peak RSS",
+            "value": 13.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree json 1000 entries - time",
+            "value": 327.76,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 tree json 1000 entries - peak memory",
+            "value": 34.67,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree json 1000 entries - retained memory",
+            "value": 22.7,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 tree json 1000 entries - peak RSS",
+            "value": 29.79,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize json 1000 entries - time",
+            "value": 100.87,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize json 1000 entries - peak memory",
+            "value": 3.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize json 1000 entries - retained memory",
+            "value": 3.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4 serialize json 1000 entries - peak RSS",
+            "value": 5.6,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode xml 200 entries - time",
+            "value": 3.96,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode xml 200 entries - peak RSS",
+            "value": 3.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree xml 200 entries - time",
+            "value": 45.46,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 tree xml 200 entries - peak memory",
+            "value": 6.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree xml 200 entries - retained memory",
+            "value": 6.85,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree xml 200 entries - peak RSS",
+            "value": 4.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize xml 200 entries - time",
+            "value": 24.25,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize xml 200 entries - peak memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize xml 200 entries - peak RSS",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode json 200 entries - time",
+            "value": 2.61,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 decode json 200 entries - peak memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode json 200 entries - retained memory",
+            "value": 3.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode json 200 entries - peak RSS",
+            "value": 0.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree json 200 entries - time",
+            "value": 41.89,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 tree json 200 entries - peak memory",
+            "value": 7.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree json 200 entries - retained memory",
+            "value": 4.58,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree json 200 entries - peak RSS",
+            "value": 1.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize json 200 entries - time",
+            "value": 11.97,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize json 200 entries - peak memory",
+            "value": 0.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize json 200 entries - retained memory",
+            "value": 0.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize json 200 entries - peak RSS",
+            "value": 0.9,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode xml 1000 entries - time",
+            "value": 26.03,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode xml 1000 entries - peak RSS",
+            "value": 32.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree xml 1000 entries - time",
+            "value": 236.25,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 tree xml 1000 entries - peak memory",
+            "value": 33.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree xml 1000 entries - retained memory",
+            "value": 33.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree xml 1000 entries - peak RSS",
+            "value": 57.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize xml 1000 entries - time",
+            "value": 129.02,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize xml 1000 entries - peak memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize xml 1000 entries - retained memory",
+            "value": 3.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize xml 1000 entries - peak RSS",
+            "value": 5.71,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode json 1000 entries - time",
+            "value": 15.41,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 decode json 1000 entries - peak memory",
+            "value": 15.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode json 1000 entries - retained memory",
+            "value": 15.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 decode json 1000 entries - peak RSS",
+            "value": 13.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree json 1000 entries - time",
+            "value": 223.11,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 tree json 1000 entries - peak memory",
+            "value": 34.67,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree json 1000 entries - retained memory",
+            "value": 22.7,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 tree json 1000 entries - peak RSS",
+            "value": 29.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize json 1000 entries - time",
+            "value": 66.92,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize json 1000 entries - peak memory",
+            "value": 3.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize json 1000 entries - retained memory",
+            "value": 3.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4 serialize json 1000 entries - peak RSS",
+            "value": 5.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode xml 200 entries - time",
+            "value": 7.24,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B decode xml 200 entries - peak memory",
+            "value": 0.43,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode xml 200 entries - peak RSS",
+            "value": 3.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree xml 200 entries - time",
+            "value": 81.55,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B tree xml 200 entries - peak memory",
+            "value": 6.85,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree xml 200 entries - retained memory",
+            "value": 6.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree xml 200 entries - peak RSS",
+            "value": 4.38,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize xml 200 entries - time",
+            "value": 48.34,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize xml 200 entries - peak memory",
+            "value": 0.65,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize xml 200 entries - retained memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize xml 200 entries - peak RSS",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode json 200 entries - time",
+            "value": 3.27,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B decode json 200 entries - peak memory",
+            "value": 3.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode json 200 entries - retained memory",
+            "value": 3.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode json 200 entries - peak RSS",
+            "value": 1.12,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree json 200 entries - time",
+            "value": 76.68,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B tree json 200 entries - peak memory",
+            "value": 7.3,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree json 200 entries - retained memory",
+            "value": 4.58,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree json 200 entries - peak RSS",
+            "value": 2.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize json 200 entries - time",
+            "value": 25.56,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize json 200 entries - peak memory",
+            "value": 6.43,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize json 200 entries - retained memory",
+            "value": 6.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize json 200 entries - peak RSS",
+            "value": 2.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode xml 1000 entries - time",
+            "value": 45.61,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B decode xml 1000 entries - peak memory",
+            "value": 0.43,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode xml 1000 entries - peak RSS",
+            "value": 32.02,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree xml 1000 entries - time",
+            "value": 452.2,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B tree xml 1000 entries - peak memory",
+            "value": 34.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree xml 1000 entries - retained memory",
+            "value": 34.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree xml 1000 entries - peak RSS",
+            "value": 57.95,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize xml 1000 entries - time",
+            "value": 244.33,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize xml 1000 entries - peak memory",
+            "value": 3.18,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize xml 1000 entries - retained memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize xml 1000 entries - peak RSS",
+            "value": 3.27,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode json 1000 entries - time",
+            "value": 19.98,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B decode json 1000 entries - peak memory",
+            "value": 16.49,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode json 1000 entries - retained memory",
+            "value": 16.49,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B decode json 1000 entries - peak RSS",
+            "value": 14.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree json 1000 entries - time",
+            "value": 416.65,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B tree json 1000 entries - peak memory",
+            "value": 36.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree json 1000 entries - retained memory",
+            "value": 22.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B tree json 1000 entries - peak RSS",
+            "value": 31.22,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize json 1000 entries - time",
+            "value": 161.17,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize json 1000 entries - peak memory",
+            "value": 31.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize json 1000 entries - retained memory",
+            "value": 31.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R4B serialize json 1000 entries - peak RSS",
+            "value": 20.27,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode xml 200 entries - time",
+            "value": 7.42,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode xml 200 entries - peak RSS",
+            "value": 3.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree xml 200 entries - time",
+            "value": 84.63,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B tree xml 200 entries - peak memory",
+            "value": 6.63,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree xml 200 entries - retained memory",
+            "value": 6.62,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree xml 200 entries - peak RSS",
+            "value": 4.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize xml 200 entries - time",
+            "value": 48.85,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize xml 200 entries - peak memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize xml 200 entries - retained memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize xml 200 entries - peak RSS",
+            "value": 0.27,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode json 200 entries - time",
+            "value": 3.34,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B decode json 200 entries - peak memory",
+            "value": 3.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode json 200 entries - retained memory",
+            "value": 3.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode json 200 entries - peak RSS",
+            "value": 0.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree json 200 entries - time",
+            "value": 79.65,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B tree json 200 entries - peak memory",
+            "value": 6.78,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree json 200 entries - retained memory",
+            "value": 4.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree json 200 entries - peak RSS",
+            "value": 1.99,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize json 200 entries - time",
+            "value": 27.75,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize json 200 entries - peak memory",
+            "value": 6.43,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize json 200 entries - retained memory",
+            "value": 6.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize json 200 entries - peak RSS",
+            "value": 2.36,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode xml 1000 entries - time",
+            "value": 46.38,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode xml 1000 entries - peak RSS",
+            "value": 31.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree xml 1000 entries - time",
+            "value": 454.66,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B tree xml 1000 entries - peak memory",
+            "value": 33.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree xml 1000 entries - retained memory",
+            "value": 33.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree xml 1000 entries - peak RSS",
+            "value": 57.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize xml 1000 entries - time",
+            "value": 256.19,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize xml 1000 entries - peak memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize xml 1000 entries - retained memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize xml 1000 entries - peak RSS",
+            "value": 3.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode json 1000 entries - time",
+            "value": 20.92,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B decode json 1000 entries - peak memory",
+            "value": 15.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode json 1000 entries - retained memory",
+            "value": 15.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B decode json 1000 entries - peak RSS",
+            "value": 13.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree json 1000 entries - time",
+            "value": 425.09,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B tree json 1000 entries - peak memory",
+            "value": 33.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree json 1000 entries - retained memory",
+            "value": 21.67,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B tree json 1000 entries - peak RSS",
+            "value": 29.03,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize json 1000 entries - time",
+            "value": 164.19,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize json 1000 entries - peak memory",
+            "value": 31.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize json 1000 entries - retained memory",
+            "value": 31.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R4B serialize json 1000 entries - peak RSS",
+            "value": 22.73,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode xml 200 entries - time",
+            "value": 4.2,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode xml 200 entries - peak RSS",
+            "value": 3.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree xml 200 entries - time",
+            "value": 53.77,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B tree xml 200 entries - peak memory",
+            "value": 6.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree xml 200 entries - retained memory",
+            "value": 6.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree xml 200 entries - peak RSS",
+            "value": 4.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize xml 200 entries - time",
+            "value": 27.29,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize xml 200 entries - peak memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize xml 200 entries - retained memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize xml 200 entries - peak RSS",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode json 200 entries - time",
+            "value": 2.16,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B decode json 200 entries - peak memory",
+            "value": 3.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode json 200 entries - retained memory",
+            "value": 3.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode json 200 entries - peak RSS",
+            "value": 1,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree json 200 entries - time",
+            "value": 48.91,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B tree json 200 entries - peak memory",
+            "value": 6.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree json 200 entries - retained memory",
+            "value": 4.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree json 200 entries - peak RSS",
+            "value": 1.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize json 200 entries - time",
+            "value": 14.74,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize json 200 entries - peak memory",
+            "value": 0.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize json 200 entries - retained memory",
+            "value": 0.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize json 200 entries - peak RSS",
+            "value": 0.6,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode xml 1000 entries - time",
+            "value": 27.96,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode xml 1000 entries - peak RSS",
+            "value": 31.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree xml 1000 entries - time",
+            "value": 287.76,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B tree xml 1000 entries - peak memory",
+            "value": 34.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree xml 1000 entries - retained memory",
+            "value": 34.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree xml 1000 entries - peak RSS",
+            "value": 57.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize xml 1000 entries - time",
+            "value": 156.03,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize xml 1000 entries - peak memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize xml 1000 entries - retained memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize xml 1000 entries - peak RSS",
+            "value": 3.26,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode json 1000 entries - time",
+            "value": 13.73,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B decode json 1000 entries - peak memory",
+            "value": 15.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode json 1000 entries - retained memory",
+            "value": 15.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B decode json 1000 entries - peak RSS",
+            "value": 13.07,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree json 1000 entries - time",
+            "value": 265.61,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B tree json 1000 entries - peak memory",
+            "value": 34.8,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree json 1000 entries - retained memory",
+            "value": 22.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B tree json 1000 entries - peak RSS",
+            "value": 30,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize json 1000 entries - time",
+            "value": 93.54,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize json 1000 entries - peak memory",
+            "value": 2.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize json 1000 entries - retained memory",
+            "value": 2.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R4B serialize json 1000 entries - peak RSS",
+            "value": 5.41,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode xml 200 entries - time",
+            "value": 5.44,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode xml 200 entries - peak RSS",
+            "value": 3.15,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree xml 200 entries - time",
+            "value": 59.5,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B tree xml 200 entries - peak memory",
+            "value": 6.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree xml 200 entries - retained memory",
+            "value": 6.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree xml 200 entries - peak RSS",
+            "value": 4.3,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize xml 200 entries - time",
+            "value": 33.83,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize xml 200 entries - peak memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize xml 200 entries - retained memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize xml 200 entries - peak RSS",
+            "value": 0.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode json 200 entries - time",
+            "value": 2.82,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B decode json 200 entries - peak memory",
+            "value": 3.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode json 200 entries - retained memory",
+            "value": 3.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode json 200 entries - peak RSS",
+            "value": 1.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree json 200 entries - time",
+            "value": 55.12,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B tree json 200 entries - peak memory",
+            "value": 6.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree json 200 entries - retained memory",
+            "value": 4.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree json 200 entries - peak RSS",
+            "value": 2.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize json 200 entries - time",
+            "value": 17.08,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize json 200 entries - peak memory",
+            "value": 0.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize json 200 entries - retained memory",
+            "value": 0.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize json 200 entries - peak RSS",
+            "value": 0.73,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode xml 1000 entries - time",
+            "value": 36.54,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode xml 1000 entries - peak RSS",
+            "value": 31.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree xml 1000 entries - time",
+            "value": 319.16,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B tree xml 1000 entries - peak memory",
+            "value": 34.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree xml 1000 entries - retained memory",
+            "value": 34.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree xml 1000 entries - peak RSS",
+            "value": 57.61,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize xml 1000 entries - time",
+            "value": 176.64,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize xml 1000 entries - peak memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize xml 1000 entries - retained memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize xml 1000 entries - peak RSS",
+            "value": 3.31,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode json 1000 entries - time",
+            "value": 18.09,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B decode json 1000 entries - peak memory",
+            "value": 15.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode json 1000 entries - retained memory",
+            "value": 15.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B decode json 1000 entries - peak RSS",
+            "value": 13.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree json 1000 entries - time",
+            "value": 293.13,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B tree json 1000 entries - peak memory",
+            "value": 34.8,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree json 1000 entries - retained memory",
+            "value": 22.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B tree json 1000 entries - peak RSS",
+            "value": 29.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize json 1000 entries - time",
+            "value": 94.89,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize json 1000 entries - peak memory",
+            "value": 2.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize json 1000 entries - retained memory",
+            "value": 2.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R4B serialize json 1000 entries - peak RSS",
+            "value": 5.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode xml 200 entries - time",
+            "value": 7.14,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode xml 200 entries - peak RSS",
+            "value": 3.07,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree xml 200 entries - time",
+            "value": 77.3,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B tree xml 200 entries - peak memory",
+            "value": 6.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree xml 200 entries - retained memory",
+            "value": 6.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree xml 200 entries - peak RSS",
+            "value": 4.54,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize xml 200 entries - time",
+            "value": 44.34,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize xml 200 entries - peak memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize xml 200 entries - retained memory",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize xml 200 entries - peak RSS",
+            "value": 0.64,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode json 200 entries - time",
+            "value": 3.57,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B decode json 200 entries - peak memory",
+            "value": 3.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode json 200 entries - retained memory",
+            "value": 3.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode json 200 entries - peak RSS",
+            "value": 0.99,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree json 200 entries - time",
+            "value": 72.99,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B tree json 200 entries - peak memory",
+            "value": 6.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree json 200 entries - retained memory",
+            "value": 4.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree json 200 entries - peak RSS",
+            "value": 2.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize json 200 entries - time",
+            "value": 21.02,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize json 200 entries - peak memory",
+            "value": 0.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize json 200 entries - retained memory",
+            "value": 0.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize json 200 entries - peak RSS",
+            "value": 0.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode xml 1000 entries - time",
+            "value": 46.61,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode xml 1000 entries - peak RSS",
+            "value": 31.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree xml 1000 entries - time",
+            "value": 415.01,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B tree xml 1000 entries - peak memory",
+            "value": 34.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree xml 1000 entries - retained memory",
+            "value": 34.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree xml 1000 entries - peak RSS",
+            "value": 57.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize xml 1000 entries - time",
+            "value": 229.46,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize xml 1000 entries - peak memory",
+            "value": 2.94,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize xml 1000 entries - retained memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize xml 1000 entries - peak RSS",
+            "value": 6.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode json 1000 entries - time",
+            "value": 22.75,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B decode json 1000 entries - peak memory",
+            "value": 15.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode json 1000 entries - retained memory",
+            "value": 15.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B decode json 1000 entries - peak RSS",
+            "value": 13.08,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree json 1000 entries - time",
+            "value": 373.53,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B tree json 1000 entries - peak memory",
+            "value": 34.8,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree json 1000 entries - retained memory",
+            "value": 22.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B tree json 1000 entries - peak RSS",
+            "value": 29.91,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize json 1000 entries - time",
+            "value": 115.78,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize json 1000 entries - peak memory",
+            "value": 2.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize json 1000 entries - retained memory",
+            "value": 2.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R4B serialize json 1000 entries - peak RSS",
+            "value": 5.43,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode xml 200 entries - time",
+            "value": 4.77,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 decode xml 200 entries - peak memory",
+            "value": 0.65,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode xml 200 entries - peak RSS",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree xml 200 entries - time",
+            "value": 57.04,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 tree xml 200 entries - peak memory",
+            "value": 8.02,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree xml 200 entries - retained memory",
+            "value": 8.02,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree xml 200 entries - peak RSS",
+            "value": 5.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize xml 200 entries - time",
+            "value": 31.77,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize xml 200 entries - peak memory",
+            "value": 0.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize xml 200 entries - peak RSS",
+            "value": 0.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode json 200 entries - time",
+            "value": 2.41,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 decode json 200 entries - peak memory",
+            "value": 3.75,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode json 200 entries - retained memory",
+            "value": 3.75,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode json 200 entries - peak RSS",
+            "value": 0.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree json 200 entries - time",
+            "value": 53,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 tree json 200 entries - peak memory",
+            "value": 8.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree json 200 entries - retained memory",
+            "value": 5.46,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree json 200 entries - peak RSS",
+            "value": 2.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize json 200 entries - time",
+            "value": 15.85,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize json 200 entries - peak memory",
+            "value": 8.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize json 200 entries - retained memory",
+            "value": 8.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize json 200 entries - peak RSS",
+            "value": 3.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode xml 1000 entries - time",
+            "value": 30.9,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 decode xml 1000 entries - peak memory",
+            "value": 0.65,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode xml 1000 entries - peak RSS",
+            "value": 36.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree xml 1000 entries - time",
+            "value": 285.38,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 tree xml 1000 entries - peak memory",
+            "value": 38.82,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree xml 1000 entries - retained memory",
+            "value": 38.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree xml 1000 entries - peak RSS",
+            "value": 63.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize xml 1000 entries - time",
+            "value": 151.89,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize xml 1000 entries - peak memory",
+            "value": 4.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize xml 1000 entries - retained memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize xml 1000 entries - peak RSS",
+            "value": 7.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode json 1000 entries - time",
+            "value": 14.28,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 decode json 1000 entries - peak memory",
+            "value": 17.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode json 1000 entries - retained memory",
+            "value": 17.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 decode json 1000 entries - peak RSS",
+            "value": 14.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree json 1000 entries - time",
+            "value": 263.81,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 tree json 1000 entries - peak memory",
+            "value": 41.3,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree json 1000 entries - retained memory",
+            "value": 26.9,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 tree json 1000 entries - peak RSS",
+            "value": 34.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize json 1000 entries - time",
+            "value": 103.09,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize json 1000 entries - peak memory",
+            "value": 42.34,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize json 1000 entries - retained memory",
+            "value": 42.34,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 R5 serialize json 1000 entries - peak RSS",
+            "value": 28.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode xml 200 entries - time",
+            "value": 6.37,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode xml 200 entries - peak RSS",
+            "value": 3.41,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree xml 200 entries - time",
+            "value": 69.78,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 tree xml 200 entries - peak memory",
+            "value": 7.77,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree xml 200 entries - retained memory",
+            "value": 7.77,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree xml 200 entries - peak RSS",
+            "value": 4.65,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize xml 200 entries - time",
+            "value": 38.22,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize xml 200 entries - peak memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize xml 200 entries - peak RSS",
+            "value": 1,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode json 200 entries - time",
+            "value": 3.12,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 decode json 200 entries - peak memory",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode json 200 entries - retained memory",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode json 200 entries - peak RSS",
+            "value": 0.79,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree json 200 entries - time",
+            "value": 62.31,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 tree json 200 entries - peak memory",
+            "value": 7.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree json 200 entries - retained memory",
+            "value": 5.17,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree json 200 entries - peak RSS",
+            "value": 1.69,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize json 200 entries - time",
+            "value": 18.83,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize json 200 entries - peak memory",
+            "value": 8.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize json 200 entries - retained memory",
+            "value": 8.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize json 200 entries - peak RSS",
+            "value": 2.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode xml 1000 entries - time",
+            "value": 40.94,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode xml 1000 entries - peak RSS",
+            "value": 36.21,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree xml 1000 entries - time",
+            "value": 360.55,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 tree xml 1000 entries - peak memory",
+            "value": 37.65,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree xml 1000 entries - retained memory",
+            "value": 37.64,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree xml 1000 entries - peak RSS",
+            "value": 63.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize xml 1000 entries - time",
+            "value": 197.15,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize xml 1000 entries - peak memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize xml 1000 entries - retained memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize xml 1000 entries - peak RSS",
+            "value": 7.11,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode json 1000 entries - time",
+            "value": 19.48,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 decode json 1000 entries - peak memory",
+            "value": 16.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode json 1000 entries - retained memory",
+            "value": 16.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 decode json 1000 entries - peak RSS",
+            "value": 13.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree json 1000 entries - time",
+            "value": 334.19,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 tree json 1000 entries - peak memory",
+            "value": 38.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree json 1000 entries - retained memory",
+            "value": 25.51,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 tree json 1000 entries - peak RSS",
+            "value": 31.99,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize json 1000 entries - time",
+            "value": 126.99,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize json 1000 entries - peak memory",
+            "value": 42.34,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize json 1000 entries - retained memory",
+            "value": 42.34,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 R5 serialize json 1000 entries - peak RSS",
+            "value": 30.91,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode xml 200 entries - time",
+            "value": 6.67,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode xml 200 entries - peak RSS",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree xml 200 entries - time",
+            "value": 68.99,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 tree xml 200 entries - peak memory",
+            "value": 7.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree xml 200 entries - retained memory",
+            "value": 7.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree xml 200 entries - peak RSS",
+            "value": 4.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize xml 200 entries - time",
+            "value": 39.44,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize xml 200 entries - peak memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize xml 200 entries - peak RSS",
+            "value": 0.99,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode json 200 entries - time",
+            "value": 3.41,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 decode json 200 entries - peak memory",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode json 200 entries - retained memory",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode json 200 entries - peak RSS",
+            "value": 0.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree json 200 entries - time",
+            "value": 64.63,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 tree json 200 entries - peak memory",
+            "value": 8.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree json 200 entries - retained memory",
+            "value": 5.35,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree json 200 entries - peak RSS",
+            "value": 1.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize json 200 entries - time",
+            "value": 16.51,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize json 200 entries - peak memory",
+            "value": 0.64,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize json 200 entries - retained memory",
+            "value": 0.64,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize json 200 entries - peak RSS",
+            "value": 0.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode xml 1000 entries - time",
+            "value": 38.2,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode xml 1000 entries - peak RSS",
+            "value": 36.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree xml 1000 entries - time",
+            "value": 377.21,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 tree xml 1000 entries - peak memory",
+            "value": 38.55,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree xml 1000 entries - retained memory",
+            "value": 38.55,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree xml 1000 entries - peak RSS",
+            "value": 63.82,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize xml 1000 entries - time",
+            "value": 194.88,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize xml 1000 entries - peak memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize xml 1000 entries - retained memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize xml 1000 entries - peak RSS",
+            "value": 7.09,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode json 1000 entries - time",
+            "value": 18.79,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 decode json 1000 entries - peak memory",
+            "value": 16.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode json 1000 entries - retained memory",
+            "value": 16.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 decode json 1000 entries - peak RSS",
+            "value": 13.85,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree json 1000 entries - time",
+            "value": 324.07,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 tree json 1000 entries - peak memory",
+            "value": 39.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree json 1000 entries - retained memory",
+            "value": 26.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 tree json 1000 entries - peak RSS",
+            "value": 32.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize json 1000 entries - time",
+            "value": 86.47,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize json 1000 entries - peak memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize json 1000 entries - retained memory",
+            "value": 2.92,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 R5 serialize json 1000 entries - peak RSS",
+            "value": 5.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode xml 200 entries - time",
+            "value": 8.46,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode xml 200 entries - peak RSS",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree xml 200 entries - time",
+            "value": 94,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 tree xml 200 entries - peak memory",
+            "value": 7.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree xml 200 entries - retained memory",
+            "value": 7.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree xml 200 entries - peak RSS",
+            "value": 4.69,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize xml 200 entries - time",
+            "value": 52.68,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize xml 200 entries - peak memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize xml 200 entries - peak RSS",
+            "value": 0.22,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode json 200 entries - time",
+            "value": 3.92,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 decode json 200 entries - peak memory",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode json 200 entries - retained memory",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode json 200 entries - peak RSS",
+            "value": 0.85,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree json 200 entries - time",
+            "value": 90.53,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 tree json 200 entries - peak memory",
+            "value": 8.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree json 200 entries - retained memory",
+            "value": 5.35,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree json 200 entries - peak RSS",
+            "value": 1.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize json 200 entries - time",
+            "value": 20.78,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize json 200 entries - peak memory",
+            "value": 0.64,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize json 200 entries - retained memory",
+            "value": 0.64,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize json 200 entries - peak RSS",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode xml 1000 entries - time",
+            "value": 53.31,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode xml 1000 entries - peak RSS",
+            "value": 36.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree xml 1000 entries - time",
+            "value": 507.25,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 tree xml 1000 entries - peak memory",
+            "value": 38.56,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree xml 1000 entries - retained memory",
+            "value": 38.55,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree xml 1000 entries - peak RSS",
+            "value": 64.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize xml 1000 entries - time",
+            "value": 273.05,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize xml 1000 entries - peak memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize xml 1000 entries - retained memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize xml 1000 entries - peak RSS",
+            "value": 7.18,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode json 1000 entries - time",
+            "value": 23.15,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 decode json 1000 entries - peak memory",
+            "value": 16.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode json 1000 entries - retained memory",
+            "value": 16.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 decode json 1000 entries - peak RSS",
+            "value": 13.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree json 1000 entries - time",
+            "value": 461.52,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 tree json 1000 entries - peak memory",
+            "value": 39.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree json 1000 entries - retained memory",
+            "value": 26.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 tree json 1000 entries - peak RSS",
+            "value": 33.2,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize json 1000 entries - time",
+            "value": 128.64,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize json 1000 entries - peak memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize json 1000 entries - retained memory",
+            "value": 2.92,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 R5 serialize json 1000 entries - peak RSS",
+            "value": 5.57,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode xml 200 entries - time",
+            "value": 8.56,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode xml 200 entries - peak RSS",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree xml 200 entries - time",
+            "value": 93.42,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 tree xml 200 entries - peak memory",
+            "value": 7.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree xml 200 entries - retained memory",
+            "value": 7.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree xml 200 entries - peak RSS",
+            "value": 5.02,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize xml 200 entries - time",
+            "value": 53.72,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize xml 200 entries - peak memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize xml 200 entries - retained memory",
+            "value": 0.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize xml 200 entries - peak RSS",
+            "value": 1,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode json 200 entries - time",
+            "value": 3.74,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 decode json 200 entries - peak memory",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode json 200 entries - retained memory",
+            "value": 3.45,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode json 200 entries - peak RSS",
+            "value": 0.8,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree json 200 entries - time",
+            "value": 90.9,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 tree json 200 entries - peak memory",
+            "value": 8.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree json 200 entries - retained memory",
+            "value": 5.35,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree json 200 entries - peak RSS",
+            "value": 1.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize json 200 entries - time",
+            "value": 20.65,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize json 200 entries - peak memory",
+            "value": 0.64,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize json 200 entries - retained memory",
+            "value": 0.64,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize json 200 entries - peak RSS",
+            "value": 0.88,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode xml 1000 entries - time",
+            "value": 52.67,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode xml 1000 entries - peak RSS",
+            "value": 36.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree xml 1000 entries - time",
+            "value": 504.1,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 tree xml 1000 entries - peak memory",
+            "value": 38.56,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree xml 1000 entries - retained memory",
+            "value": 38.55,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree xml 1000 entries - peak RSS",
+            "value": 63.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize xml 1000 entries - time",
+            "value": 280.23,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize xml 1000 entries - peak memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize xml 1000 entries - retained memory",
+            "value": 3.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize xml 1000 entries - peak RSS",
+            "value": 5.95,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode json 1000 entries - time",
+            "value": 22.68,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 decode json 1000 entries - peak memory",
+            "value": 16.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode json 1000 entries - retained memory",
+            "value": 16.53,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 decode json 1000 entries - peak RSS",
+            "value": 13.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree json 1000 entries - time",
+            "value": 462.59,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 tree json 1000 entries - peak memory",
+            "value": 39.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree json 1000 entries - retained memory",
+            "value": 26.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 tree json 1000 entries - peak RSS",
+            "value": 32.97,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize json 1000 entries - time",
+            "value": 120.93,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize json 1000 entries - peak memory",
+            "value": 2.93,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize json 1000 entries - retained memory",
+            "value": 2.92,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 R5 serialize json 1000 entries - peak RSS",
+            "value": 5.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode xml 200 entries - time",
+            "value": 3.48,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode xml 200 entries - peak memory",
+            "value": 0.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode xml 200 entries - peak RSS",
+            "value": 1.55,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree xml 200 entries - time",
+            "value": 68.55,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree xml 200 entries - peak memory",
+            "value": 6.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree xml 200 entries - retained memory",
+            "value": 6.05,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree xml 200 entries - peak RSS",
+            "value": 4.62,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize xml 200 entries - time",
+            "value": 35.98,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize xml 200 entries - peak memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize xml 200 entries - retained memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize xml 200 entries - peak RSS",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode json 200 entries - time",
+            "value": 2.05,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode json 200 entries - peak memory",
+            "value": 2.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode json 200 entries - retained memory",
+            "value": 2.42,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode json 200 entries - peak RSS",
+            "value": 1.36,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree json 200 entries - time",
+            "value": 70.71,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree json 200 entries - peak memory",
+            "value": 5.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree json 200 entries - retained memory",
+            "value": 3.81,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree json 200 entries - peak RSS",
+            "value": 2.58,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize json 200 entries - time",
+            "value": 23.27,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize json 200 entries - peak memory",
+            "value": 6,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize json 200 entries - retained memory",
+            "value": 6,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize json 200 entries - peak RSS",
+            "value": 2.55,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode xml 1000 entries - time",
+            "value": 19.06,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode xml 1000 entries - peak memory",
+            "value": 0.16,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode xml 1000 entries - peak RSS",
+            "value": 12.9,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree xml 1000 entries - time",
+            "value": 357.25,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree xml 1000 entries - peak memory",
+            "value": 31.03,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree xml 1000 entries - retained memory",
+            "value": 31.02,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree xml 1000 entries - peak RSS",
+            "value": 38.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize xml 1000 entries - time",
+            "value": 193.82,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize xml 1000 entries - peak memory",
+            "value": 1.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize xml 1000 entries - retained memory",
+            "value": 1.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize xml 1000 entries - peak RSS",
+            "value": 0.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode json 1000 entries - time",
+            "value": 12.84,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode json 1000 entries - peak memory",
+            "value": 12.3,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode json 1000 entries - retained memory",
+            "value": 12.3,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 decode json 1000 entries - peak RSS",
+            "value": 11.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree json 1000 entries - time",
+            "value": 379.14,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree json 1000 entries - peak memory",
+            "value": 30.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree json 1000 entries - retained memory",
+            "value": 19.38,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 tree json 1000 entries - peak RSS",
+            "value": 26.76,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize json 1000 entries - time",
+            "value": 143.83,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize json 1000 entries - peak memory",
+            "value": 30.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize json 1000 entries - retained memory",
+            "value": 30.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.1 STU3 serialize json 1000 entries - peak RSS",
+            "value": 19.74,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode xml 200 entries - time",
+            "value": 3.21,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode xml 200 entries - peak RSS",
+            "value": 1.57,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree xml 200 entries - time",
+            "value": 62.5,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree xml 200 entries - peak memory",
+            "value": 5.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree xml 200 entries - retained memory",
+            "value": 5.86,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree xml 200 entries - peak RSS",
+            "value": 4.52,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize xml 200 entries - time",
+            "value": 33.38,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize xml 200 entries - peak memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize xml 200 entries - retained memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize xml 200 entries - peak RSS",
+            "value": 0.27,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode json 200 entries - time",
+            "value": 2.05,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode json 200 entries - peak memory",
+            "value": 2.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode json 200 entries - retained memory",
+            "value": 2.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode json 200 entries - peak RSS",
+            "value": 1.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree json 200 entries - time",
+            "value": 65.85,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree json 200 entries - peak memory",
+            "value": 5.5,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree json 200 entries - retained memory",
+            "value": 3.58,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree json 200 entries - peak RSS",
+            "value": 2.47,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize json 200 entries - time",
+            "value": 20.37,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize json 200 entries - peak memory",
+            "value": 6,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize json 200 entries - retained memory",
+            "value": 6,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize json 200 entries - peak RSS",
+            "value": 3.08,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode xml 1000 entries - time",
+            "value": 18.85,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode xml 1000 entries - peak RSS",
+            "value": 12.96,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree xml 1000 entries - time",
+            "value": 335.95,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree xml 1000 entries - peak memory",
+            "value": 30.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree xml 1000 entries - retained memory",
+            "value": 30.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree xml 1000 entries - peak RSS",
+            "value": 38.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize xml 1000 entries - time",
+            "value": 174.88,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize xml 1000 entries - peak memory",
+            "value": 1.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize xml 1000 entries - retained memory",
+            "value": 1.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize xml 1000 entries - peak RSS",
+            "value": 0.31,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode json 1000 entries - time",
+            "value": 12.74,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode json 1000 entries - peak memory",
+            "value": 11.15,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode json 1000 entries - retained memory",
+            "value": 11.15,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 decode json 1000 entries - peak RSS",
+            "value": 10.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree json 1000 entries - time",
+            "value": 355.65,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree json 1000 entries - peak memory",
+            "value": 27.84,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree json 1000 entries - retained memory",
+            "value": 18.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 tree json 1000 entries - peak RSS",
+            "value": 24.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize json 1000 entries - time",
+            "value": 122.61,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize json 1000 entries - peak memory",
+            "value": 30.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize json 1000 entries - retained memory",
+            "value": 30.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.2 STU3 serialize json 1000 entries - peak RSS",
+            "value": 22.89,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode xml 200 entries - time",
+            "value": 1.74,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode xml 200 entries - peak RSS",
+            "value": 1.65,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree xml 200 entries - time",
+            "value": 38.03,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree xml 200 entries - peak memory",
+            "value": 5.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree xml 200 entries - retained memory",
+            "value": 5.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree xml 200 entries - peak RSS",
+            "value": 4.57,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize xml 200 entries - time",
+            "value": 18.87,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize xml 200 entries - peak memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize xml 200 entries - retained memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize xml 200 entries - peak RSS",
+            "value": 0.55,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode json 200 entries - time",
+            "value": 1.24,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode json 200 entries - peak memory",
+            "value": 2.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode json 200 entries - retained memory",
+            "value": 2.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode json 200 entries - peak RSS",
+            "value": 1.24,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree json 200 entries - time",
+            "value": 38.65,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree json 200 entries - peak memory",
+            "value": 5.62,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree json 200 entries - retained memory",
+            "value": 3.7,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree json 200 entries - peak RSS",
+            "value": 2.61,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize json 200 entries - time",
+            "value": 10.61,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize json 200 entries - peak memory",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize json 200 entries - retained memory",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize json 200 entries - peak RSS",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode xml 1000 entries - time",
+            "value": 10.52,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode xml 1000 entries - peak RSS",
+            "value": 12.99,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree xml 1000 entries - time",
+            "value": 198.32,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree xml 1000 entries - peak memory",
+            "value": 30.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree xml 1000 entries - retained memory",
+            "value": 30.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree xml 1000 entries - peak RSS",
+            "value": 38.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize xml 1000 entries - time",
+            "value": 105.57,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize xml 1000 entries - peak memory",
+            "value": 1.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize xml 1000 entries - retained memory",
+            "value": 1.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize xml 1000 entries - peak RSS",
+            "value": 1.71,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode json 1000 entries - time",
+            "value": 7.89,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode json 1000 entries - peak memory",
+            "value": 11.15,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode json 1000 entries - retained memory",
+            "value": 11.15,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 decode json 1000 entries - peak RSS",
+            "value": 10.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree json 1000 entries - time",
+            "value": 216.9,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree json 1000 entries - peak memory",
+            "value": 28.44,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree json 1000 entries - retained memory",
+            "value": 18.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 tree json 1000 entries - peak RSS",
+            "value": 25.17,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize json 1000 entries - time",
+            "value": 60.8,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize json 1000 entries - peak memory",
+            "value": 1.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize json 1000 entries - retained memory",
+            "value": 1.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.3 STU3 serialize json 1000 entries - peak RSS",
+            "value": 0.68,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode xml 200 entries - time",
+            "value": 4.01,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode xml 200 entries - peak RSS",
+            "value": 1.63,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree xml 200 entries - time",
+            "value": 64.26,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree xml 200 entries - peak memory",
+            "value": 5.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree xml 200 entries - retained memory",
+            "value": 5.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree xml 200 entries - peak RSS",
+            "value": 4.43,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize xml 200 entries - time",
+            "value": 34.9,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize xml 200 entries - peak memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize xml 200 entries - retained memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize xml 200 entries - peak RSS",
+            "value": 0.32,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode json 200 entries - time",
+            "value": 2.15,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode json 200 entries - peak memory",
+            "value": 2.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode json 200 entries - retained memory",
+            "value": 2.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode json 200 entries - peak RSS",
+            "value": 1.29,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree json 200 entries - time",
+            "value": 70.61,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree json 200 entries - peak memory",
+            "value": 5.62,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree json 200 entries - retained memory",
+            "value": 3.7,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree json 200 entries - peak RSS",
+            "value": 2.31,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize json 200 entries - time",
+            "value": 19.27,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize json 200 entries - peak memory",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize json 200 entries - retained memory",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize json 200 entries - peak RSS",
+            "value": 0.27,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode xml 1000 entries - time",
+            "value": 19.27,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode xml 1000 entries - peak RSS",
+            "value": 13.06,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree xml 1000 entries - time",
+            "value": 355.85,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree xml 1000 entries - peak memory",
+            "value": 30.67,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree xml 1000 entries - retained memory",
+            "value": 30.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree xml 1000 entries - peak RSS",
+            "value": 38.91,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize xml 1000 entries - time",
+            "value": 184.6,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize xml 1000 entries - peak memory",
+            "value": 1.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize xml 1000 entries - retained memory",
+            "value": 1.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize xml 1000 entries - peak RSS",
+            "value": 0.37,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode json 1000 entries - time",
+            "value": 13.17,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode json 1000 entries - peak memory",
+            "value": 11.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode json 1000 entries - retained memory",
+            "value": 11.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 decode json 1000 entries - peak RSS",
+            "value": 10.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree json 1000 entries - time",
+            "value": 375.21,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree json 1000 entries - peak memory",
+            "value": 28.44,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree json 1000 entries - retained memory",
+            "value": 18.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 tree json 1000 entries - peak RSS",
+            "value": 25.44,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize json 1000 entries - time",
+            "value": 115.35,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize json 1000 entries - peak memory",
+            "value": 1.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize json 1000 entries - retained memory",
+            "value": 1.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.4 STU3 serialize json 1000 entries - peak RSS",
+            "value": 1.43,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode xml 200 entries - time",
+            "value": 3.25,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode xml 200 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode xml 200 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode xml 200 entries - peak RSS",
+            "value": 1.57,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree xml 200 entries - time",
+            "value": 69.72,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree xml 200 entries - peak memory",
+            "value": 5.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree xml 200 entries - retained memory",
+            "value": 5.98,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree xml 200 entries - peak RSS",
+            "value": 4.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize xml 200 entries - time",
+            "value": 37.01,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize xml 200 entries - peak memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize xml 200 entries - retained memory",
+            "value": 0.28,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize xml 200 entries - peak RSS",
+            "value": 0.27,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode json 200 entries - time",
+            "value": 2.13,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode json 200 entries - peak memory",
+            "value": 2.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode json 200 entries - retained memory",
+            "value": 2.19,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode json 200 entries - peak RSS",
+            "value": 1.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree json 200 entries - time",
+            "value": 74.13,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree json 200 entries - peak memory",
+            "value": 5.62,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree json 200 entries - retained memory",
+            "value": 3.7,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree json 200 entries - peak RSS",
+            "value": 2.7,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize json 200 entries - time",
+            "value": 20.1,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize json 200 entries - peak memory",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize json 200 entries - retained memory",
+            "value": 0.23,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize json 200 entries - peak RSS",
+            "value": 0.25,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode xml 1000 entries - time",
+            "value": 19.08,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode xml 1000 entries - peak memory",
+            "value": 0.01,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode xml 1000 entries - retained memory",
+            "value": 0,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode xml 1000 entries - peak RSS",
+            "value": 13.04,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree xml 1000 entries - time",
+            "value": 366.42,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree xml 1000 entries - peak memory",
+            "value": 30.67,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree xml 1000 entries - retained memory",
+            "value": 30.66,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree xml 1000 entries - peak RSS",
+            "value": 38.59,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize xml 1000 entries - time",
+            "value": 195.5,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize xml 1000 entries - peak memory",
+            "value": 1.4,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize xml 1000 entries - retained memory",
+            "value": 1.39,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize xml 1000 entries - peak RSS",
+            "value": 0.9,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode json 1000 entries - time",
+            "value": 12.89,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode json 1000 entries - peak memory",
+            "value": 11.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode json 1000 entries - retained memory",
+            "value": 11.14,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 decode json 1000 entries - peak RSS",
+            "value": 10.24,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree json 1000 entries - time",
+            "value": 365.39,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree json 1000 entries - peak memory",
+            "value": 28.44,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree json 1000 entries - retained memory",
+            "value": 18.83,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 tree json 1000 entries - peak RSS",
+            "value": 25.34,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize json 1000 entries - time",
+            "value": 108.98,
+            "unit": "ms"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize json 1000 entries - peak memory",
+            "value": 1.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize json 1000 entries - retained memory",
+            "value": 1.13,
+            "unit": "MB"
+          },
+          {
+            "name": "PHP 8.5 STU3 serialize json 1000 entries - peak RSS",
+            "value": 1.41,
             "unit": "MB"
           }
         ]
