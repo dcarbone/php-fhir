@@ -254,6 +254,68 @@ class <?php echo PHPFHIR_TEST_CLIENT_CLASSNAME_CLIENT; ?> extends TestCase
         $this->assertContains('X-Tenant: globex', $headers);
     }
 
+    public function testRepeatedConfigHttpHeadersArePreserved()
+    {
+        $c = new <?php echo $clientConfigClass; ?>(
+            address: 'http://example.com',
+            curlOpts: [
+                CURLOPT_HTTPHEADER => [
+                    'Prefer: handling=strict',
+                    'X-Tenant: acme',
+                    'Prefer: return=representation',
+                ],
+            ],
+        );
+        $cl = new <?php echo $clientClientClass; ?>($c);
+        $req = new <?php echo $requestClass; ?>(
+            method: <?php echo $httpMethodEnum; ?>::GET,
+            path: '/Patient',
+            clientOptions: [
+                CURLOPT_HTTPHEADER => ['X-Request-ID: xyz'],
+            ],
+        );
+
+        $headers = $this->_buildCurlOpts($cl, $req)[CURLOPT_HTTPHEADER];
+
+        $this->assertSame(
+            ['Prefer: handling=strict', 'Prefer: return=representation', 'X-Tenant: acme', 'X-Request-ID: xyz'],
+            array_slice($headers, 0, 4),
+        );
+    }
+
+    public function testRepeatedRequestHttpHeadersReplaceConfigGroup()
+    {
+        $c = new <?php echo $clientConfigClass; ?>(
+            address: 'http://example.com',
+            curlOpts: [
+                CURLOPT_HTTPHEADER => [
+                    'X-Tenant: acme',
+                    'Prefer: handling=lenient',
+                    'X-Trace: 1',
+                ],
+            ],
+        );
+        $cl = new <?php echo $clientClientClass; ?>($c);
+        $req = new <?php echo $requestClass; ?>(
+            method: <?php echo $httpMethodEnum; ?>::GET,
+            path: '/Patient',
+            clientOptions: [
+                CURLOPT_HTTPHEADER => [
+                    'Prefer: handling=strict',
+                    'Prefer: return=representation',
+                ],
+            ],
+        );
+
+        $headers = $this->_buildCurlOpts($cl, $req)[CURLOPT_HTTPHEADER];
+
+        $this->assertNotContains('Prefer: handling=lenient', $headers);
+        $this->assertSame(
+            ['X-Tenant: acme', 'Prefer: handling=strict', 'Prefer: return=representation', 'X-Trace: 1'],
+            array_slice($headers, 0, 4),
+        );
+    }
+
     public function testRequestCanUnsetConfigHttpHeaderUsingCurlSyntax()
     {
         $c = new <?php echo $clientConfigClass; ?>(

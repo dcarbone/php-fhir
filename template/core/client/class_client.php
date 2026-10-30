@@ -197,9 +197,9 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
     /**
      * Merges config-level and request-level CURLOPT_HTTPHEADER lists.
      *
-     * Header names are matched case-insensitively.  A request header replaces a config header of the same name
-     * (in the config header's original position); config headers with no request counterpart are retained, and
-     * request-only headers are appended.
+     * Headers are grouped by case-insensitive name within each layer, preserving every occurrence and their
+     * relative order.  A request group replaces the config group of the same name (in the config group's original
+     * position); config groups with no request counterpart are retained, and request-only groups are appended.
      *
      * @param string[] $configHeaders
      * @param string[] $requestHeaders
@@ -207,19 +207,30 @@ class <?php echo $coreFile; ?> implements <?php echo $clientInterface; ?>
      */
     protected function _mergeHttpHeaders(array $configHeaders, array $requestHeaders): array
     {
-        $merged = [];
-        foreach ([$configHeaders, $requestHeaders] as $headers) {
-            foreach ($headers as $header) {
-                $header = (string)$header;
-                $name = self::_httpHeaderName($header);
-                if (null === $name) {
-                    $merged[] = $header;
-                } else {
-                    $merged[$name] = $header;
-                }
-            }
+        $groups = self::_groupHttpHeaders($configHeaders, 'c');
+        foreach (self::_groupHttpHeaders($requestHeaders, 'r') as $name => $headers) {
+            $groups[$name] = $headers;
         }
-        return array_values($merged);
+        return array_merge([], ...array_values($groups));
+    }
+
+    /**
+     * Groups a header list by lower-cased header name, preserving occurrence order.  Headers with no
+     * discernible name are kept in their own single-entry groups.
+     *
+     * @param string[] $headers
+     * @param string $unnamedPrefix Distinguishes placeholder keys for nameless headers between layers.
+     * @return array<string, string[]>
+     */
+    private static function _groupHttpHeaders(array $headers, string $unnamedPrefix): array
+    {
+        $groups = [];
+        foreach ($headers as $i => $header) {
+            $header = (string)$header;
+            $name = self::_httpHeaderName($header) ?? "\0{$unnamedPrefix}{$i}";
+            $groups[$name][] = $header;
+        }
+        return $groups;
     }
 
     /**
