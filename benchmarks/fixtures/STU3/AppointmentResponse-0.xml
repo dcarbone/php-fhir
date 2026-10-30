@@ -1,1 +1,0 @@
-<AppointmentResponse><id value="611173"/><meta><versionId value="1"/><lastUpdated value="2018-11-23T14:54:51.360+00:00"/></meta><appointment><reference value="Appointment/611168"/></appointment><actor><reference value="Practitioner/608969"/></actor><participantStatus value="accepted"/></AppointmentResponse>

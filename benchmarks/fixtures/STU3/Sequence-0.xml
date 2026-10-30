@@ -1,3 +1,0 @@
-<Sequence xmlns="http://hl7.org/fhir"><id value="cf-1521133430907"/><meta><versionId value="1"/><lastUpdated value="2018-10-19T19:08:15.021+00:00"/></meta><text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml">
-                  <a xmlns="http://www.w3.org/1999/xhtml" name="mm"/>
-               </div></text><coordinateSystem value="1"/><patient><reference value="Patient/cf-1507072796559"/></patient></Sequence>

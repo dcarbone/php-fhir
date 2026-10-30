@@ -1,1 +1,0 @@
-<Specimen><id value="250545"/><meta><versionId value="1"/><lastUpdated value="2020-01-31T11:55:44.897+00:00"/></meta><type><coding><system value="http://hl7.org/fhir/v2/0487"/><code value="BLD"/><display value="Whole blood"/></coding></type><subject><reference value="Patient/1834"/></subject></Specimen>

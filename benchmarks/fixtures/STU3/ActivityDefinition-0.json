@@ -1,1 +1,0 @@
-{"id":"JXP0000308141939I2-A","meta":{"versionId":"1","lastUpdated":"2018-11-28T22:01:09.742+00:00"},"status":"active","topic":[{"coding":[{"system":"http:\/\/hl7.org\/fhir","code":"JXP0000308141939A","display":"Patient Id"}],"text":"Treatment"}],"relatedArtifact":[{"type":"depends-on","resource":{"reference":"Device\/JXP0000308141939I2"}}],"resourceType":"ActivityDefinition"}

@@ -1,7 +1,7 @@
 name: "Pages"
 
-# Publishes site/ to the root of the gh-pages branch. The benchmarks/ directory on that branch is owned by the
-# Benchmarks workflow and is left untouched. Commits are SSH-signed because gh-pages requires verified signatures.
+# Publishes site/ to the root of the gh-pages branch. Commits are SSH-signed because gh-pages requires verified
+# signatures.
 
 permissions:
   actions: "none"
@@ -62,8 +62,8 @@ jobs:
           git fetch origin gh-pages
           git checkout -B gh-pages FETCH_HEAD
 
-          # Replace everything except the benchmark history and git metadata.
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'benchmarks' -exec rm -rf {} +
+          # Replace everything except git metadata.
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
           cp -r "${SITE_DIR}/." .
 
           git add --all
