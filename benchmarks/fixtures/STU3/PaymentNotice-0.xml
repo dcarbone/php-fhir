@@ -1,3 +1,0 @@
-<PaymentNotice xmlns="http://hl7.org/fhir"><id value="cf-1569809692838"/><meta><extension url="http://hapifhir.io/fhir/StructureDefinition/resource-meta-source"><valueUri value="#a213ceced0a7343f"/></extension><versionId value="1"/><lastUpdated value="2019-10-01T08:13:41.118+00:00"/></meta><text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml">
-                  <a xmlns="http://www.w3.org/1999/xhtml" name="mm"/>
-               </div></text></PaymentNotice>

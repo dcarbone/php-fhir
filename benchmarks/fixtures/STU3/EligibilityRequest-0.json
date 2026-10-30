@@ -1,1 +1,0 @@
-{"id":"2615001","meta":{"extension":[{"valueUri":"#80hWJX18suUWRaY9","url":"http:\/\/hapifhir.io\/fhir\/StructureDefinition\/resource-meta-source"}],"versionId":"1","lastUpdated":"2019-11-03T10:00:51.622+00:00"},"patient":{"reference":"Patient\/123456"},"resourceType":"EligibilityRequest"}

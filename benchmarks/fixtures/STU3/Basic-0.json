@@ -1,1 +1,0 @@
-{"id":"1579063","meta":{"versionId":"1","lastUpdated":"2019-03-06T20:52:03.276+00:00","profile":["http:\/\/standardhealthrecord.org\/fhir\/StructureDefinition\/shr-entity-Person"]},"code":{"coding":[{"system":"http:\/\/standardhealthrecord.org\/fhir\/basic-resource-type","code":"shr-entity-Person","display":"shr-entity-Person"}]},"resourceType":"Basic"}

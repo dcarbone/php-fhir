@@ -14,10 +14,9 @@
 /.php-cs-fixer.cache export-ignore
 /.phpunit.result.cache export-ignore
 
-# Tests, benchmarks, and the config that drives them
+# Tests and the config that drives them
 /tests export-ignore
 /phpunit export-ignore
-/benchmarks export-ignore
 /site export-ignore
 /rector-generated.php export-ignore
 

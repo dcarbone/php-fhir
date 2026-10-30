@@ -1,3 +1,0 @@
-<Contract xmlns="http://hl7.org/fhir"><id value="cf-1563431058485"/><meta><versionId value="1"/><lastUpdated value="2019-07-23T03:02:30.955+00:00"/></meta><text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml">
-                  <a xmlns="http://www.w3.org/1999/xhtml" name="mm"/>
-               </div></text><subject><reference value="Patient/cf-1538523351934"/></subject></Contract>

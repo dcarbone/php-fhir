@@ -1,1 +1,0 @@
-<EligibilityRequest><id value="2615001"/><meta><extension url="http://hapifhir.io/fhir/StructureDefinition/resource-meta-source"><valueUri value="#80hWJX18suUWRaY9"/></extension><versionId value="1"/><lastUpdated value="2019-11-03T10:00:51.622+00:00"/></meta><patient><reference value="Patient/123456"/></patient></EligibilityRequest>

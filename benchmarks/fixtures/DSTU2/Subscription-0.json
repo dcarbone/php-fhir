@@ -1,1 +1,0 @@
-{"id":"213628","meta":{"versionId":"2","lastUpdated":"2019-12-03T09:50:43.995+00:00","tag":[{"system":"http:\/\/hapifhir.io\/fhir\/StructureDefinition\/subscription-matching-strategy","code":"IN_MEMORY","display":"In-memory"}]},"criteria":"Patient?","status":"active","channel":{"type":"rest-hook","endpoint":"http:\/\/b097b1b7.ngrok.io\/notify"},"resourceType":"Subscription"}

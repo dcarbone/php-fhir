@@ -1,1 +1,0 @@
-<Patient xmlns="http://hl7.org/fhir"><id value="23"/><text><status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p xmlns="http://www.w3.org/1999/xhtml"><b>Anonymous Patient</b> (no stated gender), DoB Unknown ( id: 1234567)</p></div></text><identifier><system value="http://example.org/ids"/><value value="1234567"/></identifier></Patient>

@@ -1,1 +1,0 @@
-{"id":"273449","meta":{"versionId":"1","lastUpdated":"2021-12-10T10:12:24.172+00:00"},"date":"2021-12-10","type":{"text":"Admission"},"subject":{"reference":"Patient\/273448","display":"Patient Note"},"author":[{"display":"Admin Geller"}],"section":[{"text":{"div":"<div xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\">Test_admission...<\/div>"}}],"resourceType":"Composition"}
