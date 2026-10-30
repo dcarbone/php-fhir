@@ -66,6 +66,21 @@ jobs:
           version: '${{ matrix.version }}'
 
   # -----------------------------------------------------------------------
+  # Download the FHIR implementation guide packages that bin/config.php's
+  # profile configuration points at (input/profiles/...). These are not
+  # committed, so without this the generator fails at config load.
+  # -----------------------------------------------------------------------
+  load-fhir-profiles:
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 15
+    name: 'Load FHIR profile packages'
+    steps:
+      - uses: "actions/checkout@v7"
+
+      - name: 'Load FHIR profile packages'
+        uses: "./.github/actions/load-fhir-profiles"
+
+  # -----------------------------------------------------------------------
   # Run the generator once all XSD sources are available, then push the
   # output to dcarbone/php-fhir-generated and create a matching release.
   # -----------------------------------------------------------------------
@@ -74,6 +89,7 @@ jobs:
     timeout-minutes: 30
     needs:
       - "load-fhir-source"
+      - "load-fhir-profiles"
     services:
       php-fhir-test-server:
         image: "ghcr.io/dcarbone/php-fhir-test-server:latest"
@@ -114,6 +130,10 @@ jobs:
         uses: "./.github/actions/load-fhir-xsd"
         with:
           version: 'R5'
+
+      # ---- restore the profile package cache populated above ---------------
+      - name: 'Restore FHIR profile package cache'
+        uses: "./.github/actions/load-fhir-profiles"
 
       # ---- PHP + Composer --------------------------------------------------
       # The bootstrap action installs the PHPUnit version matching PHP_VERSION, re-resolving

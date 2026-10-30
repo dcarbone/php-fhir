@@ -1,0 +1,109 @@
+name: 'Load FHIR Profile Packages'
+description: 'Downloads and caches the FHIR implementation guide packages referenced by bin/config.php'
+
+inputs:
+  user-agent:
+    required: false
+    description: 'User agent string to use'
+    default: 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0'
+
+outputs:
+  cache-key:
+    description: 'Actions Cache key'
+    value: '${{ steps.vars.outputs.cache-key }}'
+  cache-dir:
+    description: 'Profile package cache directory'
+    value: '${{ steps.vars.outputs.cache-dir }}'
+
+runs:
+  using: "composite"
+  steps:
+    - id: "vars"
+      env:
+        # Keyed on this file so editing the manifest below invalidates the cache.
+        MANIFEST_HASH: '${{ hashFiles(''.github/actions/load-fhir-profiles/action.yaml'') }}'
+      shell: "bash -e {0}"
+      # language=sh
+      run: |
+        _cache_key="fhir-profiles-${MANIFEST_HASH}-1"
+        _cache_dir="${GITHUB_WORKSPACE}/input/profiles"
+
+        echo "cache-key=${_cache_key}" >> "${GITHUB_OUTPUT}"
+        echo "cache-dir=${_cache_dir}" >> "${GITHUB_OUTPUT}"
+
+    - uses: "actions/cache@v6"
+      id: "cache"
+      with:
+        path: '${{ steps.vars.outputs.cache-dir }}'
+        key: '${{ steps.vars.outputs.cache-key }}'
+
+    - name: 'Download'
+      if: "steps.cache.outputs.cache-hit != 'true' && steps.cache.outputs.cache-hit != true"
+      env:
+        CACHE_DIR: '${{ steps.vars.outputs.cache-dir }}'
+        USER_AGENT: '${{ inputs.user-agent }}'
+      shell: "bash -e {0}"
+      # language=sh
+      run: |
+        # Manifest of every package referenced by bin/config.php, one per line:
+        #   <package name>|<package version>|<destination relative to input/profiles>|<download url>
+        #
+        # Destinations MUST match the `source` paths in bin/config.php. Versions are pinned via the
+        # URL; the downloaded package.json is checked against <name>/<version> so a stale "current"
+        # IG build or a bad redirect fails the run instead of silently producing wrong classes.
+        #
+        # packages.fhir.org serves tarballs only for GET (HEAD returns 404); the npm-style registry
+        # redirects to packages.simplifier.net. SDC 4.0.0 is not in the registry yet, so it is
+        # pulled from its pinned STU4 IG publication instead.
+        _manifest="$(cat <<'EOF'
+        hl7.fhir.r4.core|4.0.1|hl7.fhir.r4.core/package.tgz|https://packages.fhir.org/hl7.fhir.r4.core/4.0.1
+        hl7.terminology.r4|7.4.0|hl7.fhir.terminology/hl7.terminology.r4.tgz|https://packages.fhir.org/hl7.terminology.r4/7.4.0
+        hl7.fhir.uv.extensions.r4|5.3.0|hl7.fhir.uv.extensions.r4/package.tgz|https://packages.fhir.org/hl7.fhir.uv.extensions.r4/5.3.0
+        hl7.fhir.uv.xver-r5.r4|0.1.0|hl7.fhir.uv.xver-r5.r4/package.tgz|https://packages.fhir.org/hl7.fhir.uv.xver-r5.r4/0.1.0
+        hl7.fhir.uv.tools.r4|1.1.2|hl7.fhir.uv.tools.r4/package.tgz|https://packages.fhir.org/hl7.fhir.uv.tools.r4/1.1.2
+        hl7.fhir.uv.smart-app-launch|2.2.0|hl7.fhir.uv.smart-app-launch/package.tgz|https://packages.fhir.org/hl7.fhir.uv.smart-app-launch/2.2.0
+        us.cdc.phinvads|0.12.0|us.cdc.phinvads/package.tgz|https://packages.fhir.org/us.cdc.phinvads/0.12.0
+        hl7.fhir.uv.sdc.r4|4.0.0|hl7.fhir.uv.sdc.r4/package.r4.tgz|https://hl7.org/fhir/uv/sdc/STU4/package.r4.tgz
+        hl7.fhir.us.core|9.0.0|us_core_stu9/package.tgz|https://packages.fhir.org/hl7.fhir.us.core/9.0.0
+        EOF
+        )"
+
+        while IFS='|' read -r _name _version _dest _url; do
+          [ -z "${_name}" ] && continue
+
+          _target="${CACHE_DIR}/${_dest}"
+
+          echo "::group::Downloading ${_name}@${_version} from '${_url}' to '${_target}'"
+          mkdir -p "$(dirname "${_target}")"
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --location \
+            --retry 3 \
+            --retry-delay 5 \
+            -A "${USER_AGENT}" \
+            -o "${_target}" \
+            "${_url}"
+          echo "::endgroup::"
+
+          echo "::group::Verifying ${_name}@${_version}"
+          _actual_name="$(tar -xzOf "${_target}" package/package.json | jq -r '.name')"
+          _actual_version="$(tar -xzOf "${_target}" package/package.json | jq -r '.version')"
+          if [ "${_actual_name}" != "${_name}" ] || [ "${_actual_version}" != "${_version}" ]; then
+            echo "::error::Expected ${_name}@${_version} but '${_url}' served ${_actual_name}@${_actual_version}" >&2
+            exit 1
+          fi
+          echo "OK: ${_actual_name}@${_actual_version}"
+          echo "::endgroup::"
+        done <<< "${_manifest}"
+
+    - name: 'List files'
+      env:
+        CACHE_DIR: '${{ steps.vars.outputs.cache-dir }}'
+      shell: "bash -e {0}"
+      # language=sh
+      run: |
+        echo "::group::Listing files in '${CACHE_DIR}'"
+        find "${CACHE_DIR}" -type f -exec ls -l {} +
+        echo "::endgroup::"
