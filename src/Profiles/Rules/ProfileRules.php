@@ -25,37 +25,30 @@ namespace DCarbone\PHPFHIR\Profiles\Rules;
 class ProfileRules
 {
     /** @var ProfileElementRule[] */
-    private array $_elementRules = [];
+    private readonly array $_elementRules;
     /** @var ProfileSliceRule[] */
-    private array $_sliceRules = [];
+    private readonly array $_sliceRules;
     /** @var ProfileInvariant[] */
-    private array $_invariants = [];
+    private readonly array $_invariants;
     /** @var string[] */
-    private array $_skipped = [];
+    private readonly array $_skipped;
 
-    public function addElementRule(ProfileElementRule $rule): self
-    {
-        $this->_elementRules[] = $rule;
-        return $this;
-    }
-
-    public function addSliceRule(ProfileSliceRule $rule): self
-    {
-        $this->_sliceRules[] = $rule;
-        return $this;
-    }
-
-    public function addInvariant(ProfileInvariant $invariant): self
-    {
-        $this->_invariants[] = $invariant;
-        return $this;
-    }
-
-    /** Records a constraint that cannot be turned into a rule, and why. */
-    public function addSkipped(string $reason): self
-    {
-        $this->_skipped[] = $reason;
-        return $this;
+    /**
+     * @param ProfileElementRule[] $elementRules
+     * @param ProfileSliceRule[] $sliceRules In definition order; slice accessors are matched to them by index.
+     * @param ProfileInvariant[] $invariants
+     * @param string[] $skipped Constraints that could not be turned into rules, and why.
+     */
+    public function __construct(
+        array $elementRules = [],
+        array $sliceRules = [],
+        array $invariants = [],
+        array $skipped = [],
+    ) {
+        $this->_elementRules = array_values($elementRules);
+        $this->_sliceRules = array_values($sliceRules);
+        $this->_invariants = array_values($invariants);
+        $this->_skipped = array_values($skipped);
     }
 
     /** @return ProfileElementRule[] */

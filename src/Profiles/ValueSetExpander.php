@@ -34,8 +34,10 @@ class ValueSetExpander
     private readonly ProfilePackage $package;
     /** @var array<string, null|array> raw results of requested expansions keyed by versionless canonical */
     private array $_cache = [];
-    /** @var array<string, null|array> included expansions completed during the current request */
+    /** @var array<string, null|array> included expansions completed during the current request, shared ones only */
     private array $_included = [];
+    /** @var array<string, true> included ValueSets expanded at least once during the current request */
+    private array $_seen = [];
     /** @var array<string, true> canonicals currently being expanded, used to break reference cycles */
     private array $_expanding = [];
 
@@ -57,9 +59,11 @@ class ValueSetExpander
             try {
                 $this->_cache[$key] = $this->_expand($canonical);
             } finally {
-                // included expansions are memoized only for the duration of a request: shared includes are then
-                // expanded once, without retaining the codes of a deep chain once per level.
+                // included expansions are memoized only for the duration of a request, and only once they prove
+                // to be shared: an include chain then does not retain the codes of every level, while a ValueSet
+                // included from several places is expanded at most twice.
                 $this->_included = [];
+                $this->_seen = [];
             }
         }
         return [] === $this->_cache[$key] ? null : $this->_cache[$key];
@@ -80,10 +84,16 @@ class ValueSetExpander
         }
         $this->_expanding[$key] = true;
         try {
-            return $this->_included[$key] = $this->_doExpand($canonical);
+            $codes = $this->_doExpand($canonical);
         } finally {
             unset($this->_expanding[$key]);
         }
+        if (isset($this->_seen[$key])) {
+            $this->_included[$key] = $codes;
+        } else {
+            $this->_seen[$key] = true;
+        }
+        return $codes;
     }
 
     private function _doExpand(string $canonical): null|array

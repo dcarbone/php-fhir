@@ -110,7 +110,8 @@ class ProfileValidationTest extends TestCase
      */
     private static function rules(array $elements = [], array $slices = []): ProfileRules
     {
-        $rules = new ProfileRules();
+        $elementRules = [];
+        $sliceRules = [];
         foreach ($elements as $e) {
             $fixed = null;
             if (array_key_exists('fixed', $e)) {
@@ -118,12 +119,12 @@ class ProfileValidationTest extends TestCase
             } elseif (array_key_exists('pattern', $e)) {
                 $fixed = new ProfileFixedValue(FixedValueKindEnum::PATTERN, 'Test', $e['pattern']);
             }
-            $rules->addElementRule(new ProfileElementRule($e['path'], $e['min'] ?? null, $e['max'] ?? null, $e['types'] ?? [], $fixed, $e['codes'] ?? null));
+            $elementRules[] = new ProfileElementRule($e['path'], $e['min'] ?? null, $e['max'] ?? null, $e['types'] ?? [], $fixed, $e['codes'] ?? null);
         }
         foreach ($slices as $s) {
-            $rules->addSliceRule(new ProfileSliceRule($s['path'], $s['name'], $s['match'], $s['min'] ?? null, $s['max'] ?? null));
+            $sliceRules[] = new ProfileSliceRule($s['path'], $s['name'], $s['match'], $s['min'] ?? null, $s['max'] ?? null);
         }
-        return $rules;
+        return new ProfileRules($elementRules, $sliceRules);
     }
 
     private static function generate(array $rules = [], array $slices = []): ProfileValidationCode

@@ -54,7 +54,10 @@ abstract class ProfileRulesExtractor
             }
         }
 
-        $rules = new ProfileRules();
+        $elementRules = [];
+        $sliceRules = [];
+        $invariants = [];
+        $skipped = [];
         $sliceChildren = null;
 
         foreach (array_keys($ids) as $id) {
@@ -64,16 +67,16 @@ abstract class ProfileRulesExtractor
             }
 
             foreach (self::_differentialConstraints($chain, $id) as $constraint) {
-                $rules->addInvariant(new ProfileInvariant(self::_relativePath($element), $constraint));
+                $invariants[] = new ProfileInvariant(self::_relativePath($element), $constraint);
             }
 
             if ($element->isSlice() && 1 === substr_count($id, ':') && !str_contains(substr($id, (int)strrpos($id, ':')), '.')) {
                 $sliceChildren ??= self::_sliceChildren($profile, $chain);
                 $slice = self::_extractSlice($profile, $chain, $element, $sliceChildren[$id] ?? []);
                 if (null === $slice) {
-                    $rules->addSkipped(sprintf('%s: slice cannot be matched (no fixed / pattern values or extension profile)', $id));
+                    $skipped[] = sprintf('%s: slice cannot be matched (no fixed / pattern values or extension profile)', $id);
                 } else {
-                    $rules->addSliceRule($slice);
+                    $sliceRules[] = $slice;
                 }
                 continue;
             }
@@ -81,13 +84,13 @@ abstract class ProfileRulesExtractor
                 continue;
             }
 
-            $rule = self::_extractElement($element, $expander, $rules);
+            $rule = self::_extractElement($element, $expander, $skipped);
             if (!$rule->isEmpty()) {
-                $rules->addElementRule($rule);
+                $elementRules[] = $rule;
             }
         }
 
-        return $rules;
+        return new ProfileRules($elementRules, $sliceRules, $invariants, $skipped);
     }
 
     private static function _relativePath(ProfileElement $element): string
@@ -125,7 +128,10 @@ abstract class ProfileRulesExtractor
         return $out;
     }
 
-    private static function _extractElement(ProfileElement $element, null|ValueSetExpander $expander, ProfileRules $rules): ProfileElementRule
+    /**
+     * @param string[] $skipped Receives the reason if a constraint of the element could not be turned into a rule.
+     */
+    private static function _extractElement(ProfileElement $element, null|ValueSetExpander $expander, array &$skipped): ProfileElementRule
     {
         $min = null;
         if (null !== $element->getMin() && $element->getMin() > 0) {
@@ -148,7 +154,7 @@ abstract class ProfileRulesExtractor
         if (null !== $binding && $binding->isRequired() && null !== $binding->getValueSet()) {
             $codes = $expander?->expand($binding->getValueSet());
             if (null === $codes) {
-                $rules->addSkipped(sprintf('%s: required binding to %s cannot be enumerated', $element->getId(), $binding->getValueSet()));
+                $skipped[] = sprintf('%s: required binding to %s cannot be enumerated', $element->getId(), $binding->getValueSet());
             }
         }
 

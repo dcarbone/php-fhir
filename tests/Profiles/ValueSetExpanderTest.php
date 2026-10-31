@@ -351,10 +351,10 @@ class ValueSetExpanderTest extends TestCase
         $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'c'));
     }
 
-    public function testSharedIncludesAreExpandedOncePerRequest(): void
+    public function testSharedIncludesAreNotReExpandedPerPath(): void
     {
-        // a lattice where every ValueSet includes both ValueSets of the next level: without memoization the number
-        // of expansions doubles per level.
+        // a lattice where every ValueSet includes both ValueSets of the next level: without memoization of shared
+        // includes the number of expansions doubles per level.
         $levels = 24;
         $resources = [];
         for ($i = 0; $i < $levels; $i++) {
@@ -369,6 +369,7 @@ class ValueSetExpanderTest extends TestCase
         $this->assertSame([['s', 'l'], ['s', 'r']], $e->expand(self::_VS . 'l0'));
         // the per-request memo is released once the requested expansion completes.
         $this->assertSame([], (new \ReflectionProperty($e, '_included'))->getValue($e));
+        $this->assertSame([], (new \ReflectionProperty($e, '_seen'))->getValue($e));
     }
 
     public function testExpansionsAreCached(): void
