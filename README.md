@@ -44,9 +44,12 @@ Full documentation is maintained on the **[project wiki](https://github.com/dcar
 
 | PHPFHIR Version | PHP Versions  | FHIR Versions                                     | Supported |
 |-----------------|---------------|---------------------------------------------------|-----------|
-| v4              | >= 8.1        | DSTU1, DSTU2, STU3, R4, R4B, R5, R6 (pre-release) | **Yes**   |
+| v4              | >= 8.1        | DSTU1, DSTU2, STU3, R4, R4B, R5                   | **Yes**   |
 | v3              | >= 8.1, < 8.5 | DSTU1, DSTU2, STU3, R4, R4B, R5                   | No        |
 | v2              | 5.4–7.4       | DSTU1, DSTU2, STU3, R4                            | No        |
+
+R6 pre-release metadata is recognized, but R6 generation is not included in the default configuration or
+the generated-package release workflow yet.
 
 ---
 
