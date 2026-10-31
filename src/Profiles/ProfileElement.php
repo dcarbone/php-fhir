@@ -24,60 +24,62 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class ProfileElement
 {
-    private string $_id;
-    private string $_path;
-    private null|string $_sliceName;
-    private null|int $_min;
-    private null|int $_max;
+    private readonly string $_id;
+    private readonly string $_path;
+    private readonly null|string $_sliceName;
+    private readonly null|int $_min;
+    private readonly null|int $_max;
     /** @var ProfileElementType[] */
-    private array $_types = [];
-    private null|ProfileFixedValue $_fixedValue;
-    private null|ProfileBinding $_binding;
-    private null|ProfileSlicing $_slicing;
+    private readonly array $_types;
+    private readonly null|ProfileFixedValue $_fixedValue;
+    private readonly null|ProfileBinding $_binding;
+    private readonly null|ProfileSlicing $_slicing;
     /** @var ProfileConstraint[] */
-    private array $_constraints = [];
-    private bool $_mustSupport;
-    private null|string $_contentReference;
-    private null|string $_short;
-    private null|string $_definition;
+    private readonly array $_constraints;
+    private readonly bool $_mustSupport;
+    private readonly null|string $_contentReference;
+    private readonly null|string $_short;
+    private readonly null|string $_definition;
 
-    private function __construct()
-    {
-    }
-
-    public static function fromArray(array $data): self
+    /**
+     * @param array $data Decoded ElementDefinition.
+     * @throws ProfileDefinitionException
+     */
+    public function __construct(array $data)
     {
         foreach (['id', 'path'] as $k) {
             if (!isset($data[$k]) || !is_string($data[$k]) || '' === $data[$k]) {
                 throw new ProfileDefinitionException(sprintf('Element is missing required string field "%s".', $k));
             }
         }
-        $e = new self();
-        $e->_id = $data['id'];
-        $e->_path = $data['path'];
-        $e->_sliceName = isset($data['sliceName']) && is_string($data['sliceName']) ? $data['sliceName'] : null;
-        $e->_min = isset($data['min']) ? self::_cardinality($data['min'], $e->_id) : null;
-        $e->_max = isset($data['max']) ? self::_max($data['max'], $e->_id) : null;
+        $this->_id = $data['id'];
+        $this->_path = $data['path'];
+        $this->_sliceName = isset($data['sliceName']) && is_string($data['sliceName']) ? $data['sliceName'] : null;
+        $this->_min = isset($data['min']) ? self::_cardinality($data['min'], $this->_id) : null;
+        $this->_max = isset($data['max']) ? self::_max($data['max'], $this->_id) : null;
+        $types = [];
         foreach ($data['type'] ?? [] as $type) {
             // system primitive types (e.g. Element.id) carry their code only as an extension on "_code".
             if (is_array($type) && !isset($type['code']) && isset($type['_code'])) {
                 continue;
             }
-            $e->_types[] = ProfileElementType::fromArray((array)$type);
+            $types[] = ProfileElementType::fromArray((array)$type);
         }
-        $e->_fixedValue = ProfileFixedValue::fromElementArray($data);
-        $e->_binding = isset($data['binding']) ? ProfileBinding::fromArray((array)$data['binding']) : null;
-        $e->_slicing = isset($data['slicing']) ? ProfileSlicing::fromArray((array)$data['slicing']) : null;
+        $this->_types = $types;
+        $this->_fixedValue = ProfileFixedValue::fromElementArray($data);
+        $this->_binding = isset($data['binding']) ? ProfileBinding::fromArray((array)$data['binding']) : null;
+        $this->_slicing = isset($data['slicing']) ? ProfileSlicing::fromArray((array)$data['slicing']) : null;
+        $constraints = [];
         foreach ($data['constraint'] ?? [] as $constraint) {
-            $e->_constraints[] = ProfileConstraint::fromArray((array)$constraint);
+            $constraints[] = ProfileConstraint::fromArray((array)$constraint);
         }
-        $e->_mustSupport = (bool)($data['mustSupport'] ?? false);
-        $e->_contentReference = isset($data['contentReference']) && is_string($data['contentReference'])
+        $this->_constraints = $constraints;
+        $this->_mustSupport = (bool)($data['mustSupport'] ?? false);
+        $this->_contentReference = isset($data['contentReference']) && is_string($data['contentReference'])
             ? $data['contentReference']
             : null;
-        $e->_short = isset($data['short']) && is_string($data['short']) ? $data['short'] : null;
-        $e->_definition = isset($data['definition']) && is_string($data['definition']) ? $data['definition'] : null;
-        return $e;
+        $this->_short = isset($data['short']) && is_string($data['short']) ? $data['short'] : null;
+        $this->_definition = isset($data['definition']) && is_string($data['definition']) ? $data['definition'] : null;
     }
 
     private static function _cardinality(mixed $value, string $id): int

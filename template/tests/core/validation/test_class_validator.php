@@ -138,6 +138,14 @@ class <?php echo $coreFile; ?> extends TestCase
 
         $out = <?php echo $validatorClass; ?>::tighten($base, [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b', 'c'], 'allowed' => ['b', 'c'], 'max' => 2]]);
         $this->assertSame(['fields' => ['a', 'b', 'c'], 'allowed' => ['b'], 'max' => 1], $out[<?php echo $choiceOccursRule; ?>::NAME]);
+
+        // fields are united so a variant missing from a custom base rule is still examined.
+        $out = <?php echo $validatorClass; ?>::tighten([<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a']]], [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b'], 'allowed' => ['a']]]);
+        $this->assertSame(['fields' => ['a', 'b'], 'allowed' => ['a']], $out[<?php echo $choiceOccursRule; ?>::NAME]);
+
+        // a disabled (null) base rule is replaced, not merged.
+        $out = <?php echo $validatorClass; ?>::tighten([<?php echo $choiceOccursRule; ?>::NAME => null], [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a']]]);
+        $this->assertSame(['fields' => ['a']], $out[<?php echo $choiceOccursRule; ?>::NAME]);
     }
 
     public function testTightenReplacesOtherRules()

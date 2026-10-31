@@ -38,11 +38,11 @@ class ProfilePackageReader
     /** Conventional "<type>-<id>.json" names of files holding one of the retained resource types. */
     private const _RESOURCE_FILENAME_PATTERN = '{^(StructureDefinition|ValueSet|CodeSystem)-}';
     /**
-     * Cheap test for files that may hold one of the retained resource types, before they are decoded.  Anchored (\G)
-     * at the first "resourceType" key, which in published FHIR JSON is the top-level resource's, so a file holding
-     * other resources nested inside e.g. a Bundle is not decoded only to be discarded.
+
+     * Cheap test for files that may hold one of the retained resource types, before they are decoded.  Only the
+     * decoded top-level "resourceType" is authoritative; this may match a nested resource.
      */
-    private const _RESOURCE_TYPE_PATTERN = '{\G"resourceType"\s*:\s*"(StructureDefinition|ValueSet|CodeSystem)"}';
+    private const _RESOURCE_TYPE_PATTERN = '{"resourceType"\s*:\s*"(StructureDefinition|ValueSet|CodeSystem)"}';
 
     /**
      * @param ProfilePackageConfig $config
@@ -142,6 +142,7 @@ class ProfilePackageReader
             ? self::_indexedTypes(self::_decode(self::_readFile($files[self::_INDEX_FILENAME], $source), self::_INDEX_FILENAME, $source))
             : [];
 
+        /** @var ProfilePackedResource[] $resources */
         $resources = [];
         foreach ($files as $name => $path) {
             if (self::_MANIFEST_FILENAME === $name || self::_INDEX_FILENAME === $name) {
@@ -165,7 +166,7 @@ class ProfilePackageReader
             }
             // narrative is never used and is a large share of big packages.
             unset($json['text']);
-            if (null !== ($packed = ProfilePackage::packResource($json))) {
+            if (null !== ($packed = ProfilePackedResource::fromResource($json))) {
                 $resources[] = $packed;
             }
         }

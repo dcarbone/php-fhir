@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileInvariant;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\DocumentationUtils;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
@@ -27,7 +28,6 @@ $profile = $profileClass->getProfile();
 $imports = $profileClass->getImports();
 $code = $profileClass->getValidationCode();
 $accessors = $profileClass->getSliceAccessors();
-$slices = $profileClass->getSlices();
 $profileInterface = $profileClass->getProfileInterfaceName();
 $isRoot = null === $profileClass->getParent();
 
@@ -66,7 +66,7 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
      *
      * @var array<int, array<string, null|string>>
      */
-    public const PROFILE_INVARIANTS = <?php echo pretty_var_export($profileClass->getInvariants(), 1); ?>;
+    public const PROFILE_INVARIANTS = <?php echo pretty_var_export(array_map(static fn(ProfileInvariant $i): array => $i->toArray(), $profileClass->getRules()->getInvariants()), 1); ?>;
 
     private const _PROFILE_VALIDATION_RULES = <?php echo pretty_var_export($code->rules, 1, rawKeys: true); ?>;
 <?php if ('' !== $code->constants) : ?>
@@ -145,27 +145,27 @@ class <?php echo $profileClass->getClassName(); ?> extends <?php echo $profileCl
 <?php foreach ($accessors as $accessor) : ?>
 
     /**
-<?php if ($accessor['single']) : ?>
-     * @return null|<?php echo $accessor['class']; ?> The "<?php echo DocumentationUtils::escapeCommentLine($slices[$accessor['slice']]['name']); ?>" slice of <?php echo DocumentationUtils::escapeCommentLine($slices[$accessor['slice']]['path']); ?>, if present.
+<?php if ($accessor->isSingle()) : ?>
+     * @return null|<?php echo $accessor->getMatcher()->getClassName(); ?> The "<?php echo DocumentationUtils::escapeCommentLine($accessor->getSlice()->getName()); ?>" slice of <?php echo DocumentationUtils::escapeCommentLine($accessor->getSlice()->getPath()); ?>, if present.
      */
-    public function <?php echo $accessor['method']; ?>(): null|<?php echo $accessor['class']; ?>
+    public function <?php echo $accessor->getMethod(); ?>(): null|<?php echo $accessor->getMatcher()->getClassName(); ?>
 
     {
-        foreach ($this-><?php echo $accessor['getter']; ?>() as $item) {
-            if (<?php echo $profileClass->getValueMatcherName(); ?>::matches($item, self::<?php echo $accessor['constant']; ?>)) {
+        foreach ($this-><?php echo $accessor->getGetter(); ?>() as $item) {
+            if (<?php echo $profileClass->getValueMatcherName(); ?>::matches($item, self::<?php echo $accessor->getMatcher()->getConstant(); ?>)) {
                 return $item;
             }
         }
         return null;
     }
 <?php else : ?>
-     * @return <?php echo $accessor['class']; ?>[] The items of the "<?php echo DocumentationUtils::escapeCommentLine($slices[$accessor['slice']]['name']); ?>" slice of <?php echo DocumentationUtils::escapeCommentLine($slices[$accessor['slice']]['path']); ?>.
+     * @return <?php echo $accessor->getMatcher()->getClassName(); ?>[] The items of the "<?php echo DocumentationUtils::escapeCommentLine($accessor->getSlice()->getName()); ?>" slice of <?php echo DocumentationUtils::escapeCommentLine($accessor->getSlice()->getPath()); ?>.
      */
-    public function <?php echo $accessor['method']; ?>(): array
+    public function <?php echo $accessor->getMethod(); ?>(): array
     {
         $matched = [];
-        foreach ($this-><?php echo $accessor['getter']; ?>() as $item) {
-            if (<?php echo $profileClass->getValueMatcherName(); ?>::matches($item, self::<?php echo $accessor['constant']; ?>)) {
+        foreach ($this-><?php echo $accessor->getGetter(); ?>() as $item) {
+            if (<?php echo $profileClass->getValueMatcherName(); ?>::matches($item, self::<?php echo $accessor->getMatcher()->getConstant(); ?>)) {
                 $matched[] = $item;
             }
         }

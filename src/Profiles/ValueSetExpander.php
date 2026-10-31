@@ -32,8 +32,10 @@ class ValueSetExpander
         'http://hl7.org/fhir/StructureDefinition/valueset-unclosed',
     ];
     private readonly ProfilePackage $package;
-    /** @var array<string, null|array> results of requested expansions keyed by versionless canonical */
+    /** @var array<string, null|array> raw results of requested expansions keyed by versionless canonical */
     private array $_cache = [];
+    /** @var array<string, null|array> included expansions completed during the current request */
+    private array $_included = [];
     /** @var array<string, true> canonicals currently being expanded, used to break reference cycles */
     private array $_expanding = [];
 
@@ -50,26 +52,35 @@ class ValueSetExpander
      */
     public function expand(string $canonical): null|array
     {
-        // only requested ValueSets are retained; caching every included one would hold the codes of a deep chain
-        // once per level.
         $key = ProfilePackage::stripCanonicalVersion($canonical);
         if (!array_key_exists($key, $this->_cache)) {
-            $codes = $this->_expand($canonical);
-            $this->_cache[$key] = [] === $codes ? null : $codes;
+            try {
+                $this->_cache[$key] = $this->_expand($canonical);
+            } finally {
+                // included expansions are memoized only for the duration of a request: shared includes are then
+                // expanded once, without retaining the codes of a deep chain once per level.
+                $this->_included = [];
+            }
         }
-        return $this->_cache[$key];
+        return [] === $this->_cache[$key] ? null : $this->_cache[$key];
     }
 
     private function _expand(string $canonical): null|array
     {
         $key = ProfilePackage::stripCanonicalVersion($canonical);
+        if (array_key_exists($key, $this->_cache)) {
+            return $this->_cache[$key];
+        }
+        if (array_key_exists($key, $this->_included)) {
+            return $this->_included[$key];
+        }
         if (isset($this->_expanding[$key])) {
             // a ValueSet that (transitively) includes itself cannot be enumerated.
             return null;
         }
         $this->_expanding[$key] = true;
         try {
-            return $this->_doExpand($canonical);
+            return $this->_included[$key] = $this->_doExpand($canonical);
         } finally {
             unset($this->_expanding[$key]);
         }

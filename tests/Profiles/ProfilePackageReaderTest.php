@@ -18,9 +18,11 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * limitations under the License.
  */
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
+use DCarbone\PHPFHIR\Enum\ProfileResourceTypeEnum;
 use DCarbone\PHPFHIR\Profiles\ProfilePackage;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageException;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
+use DCarbone\PHPFHIR\Profiles\ProfilePackedResource;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
@@ -105,6 +107,8 @@ class ProfilePackageReaderTest extends TestCase
         $files['example-patient.json'] = ['resourceType' => 'Patient', 'id' => 'example'];
         // a resource of interest nested in another is not the file's resource.
         $files['bundle.json'] = ['resourceType' => 'Bundle', 'id' => 'b', 'entry' => [['resource' => self::structureDefinition('nested')]]];
+        // key order and values are not relied upon when deciding whether to decode a file.
+        $files['odd-order.json'] = ['id' => 'resourceType', 'contained' => [['resourceType' => 'Patient']]] + self::valueSet('resourceType');
         $sources = [
             'directory' => self::writePackageDir($this->_root . '/named-dir', $files),
             'archive' => self::writePackageArchive($this->_root . '/named.tgz', $files),
@@ -112,7 +116,7 @@ class ProfilePackageReaderTest extends TestCase
         foreach ($sources as $label => $source) {
             $package = ProfilePackageReader::read($this->config($source));
             $this->assertSame(['my-observation', 'my-patient', 'unindexed'], array_keys($package->getStructureDefinitions()), $label);
-            $this->assertSame(['my-vs', 'indexed-vs'], array_keys($package->getValueSets()), $label);
+            $this->assertEqualsCanonicalizing(['my-vs', 'indexed-vs', 'resourceType'], array_keys($package->getValueSets()), $label);
         }
     }
 
@@ -322,18 +326,20 @@ class ProfilePackageReaderTest extends TestCase
     public function testPackedResourceWithoutDerivationFallsBackToData(): void
     {
         $package = new ProfilePackage($this->config($this->_root), self::manifest());
-        $package->addPackedResource([
-            'type' => 'StructureDefinition',
-            'id' => 'p',
-            'url' => null,
-            'data' => self::structureDefinition('p'),
-        ]);
-        $package->addPackedResource([
-            'type' => 'StructureDefinition',
-            'id' => 'base',
-            'url' => null,
-            'data' => ['resourceType' => 'StructureDefinition', 'id' => 'base', 'derivation' => 'specialization'],
-        ]);
+        $package->addPackedResource(new ProfilePackedResource(
+            ProfileResourceTypeEnum::STRUCTURE_DEFINITION,
+            'p',
+            null,
+            null,
+            self::structureDefinition('p'),
+        ));
+        $package->addPackedResource(new ProfilePackedResource(
+            ProfileResourceTypeEnum::STRUCTURE_DEFINITION,
+            'base',
+            null,
+            null,
+            ['resourceType' => 'StructureDefinition', 'id' => 'base', 'derivation' => 'specialization'],
+        ));
         $this->assertSame(['p'], array_keys($package->getStructureDefinitions()));
     }
 }

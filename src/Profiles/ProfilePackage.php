@@ -29,9 +29,9 @@ use DCarbone\PHPFHIR\Enum\ProfileResourceTypeEnum;
 class ProfilePackage
 {
     private ProfilePackageConfig $_config;
-    private array $_manifest;
+    private ProfilePackageMetadata $_metadata;
 
-    /** @var array<string, array<string, array|string>> resource type => id => packed resource */
+    /** @var array<string, array<string, ProfilePackedResource>> resource type => id => packed resource */
     private array $_resources = [];
     /** @var array<string, true> ids of StructureDefinitions whose derivation is not "constraint" */
     private array $_nonProfileSDs = [];
@@ -44,7 +44,7 @@ class ProfilePackage
     public function __construct(ProfilePackageConfig $config, array $manifest)
     {
         $this->_config = $config;
-        $this->_manifest = $manifest;
+        $this->_metadata = ProfilePackageMetadata::fromManifest($manifest);
         foreach (ProfileResourceTypeEnum::cases() as $type) {
             $this->_resources[$type->value] = [];
             $this->_urlIndex[$type->value] = [];
@@ -65,19 +65,24 @@ class ProfilePackage
         return $this->_config;
     }
 
+    public function getMetadata(): ProfilePackageMetadata
+    {
+        return $this->_metadata;
+    }
+
     public function getName(): string
     {
-        return $this->_manifest['name'];
+        return $this->_metadata->getName();
     }
 
     public function getVersion(): string
     {
-        return $this->_manifest['version'];
+        return $this->_metadata->getVersion();
     }
 
     public function getCanonical(): null|string
     {
-        return $this->_manifest['canonical'] ?? null;
+        return $this->_metadata->getCanonical();
     }
 
     /**
@@ -85,11 +90,7 @@ class ProfilePackage
      */
     public function getFHIRVersions(): array
     {
-        $out = [];
-        foreach ((array)($this->_manifest['fhirVersions'] ?? []) as $version) {
-            $out[] = $version;
-        }
-        return $out;
+        return $this->_metadata->getFHIRVersions();
     }
 
     /**
@@ -97,12 +98,7 @@ class ProfilePackage
      */
     public function getDeclaredDependencies(): array
     {
-        return (array)($this->_manifest['dependencies'] ?? []);
-    }
-
-    public function getManifest(): array
-    {
-        return $this->_manifest;
+        return $this->_metadata->getDeclaredDependencies();
     }
 
     /**
@@ -110,65 +106,30 @@ class ProfilePackage
      */
     public function addResource(array $resource): void
     {
-        $packed = self::packResource($resource);
+        $packed = ProfilePackedResource::fromResource($resource);
         if (null !== $packed) {
             $this->addPackedResource($packed);
         }
     }
 
     /**
-     * Prepares a resource for storage.  Packages can be enormous and resources are rarely read more than once, so
-     * they are kept compressed.
-     *
-     * @return null|array{type: string, id: string, url: null|string, derivation: null|string, data: array|string} Null if the resource is not retained.
      * @internal Used by the reader while populating the package.
      */
-    public static function packResource(array $resource): null|array
+    public function addPackedResource(ProfilePackedResource $packed): void
     {
-        $type = $resource['resourceType'] ?? null;
-        $id = $resource['id'] ?? null;
-        if (!is_string($type) || null === ProfileResourceTypeEnum::tryFrom($type) || !is_string($id) || '' === $id) {
-            return null;
+        $type = $packed->getType()->value;
+        $this->_resources[$type][$packed->getId()] = $packed;
+        if (null !== $packed->getUrl()) {
+            $this->_urlIndex[$type][$packed->getUrl()] = $packed->getId();
         }
-        $data = $resource;
-        if (function_exists('gzdeflate')) {
-            $data = gzdeflate(json_encode($resource, JSON_THROW_ON_ERROR), 1);
-        }
-        return [
-            'type' => $type,
-            'id' => $id,
-            'url' => isset($resource['url']) && is_string($resource['url']) ? $resource['url'] : null,
-            'derivation' => isset($resource['derivation']) && is_string($resource['derivation']) ? $resource['derivation'] : null,
-            'data' => $data,
-        ];
-    }
-
-    /**
-     * @param array{type: string, id: string, url: null|string, derivation?: null|string, data: array|string} $packed
-     * @internal Used by the reader while populating the package.
-     */
-    public function addPackedResource(array $packed): void
-    {
-        $this->_resources[$packed['type']][$packed['id']] = $packed['data'];
-        if (null !== $packed['url']) {
-            $this->_urlIndex[$packed['type']][$packed['url']] = $packed['id'];
-        }
-        if (ProfileResourceTypeEnum::STRUCTURE_DEFINITION->value === $packed['type']) {
+        if (ProfileResourceTypeEnum::STRUCTURE_DEFINITION === $packed->getType()) {
             // Recorded so profiles can be listed without inflating every base / specialization definition.
-            $derivation = array_key_exists('derivation', $packed)
-                ? $packed['derivation']
-                : (self::_unpack($packed['data'])['derivation'] ?? null);
-            if ('constraint' === $derivation) {
-                unset($this->_nonProfileSDs[$packed['id']]);
+            if ($packed->isConstraint()) {
+                unset($this->_nonProfileSDs[$packed->getId()]);
             } else {
-                $this->_nonProfileSDs[$packed['id']] = true;
+                $this->_nonProfileSDs[$packed->getId()] = true;
             }
         }
-    }
-
-    private static function _unpack(array|string $data): array
-    {
-        return is_string($data) ? json_decode(gzinflate($data), true, 512, JSON_THROW_ON_ERROR) : $data;
     }
 
     /**
@@ -199,7 +160,7 @@ class ProfilePackage
             if (isset($this->_nonProfileSDs[$id])) {
                 continue;
             }
-            $out[$id] = self::_unpack($packed);
+            $out[$id] = $packed->unpack();
         }
         return $out;
     }
@@ -211,7 +172,7 @@ class ProfilePackage
     {
         $out = [];
         foreach ($this->_resources[ProfileResourceTypeEnum::VALUE_SET->value] as $id => $packed) {
-            $out[$id] = self::_unpack($packed);
+            $out[$id] = $packed->unpack();
         }
         return $out;
     }
@@ -223,7 +184,7 @@ class ProfilePackage
     {
         $out = [];
         foreach ($this->_resources[ProfileResourceTypeEnum::CODE_SYSTEM->value] as $id => $packed) {
-            $out[$id] = self::_unpack($packed);
+            $out[$id] = $packed->unpack();
         }
         return $out;
     }
@@ -255,7 +216,7 @@ class ProfilePackage
         $visited[$this->getName()] = true;
         $url = self::stripCanonicalVersion($canonical);
         if (isset($this->_urlIndex[$type->value][$url])) {
-            return self::_unpack($this->_resources[$type->value][$this->_urlIndex[$type->value][$url]]);
+            return $this->_resources[$type->value][$this->_urlIndex[$type->value][$url]]->unpack();
         }
         foreach ($this->_loadedDependencies as $name => $dependency) {
             if (!isset($visited[$name]) && null !== ($found = $dependency->_resolve($type, $canonical, $visited))) {

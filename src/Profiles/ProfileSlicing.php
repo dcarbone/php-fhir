@@ -29,7 +29,7 @@ class ProfileSlicing
     private readonly null|string $description;
 
     /**
-     * @param array<array{type: string, path: string}> $discriminators
+     * @param ProfileDiscriminator[] $discriminators
      */
     public function __construct(
         array $discriminators,
@@ -50,15 +50,15 @@ class ProfileSlicing
         }
         $discriminators = [];
         foreach ($data['discriminator'] ?? [] as $d) {
-            if (!is_array($d) || !isset($d['type'], $d['path']) || !is_string($d['type']) || !is_string($d['path'])) {
+            if (!is_array($d)) {
                 throw new ProfileDefinitionException('Slicing discriminator must have string "type" and "path".');
             }
-            $discriminators[] = ['type' => $d['type'], 'path' => $d['path']];
+            $discriminators[] = ProfileDiscriminator::fromArray($d);
         }
         return new self($discriminators, $data['rules'], (bool)($data['ordered'] ?? false), $data['description'] ?? null);
     }
 
-    /** @return array<array{type: string, path: string}> */
+    /** @return ProfileDiscriminator[] */
     public function getDiscriminators(): array
     {
         return $this->discriminators;

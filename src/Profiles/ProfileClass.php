@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 use DCarbone\PHPFHIR\Builder\Imports;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileRules;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
 /**
@@ -34,10 +35,10 @@ class ProfileClass
     private readonly string $_baseTypeClassName;
     private readonly null|ProfileClass $_parent;
     private readonly string $_profilesNamespace;
-    private readonly array $_compiled;
+    private readonly ProfileRules $_rules;
     private readonly null|ProfileTypeNavigator $_navigator;
-    private readonly array $_package;
-    private readonly array $_support;
+    private readonly null|ProfilePackageMetadata $_package;
+    private readonly ProfileSupportClasses $_support;
     private readonly string $_packageNamespace;
 
     public function __construct(
@@ -47,10 +48,10 @@ class ProfileClass
         string $_baseTypeClassName,
         null|ProfileClass $_parent = null,
         string $_profilesNamespace = '',
-        array $_compiled = ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []],
+        null|ProfileRules $_rules = null,
         null|ProfileTypeNavigator $_navigator = null,
-        array $_package = [],
-        array $_support = [],
+        null|ProfilePackageMetadata $_package = null,
+        null|ProfileSupportClasses $_support = null,
         string $_packageNamespace = '',
     ) {
         $this->_profile = $_profile;
@@ -59,10 +60,10 @@ class ProfileClass
         $this->_baseTypeClassName = $_baseTypeClassName;
         $this->_parent = $_parent;
         $this->_profilesNamespace = $_profilesNamespace;
-        $this->_compiled = $_compiled;
+        $this->_rules = $_rules ?? new ProfileRules();
         $this->_navigator = $_navigator;
         $this->_package = $_package;
-        $this->_support = $_support;
+        $this->_support = $_support ?? new ProfileSupportClasses();
         $this->_packageNamespace = '' === $_packageNamespace ? $_namespace : $_packageNamespace;
     }
 
@@ -73,14 +74,14 @@ class ProfileClass
     public function getCopyrightNotice(): null|string
     {
         $lines = [];
-        if (isset($this->_package['name'])) {
-            $lines[] = sprintf('Package: %s %s', $this->_package['name'], $this->_package['version'] ?? '');
-        }
-        if (isset($this->_package['author'])) {
-            $lines[] = 'Author: ' . $this->_package['author'];
-        }
-        if (isset($this->_package['license'])) {
-            $lines[] = 'License: ' . $this->_package['license'];
+        if (null !== $this->_package) {
+            $lines[] = sprintf('Package: %s %s', $this->_package->getName(), $this->_package->getVersion());
+            if (null !== $this->_package->getAuthor()) {
+                $lines[] = 'Author: ' . $this->_package->getAuthor();
+            }
+            if (null !== $this->_package->getLicense()) {
+                $lines[] = 'License: ' . $this->_package->getLicense();
+            }
         }
         $text = rtrim(implode("\n", $lines));
         if (null !== $this->_profile->getCopyright()) {
@@ -97,17 +98,19 @@ class ProfileClass
         }
         $imports = new Imports(null, $this->_namespace, $this->_className);
         $imports->addImport(...NameUtils::splitFullyQualifiedName($this->_extendsFQN()));
-        foreach ($this->_support as $key => $fqn) {
-            // the profile interface is implemented by the root of a profile hierarchy only.
-            if ('profileInterface' === $key && null !== $this->_parent) {
-                continue;
+        foreach ([$this->_support->getValueMatcherFQN(), $this->_support->getValidatorFQN()] as $fqn) {
+            if (null !== $fqn) {
+                $imports->addImport(...NameUtils::splitFullyQualifiedName($fqn));
             }
-            $imports->addImport(...NameUtils::splitFullyQualifiedName($fqn));
+        }
+        // the profile interface is implemented by the root of a profile hierarchy only.
+        if (null === $this->_parent && null !== $this->_support->getProfileInterfaceFQN()) {
+            $imports->addImport(...NameUtils::splitFullyQualifiedName($this->_support->getProfileInterfaceFQN()));
         }
         $this->_code = null === $this->_navigator
             ? new ProfileValidationCode()
             : ProfileValidationGenerator::generate(
-                $this->_compiled,
+                $this->_rules,
                 $this->_profile->getType(),
                 $this->_navigator,
                 $imports,
@@ -118,13 +121,13 @@ class ProfileClass
     /** Name, as written in the class body, of the core class that matches values against patterns. */
     public function getValueMatcherName(): string
     {
-        return $this->_supportName('matcher', PHPFHIR_VALIDATION_CLASSNAME_VALUE_MATCHER);
+        return $this->_supportName($this->_support->getValueMatcherFQN(), PHPFHIR_VALIDATION_CLASSNAME_VALUE_MATCHER);
     }
 
     /** Name, as written in the class body, of the core class that holds the validation rule registry. */
     public function getValidatorName(): string
     {
-        return $this->_supportName('validator', PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
+        return $this->_supportName($this->_support->getValidatorFQN(), PHPFHIR_VALIDATION_CLASSNAME_VALIDATOR);
     }
 
     /**
@@ -133,14 +136,14 @@ class ProfileClass
      */
     public function getProfileInterfaceName(): null|string
     {
-        return null === $this->_parent && isset($this->_support['profileInterface'])
-            ? $this->_importedName($this->getImports(), $this->_support['profileInterface'])
+        return null === $this->_parent && null !== $this->_support->getProfileInterfaceFQN()
+            ? $this->_importedName($this->getImports(), $this->_support->getProfileInterfaceFQN())
             : null;
     }
 
-    private function _supportName(string $key, string $default): string
+    private function _supportName(null|string $fqn, string $default): string
     {
-        return isset($this->_support[$key]) ? $this->_importedName($this->getImports(), $this->_support[$key]) : $default;
+        return null === $fqn ? $default : $this->_importedName($this->getImports(), $fqn);
     }
 
     public function getValidationCode(): ProfileValidationCode
@@ -155,36 +158,23 @@ class ProfileClass
         return $this->_profilesNamespace;
     }
 
-    /** @return array<int, array<string, mixed>> */
-    public function getRules(): array
+    public function getRules(): ProfileRules
     {
-        return $this->_compiled['rules'];
-    }
-
-    /** @return array<int, array<string, mixed>> */
-    public function getSlices(): array
-    {
-        return $this->_compiled['slices'];
-    }
-
-    /** @return array<int, array<string, null|string>> */
-    public function getInvariants(): array
-    {
-        return $this->_compiled['invariants'];
+        return $this->_rules;
     }
 
     /** @return string[] Constraints that could not be turned into rules, and why. */
     public function getSkipped(): array
     {
         $this->_build();
-        return [...$this->_compiled['skipped'], ...$this->_code->skipped];
+        return [...$this->_rules->getSkipped(), ...$this->_code->skipped];
     }
 
     /**
      * Typed accessors for slices of the profile's own top-level elements, e.g. an "ssn" slice of "identifier"
      * becomes getSsnIdentifier().
      *
-     * @return array<int, array{method: string, getter: string, constant: string, class: string, single: bool, slice: int}>
+     * @return ProfileSliceAccessor[]
      */
     public function getSliceAccessors(): array
     {
@@ -192,25 +182,23 @@ class ProfileClass
         $inherited = $this->_inheritedSliceAccessorShapes();
         $out = [];
         $used = [];
-        foreach ($this->_compiled['slices'] as $i => $slice) {
-            $sliceName = NameUtils::toPascalCase($slice['name']);
-            if ('' === $sliceName || !isset($matchers[$i]) || str_contains($slice['path'], '.') || str_contains($slice['path'], '[x]')) {
+        foreach ($this->_rules->getSliceRules() as $i => $slice) {
+            $sliceName = NameUtils::toPascalCase($slice->getName());
+            if ('' === $sliceName || !isset($matchers[$i]) || str_contains($slice->getPath(), '.') || str_contains($slice->getPath(), '[x]')) {
                 continue;
             }
-            $method = NameUtils::getGetterName($sliceName . ucfirst($slice['path']));
+            $method = NameUtils::getGetterName($sliceName . ucfirst($slice->getPath()));
             if (isset($used[strtolower($method)])) {
                 continue;
             }
             $used[strtolower($method)] = true;
-            $out[] = [
-                'method' => $method,
-                'getter' => NameUtils::getGetterName($slice['path']),
-                'constant' => $matchers[$i]['constant'],
-                'class' => $matchers[$i]['class'],
+            $out[] = new ProfileSliceAccessor(
+                $matchers[$i],
+                $method,
+                NameUtils::getGetterName($slice->getPath()),
                 // an override must keep the signature of the accessor it overrides, even if this profile narrows max
-                'single' => $inherited[strtolower($method)] ?? 1 === ($slice['max'] ?? null),
-                'slice' => $i,
-            ];
+                $inherited[strtolower($method)] ?? 1 === $slice->getMax(),
+            );
         }
         return $out;
     }
@@ -224,7 +212,7 @@ class ProfileClass
         $out = [];
         for ($parent = $this->_parent; null !== $parent; $parent = $parent->getParent()) {
             foreach ($parent->getSliceAccessors() as $accessor) {
-                $out[strtolower($accessor['method'])] ??= $accessor['single'];
+                $out[strtolower($accessor->getMethod())] ??= $accessor->isSingle();
             }
         }
         return $out;

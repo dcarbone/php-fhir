@@ -32,66 +32,52 @@ class ProfileSet
     private array $_ownUrls = [];
     /** @var array<string, string> profile id => base definition that could not be resolved */
     private array $_unresolved = [];
-    /** @var array<string, string> name, version and, if the manifest has them, license and author of the package */
-    private array $_packageInfo = [];
-
-    private function __construct()
-    {
-    }
+    private readonly ProfilePackageMetadata $_packageMetadata;
 
     /**
      * @param bool $strict If true, a profile whose base profile cannot be found raises an exception.  Otherwise the
      *                     profile is left without a parent and the problem is recorded, see {@see getUnresolved()}.
      * @throws ProfileDefinitionException
      */
-    public static function fromPackage(ProfilePackage $package, bool $strict = true): self
+    public function __construct(ProfilePackage $package, bool $strict = true)
     {
-        $set = new self();
-        $manifest = $package->getManifest();
-        $set->_packageInfo = ['name' => $package->getName(), 'version' => $package->getVersion()];
-        foreach (['license', 'author'] as $key) {
-            if (isset($manifest[$key]) && is_string($manifest[$key]) && '' !== trim($manifest[$key])) {
-                $set->_packageInfo[$key] = trim($manifest[$key]);
-            }
-        }
+        $this->_packageMetadata = $package->getMetadata();
 
         $dependencies = self::_collectDependencies($package);
 
         // dependencies first so own profiles win a url collision.
         foreach ($dependencies as $dependency) {
             foreach ($dependency->getStructureDefinitions() as $sd) {
-                $profile = Profile::fromStructureDefinition($sd);
-                $set->_byUrl[$profile->getUrl()] = $profile;
+                $profile = new Profile($sd);
+                $this->_byUrl[$profile->getUrl()] = $profile;
             }
         }
 
         foreach ($package->getStructureDefinitions() as $sd) {
-            $profile = Profile::fromStructureDefinition($sd);
-            $set->_byUrl[$profile->getUrl()] = $profile;
-            $set->_ownUrls[$profile->getUrl()] = true;
+            $profile = new Profile($sd);
+            $this->_byUrl[$profile->getUrl()] = $profile;
+            $this->_ownUrls[$profile->getUrl()] = true;
         }
 
-        $own = $set->_ownUrls;
+        $own = $this->_ownUrls;
         $unconfigured = self::_collectUnconfiguredDependencies($package, $dependencies);
-        foreach ($set->_byUrl as $url => $profile) {
+        foreach ($this->_byUrl as $url => $profile) {
             // a dependency's profiles were checked, and their problems reported, when the dependency itself was built.
             if (isset($own[$url])) {
-                $set->_resolveParent($profile, $strict, $unconfigured);
+                $this->_resolveParent($profile, $strict, $unconfigured);
             } else {
-                $set->_linkParent($profile);
+                $this->_linkParent($profile);
             }
         }
-        foreach ($set->_byUrl as $profile) {
-            $set->_assertAcyclic($profile);
+        foreach ($this->_byUrl as $profile) {
+            $this->_assertAcyclic($profile);
         }
 
-        return $set;
     }
 
-    /** @return array<string, string> */
-    public function getPackageInfo(): array
+    public function getPackageMetadata(): ProfilePackageMetadata
     {
-        return $this->_packageInfo;
+        return $this->_packageMetadata;
     }
 
     /**

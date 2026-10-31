@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  */
 use DCarbone\PHPFHIR\Enum\BindingStrengthEnum;
 use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
+use DCarbone\PHPFHIR\Profiles\ProfileDiscriminator;
 use DCarbone\PHPFHIR\Profiles\ProfileElement;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +28,7 @@ class ProfileElementTest extends TestCase
 {
     public function testMinimalElement(): void
     {
-        $e = ProfileElement::fromArray(['id' => 'Patient.name', 'path' => 'Patient.name']);
+        $e = new ProfileElement(['id' => 'Patient.name', 'path' => 'Patient.name']);
         $this->assertSame('Patient.name', $e->getId());
         $this->assertSame('Patient.name', $e->getPath());
         $this->assertSame('name', $e->getName());
@@ -51,7 +52,7 @@ class ProfileElementTest extends TestCase
 
     public function testRootElement(): void
     {
-        $e = ProfileElement::fromArray(['id' => 'Patient', 'path' => 'Patient']);
+        $e = new ProfileElement(['id' => 'Patient', 'path' => 'Patient']);
         $this->assertTrue($e->isRoot());
         $this->assertNull($e->getParentId());
         $this->assertSame('Patient', $e->getName());
@@ -59,16 +60,16 @@ class ProfileElementTest extends TestCase
 
     public function testCardinality(): void
     {
-        $required = ProfileElement::fromArray(['id' => 'A.b', 'path' => 'A.b', 'min' => 1, 'max' => '1']);
+        $required = new ProfileElement(['id' => 'A.b', 'path' => 'A.b', 'min' => 1, 'max' => '1']);
         $this->assertSame(1, $required->getMin());
         $this->assertSame(1, $required->getMax());
         $this->assertTrue($required->isRequired());
 
-        $many = ProfileElement::fromArray(['id' => 'A.b', 'path' => 'A.b', 'min' => 0, 'max' => '*']);
+        $many = new ProfileElement(['id' => 'A.b', 'path' => 'A.b', 'min' => 0, 'max' => '*']);
         $this->assertSame(PHPFHIR_UNLIMITED, $many->getMax());
         $this->assertFalse($many->isRequired());
 
-        $prohibited = ProfileElement::fromArray(['id' => 'A.b', 'path' => 'A.b', 'min' => 0, 'max' => '0']);
+        $prohibited = new ProfileElement(['id' => 'A.b', 'path' => 'A.b', 'min' => 0, 'max' => '0']);
         $this->assertTrue($prohibited->isProhibited());
     }
 
@@ -95,12 +96,12 @@ class ProfileElementTest extends TestCase
     public function testInvalidElementThrows(array $data): void
     {
         $this->expectException(ProfileDefinitionException::class);
-        ProfileElement::fromArray($data);
+        new ProfileElement($data);
     }
 
     public function testChoiceElementAndTypes(): void
     {
-        $e = ProfileElement::fromArray([
+        $e = new ProfileElement([
             'id' => 'Patient.deceased[x]',
             'path' => 'Patient.deceased[x]',
             'type' => [['code' => 'boolean'], ['code' => 'dateTime']],
@@ -112,7 +113,7 @@ class ProfileElementTest extends TestCase
 
     public function testSystemPrimitiveTypeWithoutCodeIsSkipped(): void
     {
-        $e = ProfileElement::fromArray([
+        $e = new ProfileElement([
             'id' => 'Extension.id',
             'path' => 'Extension.id',
             'type' => [['_code' => ['extension' => []]]],
@@ -122,7 +123,7 @@ class ProfileElementTest extends TestCase
 
     public function testTypeProfilesAndTargetProfiles(): void
     {
-        $e = ProfileElement::fromArray([
+        $e = new ProfileElement([
             'id' => 'A.ref',
             'path' => 'A.ref',
             'type' => [['code' => 'Reference', 'targetProfile' => ['http://x/P1', 'http://x/P2']], ['code' => 'Extension', 'profile' => ['http://x/E']]],
@@ -146,7 +147,7 @@ class ProfileElementTest extends TestCase
     #[DataProvider('fixedProvider')]
     public function testFixedAndPatternValues(string $key, mixed $value, string $kind, string $type): void
     {
-        $e = ProfileElement::fromArray(['id' => 'A.b', 'path' => 'A.b', $key => $value]);
+        $e = new ProfileElement(['id' => 'A.b', 'path' => 'A.b', $key => $value]);
         $fixed = $e->getFixedValue();
         $this->assertNotNull($fixed);
         $this->assertSame($kind, $fixed->getKind()->value);
@@ -158,13 +159,13 @@ class ProfileElementTest extends TestCase
 
     public function testFixedValueWithFalseyValue(): void
     {
-        $e = ProfileElement::fromArray(['id' => 'A.b', 'path' => 'A.b', 'fixedBoolean' => false]);
+        $e = new ProfileElement(['id' => 'A.b', 'path' => 'A.b', 'fixedBoolean' => false]);
         $this->assertFalse($e->getFixedValue()->getValue());
     }
 
     public function testBinding(): void
     {
-        $e = ProfileElement::fromArray([
+        $e = new ProfileElement([
             'id' => 'A.b',
             'path' => 'A.b',
             'binding' => ['strength' => 'required', 'valueSet' => 'http://x/vs|1', 'description' => 'desc'],
@@ -175,14 +176,14 @@ class ProfileElementTest extends TestCase
         $this->assertSame('http://x/vs|1', $b->getValueSet());
         $this->assertSame('desc', $b->getDescription());
 
-        $e = ProfileElement::fromArray(['id' => 'A.b', 'path' => 'A.b', 'binding' => ['strength' => 'extensible']]);
+        $e = new ProfileElement(['id' => 'A.b', 'path' => 'A.b', 'binding' => ['strength' => 'extensible']]);
         $this->assertFalse($e->getBinding()->isRequired());
         $this->assertNull($e->getBinding()->getValueSet());
     }
 
     public function testSlicing(): void
     {
-        $e = ProfileElement::fromArray([
+        $e = new ProfileElement([
             'id' => 'A.b',
             'path' => 'A.b',
             'slicing' => [
@@ -193,7 +194,10 @@ class ProfileElementTest extends TestCase
             ],
         ]);
         $s = $e->getSlicing();
-        $this->assertSame([['type' => 'value', 'path' => 'url'], ['type' => 'pattern', 'path' => 'code']], $s->getDiscriminators());
+        $this->assertSame(
+            [['type' => 'value', 'path' => 'url'], ['type' => 'pattern', 'path' => 'code']],
+            array_map(static fn(ProfileDiscriminator $d): array => ['type' => $d->getType(), 'path' => $d->getPath()], $s->getDiscriminators()),
+        );
         $this->assertSame('open', $s->getRules());
         $this->assertTrue($s->isOrdered());
         $this->assertSame('by url', $s->getDescription());
@@ -201,13 +205,13 @@ class ProfileElementTest extends TestCase
 
     public function testSliceElement(): void
     {
-        $slice = ProfileElement::fromArray(['id' => 'A.ext:race', 'path' => 'A.ext', 'sliceName' => 'race']);
+        $slice = new ProfileElement(['id' => 'A.ext:race', 'path' => 'A.ext', 'sliceName' => 'race']);
         $this->assertTrue($slice->isSlice());
         $this->assertTrue($slice->isWithinSlice());
         $this->assertSame('race', $slice->getSliceName());
         $this->assertSame('A', $slice->getParentId());
 
-        $child = ProfileElement::fromArray(['id' => 'A.ext:race.url', 'path' => 'A.ext.url']);
+        $child = new ProfileElement(['id' => 'A.ext:race.url', 'path' => 'A.ext.url']);
         $this->assertFalse($child->isSlice());
         $this->assertTrue($child->isWithinSlice());
         $this->assertSame('A.ext:race', $child->getParentId());
@@ -215,7 +219,7 @@ class ProfileElementTest extends TestCase
 
     public function testConstraintsAndMustSupport(): void
     {
-        $e = ProfileElement::fromArray([
+        $e = new ProfileElement([
             'id' => 'A.b',
             'path' => 'A.b',
             'mustSupport' => true,

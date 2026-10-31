@@ -51,7 +51,7 @@ class ProfileTest extends TestCase
 
     public function testFromStructureDefinition(): void
     {
-        $p = Profile::fromStructureDefinition(self::patientSD());
+        $p = new Profile(self::patientSD());
         $this->assertSame('my-patient', $p->getId());
         $this->assertSame('http://example.org/fhir/StructureDefinition/my-patient', $p->getUrl());
         $this->assertSame('MyPatient', $p->getName());
@@ -72,7 +72,7 @@ class ProfileTest extends TestCase
 
     public function testElementsWithoutSnapshotUseDifferential(): void
     {
-        $p = Profile::fromStructureDefinition(self::patientSD());
+        $p = new Profile(self::patientSD());
         $this->assertFalse($p->hasSnapshot());
         $this->assertSame([], $p->getSnapshotElements());
         $this->assertSame($p->getDifferentialElements(), $p->getElements());
@@ -88,7 +88,7 @@ class ProfileTest extends TestCase
             self::element('Patient.identifier', ['min' => 1]),
             self::element('Patient.name', ['min' => 1]),
         ]]]);
-        $p = Profile::fromStructureDefinition($sd);
+        $p = new Profile($sd);
         $this->assertTrue($p->hasSnapshot());
         $this->assertCount(3, $p->getSnapshotElements());
         $this->assertCount(6, $p->getDifferentialElements());
@@ -99,7 +99,7 @@ class ProfileTest extends TestCase
 
     public function testVersionedBaseTypeDefinitionIsBaseType(): void
     {
-        $p = Profile::fromStructureDefinition(self::patientSD(['baseDefinition' => 'http://hl7.org/fhir/StructureDefinition/Patient|4.0.1']));
+        $p = new Profile(self::patientSD(['baseDefinition' => 'http://hl7.org/fhir/StructureDefinition/Patient|4.0.1']));
         $this->assertTrue($p->isBasedOnBaseType());
     }
 
@@ -110,14 +110,14 @@ class ProfileTest extends TestCase
             self::element('Patient.identifier', ['min' => 1]),
             self::element('Patient.identifier', ['min' => 2]),
         ]]]);
-        $p = Profile::fromStructureDefinition($sd);
+        $p = new Profile($sd);
         $this->assertCount(2, $p->getSnapshotElements());
         $this->assertSame(1, $p->getSnapshotElements()['Patient.identifier']->getMin());
     }
 
     public function testChildrenAndSlices(): void
     {
-        $p = Profile::fromStructureDefinition(self::patientSD());
+        $p = new Profile(self::patientSD());
         $this->assertSame(
             ['Patient.extension', 'Patient.extension:race', 'Patient.extension:ethnicity', 'Patient.identifier'],
             array_map(fn($e) => $e->getId(), $p->getChildren('Patient')),
@@ -135,7 +135,7 @@ class ProfileTest extends TestCase
             self::element('Observation.component:a.extension:x', ['sliceName' => 'x']),
             self::element('Observation.component:b', ['sliceName' => 'b']),
         ]]]);
-        $p = Profile::fromStructureDefinition($sd);
+        $p = new Profile($sd);
         $this->assertSame(['a', 'b'], array_keys($p->getSlices('Observation.component')));
         $this->assertSame(['x'], array_keys($p->getSlices('Observation.component:a.extension')));
     }
@@ -146,7 +146,7 @@ class ProfileTest extends TestCase
             'kind' => 'complex-type',
             'context' => [['type' => 'element', 'expression' => 'Patient'], ['bogus' => true]],
         ]);
-        $p = Profile::fromStructureDefinition($sd);
+        $p = new Profile($sd);
         $this->assertTrue($p->isExtension());
         $this->assertSame('complex-type', $p->getKind());
         $this->assertSame([['type' => 'element', 'expression' => 'Patient']], $p->getContext());
@@ -154,13 +154,13 @@ class ProfileTest extends TestCase
 
     public function testEmptyDifferentialIsValid(): void
     {
-        $p = Profile::fromStructureDefinition(self::structureDefinition('empty'));
+        $p = new Profile(self::structureDefinition('empty'));
         $this->assertSame([], $p->getElements());
     }
 
     public function testBasedOnProfileIsNotBasedOnBaseType(): void
     {
-        $p = Profile::fromStructureDefinition(self::structureDefinition('child', 'Patient', 'constraint', [
+        $p = new Profile(self::structureDefinition('child', 'Patient', 'constraint', [
             'baseDefinition' => 'http://example.org/fhir/StructureDefinition/my-patient',
         ]));
         $this->assertFalse($p->isBasedOnBaseType());
@@ -193,20 +193,20 @@ class ProfileTest extends TestCase
     public function testInvalidStructureDefinitionThrows(array $sd): void
     {
         $this->expectException(ProfileDefinitionException::class);
-        Profile::fromStructureDefinition($sd);
+        new Profile($sd);
     }
 
     public function testElementErrorMessageNamesProfile(): void
     {
         $sd = self::structureDefinition('named', 'Patient', 'constraint', ['differential' => ['element' => [['id' => 'A']]]]);
         $this->expectExceptionMessage('"named"');
-        Profile::fromStructureDefinition($sd);
+        new Profile($sd);
     }
 
     public function testCopyright(): void
     {
-        $this->assertNull(Profile::fromStructureDefinition(self::patientSD())->getCopyright());
-        $this->assertNull(Profile::fromStructureDefinition(self::patientSD(['copyright' => '  ']))->getCopyright());
-        $this->assertSame('(c) HL7', Profile::fromStructureDefinition(self::patientSD(['copyright' => " (c) HL7\n"]))->getCopyright());
+        $this->assertNull((new Profile(self::patientSD()))->getCopyright());
+        $this->assertNull((new Profile(self::patientSD(['copyright' => '  '])))->getCopyright());
+        $this->assertSame('(c) HL7', (new Profile(self::patientSD(['copyright' => " (c) HL7\n"])))->getCopyright());
     }
 }
