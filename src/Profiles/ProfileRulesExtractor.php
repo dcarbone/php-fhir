@@ -2,6 +2,11 @@
 
 namespace DCarbone\PHPFHIR\Profiles;
 
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileElementRule;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileInvariant;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileRules;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileSliceRule;
+
 /*
  * Copyright 2016-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
@@ -19,8 +24,8 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 /**
- * Compiles a {@see \DCarbone\PHPFHIR\Profiles\Profile} down to the plain-array rules that generated profile classes
- * validate against.
+ * Extracts from a {@see \DCarbone\PHPFHIR\Profiles\Profile} the {@see \DCarbone\PHPFHIR\Profiles\Rules\ProfileRules}
+ * that generated profile classes validate against.
  *
  * Only elements the profile, or one of its parent profiles, actually touches produce rules.  Values come from the
  * snapshot when the profile has one, so inherited constraints are already merged.
@@ -29,23 +34,13 @@ namespace DCarbone\PHPFHIR\Profiles;
  * slice, slice discriminators other than "value" / "pattern" on plain element paths, closed slicing, and invariants,
  * which are only carried along as metadata.  Slices without discriminators are matched on all of their fixed / pattern
  * values.
- *
- * @phpstan-type Rules array{
- *     rules: array<int, array<string, mixed>>,
- *     slices: array<int, array<string, mixed>>,
- *     invariants: array<int, array<string, string|null>>,
- *     skipped: string[]
- * }
  */
-class ProfileRules
+abstract class ProfileRulesExtractor
 {
     /** "$this", or a dotted path of plain element names.  Functions such as resolve() or extension() are not supported. */
     private const _DISCRIMINATOR_PATH_PATTERN = '{^(\$this|[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*)$}';
 
-    /**
-     * @return array{rules: array<int, array<string, mixed>>, slices: array<int, array<string, mixed>>, invariants: array<int, array<string, null|string>>, skipped: string[]}
-     */
-    public static function compile(Profile $profile, null|ValueSetExpander $expander = null): array
+    public static function extract(Profile $profile, null|ValueSetExpander $expander = null): ProfileRules
     {
         $chain = [$profile];
         foreach ($profile->getAncestors() as $ancestor) {
@@ -59,10 +54,11 @@ class ProfileRules
             }
         }
 
-        $rules = [];
-        $slices = [];
+        $elementRules = [];
+        $sliceRules = [];
         $invariants = [];
         $skipped = [];
+        $sliceChildren = null;
 
         foreach (array_keys($ids) as $id) {
             $element = self::_effective($profile, $chain, $id);
@@ -71,21 +67,16 @@ class ProfileRules
             }
 
             foreach (self::_differentialConstraints($chain, $id) as $constraint) {
-                $invariants[] = [
-                    'key' => $constraint->getKey(),
-                    'severity' => $constraint->getSeverity(),
-                    'human' => $constraint->getHuman(),
-                    'expression' => $constraint->getExpression(),
-                    'path' => self::_relativePath($element),
-                ];
+                $invariants[] = new ProfileInvariant(self::_relativePath($element), $constraint);
             }
 
             if ($element->isSlice() && 1 === substr_count($id, ':') && !str_contains(substr($id, (int)strrpos($id, ':')), '.')) {
-                $slice = self::_compileSlice($profile, $chain, $element);
+                $sliceChildren ??= self::_sliceChildren($profile, $chain);
+                $slice = self::_extractSlice($profile, $chain, $element, $sliceChildren[$id] ?? []);
                 if (null === $slice) {
                     $skipped[] = sprintf('%s: slice cannot be matched (no fixed / pattern values or extension profile)', $id);
                 } else {
-                    $slices[] = $slice;
+                    $sliceRules[] = $slice;
                 }
                 continue;
             }
@@ -93,13 +84,13 @@ class ProfileRules
                 continue;
             }
 
-            $rule = self::_compileElement($element, $expander, $skipped);
-            if ([] !== $rule) {
-                $rules[] = ['path' => self::_relativePath($element)] + $rule;
+            $rule = self::_extractElement($element, $expander, $skipped);
+            if (!$rule->isEmpty()) {
+                $elementRules[] = $rule;
             }
         }
 
-        return ['rules' => $rules, 'slices' => $slices, 'invariants' => $invariants, 'skipped' => $skipped];
+        return new ProfileRules($elementRules, $sliceRules, $invariants, $skipped);
     }
 
     private static function _relativePath(ProfileElement $element): string
@@ -137,68 +128,57 @@ class ProfileRules
         return $out;
     }
 
-    private static function _compileElement(ProfileElement $element, null|ValueSetExpander $expander, array &$skipped): array
+    /**
+     * @param string[] $skipped Receives the reason if a constraint of the element could not be turned into a rule.
+     */
+    private static function _extractElement(ProfileElement $element, null|ValueSetExpander $expander, array &$skipped): ProfileElementRule
     {
-        $rule = [];
-
+        $min = null;
         if (null !== $element->getMin() && $element->getMin() > 0) {
-            $rule['min'] = $element->getMin();
+            $min = $element->getMin();
         }
+        $max = null;
         if (null !== $element->getMax() && PHPFHIR_UNLIMITED !== $element->getMax()) {
-            $rule['max'] = $element->getMax();
+            $max = $element->getMax();
         }
 
-        if ($element->isChoice() && [] !== $element->getTypes()) {
-            $types = [];
+        $types = [];
+        if ($element->isChoice()) {
             foreach ($element->getTypes() as $type) {
                 $types[$type->getCode()] = $type->getCode();
             }
-            $rule['types'] = array_values($types);
         }
 
-        if (null !== ($fixed = $element->getFixedValue())) {
-            $rule[$fixed->isFixed() ? 'fixed' : 'pattern'] = $fixed->getValue();
-        }
-
+        $codes = null;
         $binding = $element->getBinding();
         if (null !== $binding && $binding->isRequired() && null !== $binding->getValueSet()) {
             $codes = $expander?->expand($binding->getValueSet());
             if (null === $codes) {
                 $skipped[] = sprintf('%s: required binding to %s cannot be enumerated', $element->getId(), $binding->getValueSet());
-            } else {
-                $rule['codes'] = $codes;
             }
         }
 
-        return $rule;
+        return new ProfileElementRule(self::_relativePath($element), $min, $max, array_values($types), $element->getFixedValue(), $codes);
     }
 
     /**
      * @param Profile[] $chain
+     * @param array<string, ProfileElement> $children Elements within the slice, keyed by path relative to it.
      */
-    private static function _compileSlice(Profile $profile, array $chain, ProfileElement $slice): null|array
+    private static function _extractSlice(Profile $profile, array $chain, ProfileElement $slice, array $children): null|ProfileSliceRule
     {
         $slicedId = substr($slice->getId(), 0, (int)strrpos($slice->getId(), ':'));
         $discriminators = self::_slicing($profile, $chain, $slicedId)?->getDiscriminators() ?? [];
         $match = [] === $discriminators
-            ? self::_matchFixedValues($profile, $chain, $slice)
+            ? self::_matchFixedValues($slice, $children)
             : self::_matchDiscriminators($profile, $chain, $slice, $discriminators);
         if (null === $match) {
             return null;
         }
 
-        $out = [
-            'path' => self::_relativePath($slice),
-            'name' => $slice->getSliceName(),
-            'match' => $match,
-        ];
-        if (null !== $slice->getMin() && $slice->getMin() > 0) {
-            $out['min'] = $slice->getMin();
-        }
-        if (null !== $slice->getMax() && PHPFHIR_UNLIMITED !== $slice->getMax()) {
-            $out['max'] = $slice->getMax();
-        }
-        return $out;
+        $min = null !== $slice->getMin() && $slice->getMin() > 0 ? $slice->getMin() : null;
+        $max = null !== $slice->getMax() && PHPFHIR_UNLIMITED !== $slice->getMax() ? $slice->getMax() : null;
+        return new ProfileSliceRule(self::_relativePath($slice), $slice->getSliceName(), $match, $min, $max);
     }
 
     /**
@@ -222,10 +202,10 @@ class ProfileRules
     /**
      * Without discriminators, every fixed / pattern value within the slice is taken to identify its members.
      *
-     * @param Profile[] $chain
+     * @param array<string, ProfileElement> $children Elements within the slice, keyed by path relative to it.
      * @return null|array<string, mixed> Null if the slice cannot be matched.
      */
-    private static function _matchFixedValues(Profile $profile, array $chain, ProfileElement $slice): null|array
+    private static function _matchFixedValues(ProfileElement $slice, array $children): null|array
     {
         $match = [];
 
@@ -233,8 +213,7 @@ class ProfileRules
             $match = $own->getValue();
         }
 
-        $prefix = $slice->getId() . '.';
-        foreach (self::_sliceChildren($profile, $chain, $prefix) as $relative => $child) {
+        foreach ($children as $relative => $child) {
             if (null === $child->getFixedValue() || str_contains($relative, ':') || str_contains($relative, '[x]')) {
                 continue;
             }
@@ -253,18 +232,18 @@ class ProfileRules
      * on plain element paths are supported.
      *
      * @param Profile[] $chain
-     * @param array<int, array{type: string, path: string}> $discriminators
+     * @param ProfileDiscriminator[] $discriminators
      * @return null|array<string, mixed> Null if the slice cannot be matched.
      */
     private static function _matchDiscriminators(Profile $profile, array $chain, ProfileElement $slice, array $discriminators): null|array
     {
         $match = [];
         foreach ($discriminators as $discriminator) {
-            if (('value' !== $discriminator['type'] && 'pattern' !== $discriminator['type'])
-                || 1 !== preg_match(self::_DISCRIMINATOR_PATH_PATTERN, $discriminator['path'])) {
+            if (('value' !== $discriminator->getType() && 'pattern' !== $discriminator->getType())
+                || 1 !== preg_match(self::_DISCRIMINATOR_PATH_PATTERN, $discriminator->getPath())) {
                 return null;
             }
-            $segments = '$this' === $discriminator['path'] ? [] : explode('.', $discriminator['path']);
+            $segments = '$this' === $discriminator->getPath() ? [] : explode('.', $discriminator->getPath());
             if (!self::_matchDiscriminator($profile, $chain, $slice, $segments, $match)) {
                 return null;
             }
@@ -306,10 +285,13 @@ class ProfileRules
     }
 
     /**
+     * Groups every element lying within a top-level slice by that slice's id.  An element's slice is the part of its
+     * id up to the first "." after the first ":", so one pass covers every slice {@see extract()} handles.
+     *
      * @param Profile[] $chain
-     * @return array<string, ProfileElement> path relative to the slice => element
+     * @return array<string, array<string, ProfileElement>> slice id => path relative to the slice => element
      */
-    private static function _sliceChildren(Profile $profile, array $chain, string $prefix): array
+    private static function _sliceChildren(Profile $profile, array $chain): array
     {
         $out = [];
         $sources = $profile->hasSnapshot() ? [$profile->getElements()] : [];
@@ -320,9 +302,12 @@ class ProfileRules
         }
         foreach ($sources as $elements) {
             foreach ($elements as $child) {
-                if (str_starts_with($child->getId(), $prefix)) {
-                    $out[substr($child->getId(), strlen($prefix))] ??= $child;
+                $id = $child->getId();
+                $colon = strpos($id, ':');
+                if (false === $colon || false === ($dot = strpos($id, '.', $colon))) {
+                    continue;
                 }
+                $out[substr($id, 0, $dot)][substr($id, $dot + 1)] ??= $child;
             }
         }
         return $out;

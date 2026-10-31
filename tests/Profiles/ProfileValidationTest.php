@@ -17,14 +17,22 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
 use DCarbone\PHPFHIR\Builder\Imports;
+use DCarbone\PHPFHIR\Enum\FixedValueKindEnum;
+use DCarbone\PHPFHIR\Enum\ProfilePropertyKindEnum;
 use DCarbone\PHPFHIR\Profiles\Profile;
 use DCarbone\PHPFHIR\Profiles\ProfileClass;
+use DCarbone\PHPFHIR\Profiles\ProfileFixedValue;
+use DCarbone\PHPFHIR\Profiles\ProfilePackageMetadata;
 use DCarbone\PHPFHIR\Profiles\ProfileProperty;
+use DCarbone\PHPFHIR\Profiles\ProfileSliceMatcher;
+use DCarbone\PHPFHIR\Profiles\ProfileSupportClasses;
 use DCarbone\PHPFHIR\Profiles\ProfileTypeNavigator;
 use DCarbone\PHPFHIR\Profiles\ProfileValidationCode;
 use DCarbone\PHPFHIR\Profiles\ProfileValidationGenerator;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileElementRule;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileRules;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileSliceRule;
 use DCarbone\PHPFHIR\Render\PHPExpression;
 use DCarbone\PHPFHIR\Render\Templates;
 use PHPUnit\Framework\TestCase;
@@ -96,10 +104,33 @@ class ProfileValidationTest extends TestCase
         };
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $elements Element rules by field: path, min, max, types, fixed, pattern, codes.
+     * @param array<int, array<string, mixed>> $slices Slice rules by field: path, name, match, min, max.
+     */
+    private static function rules(array $elements = [], array $slices = []): ProfileRules
+    {
+        $elementRules = [];
+        $sliceRules = [];
+        foreach ($elements as $e) {
+            $fixed = null;
+            if (array_key_exists('fixed', $e)) {
+                $fixed = new ProfileFixedValue(FixedValueKindEnum::FIXED, 'Test', $e['fixed']);
+            } elseif (array_key_exists('pattern', $e)) {
+                $fixed = new ProfileFixedValue(FixedValueKindEnum::PATTERN, 'Test', $e['pattern']);
+            }
+            $elementRules[] = new ProfileElementRule($e['path'], $e['min'] ?? null, $e['max'] ?? null, $e['types'] ?? [], $fixed, $e['codes'] ?? null);
+        }
+        foreach ($slices as $s) {
+            $sliceRules[] = new ProfileSliceRule($s['path'], $s['name'], $s['match'], $s['min'] ?? null, $s['max'] ?? null);
+        }
+        return new ProfileRules($elementRules, $sliceRules);
+    }
+
     private static function generate(array $rules = [], array $slices = []): ProfileValidationCode
     {
         return ProfileValidationGenerator::generate(
-            ['rules' => $rules, 'slices' => $slices, 'invariants' => [], 'skipped' => []],
+            self::rules($rules, $slices),
             'Patient',
             self::navigator(),
             new Imports(null, self::_NS . '\\Ig', 'Sample'),
@@ -166,6 +197,22 @@ class ProfileValidationTest extends TestCase
         $this->assertSame([], self::generate([['path' => 'deceased[x]', 'types' => ['boolean', 'dateTime', 'integer']]])->rules);
     }
 
+    public function testChoiceElementWithNoMatchingVariantIsSkipped(): void
+    {
+        // an empty "allowed" list would reject every variant; the mismatch is reported instead.
+        $code = self::generate([['path' => 'deceased[x]', 'min' => 1, 'types' => ['string']]]);
+        $this->assertSame([
+            "'deceased[x]'" => [
+                'choice_occurs' => [
+                    'fields' => ['deceasedBoolean', 'deceasedDateTime', 'deceasedInteger'],
+                    'min' => 1,
+                ],
+            ],
+        ], $code->rules);
+        $this->assertCount(1, $code->skipped);
+        $this->assertStringContainsString('string', $code->skipped[0]);
+    }
+
     public function testFixedPatternAndBinding(): void
     {
         $pattern = ['coding' => [['system' => 's', 'code' => 'M']]];
@@ -196,7 +243,7 @@ class ProfileValidationTest extends TestCase
                 ['name' => 'ssn', 'match' => new PHPExpression('self::_SLICE_MATCH_1'), 'min' => 1, 'max' => 2],
             ]],
         ], $code->rules);
-        $this->assertSame(['_SLICE_MATCH_0', '_SLICE_MATCH_1', '_SLICE_MATCH_2'], array_column($code->sliceMatchers, 'constant'));
+        $this->assertSame(['_SLICE_MATCH_0', '_SLICE_MATCH_1', '_SLICE_MATCH_2'], array_map(static fn(ProfileSliceMatcher $m): string => $m->getConstant(), $code->sliceMatchers));
         $this->assertStringContainsString("private const _SLICE_MATCH_1 = [\n        'system' => 'http://ssa.gov',\n    ];", $code->constants);
         $this->assertSame([], $code->skipped);
     }
@@ -229,19 +276,17 @@ class ProfileValidationTest extends TestCase
 
     public function testRenderedClassUsesRulesAndTightening(): void
     {
-        $compiled = [
-            'rules' => [['path' => 'name', 'min' => 1], ['path' => 'name.family', 'min' => 1]],
-            'slices' => [['path' => 'identifier', 'name' => 'ssn', 'match' => ['system' => 'http://ssa.gov'], 'min' => 1, 'max' => 1]],
-            'invariants' => [],
-            'skipped' => [],
-        ];
-        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient'));
-        $support = [
-            'matcher' => 'Acme\\Val\\R4\\Validation\\ValueMatcher',
-            'validator' => 'Acme\\Val\\R4\\Validation\\Validator',
-            'profileInterface' => 'Acme\\Val\\Types\\ProfileTypeInterface',
-        ];
-        $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, $compiled, self::navigator(), [], $support);
+        $compiled = self::rules(
+            [['path' => 'name', 'min' => 1], ['path' => 'name.family', 'min' => 1]],
+            [['path' => 'identifier', 'name' => 'ssn', 'match' => ['system' => 'http://ssa.gov'], 'min' => 1, 'max' => 1]],
+        );
+        $profile = new Profile(self::structureDefinition('sample', 'Patient'));
+        $support = new ProfileSupportClasses(
+            'Acme\\Val\\R4\\Validation\\ValueMatcher',
+            'Acme\\Val\\R4\\Validation\\Validator',
+            'Acme\\Val\\Types\\ProfileTypeInterface',
+        );
+        $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, $compiled, self::navigator(), null, $support);
         $source = Templates::renderProfileClass('/* c */', $class);
 
         // must parse
@@ -263,7 +308,7 @@ class ProfileValidationTest extends TestCase
         $this->assertStringContainsString("protected static function _getProfileValidationRuleNames(): array\n    {\n        \$out = [];", $source);
 
         // a derived profile inherits both, adding its own rules to its parent's.
-        $child = new ProfileClass($profile, self::_NS . '\\Ig', 'Child', self::_T . 'FHIRPatient', $class, self::_NS, $compiled, self::navigator(), [], $support);
+        $child = new ProfileClass($profile, self::_NS . '\\Ig', 'Child', self::_T . 'FHIRPatient', $class, self::_NS, $compiled, self::navigator(), null, $support);
         $source = Templates::renderProfileClass('/* c */', $child);
         token_get_all($source, TOKEN_PARSE);
         $this->assertStringNotContainsString('ProfileTypeInterface', $source);
@@ -273,8 +318,8 @@ class ProfileValidationTest extends TestCase
 
     public function testMetadataConstants(): void
     {
-        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient'));
-        $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, ['rules' => [], 'slices' => [], 'invariants' => [], 'skipped' => []], self::navigator());
+        $profile = new Profile(self::structureDefinition('sample', 'Patient'));
+        $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, null, self::navigator());
         $source = Templates::renderProfileClass('/* c */', $class);
         token_get_all($source, TOKEN_PARSE);
         $this->assertStringContainsString("PROFILE_URL = 'http://example.org/fhir/StructureDefinition/sample'", $source);
@@ -286,18 +331,13 @@ class ProfileValidationTest extends TestCase
     public function testPackageTextCannotEscapeComments(): void
     {
         $payload = '*/ $GLOBALS[\'phpfhir_injected\'] = true; /*';
-        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient', 'constraint', [
+        $profile = new Profile(self::structureDefinition('sample', 'Patient', 'constraint', [
             'url' => 'https://example.org/*/patient ' . $payload,
             'title' => "Title {$payload}\nsecond line",
             'copyright' => "Copyright {$payload}",
         ]));
-        $compiled = [
-            'rules' => [],
-            'slices' => [['path' => 'identifier', 'name' => "ssn {$payload}", 'match' => ['system' => 'http://ssa.gov'], 'max' => 1]],
-            'invariants' => [],
-            'skipped' => [],
-        ];
-        $package = ['name' => "pkg {$payload}", 'version' => "1 {$payload}", 'author' => "author {$payload}", 'license' => "license {$payload}"];
+        $compiled = self::rules([], [['path' => 'identifier', 'name' => "ssn {$payload}", 'match' => ['system' => 'http://ssa.gov'], 'max' => 1]]);
+        $package = new ProfilePackageMetadata("pkg {$payload}", "1 {$payload}", null, "author {$payload}", "license {$payload}");
         $class = new ProfileClass($profile, self::_NS . '\\Ig', 'Sample', self::_T . 'FHIRPatient', null, self::_NS, $compiled, self::navigator(), $package);
         $source = Templates::renderProfileClass("/*!\n * c\n */", $class);
 
@@ -319,14 +359,14 @@ class ProfileValidationTest extends TestCase
     public function testSliceAccessorOverrideKeepsInheritedShape(): void
     {
         $slice = static fn(string $name, null|int $max): array => ['path' => 'identifier', 'name' => $name, 'match' => ['system' => 'http://' . $name]] + (null === $max ? [] : ['max' => $max]);
-        $compiled = static fn(array ...$slices): array => ['rules' => [], 'slices' => $slices, 'invariants' => [], 'skipped' => []];
-        $profile = Profile::fromStructureDefinition(self::structureDefinition('sample', 'Patient'));
+        $compiled = static fn(array ...$slices): ProfileRules => self::rules([], $slices);
+        $profile = new Profile(self::structureDefinition('sample', 'Patient'));
         $parent = new ProfileClass($profile, self::_NS . '\\Ig', 'Base', self::_T . 'FHIRPatient', null, self::_NS, $compiled($slice('mrn', null)), self::navigator());
         $child = new ProfileClass($profile, self::_NS . '\\Ig', 'Child', self::_T . 'FHIRPatient', $parent, self::_NS, $compiled($slice('mrn', 1), $slice('ssn', 1)), self::navigator());
 
         $shapes = [];
         foreach ($child->getSliceAccessors() as $accessor) {
-            $shapes[$accessor['method']] = $accessor['single'];
+            $shapes[$accessor->getMethod()] = $accessor->isSingle();
         }
         // the override keeps returning a list like the accessor it overrides, a new accessor may return a single value.
         $this->assertSame(['getMrnIdentifier' => false, 'getSsnIdentifier' => true], $shapes);

@@ -321,7 +321,7 @@ class ValueSetExpanderTest extends TestCase
         }
     }
 
-    public function testNestingDepthIsLimited(): void
+    public function testDeeplyNestedValueSetsAreExpandable(): void
     {
         $chain = function (string $prefix, int $length): array {
             $out = [];
@@ -331,9 +331,9 @@ class ValueSetExpanderTest extends TestCase
             $out[] = self::vs($prefix . ($length - 1), ['compose' => ['include' => [['system' => 's', 'concept' => [['code' => 'x']]]]]]);
             return $out;
         };
-        $e = $this->expander(array_merge($chain('ok', 11), $chain('deep', 12)));
-        $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'ok0'));
-        $this->assertNull($e->expand(self::_VS . 'deep0'));
+        $e = $this->expander($chain('deep', 25));
+        $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'deep0'));
+        $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'deep24'));
     }
 
     public function testCyclicValueSetsTerminate(): void
@@ -341,7 +341,50 @@ class ValueSetExpanderTest extends TestCase
         $e = $this->expander([
             self::vs('a', ['compose' => ['include' => [['valueSet' => [self::_VS . 'b']]]]]),
             self::vs('b', ['compose' => ['include' => [['valueSet' => [self::_VS . 'a']]]]]),
+            self::vs('self', ['compose' => ['include' => [['valueSet' => [self::_VS . 'self']]]]]),
+            // a cycle in one include does not poison an otherwise expandable sibling
+            self::vs('c', ['compose' => ['include' => [['system' => 's', 'concept' => [['code' => 'x']]]]]]),
         ]);
         $this->assertNull($e->expand(self::_VS . 'a'));
+        $this->assertNull($e->expand(self::_VS . 'b'));
+        $this->assertNull($e->expand(self::_VS . 'self'));
+        $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'c'));
+    }
+
+    public function testSharedIncludesAreNotReExpandedPerPath(): void
+    {
+        // a lattice where every ValueSet includes both ValueSets of the next level: without memoization of shared
+        // includes the number of expansions doubles per level.
+        $levels = 24;
+        $resources = [];
+        for ($i = 0; $i < $levels; $i++) {
+            foreach (['l', 'r'] as $side) {
+                $include = $i === $levels - 1
+                    ? [['system' => 's', 'concept' => [['code' => $side]]]]
+                    : [['valueSet' => [self::_VS . 'l' . ($i + 1)]], ['valueSet' => [self::_VS . 'r' . ($i + 1)]]];
+                $resources[] = self::vs($side . $i, ['compose' => ['include' => $include]]);
+            }
+        }
+        $e = $this->expander($resources);
+        $this->assertSame([['s', 'l'], ['s', 'r']], $e->expand(self::_VS . 'l0'));
+        // the per-request memo is released once the requested expansion completes.
+        $this->assertSame([], (new \ReflectionProperty($e, '_included'))->getValue($e));
+        $this->assertSame([], (new \ReflectionProperty($e, '_seen'))->getValue($e));
+    }
+
+    public function testExpansionsAreCached(): void
+    {
+        $e = $this->expander([
+            self::vs('a', ['compose' => ['include' => [['system' => 's', 'concept' => [['code' => 'x']]]]]]),
+            self::vs('b', ['compose' => ['include' => [['valueSet' => [self::_VS . 'a']]]]]),
+        ]);
+        $cache = new \ReflectionProperty($e, '_cache');
+        $this->assertSame([], $cache->getValue($e));
+        $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'b|2.0'));
+        // only the requested ValueSet is cached, keyed without a version; included ones are not retained.
+        $this->assertSame([self::_VS . 'b'], array_keys($cache->getValue($e)));
+        $this->assertNull($e->expand(self::_VS . 'nope'));
+        $this->assertSame([['s', 'x']], $e->expand(self::_VS . 'a'));
+        $this->assertSame([self::_VS . 'b', self::_VS . 'nope', self::_VS . 'a'], array_keys($cache->getValue($e)));
     }
 }

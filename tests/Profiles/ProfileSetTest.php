@@ -67,7 +67,7 @@ class ProfileSetTest extends TestCase
 
     public function testBaseTypeProfilesHaveNoParent(): void
     {
-        $set = ProfileSet::fromPackage($this->package([
+        $set = new ProfileSet($this->package([
             self::structureDefinition('a'),
             self::structureDefinition('b', 'Observation'),
         ]));
@@ -80,7 +80,7 @@ class ProfileSetTest extends TestCase
 
     public function testParentChainIsResolved(): void
     {
-        $set = ProfileSet::fromPackage($this->package([
+        $set = new ProfileSet($this->package([
             $this->child('c', 'b'),
             $this->child('b', 'a'),
             self::structureDefinition('a'),
@@ -97,7 +97,7 @@ class ProfileSetTest extends TestCase
 
     public function testLookupByUrlWithVersionAndHas(): void
     {
-        $set = ProfileSet::fromPackage($this->package([self::structureDefinition('a')]));
+        $set = new ProfileSet($this->package([self::structureDefinition('a')]));
         $this->assertSame('a', $set->getProfileByUrl(self::_BASE . 'a|1.0.0')->getId());
         $this->assertTrue($set->hasProfile(self::_BASE . 'a'));
         $this->assertFalse($set->hasProfile(self::_BASE . 'nope'));
@@ -106,13 +106,13 @@ class ProfileSetTest extends TestCase
 
     public function testEmptyPackage(): void
     {
-        $set = ProfileSet::fromPackage($this->package([]));
+        $set = new ProfileSet($this->package([]));
         $this->assertSame([], $set->getProfiles());
     }
 
     public function testUnresolvedBaseIsRecordedWhenNotStrict(): void
     {
-        $set = ProfileSet::fromPackage($this->package([$this->child('a', 'missing')]), false);
+        $set = new ProfileSet($this->package([$this->child('a', 'missing')]), false);
         $this->assertNull($set->getProfileByUrl(self::_BASE . 'a')->getParent());
         $this->assertSame(['a' => self::_BASE . 'missing'], $set->getUnresolved());
     }
@@ -121,7 +121,7 @@ class ProfileSetTest extends TestCase
     {
         $package = $this->package([$this->child('a', 'missing')], manifest: ['dependencies' => ['hl7.fhir.r4.core' => '4.0.1', 'other.ig' => '2.0.0']]);
         try {
-            ProfileSet::fromPackage($package);
+            new ProfileSet($package);
             $this->fail('expected an exception');
         } catch (ProfileDefinitionException $e) {
             $this->assertStringContainsString('not configured: other.ig (2.0.0).', $e->getMessage());
@@ -134,7 +134,7 @@ class ProfileSetTest extends TestCase
         $package = $this->package([$sd], manifest: ['dependencies' => ['hl7.fhir.r4.core' => '4.0.1']]);
         $this->expectException(ProfileDefinitionException::class);
         $this->expectExceptionMessage('not configured: hl7.fhir.r4.core (4.0.1).');
-        ProfileSet::fromPackage($package);
+        new ProfileSet($package);
     }
 
     public function testDependencyProfilesAreSharedOnceAndNotRechecked(): void
@@ -145,7 +145,7 @@ class ProfileSetTest extends TestCase
         $two = $this->package([$this->child('two', 'shared')], [], [$shared], 'two.ig');
         $mine = $this->package([$this->child('mine', 'one'), $this->child('mine2', 'two')], [], [$one, $two], 'mine.ig');
 
-        $set = ProfileSet::fromPackage($mine);
+        $set = new ProfileSet($mine);
         $this->assertSame([], $set->getUnresolved());
         $this->assertSame('shared', $set->getProfileByUrl(self::_BASE . 'mine')->getParent()->getParent()->getId());
         $this->assertSame(

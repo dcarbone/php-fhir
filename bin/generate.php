@@ -401,6 +401,12 @@ if ($profiles || $only_profiles || null !== $profile_packages) {
 
 echo PHP_EOL;
 
+// Templates are plain PHP rendered under output buffering, so an unhandled notice or warning would otherwise be
+// written into the generated source.  Fail instead.
+set_error_handler(static function (int $errNum, string $errStr, string $errFile, int $errLine): never {
+    throw new ErrorException($errStr, $errNum, 1, $errFile, $errLine);
+});
+
 // create builder
 $builder = new Builder($config);
 

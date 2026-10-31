@@ -19,13 +19,16 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  */
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
-use DCarbone\PHPFHIR\Profiles\ProfileRules;
+use DCarbone\PHPFHIR\Profiles\ProfileRulesExtractor;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileElementRule;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileRules;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileSliceRule;
 use DCarbone\PHPFHIR\Profiles\ProfileSet;
 use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
-class ProfileRulesTest extends TestCase
+class ProfileRulesExtractorTest extends TestCase
 {
     use PackageFixtures;
 
@@ -35,7 +38,7 @@ class ProfileRulesTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->_tmpdir = new TemporaryDirectory(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ProfileRulesTest');
+        $this->_tmpdir = new TemporaryDirectory(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ProfileRulesExtractorTest');
         $this->_tmpdir->create();
     }
 
@@ -44,7 +47,7 @@ class ProfileRulesTest extends TestCase
         $this->_tmpdir->delete();
     }
 
-    private function compile(array $sds, string $id, array $extra = [], bool $expand = false): array
+    private function extract(array $sds, string $id, array $extra = [], bool $expand = false): ProfileRules
     {
         $files = ['package.json' => self::manifest('test.ig')];
         foreach (array_merge($sds, $extra) as $i => $r) {
@@ -53,8 +56,34 @@ class ProfileRulesTest extends TestCase
         $path = rtrim($this->_tmpdir->path(''), '/') . '/p-' . uniqid();
         self::writePackageDir($path, $files);
         $package = ProfilePackageReader::read(ProfilePackageConfig::fromArray(['name' => 'test.ig', 'source' => $path]));
-        $profile = ProfileSet::fromPackage($package)->getProfileByUrl(self::_BASE . $id);
-        return ProfileRules::compile($profile, $expand ? new ValueSetExpander($package) : null);
+        $profile = (new ProfileSet($package))->getProfileByUrl(self::_BASE . $id);
+        return ProfileRulesExtractor::extract($profile, $expand ? new ValueSetExpander($package) : null);
+    }
+
+    /** @return array<int, array<string, mixed>> Element rules reduced to their set values, for comparison. */
+    private static function elements(ProfileRules $rules): array
+    {
+        return array_map(static fn(ProfileElementRule $r): array => array_filter([
+            'path' => $r->getPath(),
+            'min' => $r->getMin(),
+            'max' => $r->getMax(),
+            'types' => $r->getTypes(),
+            'fixed' => $r->getFixedValue()?->isFixed() ? $r->getFixedValue()->getValue() : null,
+            'pattern' => $r->getFixedValue()?->isPattern() ? $r->getFixedValue()->getValue() : null,
+            'codes' => $r->getCodes(),
+        ], static fn(mixed $v): bool => null !== $v && [] !== $v), $rules->getElementRules());
+    }
+
+    /** @return array<int, array<string, mixed>> Slice rules reduced to their set values, for comparison. */
+    private static function slices(ProfileRules $rules): array
+    {
+        return array_map(static fn(ProfileSliceRule $r): array => array_filter([
+            'path' => $r->getPath(),
+            'name' => $r->getName(),
+            'match' => $r->getMatch(),
+            'min' => $r->getMin(),
+            'max' => $r->getMax(),
+        ], static fn(mixed $v): bool => null !== $v), $rules->getSliceRules());
     }
 
     private static function el(string $id, array $extra = []): array
@@ -69,7 +98,7 @@ class ProfileRulesTest extends TestCase
 
     public function testCardinalityRules(): void
     {
-        $c = $this->compile([self::sd('p', [
+        $c = $this->extract([self::sd('p', [
             self::el('Patient'),
             self::el('Patient.name', ['min' => 1, 'max' => '*']),
             self::el('Patient.birthDate', ['min' => 0, 'max' => '1']),
@@ -80,21 +109,24 @@ class ProfileRulesTest extends TestCase
             ['path' => 'name', 'min' => 1],
             ['path' => 'birthDate', 'max' => 1],
             ['path' => 'photo', 'max' => 0],
-        ], $c['rules']);
+        ], self::elements($c));
     }
 
     public function testChoiceTypesFixedAndPattern(): void
     {
-        $c = $this->compile([self::sd('p', [
+        $c = $this->extract([self::sd('p', [
             self::el('Patient.deceased[x]', ['type' => [['code' => 'boolean'], ['code' => 'dateTime'], ['code' => 'boolean']]]),
             self::el('Patient.language', ['fixedCode' => 'en']),
             self::el('Patient.maritalStatus', ['patternCodeableConcept' => ['coding' => [['code' => 'M']]]]),
             self::el('Patient.gender', ['type' => [['code' => 'code']]]),
         ])], 'p');
-        $this->assertSame(['boolean', 'dateTime'], $c['rules'][0]['types']);
-        $this->assertSame('en', $c['rules'][1]['fixed']);
-        $this->assertSame(['coding' => [['code' => 'M']]], $c['rules'][2]['pattern']);
-        $this->assertCount(3, $c['rules']);
+        $rules = $c->getElementRules();
+        $this->assertSame(['boolean', 'dateTime'], $rules[0]->getTypes());
+        $this->assertTrue($rules[1]->getFixedValue()->isFixed());
+        $this->assertSame('en', $rules[1]->getFixedValue()->getValue());
+        $this->assertTrue($rules[2]->getFixedValue()->isPattern());
+        $this->assertSame(['coding' => [['code' => 'M']]], $rules[2]->getFixedValue()->getValue());
+        $this->assertCount(3, $c->getElementRules());
     }
 
     public function testRequiredBindingIsExpandedWhenPossible(): void
@@ -106,30 +138,30 @@ class ProfileRulesTest extends TestCase
             self::el('Patient.language', ['binding' => ['strength' => 'extensible', 'valueSet' => 'http://example.org/fhir/ValueSet/g']]),
         ])];
 
-        $c = $this->compile($sds, 'p', [$vs], true);
-        $this->assertSame([['s', 'a']], $c['rules'][0]['codes']);
-        $this->assertCount(1, $c['rules']);
-        $this->assertCount(1, $c['skipped']);
-        $this->assertStringContainsString('Patient.maritalStatus', $c['skipped'][0]);
+        $c = $this->extract($sds, 'p', [$vs], true);
+        $this->assertSame([['s', 'a']], $c->getElementRules()[0]->getCodes());
+        $this->assertCount(1, $c->getElementRules());
+        $this->assertCount(1, $c->getSkipped());
+        $this->assertStringContainsString('Patient.maritalStatus', $c->getSkipped()[0]);
 
-        $noExpander = $this->compile($sds, 'p', [$vs], false);
-        $this->assertSame([], $noExpander['rules']);
-        $this->assertCount(2, $noExpander['skipped']);
+        $noExpander = $this->extract($sds, 'p', [$vs], false);
+        $this->assertSame([], $noExpander->getElementRules());
+        $this->assertCount(2, $noExpander->getSkipped());
     }
 
     public function testExtensionSliceMatchesOnProfileUrl(): void
     {
-        $c = $this->compile([self::sd('p', [
+        $c = $this->extract([self::sd('p', [
             self::el('Patient.extension', ['slicing' => ['discriminator' => [['type' => 'value', 'path' => 'url']], 'rules' => 'open']]),
             self::el('Patient.extension:race', ['sliceName' => 'race', 'min' => 0, 'max' => '1', 'type' => [['code' => 'Extension', 'profile' => ['http://x/race|1.0']]]]),
         ])], 'p');
-        $this->assertSame([], $c['rules']);
-        $this->assertSame([['path' => 'extension', 'name' => 'race', 'match' => ['url' => 'http://x/race'], 'max' => 1]], $c['slices']);
+        $this->assertSame([], self::elements($c));
+        $this->assertSame([['path' => 'extension', 'name' => 'race', 'match' => ['url' => 'http://x/race'], 'max' => 1]], self::slices($c));
     }
 
     public function testValueSliceMatchesChildAndOwnPatterns(): void
     {
-        $c = $this->compile([self::sd('p', [
+        $c = $this->extract([self::sd('p', [
             self::el('Patient.identifier:ssn', ['sliceName' => 'ssn', 'min' => 1, 'max' => '1']),
             self::el('Patient.identifier:ssn.system', ['fixedUri' => 'http://ssa.gov']),
             self::el('Patient.contact:vip', ['sliceName' => 'vip', 'patternCodeableConcept' => ['coding' => [['code' => 'V']]]]),
@@ -138,12 +170,12 @@ class ProfileRulesTest extends TestCase
         $this->assertSame([
             ['path' => 'identifier', 'name' => 'ssn', 'match' => ['system' => 'http://ssa.gov'], 'min' => 1, 'max' => 1],
             ['path' => 'contact', 'name' => 'vip', 'match' => ['coding' => [['code' => 'V']], 'relationship' => ['coding' => ['code' => 'X']]]],
-        ], $c['slices']);
+        ], self::slices($c));
     }
 
     public function testDiscriminatorsLimitMatchToTheirPaths(): void
     {
-        $c = $this->compile([self::sd('p', [
+        $c = $this->extract([self::sd('p', [
             self::el('Patient.identifier', ['slicing' => ['discriminator' => [['type' => 'value', 'path' => 'system']], 'rules' => 'open']]),
             self::el('Patient.identifier:ssn', ['sliceName' => 'ssn', 'min' => 1]),
             self::el('Patient.identifier:ssn.system', ['fixedUri' => 'http://ssa.gov']),
@@ -156,12 +188,12 @@ class ProfileRulesTest extends TestCase
         $this->assertSame([
             ['path' => 'identifier', 'name' => 'ssn', 'match' => ['system' => 'http://ssa.gov'], 'min' => 1],
             ['path' => 'contact', 'name' => 'vip', 'match' => ['relationship' => ['coding' => [['code' => 'V']]]]],
-        ], $c['slices']);
+        ], self::slices($c));
     }
 
     public function testDiscriminatorOnThisAndInheritedSlicing(): void
     {
-        $c = $this->compile([
+        $c = $this->extract([
             self::sd('base', [
                 self::el('Patient.identifier', ['slicing' => ['discriminator' => [['type' => 'pattern', 'path' => '$this']], 'rules' => 'open']]),
             ]),
@@ -170,12 +202,12 @@ class ProfileRulesTest extends TestCase
                 self::el('Patient.identifier:mrn.use', ['fixedCode' => 'usual']),
             ], ['baseDefinition' => self::_BASE . 'base']),
         ], 'child');
-        $this->assertSame([['path' => 'identifier', 'name' => 'mrn', 'match' => ['system' => 'http://mrn']]], $c['slices']);
+        $this->assertSame([['path' => 'identifier', 'name' => 'mrn', 'match' => ['system' => 'http://mrn']]], self::slices($c));
     }
 
     public function testUnsupportedOrUnfixedDiscriminatorSkipsSlice(): void
     {
-        $c = $this->compile([self::sd('p', [
+        $c = $this->extract([self::sd('p', [
             self::el('Patient.extension', ['slicing' => ['discriminator' => [['type' => 'type', 'path' => '$this']], 'rules' => 'open']]),
             self::el('Patient.extension:a', ['sliceName' => 'a', 'type' => [['code' => 'Extension', 'profile' => ['http://x/a']]]]),
             self::el('Patient.identifier', ['slicing' => ['discriminator' => [['type' => 'value', 'path' => 'system']], 'rules' => 'open']]),
@@ -184,19 +216,19 @@ class ProfileRulesTest extends TestCase
             self::el('Patient.contact', ['slicing' => ['discriminator' => [['type' => 'value', 'path' => "extension('http://x').value"]], 'rules' => 'open']]),
             self::el('Patient.contact:c', ['sliceName' => 'c']),
         ])], 'p');
-        $this->assertSame([], $c['slices']);
+        $this->assertSame([], self::slices($c));
     }
 
     public function testUnmatchableSliceIsSkippedAndWithinSliceElementsIgnored(): void
     {
-        $c = $this->compile([self::sd('p', [
+        $c = $this->extract([self::sd('p', [
             self::el('Patient.name:legal', ['sliceName' => 'legal', 'min' => 1]),
             self::el('Patient.name:legal.family', ['min' => 1]),
             self::el('Patient.extension:race.extension:detail', ['sliceName' => 'detail', 'type' => [['code' => 'Extension', 'profile' => ['http://x/d']]]]),
         ])], 'p');
-        $this->assertSame([], $c['rules']);
-        $this->assertSame([], $c['slices']);
-        $this->assertCount(1, $c['skipped']);
+        $this->assertSame([], self::elements($c));
+        $this->assertSame([], self::slices($c));
+        $this->assertCount(1, $c->getSkipped());
     }
 
     public function testSnapshotValuesAndParentChanges(): void
@@ -211,19 +243,23 @@ class ProfileRulesTest extends TestCase
                 self::el('Patient.photo', ['min' => 0, 'max' => '*']),
             ]],
         ]);
-        $c = $this->compile([$parent, $child], 'child-p');
+        $c = $this->extract([$parent, $child], 'child-p');
         $this->assertSame([
             ['path' => 'birthDate', 'min' => 1, 'max' => 1],
             ['path' => 'name', 'min' => 1],
-        ], $c['rules']);
+        ], self::elements($c));
     }
 
     public function testInvariantsAreCarriedAsMetadata(): void
     {
-        $c = $this->compile([self::sd('p', [
+        $c = $this->extract([self::sd('p', [
             self::el('Patient.name', ['constraint' => [['key' => 'x-1', 'severity' => 'error', 'human' => 'Must be so', 'expression' => 'name.exists()']]]),
         ])], 'p');
-        $this->assertSame([['key' => 'x-1', 'severity' => 'error', 'human' => 'Must be so', 'expression' => 'name.exists()', 'path' => 'name']], $c['invariants']);
-        $this->assertSame([], $c['rules']);
+        $this->assertCount(1, $c->getInvariants());
+        $this->assertSame(
+            ['key' => 'x-1', 'severity' => 'error', 'human' => 'Must be so', 'expression' => 'name.exists()', 'path' => 'name'],
+            $c->getInvariants()[0]->toArray(),
+        );
+        $this->assertSame([], self::elements($c));
     }
 }

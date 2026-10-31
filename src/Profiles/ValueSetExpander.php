@@ -26,13 +26,20 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class ValueSetExpander
 {
-    private const _MAX_DEPTH = 10;
     // expansion extensions stating that the expansion does not hold every code of the ValueSet.
     private const _PARTIAL_EXPANSION_EXTENSIONS = [
         'http://hl7.org/fhir/StructureDefinition/valueset-toocostly',
         'http://hl7.org/fhir/StructureDefinition/valueset-unclosed',
     ];
     private readonly ProfilePackage $package;
+    /** @var array<string, null|array> raw results of requested expansions keyed by versionless canonical */
+    private array $_cache = [];
+    /** @var array<string, null|array> included expansions completed during the current request, shared ones only */
+    private array $_included = [];
+    /** @var array<string, true> included ValueSets expanded at least once during the current request */
+    private array $_seen = [];
+    /** @var array<string, true> canonicals currently being expanded, used to break reference cycles */
+    private array $_expanding = [];
 
     public function __construct(ProfilePackage $package)
     {
@@ -47,15 +54,50 @@ class ValueSetExpander
      */
     public function expand(string $canonical): null|array
     {
-        $codes = $this->_expand($canonical, 0);
-        return [] === $codes ? null : $codes;
+        $key = ProfilePackage::stripCanonicalVersion($canonical);
+        if (!array_key_exists($key, $this->_cache)) {
+            try {
+                $this->_cache[$key] = $this->_expand($canonical);
+            } finally {
+                // included expansions are memoized only for the duration of a request, and only once they prove
+                // to be shared: an include chain then does not retain the codes of every level, while a ValueSet
+                // included from several places is expanded at most twice.
+                $this->_included = [];
+                $this->_seen = [];
+            }
+        }
+        return [] === $this->_cache[$key] ? null : $this->_cache[$key];
     }
 
-    private function _expand(string $canonical, int $depth): null|array
+    private function _expand(string $canonical): null|array
     {
-        if ($depth > self::_MAX_DEPTH) {
+        $key = ProfilePackage::stripCanonicalVersion($canonical);
+        if (array_key_exists($key, $this->_cache)) {
+            return $this->_cache[$key];
+        }
+        if (array_key_exists($key, $this->_included)) {
+            return $this->_included[$key];
+        }
+        if (isset($this->_expanding[$key])) {
+            // a ValueSet that (transitively) includes itself cannot be enumerated.
             return null;
         }
+        $this->_expanding[$key] = true;
+        try {
+            $codes = $this->_doExpand($canonical);
+        } finally {
+            unset($this->_expanding[$key]);
+        }
+        if (isset($this->_seen[$key])) {
+            $this->_included[$key] = $codes;
+        } else {
+            $this->_seen[$key] = true;
+        }
+        return $codes;
+    }
+
+    private function _doExpand(string $canonical): null|array
+    {
         $vs = $this->package->resolveValueSet($canonical);
         if (null === $vs) {
             return null;
@@ -76,7 +118,7 @@ class ValueSetExpander
 
         $out = [];
         foreach ($vs['compose']['include'] as $include) {
-            $codes = $this->_expandInclude($include, $depth);
+            $codes = $this->_expandInclude($include);
             if (null === $codes) {
                 return null;
             }
@@ -84,7 +126,7 @@ class ValueSetExpander
         }
 
         foreach ($vs['compose']['exclude'] ?? [] as $exclude) {
-            $remove = $this->_expandInclude($exclude, $depth);
+            $remove = $this->_expandInclude($exclude);
             if (null === $remove) {
                 return null;
             }
@@ -104,7 +146,7 @@ class ValueSetExpander
         return self::_unique($out);
     }
 
-    private function _expandInclude(array $include, int $depth): null|array
+    private function _expandInclude(array $include): null|array
     {
         if (isset($include['filter'])) {
             return null;
@@ -143,7 +185,7 @@ class ValueSetExpander
         // multiple valueSet references in one include are an intersection.
         $result = null;
         foreach ($valueSets as $ref) {
-            $expanded = $this->_expand((string)$ref, $depth + 1);
+            $expanded = $this->_expand((string)$ref);
             if (null === $expanded) {
                 return null;
             }

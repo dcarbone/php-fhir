@@ -20,6 +20,9 @@ namespace DCarbone\PHPFHIR\Profiles;
 
 use DCarbone\PHPFHIR\Builder\Imports;
 use DCarbone\PHPFHIR\Enum\ValidationRuleNameEnum;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileElementRule;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileRules;
+use DCarbone\PHPFHIR\Profiles\Rules\ProfileSliceRule;
 use DCarbone\PHPFHIR\Render\PHPExpression;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 
@@ -37,7 +40,7 @@ final class ProfileValidationGenerator
     private array $_rules = [];
     /** @var string[] */
     private array $_constants = [];
-    /** @var array<int, array{constant: string, class: string}> */
+    /** @var array<int, ProfileSliceMatcher> */
     private array $_sliceMatchers = [];
     /** @var string[] */
     private array $_skipped = [];
@@ -56,21 +59,20 @@ final class ProfileValidationGenerator
     }
 
     /**
-     * @param array{rules: array<int, array<string, mixed>>, slices: array<int, array<string, mixed>>} $compiled
      * @param string $rootType FHIR name of the type the profile constrains.
      * @param Imports $imports Imports of the class the code is for; classes are added as needed.
      */
     public static function generate(
-        array                $compiled,
+        ProfileRules         $rules,
         string               $rootType,
         ProfileTypeNavigator $navigator,
         Imports              $imports,
     ): ProfileValidationCode {
         $g = new self($navigator, $imports, $rootType);
-        foreach ($compiled['slices'] as $i => $slice) {
+        foreach ($rules->getSliceRules() as $i => $slice) {
             $g->_slice($i, $slice);
         }
-        foreach ($compiled['rules'] as $rule) {
+        foreach ($rules->getElementRules() as $rule) {
             $g->_rule($rule);
         }
         return new ProfileValidationCode(
@@ -124,9 +126,9 @@ final class ProfileValidationGenerator
         $this->_rules[$key][$rule->value] = $constraint;
     }
 
-    private function _rule(array $rule): void
+    private function _rule(ProfileElementRule $rule): void
     {
-        $segments = explode('.', $rule['path']);
+        $segments = explode('.', $rule->getPath());
         $last = array_pop($segments);
         $parentType = $this->_resolve($segments);
         $base = str_ends_with($last, '[x]') ? substr($last, 0, -3) : null;
@@ -139,7 +141,7 @@ final class ProfileValidationGenerator
             $entries = null === $prop ? [] : [$prop];
         }
         if ([] === $entries) {
-            $this->_skipped[] = sprintf('%s: element cannot be found on the generated types', $rule['path']);
+            $this->_skipped[] = sprintf('%s: element cannot be found on the generated types', $rule->getPath());
             return;
         }
 
@@ -150,32 +152,29 @@ final class ProfileValidationGenerator
 
         $prop = $entries[0];
         $key = $this->_key($segments, $prop);
-        if (isset($rule['min'])) {
-            $this->_set($key, ValidationRuleNameEnum::MIN_OCCURS, $rule['min']);
+        if (null !== $rule->getMin()) {
+            $this->_set($key, ValidationRuleNameEnum::MIN_OCCURS, $rule->getMin());
         }
-        if (isset($rule['max']) && ($rule['max'] < 1 || $prop->collection)) {
-            $this->_set($key, ValidationRuleNameEnum::MAX_OCCURS, $rule['max']);
+        if (null !== $rule->getMax() && ($rule->getMax() < 1 || $prop->collection)) {
+            $this->_set($key, ValidationRuleNameEnum::MAX_OCCURS, $rule->getMax());
         }
-        foreach (['fixed' => ValidationRuleNameEnum::FIXED_VALUE, 'pattern' => ValidationRuleNameEnum::PATTERN_VALUE] as $kind => $name) {
-            if (!array_key_exists($kind, $rule)) {
-                continue;
-            }
-            $problem = $this->_valueProblem($prop, $rule[$kind]);
+        if (null !== ($fixed = $rule->getFixedValue())) {
+            $problem = $this->_valueProblem($prop, $fixed->getValue());
             if (null !== $problem) {
-                $this->_skipped[] = sprintf('%s: %s value cannot be checked: %s', $rule['path'], $kind, $problem);
-                continue;
+                $this->_skipped[] = sprintf('%s: %s value cannot be checked: %s', $rule->getPath(), $fixed->getKind()->value, $problem);
+            } else {
+                $this->_set($key, $fixed->isFixed() ? ValidationRuleNameEnum::FIXED_VALUE : ValidationRuleNameEnum::PATTERN_VALUE, $fixed->getValue());
             }
-            $this->_set($key, $name, $rule[$kind]);
         }
-        if (isset($rule['codes'])) {
-            $this->_set($key, ValidationRuleNameEnum::CODE_BINDING, $rule['codes']);
+        if (null !== $rule->getCodes()) {
+            $this->_set($key, ValidationRuleNameEnum::CODE_BINDING, $rule->getCodes());
         }
     }
 
     /**
      * @param ProfileProperty[] $variants
      */
-    private function _choice(array $rule, array $segments, string $last, array $variants): void
+    private function _choice(ProfileElementRule $rule, array $segments, string $last, array $variants): void
     {
         $key = $this->_pathKey($segments, $last);
         $fields = [];
@@ -183,45 +182,56 @@ final class ProfileValidationGenerator
         $base = substr($last, 0, -3);
         foreach ($variants as $variant) {
             $fields[] = $variant->field;
-            foreach ($rule['types'] ?? [] as $type) {
+            foreach ($rule->getTypes() as $type) {
                 if ($variant->field === $base . ucfirst($type)) {
                     $allowed[] = $variant->field;
                 }
             }
         }
         $constraint = ['fields' => $fields];
-        // allowing every variant restricts nothing.
-        if (isset($rule['types']) && $allowed !== $fields) {
-            $constraint['allowed'] = $allowed;
-        }
-        foreach (['min', 'max'] as $bound) {
-            if (isset($rule[$bound])) {
-                $constraint[$bound] = $rule[$bound];
+        if ($rule->hasTypes()) {
+            if ([] === $allowed) {
+                // an empty allowed list would reject every variant; the profile types are not ones this element has.
+                $this->_skipped[] = sprintf(
+                    '%s: none of the profile types (%s) are variants of this choice element',
+                    $rule->getPath(),
+                    implode(', ', $rule->getTypes()),
+                );
+            } elseif ($allowed !== $fields) {
+                // allowing every variant restricts nothing.
+                $constraint['allowed'] = $allowed;
             }
+        }
+        if (null !== $rule->getMin()) {
+            $constraint['min'] = $rule->getMin();
+        }
+        if (null !== $rule->getMax()) {
+            $constraint['max'] = $rule->getMax();
         }
         if (['fields'] !== array_keys($constraint)) {
             $this->_set($key, ValidationRuleNameEnum::CHOICE_OCCURS, $constraint);
         }
-        foreach (['fixed', 'pattern', 'codes'] as $unsupported) {
-            if (array_key_exists($unsupported, $rule)) {
-                $this->_skipped[] = sprintf('%s: %s cannot be checked on a choice element', $rule['path'], $unsupported);
-            }
+        if (null !== ($fixed = $rule->getFixedValue())) {
+            $this->_skipped[] = sprintf('%s: %s cannot be checked on a choice element', $rule->getPath(), $fixed->getKind()->value);
+        }
+        if (null !== $rule->getCodes()) {
+            $this->_skipped[] = sprintf('%s: codes cannot be checked on a choice element', $rule->getPath());
         }
     }
 
-    private function _slice(int $index, array $slice): void
+    private function _slice(int $index, ProfileSliceRule $slice): void
     {
-        $segments = explode('.', $slice['path']);
+        $segments = explode('.', $slice->getPath());
         $last = array_pop($segments);
         $parentType = str_contains($last, '[x]') ? null : $this->_resolve($segments);
         $prop = null === $parentType ? null : $this->_nav->getProperty($parentType, $last);
         if (null === $prop || !$prop->isComplex()) {
-            $this->_skipped[] = sprintf('%s:%s: slice element cannot be found on the generated types', $slice['path'], $slice['name']);
+            $this->_skipped[] = sprintf('%s:%s: slice element cannot be found on the generated types', $slice->getPath(), $slice->getName());
             return;
         }
-        $problem = $this->_patternProblem($prop->typeKey, $slice['match']);
+        $problem = $this->_patternProblem($prop->typeKey, $slice->getMatch());
         if (null !== $problem) {
-            $this->_skipped[] = sprintf('%s:%s: slice cannot be matched against the generated types: %s', $slice['path'], $slice['name'], $problem);
+            $this->_skipped[] = sprintf('%s:%s: slice cannot be matched against the generated types: %s', $slice->getPath(), $slice->getName(), $problem);
             return;
         }
 
@@ -229,18 +239,23 @@ final class ProfileValidationGenerator
         $this->_constants[] = sprintf(
             "    /** @var array<string, mixed> */\n    private const %s = %s;",
             $constant,
-            pretty_var_export($slice['match'], 1),
+            pretty_var_export($slice->getMatch(), 1),
         );
-        $this->_sliceMatchers[$index] = ['constant' => $constant, 'class' => $this->_imports->addImport(...NameUtils::splitFullyQualifiedName($prop->className))->getImportedName()];
+        $this->_sliceMatchers[$index] = new ProfileSliceMatcher(
+            $slice,
+            $constant,
+            $this->_imports->addImport(...NameUtils::splitFullyQualifiedName($prop->className))->getImportedName(),
+        );
 
-        if (!isset($slice['min']) && !isset($slice['max'])) {
+        if (null === $slice->getMin() && null === $slice->getMax()) {
             return;
         }
-        $entry = ['name' => $slice['name'], 'match' => new PHPExpression('self::' . $constant)];
-        foreach (['min', 'max'] as $bound) {
-            if (isset($slice[$bound])) {
-                $entry[$bound] = $slice[$bound];
-            }
+        $entry = ['name' => $slice->getName(), 'match' => new PHPExpression('self::' . $constant)];
+        if (null !== $slice->getMin()) {
+            $entry['min'] = $slice->getMin();
+        }
+        if (null !== $slice->getMax()) {
+            $entry['max'] = $slice->getMax();
         }
         $key = $this->_key($segments, $prop);
         $this->_rules[$key][ValidationRuleNameEnum::SLICE_OCCURS->value][] = $entry;

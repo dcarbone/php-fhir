@@ -34,7 +34,6 @@ class BuilderProfilesTest extends TestCase
 
     protected function tearDown(): void
     {
-        restore_error_handler();
         $this->_tmpdir->delete();
     }
 

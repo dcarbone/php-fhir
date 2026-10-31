@@ -22,6 +22,7 @@ use DCarbone\PHPFHIR\Profiles\ProfileClasses;
 use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
 use DCarbone\PHPFHIR\Profiles\ProfileSet;
+use DCarbone\PHPFHIR\Profiles\ProfileSupportClasses;
 use DCarbone\PHPFHIR\Profiles\ProfileWriter;
 use DCarbone\PHPFHIR\Render\Templates;
 use PHPUnit\Framework\TestCase;
@@ -57,7 +58,7 @@ class ProfileWriterTest extends TestCase
         }
         $path = $this->_root . '/pkg-' . uniqid();
         self::writePackageDir($path, $files);
-        return ProfileSet::fromPackage(ProfilePackageReader::read(ProfilePackageConfig::fromArray(
+        return new ProfileSet(ProfilePackageReader::read(ProfilePackageConfig::fromArray(
             array_merge(['name' => 'test.ig', 'source' => $path], $config),
         )));
     }
@@ -152,7 +153,7 @@ class ProfileWriterTest extends TestCase
             self::_NS,
             'Ig',
             self::resolver(),
-            support: ['profileInterface' => $profileInterface],
+            support: new ProfileSupportClasses(profileInterfaceFQN: $profileInterface),
         );
 
         $written = ProfileWriter::write($out, self::_NS, '/* copyright */', ['test.ig' => $classes], $stubs);
@@ -369,7 +370,7 @@ class ProfileWriterTest extends TestCase
             'package.json' => self::manifest('test.ig', ['license' => 'CC0-1.0', 'author' => 'HL7 International']),
             'StructureDefinition-a.json' => self::structureDefinition('a'),
         ]);
-        $set = ProfileSet::fromPackage(ProfilePackageReader::read(ProfilePackageConfig::fromArray(['name' => 'test.ig', 'source' => $path])));
+        $set = new ProfileSet(ProfilePackageReader::read(ProfilePackageConfig::fromArray(['name' => 'test.ig', 'source' => $path])));
         $classes = ProfileClasses::build($set, self::_NS, 'Ig', self::resolver());
         $out = Templates::renderProfileClass("/*!\n * x\n */", $classes->getByUrl(self::_BASE . 'a'));
         $this->assertStringContainsString(" * Package: test.ig 1.0.0\n * Author: HL7 International\n * License: CC0-1.0\n */\n", $out);

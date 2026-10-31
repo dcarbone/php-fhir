@@ -27,35 +27,32 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 class Profile
 {
-    private string $_id;
-    private string $_url;
-    private string $_name;
-    private null|string $_title;
-    private null|string $_version;
-    private null|string $_copyright;
-    private null|string $_status;
-    private null|string $_description;
-    private string $_type;
-    private string $_kind;
-    private string $_baseDefinition;
-    private bool $_abstract;
+    private readonly string $_id;
+    private readonly string $_url;
+    private readonly string $_name;
+    private readonly null|string $_title;
+    private readonly null|string $_version;
+    private readonly null|string $_copyright;
+    private readonly null|string $_status;
+    private readonly null|string $_description;
+    private readonly string $_type;
+    private readonly string $_kind;
+    private readonly string $_baseDefinition;
+    private readonly bool $_abstract;
     /** @var array<array{type: string, expression: string}> */
-    private array $_context = [];
+    private readonly array $_context;
     /** @var array<string, ProfileElement> */
-    private array $_differential = [];
+    private readonly array $_differential;
     /** @var null|array<string, ProfileElement> */
-    private null|array $_snapshot = null;
+    private readonly null|array $_snapshot;
 
     private null|Profile $_parent = null;
 
-    private function __construct()
-    {
-    }
-
     /**
+     * @param array $sd Decoded StructureDefinition resource.
      * @throws ProfileDefinitionException
      */
-    public static function fromStructureDefinition(array $sd): self
+    public function __construct(array $sd)
     {
         $id = isset($sd['id']) && is_string($sd['id']) ? $sd['id'] : '(unknown id)';
         foreach (['id', 'url', 'name', 'type', 'kind', 'baseDefinition', 'derivation'] as $k) {
@@ -78,30 +75,29 @@ class Profile
             ));
         }
 
-        $p = new self();
-        $p->_id = $sd['id'];
-        $p->_url = $sd['url'];
-        $p->_name = $sd['name'];
-        $p->_title = isset($sd['title']) && is_string($sd['title']) ? $sd['title'] : null;
-        $p->_copyright = isset($sd['copyright']) && is_string($sd['copyright']) && '' !== trim($sd['copyright']) ? trim($sd['copyright']) : null;
-        $p->_version = isset($sd['version']) && is_string($sd['version']) ? $sd['version'] : null;
-        $p->_status = isset($sd['status']) && is_string($sd['status']) ? $sd['status'] : null;
-        $p->_description = isset($sd['description']) && is_string($sd['description']) ? $sd['description'] : null;
-        $p->_type = $sd['type'];
-        $p->_kind = $sd['kind'];
-        $p->_baseDefinition = $sd['baseDefinition'];
-        $p->_abstract = (bool)($sd['abstract'] ?? false);
+        $this->_id = $sd['id'];
+        $this->_url = $sd['url'];
+        $this->_name = $sd['name'];
+        $this->_title = isset($sd['title']) && is_string($sd['title']) ? $sd['title'] : null;
+        $this->_copyright = isset($sd['copyright']) && is_string($sd['copyright']) && '' !== trim($sd['copyright']) ? trim($sd['copyright']) : null;
+        $this->_version = isset($sd['version']) && is_string($sd['version']) ? $sd['version'] : null;
+        $this->_status = isset($sd['status']) && is_string($sd['status']) ? $sd['status'] : null;
+        $this->_description = isset($sd['description']) && is_string($sd['description']) ? $sd['description'] : null;
+        $this->_type = $sd['type'];
+        $this->_kind = $sd['kind'];
+        $this->_baseDefinition = $sd['baseDefinition'];
+        $this->_abstract = (bool)($sd['abstract'] ?? false);
+        $context = [];
         foreach ($sd['context'] ?? [] as $ctx) {
             if (isset($ctx['type'], $ctx['expression']) && is_string($ctx['type']) && is_string($ctx['expression'])) {
-                $p->_context[] = ['type' => $ctx['type'], 'expression' => $ctx['expression']];
+                $context[] = ['type' => $ctx['type'], 'expression' => $ctx['expression']];
             }
         }
+        $this->_context = $context;
 
-        $p->_differential = self::_elements($sd['differential']['element'] ?? [], $id);
-        if (isset($sd['snapshot']['element'])) {
-            $p->_snapshot = self::_elements($sd['snapshot']['element'], $id);
-        }
-        if ([] === $p->_differential && null === $p->_snapshot) {
+        $this->_differential = self::_elements($sd['differential']['element'] ?? [], $id);
+        $this->_snapshot = isset($sd['snapshot']['element']) ? self::_elements($sd['snapshot']['element'], $id) : null;
+        if ([] === $this->_differential && null === $this->_snapshot) {
             // an unconstrained profile is legal, but there must be at least one element list.
             if (!isset($sd['differential']) && !isset($sd['snapshot'])) {
                 throw new ProfileDefinitionException(sprintf(
@@ -110,7 +106,6 @@ class Profile
                 ));
             }
         }
-        return $p;
     }
 
     /**
@@ -124,7 +119,7 @@ class Profile
         $out = [];
         foreach ($raw as $data) {
             try {
-                $element = ProfileElement::fromArray((array)$data);
+                $element = new ProfileElement((array)$data);
             } catch (ProfileDefinitionException $e) {
                 throw new ProfileDefinitionException(
                     sprintf('StructureDefinition "%s": %s', $profileId, $e->getMessage()),

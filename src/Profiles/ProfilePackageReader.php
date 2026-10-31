@@ -37,7 +37,11 @@ class ProfilePackageReader
     private const _PACKAGE_DIR = 'package';
     /** Conventional "<type>-<id>.json" names of files holding one of the retained resource types. */
     private const _RESOURCE_FILENAME_PATTERN = '{^(StructureDefinition|ValueSet|CodeSystem)-}';
-    /** Cheap test for files that may hold one of the retained resource types, before they are decoded. */
+    /**
+
+     * Cheap test for files that may hold one of the retained resource types, before they are decoded.  Only the
+     * decoded top-level "resourceType" is authoritative; this may match a nested resource.
+     */
     private const _RESOURCE_TYPE_PATTERN = '{"resourceType"\s*:\s*"(StructureDefinition|ValueSet|CodeSystem)"}';
 
     /**
@@ -138,6 +142,7 @@ class ProfilePackageReader
             ? self::_indexedTypes(self::_decode(self::_readFile($files[self::_INDEX_FILENAME], $source), self::_INDEX_FILENAME, $source))
             : [];
 
+        /** @var ProfilePackedResource[] $resources */
         $resources = [];
         foreach ($files as $name => $path) {
             if (self::_MANIFEST_FILENAME === $name || self::_INDEX_FILENAME === $name) {
@@ -151,7 +156,7 @@ class ProfilePackageReader
                 continue;
             }
             $contents = self::_readFile($path, $source);
-            if (!$conventional && !isset($indexed[$name]) && 1 !== preg_match(self::_RESOURCE_TYPE_PATTERN, $contents)) {
+            if (!$conventional && !isset($indexed[$name]) && !self::_mayHoldRetainedType($contents)) {
                 continue;
             }
             $json = self::_decode($contents, $name, $source);
@@ -161,7 +166,7 @@ class ProfilePackageReader
             }
             // narrative is never used and is a large share of big packages.
             unset($json['text']);
-            if (null !== ($packed = ProfilePackage::packResource($json))) {
+            if (null !== ($packed = ProfilePackedResource::fromResource($json))) {
                 $resources[] = $packed;
             }
         }
@@ -187,6 +192,12 @@ class ProfilePackageReader
         return $out;
     }
 
+    private static function _mayHoldRetainedType(string $contents): bool
+    {
+        $pos = strpos($contents, '"resourceType"');
+        return false !== $pos && 1 === preg_match(self::_RESOURCE_TYPE_PATTERN, $contents, $m, 0, $pos);
+    }
+
     /**
      * Lists the JSON files directly inside the package directory.
      *
@@ -207,15 +218,20 @@ class ProfilePackageReader
         if (!is_dir($root)) {
             $root = $dir;
         }
+        // scandir rather than glob: it sees dot files (such as the package index) and is unaffected by glob
+        // metacharacters in the directory path.
+        $entries = @scandir($root, SCANDIR_SORT_NONE);
+        if (false === $entries) {
+            throw new ProfilePackageException(sprintf('Unable to list files in "%s".', $root));
+        }
         $files = [];
-        // glob skips dot files, such as the package index, unless asked for them.
-        foreach (['*.json', '.*.json'] as $pattern) {
-            $found = glob($root . DIRECTORY_SEPARATOR . $pattern);
-            if (false === $found) {
-                throw new ProfilePackageException(sprintf('Unable to list files in "%s".', $root));
+        foreach ($entries as $entry) {
+            if (!str_ends_with($entry, '.json')) {
+                continue;
             }
-            foreach ($found as $file) {
-                $files[basename($file)] = $file;
+            $path = $root . DIRECTORY_SEPARATOR . $entry;
+            if (is_file($path)) {
+                $files[$entry] = $path;
             }
         }
         return $files;

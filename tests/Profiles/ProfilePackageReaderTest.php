@@ -18,9 +18,11 @@ namespace DCarbone\PHPFHIRTests\Profiles;
  * limitations under the License.
  */
 use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
+use DCarbone\PHPFHIR\Enum\ProfileResourceTypeEnum;
 use DCarbone\PHPFHIR\Profiles\ProfilePackage;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageException;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
+use DCarbone\PHPFHIR\Profiles\ProfilePackedResource;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
@@ -103,6 +105,10 @@ class ProfilePackageReaderTest extends TestCase
         $files['mislabelled.json'] = self::structureDefinition('mislabelled');
         $files['us-core-thing.json'] = self::structureDefinition('unindexed');
         $files['example-patient.json'] = ['resourceType' => 'Patient', 'id' => 'example'];
+        // a resource of interest nested in another is not the file's resource.
+        $files['bundle.json'] = ['resourceType' => 'Bundle', 'id' => 'b', 'entry' => [['resource' => self::structureDefinition('nested')]]];
+        // key order and values are not relied upon when deciding whether to decode a file.
+        $files['odd-order.json'] = ['id' => 'resourceType', 'contained' => [['resourceType' => 'Patient']]] + self::valueSet('resourceType');
         $sources = [
             'directory' => self::writePackageDir($this->_root . '/named-dir', $files),
             'archive' => self::writePackageArchive($this->_root . '/named.tgz', $files),
@@ -110,7 +116,7 @@ class ProfilePackageReaderTest extends TestCase
         foreach ($sources as $label => $source) {
             $package = ProfilePackageReader::read($this->config($source));
             $this->assertSame(['my-observation', 'my-patient', 'unindexed'], array_keys($package->getStructureDefinitions()), $label);
-            $this->assertSame(['my-vs', 'indexed-vs'], array_keys($package->getValueSets()), $label);
+            $this->assertEqualsCanonicalizing(['my-vs', 'indexed-vs', 'resourceType'], array_keys($package->getValueSets()), $label);
         }
     }
 
@@ -121,6 +127,13 @@ class ProfilePackageReaderTest extends TestCase
         $this->assertArrayNotHasKey('base-thing', $package->getStructureDefinitions());
         $this->assertNull($package->resolveStructureDefinition('http://example.org/fhir/StructureDefinition/nope'));
         $this->assertNotNull($package->resolveStructureDefinition('http://example.org/fhir/StructureDefinition/base-thing'));
+    }
+
+    public function testDirectoryWithGlobMetacharactersIsReadable(): void
+    {
+        $source = self::writePackageDir($this->_root . '/weird [1] dir', $this->standardFiles());
+        $package = ProfilePackageReader::read($this->config($source));
+        $this->assertSame(['my-observation', 'my-patient'], array_keys($package->getStructureDefinitions()));
     }
 
     public function testResolveByCanonicalWithAndWithoutVersion(): void
@@ -308,5 +321,25 @@ class ProfilePackageReaderTest extends TestCase
     {
         $this->assertSame('http://a/b', ProfilePackage::stripCanonicalVersion('http://a/b|1.2.3'));
         $this->assertSame('http://a/b', ProfilePackage::stripCanonicalVersion('http://a/b'));
+    }
+
+    public function testPackedResourceWithoutDerivationFallsBackToData(): void
+    {
+        $package = new ProfilePackage($this->config($this->_root), self::manifest());
+        $package->addPackedResource(new ProfilePackedResource(
+            ProfileResourceTypeEnum::STRUCTURE_DEFINITION,
+            'p',
+            null,
+            null,
+            self::structureDefinition('p'),
+        ));
+        $package->addPackedResource(new ProfilePackedResource(
+            ProfileResourceTypeEnum::STRUCTURE_DEFINITION,
+            'base',
+            null,
+            null,
+            ['resourceType' => 'StructureDefinition', 'id' => 'base', 'derivation' => 'specialization'],
+        ));
+        $this->assertSame(['p'], array_keys($package->getStructureDefinitions()));
     }
 }

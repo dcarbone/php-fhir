@@ -130,6 +130,24 @@ class <?php echo $coreFile; ?> extends TestCase
         $this->assertSame([<?php echo $maxOccursRule; ?>::NAME => 4], <?php echo $validatorClass; ?>::tighten([<?php echo $maxOccursRule; ?>::NAME => 4], [<?php echo $maxOccursRule; ?>::NAME => -1]));
     }
 
+    public function testTightenMergesChoiceConstraints()
+    {
+        $base = [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b', 'c'], 'allowed' => ['a', 'b'], 'max' => 1]];
+        $out = <?php echo $validatorClass; ?>::tighten($base, [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b', 'c'], 'min' => 1]]);
+        $this->assertSame(['fields' => ['a', 'b', 'c'], 'allowed' => ['a', 'b'], 'max' => 1, 'min' => 1], $out[<?php echo $choiceOccursRule; ?>::NAME]);
+
+        $out = <?php echo $validatorClass; ?>::tighten($base, [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b', 'c'], 'allowed' => ['b', 'c'], 'max' => 2]]);
+        $this->assertSame(['fields' => ['a', 'b', 'c'], 'allowed' => ['b'], 'max' => 1], $out[<?php echo $choiceOccursRule; ?>::NAME]);
+
+        // fields are united so a variant missing from a custom base rule is still examined.
+        $out = <?php echo $validatorClass; ?>::tighten([<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a']]], [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a', 'b'], 'allowed' => ['a']]]);
+        $this->assertSame(['fields' => ['a', 'b'], 'allowed' => ['a']], $out[<?php echo $choiceOccursRule; ?>::NAME]);
+
+        // a disabled (null) base rule is replaced, not merged.
+        $out = <?php echo $validatorClass; ?>::tighten([<?php echo $choiceOccursRule; ?>::NAME => null], [<?php echo $choiceOccursRule; ?>::NAME => ['fields' => ['a']]]);
+        $this->assertSame(['fields' => ['a']], $out[<?php echo $choiceOccursRule; ?>::NAME]);
+    }
+
     public function testTightenReplacesOtherRules()
     {
         $out = <?php echo $validatorClass; ?>::tighten([<?php echo $patternMatchRule; ?>::NAME => '/a/'], [<?php echo $patternMatchRule; ?>::NAME => '/b/']);

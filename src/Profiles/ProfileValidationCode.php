@@ -32,8 +32,8 @@ final class ProfileValidationCode
      * @param string $constants Class constants the rules rely on.
      * @param array<string, array<string, mixed>> $rules By rule map key, written as a PHP expression such as
      *        "self::FIELD_NAME" or "'contact.relationship'", the rules of the validation system and their constraints.
-     * @param array<int, array{constant: string, class: string}> $sliceMatchers By slice index, the constant holding
-     *        the slice's match pattern, and the imported name of the class of the items it matches.
+     * @param array<int, ProfileSliceMatcher> $sliceMatchers By slice index, the matchers of the slices that could be
+     *        generated.
      * @param string[] $skipped Rules that could not be generated, and why.
      */
     public function __construct(
