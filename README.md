@@ -4,7 +4,8 @@
 
 php-fhir reads the official FHIR XSD schema files and produces a fully-typed PHP library — complete
 with models for every FHIR type, JSON & XML (de)serialization, validation, and a ready-to-use FHIR
-REST client.
+REST client. Generated libraries can also include optional profile classes and experimental
+cross-version resource translation.
 
 ---
 
@@ -21,6 +22,36 @@ cleanup pass (see [Contributing → Code Quality](https://github.com/dcarbone/ph
 and pushes a matching commit + release to `php-fhir-generated`. You never need to run the generator
 yourself unless you want a custom namespace, a subset of versions, or non-default behavior.
 
+### Parse a resource with the pre-built package
+
+After installing `dcarbone/php-fhir-generated`, Composer's autoloader makes the generated classes
+available. Pass the FHIR version when parsing so resource names resolve against the right model:
+
+```php
+<?php declare(strict_types=1);
+
+require __DIR__ . '/vendor/autoload.php';
+
+use DCarbone\PHPFHIRGenerated\Encoding\ResourceParser;
+use DCarbone\PHPFHIRGenerated\Versions\R4\Types\FHIRResource\FHIRDomainResource\FHIRPatient;
+use DCarbone\PHPFHIRGenerated\Versions\R4\Version;
+
+$version = new Version();
+$json = '{"resourceType":"Patient","name":[{"family":"Example"}]}';
+$patient = ResourceParser::parse($version, $json);
+
+if (!$patient instanceof FHIRPatient) {
+    throw new \UnexpectedValueException('Expected an R4 Patient resource.');
+}
+
+$errors = $patient->_getValidationErrors();
+if ([] !== $errors) {
+    throw new \DomainException('Patient did not pass generated validation.');
+}
+
+echo json_encode($patient, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR), PHP_EOL;
+```
+
 ---
 
 ## 📖 Documentation
@@ -35,6 +66,7 @@ Full documentation is maintained on the **[project wiki](https://github.com/dcar
 | [Architecture](https://github.com/dcarbone/php-fhir/wiki/Architecture)                       | How the generator pipeline works internally                   |
 | [Profiles](https://github.com/dcarbone/php-fhir/wiki/Profiles)                               | Generating classes for FHIR profiles such as US Core          |
 | [Generated Code](https://github.com/dcarbone/php-fhir/wiki/Generated-Code)                   | Understanding the output: namespaces, types, client, encoding |
+| [Cross-Version Translation](https://github.com/dcarbone/php-fhir/wiki/Cross-Version-Translation) | Experimental resource translation between generated versions |
 | [Testing](https://github.com/dcarbone/php-fhir/wiki/Testing)                                 | Running tests on the generator and on generated code          |
 | [Contributing](https://github.com/dcarbone/php-fhir/wiki/Contributing)                       | Developer workflow and code-style notes                       |
 

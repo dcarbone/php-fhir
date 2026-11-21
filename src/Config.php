@@ -172,7 +172,7 @@ class Config implements LoggerAwareInterface
             libraryNamespacePrefix: $data['libraryNamespacePrefix'] ?? self::_DEFAULT_LIBRARY_NAMESPACE_PREFIX,
             librarySchemaLibxmlOpts: $data['librarySchemaLibxmlOpts'] ?? self::_DEFAULT_LIBXML_OPTS,
             testsPath: $data['testsPath'] ?? null,
-            testNamespacePrefix: $data['testNamespacePrefix'] ?? self::_DEFAULT_TESTS_NAMESPACE_PREFIX,
+            testNamespacePrefix: $data['testsNamespacePrefix'] ?? $data['testNamespacePrefix'] ?? self::_DEFAULT_TESTS_NAMESPACE_PREFIX,
             logger: $data['logger'] ?? null,
             translationPackages: $data['translationPackages'] ?? [],
         );

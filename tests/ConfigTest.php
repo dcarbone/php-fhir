@@ -81,6 +81,29 @@ class ConfigTest extends TestCase
         $this->assertEmpty($c->getVersionsIterator());
     }
 
+    public function testFromArrayUsesTestsNamespacePrefixWhenProvided(): void
+    {
+        $c = Config::fromArray([
+            'libraryPath' => $this->_tmpdir->path(),
+            'versions' => [],
+            'testsNamespacePrefix' => 'CustomTests',
+            'testNamespacePrefix' => 'LegacyTests',
+        ]);
+
+        $this->assertSame('CustomTests', $c->getTestsNamespacePrefix());
+    }
+
+    public function testFromArrayStillAcceptsLegacyTestNamespacePrefix(): void
+    {
+        $c = Config::fromArray([
+            'libraryPath' => $this->_tmpdir->path(),
+            'versions' => [],
+            'testNamespacePrefix' => 'LegacyTests',
+        ]);
+
+        $this->assertSame('LegacyTests', $c->getTestsNamespacePrefix());
+    }
+
     public function testCanConstructWithValidMapVersionConfig(): void
     {
         extract($this->validBaseValues(__FUNCTION__));
