@@ -47,7 +47,7 @@ if ('' !== $classDocumentation) : ?>/**
 <?php echo $classDocumentation; ?>
  */
 <?php endif;
-if ($type->isUsedAsProperty()) : ?>
+if ($type->isUsedAsProperty() && !$type->isAbstract()) : ?>
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 <?php endif;
 // -- class definition

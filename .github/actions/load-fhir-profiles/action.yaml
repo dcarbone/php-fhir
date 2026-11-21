@@ -60,6 +60,8 @@ runs:
         hl7.terminology.r4|7.4.0|hl7.fhir.terminology/hl7.terminology.r4.tgz|https://packages.fhir.org/hl7.terminology.r4/7.4.0
         hl7.fhir.uv.extensions.r4|5.3.0|hl7.fhir.uv.extensions.r4/package.tgz|https://packages.fhir.org/hl7.fhir.uv.extensions.r4/5.3.0
         hl7.fhir.uv.xver-r5.r4|0.1.0|hl7.fhir.uv.xver-r5.r4/package.tgz|https://packages.fhir.org/hl7.fhir.uv.xver-r5.r4/0.1.0
+        hl7.fhir.uv.xver-r4.r3|0.1.0|hl7.fhir.uv.xver-r4.r3/package.tgz|https://packages.fhir.org/hl7.fhir.uv.xver-r4.r3/0.1.0
+        hl7.fhir.uv.xver-r3.r4|0.1.0|hl7.fhir.uv.xver-r3.r4/package.tgz|https://packages.fhir.org/hl7.fhir.uv.xver-r3.r4/0.1.0
         hl7.fhir.uv.tools.r4|1.1.2|hl7.fhir.uv.tools.r4/package.tgz|https://packages.fhir.org/hl7.fhir.uv.tools.r4/1.1.2
         hl7.fhir.uv.smart-app-launch|2.2.0|hl7.fhir.uv.smart-app-launch/package.tgz|https://packages.fhir.org/hl7.fhir.uv.smart-app-launch/2.2.0
         us.cdc.phinvads|0.12.0|us.cdc.phinvads/package.tgz|https://packages.fhir.org/us.cdc.phinvads/0.12.0

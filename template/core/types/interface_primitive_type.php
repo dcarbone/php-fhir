@@ -23,11 +23,11 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $coreFiles = $config->getCoreFiles();
 
-$typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$leafTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_LEAF_TYPE);
 $valueContainerInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_VALUE_CONTAINER_TYPE);
 
 $imports = $coreFile->getImports();
-$imports->addCoreFileImports($typeInterface);
+$imports->addCoreFileImports($leafTypeInterface, $valueContainerInterface);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -38,7 +38,7 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
-interface <?php echo $coreFile; ?> extends <?php echo $typeInterface; ?>, <?php echo $valueContainerInterface; ?>
+interface <?php echo $coreFile; ?> extends <?php echo $leafTypeInterface; ?>, <?php echo $valueContainerInterface; ?>
 
 {
 

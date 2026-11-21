@@ -21,6 +21,7 @@ namespace DCarbone\PHPFHIR\Render;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\CoreFile;
 use DCarbone\PHPFHIR\Profiles\ProfileClass;
+use DCarbone\PHPFHIR\Translation\HopMapDefinition;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
@@ -41,6 +42,15 @@ abstract class Templates
     {
         extract($kwargs);
         return self::normalize(require $coreFile->getTemplateFile());
+    }
+
+    public static function renderTranslationHopMap(
+        Version $source,
+        Version $target,
+        HopMapDefinition $definition,
+        string $className,
+    ): string {
+        return self::normalize(require sprintf('%s/class_hop_map.php', PHPFHIR_TEMPLATE_TRANSLATION_DIR));
     }
 
     /**

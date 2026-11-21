@@ -412,11 +412,8 @@ abstract class TypeDecorator
      */
     public static function setCommentContainerFlag(Config $config, Types $types): void
     {
-        static $skip = [TypeKindEnum::PRIMITIVE, TypeKindEnum::PHPFHIR_XHTML];
         foreach ($types->getIterator() as $type) {
-            $type->setCommentContainer(
-                !$type->hasPrimitiveTypeParent() && !$type->getKind()->isOneOf(...$skip)
-            );
+            $type->setCommentContainer(!$type->isLeafType());
         }
     }
 

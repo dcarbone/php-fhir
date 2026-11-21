@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIR;
  */
 
 use DCarbone\PHPFHIR\Config\VersionConfig;
+use DCarbone\PHPFHIR\Config\TranslationPackageConfig;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Utilities\NameUtils;
 use Psr\Log\LoggerAwareInterface;
@@ -56,6 +57,9 @@ class Config implements LoggerAwareInterface
     /** @var string[] */
     private array $_versionNamespaces = [];
 
+    /** @var TranslationPackageConfig[] */
+    private array $_translationPackages = [];
+
     /** @var bool */
     private bool $_silent = false;
     /** @var null|int */
@@ -83,6 +87,7 @@ class Config implements LoggerAwareInterface
      * @param string $testNamespacePrefix
      * @param int $librarySchemaLibxmlOpts
      * @param \Psr\Log\LoggerInterface|null $logger
+     * @param iterable<array|TranslationPackageConfig> $translationPackages
      */
     public function __construct(string               $libraryPath,
                                 iterable             $versions,
@@ -90,7 +95,8 @@ class Config implements LoggerAwareInterface
                                 int                  $librarySchemaLibxmlOpts = self::_DEFAULT_LIBXML_OPTS,
                                 null|string          $testsPath = null,
                                 string               $testNamespacePrefix = self::_DEFAULT_TESTS_NAMESPACE_PREFIX,
-                                null|LoggerInterface $logger = null)
+                                null|LoggerInterface $logger = null,
+                                iterable             $translationPackages = [])
     {
         $this->setLibraryPath($libraryPath);
         $this->setLibraryNamespacePrefix($libraryNamespacePrefix);
@@ -143,6 +149,7 @@ class Config implements LoggerAwareInterface
         );
 
         $this->setVersions($versions);
+        $this->setTranslationPackages($translationPackages);
     }
 
     public static function fromArray(array $data): Config
@@ -156,14 +163,18 @@ class Config implements LoggerAwareInterface
         if (isset($data['logger']) && !($data['logger'] instanceof LoggerInterface)) {
             throw new \InvalidArgumentException(sprintf('Key "logger" must be undefined or be an instance of %s', LoggerInterface::class));
         }
+        if (isset($data['translationPackages']) && !is_iterable($data['translationPackages'])) {
+            throw new \InvalidArgumentException('Key "translationPackages" must be iterable.');
+        }
         return new Config(
             libraryPath: $data['libraryPath'],
             versions: $data['versions'],
             libraryNamespacePrefix: $data['libraryNamespacePrefix'] ?? self::_DEFAULT_LIBRARY_NAMESPACE_PREFIX,
             librarySchemaLibxmlOpts: $data['librarySchemaLibxmlOpts'] ?? self::_DEFAULT_LIBXML_OPTS,
             testsPath: $data['testsPath'] ?? null,
-            testNamespacePrefix: $data['testNamespacePrefix'] ?? self::_DEFAULT_TESTS_NAMESPACE_PREFIX,
+            testNamespacePrefix: $data['testsNamespacePrefix'] ?? $data['testNamespacePrefix'] ?? self::_DEFAULT_TESTS_NAMESPACE_PREFIX,
             logger: $data['logger'] ?? null,
+            translationPackages: $data['translationPackages'] ?? [],
         );
     }
 
@@ -301,7 +312,53 @@ class Config implements LoggerAwareInterface
         foreach ($versions as $version) {
             $this->addVersion($version);
         }
+        $this->validateTranslationPackages();
         return $this;
+    }
+
+    /**
+     * @param iterable<array|TranslationPackageConfig> $packages
+     */
+    public function setTranslationPackages(iterable $packages): self
+    {
+        $translationPackages = [];
+        foreach ($packages as $package) {
+            if (is_array($package)) {
+                $package = TranslationPackageConfig::fromArray($package);
+            }
+            if (!$package instanceof TranslationPackageConfig) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Translation packages must be arrays or instances of %s.',
+                    TranslationPackageConfig::class,
+                ));
+            }
+            $translationPackages[] = $package;
+        }
+        $this->_translationPackages = $translationPackages;
+        $this->validateTranslationPackages();
+        return $this;
+    }
+
+    /**
+     * @return TranslationPackageConfig[]
+     */
+    public function getTranslationPackages(): array
+    {
+        return $this->_translationPackages;
+    }
+
+    private function validateTranslationPackages(): void
+    {
+        foreach ($this->_translationPackages as $package) {
+            foreach ([$package->getSourceVersion(), $package->getTargetVersion()] as $versionName) {
+                if (!$this->hasVersion($versionName)) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Translation package references unconfigured version "%s".',
+                        $versionName,
+                    ));
+                }
+            }
+        }
     }
 
     /**

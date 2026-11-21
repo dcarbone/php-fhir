@@ -26,10 +26,12 @@ use DCarbone\PHPFHIR\Profiles\ProfileSupportClasses;
 use DCarbone\PHPFHIR\Profiles\ProfileWriter;
 use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
 use DCarbone\PHPFHIR\Render\Templates;
+use DCarbone\PHPFHIR\Translation\HopMapBuilder;
+use DCarbone\PHPFHIR\Translation\TranslationPackageReader;
+use DCarbone\PHPFHIR\Translation\XverExtensionReader;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Version\Definition\Type;
-use InvalidArgumentException;
 
 /**
  * Class Builder
@@ -54,6 +56,7 @@ class Builder
 
     /**
      * Generate FHIR object classes based on XSD
+     * Test generation requires both $testFiles and a configured testsPath.
      *
      * @param bool $coreFiles If true, will generate core PHPFHIR classes, interfaces, traits, and enums.
      * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
@@ -67,15 +70,18 @@ class Builder
                            bool       $profiles = true,
                            null|array $profilePackages = null): void
     {
-        // write php-fhir core entities
-        if ($coreFiles) {
-            $this->writeLibraryCoreEntities();
-            $this->writeLibraryTestClasses();
-        }
-
-        // if null, default to all versions.
+        // if null, default to all configured versions.
         if (null === $versionNames) {
             $versionNames = $this->config->getVersionNames();
+        }
+        $testFiles = $testFiles && null !== $this->config->getTestsPath();
+
+        // write php-fhir core entities
+        if ($coreFiles) {
+            $this->writeLibraryCoreEntities($versionNames);
+            if ($testFiles) {
+                $this->writeLibraryTestClasses();
+            }
         }
 
         // write fhir version core entities
@@ -83,6 +89,10 @@ class Builder
 
         // write fhir version type classes
         $this->writeFHIRVersionTypeClasses(...$versionNames);
+
+        if ($coreFiles) {
+            $this->writeLibraryTranslationMaps($versionNames);
+        }
 
         if ($testFiles) {
             // write fhir version test classes
@@ -104,7 +114,7 @@ class Builder
      *
      * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
      * @param null|array $packageNames Array of profile package names to limit generation to. If null, all configured packages will be generated.
-     * @throws InvalidArgumentException If a specified package is not configured for any of the specified versions.
+     * @throws \InvalidArgumentException If a specified package is not configured for any of the specified versions.
      */
     public function renderProfiles(null|array $versionNames = null, null|array $packageNames = null): void
     {
@@ -254,7 +264,7 @@ class Builder
     /**
      * @param string[] $versionNames
      * @param null|string[] $packageNames
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     public function assertProfilePackagesConfigured(array $versionNames, null|array $packageNames): void
     {
@@ -268,7 +278,7 @@ class Builder
                     continue 2;
                 }
             }
-            throw new InvalidArgumentException(sprintf(
+            throw new \InvalidArgumentException(sprintf(
                 'Profile package "%s" is not configured for any of the specified versions: %s',
                 $packageName,
                 implode(', ', $versionNames),
@@ -276,9 +286,166 @@ class Builder
         }
     }
 
-    public function writeLibraryCoreEntities(): void
+    public function writeLibraryCoreEntities(null|array $versionNames = null): void
     {
-        $this->writeCoreFiles($this->config->getCoreFiles(), ['config' => $this->config]);
+        $this->writeCoreFiles($this->config->getCoreFiles(), [
+            'config' => $this->config,
+            'versionNames' => $versionNames ?? $this->config->getVersionNames(),
+            'hopMapClasses' => [],
+        ]);
+    }
+
+    /**
+     * Generate schema-diff maps for each adjacent configured version pair and update the registry.
+     *
+     * @param null|string[] $versionNames
+     */
+    public function writeLibraryTranslationMaps(null|array $versionNames = null): void
+    {
+        $versionNames ??= $this->config->getVersionNames();
+        $versions = [];
+        foreach ($versionNames as $versionName) {
+            $version = $this->config->getVersion($versionName);
+            $definition = $version->getDefinition();
+            if (!$definition->isDefined()) {
+                $this->log->startBreak("Parsing XSD Source for {$version->getName()}");
+                $definition->buildDefinition();
+                $this->log->endBreak("Parsing XSD Source for {$version->getName()}");
+            }
+            $versions[] = $version;
+        }
+        usort(
+            $versions,
+            static fn(Version $a, Version $b): int =>
+                $a->getSourceMetadata()->getVersionInteger() <=> $b->getSourceMetadata()->getVersionInteger(),
+        );
+
+        $selectedVersionNames = array_fill_keys($versionNames, true);
+        $adjacentVersionPairs = [];
+        $versionsByName = [];
+        $mapPairsByHop = [];
+        for ($i = 1, $count = count($versions); $i < $count; $i++) {
+            $from = $versions[$i - 1];
+            $to = $versions[$i];
+            if ($from->getSourceMetadata()->getVersionInteger() !== $to->getSourceMetadata()->getVersionInteger()) {
+                $adjacentVersionPairs[$from->getName() . "\0" . $to->getName()] = true;
+                $adjacentVersionPairs[$to->getName() . "\0" . $from->getName()] = true;
+                $mapPairsByHop[$from->getName() . "\0" . $to->getName()] = [$from, $to];
+                $mapPairsByHop[$to->getName() . "\0" . $from->getName()] = [$to, $from];
+            }
+        }
+        foreach ($versions as $version) {
+            $versionsByName[$version->getName()] = $version;
+        }
+
+        $codeMapsByHop = [];
+        $xverExtensionsByHop = [];
+        $packageReader = new TranslationPackageReader();
+        $xverReader = new XverExtensionReader();
+        foreach ($this->config->getTranslationPackages() as $package) {
+            $sourceVersion = $package->getSourceVersion();
+            $targetVersion = $package->getTargetVersion();
+            if (!isset($selectedVersionNames[$sourceVersion], $selectedVersionNames[$targetVersion])) {
+                continue;
+            }
+
+            $hopKey = $sourceVersion . "\0" . $targetVersion;
+            // The reverse map is generated as well so extensions carried across this hop can be unfolded again.
+            if (!isset($adjacentVersionPairs[$hopKey])) {
+                $mapPairsByHop[$hopKey] = [$versionsByName[$sourceVersion], $versionsByName[$targetVersion]];
+                $mapPairsByHop[$targetVersion . "\0" . $sourceVersion] = [$versionsByName[$targetVersion], $versionsByName[$sourceVersion]];
+            }
+
+            foreach ($packageReader->readCodeMaps($package) as $codeMap) {
+                $groupKey = $codeMap->getGroupKey();
+                if (isset($codeMapsByHop[$hopKey][$groupKey])) {
+                    $codeMapsByHop[$hopKey][$groupKey] = $codeMapsByHop[$hopKey][$groupKey]->merge($codeMap);
+                } else {
+                    $codeMapsByHop[$hopKey][$groupKey] = $codeMap;
+                }
+            }
+
+            $xverExtensions = $xverReader->read(
+                $package,
+                $versionsByName[$sourceVersion]->getDefinition()->getTypes(),
+            );
+            foreach ($xverExtensions as $fieldKey => $xverExtension) {
+                if (isset($xverExtensionsByHop[$hopKey][$fieldKey])) {
+                    throw new \LogicException(sprintf(
+                        'Multiple translation packages define a cross-version extension for "%s" when translating %s to %s.',
+                        $fieldKey,
+                        $sourceVersion,
+                        $targetVersion,
+                    ));
+                }
+                $xverExtensionsByHop[$hopKey][$fieldKey] = $xverExtension;
+            }
+            $this->log->info(sprintf(
+                'Translation package "%s": %d cross-version extensions for %s to %s',
+                $package->getSource(),
+                count($xverExtensions),
+                $sourceVersion,
+                $targetVersion,
+            ));
+        }
+        foreach ($codeMapsByHop as &$codeMaps) {
+            $codeMaps = array_values($codeMaps);
+        }
+        unset($codeMaps);
+        foreach ($xverExtensionsByHop as &$hopExtensions) {
+            ksort($hopExtensions, SORT_STRING);
+        }
+        unset($hopExtensions);
+
+        $mapBuilder = new HopMapBuilder();
+        $hopMapClasses = [];
+        $previousMapClassNames = [];
+        foreach ($mapPairsByHop as $hopKey => [$source, $target]) {
+            $className = $mapBuilder->getMapClassName($source, $target);
+            if (isset($previousMapClassNames[$className])) {
+                throw new \LogicException(sprintf(
+                    'Generated hop map class name "%s" is not unique.',
+                    $className,
+                ));
+            }
+            $previousMapClassNames[$className] = true;
+
+            $fullyQualifiedName = $this->config->getFullyQualifiedName(false, 'Translation', 'Maps', $className);
+            $filePath = FileUtils::buildClassFilepath($this->config->getLibraryPath(), $fullyQualifiedName);
+            FileUtils::mkdirRecurse($filePath);
+            $this->writeFile(
+                $filePath,
+                $mapBuilder->renderMap(
+                    $source,
+                    $target,
+                    $codeMapsByHop[$hopKey] ?? [],
+                    $xverExtensionsByHop[$hopKey] ?? [],
+                ),
+            );
+            $hopMapClasses[$hopKey] = $fullyQualifiedName;
+        }
+
+        $registry = $this->config->getCoreFiles()
+            ->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_HOP_MAP_REGISTRY);
+        FileUtils::mkdirRecurse($registry->getFilepath());
+        $this->writeFile(
+            $registry->getFilepath(),
+            Templates::renderCoreFile($this->config, $registry, [
+                'config' => $this->config,
+                'hopMapClasses' => $hopMapClasses,
+            ]),
+        );
+
+        $autoloader = $this->config->getCoreFiles()
+            ->getCoreFileByEntityName(PHPFHIR_CLASSNAME_AUTOLOADER);
+        $this->writeFile(
+            $autoloader->getFilepath(),
+            Templates::renderCoreFile($this->config, $autoloader, [
+                'config' => $this->config,
+                'versionNames' => $versionNames,
+                'hopMapClasses' => $hopMapClasses,
+            ]),
+        );
     }
 
     public function writeFHIRVersionCoreEntities(string ...$versionNames): void

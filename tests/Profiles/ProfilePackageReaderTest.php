@@ -87,7 +87,7 @@ class ProfilePackageReaderTest extends TestCase
             $this->assertSame('http://example.org/fhir/test', $package->getCanonical(), $label);
             $this->assertSame(['4.0.1'], $package->getFHIRVersions(), $label);
             $this->assertSame(['hl7.fhir.r4.core' => '4.0.1'], $package->getDeclaredDependencies(), $label);
-            $this->assertSame(['my-observation', 'my-patient'], array_keys($package->getStructureDefinitions()), $label);
+            $this->assertSame(['my-observation', 'my-patient'], array_keys($package->getProfiles()), $label);
             $this->assertSame(['my-vs'], array_keys($package->getValueSets()), $label);
             $this->assertSame(['my-cs'], array_keys($package->getCodeSystems()), $label);
         }
@@ -115,7 +115,7 @@ class ProfilePackageReaderTest extends TestCase
         ];
         foreach ($sources as $label => $source) {
             $package = ProfilePackageReader::read($this->config($source));
-            $this->assertSame(['my-observation', 'my-patient', 'unindexed'], array_keys($package->getStructureDefinitions()), $label);
+            $this->assertSame(['my-observation', 'my-patient', 'unindexed'], array_keys($package->getProfiles()), $label);
             $this->assertEqualsCanonicalizing(['my-vs', 'indexed-vs', 'resourceType'], array_keys($package->getValueSets()), $label);
         }
     }
@@ -124,16 +124,17 @@ class ProfilePackageReaderTest extends TestCase
     {
         $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());
         $package = ProfilePackageReader::read($this->config($source));
-        $this->assertArrayNotHasKey('base-thing', $package->getStructureDefinitions());
-        $this->assertNull($package->resolveStructureDefinition('http://example.org/fhir/StructureDefinition/nope'));
-        $this->assertNotNull($package->resolveStructureDefinition('http://example.org/fhir/StructureDefinition/base-thing'));
+        $this->assertArrayNotHasKey('base-thing', $package->getProfiles());
+        $this->assertNull($package->resolveProfile('http://example.org/fhir/StructureDefinition/nope'));
+        $this->assertNull($package->resolveProfile('http://example.org/fhir/StructureDefinition/base-thing'));
+        $this->assertNotNull($package->resolveProfile('http://example.org/fhir/StructureDefinition/my-patient'));
     }
 
     public function testDirectoryWithGlobMetacharactersIsReadable(): void
     {
         $source = self::writePackageDir($this->_root . '/weird [1] dir', $this->standardFiles());
         $package = ProfilePackageReader::read($this->config($source));
-        $this->assertSame(['my-observation', 'my-patient'], array_keys($package->getStructureDefinitions()));
+        $this->assertSame(['my-observation', 'my-patient'], array_keys($package->getProfiles()));
     }
 
     public function testResolveByCanonicalWithAndWithoutVersion(): void
@@ -141,18 +142,18 @@ class ProfilePackageReaderTest extends TestCase
         $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());
         $package = ProfilePackageReader::read($this->config($source));
         $url = 'http://example.org/fhir/StructureDefinition/my-patient';
-        $this->assertSame('my-patient', $package->resolveStructureDefinition($url)['id']);
-        $this->assertSame('my-patient', $package->resolveStructureDefinition($url . '|1.0.0')['id']);
-        $this->assertSame('my-vs', $package->resolveValueSet('http://example.org/fhir/ValueSet/my-vs|2')['id']);
-        $this->assertSame('my-cs', $package->resolveCodeSystem('http://example.org/fhir/CodeSystem/my-cs')['id']);
+        $this->assertSame('my-patient', $package->resolveProfile($url)?->getId());
+        $this->assertSame('my-patient', $package->resolveProfile($url . '|1.0.0')?->getId());
+        $this->assertSame('my-vs', $package->resolveValueSet('http://example.org/fhir/ValueSet/my-vs|2')?->id);
+        $this->assertSame('my-cs', $package->resolveCodeSystem('http://example.org/fhir/CodeSystem/my-cs')?->id);
         $this->assertNull($package->resolveValueSet('http://example.org/fhir/ValueSet/nope'));
     }
 
-    public function testStructureDefinitionsAreIndexedById(): void
+    public function testProfilesAreIndexedById(): void
     {
         $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());
         $all = ProfilePackageReader::read($this->config($source));
-        $this->assertSame(['my-observation', 'my-patient'], array_keys($all->getStructureDefinitions()));
+        $this->assertSame(['my-observation', 'my-patient'], array_keys($all->getProfiles()));
     }
 
     public static function versionProvider(): array
@@ -278,7 +279,7 @@ class ProfilePackageReaderTest extends TestCase
         $files['/package.json'] = self::manifest('wrong.name');
         $source = self::writePackageArchive($this->_root . '/pkg.tgz', $files);
         $package = ProfilePackageReader::read($this->config($source));
-        $this->assertArrayNotHasKey('outside', $package->getStructureDefinitions());
+        $this->assertArrayNotHasKey('outside', $package->getProfiles());
         $this->assertSame('test.ig', $package->getName());
     }
 
@@ -286,7 +287,7 @@ class ProfilePackageReaderTest extends TestCase
     {
         $source = self::writePackageDir($this->_root . '/dir', ['package.json' => self::manifest()]);
         $package = ProfilePackageReader::read($this->config($source));
-        $this->assertSame([], $package->getStructureDefinitions());
+        $this->assertSame([], $package->getProfiles());
     }
 
     public function testResolvesThroughProvidedDependencies(): void
@@ -308,10 +309,10 @@ class ProfilePackageReaderTest extends TestCase
         $package = ProfilePackageReader::read($this->config($source), '4.0.1', [$dep]);
 
         $this->assertSame(['dep.ig'], array_keys($package->getLoadedDependencies()));
-        $this->assertSame('dep-vs', $package->resolveValueSet('http://example.org/fhir/ValueSet/dep-vs')['id']);
+        $this->assertSame('dep-vs', $package->resolveValueSet('http://example.org/fhir/ValueSet/dep-vs')?->id);
         $this->assertSame(
             'dep-ext',
-            $package->resolveStructureDefinition('http://example.org/fhir/StructureDefinition/dep-ext')['id'],
+            $package->resolveProfile('http://example.org/fhir/StructureDefinition/dep-ext')?->getId(),
         );
         // dependency resources are not part of this package's own index.
         $this->assertSame(['my-vs'], array_keys($package->getValueSets()));
@@ -323,9 +324,36 @@ class ProfilePackageReaderTest extends TestCase
         $this->assertSame('http://a/b', ProfilePackage::stripCanonicalVersion('http://a/b'));
     }
 
+    public function testReadSourceKeepsOnlyTheRequestedTypesAndDoesNotCheckTheName(): void
+    {
+        $files = $this->standardFiles();
+        $files['ConceptMap-cm.json'] = ['resourceType' => 'ConceptMap', 'id' => 'cm', 'url' => 'http://example.org/fhir/ConceptMap/cm'];
+        // a file with a name unlike any convention is only decoded if its content may hold a retained type.
+        $files['renamed.json'] = ['resourceType' => 'ConceptMap', 'id' => 'renamed'];
+        $files['index.html'] = 'not json';
+        $sources = [
+            'directory' => self::writePackageDir($this->_root . '/dir', $files),
+            'archive' => self::writePackageArchive($this->_root . '/pkg.tgz', $files),
+        ];
+        foreach ($sources as $label => $source) {
+            $package = ProfilePackageReader::readSource($source, ProfileResourceTypeEnum::CONCEPT_MAP);
+            $this->assertSame(['cm', 'renamed'], array_keys($package->getConceptMaps()), $label);
+            $this->assertSame([], $package->getProfiles(), $label);
+            $this->assertSame([], $package->getValueSets(), $label);
+            $this->assertSame([], $package->getCodeSystems(), $label);
+        }
+    }
+
+    public function testReadSourceRequiresAType(): void
+    {
+        $source = self::writePackageDir($this->_root . '/dir', $this->standardFiles());
+        $this->expectException(\InvalidArgumentException::class);
+        ProfilePackageReader::readSource($source);
+    }
+
     public function testPackedResourceWithoutDerivationFallsBackToData(): void
     {
-        $package = new ProfilePackage($this->config($this->_root), self::manifest());
+        $package = new ProfilePackage(self::manifest());
         $package->addPackedResource(new ProfilePackedResource(
             ProfileResourceTypeEnum::STRUCTURE_DEFINITION,
             'p',
@@ -340,6 +368,6 @@ class ProfilePackageReaderTest extends TestCase
             null,
             ['resourceType' => 'StructureDefinition', 'id' => 'base', 'derivation' => 'specialization'],
         ));
-        $this->assertSame(['p'], array_keys($package->getStructureDefinitions()));
+        $this->assertSame(['p'], array_keys($package->getProfiles()));
     }
 }

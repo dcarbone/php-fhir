@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TypeKindEnum;
-
 /** @var \DCarbone\PHPFHIR\Version $version */
 /** @var \DCarbone\PHPFHIR\Version\Definition\Type $type; */
 
@@ -43,7 +41,7 @@ foreach($type->getProperties()->getIterator() as $property) :
     $propConst = $property->getFieldConstantName();
     $propConstExt = $property->getFieldConstantExtensionName();
 
-    if ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()) : ?>
+    if ($propType->isLeafType()) : ?>
         if (isset($decoded-><?php echo $propName; ?>) || property_exists($decoded, self::<?php echo $propConst; ?>)) {
 <?php   if ($property->isCollection()) : ?>
             if (is_array($decoded-><?php echo $property; ?>)) {
@@ -57,10 +55,6 @@ foreach($type->getProperties()->getIterator() as $property) :
 <?php   else : ?>
             $type-><?php echo $setter; ?>($decoded-><?php echo $propName; ?>);
 <?php   endif; ?>
-        }
-<?php elseif ($propType->getKind() === TypeKindEnum::PHPFHIR_XHTML) : ?>
-        if (isset($decoded-><?php echo $propName; ?>) || property_exists($decoded, self::<?php echo $propConst; ?>)) {
-            $type-><?php echo $setter; ?>($decoded-><?php echo $propName; ?>);
         }
 <?php elseif ($propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) : ?>
         if (isset($decoded-><?php echo $propName; ?>)

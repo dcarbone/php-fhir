@@ -18,17 +18,16 @@ namespace DCarbone\PHPFHIR\Profiles;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Config\ProfilePackageConfig;
 use DCarbone\PHPFHIR\Enum\ProfileResourceTypeEnum;
 
 /**
  * An in-memory index of the conformance resources found in a FHIR NPM-style package.
  *
- * Only StructureDefinition, ValueSet and CodeSystem resources are retained.
+ * Only the resource types the reader was asked to retain are held, packed until used: StructureDefinition, ValueSet and
+ * CodeSystem by default.
  */
 class ProfilePackage
 {
-    private ProfilePackageConfig $_config;
     private ProfilePackageMetadata $_metadata;
 
     /** @var array<string, array<string, ProfilePackedResource>> resource type => id => packed resource */
@@ -41,9 +40,8 @@ class ProfilePackage
     /** @var array<string, ProfilePackage> */
     private array $_loadedDependencies = [];
 
-    public function __construct(ProfilePackageConfig $config, array $manifest)
+    public function __construct(array $manifest)
     {
-        $this->_config = $config;
         $this->_metadata = ProfilePackageMetadata::fromManifest($manifest);
         foreach (ProfileResourceTypeEnum::cases() as $type) {
             $this->_resources[$type->value] = [];
@@ -58,11 +56,6 @@ class ProfilePackage
     {
         $pos = strpos($canonical, '|');
         return false === $pos ? $canonical : substr($canonical, 0, $pos);
-    }
-
-    public function getConfig(): ProfilePackageConfig
-    {
-        return $this->_config;
     }
 
     public function getMetadata(): ProfilePackageMetadata
@@ -149,74 +142,93 @@ class ProfilePackage
     }
 
     /**
-     * Returns all profiles (StructureDefinitions with a "constraint" derivation) in this package, indexed by id.
+     * Returns all profiles (StructureDefinitions with a "constraint" derivation) in this package, indexed by id.  Each
+     * call returns new instances, as a profile set links them to their parents.
      *
-     * @return array<string, array>
+     * @return array<string, Profile>
+     * @throws ProfileDefinitionException
      */
-    public function getStructureDefinitions(): array
+    public function getProfiles(): array
     {
         $out = [];
         foreach ($this->_resources[ProfileResourceTypeEnum::STRUCTURE_DEFINITION->value] as $id => $packed) {
-            if (isset($this->_nonProfileSDs[$id])) {
-                continue;
+            if (!isset($this->_nonProfileSDs[$id])) {
+                $out[$id] = new Profile($packed->unpack());
             }
-            $out[$id] = $packed->unpack();
         }
         return $out;
     }
 
     /**
-     * @return array<string, array>
+     * @return array<string, ProfileValueSet>
      */
     public function getValueSets(): array
     {
-        $out = [];
-        foreach ($this->_resources[ProfileResourceTypeEnum::VALUE_SET->value] as $id => $packed) {
-            $out[$id] = $packed->unpack();
-        }
-        return $out;
+        return $this->_all(ProfileResourceTypeEnum::VALUE_SET, ProfileValueSet::fromResource(...));
     }
 
     /**
-     * @return array<string, array>
+     * @return array<string, ProfileCodeSystem>
      */
     public function getCodeSystems(): array
     {
-        $out = [];
-        foreach ($this->_resources[ProfileResourceTypeEnum::CODE_SYSTEM->value] as $id => $packed) {
-            $out[$id] = $packed->unpack();
-        }
-        return $out;
+        return $this->_all(ProfileResourceTypeEnum::CODE_SYSTEM, ProfileCodeSystem::fromResource(...));
     }
 
     /**
-     * Locates a StructureDefinition by canonical url (optionally "|version" suffixed) in this package or, failing
-     * that, in any loaded dependency.
+     * @return array<string, ProfileConceptMap>
+     * @throws ProfileDefinitionException
      */
-    public function resolveStructureDefinition(string $canonical): null|array
+    public function getConceptMaps(): array
     {
-        return $this->_resolve(ProfileResourceTypeEnum::STRUCTURE_DEFINITION, $canonical);
+        return $this->_all(ProfileResourceTypeEnum::CONCEPT_MAP, ProfileConceptMap::fromResource(...));
     }
 
-    public function resolveValueSet(string $canonical): null|array
+    /**
+     * Locates a profile by canonical url (optionally "|version" suffixed) in this package or, failing that, in any
+     * loaded dependency.  A StructureDefinition that is not a profile is not found.
+     */
+    public function resolveProfile(string $canonical): null|Profile
     {
-        return $this->_resolve(ProfileResourceTypeEnum::VALUE_SET, $canonical);
+        $packed = $this->_resolve(ProfileResourceTypeEnum::STRUCTURE_DEFINITION, $canonical);
+        return null !== $packed && $packed->isConstraint() ? new Profile($packed->unpack()) : null;
     }
 
-    public function resolveCodeSystem(string $canonical): null|array
+    public function resolveValueSet(string $canonical): null|ProfileValueSet
     {
-        return $this->_resolve(ProfileResourceTypeEnum::CODE_SYSTEM, $canonical);
+        $packed = $this->_resolve(ProfileResourceTypeEnum::VALUE_SET, $canonical);
+        return null === $packed ? null : ProfileValueSet::fromResource($packed->unpack());
+    }
+
+    public function resolveCodeSystem(string $canonical): null|ProfileCodeSystem
+    {
+        $packed = $this->_resolve(ProfileResourceTypeEnum::CODE_SYSTEM, $canonical);
+        return null === $packed ? null : ProfileCodeSystem::fromResource($packed->unpack());
+    }
+
+    /**
+     * @template T of object
+     * @param \Closure(array): T $factory
+     * @return array<string, T>
+     */
+    private function _all(ProfileResourceTypeEnum $type, \Closure $factory): array
+    {
+        $out = [];
+        foreach ($this->_resources[$type->value] as $id => $packed) {
+            $out[$id] = $factory($packed->unpack());
+        }
+        return $out;
     }
 
     /**
      * @param array<string, bool> $visited Names of the packages already searched, as dependencies are shared.
      */
-    private function _resolve(ProfileResourceTypeEnum $type, string $canonical, array &$visited = []): null|array
+    private function _resolve(ProfileResourceTypeEnum $type, string $canonical, array &$visited = []): null|ProfilePackedResource
     {
         $visited[$this->getName()] = true;
         $url = self::stripCanonicalVersion($canonical);
         if (isset($this->_urlIndex[$type->value][$url])) {
-            return $this->_resources[$type->value][$this->_urlIndex[$type->value][$url]]->unpack();
+            return $this->_resources[$type->value][$this->_urlIndex[$type->value][$url]];
         }
         foreach ($this->_loadedDependencies as $name => $dependency) {
             if (!isset($visited[$name]) && null !== ($found = $dependency->_resolve($type, $canonical, $visited))) {

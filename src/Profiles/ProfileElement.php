@@ -37,6 +37,7 @@ class ProfileElement
     /** @var ProfileConstraint[] */
     private readonly array $_constraints;
     private readonly bool $_mustSupport;
+    private readonly bool $_modifier;
     private readonly null|string $_contentReference;
     private readonly null|string $_short;
     private readonly null|string $_definition;
@@ -75,6 +76,7 @@ class ProfileElement
         }
         $this->_constraints = $constraints;
         $this->_mustSupport = (bool)($data['mustSupport'] ?? false);
+        $this->_modifier = (bool)($data['isModifier'] ?? false);
         $this->_contentReference = isset($data['contentReference']) && is_string($data['contentReference'])
             ? $data['contentReference']
             : null;
@@ -216,6 +218,11 @@ class ProfileElement
     public function isMustSupport(): bool
     {
         return $this->_mustSupport;
+    }
+
+    public function isModifier(): bool
+    {
+        return $this->_modifier;
     }
 
     public function getContentReference(): null|string

@@ -26,4 +26,5 @@ enum ProfileResourceTypeEnum: string
     case STRUCTURE_DEFINITION = 'StructureDefinition';
     case VALUE_SET = 'ValueSet';
     case CODE_SYSTEM = 'CodeSystem';
+    case CONCEPT_MAP = 'ConceptMap';
 }

@@ -27,14 +27,14 @@ $coreFiles = $config->getCoreFiles();
 $versionCoreFiles = $version->getVersionCoreFiles();
 $imports = $type->getimports();
 
-$primitiveTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
+$leafTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_LEAF_TYPE);
 $typeValidationTrait = $coreFiles->getCoreFileByEntityName(PHPFHIR_VALIDATION_TRAIT_TYPE_VALIDATIONS);
 $fhirVersion = $coreFiles->getCoreFileByEntityName(PHPFHIR_CLASSNAME_FHIR_VERSION);
 
 $versionClass = $versionCoreFiles->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
 
 $imports->addCoreFileImports(
-    $primitiveTypeInterface,
+    $leafTypeInterface,
     $typeValidationTrait,
     $fhirVersion,
     $versionClass,
@@ -52,7 +52,7 @@ namespace <?php echo $type->getFullyQualifiedNamespace(false); ?>;
 <?php echo ImportUtils::compileImportStatements($imports); ?>
 
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class <?php echo $type->getClassName(); ?> implements <?php echo $primitiveTypeInterface; ?>
+class <?php echo $type->getClassName(); ?> implements <?php echo $leafTypeInterface; ?>
 
 {
     use <?php echo $typeValidationTrait; ?>;
