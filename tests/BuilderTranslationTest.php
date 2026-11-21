@@ -327,7 +327,6 @@ class BuilderTranslationTest extends TestCase
     public function testTranslationPackageReaderKeepsNumericCodesAsStrings(): void
     {
         $packagePath = $this->_tmpdir->path('numeric-package/package');
-        mkdir($packagePath, 0777, true);
         file_put_contents($packagePath . '/package.json', json_encode([
             'name' => 'example.numeric',
             'version' => '1.0.0',
@@ -399,9 +398,6 @@ class BuilderTranslationTest extends TestCase
 
     public function testVersionRegistryMatchesNestedVersionNamespacesMostSpecificFirst(): void
     {
-        foreach (['nested-out', 'nested-r4', 'nested-custom'] as $name) {
-            mkdir($this->_tmpdir->path($name), 0777, true);
-        }
         $config = Config::fromArray([
             'libraryPath' => $this->_tmpdir->path('nested-out'),
             'versions' => [

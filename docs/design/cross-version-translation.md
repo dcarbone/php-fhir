@@ -169,10 +169,11 @@ The default engine. One class, no per-type knowledge:
    xver definition is available; schema-diff generation never invents a placeholder URL or a
    non-standard JSON payload.
 
-Contained resources, Bundle entries, and choice (`[x]`) fields need no special handling beyond
-field names: generated classes already materialize choice variants as discrete fields
-(`deceasedBoolean`, `deceasedDateTime`), and nested resources are just fields whose values implement
-`TypeInterface`.
+Choice (`[x]`) fields need no special handling: generated classes already materialize choice
+variants as discrete fields (`deceasedBoolean`, `deceasedDateTime`). Resource-container fields
+(`Bundle.entry.resource`, `DomainResource.contained`) store unwrapped resources, so the default
+metadata factory describes them with the contained-resource interface accepted by the field's
+setter (the version's `VersionContainedTypeInterface`) instead of the `ResourceContainer` wrapper.
 
 ### `FieldMetadataFactoryInterface` / `FieldMetadataFactory` / `FieldMetadata`
 
@@ -194,6 +195,10 @@ entirely or compose a factory that delegates to the default and adjusts selected
 Factories receive the actual source and newly constructed target instances. Custom implementations
 may inspect instance state and choose their own caching strategy; only the default implementation
 assumes metadata is class-specific.
+
+The generated `VersionRegistry` matches a type to its version by namespace prefix. Version
+namespaces are ordered most specific first, so a nested namespace such as `R4\Custom` is matched
+before `R4`. Version mismatch diagnostics use the `FHIRVersion` string form.
 
 `FieldMetadata` is only an immutable descriptor for a field's type, collection flag, getter,
 and setter. `getType()`, `isCollection()`, `getGetter()`, and `getSetter()` expose its values;
@@ -286,7 +291,11 @@ exactly one distinct target marked `equivalent` (using R4 `equivalence` or newer
 to a non-null target are candidates; the code is mapped when exactly one distinct
 `targetSystem|code` candidate remains. The translator updates both the target system and code. Missing,
 ambiguous, and non-equivalent mappings are handled by the configured unmappable-field policy.
-If no map applies to a source system, the `Coding` is copied normally. Bare `code` primitives
+If no map applies to a source system, the `Coding` is copied normally; when a hop has no code
+maps, `Coding` values are not inspected at all. When a hop does have code maps, `Coding.system`
+and `Coding.code` are read by unwrapping their primitive containers (element → primitive →
+scalar) before the value is validated as a string. ConceptMap codes are always strings, including
+numeric codes such as `"123"`. Bare `code` primitives
 remain unchanged because their binding system is not available in runtime field metadata; use a
 custom type translator for those (see
 `tests/Integration/Translation/Fixtures/R5ToR4EncounterStatusTranslator.php`).
@@ -303,7 +312,10 @@ Schema-diff derivation (computed in the generator from `Version\Definition\Type`
   unmappable policy.
 - Field present in both → no entry.
 - Field absent in target → `FieldRuleEnum::UNMAPPABLE`; the configured unmappable-field policy
-  handles its value. No xver URL or placeholder extension is generated.
+  handles its value. No xver URL or placeholder extension is generated. The generator-side
+  `DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum` is the single source of truth for rule cases;
+  the generated `FieldRuleEnum` is rendered from it, and generated hop maps store enum cases
+  directly in their `_FIELD_RULES` constant.
 - Field present in target only → nothing to do; left unset.
 - Type renames are not inferred by name-only schema comparison; the generated rename map is empty.
 

@@ -18,9 +18,11 @@ namespace DCarbone\PHPFHIRTests\Integration\Translation;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIRGenerated\Translation\HopMapRegistry;
 use DCarbone\PHPFHIRGenerated\Translation\OnUnmappableFieldEnum;
 use DCarbone\PHPFHIRGenerated\Translation\TranslationConfig;
 use DCarbone\PHPFHIRGenerated\Translation\Translator;
+use DCarbone\PHPFHIRGenerated\Types\TypeInterface;
 use DCarbone\PHPFHIRGenerated\Versions\R4\Types\FHIRResource\FHIRDomainResource\FHIRBasic as R4Basic;
 
 /**
@@ -58,6 +60,34 @@ class CodeMappingTranslationTest extends AbstractTranslationIntegrationTestCase
             ['Basic.code.coding.code R5->R4', 'Basic.code.coding R5->R4'],
             self::noticePaths($result),
         );
+    }
+
+    public function testCodingPrimitiveContainersAreUnwrappedWhenTheHopHasCodeMaps(): void
+    {
+        $source = self::parse(
+            'R5',
+            '{"resourceType":"Basic","id":"b2","code":{"coding":['
+            . '{"system":"http://hl7.org/fhir/encounter-status","code":"on-hold"},'
+            . '{"system":"http://example.org","code":"123"}'
+            . ']}}',
+        );
+        $coding = $source->getCode()->getCoding()[0];
+        // Coding.system and Coding.code are primitive containers wrapping a primitive object, not a string.
+        self::assertInstanceOf(TypeInterface::class, $coding->getSystem()->getValue());
+        self::assertInstanceOf(TypeInterface::class, $coding->getCode()->getValue());
+        self::assertNotSame([], HopMapRegistry::getMap(self::version('R5'), self::version('R4'))?->getCodeMaps() ?? []);
+
+        $result = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::THROW)))
+            ->translate($source, self::version('R4'));
+
+        self::assertSame(
+            [
+                ['system' => 'http://hl7.org/fhir/encounter-status', 'code' => 'onleave'],
+                ['system' => 'http://example.org', 'code' => '123'],
+            ],
+            self::decode($result->getResource())['code']['coding'],
+        );
+        self::assertSame([], $result->getNotices());
     }
 
     public function testHopsWithoutConceptMapsCopyCodesVerbatim(): void
