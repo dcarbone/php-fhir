@@ -34,7 +34,12 @@ final class <?php echo $coreFile; ?>
         private readonly string $sourceSystem,
         private readonly string $targetSystem,
         private readonly array $codeMappings,
+        private readonly null|string $sourceVersion = null,
+        private readonly null|string $targetVersion = null,
     ) {
+        if ('' === $sourceVersion || '' === $targetVersion) {
+            throw new \InvalidArgumentException('Code map versions must not be empty when specified.');
+        }
     }
 
     public function getSourceSystem(): string
@@ -45,6 +50,16 @@ final class <?php echo $coreFile; ?>
     public function getTargetSystem(): string
     {
         return $this->targetSystem;
+    }
+
+    public function getSourceVersion(): null|string
+    {
+        return $this->sourceVersion;
+    }
+
+    public function getTargetVersion(): null|string
+    {
+        return $this->targetVersion;
     }
 
     public function hasSourceCode(string $code): bool

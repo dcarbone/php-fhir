@@ -77,6 +77,87 @@ class ProfileConceptMapTest extends TestCase
         $this->assertSame([], $map->groups);
     }
 
+    public function testReadsCodeSystemVersionsFromR4FieldsAndR5Canonicals(): void
+    {
+        $map = ProfileConceptMap::fromResource([
+            'id' => 'versions',
+            'group' => [
+                [
+                    'source' => 'http://example.org/source',
+                    'sourceVersion' => '1',
+                    'target' => 'http://example.org/target',
+                    'targetVersion' => '2',
+                ],
+                [
+                    'source' => 'http://example.org/source|3',
+                    'target' => 'http://example.org/target|4',
+                ],
+            ],
+        ]);
+
+        self::assertCount(2, $map->groups);
+        foreach ($map->groups as $group) {
+            self::assertSame('http://example.org/source', $group->source);
+            self::assertSame('http://example.org/target', $group->target);
+        }
+        self::assertSame('1', $map->groups[0]->sourceVersion);
+        self::assertSame('2', $map->groups[0]->targetVersion);
+        self::assertSame('3', $map->groups[1]->sourceVersion);
+        self::assertSame('4', $map->groups[1]->targetVersion);
+    }
+
+    /** @return array<string, array{list<array<string, mixed>>, list<string>}> */
+    public static function usableTargetsProvider(): array
+    {
+        return [
+            'R4 exact equality' => [[['code' => 'exact', 'equivalence' => 'equal']], ['exact']],
+            'R5 does not define equal' => [[['code' => 'exact', 'relationship' => 'equal']], []],
+            'R4 condition' => [[[
+                'code' => 'conditional',
+                'equivalence' => 'equivalent',
+                'dependsOn' => [['property' => 'context', 'value' => 'required']],
+            ]], []],
+            'R5 required product' => [[[
+                'code' => 'product',
+                'relationship' => 'equivalent',
+                'product' => [['attribute' => 'context', 'valueCode' => 'required']],
+            ]], []],
+            'unconditional alternative survives' => [[
+                ['code' => 'unconditional', 'relationship' => 'equivalent'],
+                [
+                    'code' => 'conditional',
+                    'relationship' => 'equivalent',
+                    'dependsOn' => [['attribute' => 'context', 'valueCode' => 'required']],
+                ],
+            ], ['unconditional']],
+            'empty conditions and products' => [[[
+                'code' => 'unconditional',
+                'equivalence' => 'equivalent',
+                'dependsOn' => [],
+                'product' => [],
+            ]], ['unconditional']],
+        ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $targets
+     * @param list<string> $expected
+     */
+    #[DataProvider('usableTargetsProvider')]
+    public function testOnlyUnconditionalEquivalentOrExactTargetsAreUsable(array $targets, array $expected): void
+    {
+        $map = ProfileConceptMap::fromResource([
+            'id' => 'target-details',
+            'group' => [[
+                'source' => 'http://example.org/source',
+                'target' => 'http://example.org/target',
+                'element' => [['code' => 'source', 'target' => $targets]],
+            ]],
+        ]);
+
+        self::assertSame($expected, $map->groups[0]->elements[0]->equivalentTargets);
+    }
+
     /**
      * @return array<string, array{0: array, 1: string}>
      */
@@ -92,6 +173,13 @@ class ProfileConceptMapTest extends TestCase
             'element without code' => [$group(['element' => [['target' => []]]]), 'without a string source code'],
             'element code not a string' => [$group(['element' => [['code' => 1]]]), 'without a string source code'],
             'target not a list' => [$group(['element' => [['code' => 'a', 'target' => 'nope']]]), 'non-array target list'],
+            'source version not a string' => [$group(['sourceVersion' => 1]), 'invalid "sourceVersion"'],
+            'target version empty' => [$group(['targetVersion' => '']), 'invalid "targetVersion"'],
+            'canonical version empty' => [$group(['source' => 'http://example.org/source|']), 'invalid "sourceVersion"'],
+            'conflicting source versions' => [
+                $group(['source' => 'http://example.org/source|1', 'sourceVersion' => '2']),
+                'conflicting "sourceVersion"',
+            ],
         ];
     }
 

@@ -28,8 +28,10 @@ use DCarbone\PHPFHIR\Version\Definition\Types;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureLeaf;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureName;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureStatusEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
+use TranslationRuntimeGenerated\Translation\AmbiguousTranslationRouteException;
 use TranslationRuntimeGenerated\Translation\FieldMetadata;
 use TranslationRuntimeGenerated\Translation\FieldMetadataFactory;
 use TranslationRuntimeGenerated\Translation\FieldMetadataFactoryInterface;
@@ -37,6 +39,7 @@ use TranslationRuntimeGenerated\Translation\CodeMap;
 use TranslationRuntimeGenerated\Translation\CodeMapResult;
 use TranslationRuntimeGenerated\Translation\GenericTypeTranslator;
 use TranslationRuntimeGenerated\Translation\HopMapInterface;
+use TranslationRuntimeGenerated\Translation\HopMapRegistry;
 use TranslationRuntimeGenerated\Translation\Maps\HopMap_RenderedR4ToR5;
 use TranslationRuntimeGenerated\Translation\Maps\HopMap_RenderedR5ToR4;
 use TranslationRuntimeGenerated\Translation\MissingXverDefinitionException;
@@ -66,6 +69,7 @@ use TranslationRuntimeGenerated\Versions\R3\Types\Leaf as R3Leaf;
 use TranslationRuntimeGenerated\Versions\R3\Types\Patient as R3Patient;
 use TranslationRuntimeGenerated\Versions\R3\Types\Coding as R3Coding;
 use TranslationRuntimeGenerated\Versions\R3\Types\CodeableConcept as R3CodeableConcept;
+use TranslationRuntimeGenerated\Versions\R3\Version as R3Version;
 use TranslationRuntimeGenerated\Versions\R4B\Types\Leaf as R4BLeaf;
 use TranslationRuntimeGenerated\Versions\R4B\Types\Name as R4BName;
 use TranslationRuntimeGenerated\Versions\R4B\Types\Patient as R4BPatient;
@@ -353,6 +357,158 @@ class TranslationRuntimeTest extends TestCase
         ));
     }
 
+    /** @return array<string, array{null|string, bool}> */
+    public static function codingSourceVersionsProvider(): array
+    {
+        return [
+            'exact source version' => ['1', true],
+            'missing source version' => [null, false],
+            'different source version' => ['other', false],
+        ];
+    }
+
+    #[DataProvider('codingSourceVersionsProvider')]
+    public function testVersionedCodeMapsRequireAnExactSourceVersion(null|string $version, bool $matches): void
+    {
+        $source = (new R4Coding())
+            ->setSystem(new R4Leaf('http://example.org/source'))
+            ->setCode(new R4Leaf('legacy'));
+        if (null !== $version) {
+            $source->setVersion(new R4Leaf($version));
+        }
+        $notices = new TranslationNoticeCollector();
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::DROP),
+            'Coding',
+            new GenericTypeTranslator(),
+            $notices,
+            $this->codeMapHop(['legacy' => 'current'], sourceVersion: '1', targetVersion: '2'),
+        );
+
+        $translated = $context->translate($source);
+
+        if ($matches) {
+            self::assertInstanceOf(R5Coding::class, $translated);
+            self::assertSame('current', $translated->getCode()->getValue());
+            self::assertSame('2', $translated->getVersion()->getValue());
+            self::assertSame([], $notices->getNotices());
+        } else {
+            self::assertNull($translated);
+            self::assertSame('Coding.code', $notices->getNotices()[0]->getPath());
+        }
+        self::assertSame($version, $source->getVersion()?->getValue());
+        self::assertSame('legacy', $source->getCode()->getValue());
+    }
+
+    public function testSameSystemMappingReplacesTheCodeSystemVersion(): void
+    {
+        $source = (new R4Coding())
+            ->setSystem(new R4Leaf('http://example.org/source'))
+            ->setVersion(new R4Leaf('1'))
+            ->setCode(new R4Leaf('legacy'));
+        $notices = new TranslationNoticeCollector();
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::THROW),
+            'Coding',
+            new GenericTypeTranslator(),
+            $notices,
+            $this->codeMapHop(
+                ['legacy' => 'current'],
+                sourceVersion: '1',
+                targetVersion: '2',
+                targetSystem: 'http://example.org/source',
+            ),
+        );
+
+        $translated = $context->translate($source);
+
+        self::assertInstanceOf(R5Coding::class, $translated);
+        self::assertSame('http://example.org/source', $translated->getSystem()->getValue());
+        self::assertSame('current', $translated->getCode()->getValue());
+        self::assertSame('2', $translated->getVersion()->getValue());
+        self::assertSame([], $notices->getNotices());
+    }
+
+    public function testMappingAddsAnExplicitTargetVersionWhenTheSourceHasNone(): void
+    {
+        $source = (new R4Coding())
+            ->setSystem(new R4Leaf('http://example.org/source'))
+            ->setCode(new R4Leaf('legacy'));
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::THROW),
+            'Coding',
+            new GenericTypeTranslator(),
+            new TranslationNoticeCollector(),
+            $this->codeMapHop(['legacy' => 'current'], targetVersion: '2'),
+        );
+
+        $translated = $context->translate($source);
+
+        self::assertInstanceOf(R5Coding::class, $translated);
+        self::assertSame('current', $translated->getCode()->getValue());
+        self::assertSame('2', $translated->getVersion()->getValue());
+        self::assertNull($source->getVersion());
+    }
+
+    public function testSameSystemMappingWithoutATargetVersionKeepsTheSourceVersion(): void
+    {
+        $source = (new R4Coding())
+            ->setSystem(new R4Leaf('http://example.org/source'))
+            ->setVersion(new R4Leaf('1'))
+            ->setCode(new R4Leaf('legacy'));
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::THROW),
+            'Coding',
+            new GenericTypeTranslator(),
+            new TranslationNoticeCollector(),
+            $this->codeMapHop(['legacy' => 'current'], targetSystem: 'http://example.org/source'),
+        );
+
+        $translated = $context->translate($source);
+
+        self::assertInstanceOf(R5Coding::class, $translated);
+        self::assertSame('current', $translated->getCode()->getValue());
+        self::assertSame('1', $translated->getVersion()->getValue());
+    }
+
+    public function testTargetsWithDifferentCodeSystemVersionsAreAmbiguous(): void
+    {
+        $source = (new R4Coding())
+            ->setSystem(new R4Leaf('http://example.org/source'))
+            ->setVersion(new R4Leaf('1'))
+            ->setCode(new R4Leaf('legacy'));
+        $hopMap = $this->createConfiguredStub(HopMapInterface::class, [
+            'getCodeMaps' => [
+                new CodeMap('http://example.org/source', 'http://example.org/target', [
+                    'legacy' => 'current',
+                ], sourceVersion: '1', targetVersion: '2'),
+                new CodeMap('http://example.org/source', 'http://example.org/target', [
+                    'legacy' => 'current',
+                ], sourceVersion: '1', targetVersion: '3'),
+            ],
+        ]);
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::THROW),
+            'Coding',
+            new GenericTypeTranslator(),
+            new TranslationNoticeCollector(),
+            $hopMap,
+        );
+
+        $this->expectException(UnmappableFieldException::class);
+        $context->translate($source);
+    }
+
     public function testDateTimeWithTimePrecisionCannotBeCoercedToDate(): void
     {
         $source = new class('1970-01-02') extends FixtureLeaf {
@@ -462,42 +618,112 @@ class TranslationRuntimeTest extends TestCase
         self::assertSame([], $result->getNotices());
     }
 
-    private function codeMapHop(array $codeMappings): HopMapInterface
+    public function testPackageBackedMapIsUsedInsideALongerTranslation(): void
     {
-        return new class(new CodeMap(
+        $this->withHopMaps(function (): void {
+            $source = (new R5Patient())->setConcept(
+                (new R5CodeableConcept())->setCoding(
+                    (new R5Coding())
+                        ->setSystem(new R5Leaf('http://example.org/source'))
+                        ->setCode(new R5Leaf('legacy')),
+                ),
+            );
+
+            $result = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::THROW)))
+                ->translate($source, new R3Version());
+
+            self::assertInstanceOf(R3Patient::class, $result->getResource());
+            $coding = $result->getResource()->getConcept()->getCoding()[0];
+            self::assertSame('http://example.org/target', $coding->getSystem()->getValue());
+            self::assertSame('current', $coding->getCode()->getValue());
+            self::assertSame([], $result->getNotices());
+        }, $this->hopMap(new R5Version(), new R4Version(), new CodeMap(
             'http://example.org/source',
             'http://example.org/target',
+            ['legacy' => 'current'],
+        )));
+    }
+
+    public function testShortestRoutesWorkInBothDirectionsWithoutLeavingTheReleaseRange(): void
+    {
+        $this->withHopMaps(function (): void {
+            self::assertSame(['R4', 'R3'], $this->chain(new R5Version(), new R3Version()));
+            // The existing R3 -> R6 package must not create an alternative route through R6.
+            self::assertSame(['R4', 'R5'], $this->chain(new R3Version(), new R5Version()));
+        }, $this->hopMap(new R5Version(), new R4Version()), $this->hopMap(new R4Version(), new R5Version()));
+    }
+
+    public function testEquallyShortGeneratedRoutesAreRejected(): void
+    {
+        $this->withHopMaps(function (): void {
+            $this->expectException(AmbiguousTranslationRouteException::class);
+            $this->chain(new R4Version(), new R6Version());
+        }, $this->hopMap(new R4Version(), new R5Version()), $this->hopMap(new R4BVersion(), new R6Version()));
+    }
+
+    public function testDirectRegistrationWinsOverAmbiguousGeneratedRoutes(): void
+    {
+        $this->withHopMaps(function (): void {
+            $translator = (new Translator())
+                ->register(new R4Version(), new R6Version(), 'Patient', new GenericTypeTranslator());
+
+            self::assertSame(['R6'], $this->chain(new R4Version(), new R6Version(), $translator));
+        }, $this->hopMap(new R4Version(), new R5Version()), $this->hopMap(new R4BVersion(), new R6Version()));
+    }
+
+    /** @return list<string> */
+    private function chain(VersionInterface $from, VersionInterface $to, null|Translator $translator = null): array
+    {
+        $translator ??= new Translator();
+        $chain = (new \ReflectionMethod(Translator::class, 'buildChain'))->invoke($translator, $from, $to, 'Patient');
+        self::assertIsArray($chain);
+        return array_map(static fn(VersionInterface $version): string => $version->getName(), $chain);
+    }
+
+    /** @param callable(): void $test */
+    private function withHopMaps(callable $test, HopMapInterface ...$maps): void
+    {
+        $cache = new \ReflectionProperty(HopMapRegistry::class, '_maps');
+        $original = $cache->getValue();
+        self::assertIsArray($original);
+        $updated = $original;
+        foreach ($maps as $map) {
+            $key = $map->getSourceVersion()->getName() . "\0" . $map->getTargetVersion()->getName();
+            $updated[$key] = $map;
+        }
+        $cache->setValue(null, $updated);
+        try {
+            $test();
+        } finally {
+            $cache->setValue(null, $original);
+        }
+    }
+
+    private function hopMap(VersionInterface $from, VersionInterface $to, CodeMap ...$codeMaps): HopMapInterface
+    {
+        return $this->createConfiguredStub(HopMapInterface::class, [
+            'getSourceVersion' => $from,
+            'getTargetVersion' => $to,
+            'getRemovedTypes' => [],
+            'getCodeMaps' => $codeMaps,
+            'getXverExtensions' => [],
+        ]);
+    }
+
+    /** @param array<string, null|string> $codeMappings */
+    private function codeMapHop(
+        array $codeMappings,
+        null|string $sourceVersion = null,
+        null|string $targetVersion = null,
+        string $targetSystem = 'http://example.org/target',
+    ): HopMapInterface {
+        return $this->hopMap(new R4Version(), new R5Version(), new CodeMap(
+            'http://example.org/source',
+            $targetSystem,
             $codeMappings,
-        )) implements HopMapInterface {
-            public function __construct(private readonly CodeMap $codeMap)
-            {
-            }
-
-            public function getSourceVersion(): R4Version
-            {
-                return new R4Version();
-            }
-
-            public function getTargetVersion(): R5Version
-            {
-                return new R5Version();
-            }
-
-            public function getRemovedTypes(): array
-            {
-                return [];
-            }
-
-            public function getCodeMaps(): array
-            {
-                return [$this->codeMap];
-            }
-
-            public function getXverExtensions(): array
-            {
-                return [];
-            }
-        };
+            sourceVersion: $sourceVersion,
+            targetVersion: $targetVersion,
+        ));
     }
 
     public function testFieldMetadataFactoryUsesCachedTypedDescriptors(): void
@@ -1276,7 +1502,8 @@ class TranslationRuntimeTest extends TestCase
                      TranslationResult::class => ['resource', 'notices'],
                      Translator::class => ['config', 'dispatcher'],
                      FieldMetadata::class => ['type', 'collection', 'getter', 'setter'],
-                     CodeMapResult::class => ['sourceSystem', 'targetSystem', 'targetCode'],
+                     CodeMap::class => ['sourceSystem', 'targetSystem', 'codeMappings', 'sourceVersion', 'targetVersion'],
+                     CodeMapResult::class => ['sourceSystem', 'targetSystem', 'targetCode', 'targetVersion'],
                      GenericTypeTranslator::class => ['metadataFactory', 'codingCodeMapper', 'xverEmitter', 'xverUnfolder'],
                      TypeTranslatorDispatcher::class => ['defaultTranslator'],
                  ] as $class => $properties) {

@@ -29,8 +29,8 @@ final class TranslationPackageReader
     /**
      * Reads ConceptMap groups that map a source code system to a target code system.
      *
-     * Only a single `equivalent` target is usable for a scalar FHIR code. Missing, ambiguous, or
-     * non-equivalent targets are retained as null mappings so runtime translation can apply policy.
+     * Only a single unconditional `equivalent` or R4 `equal` target is usable. Missing, ambiguous,
+     * or unsupported targets remain null mappings so runtime translation can apply policy.
      *
      * @return \DCarbone\PHPFHIR\Translation\CodeMapDefinition[]
      * @throws ProfilePackageException
@@ -39,28 +39,34 @@ final class TranslationPackageReader
     public function readCodeMaps(TranslationPackageConfig $config): array
     {
         $package = ProfilePackageReader::readSource($config->getSource(), ProfileResourceTypeEnum::CONCEPT_MAP);
-        $grouped = [];
+        /** @var array<string, CodeMapDefinition> $definitions */
+        $definitions = [];
         foreach ($package->getConceptMaps() as $conceptMap) {
             foreach ($conceptMap->groups as $group) {
+                $codeMappings = [];
                 foreach ($group->elements as $element) {
                     $targetCode = 1 === count($element->equivalentTargets) ? $element->equivalentTargets[0] : null;
-                    if (!array_key_exists($element->code, $grouped[$group->source][$group->target] ?? [])) {
-                        $grouped[$group->source][$group->target][$element->code] = $targetCode;
-                    } elseif ($grouped[$group->source][$group->target][$element->code] !== $targetCode) {
-                        // the same source code mapped differently by another ConceptMap is ambiguous.
-                        $grouped[$group->source][$group->target][$element->code] = null;
+                    if (!array_key_exists($element->code, $codeMappings)) {
+                        $codeMappings[$element->code] = $targetCode;
+                    } elseif ($codeMappings[$element->code] !== $targetCode) {
+                        $codeMappings[$element->code] = null;
                     }
                 }
-            }
-        }
-
-        $definitions = [];
-        foreach ($grouped as $sourceSystem => $targetSystems) {
-            foreach ($targetSystems as $targetSystem => $codeMappings) {
+                if ([] === $codeMappings) {
+                    continue;
+                }
                 ksort($codeMappings, SORT_STRING);
-                $definitions[] = new CodeMapDefinition($sourceSystem, $targetSystem, $codeMappings);
+                $definition = new CodeMapDefinition(
+                    $group->source,
+                    $group->target,
+                    $codeMappings,
+                    $group->sourceVersion,
+                    $group->targetVersion,
+                );
+                $key = $definition->getGroupKey();
+                $definitions[$key] = isset($definitions[$key]) ? $definitions[$key]->merge($definition) : $definition;
             }
         }
-        return $definitions;
+        return array_values($definitions);
     }
 }

@@ -61,6 +61,7 @@ final class <?php echo $coreFile; ?>
         if (null === $sourceSystem || null === $sourceCode) {
             return null;
         }
+        $sourceVersion = $this->getStringFieldValue($source, $sourceFields, 'version');
 
         $sourceSystemMatched = false;
         /** @var array<string, CodeMapResult> $candidateTargets */
@@ -77,14 +78,20 @@ final class <?php echo $coreFile; ?>
                 continue;
             }
             $sourceSystemMatched = true;
+            if (null !== $codeMap->getSourceVersion() && $codeMap->getSourceVersion() !== $sourceVersion) {
+                continue;
+            }
             // A source system can have several maps; only maps that translate this code are candidates.
             if ($codeMap->hasSourceCode($sourceCode)
                 && null !== ($candidateCode = $codeMap->getTargetCode($sourceCode))) {
                 $targetSystem = $codeMap->getTargetSystem();
-                $candidateTargets[$targetSystem . '|' . $candidateCode] = new CodeMapResult(
+                $targetVersion = $codeMap->getTargetVersion() ?? ($targetSystem === $sourceSystem ? $sourceVersion : null);
+                $key = json_encode([$targetSystem, $candidateCode, $targetVersion], JSON_THROW_ON_ERROR);
+                $candidateTargets[$key] = new CodeMapResult(
                     $sourceSystem,
                     $targetSystem,
                     $candidateCode,
+                    $targetVersion,
                 );
             }
         }

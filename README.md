@@ -4,8 +4,8 @@
 
 php-fhir reads the official FHIR XSD schema files and produces a fully-typed PHP library — complete
 with models for every FHIR type, JSON & XML (de)serialization, validation, and a ready-to-use FHIR
-REST client. Generated libraries can also include optional profile classes and experimental
-cross-version resource translation.
+REST client. Generated libraries also include a beta cross-version translation API and can
+optionally include profile classes.
 
 ---
 
@@ -66,7 +66,7 @@ Full documentation is maintained on the **[project wiki](https://github.com/dcar
 | [Architecture](https://github.com/dcarbone/php-fhir/wiki/Architecture)                       | How the generator pipeline works internally                   |
 | [Profiles](https://github.com/dcarbone/php-fhir/wiki/Profiles)                               | Generating classes for FHIR profiles such as US Core          |
 | [Generated Code](https://github.com/dcarbone/php-fhir/wiki/Generated-Code)                   | Understanding the output: namespaces, types, client, encoding |
-| [Cross-Version Translation](https://github.com/dcarbone/php-fhir/wiki/Cross-Version-Translation) | Experimental resource translation between generated versions |
+| [Cross-Version Translation](https://github.com/dcarbone/php-fhir/wiki/Cross-Version-Translation) | Beta translation, code mapping, xver round trips, and custom translators |
 | [Testing](https://github.com/dcarbone/php-fhir/wiki/Testing)                                 | Running tests on the generator and on generated code          |
 | [Contributing](https://github.com/dcarbone/php-fhir/wiki/Contributing)                       | Developer workflow and code-style notes                       |
 
@@ -119,6 +119,12 @@ unzip fhir-schemas/R4.zip -d fhir-schemas/R4
 ### 3. Generate
 
 **Option A — PHP script:**
+
+Create the output directories first. Omit `testsPath` below if you do not want generated tests.
+
+```bash
+mkdir -p output/src output/tests
+```
 
 ```php
 <?php declare(strict_types=1);
@@ -182,6 +188,48 @@ layout, and is checked by the regular validation system (cardinality, fixed/patt
 the `profileResolution` unserialize option to `auto` to have parsing pick the profile class from `meta.profile`.
 Profile generation is memory hungry; allow PHP at least 1 GB. See the
 [Profiles](https://github.com/dcarbone/php-fhir/wiki/Profiles) wiki page.
+
+### 5. Cross-version translation (beta)
+
+Generate R4 and R5 together, including the shared core, before running this example. Add R5's
+schema directory to `versions` alongside R4; see [Getting Started](https://github.com/dcarbone/php-fhir/wiki/Getting-Started)
+for schema downloads. Use a generator revision containing the translation API; older pre-built
+packages may not include it.
+
+```php
+<?php declare(strict_types=1);
+
+use DCarbone\PHPFHIRGenerated\Autoloader;
+use DCarbone\PHPFHIRGenerated\Translation\OnUnmappableFieldEnum;
+use DCarbone\PHPFHIRGenerated\Translation\TranslationConfig;
+use DCarbone\PHPFHIRGenerated\Translation\Translator;
+use DCarbone\PHPFHIRGenerated\Versions\R4\Types\FHIRResource\FHIRDomainResource\FHIRPatient;
+use DCarbone\PHPFHIRGenerated\Versions\R5\Version as R5Version;
+
+require __DIR__ . '/output/src/DCarbone/PHPFHIRGenerated/Autoloader.php';
+Autoloader::register();
+
+$source = new FHIRPatient(active: true);
+$translator = new Translator(new TranslationConfig(
+    onUnmappableField: OnUnmappableFieldEnum::THROW,
+));
+$result = $translator->translate($source, new R5Version());
+
+echo json_encode($result->getResource(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR), PHP_EOL;
+```
+
+Matching fields can be translated without a package. Optional local HL7 xver packages add
+directional `Coding.system`/`Coding.code` mappings and official extensions for supported missing
+fields. Maps that specify a source code-system version require an exact `Coding.version` match;
+declared target versions are applied. The default `EXTENSION` policy emits those extensions and
+restores compatible fields on the reverse hop; it throws when an unmappable value cannot be
+preserved. `DROP` instead discards unmappable values and records notices.
+
+**Beta:** Translation is not lossless or a guarantee of semantic equivalence, and it does not
+automatically validate the target. Retain the source, inspect notices, and validate the result.
+The [translation guide](https://github.com/dcarbone/php-fhir/wiki/Cross-Version-Translation)
+includes package configuration, a complete R5 Account → R4 → R5 example, code-mapping notices,
+and custom translators for rules such as bare `Encounter.status` codes.
 
 ---
 

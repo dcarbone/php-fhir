@@ -32,6 +32,7 @@ final class <?php echo $coreFile; ?>
         private readonly string $sourceSystem,
         private readonly null|string $targetSystem,
         private readonly null|string $targetCode,
+        private readonly null|string $targetVersion = null,
     ) {
     }
 
@@ -43,6 +44,11 @@ final class <?php echo $coreFile; ?>
     public function changesSystem(): bool
     {
         return !$this->isFailure() && $this->sourceSystem !== $this->targetSystem;
+    }
+
+    public function getTargetVersion(): null|string
+    {
+        return $this->targetVersion;
     }
 
     public function getTargetValue(string $fieldName): string

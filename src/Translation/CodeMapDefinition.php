@@ -27,9 +27,14 @@ final class CodeMapDefinition
         private readonly string $sourceSystem,
         private readonly string $targetSystem,
         private readonly array $codeMappings,
+        private readonly null|string $sourceVersion = null,
+        private readonly null|string $targetVersion = null,
     ) {
         if ('' === $sourceSystem || '' === $targetSystem) {
             throw new \InvalidArgumentException('Code map systems must not be empty.');
+        }
+        if ('' === $sourceVersion || '' === $targetVersion) {
+            throw new \InvalidArgumentException('Code map versions must not be empty when specified.');
         }
     }
 
@@ -43,6 +48,24 @@ final class CodeMapDefinition
         return $this->targetSystem;
     }
 
+    public function getSourceVersion(): null|string
+    {
+        return $this->sourceVersion;
+    }
+
+    public function getTargetVersion(): null|string
+    {
+        return $this->targetVersion;
+    }
+
+    public function getGroupKey(): string
+    {
+        return json_encode(
+            [$this->sourceSystem, $this->sourceVersion, $this->targetSystem, $this->targetVersion],
+            JSON_THROW_ON_ERROR,
+        );
+    }
+
     /** @return array<string, null|string> */
     public function getCodeMappings(): array
     {
@@ -51,8 +74,8 @@ final class CodeMapDefinition
 
     public function merge(self $other): self
     {
-        if ($this->sourceSystem !== $other->sourceSystem || $this->targetSystem !== $other->targetSystem) {
-            throw new \InvalidArgumentException('Only code maps for the same source and target systems can be merged.');
+        if ($this->getGroupKey() !== $other->getGroupKey()) {
+            throw new \InvalidArgumentException('Only code maps for the same source and target systems and versions can be merged.');
         }
 
         $codeMappings = $this->codeMappings;
@@ -65,6 +88,6 @@ final class CodeMapDefinition
         }
         ksort($codeMappings, SORT_STRING);
 
-        return new self($this->sourceSystem, $this->targetSystem, $codeMappings);
+        return new self($this->sourceSystem, $this->targetSystem, $codeMappings, $this->sourceVersion, $this->targetVersion);
     }
 }

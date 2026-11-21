@@ -132,6 +132,8 @@ final class <?php echo $className; ?> implements <?php echo $hopMapInterface; ?>
                     <?php echo var_export($codeMap->getSourceSystem(), true); ?>,
                     <?php echo var_export($codeMap->getTargetSystem(), true); ?>,
                     <?php echo var_export($codeMap->getCodeMappings(), true); ?>,
+                    <?php echo var_export($codeMap->getSourceVersion(), true); ?>,
+                    <?php echo var_export($codeMap->getTargetVersion(), true); ?>,
                 ),
 <?php endforeach; ?>
             ];

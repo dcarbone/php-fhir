@@ -308,10 +308,32 @@ class BuilderTranslationTest extends TestCase
             'id' => 'example',
             'group' => [[
                 'source' => 'http://example.org/source',
+                'sourceVersion' => 'source-release-one',
                 'target' => 'http://example.org/target',
+                'targetVersion' => 'target-release-one',
                 'element' => [[
                     'code' => 'legacy',
                     'target' => [['code' => 'current', 'relationship' => 'equivalent']],
+                ]],
+            ]],
+        ], JSON_THROW_ON_ERROR));
+
+        $secondPackagePath = $this->_tmpdir->path('xver-package-two/package');
+        file_put_contents($secondPackagePath . '/package.json', json_encode([
+            'name' => 'example.xver.two',
+            'version' => '1.0.0',
+        ], JSON_THROW_ON_ERROR));
+        file_put_contents($secondPackagePath . '/ConceptMap-second.json', json_encode([
+            'resourceType' => 'ConceptMap',
+            'id' => 'second',
+            'group' => [[
+                'source' => 'http://example.org/source',
+                'sourceVersion' => 'source-release-two',
+                'target' => 'http://example.org/target',
+                'targetVersion' => 'target-release-two',
+                'element' => [[
+                    'code' => 'legacy',
+                    'target' => [['code' => 'current-two', 'equivalence' => 'equal']],
                 ]],
             ]],
         ], JSON_THROW_ON_ERROR));
@@ -354,11 +376,18 @@ class BuilderTranslationTest extends TestCase
                 ['name' => 'R4B', 'schemaPath' => $r4bSchemaPath],
                 ['name' => 'R5', 'schemaPath' => $r5SchemaPath],
             ],
-            'translationPackages' => [[
-                'sourceVersion' => 'R4',
-                'targetVersion' => 'R5',
-                'source' => $this->_tmpdir->path('xver-package'),
-            ]],
+            'translationPackages' => [
+                [
+                    'sourceVersion' => 'R4',
+                    'targetVersion' => 'R5',
+                    'source' => $this->_tmpdir->path('xver-package'),
+                ],
+                [
+                    'sourceVersion' => 'R4',
+                    'targetVersion' => 'R5',
+                    'source' => $this->_tmpdir->path('xver-package-two'),
+                ],
+            ],
         ]);
         foreach (['R4', 'R4B', 'R5'] as $versionName) {
             $version = $config->getVersion($versionName);
@@ -377,7 +406,9 @@ class BuilderTranslationTest extends TestCase
                 ->setValue($version->getDefinition(), $types);
         }
 
-        (new Builder($config))->writeLibraryTranslationMaps();
+        $builder = new Builder($config);
+        $builder->writeLibraryCoreEntities();
+        $builder->writeLibraryTranslationMaps();
 
         $forwardClass = $config->getFullyQualifiedName(false, 'Translation', 'Maps', 'HopMap_R4ToR5');
         $forwardPath = FileUtils::buildClassFilepath($libraryPath, $forwardClass);
@@ -398,6 +429,22 @@ class BuilderTranslationTest extends TestCase
         self::assertIsString($reverse);
         self::assertStringContainsString('final class HopMap_R5ToR4', $reverse);
         self::assertStringNotContainsString("'legacy' => 'current'", $reverse);
+
+        $autoloader = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_CLASSNAME_AUTOLOADER);
+        require $autoloader->getFilepath();
+        $autoloaderClass = $autoloader->getFullyQualifiedName(false);
+        try {
+            $maps = (new $forwardClass())->getCodeMaps();
+            self::assertCount(2, $maps);
+            self::assertSame('source-release-one', $maps[0]->getSourceVersion());
+            self::assertSame('target-release-one', $maps[0]->getTargetVersion());
+            self::assertSame('current', $maps[0]->getTargetCode('legacy'));
+            self::assertSame('source-release-two', $maps[1]->getSourceVersion());
+            self::assertSame('target-release-two', $maps[1]->getTargetVersion());
+            self::assertSame('current-two', $maps[1]->getTargetCode('legacy'));
+        } finally {
+            $autoloaderClass::unregister();
+        }
     }
 
     public function testTranslationPackageReaderKeepsNumericCodesAsStrings(): void

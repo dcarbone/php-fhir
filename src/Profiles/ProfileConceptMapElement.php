@@ -19,13 +19,12 @@ namespace DCarbone\PHPFHIR\Profiles;
  */
 
 /**
- * One source code of a ConceptMap group.  Only the targets it is declared equivalent to are retained: any other
- * relationship does not make the target a usable replacement for the source code.
+ * One source code of a ConceptMap group, retaining only unconditional equivalent or exact target codes.
  */
 final class ProfileConceptMapElement
 {
     /**
-     * @param list<string> $equivalentTargets Distinct target codes declared "equivalent".
+     * @param list<string> $equivalentTargets Distinct unconditional "equivalent" or R4 "equal" target codes.
      */
     public function __construct(
         public readonly string $code,

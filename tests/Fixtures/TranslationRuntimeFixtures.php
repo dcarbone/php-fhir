@@ -1077,6 +1077,7 @@ final class VersionTypeMap extends FixtureTypeMap
         'Coding' => Coding::class,
         'CodeableConcept' => CodeableConcept::class,
         'Extension' => Extension::class,
+        'string' => Leaf::class,
         'string-primitive' => Leaf::class,
     ];
 }

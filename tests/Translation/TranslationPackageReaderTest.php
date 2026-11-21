@@ -23,6 +23,7 @@ use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
 use DCarbone\PHPFHIR\Translation\CodeMapDefinition;
 use DCarbone\PHPFHIR\Translation\TranslationPackageReader;
 use DCarbone\PHPFHIRTests\Profiles\PackageFixtures;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
@@ -56,6 +57,17 @@ class TranslationPackageReaderTest extends TestCase
                     'target' => 'http://example.org/target',
                     'element' => [
                         ['code' => 'legacy', 'target' => [['code' => 'current', 'equivalence' => 'equivalent']]],
+                        ['code' => 'exact', 'target' => [['code' => 'exact-target', 'equivalence' => 'equal']]],
+                        ['code' => 'conditional', 'target' => [[
+                            'code' => 'conditional-target',
+                            'equivalence' => 'equivalent',
+                            'dependsOn' => [['property' => 'context', 'value' => 'required']],
+                        ]]],
+                        ['code' => 'product', 'target' => [[
+                            'code' => 'product-target',
+                            'relationship' => 'equivalent',
+                            'product' => [['attribute' => 'context', 'valueCode' => 'required']],
+                        ]]],
                         [
                             'code' => 'ambiguous',
                             'target' => [
@@ -90,7 +102,10 @@ class TranslationPackageReaderTest extends TestCase
             $this->assertSame('http://example.org/target', $codeMaps[0]->getTargetSystem());
             $this->assertSame([
                 'ambiguous' => null,
+                'conditional' => null,
+                'exact' => 'exact-target',
                 'legacy' => 'current',
+                'product' => null,
                 'related' => null,
             ], $codeMaps[0]->getCodeMappings());
         }
@@ -141,6 +156,47 @@ class TranslationPackageReaderTest extends TestCase
         ]));
     }
 
+    public function testGroupsForDifferentCodeSystemVersionsRemainDistinct(): void
+    {
+        $group = static fn(string $sourceVersion, string $targetVersion, string $targetCode): array => [
+            'source' => 'http://example.org/source',
+            'sourceVersion' => $sourceVersion,
+            'target' => 'http://example.org/target',
+            'targetVersion' => $targetVersion,
+            'element' => [['code' => 'legacy', 'target' => [
+                ['code' => $targetCode, 'equivalence' => 'equivalent'],
+            ]]],
+        ];
+        $source = self::writePackageDir($this->_root . '/versions', [
+            'package.json' => self::manifest('example.versions'),
+            'ConceptMap-versions.json' => [
+                'resourceType' => 'ConceptMap',
+                'id' => 'versions',
+                'group' => [
+                    $group('1', '2', 'first'),
+                    $group('1', '3', 'second'),
+                    $group('2', '3', 'third'),
+                ],
+            ],
+        ]);
+
+        $maps = (new TranslationPackageReader())->readCodeMaps(new TranslationPackageConfig('R4', 'R5', $source));
+
+        self::assertCount(3, $maps);
+        self::assertSame(['1', '1', '2'], array_map(
+            static fn(CodeMapDefinition $map): null|string => $map->getSourceVersion(),
+            $maps,
+        ));
+        self::assertSame(['2', '3', '3'], array_map(
+            static fn(CodeMapDefinition $map): null|string => $map->getTargetVersion(),
+            $maps,
+        ));
+        self::assertSame(['first', 'second', 'third'], array_map(
+            static fn(CodeMapDefinition $map): null|string => $map->getCodeMappings()['legacy'],
+            $maps,
+        ));
+    }
+
     public function testMergingCodeMapsCombinesCodesAndMarksConflictsUnmappable(): void
     {
         $first = new CodeMapDefinition('http://example.org/source', 'http://example.org/target', [
@@ -158,5 +214,48 @@ class TranslationPackageReaderTest extends TestCase
             'new' => 'added',
             'same' => 'stable',
         ], $first->merge($second)->getCodeMappings());
+    }
+
+    /** @return array<string, array{null|string, null|string}> */
+    public static function incompatibleVersionsProvider(): array
+    {
+        return [
+            'different source version' => ['other', '2'],
+            'different target version' => ['1', 'other'],
+            'unspecified source version' => [null, '2'],
+            'unspecified target version' => ['1', null],
+        ];
+    }
+
+    #[DataProvider('incompatibleVersionsProvider')]
+    public function testMergingDifferentCodeSystemVersionsIsRejected(
+        null|string $sourceVersion,
+        null|string $targetVersion,
+    ): void {
+        $first = new CodeMapDefinition('source', 'target', ['a' => 'b'], sourceVersion: '1', targetVersion: '2');
+        $second = new CodeMapDefinition(
+            'source',
+            'target',
+            ['c' => 'd'],
+            sourceVersion: $sourceVersion,
+            targetVersion: $targetVersion,
+        );
+
+        self::assertNotSame($first->getGroupKey(), $second->getGroupKey());
+        $this->expectException(\InvalidArgumentException::class);
+        $first->merge($second);
+    }
+
+    public function testMergingMatchingCodeSystemVersionsPreservesThem(): void
+    {
+        $first = new CodeMapDefinition('source', 'target', ['a' => 'b'], sourceVersion: '1', targetVersion: '2');
+        $second = new CodeMapDefinition('source', 'target', ['c' => 'd'], sourceVersion: '1', targetVersion: '2');
+
+        $merged = $first->merge($second);
+
+        self::assertSame($first->getGroupKey(), $merged->getGroupKey());
+        self::assertSame('1', $merged->getSourceVersion());
+        self::assertSame('2', $merged->getTargetVersion());
+        self::assertSame(['a' => 'b', 'c' => 'd'], $merged->getCodeMappings());
     }
 }

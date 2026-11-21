@@ -54,7 +54,7 @@
 <main class="wrap">
   <section class="hero">
     <h1>Typed PHP for HL7&nbsp;FHIR, generated from the spec.</h1>
-    <p>php-fhir reads the official FHIR XSD schemas and produces a fully-typed PHP library: a model for every FHIR type, JSON and XML (de)serialization, validation, and a ready-to-use REST client. Generated libraries can also include optional profile classes and experimental cross-version resource translation.</p>
+    <p>php-fhir reads the official FHIR XSD schemas and produces a fully-typed PHP library: a model for every FHIR type, JSON and XML (de)serialization, validation, and a ready-to-use REST client. Generated libraries also include a beta cross-version translation API and can optionally include profile classes.</p>
     <a class="btn primary" href="https://github.com/dcarbone/php-fhir-generated">Get the pre-built package</a>
     <a class="btn" href="https://github.com/dcarbone/php-fhir/wiki/Getting-Started">Run the generator</a>
   </section>
@@ -67,7 +67,7 @@
       <div class="card"><h3>Validation</h3><p>Rules derived from the schema, applied to the generated types.</p></div>
       <div class="card"><h3>Profiles</h3><p>Optionally generate classes for profiles such as US Core, nested like the base types, validated by the regular rules and picked automatically from <code>meta.profile</code> when parsing.</p></div>
       <div class="card"><h3>REST client</h3><p>A client for talking to FHIR servers, generated per version.</p></div>
-      <div class="card"><h3>Translation (experimental)</h3><p>Translate resources between generated FHIR versions; review notices and verify the result because translation is not lossless.</p></div>
+      <div class="card"><h3>Translation (beta)</h3><p>Translate resources between generated versions, with optional local HL7 code mappings and xver extension round trips. Review notices and validate results; translation is not lossless.</p></div>
       <div class="card"><h3>Custom output</h3><p>Choose your namespace, versions and behavior when you generate it yourself.</p></div>
     </div>
   </section>
@@ -106,9 +106,35 @@ echo json_encode($patient, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);</code></pre
 
 mkdir -p fhir-schemas/R4
 curl -Lo fhir-schemas/R4.zip https://hl7.org/fhir/R4/fhir-codegen-xsd.zip
-unzip fhir-schemas/R4.zip -d fhir-schemas/R4</code></pre>
+unzip fhir-schemas/R4.zip -d fhir-schemas/R4
+mkdir -p output/src output/tests</code></pre>
+    <p>Create the output directories before configuring the generator. Omit <code>testsPath</code> if you do not want generated tests.</p>
     <p>Need profiles such as US Core? Point a version at local implementation guide packages, and the packages they depend on; see the <a href="https://github.com/dcarbone/php-fhir/wiki/Profiles">Profiles</a> guide.</p>
     <p>The <a href="https://github.com/dcarbone/php-fhir/wiki/Getting-Started">Getting Started</a> and <a href="https://github.com/dcarbone/php-fhir/wiki/CLI-Usage">CLI Usage</a> guides cover the rest.</p>
+  </section>
+
+  <section>
+    <h2>Cross-version translation (beta)</h2>
+    <p>Generate R4 and R5 together, including the shared core, before running this example. Add R5's schema directory to your configuration alongside R4; the <a href="https://github.com/dcarbone/php-fhir/wiki/Getting-Started">Getting Started</a> guide has schema downloads. Use a generator revision containing the translation API; older pre-built packages may not include it.</p>
+    <pre><code>use DCarbone\PHPFHIRGenerated\Autoloader;
+use DCarbone\PHPFHIRGenerated\Translation\OnUnmappableFieldEnum;
+use DCarbone\PHPFHIRGenerated\Translation\TranslationConfig;
+use DCarbone\PHPFHIRGenerated\Translation\Translator;
+use DCarbone\PHPFHIRGenerated\Versions\R4\Types\FHIRResource\FHIRDomainResource\FHIRPatient;
+use DCarbone\PHPFHIRGenerated\Versions\R5\Version as R5Version;
+
+require __DIR__ . '/output/src/DCarbone/PHPFHIRGenerated/Autoloader.php';
+Autoloader::register();
+
+$source = new FHIRPatient(active: true);
+$translator = new Translator(new TranslationConfig(
+    onUnmappableField: OnUnmappableFieldEnum::THROW,
+));
+$result = $translator-&gt;translate($source, new R5Version());
+
+echo json_encode($result-&gt;getResource(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR), PHP_EOL;</code></pre>
+    <p>Matching fields can be translated without a package. Optional local HL7 xver packages add directional <code>Coding.system</code>/<code>Coding.code</code> mappings and official extensions for supported missing fields. Maps that specify a source code-system version require an exact <code>Coding.version</code> match; declared target versions are applied. The default <code>EXTENSION</code> policy emits those extensions and restores compatible fields on the reverse hop; it throws when an unmappable value cannot be preserved. <code>DROP</code> instead discards unmappable values and records notices.</p>
+    <p><strong>Beta:</strong> Translation is not lossless or a guarantee of semantic equivalence, and it does not automatically validate the target. Retain the source, inspect notices, and validate the result. The <a href="https://github.com/dcarbone/php-fhir/wiki/Cross-Version-Translation">translation guide</a> includes package configuration, an R5 Account → R4 → R5 example, code-mapping notices, and custom translators for bare <code>Encounter.status</code> codes.</p>
   </section>
 
   <section>
@@ -118,7 +144,7 @@ unzip fhir-schemas/R4.zip -d fhir-schemas/R4</code></pre>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Configuration-Reference"><h3>Configuration</h3><p>All Config and VersionConfig options.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Profiles"><h3>Profiles</h3><p>Classes for FHIR profiles such as US Core.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Generated-Code"><h3>Generated code</h3><p>Namespaces, types, client and encoding.</p></a>
-      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Cross-Version-Translation"><h3>Cross-version translation</h3><p>Experimental translation between generated versions.</p></a>
+      <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Cross-Version-Translation"><h3>Cross-version translation</h3><p>Beta translation, code mapping, xver round trips, and custom translators.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Architecture"><h3>Architecture</h3><p>How the generator pipeline works.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Testing"><h3>Testing</h3><p>Running the test suites.</p></a>
       <a class="card" href="https://github.com/dcarbone/php-fhir/wiki/Contributing"><h3>Contributing</h3><p>Developer workflow and code style.</p></a>

@@ -75,26 +75,9 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
         if (null !== $hopMap && in_array($typeName, $hopMap->getRemovedTypes(), true)) {
             return null;
         }
-        $typeMap = $context->getTargetVersion()->getTypeMap();
-        $targetClass = $typeMap::getTypeClassname($typeName);
-        $expectedClass = $context->getExpectedTargetClass();
-        if (null !== $expectedClass
-            && (null === $targetClass || !is_a($targetClass, $expectedClass, true))
-            && (new \ReflectionClass($expectedClass))->isInstantiable()) {
-            // The target field declares a different type than the source value (e.g. date -> dateTime), so
-            // translate into the declared type and copy whatever compatible fields it shares.
-            $targetClass = $expectedClass;
-        }
+        $targetClass = $this->resolveTargetClass($typeName, $context, $context->getExpectedTargetClass());
         if (null === $targetClass) {
             return null;
-        }
-        if (!is_a($targetClass, TypeInterface::class, true)) {
-            throw new \UnexpectedValueException(sprintf(
-                'Target type map returned "%s" for FHIR type "%s", but it does not implement %s.',
-                $targetClass,
-                $source->_getFHIRTypeName(),
-                TypeInterface::class,
-            ));
         }
 
         $target = new $targetClass();
@@ -155,7 +138,8 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
 
             $targetField = $targetFields[$fieldName];
             if ('Coding' === $typeName && 'version' === $fieldName && null !== $codeMapping
-                && ($codeMapping->isFailure() || $codeMapping->changesSystem())) {
+                && ($codeMapping->isFailure()
+                    || ($codeMapping->changesSystem() && null === $codeMapping->getTargetVersion()))) {
                 $this->handleUnmappedValue($context, $fieldName, $value);
                 continue;
             }
@@ -224,6 +208,12 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
             $targetHasValues = true;
         }
 
+        // A map can supply a target version even when the source Coding has no version element.
+        if (null !== ($mappedVersion = $codeMapping?->getTargetVersion())
+            && $this->setMappedVersion($target, $targetFields, $mappedVersion, $context)) {
+            $targetHasValues = true;
+        }
+
         foreach ($unmappedValues as $fieldName => $value) {
             if ($this->xverEmitter->emit($source, $target, $targetFields, $fieldName, $value, $context)) {
                 $targetHasValues = true;
@@ -242,6 +232,64 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
         }
 
         return $target;
+    }
+
+    /** @return null|class-string<TypeInterface> */
+    private function resolveTargetClass(
+        string $typeName,
+        TranslationContext $context,
+        null|string $expectedClass,
+    ): null|string {
+        $typeMap = $context->getTargetVersion()->getTypeMap();
+        $targetClass = $typeMap::getTypeClassname($typeName);
+        if (null !== $expectedClass
+            && (null === $targetClass || !is_a($targetClass, $expectedClass, true))
+            && (new \ReflectionClass($expectedClass))->isInstantiable()) {
+            $targetClass = $expectedClass;
+        }
+        if (null !== $targetClass && !is_a($targetClass, TypeInterface::class, true)) {
+            throw new \UnexpectedValueException(sprintf(
+                'Target type map returned "%s" for FHIR type "%s", but it does not implement %s.',
+                $targetClass,
+                $typeName,
+                TypeInterface::class,
+            ));
+        }
+        return $targetClass;
+    }
+
+    /** @param array<string, <?php echo $fieldMetadataClass->getFullyQualifiedName(true); ?>> $targetFields */
+    private function setMappedVersion(
+        TypeInterface $target,
+        array $targetFields,
+        string $version,
+        TranslationContext $context,
+    ): bool {
+        $field = $targetFields['version'] ?? null;
+        if (null === $field) {
+            $context->handleUnmappableField('version', 'string');
+            return false;
+        }
+        $getter = $field->getGetter();
+        $setter = $field->getSetter();
+        if (!method_exists($target, $getter) || !method_exists($target, $setter)) {
+            throw new \UnexpectedValueException('Mapped Coding.version must expose its configured getter and setter.');
+        }
+        $value = $target->{$getter}();
+        if (null === $value) {
+            $class = $this->resolveTargetClass('string', $context, $field->getType());
+            if (null === $class || !is_a($class, $field->getType(), true)) {
+                $context->handleUnmappableField('version', 'string');
+                return false;
+            }
+            $value = new $class();
+        }
+        if (!$value instanceof TypeInterface || !method_exists($value, 'setValue')) {
+            throw new \UnexpectedValueException('Mapped Coding.version must be a value-bearing FHIR type.');
+        }
+        $value->setValue($version);
+        $target->{$setter}($value);
+        return true;
     }
 
     private function handleUnmappedValue(TranslationContext $context, string $fieldName, mixed $value): void

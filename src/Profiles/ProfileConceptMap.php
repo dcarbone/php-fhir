@@ -33,7 +33,8 @@ final class ProfileConceptMap
     }
 
     /**
-     * @throws ProfileDefinitionException If the group, element or target lists are not lists.
+     * @param array<string, mixed> $resource
+     * @throws ProfileDefinitionException If the structure or code-system version metadata is malformed.
      */
     public static function fromResource(array $resource): self
     {
@@ -53,13 +54,36 @@ final class ProfileConceptMap
                 || '' === $rawGroup['target']) {
                 continue;
             }
+            $source = explode('|', $rawGroup['source'], 2);
+            $target = explode('|', $rawGroup['target'], 2);
+            if ('' === $source[0] || '' === $target[0]) {
+                throw new ProfileDefinitionException(sprintf('ConceptMap "%s" has an empty code-system URI.', $id));
+            }
             $groups[] = new ProfileConceptMapGroup(
-                $rawGroup['source'],
-                $rawGroup['target'],
+                $source[0],
+                $target[0],
                 self::_elements($id, $rawGroup['element'] ?? []),
+                self::_version($id, 'sourceVersion', $rawGroup['sourceVersion'] ?? null, $source[1] ?? null),
+                self::_version($id, 'targetVersion', $rawGroup['targetVersion'] ?? null, $target[1] ?? null),
             );
         }
         return new self($id, $groups);
+    }
+
+    private static function _version(
+        string $id,
+        string $field,
+        mixed $explicitVersion,
+        null|string $canonicalVersion,
+    ): null|string {
+        if ((null !== $explicitVersion && (!is_string($explicitVersion) || '' === $explicitVersion))
+            || '' === $canonicalVersion) {
+            throw new ProfileDefinitionException(sprintf('ConceptMap "%s" has an invalid "%s".', $id, $field));
+        }
+        if (null !== $explicitVersion && null !== $canonicalVersion && $explicitVersion !== $canonicalVersion) {
+            throw new ProfileDefinitionException(sprintf('ConceptMap "%s" has conflicting "%s" values.', $id, $field));
+        }
+        return $explicitVersion ?? $canonicalVersion;
     }
 
     /**
@@ -87,8 +111,13 @@ final class ProfileConceptMap
                 if (!is_array($target) || !isset($target['code']) || !is_string($target['code'])) {
                     continue;
                 }
-                // "equivalence" is the R4 name of "relationship".
-                if ('equivalent' === ($target['relationship'] ?? $target['equivalence'] ?? null)) {
+                if ([] !== ($target['dependsOn'] ?? []) || [] !== ($target['product'] ?? [])) {
+                    continue;
+                }
+                // R4 distinguishes exact equality; R5 folds it into equivalent.
+                $relationship = $target['relationship'] ?? null;
+                if ('equivalent' === $relationship
+                    || (null === $relationship && in_array($target['equivalence'] ?? null, ['equal', 'equivalent'], true))) {
                     $equivalent[$target['code']] = true;
                 }
             }

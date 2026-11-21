@@ -56,6 +56,7 @@ class Builder
 
     /**
      * Generate FHIR object classes based on XSD
+     * Test generation requires both $testFiles and a configured testsPath.
      *
      * @param bool $coreFiles If true, will generate core PHPFHIR classes, interfaces, traits, and enums.
      * @param null|array $versionNames Array of version names to limit generation to. If null, all configured versions will be generated.
@@ -73,11 +74,14 @@ class Builder
         if (null === $versionNames) {
             $versionNames = $this->config->getVersionNames();
         }
+        $testFiles = $testFiles && null !== $this->config->getTestsPath();
 
         // write php-fhir core entities
         if ($coreFiles) {
             $this->writeLibraryCoreEntities($versionNames);
-            $this->writeLibraryTestClasses();
+            if ($testFiles) {
+                $this->writeLibraryTestClasses();
+            }
         }
 
         // write fhir version core entities
@@ -353,11 +357,11 @@ class Builder
             }
 
             foreach ($packageReader->readCodeMaps($package) as $codeMap) {
-                $systemPairKey = $codeMap->getSourceSystem() . "\0" . $codeMap->getTargetSystem();
-                if (isset($codeMapsByHop[$hopKey][$systemPairKey])) {
-                    $codeMapsByHop[$hopKey][$systemPairKey] = $codeMapsByHop[$hopKey][$systemPairKey]->merge($codeMap);
+                $groupKey = $codeMap->getGroupKey();
+                if (isset($codeMapsByHop[$hopKey][$groupKey])) {
+                    $codeMapsByHop[$hopKey][$groupKey] = $codeMapsByHop[$hopKey][$groupKey]->merge($codeMap);
                 } else {
-                    $codeMapsByHop[$hopKey][$systemPairKey] = $codeMap;
+                    $codeMapsByHop[$hopKey][$groupKey] = $codeMap;
                 }
             }
 

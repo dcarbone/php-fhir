@@ -30,6 +30,8 @@ final class ProfileConceptMapGroup
         public readonly string $source,
         public readonly string $target,
         public readonly array $elements,
+        public readonly null|string $sourceVersion = null,
+        public readonly null|string $targetVersion = null,
     ) {
     }
 }

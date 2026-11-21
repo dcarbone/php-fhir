@@ -173,38 +173,71 @@ final class <?php echo $coreFile; ?>
             $versionInteger = $version->getFHIRVersionInteger();
             if (($direction > 0 && $versionInteger > $fromInteger && $versionInteger < $toInteger)
                 || ($direction < 0 && $versionInteger < $fromInteger && $versionInteger > $toInteger)) {
-                $intermediate[$versionInteger][] = $version;
+                $intermediate[] = $version;
+            }
+        }
+        usort($intermediate, static fn(VersionInterface $a, VersionInterface $b): int =>
+            $direction * ($a->getFHIRVersionInteger() <=> $b->getFHIRVersionInteger()));
+        $ordered = [$from, ...$intermediate, $to];
+
+        // Two shortest paths per version suffice to detect ambiguity without enumerating every route.
+        /** @var array<string, list<list<VersionInterface>>> $paths */
+        $paths = [$from->getName() => [[]]];
+        foreach ($ordered as $current) {
+            $currentPaths = $paths[$current->getName()] ?? [];
+            if ([] === $currentPaths) {
+                continue;
+            }
+            $currentInteger = $current->getFHIRVersionInteger();
+            $adjacentInteger = null;
+            $length = count($currentPaths[0]) + 1;
+            foreach ($ordered as $next) {
+                $nextInteger = $next->getFHIRVersionInteger();
+                if (($direction > 0 && $nextInteger <= $currentInteger)
+                    || ($direction < 0 && $nextInteger >= $currentInteger)) {
+                    continue;
+                }
+                $adjacentInteger ??= $nextInteger;
+                if ($nextInteger !== $adjacentInteger && null === HopMapRegistry::getMap($current, $next)) {
+                    continue;
+                }
+                $nextName = $next->getName();
+                $existing = $paths[$nextName] ?? [];
+                if ([] !== $existing && $length > count($existing[0])) {
+                    continue;
+                }
+                if ([] === $existing || $length < count($existing[0])) {
+                    $paths[$nextName] = [];
+                }
+                foreach ($currentPaths as $path) {
+                    if (2 === count($paths[$nextName])) {
+                        break;
+                    }
+                    $paths[$nextName][] = [...$path, $next];
+                }
             }
         }
 
-        foreach ($intermediate as $versionInteger => $sameReleaseVersions) {
-            if (count($sameReleaseVersions) > 1) {
-                $names = array_map(
+        $routes = $paths[$to->getName()] ?? [];
+        if ([] === $routes) {
+            throw new \LogicException('Expected a monotonic route between distinct generated releases.');
+        }
+        if (count($routes) > 1) {
+            $routeNames = array_map(
+                static fn(array $route): string => $from->getName() . ' -> ' . implode(' -> ', array_map(
                     static fn(VersionInterface $version): string => $version->getName(),
-                    $sameReleaseVersions,
-                );
-                throw new AmbiguousTranslationRouteException(sprintf(
-                    'Cannot automatically translate from "%s" to "%s": FHIR release integer %d has multiple generated variants (%s). Register a route/translator for the ambiguous hop.',
-                    $from->getName(),
-                    $to->getName(),
-                    $versionInteger,
-                    implode(', ', $names),
-                ));
-            }
+                    $route,
+                )),
+                $routes,
+            );
+            throw new AmbiguousTranslationRouteException(sprintf(
+                'Cannot automatically translate from "%s" to "%s": multiple shortest monotonic routes exist (%s). Register a direct translator.',
+                $from->getName(),
+                $to->getName(),
+                implode('; ', $routeNames),
+            ));
         }
-
-        if ($direction > 0) {
-            ksort($intermediate);
-        } else {
-            krsort($intermediate);
-        }
-
-        $chain = [];
-        foreach ($intermediate as $sameReleaseVersions) {
-            $chain[] = $sameReleaseVersions[0];
-        }
-        $chain[] = $to;
-        return $chain;
+        return $routes[0];
     }
 }
 <?php return ob_get_clean();

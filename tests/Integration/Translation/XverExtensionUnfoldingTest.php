@@ -86,6 +86,31 @@ class XverExtensionUnfoldingTest extends AbstractTranslationIntegrationTestCase
         self::assertEquals($original, self::roundTrip(self::R5_ACCOUNT_JSON, 'R5', 'R4'));
     }
 
+    public function testPackageBackedIntermediateHopsPreserveExtensionsOnALongerRoundTrip(): void
+    {
+        $translator = new Translator();
+        $source = self::parse('R5', self::R5_ACCOUNT_JSON);
+        $carried = $translator->translate($source, self::version('STU3'));
+        $account = self::decode($carried->getResource());
+
+        self::assertResourceVersion('STU3', $carried->getResource());
+        self::assertArrayNotHasKey('currency', $account);
+        self::assertArrayNotHasKey('balance', $account);
+        self::assertContains(
+            'http://hl7.org/fhir/5.0/StructureDefinition/extension-Account.currency',
+            array_column($account['extension'], 'url'),
+        );
+        self::assertContains(
+            'http://hl7.org/fhir/5.0/StructureDefinition/extension-Account.balance',
+            array_column($account['extension'], 'url'),
+        );
+
+        $restored = $translator->translate($carried->getResource(), self::version('R5'));
+        self::assertEquals(self::decode($source), self::decode($restored->getResource()));
+        self::assertSame([], $carried->getNotices());
+        self::assertSame([], $restored->getNotices());
+    }
+
     public function testAnEnumBoundCodeIsRestored(): void
     {
         $json = '{"resourceType":"Coverage","id":"c1","status":"active","kind":"insurance",'

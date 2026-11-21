@@ -22,8 +22,10 @@ use DCarbone\PHPFHIRGenerated\Translation\HopMapRegistry;
 use DCarbone\PHPFHIRGenerated\Translation\OnUnmappableFieldEnum;
 use DCarbone\PHPFHIRGenerated\Translation\TranslationConfig;
 use DCarbone\PHPFHIRGenerated\Translation\Translator;
+use DCarbone\PHPFHIRGenerated\Translation\UnmappableFieldException;
 use DCarbone\PHPFHIRGenerated\Types\TypeInterface;
 use DCarbone\PHPFHIRGenerated\Versions\R4\Types\FHIRResource\FHIRDomainResource\FHIRBasic as R4Basic;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Exercises Coding translation driven by the HL7 xver ConceptMaps ingested for the R5 -> R4 hop.
@@ -31,9 +33,9 @@ use DCarbone\PHPFHIRGenerated\Versions\R4\Types\FHIRResource\FHIRDomainResource\
 class CodeMappingTranslationTest extends AbstractTranslationIntegrationTestCase
 {
     private const R5_BASIC_JSON = '{"resourceType":"Basic","id":"b1","code":{"coding":['
-        . '{"system":"http://hl7.org/fhir/encounter-status","code":"on-hold"},'
-        . '{"system":"http://hl7.org/fhir/fhir-types","code":"DeviceUsage"},'
-        . '{"system":"http://hl7.org/fhir/observation-status","code":"mitigated"},'
+        . '{"system":"http://hl7.org/fhir/encounter-status","version":"5.0.0","code":"on-hold"},'
+        . '{"system":"http://hl7.org/fhir/fhir-types","version":"5.0.0","code":"DeviceUsage"},'
+        . '{"system":"http://hl7.org/fhir/observation-status","version":"5.0.0","code":"mitigated"},'
         . '{"system":"http://example.org","code":"x"}'
         . ']}}';
 
@@ -47,9 +49,9 @@ class CodeMappingTranslationTest extends AbstractTranslationIntegrationTestCase
         self::assertSame(
             [
                 // Mapped by the encounter-status ConceptMap.
-                ['system' => 'http://hl7.org/fhir/encounter-status', 'code' => 'onleave'],
+                ['system' => 'http://hl7.org/fhir/encounter-status', 'version' => '4.0.1', 'code' => 'onleave'],
                 // fhir-types has several ConceptMaps; only the one containing the code is used.
-                ['system' => 'http://hl7.org/fhir/resource-types', 'code' => 'DeviceUseStatement'],
+                ['system' => 'http://hl7.org/fhir/resource-types', 'version' => '4.0.1', 'code' => 'DeviceUseStatement'],
                 // observation-status "mitigated" has no R4 equivalent and is dropped.
                 // Systems without a ConceptMap pass through untouched.
                 ['system' => 'http://example.org', 'code' => 'x'],
@@ -57,17 +59,17 @@ class CodeMappingTranslationTest extends AbstractTranslationIntegrationTestCase
             self::decode($result->getResource())['code']['coding'],
         );
         self::assertSame(
-            ['Basic.code.coding.code R5->R4', 'Basic.code.coding R5->R4'],
+            ['Basic.code.coding.code R5->R4', 'Basic.code.coding.version R5->R4', 'Basic.code.coding R5->R4'],
             self::noticePaths($result),
         );
     }
 
-    public function testCodeSystemChangeDropsTheSourceSystemVersion(): void
+    public function testCodeSystemChangeUsesTheMappedTargetVersion(): void
     {
         $source = self::parse(
             'R5',
             '{"resourceType":"Basic","code":{"coding":[{"system":"http://hl7.org/fhir/fhir-types",'
-            . '"version":"source-version","code":"DeviceUsage"}]}}',
+            . '"version":"5.0.0","code":"DeviceUsage"}]}}',
         );
 
         $result = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::DROP)))
@@ -76,11 +78,8 @@ class CodeMappingTranslationTest extends AbstractTranslationIntegrationTestCase
 
         self::assertSame('http://hl7.org/fhir/resource-types', $coding['system']);
         self::assertSame('DeviceUseStatement', $coding['code']);
-        self::assertArrayNotHasKey('version', $coding);
-        self::assertContains(
-            'Basic.code.coding.version R5->R4',
-            self::noticePaths($result),
-        );
+        self::assertSame('4.0.1', $coding['version']);
+        self::assertSame([], $result->getNotices());
     }
 
     public function testCodingPrimitiveContainersAreUnwrappedWhenTheHopHasCodeMaps(): void
@@ -88,7 +87,7 @@ class CodeMappingTranslationTest extends AbstractTranslationIntegrationTestCase
         $source = self::parse(
             'R5',
             '{"resourceType":"Basic","id":"b2","code":{"coding":['
-            . '{"system":"http://hl7.org/fhir/encounter-status","code":"on-hold"},'
+            . '{"system":"http://hl7.org/fhir/encounter-status","version":"5.0.0","code":"on-hold"},'
             . '{"system":"http://example.org","code":"123"}'
             . ']}}',
         );
@@ -103,11 +102,55 @@ class CodeMappingTranslationTest extends AbstractTranslationIntegrationTestCase
 
         self::assertSame(
             [
-                ['system' => 'http://hl7.org/fhir/encounter-status', 'code' => 'onleave'],
+                ['system' => 'http://hl7.org/fhir/encounter-status', 'version' => '4.0.1', 'code' => 'onleave'],
                 ['system' => 'http://example.org', 'code' => '123'],
             ],
             self::decode($result->getResource())['code']['coding'],
         );
+        self::assertSame([], $result->getNotices());
+    }
+
+    /** @return array<string, array{null|string}> */
+    public static function incompatibleSourceVersionsProvider(): array
+    {
+        return [
+            'missing source version' => [null],
+            'different source version' => ['4.0.1'],
+        ];
+    }
+
+    #[DataProvider('incompatibleSourceVersionsProvider')]
+    public function testVersionSpecificMapsRejectMissingOrDifferentSourceVersions(null|string $version): void
+    {
+        $source = self::parse(
+            'R5',
+            '{"resourceType":"Basic","code":{"coding":[{"system":"http://hl7.org/fhir/encounter-status","code":"on-hold"'
+            . (null === $version ? '' : ',"version":' . json_encode($version, JSON_THROW_ON_ERROR))
+            . '}]}}',
+        );
+
+        $this->expectException(UnmappableFieldException::class);
+        $this->expectExceptionMessage('Basic.code.coding.code');
+        (new Translator(new TranslationConfig(OnUnmappableFieldEnum::THROW)))
+            ->translate($source, self::version('R4'));
+    }
+
+    public function testR5ToStu3UsesPackageBackedIntermediateMaps(): void
+    {
+        $source = self::parse(
+            'R5',
+            '{"resourceType":"Basic","code":{"coding":[{"system":"http://hl7.org/fhir/encounter-status",'
+            . '"version":"5.0.0","code":"on-hold"}]}}',
+        );
+
+        $result = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::THROW)))
+            ->translate($source, self::version('STU3'));
+
+        self::assertResourceVersion('STU3', $result->getResource());
+        // R4 -> STU3 has no map for this system, so the R4 code-system version is retained.
+        self::assertSame([
+            ['system' => 'http://hl7.org/fhir/encounter-status', 'version' => '4.0.1', 'code' => 'onleave'],
+        ], self::decode($result->getResource())['code']['coding']);
         self::assertSame([], $result->getNotices());
     }
 
