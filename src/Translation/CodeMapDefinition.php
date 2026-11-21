@@ -63,7 +63,7 @@ final class CodeMapDefinition
                 $codeMappings[$sourceCode] = $targetCode;
             }
         }
-        ksort($codeMappings);
+        ksort($codeMappings, SORT_STRING);
 
         return new self($this->sourceSystem, $this->targetSystem, $codeMappings);
     }

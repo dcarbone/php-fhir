@@ -85,8 +85,9 @@ final class TranslationPackageReader
                             $equivalentTargets[$target['code']] = true;
                         }
                     }
+                    // Numeric codes become integer array keys, so restore them to strings.
                     $targetCodes = array_keys($equivalentTargets);
-                    $targetCode = 1 === count($targetCodes) ? $targetCodes[0] : null;
+                    $targetCode = 1 === count($targetCodes) ? (string)$targetCodes[0] : null;
 
                     $sourceSystem = $group['source'];
                     $targetSystem = $group['target'];
@@ -105,7 +106,7 @@ final class TranslationPackageReader
         $definitions = [];
         foreach ($grouped as $sourceSystem => $targetSystems) {
             foreach ($targetSystems as $targetSystem => $codeMappings) {
-                ksort($codeMappings);
+                ksort($codeMappings, SORT_STRING);
                 $definitions[] = new CodeMapDefinition($sourceSystem, $targetSystem, $codeMappings);
             }
         }

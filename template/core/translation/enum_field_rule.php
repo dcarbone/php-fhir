@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
+
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
 
@@ -28,6 +30,8 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 enum <?php echo $coreFile; ?>: string
 {
-    case UNMAPPABLE = 'unmappable';
+<?php foreach (TranslationFieldRuleEnum::cases() as $case) : ?>
+    case <?php echo $case->name; ?> = <?php echo var_export($case->value, true); ?>;
+<?php endforeach; ?>
 }
 <?php return ob_get_clean();

@@ -18,10 +18,12 @@ namespace DCarbone\PHPFHIR\Translation;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
+
 final class HopMapDefinition
 {
     /**
-     * @param array<string, array<string, string>> $fieldRules FHIR type name => field name => rule
+     * @param array<string, array<string, \DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum>> $fieldRules FHIR type name => field name => rule
      * @param array<string, string> $typeRenames Source FHIR type name => target FHIR type name
      * @param string[] $removedTypes
      * @param \DCarbone\PHPFHIR\Translation\CodeMapDefinition[] $codeMaps
@@ -32,9 +34,22 @@ final class HopMapDefinition
         private readonly array $removedTypes,
         private readonly array $codeMaps = [],
     ) {
+        foreach ($fieldRules as $typeName => $fields) {
+            foreach ($fields as $fieldName => $rule) {
+                if (!$rule instanceof TranslationFieldRuleEnum) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Field rule for "%s.%s" must be a %s, %s given.',
+                        $typeName,
+                        $fieldName,
+                        TranslationFieldRuleEnum::class,
+                        get_debug_type($rule),
+                    ));
+                }
+            }
+        }
     }
 
-    /** @return array<string, array<string, string>> */
+    /** @return array<string, array<string, \DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum>> */
     public function getFieldRules(): array
     {
         return $this->fieldRules;

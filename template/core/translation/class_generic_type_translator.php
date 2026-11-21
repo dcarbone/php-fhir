@@ -111,7 +111,7 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
         $codeMappingFailed = false;
         $mappedSystem = null;
         $mappedCode = null;
-        if ('Coding' === $typeName && null !== $hopMap) {
+        if ('Coding' === $typeName && null !== $hopMap && [] !== $hopMap->getCodeMaps()) {
             $sourceSystem = $this->getStringFieldValue($source, $sourceFields, 'system');
             $sourceCode = $this->getStringFieldValue($source, $sourceFields, 'code');
             if (null !== $sourceSystem && null !== $sourceCode) {

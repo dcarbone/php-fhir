@@ -25,8 +25,16 @@ $coreFiles = $config->getCoreFiles();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $fieldMetadataClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_FIELD_METADATA);
 $factoryInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_INTERFACE_FIELD_METADATA_FACTORY);
+$containedTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_CONTAINED_TYPE);
+$resourceContainerTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_CONTAINER_TYPE);
 $imports = $coreFile->getImports();
-$imports->addCoreFileImports($typeInterface, $fieldMetadataClass, $factoryInterface);
+$imports->addCoreFileImports(
+    $typeInterface,
+    $fieldMetadataClass,
+    $factoryInterface,
+    $containedTypeInterface,
+    $resourceContainerTypeInterface,
+);
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -66,19 +74,55 @@ final class <?php echo $coreFile; ?> implements FieldMetadataFactoryInterface
                 }
 
                 $fieldName = $property->getName();
+                $setter = 'set' . ucfirst($fieldName);
+                if (is_a($fieldType, <?php echo $resourceContainerTypeInterface; ?>::class, true)) {
+                    // Resource container fields hold the unwrapped resource, so describe them by the contained
+                    // resource interface their setter accepts rather than the container wrapper class.
+                    $fieldType = $this->getContainedType($reflection, $setter);
+                }
                 $propertyType = $property->getType();
                 $fields[$fieldName] = new FieldMetadata(
                     type: $fieldType,
                     collection: $propertyType instanceof \ReflectionNamedType
                         && 'array' === $propertyType->getName(),
                     getter: 'get' . ucfirst($fieldName),
-                    setter: 'set' . ucfirst($fieldName),
+                    setter: $setter,
                 );
                 break;
             }
         }
 
         return $this->_cache[$className] = $fields;
+    }
+
+    /**
+     * @return class-string<<?php echo $containedTypeInterface; ?>>
+     */
+    private function getContainedType(\ReflectionClass $reflection, string $setter): string
+    {
+        if ($reflection->hasMethod($setter)) {
+            $parameters = $reflection->getMethod($setter)->getParameters();
+            $parameterType = isset($parameters[0]) ? $parameters[0]->getType() : null;
+            $namedTypes = match (true) {
+                $parameterType instanceof \ReflectionNamedType => [$parameterType],
+                $parameterType instanceof \ReflectionUnionType => $parameterType->getTypes(),
+                default => [],
+            };
+            foreach ($namedTypes as $namedType) {
+                if ($namedType instanceof \ReflectionNamedType
+                    && !$namedType->isBuiltin()
+                    && is_a($namedType->getName(), <?php echo $containedTypeInterface; ?>::class, true)) {
+                    return $namedType->getName();
+                }
+            }
+        }
+
+        throw new \UnexpectedValueException(sprintf(
+            'Generated type "%s" resource container setter "%s()" must accept a %s.',
+            $reflection->getName(),
+            $setter,
+            <?php echo $containedTypeInterface; ?>::class,
+        ));
     }
 }
 <?php return ob_get_clean();

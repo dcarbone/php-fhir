@@ -18,6 +18,7 @@ namespace DCarbone\PHPFHIR\Translation;
  * limitations under the License.
  */
 
+use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Version;
 use DCarbone\PHPFHIR\Version\Definition\Type;
@@ -47,7 +48,7 @@ final class HopMapBuilder
             $targetFields = $this->getPropertiesByName($targetTypes[$typeName]);
             foreach ($this->getPropertiesByName($sourceType) as $fieldName => $_property) {
                 if (!isset($targetFields[$fieldName])) {
-                    $fieldRules[$typeName][$fieldName] = 'unmappable';
+                    $fieldRules[$typeName][$fieldName] = TranslationFieldRuleEnum::UNMAPPABLE;
                 }
             }
         }

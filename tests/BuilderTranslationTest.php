@@ -20,10 +20,13 @@ namespace DCarbone\PHPFHIRTests;
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Config\TranslationPackageConfig;
+use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Translation\CodeMapDefinition;
 use DCarbone\PHPFHIR\Translation\HopMapBuilder;
 use DCarbone\PHPFHIR\Translation\HopMapDefinition;
+use DCarbone\PHPFHIR\Translation\TranslationPackageReader;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Version\Definition;
 use DCarbone\PHPFHIR\Version\Definition\Property;
@@ -196,14 +199,14 @@ class BuilderTranslationTest extends TestCase
 
         self::assertInstanceOf(HopMapDefinition::class, $definition);
         self::assertSame(['OldResource'], $definition->getRemovedTypes());
-        self::assertSame(['Patient' => ['active' => 'unmappable']], $definition->getFieldRules());
+        self::assertSame(['Patient' => ['active' => TranslationFieldRuleEnum::UNMAPPABLE]], $definition->getFieldRules());
         self::assertSame([], $definition->getTypeRenames());
 
         $generated = $builder->renderMapDefinition($r4, $r5, $definition);
         self::assertNotEmpty(token_get_all($generated, TOKEN_PARSE));
         self::assertStringContainsString('final class HopMap_R4ToR5', $generated);
         self::assertStringContainsString("'Patient' =>", $generated);
-        self::assertStringContainsString("'active' => 'unmappable'", $generated);
+        self::assertStringContainsString("'active' => FieldRuleEnum::UNMAPPABLE", $generated);
         self::assertStringContainsString("'OldResource',", $generated);
         $reverse = $builder->build($targetTypes, $sourceTypes);
         self::assertSame([], $reverse->getRemovedTypes());
@@ -217,14 +220,14 @@ class BuilderTranslationTest extends TestCase
     public function testHopMapDefinitionIsAnImmutableTypedDescriptor(): void
     {
         $definition = new HopMapDefinition(
-            fieldRules: ['Patient' => ['active' => 'unmappable']],
+            fieldRules: ['Patient' => ['active' => TranslationFieldRuleEnum::UNMAPPABLE]],
             typeRenames: ['OldType' => 'NewType'],
             removedTypes: ['OldResource'],
         );
 
         $fieldRules = $definition->getFieldRules();
         $fieldRules['Patient']['active'] = 'changed';
-        self::assertSame(['Patient' => ['active' => 'unmappable']], $definition->getFieldRules());
+        self::assertSame(['Patient' => ['active' => TranslationFieldRuleEnum::UNMAPPABLE]], $definition->getFieldRules());
         self::assertSame(['OldType' => 'NewType'], $definition->getTypeRenames());
         self::assertSame(['OldResource'], $definition->getRemovedTypes());
         foreach (['fieldRules', 'typeRenames', 'removedTypes'] as $name) {
@@ -319,6 +322,105 @@ class BuilderTranslationTest extends TestCase
             $libraryPath,
             $config->getFullyQualifiedName(false, 'Translation', 'Maps', 'HopMap_R5ToR4'),
         )));
+    }
+
+    public function testTranslationPackageReaderKeepsNumericCodesAsStrings(): void
+    {
+        $packagePath = $this->_tmpdir->path('numeric-package/package');
+        mkdir($packagePath, 0777, true);
+        file_put_contents($packagePath . '/package.json', json_encode([
+            'name' => 'example.numeric',
+            'version' => '1.0.0',
+        ], JSON_THROW_ON_ERROR));
+        file_put_contents($packagePath . '/ConceptMap-numeric.json', json_encode([
+            'resourceType' => 'ConceptMap',
+            'id' => 'numeric',
+            'group' => [[
+                'source' => 'http://example.org/source',
+                'target' => 'http://example.org/target',
+                'element' => [
+                    ['code' => '100', 'target' => [['code' => '123', 'relationship' => 'equivalent']]],
+                    ['code' => 'b', 'target' => [['code' => '7', 'equivalence' => 'equivalent']]],
+                    ['code' => 'a', 'target' => [['code' => 'z', 'relationship' => 'equivalent']]],
+                ],
+            ]],
+        ], JSON_THROW_ON_ERROR));
+
+        $codeMaps = (new TranslationPackageReader())->readCodeMaps(
+            new TranslationPackageConfig('R4', 'R5', $this->_tmpdir->path('numeric-package')),
+        );
+
+        self::assertCount(1, $codeMaps);
+        $mappings = $codeMaps[0]->getCodeMappings();
+        self::assertSame(['100', 'a', 'b'], array_map('strval', array_keys($mappings)));
+        self::assertSame('123', $mappings['100']);
+        self::assertSame('7', $mappings['b']);
+        self::assertSame('z', $mappings['a']);
+
+        $generated = (new HopMapBuilder())->renderMapDefinition(
+            $this->config()->getVersion('R4'),
+            $this->config()->getVersion('R5'),
+            new HopMapDefinition([], [], [], $codeMaps),
+        );
+        self::assertStringContainsString("100 => '123'", $generated);
+        self::assertStringContainsString("'b' => '7'", $generated);
+    }
+
+    public function testHopMapDefinitionRejectsUntypedFieldRules(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Field rule for "Patient.active" must be a');
+        new HopMapDefinition(['Patient' => ['active' => 'unmappable']], [], []);
+    }
+
+    public function testGeneratedFieldRuleEnumAndHopMapRenderGeneratorEnumCases(): void
+    {
+        $config = $this->config();
+        (new Builder($config))->writeLibraryCoreEntities(['R4', 'R5']);
+
+        $enumFile = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_ENUM_FIELD_RULE);
+        $enum = file_get_contents($enumFile->getFilepath());
+        self::assertIsString($enum);
+        foreach (TranslationFieldRuleEnum::cases() as $case) {
+            self::assertStringContainsString(
+                sprintf('case %s = %s;', $case->name, var_export($case->value, true)),
+                $enum,
+            );
+        }
+
+        $generated = (new HopMapBuilder())->renderMapDefinition(
+            $config->getVersion('R4'),
+            $config->getVersion('R5'),
+            new HopMapDefinition(['Patient' => ['active' => TranslationFieldRuleEnum::UNMAPPABLE]], [], []),
+        );
+        self::assertStringContainsString('return self::_FIELD_RULES;', $generated);
+        self::assertStringNotContainsString('::from(', $generated);
+    }
+
+    public function testVersionRegistryMatchesNestedVersionNamespacesMostSpecificFirst(): void
+    {
+        foreach (['nested-out', 'nested-r4', 'nested-custom'] as $name) {
+            mkdir($this->_tmpdir->path($name), 0777, true);
+        }
+        $config = Config::fromArray([
+            'libraryPath' => $this->_tmpdir->path('nested-out'),
+            'versions' => [
+                ['name' => 'R4', 'schemaPath' => $this->_tmpdir->path('nested-r4')],
+                ['name' => 'R4Custom', 'namespace' => 'R4\\Custom', 'schemaPath' => $this->_tmpdir->path('nested-custom')],
+            ],
+        ]);
+        (new Builder($config))->writeLibraryCoreEntities(['R4', 'R4Custom']);
+
+        $registryFile = $config->getCoreFiles()
+            ->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_VERSION_REGISTRY);
+        $contents = file_get_contents($registryFile->getFilepath());
+        self::assertIsString($contents);
+        $customPosition = strpos($contents, var_export($config->getVersion('R4Custom')->getFullyQualifiedName(false), true));
+        $r4Position = strpos($contents, var_export($config->getVersion('R4')->getFullyQualifiedName(false), true) . ' =>');
+        self::assertIsInt($customPosition);
+        self::assertIsInt($r4Position);
+        self::assertLessThan($r4Position, $customPosition);
+        self::assertStringNotContainsString('->value', $contents);
     }
 
     public function testHopMapRendererRejectsArrayDefinitions(): void

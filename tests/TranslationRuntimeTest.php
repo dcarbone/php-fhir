@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIRTests;
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
+use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Translation\HopMapDefinition;
 use DCarbone\PHPFHIR\Version\Definition;
@@ -585,8 +586,11 @@ class TranslationRuntimeTest extends TestCase
         $r5 = $config->getVersion('R5');
         $definition = new HopMapDefinition(
             fieldRules: [
-                'HumanName' => ['legacy' => 'unmappable', 'oldOptMask' => 'unmappable'],
-                "Quoted'Type" => ["a\\b" => 'unmappable'],
+                'HumanName' => [
+                    'legacy' => TranslationFieldRuleEnum::UNMAPPABLE,
+                    'oldOptMask' => TranslationFieldRuleEnum::UNMAPPABLE,
+                ],
+                "Quoted'Type" => ["a\\b" => TranslationFieldRuleEnum::UNMAPPABLE],
             ],
             typeRenames: ['oldOptMask' => 'newType', "old'\\Type" => 'newType'],
             removedTypes: ['HumanName', "old'\\Type"],

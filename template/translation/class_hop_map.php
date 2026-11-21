@@ -66,7 +66,7 @@ final class <?php echo $className; ?> implements <?php echo $hopMapInterface; ?>
 <?php foreach ($definition->getFieldRules() as $typeName => $fields) : ?>
         <?php echo var_export($typeName, true); ?> => [
 <?php foreach ($fields as $fieldName => $rule) : ?>
-            <?php echo var_export($fieldName, true); ?> => <?php echo var_export($rule, true); ?>,
+            <?php echo var_export($fieldName, true); ?> => <?php echo $fieldRule; ?>::<?php echo $rule->name; ?>,
 <?php endforeach; ?>
         ],
 <?php endforeach; ?>
@@ -98,13 +98,7 @@ final class <?php echo $className; ?> implements <?php echo $hopMapInterface; ?>
 
     public function getFieldRules(): array
     {
-        $rules = [];
-        foreach (self::_FIELD_RULES as $typeName => $fields) {
-            foreach ($fields as $fieldName => $rule) {
-                $rules[$typeName][$fieldName] = <?php echo $fieldRule; ?>::from($rule);
-            }
-        }
-        return $rules;
+        return self::_FIELD_RULES;
     }
 
     public function getTypeRenames(): array

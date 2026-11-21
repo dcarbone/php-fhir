@@ -34,6 +34,8 @@ foreach ($versionNames as $versionName) {
     $versionClass = $version->getVersionCoreFiles()->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION);
     $versionClasses[$version->getFullyQualifiedName(false)] = $versionClass->getFullyQualifiedName(false);
 }
+// Version namespaces may be nested (e.g. "R4" and "R4\Custom"), so the most specific namespace must be matched first.
+uksort($versionClasses, static fn(string $a, string $b): int => strlen($b) <=> strlen($a) ?: strcmp($a, $b));
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -83,8 +85,8 @@ final class <?php echo $coreFile; ?>
                 throw new \UnexpectedValueException(sprintf(
                     'FHIR version mismatch for generated type "%s": namespace resolves to %s, type reports %s.',
                     $typeClass,
-                    $version::getFHIRVersion()->value,
-                    $type->_getFHIRVersion()->value,
+                    (string)$version::getFHIRVersion(),
+                    (string)$type->_getFHIRVersion(),
                 ));
             }
             return $version;
