@@ -149,3 +149,53 @@ jobs:
         continue-on-error: true
         # language=sh
         run: "composer rector:generated:dry-run"
+
+  translation:
+    runs-on: "ubuntu-latest"
+    needs:
+      - "load-fhir-source"
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - '8.1'
+          - '8.2'
+          - '8.3'
+          - '8.4'
+          - '8.5'
+    name: 'Translation - PHP ${{ matrix.php-version }}'
+    steps:
+      - uses: "actions/checkout@v7"
+      - name: 'Bootstrap'
+        uses: "./.github/actions/bootstrap"
+        with:
+          php-version: '${{ matrix.php-version }}'
+      - name: 'Load FHIR DSTU1 Source'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'DSTU1'
+      - name: 'Load FHIR DSTU2 Source'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'DSTU2'
+      - name: 'Load FHIR STU3 Source'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'STU3'
+      - name: 'Load FHIR R4 Source'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'R4'
+      - name: 'Load FHIR R4B Source'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'R4B'
+      - name: 'Load FHIR R5 Source'
+        uses: "./.github/actions/load-fhir-xsd"
+        with:
+          version: 'R5'
+      - name: 'Load FHIR Profile Packages'
+        uses: "./.github/actions/load-fhir-profiles"
+      - name: 'Run tests'
+        # language=sh
+        run: "./vendor/bin/phpunit -c 'phpunit/Translation.xml'"

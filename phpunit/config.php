@@ -22,6 +22,22 @@ return array_merge(
     match (getenv('PHPFHIR_TEST_TARGET')) {
         'Core' => ['versions' => []],
         'Versions' => [],
+        'Translation' => [
+            'versions' => array_map(
+                static fn(string $name): array => [
+                    'name' => $name,
+                    'schemaPath' => __DIR__ . '/../input/' . $name,
+                ],
+                ['DSTU1', 'DSTU2', 'STU3', 'R4', 'R4B', 'R5'],
+            ),
+            'translationPackages' => [
+                [
+                    'sourceVersion' => 'R5',
+                    'targetVersion' => 'R4',
+                    'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.xver-r5.r4/package.tgz',
+                ],
+            ],
+        ],
         default => [
             'versions' => [
                 [

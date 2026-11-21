@@ -66,6 +66,7 @@ final class <?php echo $coreFile; ?>
         private readonly TypeTranslatorInterface $translator,
         private readonly TranslationNoticeCollector $notices,
         private readonly null|HopMapInterface $hopMap = null,
+        private readonly null|string $expectedTargetClass = null,
     ) {
     }
 
@@ -94,6 +95,17 @@ final class <?php echo $coreFile; ?>
         return $this->hopMap;
     }
 
+    /**
+     * Class declared by the target field currently being populated, if any.  Translators should produce an
+     * instance of this class when the source type differs from the target field's declared type.
+     *
+     * @return null|class-string<TypeInterface>
+     */
+    public function getExpectedTargetClass(): null|string
+    {
+        return $this->expectedTargetClass;
+    }
+
     public function translate(TypeInterface $source): null|TypeInterface
     {
         $translated = $this->translator->translate($source, $this);
@@ -105,7 +117,12 @@ final class <?php echo $coreFile; ?>
         return null;
     }
 
-    public function translateField(string $fieldName, TypeInterface $source): null|TypeInterface
+    /**
+     * @param null|class-string<TypeInterface> $expectedTargetClass
+     */
+    public function translateField(string $fieldName,
+                                   TypeInterface $source,
+                                   null|string $expectedTargetClass = null): null|TypeInterface
     {
         $path = '' === $this->path ? $fieldName : $this->path . '.' . $fieldName;
         $context = new self(
@@ -116,6 +133,7 @@ final class <?php echo $coreFile; ?>
             $this->translator,
             $this->notices,
             $this->hopMap,
+            $expectedTargetClass,
         );
         return $context->translate($source);
     }

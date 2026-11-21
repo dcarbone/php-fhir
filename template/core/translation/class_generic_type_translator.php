@@ -24,6 +24,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 $coreFiles = $config->getCoreFiles();
 $typeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_TYPE);
 $leafTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_LEAF_TYPE);
+$resourceTypeInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_RESOURCE_TYPE);
 $contextClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_CONTEXT);
 $fieldMetadataClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_FIELD_METADATA);
 $fieldMetadataFactoryClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_FIELD_METADATA_FACTORY);
@@ -34,6 +35,7 @@ $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $typeInterface,
     $leafTypeInterface,
+    $resourceTypeInterface,
     $contextClass,
     $fieldMetadataFactoryClass,
     $fieldMetadataFactoryInterface,
@@ -61,13 +63,20 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
     {
         $typeName = $source->_getFHIRTypeName();
         $hopMap = $context->getHopMap();
-        if (null !== $hopMap && in_array($typeName, $hopMap->getRemovedTypes(), true)) {
-            return null;
+        $targetClass = null;
+        if (null === $hopMap || !in_array($typeName, $hopMap->getRemovedTypes(), true)) {
+            $targetTypeName = $hopMap?->getTypeRenames()[$typeName] ?? $typeName;
+            $typeMap = $context->getTargetVersion()->getTypeMap();
+            $targetClass = $typeMap::getTypeClassname($targetTypeName);
         }
-
-        $targetTypeName = $hopMap?->getTypeRenames()[$typeName] ?? $typeName;
-        $typeMap = $context->getTargetVersion()->getTypeMap();
-        $targetClass = $typeMap::getTypeClassname($targetTypeName);
+        $expectedClass = $context->getExpectedTargetClass();
+        if (null !== $expectedClass
+            && (null === $targetClass || !is_a($targetClass, $expectedClass, true))
+            && (new \ReflectionClass($expectedClass))->isInstantiable()) {
+            // The target field declares a different type than the source value (e.g. date -> dateTime), so
+            // translate into the declared type and copy whatever compatible fields it shares.
+            $targetClass = $expectedClass;
+        }
         if (null === $targetClass) {
             return null;
         }
@@ -81,7 +90,10 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
         }
 
         $target = new $targetClass();
-        if ($source instanceof LeafTypeInterface) {
+        if ($source instanceof LeafTypeInterface || $target instanceof LeafTypeInterface) {
+            if (!$source instanceof LeafTypeInterface || !$target instanceof LeafTypeInterface) {
+                return null;
+            }
             if (!method_exists($source, 'getValue') || !method_exists($target, 'setValue')) {
                 throw new \UnexpectedValueException(sprintf(
                     'FHIR leaf type "%s" must expose getValue() and setValue().',
@@ -103,7 +115,8 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
             $sourceSystem = $this->getStringFieldValue($source, $sourceFields, 'system');
             $sourceCode = $this->getStringFieldValue($source, $sourceFields, 'code');
             if (null !== $sourceSystem && null !== $sourceCode) {
-                $matchingCodeMaps = [];
+                $sourceSystemMatched = false;
+                $candidateTargets = [];
                 foreach ($hopMap->getCodeMaps() as $codeMap) {
                     if (!$codeMap instanceof CodeMap) {
                         throw new \UnexpectedValueException(sprintf(
@@ -112,16 +125,24 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
                             CodeMap::class,
                         ));
                     }
-                    if ($codeMap->getSourceSystem() === $sourceSystem) {
-                        $matchingCodeMaps[] = $codeMap;
+                    if ($codeMap->getSourceSystem() !== $sourceSystem) {
+                        continue;
+                    }
+                    $sourceSystemMatched = true;
+                    // A source system may have several maps (e.g. fhir-types -> data-types and -> resource-types);
+                    // only maps that actually translate this code are candidates.
+                    if ($codeMap->hasSourceCode($sourceCode)
+                        && null !== ($candidateCode = $codeMap->getTargetCode($sourceCode))) {
+                        $candidateTargets[$codeMap->getTargetSystem() . '|' . $candidateCode] = [
+                            $codeMap->getTargetSystem(),
+                            $candidateCode,
+                        ];
                     }
                 }
-                if ([] !== $matchingCodeMaps) {
+                if ($sourceSystemMatched) {
                     $codeMappingApplied = true;
-                    if (1 === count($matchingCodeMaps)
-                        && $matchingCodeMaps[0]->hasSourceCode($sourceCode)
-                        && null !== ($mappedCode = $matchingCodeMaps[0]->getTargetCode($sourceCode))) {
-                        $mappedSystem = $matchingCodeMaps[0]->getTargetSystem();
+                    if (1 === count($candidateTargets)) {
+                        [$mappedSystem, $mappedCode] = reset($candidateTargets);
                     } else {
                         $this->handleUnmappedValue($context, 'code', $sourceCode);
                         $codeMappingFailed = true;
@@ -129,6 +150,8 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
                 }
             }
         }
+        $sourceHasValues = false;
+        $targetHasValues = false;
         foreach ($sourceFields as $fieldName => $sourceField) {
             $getter = $sourceField->getGetter();
             if (!method_exists($source, $getter)) {
@@ -143,6 +166,7 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
             if (null === $value || [] === $value) {
                 continue;
             }
+            $sourceHasValues = true;
             if (!isset($targetFields[$fieldName])) {
                 $rule = $fieldRules[$fieldName] ?? FieldRuleEnum::UNMAPPABLE;
                 if (FieldRuleEnum::UNMAPPABLE === $rule) {
@@ -172,7 +196,7 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
             $translatedValues = [];
             foreach ($values as $item) {
                 if ($item instanceof TypeInterface) {
-                    $translated = $context->translateField($fieldName, $item);
+                    $translated = $context->translateField($fieldName, $item, $targetField->getType());
                     if (null === $translated) {
                         continue;
                     }
@@ -216,6 +240,12 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
             } else {
                 $target->{$setter}($translatedValues[0]);
             }
+            $targetHasValues = true;
+        }
+
+        // Resources always yield an instance; only non-resource elements collapse to null when nothing was copied.
+        if ($sourceHasValues && !$targetHasValues && !$target instanceof ResourceTypeInterface) {
+            return null;
         }
 
         return $target;
@@ -263,7 +293,10 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
                 $getter,
             ));
         }
-        $value = $value->getValue();
+        // Elements wrap primitives (e.g. uri -> uri-primitive), so unwrap until a scalar is reached.
+        do {
+            $value = $value->getValue();
+        } while ($value instanceof TypeInterface && method_exists($value, 'getValue'));
         if (null !== $value && !is_string($value)) {
             throw new \UnexpectedValueException(sprintf(
                 'FHIR field "%s::%s()" must contain a string value.',

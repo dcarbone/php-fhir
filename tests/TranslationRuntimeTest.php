@@ -295,10 +295,8 @@ class TranslationRuntimeTest extends TestCase
             $hopMap,
         );
         $unmapped = $unmappedContext->translate($unmappedSource);
-        self::assertInstanceOf(R5Coding::class, $unmapped);
-        self::assertNull($unmapped->getSystem());
-        self::assertNull($unmapped->getCode());
-        self::assertCount(1, $unmappedNotices->getNotices());
+        self::assertNull($unmapped);
+        self::assertCount(2, $unmappedNotices->getNotices());
 
         $noMapContext = new TranslationContext(
             new R4Version(),
@@ -700,10 +698,15 @@ class TranslationRuntimeTest extends TestCase
         $source = (new R4Patient())->setName((new R4Name())->setFamily(new R4Leaf('family')));
 
         $result = $translator->translate($source, new R5Version());
-        self::assertNull($result->getResource()->getName()->getFamily());
-        self::assertCount(1, $result->getNotices());
-        self::assertSame('Patient.name.family', $result->getNotices()[0]->getPath());
-        self::assertSame('dropped', $result->getNotices()[0]->getKind());
+        self::assertInstanceOf(R5Patient::class, $result->getResource());
+        self::assertNull($result->getResource()->getName());
+        self::assertSame(
+            ['Patient.name.family', 'Patient.name'],
+            array_map(static fn($notice) => $notice->getPath(), $result->getNotices()),
+        );
+        foreach ($result->getNotices() as $notice) {
+            self::assertSame('dropped', $notice->getKind());
+        }
     }
 
     public function testContextTranslateReentersTheDispatcherAtTheCurrentPath(): void

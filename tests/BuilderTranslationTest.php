@@ -94,7 +94,7 @@ class BuilderTranslationTest extends TestCase
         $genericTranslatorContents = file_get_contents($genericTranslator->getFilepath());
         self::assertIsString($genericTranslatorContents);
         self::assertStringContainsString(
-            'if ($source instanceof LeafTypeInterface)',
+            'if ($source instanceof LeafTypeInterface || $target instanceof LeafTypeInterface)',
             $genericTranslatorContents,
         );
 

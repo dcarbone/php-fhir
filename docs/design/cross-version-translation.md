@@ -150,8 +150,10 @@ shared across all contexts and hops in one translation.
 The default engine. One class, no per-type knowledge:
 
 1. Apply the current hop's removed-type and rename rules, then resolve the target class via the
-   target `VersionTypeMap::getTypeClassname()`. If the type is removed or no target class exists,
-   return `null`.
+   target `VersionTypeMap::getTypeClassname()`. When the parent field's target type is known,
+   `TranslationContext::getExpectedTargetClass()` overrides the name-based lookup, so a value is
+   coerced to the type the target field declares (for example, R4 `code` into an R5
+   `AdministrativeGender` field). If no target class exists, return `null`.
 2. If the source implements `LeafTypeInterface`, copy `$source->getValue()` into the target.
    This empty marker extends `TypeInterface` and is shared by primitives (through
    `PrimitiveTypeInterface`) and XHTML. Primitives retain their `ValueContainerTypeInterface`
@@ -159,8 +161,11 @@ The default engine. One class, no per-type knowledge:
    `Type::isLeafType()` for shared leaf handling, excluding primitive containers.
 3. Otherwise, instantiate the target class and copy fields with the same name discovered through
    `FieldMetadataFactory`, recursively translating nested `TypeInterface` values.
-4. If a source field is not present on the target, apply its hop-map rule and the configured
-   `OnUnmappableFieldEnum` policy. `EXTENSION` throws `MissingXverDefinitionException` until an
+4. If a source field is not present on the target, or its value translates to `null`, apply its
+   hop-map rule and the configured `OnUnmappableFieldEnum` policy. A non-resource element that had
+   values but received none returns `null`, so the policy also applies at its parent; under `DROP`
+   this produces one notice for the inner field and one for the emptied element. Resources always
+   yield an instance, even if empty. `EXTENSION` throws `MissingXverDefinitionException` until an
    xver definition is available; schema-diff generation never invents a placeholder URL or a
    non-standard JSON payload.
 
@@ -276,10 +281,15 @@ At runtime, a map is applied only to `Coding` values that have both an explicit 
 `code`, including `Coding` values nested in `CodeableConcept.coding`. The `group.source` and
 `group.target` systems must match the coding's source system, and the ConceptMap must provide
 exactly one distinct target marked `equivalent` (using R4 `equivalence` or newer
-`relationship` fields). The translator updates both the target system and code. Missing,
+`relationship` fields). When several ConceptMaps share a source system (for example
+`fhir-types` mapped to both `data-types` and `resource-types`), only maps that translate the code
+to a non-null target are candidates; the code is mapped when exactly one distinct
+`targetSystem|code` candidate remains. The translator updates both the target system and code. Missing,
 ambiguous, and non-equivalent mappings are handled by the configured unmappable-field policy.
 If no map applies to a source system, the `Coding` is copied normally. Bare `code` primitives
-remain unchanged because their binding system is not available in runtime field metadata.
+remain unchanged because their binding system is not available in runtime field metadata; use a
+custom type translator for those (see
+`tests/Integration/Translation/Fixtures/R5ToR4EncounterStatusTranslator.php`).
 
 This support does not translate structure, infer field renames, or execute FML/StructureMap.
 `HopMapInterface::getCodeMaps()` exposes generated typed `CodeMap` instances; generated hop maps
@@ -338,6 +348,15 @@ autoloader, so Composer is not required to load hop maps.
 5. **Implemented: local ConceptMap ingestion for coded values**: configured package resources
    contribute directional `Coding.system`/`Coding.code` mappings to adjacent hop maps. Structural
    translation remains unchanged; unmatched or ambiguous code mappings use the existing policy.
+
+## Testing
+
+- `phpunit/Builder.xml` covers rendering and runtime behavior against small fixture types.
+- `phpunit/Translation.xml` generates every version (DSTU1–R5) plus the R5→R4 xver package and
+  runs the integration tests in `tests/Integration/Translation`: chained Patient translation in
+  both directions, unmappable-field policies, ConceptMap coding translation, and custom
+  translators and metadata factories. It requires the XSDs in `input/<Version>` and
+  `input/profiles/hl7.fhir.uv.xver-r5.r4/package.tgz`; CI runs it on PHP 8.1–8.5.
 
 ## Out of Scope
 

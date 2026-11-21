@@ -156,7 +156,6 @@ abstract class FixtureType implements TypeInterface
     }
 }
 
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
 abstract class FixtureLeaf extends FixtureType implements LeafTypeInterface
 {
     public function __construct(private null|string $value = null)
@@ -180,7 +179,6 @@ abstract class FixtureLeaf extends FixtureType implements LeafTypeInterface
     }
 }
 
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
 abstract class FixtureName extends FixtureType
 {
     #[FixtureLeaf]
