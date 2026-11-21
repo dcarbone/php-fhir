@@ -20,15 +20,15 @@ Hard requirements:
 | Topic | Decision |
 |---|---|
 | Input / output contract | Typed object → typed object. The generated namespace identifies the source version; `_getFHIRVersion()` validates its FHIR release. Raw JSON/XML has no version marker and must be parsed with a caller-selected version first. |
-| Hop strategy | Adjacent hops only, automatically chained. Translating R4 → R5 runs R4 → R4B → R5. Hops are ordered by `Version::getFHIRVersionInteger()` across whichever versions were generated, so a build that omits R4B gets a direct R4 → R5 default map. |
-| Default rules source (phase 1) | Generator-time schema diff between the two versions' definitions. |
-| ConceptMap support | Locally configured xver packages contribute directional code mappings for `Coding` values. Structural field translation remains schema-diff based; FML StructureMap ingestion is out of scope. |
-| Unmappable data | Schema-diff maps mark absent fields and removed types as unmappable. The configured policy handles them; `EXTENSION` throws when no xver definition is available. |
+| Hop strategy | Adjacent hops are automatically chained. A configured non-adjacent xver package also generates a direct map in both directions; an exact map takes precedence over chaining. For example, configuring R5 → R4 makes R4 → R5 direct too, bypassing maps on the R4 → R4B → R5 chain. |
+| Default rules source (phase 1) | Generator-time type diff between the two versions' definitions (removed types), plus run-time comparison of source and target field metadata. |
+| xver package support | Locally configured xver packages contribute directional code mappings for `Coding` values and typed extension definitions for fields the target version lacks. Structural field translation remains name-based; FML StructureMap ingestion is out of scope. |
+| Unmappable data | Removed types are listed in the generated hop map; fields absent in the target are detected at run time. Both are unmappable. The configured policy handles them; `EXTENSION` emits the official HL7 xver extension when the hop map has a definition for the field and throws otherwise. |
 | Field metadata | Reflection over the existing `#[FHIRType]` property attributes on generated type classes (type class from the attribute, collection-ness from the `array` property type). Results are cached per class. |
 | User extensibility | Plain PHP classes implementing `TypeTranslatorInterface`, registered on the `Translator` per `(from, to, typeName)`. A user translator may decorate the generated default. |
 | Field discovery | Constructor-injected `FieldMetadataFactoryInterface`; the default `FieldMetadataFactory` reflects generated attributes and caches descriptors per factory instance. |
-| Code location | Core engine (interfaces, enums, `Translator`, generic translator) always generated under `Translation/`. Per-hop default maps generated only for adjacent pairs of configured versions. |
-| Extension behavior without an xver definition | Use an official xver definition when available; otherwise throw an explicit missing-definition exception. Do not invent a JSON-string payload or claim it is an HL7 xver representation. |
+| Code location | Core engine (interfaces, enums, `Translator`, generic translator) always generated under `Translation/`. Per-hop default maps are generated for adjacent pairs and configured package hops. |
+| Extension behavior | Emit an official xver definition when the hop map has one and the target can carry every value; otherwise throw an explicit missing-definition exception. Matching extensions are unfolded when translating back. Do not invent a JSON-string payload or claim it is an HL7 xver representation. |
 | Source version lookup | A generated registry resolves a resource’s generated version namespace to a `VersionInterface`, then validates that its FHIR enum matches the resource. This supports variants that share an enum. |
 | Direct-hop routing | An exact generated hop map or direct user-registered translator takes precedence over automatic intermediate-version chaining. |
 | Duplicate-version routing | Automatic chaining rejects ambiguous routes when multiple generated variants occupy an intermediate FHIR release; an exact generated hop map or direct user-registered translator for the root type can override that route. |
@@ -43,10 +43,33 @@ child extensions for types unavailable in R4 and documents how complex `Codeable
 represented; it does not prescribe putting arbitrary source JSON in `valueString`.
 
 Consequently, a schema diff alone cannot construct a standards-conformant xver extension for every
-removed field. Phase 1 must not claim universal extension preservation: `EXTENSION` requires a
-registered/generated xver definition and throws `MissingXverDefinitionException` if none exists.
-The ConceptMap/xver package ingestion phase can provide such definitions for covered hops; users can
-also register a custom translator for uncovered cases.
+removed field. The generator therefore reads the extension StructureDefinitions of each configured
+`hl7.fhir.uv.xver-<source>.<target>` package (`Translation\XverExtensionReader`) and renders one typed
+`XverExtension` descriptor per resolvable source field into the hop map. `EXTENSION` emits only from
+those descriptors and throws `MissingXverDefinitionException` for any field without one. Users can also
+register a custom translator for uncovered cases.
+
+An xver package describes the *source* version's elements as extensions usable in the *target* version,
+so the extension URL carries the source release (for example
+`http://hl7.org/fhir/5.0/StructureDefinition/extension-Account.currency` for R5 → R4).
+
+Known limitations:
+
+- Unfolding is conservative: it restores only extensions whose URL, modifier status, value type, and
+  content match the configured definition and target field. If the field is already populated or
+  the extension has extra or unrecognized content, the extension stays in place without a notice.
+- To preserve fields emitted in both directions, configure the corresponding xver package for each
+  direction. Unfolding itself uses the package for the original emission direction and runs
+  independently of the unmappable-field policy.
+- A value whose type differs from the target's extension value types (for example `CodeableReference`
+  becoming `CodeableConcept`) is not converted and falls back to the unmappable policy.
+- About a dozen exotic extension shapes per package are not resolved and are skipped: generic `value[x]`
+  of any type, `Task`/`Transport` input and output, `Bundle.issues`, `ElementDefinition.maxValue` and
+  `minValue`, `EvidenceVariable.characteristic`, and `ExpansionProfile.contained`.
+- Whole removed types are not preserved; only fields are.
+- Required-cardinality of nested slices is not validated.
+- HL7 publishes no xver packages for DSTU1 hops, DSTU2 → STU3, or R4 → DSTU2, so those hops always
+  throw under `EXTENSION`.
 
 References:
 
@@ -149,7 +172,7 @@ shared across all contexts and hops in one translation.
 
 The default engine. One class, no per-type knowledge:
 
-1. Apply the current hop's removed-type and rename rules, then resolve the target class via the
+1. Apply the current hop's removed-type rule, then resolve the target class via the
    target `VersionTypeMap::getTypeClassname()`. When the parent field's target type is known,
    `TranslationContext::getExpectedTargetClass()` overrides the name-based lookup, so a value is
    coerced to the type the target field declares (for example, R4 `code` into an R5
@@ -161,13 +184,19 @@ The default engine. One class, no per-type knowledge:
    `Type::isLeafType()` for shared leaf handling, excluding primitive containers.
 3. Otherwise, instantiate the target class and copy fields with the same name discovered through
    `FieldMetadataFactory`, recursively translating nested `TypeInterface` values.
-4. If a source field is not present on the target, or its value translates to `null`, apply its
-   hop-map rule and the configured `OnUnmappableFieldEnum` policy. A non-resource element that had
+4. If a source field is not present on the target, or its value translates to `null`, apply the
+   configured `OnUnmappableFieldEnum` policy. A non-resource element that had
    values but received none returns `null`, so the policy also applies at its parent; under `DROP`
    this produces one notice for the inner field and one for the emptied element. Resources always
-   yield an instance, even if empty. `EXTENSION` throws `MissingXverDefinitionException` until an
-   xver definition is available; schema-diff generation never invents a placeholder URL or a
-   non-standard JSON payload.
+   yield an instance, even if empty. Unmappable values are collected while fields are translated and
+   handled afterwards, so their notices follow the notices of the translated fields. `EXTENSION`
+   appends an official xver extension to the target's `modifierExtension` or `extension` when the hop
+   map has a definition and every value can be carried (all-or-nothing, preserving extensions already
+   present), and otherwise throws `MissingXverDefinitionException`; schema-diff generation never
+   invents a placeholder URL or a non-standard JSON payload.
+5. After ordinary fields and unmappable values have been handled, unfold extensions that match the
+   package for the reverse hop. Unfolding is independent of the unmappable-field policy; extensions
+   that do not exactly fit a field are left in place.
 
 Choice (`[x]`) fields need no special handling: generated classes already materialize choice
 variants as discrete fields (`deceasedBoolean`, `deceasedDateTime`). Resource-container fields
@@ -219,7 +248,7 @@ Follows the existing `Encoding\OnUnknownProfileEnum` / `OnProfileVersionMismatch
 
 | Case | Behavior |
 |---|---|
-| `EXTENSION` (default) | Use an official xver definition when available. If no definition exists, throw `MissingXverDefinitionException`. |
+| `EXTENSION` (default) | Emit the official xver extension from the hop map's definition. If none exists, or the target cannot carry the value, throw `MissingXverDefinitionException`. |
 | `DROP` | Discard the value. Adds a notice. |
 | `THROW` | Throw `UnmappableFieldException`. |
 
@@ -227,13 +256,15 @@ Follows the existing `Encoding\OnUnknownProfileEnum` / `OnProfileVersionMismatch
 
 `TranslationResult` holds the translated resource and an ordered list of `TranslationNotice`
 objects (`path`, `hop`, `kind`, `message`). Values dropped through the configured unmappable-field
-policy emit notices, including when nested. Extension preservation and value coercion notices are
-not implemented yet, and matching type or field names does not guarantee semantic equivalence.
+policy emit notices, including when nested. Values preserved as xver extensions emit no notice, value
+coercion notices are not implemented yet, and matching type or field names does not guarantee semantic
+equivalence.
 
 ## Generated Hop Maps
 
-For each adjacent pair `(A, B)` of configured versions the generator emits
-`Translation/Maps/{A}To{B}.php` and `Translation/Maps/{B}To{A}.php`, each a class implementing
+For each adjacent pair `(A, B)` of configured versions, and for each configured non-adjacent package
+hop, the generator emits direct hop-map classes in both directions. Only the package's declared
+direction receives that package's ConceptMaps and xver definitions. Each map implements
 `HopMapInterface`:
 
 ```php
@@ -241,20 +272,22 @@ interface HopMapInterface
 {
     public function getSourceVersion(): VersionInterface;
     public function getTargetVersion(): VersionInterface;
-    /** @return array<string, array<string, \DCarbone\PHPFHIRGenerated\Translation\FieldRuleEnum>> typeName => fieldName => rule */
-    public function getFieldRules(): array;
-    /** @return array<string, string> source typeName => target typeName, for renamed types */
-    public function getTypeRenames(): array;
     /** @return string[] */
     public function getRemovedTypes(): array;
     /** @return \DCarbone\PHPFHIRGenerated\Translation\CodeMap[] */
     public function getCodeMaps(): array;
+    /**
+     * Keyed by "<source type FHIR name>.<source field>".
+     * @return array<string, \DCarbone\PHPFHIRGenerated\Translation\XverExtension>
+     */
+    public function getXverExtensions(): array;
 }
 ```
 
-### Local xver ConceptMap packages
+### Local xver packages
 
-The generator can ingest ConceptMaps from local FHIR NPM package directories or `.tgz` archives.
+The generator can ingest ConceptMaps and extension definitions from local FHIR NPM package directories
+or `.tgz` archives.
 Configure each package at the top level, explicitly naming its direction:
 
 ```php
@@ -279,8 +312,9 @@ $config = Config::fromArray([
 The package source must be readable and contain `package.json`. Configure reverse-direction
 packages separately; mappings are never inverted automatically. A package is applied only when
 both versions are selected for generation. Adjacent pairs contribute to the ordinary two-way hop
-maps; a non-adjacent package pair adds a direct, directional hop map. An exact generated map is
-used before automatic chaining through intermediate versions.
+maps; a non-adjacent package pair adds direct maps in both directions, with package mappings only in
+the declared direction. An exact generated map is used before automatic chaining through
+intermediate versions.
 
 At runtime, a map is applied only to `Coding` values that have both an explicit `system` and a
 `code`, including `Coding` values nested in `CodeableConcept.coding`. The `group.source` and
@@ -309,25 +343,28 @@ Schema-diff derivation (computed in the generator from `Version\Definition\Type`
 
 - Type present in both versions → no entry (generic `Keep` behavior applies).
 - Type absent in target → entry in a "removed types" list; instances translate to `null` and hit the
-  unmappable policy.
-- Field present in both → no entry.
-- Field absent in target → `FieldRuleEnum::UNMAPPABLE`; the configured unmappable-field policy
-  handles its value. No xver URL or placeholder extension is generated. The generator-side
-  `DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum` is the single source of truth for rule cases;
-  the generated `FieldRuleEnum` is rendered from it, and generated hop maps store enum cases
-  directly in their `_FIELD_RULES` constant.
-- Field present in target only → nothing to do; left unset.
-- Type renames are not inferred by name-only schema comparison; the generated rename map is empty.
+  unmappable policy. Value-set enumeration types (`X-list` in R4, `XEnum` in R4B/R5) are never
+  listed: their names differ between releases, but the generic translator maps them to the target
+  version's enumeration class through the declared field type.
+- Fields are not diffed by the generator. The generic translator compares source and target field
+  metadata at run time: a field absent in the target goes through the configured
+  unmappable-field policy, and a field present only in the target is left unset. Only extensions
+  defined by a configured xver package are emitted; no placeholder URL is ever generated.
+- Type renames are not modelled: a type is matched to the target version's type of the same name,
+  or to the declared field type when one exists. A custom translator can handle a rename.
 
-`HopMapBuilder` returns an immutable `HopMapDefinition` containing these rules and any configured
-code maps. The generator renders that definition through `template/translation/class_hop_map.php`.
+`HopMapBuilder` returns an immutable `HopMapDefinition` containing the removed-type list and any
+configured code maps and xver extension definitions. The generator renders that definition through `template/translation/class_hop_map.php`.
 
 `Translator` discovers hop maps through a generated `Translation/HopMapRegistry`, so routing needs no
 reflection or filesystem scanning. The generator emits both directions for each adjacent pair and
-adds configured non-adjacent package hops in their declared direction only. A directly registered
-root-type translator takes precedence; otherwise, an exact generated hop map is used before
-automatic intermediate-version chaining. The generator adds every map path to the standalone
-autoloader, so Composer is not required to load hop maps.
+for each configured non-adjacent package hop. Only the package's declared direction receives its
+ConceptMaps and xver definitions; the reverse map provides a direct route and lets the extension
+unfolder find definitions from the original emitting hop. A directly registered root-type
+translator takes precedence; otherwise, an exact generated hop map is used before automatic
+intermediate-version chaining. A direct non-adjacent map bypasses any code maps contributed only by
+intermediate hops. The generator adds every map path to the standalone autoloader, so Composer is
+not required to load hop maps.
 
 ## Version Coverage Notes
 
@@ -360,15 +397,24 @@ autoloader, so Composer is not required to load hop maps.
 5. **Implemented: local ConceptMap ingestion for coded values**: configured package resources
    contribute directional `Coding.system`/`Coding.code` mappings to adjacent hop maps. Structural
    translation remains unchanged; unmatched or ambiguous code mappings use the existing policy.
+6. **Implemented: xver extension emission**: `Translation\XverExtensionReader` turns each package's
+   extension StructureDefinitions into typed `XverExtensionDefinition`s, which the generator renders
+   into the hop map as `XverExtension` descriptors. `XverExtensionEmitter` builds the extensions at
+   run time under the `EXTENSION` policy.
+7. **Implemented: xver extension unfolding**: `XverExtensionUnfolder` restores compatible values
+   from extensions emitted by the reverse hop, including nested complex values and enum-bound codes.
+   It leaves extensions in place when they do not match exactly. Configured non-adjacent package
+   hops get a direct map in both directions.
 
 ## Testing
 
 - `phpunit/Builder.xml` covers rendering and runtime behavior against small fixture types.
-- `phpunit/Translation.xml` generates every version (DSTU1–R5) plus the R5→R4 xver package and
-  runs the integration tests in `tests/Integration/Translation`: chained Patient translation in
-  both directions, unmappable-field policies, ConceptMap coding translation, and custom
-  translators and metadata factories. It requires the XSDs in `input/<Version>` and
-  `input/profiles/hl7.fhir.uv.xver-r5.r4/package.tgz`; CI runs it on PHP 8.1–8.5.
+- `phpunit/Translation.xml` generates every version (DSTU1–R5) plus the R5→R4, R4→STU3, and
+  STU3→R4 xver packages and runs the integration tests in `tests/Integration/Translation`: chained
+  Patient translation in both directions, unmappable-field policies, ConceptMap coding translation,
+  xver emission and round-trip unfolding, and custom translators and metadata factories. It requires
+  the XSDs in `input/<Version>` and `input/profiles/hl7.fhir.uv.xver-{r5.r4,r4.r3,r3.r4}/package.tgz`;
+  CI runs it on PHP 8.1–8.5.
 
 ## Out of Scope
 

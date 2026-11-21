@@ -35,26 +35,24 @@ class ProfilePackageReader
     private const _MANIFEST_FILENAME = 'package.json';
     private const _INDEX_FILENAME = '.index.json';
     private const _PACKAGE_DIR = 'package';
-    /** Conventional "<type>-<id>.json" names of files holding one of the retained resource types. */
-    private const _RESOURCE_FILENAME_PATTERN = '{^(StructureDefinition|ValueSet|CodeSystem)-}';
-    /**
-
-     * Cheap test for files that may hold one of the retained resource types, before they are decoded.  Only the
-     * decoded top-level "resourceType" is authoritative; this may match a nested resource.
-     */
-    private const _RESOURCE_TYPE_PATTERN = '{"resourceType"\s*:\s*"(StructureDefinition|ValueSet|CodeSystem)"}';
 
     /**
-     * @param ProfilePackageConfig $config
+     * Reads a configured profile package, retaining its StructureDefinitions, ValueSets and CodeSystems.
+     *
      * @param null|string $fhirVersion The FHIR version (e.g. "4.0.1") the package must support.  If null, no version
      *                                 compatibility check is performed.
      * @param ProfilePackage[] $dependencies Already read packages the package builds on.
-     * @return ProfilePackage
      * @throws ProfilePackageException
      */
     public static function read(ProfilePackageConfig $config, null|string $fhirVersion = null, array $dependencies = []): ProfilePackage
     {
-        $package = self::_readSource($config, $config->getSource(), $config->getName());
+        $package = self::_readSource(
+            $config->getSource(),
+            $config->getName(),
+            ProfileResourceTypeEnum::STRUCTURE_DEFINITION,
+            ProfileResourceTypeEnum::VALUE_SET,
+            ProfileResourceTypeEnum::CODE_SYSTEM,
+        );
 
         if (null !== $fhirVersion) {
             self::_assertFHIRVersionCompatible($package, $fhirVersion);
@@ -68,66 +66,15 @@ class ProfilePackageReader
     }
 
     /**
-     * Reads selected resource types from a local FHIR NPM package directory or archive.
+     * Reads the given resource types from a package directory or archive, without requiring it to be a configured
+     * profile package: no name is expected, and no FHIR version is checked.
      *
-     * @return array<int, array> Decoded resources in package filename order.
+     * @throws ProfilePackageException
+     * @throws \InvalidArgumentException If no resource type is given.
      */
-    public static function readResources(string $source, string ...$resourceTypes): array
+    public static function readSource(string $source, ProfileResourceTypeEnum ...$types): ProfilePackage
     {
-        if ([] === $resourceTypes) {
-            throw new \InvalidArgumentException('At least one FHIR resource type must be requested.');
-        }
-        $allowedTypes = array_fill_keys($resourceTypes, true);
-        $files = self::_listFiles($source);
-        if (!isset($files[self::_MANIFEST_FILENAME])) {
-            throw new ProfilePackageException(sprintf(
-                'FHIR package source "%s" does not contain a "%s" file.',
-                $source,
-                self::_MANIFEST_FILENAME,
-            ));
-        }
-        $manifest = self::_decode(
-            self::_readFile($files[self::_MANIFEST_FILENAME], $source),
-            self::_MANIFEST_FILENAME,
-            $source,
-        );
-        foreach (['name', 'version'] as $key) {
-            if (!isset($manifest[$key]) || !is_string($manifest[$key]) || '' === $manifest[$key]) {
-                throw new ProfilePackageException(sprintf(
-                    'FHIR package manifest in "%s" is missing required string field "%s".',
-                    $source,
-                    $key,
-                ));
-            }
-        }
-
-        $indexed = isset($files[self::_INDEX_FILENAME])
-            ? self::_indexedTypes(self::_decode(self::_readFile($files[self::_INDEX_FILENAME], $source), self::_INDEX_FILENAME, $source))
-            : [];
-        $pattern = '{^(?:' . implode('|', array_map('preg_quote', $resourceTypes)) . ')-}';
-        $resourceTypePattern = '{"resourceType"\s*:\s*"(?:' . implode('|', array_map('preg_quote', $resourceTypes)) . ')"}';
-        $resources = [];
-        foreach ($files as $name => $path) {
-            if (self::_MANIFEST_FILENAME === $name || self::_INDEX_FILENAME === $name) {
-                continue;
-            }
-            $conventional = 1 === preg_match($pattern, $name);
-            if (!$conventional && isset($indexed[$name]) && !isset($allowedTypes[$indexed[$name]])) {
-                continue;
-            }
-            $contents = self::_readFile($path, $source);
-            if (!$conventional && !isset($indexed[$name])) {
-                $pos = strpos($contents, '"resourceType"');
-                if (false === $pos || 1 !== preg_match($resourceTypePattern, $contents, $match, 0, $pos)) {
-                    continue;
-                }
-            }
-            $resource = self::_decode($contents, $name, $source);
-            if (isset($resource['resourceType']) && is_string($resource['resourceType']) && isset($allowedTypes[$resource['resourceType']])) {
-                $resources[] = $resource;
-            }
-        }
-        return $resources;
+        return self::_readSource($source, null, ...$types);
     }
 
     /**
@@ -172,8 +119,22 @@ class ProfilePackageReader
         ));
     }
 
-    private static function _readSource(ProfilePackageConfig $config, string $source, string $expectedName): ProfilePackage
+    private static function _readSource(string $source, null|string $expectedName, ProfileResourceTypeEnum ...$types): ProfilePackage
     {
+        if ([] === $types) {
+            throw new \InvalidArgumentException('At least one resource type to retain must be given.');
+        }
+        $retained = [];
+        foreach ($types as $type) {
+            $retained[$type->value] = true;
+        }
+        $alternatives = implode('|', array_keys($retained));
+        // conventional "<type>-<id>.json" names of files holding a retained resource type.
+        $filenamePattern = '{^(?:' . $alternatives . ')-}';
+        // cheap test run before decoding a file.  Only the decoded top-level "resourceType" is authoritative; this
+        // may match a nested resource.
+        $resourceTypePattern = '{"resourceType"\s*:\s*"(?:' . $alternatives . ')"}';
+
         $files = self::_listFiles($source);
         if (!isset($files[self::_MANIFEST_FILENAME])) {
             throw new ProfilePackageException(sprintf(
@@ -192,7 +153,7 @@ class ProfilePackageReader
                 ));
             }
         }
-        if ($manifest['name'] !== $expectedName) {
+        if (null !== $expectedName && $manifest['name'] !== $expectedName) {
             throw new ProfilePackageException(sprintf(
                 'Profile package at "%s" is named "%s" but was configured as "%s".',
                 $source,
@@ -214,17 +175,17 @@ class ProfilePackageReader
             // packages can be huge (e.g. terminology), so only the resource types that are used are decoded.  File names
             // are not standardised: besides the conventional "<type>-<id>.json" names, the package index says what a
             // file holds, and files it does not list are checked for a resource type of interest before being decoded.
-            $conventional = 1 === preg_match(self::_RESOURCE_FILENAME_PATTERN, $name);
-            if (!$conventional && isset($indexed[$name]) && null === ProfileResourceTypeEnum::tryFrom($indexed[$name])) {
+            $conventional = 1 === preg_match($filenamePattern, $name);
+            if (!$conventional && isset($indexed[$name]) && !isset($retained[$indexed[$name]])) {
                 continue;
             }
             $contents = self::_readFile($path, $source);
-            if (!$conventional && !isset($indexed[$name]) && !self::_mayHoldRetainedType($contents)) {
+            if (!$conventional && !isset($indexed[$name]) && !self::_mayHoldResourceType($contents, $resourceTypePattern)) {
                 continue;
             }
             $json = self::_decode($contents, $name, $source);
             unset($contents);
-            if (!isset($json['resourceType']) || !is_string($json['resourceType']) || null === ProfileResourceTypeEnum::tryFrom($json['resourceType'])) {
+            if (!isset($json['resourceType']) || !is_string($json['resourceType']) || !isset($retained[$json['resourceType']])) {
                 continue;
             }
             // narrative is never used and is a large share of big packages.
@@ -234,7 +195,7 @@ class ProfilePackageReader
             }
         }
 
-        $package = new ProfilePackage($config, $manifest);
+        $package = new ProfilePackage($manifest);
         foreach ($resources as $resource) {
             $package->addPackedResource($resource);
         }
@@ -255,10 +216,10 @@ class ProfilePackageReader
         return $out;
     }
 
-    private static function _mayHoldRetainedType(string $contents): bool
+    private static function _mayHoldResourceType(string $contents, string $resourceTypePattern): bool
     {
         $pos = strpos($contents, '"resourceType"');
-        return false !== $pos && 1 === preg_match(self::_RESOURCE_TYPE_PATTERN, $contents, $m, 0, $pos);
+        return false !== $pos && 1 === preg_match($resourceTypePattern, $contents, $m, 0, $pos);
     }
 
     /**

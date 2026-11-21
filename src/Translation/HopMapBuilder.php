@@ -18,49 +18,35 @@ namespace DCarbone\PHPFHIR\Translation;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Version;
-use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
 
 final class HopMapBuilder
 {
     /**
      * @param \DCarbone\PHPFHIR\Translation\CodeMapDefinition[] $codeMaps
+     * @param array<string, \DCarbone\PHPFHIR\Translation\XverExtensionDefinition> $xverExtensions
      */
-    public function build(Types $source, Types $target, array $codeMaps = []): HopMapDefinition
+    public function build(Types $source, Types $target, array $codeMaps = [], array $xverExtensions = []): HopMapDefinition
     {
         $targetTypes = [];
         foreach ($target->getIterator() as $type) {
-            $targetTypes[$type->getFHIRName()] = $type;
+            $targetTypes[$type->getFHIRName()] = true;
         }
 
-        $fieldRules = [];
         $removedTypes = [];
         foreach ($source->getIterator() as $sourceType) {
             $typeName = $sourceType->getFHIRName();
-            if (!isset($targetTypes[$typeName])) {
+            // Value-set enumerations are named per release (e.g. "X-list" vs "XEnum"), so a name mismatch
+            // does not mean the type was removed; the field declaring it carries the real type.
+            if (!isset($targetTypes[$typeName]) && !$sourceType->isEnumerated()) {
                 $removedTypes[] = $typeName;
-                continue;
-            }
-
-            $targetFields = $this->getPropertiesByName($targetTypes[$typeName]);
-            foreach ($this->getPropertiesByName($sourceType) as $fieldName => $_property) {
-                if (!isset($targetFields[$fieldName])) {
-                    $fieldRules[$typeName][$fieldName] = TranslationFieldRuleEnum::UNMAPPABLE;
-                }
             }
         }
-
-        ksort($fieldRules);
-        foreach ($fieldRules as &$fields) {
-            ksort($fields);
-        }
-        unset($fields);
         sort($removedTypes, SORT_NATURAL | SORT_FLAG_CASE);
 
-        return new HopMapDefinition($fieldRules, [], $removedTypes, $codeMaps);
+        return new HopMapDefinition($removedTypes, $codeMaps, $xverExtensions);
     }
 
     public function getMapClassName(Version $source, Version $target): string
@@ -68,8 +54,11 @@ final class HopMapBuilder
         return sprintf('HopMap_%sTo%s', $source->getConstName(), $target->getConstName());
     }
 
-    /** @param \DCarbone\PHPFHIR\Translation\CodeMapDefinition[] $codeMaps */
-    public function renderMap(Version $source, Version $target, array $codeMaps = []): string
+    /**
+     * @param \DCarbone\PHPFHIR\Translation\CodeMapDefinition[] $codeMaps
+     * @param array<string, \DCarbone\PHPFHIR\Translation\XverExtensionDefinition> $xverExtensions
+     */
+    public function renderMap(Version $source, Version $target, array $codeMaps = [], array $xverExtensions = []): string
     {
         return $this->renderMapDefinition(
             $source,
@@ -78,6 +67,7 @@ final class HopMapBuilder
                 $source->getDefinition()->getTypes(),
                 $target->getDefinition()->getTypes(),
                 $codeMaps,
+                $xverExtensions,
             ),
         );
     }
@@ -90,26 +80,5 @@ final class HopMapBuilder
             $definition,
             $this->getMapClassName($source, $target),
         );
-    }
-
-    /**
-     * @return array<string, \DCarbone\PHPFHIR\Version\Definition\Property>
-     */
-    private function getPropertiesByName(Type $type): array
-    {
-        $properties = [];
-        foreach ($type->getParentPropertiesIterator(true) as $property) {
-            $name = $property->getName();
-            if (null !== $name && '' !== $name) {
-                $properties[$name] = $property;
-            }
-        }
-        foreach ($type->getProperties()->getIterator() as $property) {
-            $name = $property->getName();
-            if (null !== $name && '' !== $name) {
-                $properties[$name] = $property;
-            }
-        }
-        return $properties;
     }
 }

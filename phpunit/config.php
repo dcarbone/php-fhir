@@ -36,6 +36,16 @@ return array_merge(
                     'targetVersion' => 'R4',
                     'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.xver-r5.r4/package.tgz',
                 ],
+                [
+                    'sourceVersion' => 'R4',
+                    'targetVersion' => 'STU3',
+                    'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.xver-r4.r3/package.tgz',
+                ],
+                [
+                    'sourceVersion' => 'STU3',
+                    'targetVersion' => 'R4',
+                    'source' => __DIR__ . '/../input/profiles/hl7.fhir.uv.xver-r3.r4/package.tgz',
+                ],
             ],
         ],
         default => [

@@ -106,7 +106,7 @@ final class <?php echo $coreFile; ?>
                 $notices,
                 HopMapRegistry::getMap($from, $to),
             );
-            $translated = $this->dispatcher->translate($resource, $context);
+            $translated = $context->translate($resource);
             if (null === $translated) {
                 throw new UnmappableFieldException(sprintf(
                     'FHIR resource type "%s" has no representation in %s.',

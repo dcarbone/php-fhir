@@ -18,47 +18,19 @@ namespace DCarbone\PHPFHIR\Translation;
  * limitations under the License.
  */
 
-use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
-
 final class HopMapDefinition
 {
     /**
-     * @param array<string, array<string, \DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum>> $fieldRules FHIR type name => field name => rule
-     * @param array<string, string> $typeRenames Source FHIR type name => target FHIR type name
      * @param string[] $removedTypes
      * @param \DCarbone\PHPFHIR\Translation\CodeMapDefinition[] $codeMaps
+     * @param array<string, \DCarbone\PHPFHIR\Translation\XverExtensionDefinition> $xverExtensions Indexed by
+     *        "<source type FHIR name>.<source field>".
      */
     public function __construct(
-        private readonly array $fieldRules,
-        private readonly array $typeRenames,
         private readonly array $removedTypes,
         private readonly array $codeMaps = [],
+        private readonly array $xverExtensions = [],
     ) {
-        foreach ($fieldRules as $typeName => $fields) {
-            foreach ($fields as $fieldName => $rule) {
-                if (!$rule instanceof TranslationFieldRuleEnum) {
-                    throw new \InvalidArgumentException(sprintf(
-                        'Field rule for "%s.%s" must be a %s, %s given.',
-                        $typeName,
-                        $fieldName,
-                        TranslationFieldRuleEnum::class,
-                        get_debug_type($rule),
-                    ));
-                }
-            }
-        }
-    }
-
-    /** @return array<string, array<string, \DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum>> */
-    public function getFieldRules(): array
-    {
-        return $this->fieldRules;
-    }
-
-    /** @return array<string, string> */
-    public function getTypeRenames(): array
-    {
-        return $this->typeRenames;
     }
 
     /** @return string[] */
@@ -71,5 +43,11 @@ final class HopMapDefinition
     public function getCodeMaps(): array
     {
         return $this->codeMaps;
+    }
+
+    /** @return array<string, \DCarbone\PHPFHIR\Translation\XverExtensionDefinition> */
+    public function getXverExtensions(): array
+    {
+        return $this->xverExtensions;
     }
 }

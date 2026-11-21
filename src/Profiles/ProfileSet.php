@@ -47,14 +47,12 @@ class ProfileSet
 
         // dependencies first so own profiles win a url collision.
         foreach ($dependencies as $dependency) {
-            foreach ($dependency->getStructureDefinitions() as $sd) {
-                $profile = new Profile($sd);
+            foreach ($dependency->getProfiles() as $profile) {
                 $this->_byUrl[$profile->getUrl()] = $profile;
             }
         }
 
-        foreach ($package->getStructureDefinitions() as $sd) {
-            $profile = new Profile($sd);
+        foreach ($package->getProfiles() as $profile) {
             $this->_byUrl[$profile->getUrl()] = $profile;
             $this->_ownUrls[$profile->getUrl()] = true;
         }

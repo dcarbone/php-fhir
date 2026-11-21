@@ -29,8 +29,9 @@ $contextClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAM
 $fieldMetadataClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_FIELD_METADATA);
 $fieldMetadataFactoryClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_FIELD_METADATA_FACTORY);
 $fieldMetadataFactoryInterface = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_INTERFACE_FIELD_METADATA_FACTORY);
-$fieldRuleEnum = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_ENUM_FIELD_RULE);
-$codeMapClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_CODE_MAP);
+$codingCodeMapperClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_CODING_CODE_MAPPER);
+$xverExtensionEmitterClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_XVER_EXTENSION_EMITTER);
+$xverExtensionUnfolderClass = $coreFiles->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_XVER_EXTENSION_UNFOLDER);
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports(
     $typeInterface,
@@ -39,8 +40,9 @@ $imports->addCoreFileImports(
     $contextClass,
     $fieldMetadataFactoryClass,
     $fieldMetadataFactoryInterface,
-    $fieldRuleEnum,
-    $codeMapClass,
+    $codingCodeMapperClass,
+    $xverExtensionEmitterClass,
+    $xverExtensionUnfolderClass,
 );
 
 ob_start();
@@ -54,21 +56,27 @@ namespace <?php echo $coreFile->getFullyQualifiedNamespace(false); ?>;
 
 final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
 {
+    private readonly <?php echo $codingCodeMapperClass; ?> $codingCodeMapper;
+    private readonly <?php echo $xverExtensionEmitterClass; ?> $xverEmitter;
+    private readonly <?php echo $xverExtensionUnfolderClass; ?> $xverUnfolder;
+
     public function __construct(
         private readonly FieldMetadataFactoryInterface $metadataFactory = new FieldMetadataFactory(),
     ) {
+        $this->codingCodeMapper = new <?php echo $codingCodeMapperClass; ?>();
+        $this->xverEmitter = new <?php echo $xverExtensionEmitterClass; ?>($metadataFactory);
+        $this->xverUnfolder = new <?php echo $xverExtensionUnfolderClass; ?>($metadataFactory);
     }
 
     public function translate(TypeInterface $source, TranslationContext $context): null|TypeInterface
     {
         $typeName = $source->_getFHIRTypeName();
         $hopMap = $context->getHopMap();
-        $targetClass = null;
-        if (null === $hopMap || !in_array($typeName, $hopMap->getRemovedTypes(), true)) {
-            $targetTypeName = $hopMap?->getTypeRenames()[$typeName] ?? $typeName;
-            $typeMap = $context->getTargetVersion()->getTypeMap();
-            $targetClass = $typeMap::getTypeClassname($targetTypeName);
+        if (null !== $hopMap && in_array($typeName, $hopMap->getRemovedTypes(), true)) {
+            return null;
         }
+        $typeMap = $context->getTargetVersion()->getTypeMap();
+        $targetClass = $typeMap::getTypeClassname($typeName);
         $expectedClass = $context->getExpectedTargetClass();
         if (null !== $expectedClass
             && (null === $targetClass || !is_a($targetClass, $expectedClass, true))
@@ -100,58 +108,29 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
                     $source::class,
                 ));
             }
-            $target->setValue($source->getValue());
+            $value = $source->getValue();
+            if ('dateTime-primitive' === $source->_getFHIRTypeName()
+                && 'date-primitive' === $target->_getFHIRTypeName()
+                && is_string($value)
+                && str_contains($value, 'T')) {
+                return null;
+            }
+            $target->setValue($value);
+            // Numeric primitives hand their value over as a string; keep the source's JSON representation.
+            if (method_exists($source, '_getJSONAsString') && method_exists($target, '_setJSONAsString')) {
+                $target->_setJSONAsString($source->_getJSONAsString());
+            }
             return $target;
         }
 
         $sourceFields = $this->metadataFactory->forType($source);
         $targetFields = $this->metadataFactory->forType($target);
-        $fieldRules = $hopMap?->getFieldRules()[$typeName] ?? [];
-        $codeMappingApplied = false;
-        $codeMappingFailed = false;
-        $mappedSystem = null;
-        $mappedCode = null;
-        if ('Coding' === $typeName && null !== $hopMap && [] !== $hopMap->getCodeMaps()) {
-            $sourceSystem = $this->getStringFieldValue($source, $sourceFields, 'system');
-            $sourceCode = $this->getStringFieldValue($source, $sourceFields, 'code');
-            if (null !== $sourceSystem && null !== $sourceCode) {
-                $sourceSystemMatched = false;
-                $candidateTargets = [];
-                foreach ($hopMap->getCodeMaps() as $codeMap) {
-                    if (!$codeMap instanceof CodeMap) {
-                        throw new \UnexpectedValueException(sprintf(
-                            'Hop map returned %s for code maps; expected %s.',
-                            get_debug_type($codeMap),
-                            CodeMap::class,
-                        ));
-                    }
-                    if ($codeMap->getSourceSystem() !== $sourceSystem) {
-                        continue;
-                    }
-                    $sourceSystemMatched = true;
-                    // A source system may have several maps (e.g. fhir-types -> data-types and -> resource-types);
-                    // only maps that actually translate this code are candidates.
-                    if ($codeMap->hasSourceCode($sourceCode)
-                        && null !== ($candidateCode = $codeMap->getTargetCode($sourceCode))) {
-                        $candidateTargets[$codeMap->getTargetSystem() . '|' . $candidateCode] = [
-                            $codeMap->getTargetSystem(),
-                            $candidateCode,
-                        ];
-                    }
-                }
-                if ($sourceSystemMatched) {
-                    $codeMappingApplied = true;
-                    if (1 === count($candidateTargets)) {
-                        [$mappedSystem, $mappedCode] = reset($candidateTargets);
-                    } else {
-                        $this->handleUnmappedValue($context, 'code', $sourceCode);
-                        $codeMappingFailed = true;
-                    }
-                }
-            }
-        }
+        $codeMapping = 'Coding' === $typeName && null !== $hopMap
+            ? $this->codingCodeMapper->map($source, $sourceFields, $hopMap, $context)
+            : null;
         $sourceHasValues = false;
         $targetHasValues = false;
+        $unmappedValues = [];
         foreach ($sourceFields as $fieldName => $sourceField) {
             $getter = $sourceField->getGetter();
             if (!method_exists($source, $getter)) {
@@ -168,16 +147,18 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
             }
             $sourceHasValues = true;
             if (!isset($targetFields[$fieldName])) {
-                $rule = $fieldRules[$fieldName] ?? FieldRuleEnum::UNMAPPABLE;
-                if (FieldRuleEnum::UNMAPPABLE === $rule) {
-                    $this->handleUnmappedValue($context, $fieldName, $value);
-                    continue;
-                }
-                $this->handleUnmappedValue($context, $fieldName, $value);
+                // Handled after the loop so extensions emitted for it are appended to, not replaced by, the
+                // target's translated extension fields.
+                $unmappedValues[$fieldName] = $value;
                 continue;
             }
 
             $targetField = $targetFields[$fieldName];
+            if ('Coding' === $typeName && 'version' === $fieldName && null !== $codeMapping
+                && ($codeMapping->isFailure() || $codeMapping->changesSystem())) {
+                $this->handleUnmappedValue($context, $fieldName, $value);
+                continue;
+            }
             $values = $sourceField->isCollection() ? $value : [$value];
             if (!is_array($values)) {
                 throw new \UnexpectedValueException(sprintf(
@@ -204,9 +185,9 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
                         $context->handleUnmappableField($fieldName, $item->_getFHIRTypeName());
                         continue;
                     }
-                    if ('Coding' === $typeName && $codeMappingApplied
+                    if ('Coding' === $typeName && null !== $codeMapping
                         && in_array($fieldName, ['system', 'code'], true)) {
-                        if ($codeMappingFailed) {
+                        if ($codeMapping->isFailure()) {
                             continue;
                         }
                         if (!method_exists($translated, 'setValue')) {
@@ -215,7 +196,7 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
                                 $fieldName,
                             ));
                         }
-                        $translated->setValue('system' === $fieldName ? $mappedSystem : $mappedCode);
+                        $translated->setValue($codeMapping->getTargetValue($fieldName));
                     }
                     $translatedValues[] = $translated;
                 } else {
@@ -243,6 +224,18 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
             $targetHasValues = true;
         }
 
+        foreach ($unmappedValues as $fieldName => $value) {
+            if ($this->xverEmitter->emit($source, $target, $targetFields, $fieldName, $value, $context)) {
+                $targetHasValues = true;
+                continue;
+            }
+            $this->handleUnmappedValue($context, $fieldName, $value);
+        }
+
+        if ($this->xverUnfolder->unfold($target, $targetFields, $context)) {
+            $targetHasValues = true;
+        }
+
         // Resources always yield an instance; only non-resource elements collapse to null when nothing was copied.
         if ($sourceHasValues && !$targetHasValues && !$target instanceof ResourceTypeInterface) {
             return null;
@@ -266,45 +259,5 @@ final class <?php echo $coreFile; ?> implements TypeTranslatorInterface
         );
     }
 
-    /**
-     * @param array<string, <?php echo $fieldMetadataClass->getFullyQualifiedName(true); ?>> $fields
-     */
-    private function getStringFieldValue(TypeInterface $owner, array $fields, string $fieldName): null|string
-    {
-        if (!isset($fields[$fieldName])) {
-            return null;
-        }
-        $getter = $fields[$fieldName]->getGetter();
-        if (!method_exists($owner, $getter)) {
-            throw new \UnexpectedValueException(sprintf(
-                'Generated type "%s" is missing field getter "%s()".',
-                $owner::class,
-                $getter,
-            ));
-        }
-        $value = $owner->{$getter}();
-        if (null === $value) {
-            return null;
-        }
-        if (!$value instanceof TypeInterface || !method_exists($value, 'getValue')) {
-            throw new \UnexpectedValueException(sprintf(
-                'FHIR field "%s::%s()" must return a value-bearing type.',
-                $owner::class,
-                $getter,
-            ));
-        }
-        // Elements wrap primitives (e.g. uri -> uri-primitive), so unwrap until a scalar is reached.
-        do {
-            $value = $value->getValue();
-        } while ($value instanceof TypeInterface && method_exists($value, 'getValue'));
-        if (null !== $value && !is_string($value)) {
-            throw new \UnexpectedValueException(sprintf(
-                'FHIR field "%s::%s()" must contain a string value.',
-                $owner::class,
-                $getter,
-            ));
-        }
-        return $value;
-    }
 }
 <?php return ob_get_clean();

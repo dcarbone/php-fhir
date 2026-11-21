@@ -108,13 +108,7 @@ final class <?php echo $coreFile; ?>
 
     public function translate(TypeInterface $source): null|TypeInterface
     {
-        $translated = $this->translator->translate($source, $this);
-        if (null !== $translated) {
-            return $translated;
-        }
-
-        $this->applyUnmappablePolicy($this->path, $source->_getFHIRTypeName());
-        return null;
+        return $this->translateAtPath($source, $this->path, null);
     }
 
     /**
@@ -125,6 +119,20 @@ final class <?php echo $coreFile; ?>
                                    null|string $expectedTargetClass = null): null|TypeInterface
     {
         $path = '' === $this->path ? $fieldName : $this->path . '.' . $fieldName;
+        return $this->translateAtPath($source, $path, $expectedTargetClass);
+    }
+
+    public function handleUnmappableField(string $fieldName, string $sourceTypeName): void
+    {
+        $path = '' === $this->path ? $fieldName : $this->path . '.' . $fieldName;
+        $this->applyUnmappablePolicy($path, $sourceTypeName);
+    }
+
+    private function translateAtPath(
+        TypeInterface $source,
+        string $path,
+        null|string $expectedTargetClass,
+    ): null|TypeInterface {
         $context = new self(
             $this->sourceVersion,
             $this->targetVersion,
@@ -135,13 +143,13 @@ final class <?php echo $coreFile; ?>
             $this->hopMap,
             $expectedTargetClass,
         );
-        return $context->translate($source);
-    }
+        $translated = $this->translator->translate($source, $context);
+        if (null !== $translated) {
+            return $translated;
+        }
 
-    public function handleUnmappableField(string $fieldName, string $sourceTypeName): void
-    {
-        $path = '' === $this->path ? $fieldName : $this->path . '.' . $fieldName;
-        $this->applyUnmappablePolicy($path, $sourceTypeName);
+        $context->applyUnmappablePolicy($path, $source->_getFHIRTypeName());
+        return null;
     }
 
     public function addNotice(TranslationNotice $notice): void

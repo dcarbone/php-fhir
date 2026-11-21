@@ -20,20 +20,21 @@ namespace DCarbone\PHPFHIRTests;
 
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
-use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Translation\HopMapDefinition;
+use DCarbone\PHPFHIR\Translation\XverExtensionDefinition;
 use DCarbone\PHPFHIR\Version\Definition;
 use DCarbone\PHPFHIR\Version\Definition\Types;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureLeaf;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureName;
+use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureStatusEnum;
 use PHPUnit\Framework\TestCase;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 use TranslationRuntimeGenerated\Translation\FieldMetadata;
 use TranslationRuntimeGenerated\Translation\FieldMetadataFactory;
 use TranslationRuntimeGenerated\Translation\FieldMetadataFactoryInterface;
-use TranslationRuntimeGenerated\Translation\FieldRuleEnum;
 use TranslationRuntimeGenerated\Translation\CodeMap;
+use TranslationRuntimeGenerated\Translation\CodeMapResult;
 use TranslationRuntimeGenerated\Translation\GenericTypeTranslator;
 use TranslationRuntimeGenerated\Translation\HopMapInterface;
 use TranslationRuntimeGenerated\Translation\Maps\HopMap_RenderedR4ToR5;
@@ -49,12 +50,17 @@ use TranslationRuntimeGenerated\Translation\Translator;
 use TranslationRuntimeGenerated\Translation\TypeTranslatorDispatcher;
 use TranslationRuntimeGenerated\Translation\TypeTranslatorInterface;
 use TranslationRuntimeGenerated\Translation\UnmappableFieldException;
+use TranslationRuntimeGenerated\Translation\XverExtension;
+use TranslationRuntimeGenerated\Translation\XverExtensionEmitter;
 use TranslationRuntimeGenerated\Types\TypeInterface;
+use TranslationRuntimeGenerated\Versions\R4\Types\Balance as R4Balance;
+use TranslationRuntimeGenerated\Versions\R4\Types\BalanceDetail as R4BalanceDetail;
 use TranslationRuntimeGenerated\Versions\R4\Types\Leaf as R4Leaf;
 use TranslationRuntimeGenerated\Versions\R4\Types\Name as R4Name;
 use TranslationRuntimeGenerated\Versions\R4\Types\Patient as R4Patient;
 use TranslationRuntimeGenerated\Versions\R4\Types\Coding as R4Coding;
 use TranslationRuntimeGenerated\Versions\R4\Types\CodeableConcept as R4CodeableConcept;
+use TranslationRuntimeGenerated\Versions\R4\Types\Status as R4Status;
 use TranslationRuntimeGenerated\Versions\R4\Version as R4Version;
 use TranslationRuntimeGenerated\Versions\R3\Types\Leaf as R3Leaf;
 use TranslationRuntimeGenerated\Versions\R3\Types\Patient as R3Patient;
@@ -69,6 +75,7 @@ use TranslationRuntimeGenerated\Versions\R5\Types\Name as R5Name;
 use TranslationRuntimeGenerated\Versions\R5\Types\Patient as R5Patient;
 use TranslationRuntimeGenerated\Versions\R5\Types\Coding as R5Coding;
 use TranslationRuntimeGenerated\Versions\R5\Types\CodeableConcept as R5CodeableConcept;
+use TranslationRuntimeGenerated\Versions\R5\Types\Extension as R5Extension;
 use TranslationRuntimeGenerated\Versions\R5\Version as R5Version;
 use TranslationRuntimeGenerated\Versions\R6\Types\Coding as R6Coding;
 use TranslationRuntimeGenerated\Versions\R6\Types\Patient as R6Patient;
@@ -317,6 +324,103 @@ class TranslationRuntimeTest extends TestCase
         self::assertSame('legacy', $bareCode->getValue());
     }
 
+    public function testCodingVersionIsUnmappableWhenCodeMapChangesSystem(): void
+    {
+        $source = (new R4Coding())
+            ->setSystem(new R4Leaf('http://example.org/source'))
+            ->setCode(new R4Leaf('legacy'))
+            ->setVersion(new R4Leaf('source-version'));
+        $notices = new TranslationNoticeCollector();
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::DROP),
+            'Coding',
+            new GenericTypeTranslator(),
+            $notices,
+            $this->codeMapHop(['legacy' => 'current']),
+        );
+
+        $translated = $context->translate($source);
+
+        self::assertInstanceOf(R5Coding::class, $translated);
+        self::assertSame('http://example.org/target', $translated->getSystem()->getValue());
+        self::assertSame('current', $translated->getCode()->getValue());
+        self::assertNull($translated->getVersion());
+        self::assertSame(['Coding.version'], array_map(
+            static fn(TranslationNotice $notice): string => $notice->getPath(),
+            $notices->getNotices(),
+        ));
+    }
+
+    public function testDateTimeWithTimePrecisionCannotBeCoercedToDate(): void
+    {
+        $source = new class('1970-01-02') extends FixtureLeaf {
+            public function _getFHIRVersion(): \TranslationRuntimeGenerated\FHIRVersion
+            {
+                return R4Version::getFHIRVersion();
+            }
+
+            public function _getFHIRTypeName(): string
+            {
+                return 'dateTime-primitive';
+            }
+        };
+        $timestamp = new class('1970-01-02T12:34:56Z') extends FixtureLeaf {
+            public function _getFHIRVersion(): \TranslationRuntimeGenerated\FHIRVersion
+            {
+                return R4Version::getFHIRVersion();
+            }
+
+            public function _getFHIRTypeName(): string
+            {
+                return 'dateTime-primitive';
+            }
+        };
+        $target = new class extends FixtureLeaf {
+            public function _getFHIRVersion(): \TranslationRuntimeGenerated\FHIRVersion
+            {
+                return R5Version::getFHIRVersion();
+            }
+
+            public function _getFHIRTypeName(): string
+            {
+                return 'date-primitive';
+            }
+        };
+        $notices = new TranslationNoticeCollector();
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::DROP),
+            'Patient.birthDate',
+            new GenericTypeTranslator(),
+            $notices,
+        );
+
+        $translatedDate = $context->translateField('value', $source, $target::class);
+        $unmappableTimestamp = $context->translateField('value', $timestamp, $target::class);
+
+        self::assertInstanceOf($target::class, $translatedDate);
+        self::assertSame('1970-01-02', $translatedDate->getValue());
+        self::assertNull($unmappableTimestamp);
+        self::assertSame(['Patient.birthDate.value'], array_map(
+            static fn(TranslationNotice $notice): string => $notice->getPath(),
+            $notices->getNotices(),
+        ));
+
+        $throwingContext = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::THROW),
+            'Patient.birthDate',
+            new GenericTypeTranslator(),
+            new TranslationNoticeCollector(),
+        );
+        $this->expectException(UnmappableFieldException::class);
+        $throwingContext->translateField('value', $timestamp, $target::class);
+    }
+
     public function testUnmappedConceptMapCodeUsesThrowPolicy(): void
     {
         $context = new TranslationContext(
@@ -379,16 +483,6 @@ class TranslationRuntimeTest extends TestCase
                 return new R5Version();
             }
 
-            public function getFieldRules(): array
-            {
-                return [];
-            }
-
-            public function getTypeRenames(): array
-            {
-                return [];
-            }
-
             public function getRemovedTypes(): array
             {
                 return [];
@@ -397,6 +491,11 @@ class TranslationRuntimeTest extends TestCase
             public function getCodeMaps(): array
             {
                 return [$this->codeMap];
+            }
+
+            public function getXverExtensions(): array
+            {
+                return [];
             }
         };
     }
@@ -533,22 +632,17 @@ class TranslationRuntimeTest extends TestCase
                 return $this->targetVersion;
             }
 
-            public function getFieldRules(): array
-            {
-                return [];
-            }
-
-            public function getTypeRenames(): array
-            {
-                return [];
-            }
-
             public function getRemovedTypes(): array
             {
                 return ['Patient'];
             }
 
             public function getCodeMaps(): array
+            {
+                return [];
+            }
+
+            public function getXverExtensions(): array
             {
                 return [];
             }
@@ -585,15 +679,28 @@ class TranslationRuntimeTest extends TestCase
         $r4 = $config->getVersion('R4');
         $r5 = $config->getVersion('R5');
         $definition = new HopMapDefinition(
-            fieldRules: [
-                'HumanName' => [
-                    'legacy' => TranslationFieldRuleEnum::UNMAPPABLE,
-                    'oldOptMask' => TranslationFieldRuleEnum::UNMAPPABLE,
-                ],
-                "Quoted'Type" => ["a\\b" => TranslationFieldRuleEnum::UNMAPPABLE],
-            ],
-            typeRenames: ['oldOptMask' => 'newType', "old'\\Type" => 'newType'],
             removedTypes: ['HumanName', "old'\\Type"],
+            xverExtensions: [
+                'Account.currency' => new XverExtensionDefinition(
+                    url: 'http://hl7.org/fhir/5.0/StructureDefinition/extension-Account.currency',
+                    field: 'currency',
+                    valueTypes: ['CodeableConcept'],
+                ),
+                'Account.diagnosis' => new XverExtensionDefinition(
+                    url: 'http://hl7.org/fhir/5.0/StructureDefinition/extension-Account.diagnosis',
+                    field: 'diagnosis',
+                    modifier: true,
+                    children: [
+                        new XverExtensionDefinition(url: 'condition', field: 'condition', valueTypes: ['Reference']),
+                        new XverExtensionDefinition(
+                            url: "it's",
+                            field: 'dateOfDiagnosis',
+                            valueTypes: ['dateTime'],
+                            datatype: 'CodeableReference',
+                        ),
+                    ],
+                ),
+            ],
         );
 
         $forwardPath = self::$_tmpdir->path('HopMap_R4ToR5.php');
@@ -604,7 +711,7 @@ class TranslationRuntimeTest extends TestCase
         ));
         self::assertNotFalse(file_put_contents(
             $reversePath,
-            Templates::renderTranslationHopMap($r5, $r4, new HopMapDefinition([], [], []), 'HopMap_RenderedR5ToR4'),
+            Templates::renderTranslationHopMap($r5, $r4, new HopMapDefinition([], []), 'HopMap_RenderedR5ToR4'),
         ));
         require $forwardPath;
         require $reversePath;
@@ -613,19 +720,34 @@ class TranslationRuntimeTest extends TestCase
         self::assertInstanceOf(HopMapInterface::class, $forward);
         self::assertInstanceOf(R4Version::class, $forward->getSourceVersion());
         self::assertInstanceOf(R5Version::class, $forward->getTargetVersion());
-        self::assertSame([
-            'HumanName' => ['legacy' => FieldRuleEnum::UNMAPPABLE, 'oldOptMask' => FieldRuleEnum::UNMAPPABLE],
-            "Quoted'Type" => ["a\\b" => FieldRuleEnum::UNMAPPABLE],
-        ], $forward->getFieldRules());
-        self::assertSame($definition->getTypeRenames(), $forward->getTypeRenames());
         self::assertSame($definition->getRemovedTypes(), $forward->getRemovedTypes());
 
         $reverse = new HopMap_RenderedR5ToR4();
         self::assertInstanceOf(R5Version::class, $reverse->getSourceVersion());
         self::assertInstanceOf(R4Version::class, $reverse->getTargetVersion());
-        self::assertSame([], $reverse->getFieldRules());
-        self::assertSame([], $reverse->getTypeRenames());
         self::assertSame([], $reverse->getRemovedTypes());
+        self::assertSame([], $reverse->getXverExtensions());
+
+        $extensions = $forward->getXverExtensions();
+        self::assertSame(['Account.currency', 'Account.diagnosis'], array_keys($extensions));
+        self::assertContainsOnlyInstancesOf(XverExtension::class, $extensions);
+        $currency = $extensions['Account.currency'];
+        self::assertSame('http://hl7.org/fhir/5.0/StructureDefinition/extension-Account.currency', $currency->getUrl());
+        self::assertSame('currency', $currency->getField());
+        self::assertFalse($currency->isModifier());
+        self::assertFalse($currency->isComplex());
+        self::assertSame(['CodeableConcept'], $currency->getValueTypes());
+        self::assertNull($currency->getDatatype());
+        $diagnosis = $extensions['Account.diagnosis'];
+        self::assertTrue($diagnosis->isModifier());
+        self::assertTrue($diagnosis->isComplex());
+        self::assertSame([], $diagnosis->getValueTypes());
+        self::assertCount(2, $diagnosis->getChildren());
+        self::assertSame('condition', $diagnosis->getChildren()[0]->getUrl());
+        self::assertSame(['Reference'], $diagnosis->getChildren()[0]->getValueTypes());
+        self::assertSame("it's", $diagnosis->getChildren()[1]->getUrl());
+        self::assertSame('dateOfDiagnosis', $diagnosis->getChildren()[1]->getField());
+        self::assertSame('CodeableReference', $diagnosis->getChildren()[1]->getDatatype());
 
         $notices = new TranslationNoticeCollector();
         $context = new TranslationContext(
@@ -713,6 +835,21 @@ class TranslationRuntimeTest extends TestCase
         }
     }
 
+    public function testRootNullUsesTheConfiguredUnmappablePolicy(): void
+    {
+        $missing = new class implements TypeTranslatorInterface {
+            public function translate(TypeInterface $source, TranslationContext $context): null|TypeInterface
+            {
+                return null;
+            }
+        };
+        $translator = new Translator();
+        $translator->register(new R4Version(), new R5Version(), 'Patient', $missing);
+
+        $this->expectException(MissingXverDefinitionException::class);
+        $translator->translate(new R4Patient(), new R5Version());
+    }
+
     public function testContextTranslateReentersTheDispatcherAtTheCurrentPath(): void
     {
         $nested = new class implements TypeTranslatorInterface {
@@ -753,6 +890,78 @@ class TranslationRuntimeTest extends TestCase
         self::assertNull($result->getResource()->getName()->getFamily());
     }
 
+    public function testNestedTranslateDoesNotInheritTheParentExpectedClass(): void
+    {
+        $nested = new class implements TypeTranslatorInterface {
+            public function translate(TypeInterface $source, TranslationContext $context): null|TypeInterface
+            {
+                if (!$source instanceof R4Name || null === ($family = $source->getFamily())) {
+                    return new R4BName();
+                }
+                $translatedFamily = $context->translate($family);
+                if (!$translatedFamily instanceof R4BLeaf) {
+                    throw new \UnexpectedValueException('Expected an R4B leaf.');
+                }
+                return (new R4BName())->setFamily($translatedFamily);
+            }
+        };
+        $translator = new Translator();
+        $translator->register(new R4Version(), new R4BVersion(), 'HumanName', $nested);
+        $source = (new R4Patient())->setName((new R4Name())->setFamily(new R4Leaf('family')));
+
+        $result = $translator->translate($source, new R4BVersion());
+
+        self::assertInstanceOf(R4BName::class, $result->getResource()->getName());
+        self::assertSame('family', $result->getResource()->getName()->getFamily()->getValue());
+        self::assertSame([], $result->getNotices());
+    }
+
+    public function testRemovedTypeIsNotRescuedByTheDeclaredTargetClass(): void
+    {
+        $hopMap = new class implements HopMapInterface {
+            public function getSourceVersion(): R4Version
+            {
+                return new R4Version();
+            }
+
+            public function getTargetVersion(): R5Version
+            {
+                return new R5Version();
+            }
+
+            public function getRemovedTypes(): array
+            {
+                return ['HumanName'];
+            }
+
+            public function getCodeMaps(): array
+            {
+                return [];
+            }
+
+            public function getXverExtensions(): array
+            {
+                return [];
+            }
+        };
+        $notices = new TranslationNoticeCollector();
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::DROP),
+            'Patient',
+            new GenericTypeTranslator(),
+            $notices,
+            $hopMap,
+        );
+
+        self::assertNull($context->translateField('name', new R4Name(), R5Name::class));
+        self::assertSame(['Patient.name'], array_map(
+            static fn(TranslationNotice $notice): string => $notice->getPath(),
+            $notices->getNotices(),
+        ));
+    }
+
     public function testThrowPolicyStillReportsNestedPath(): void
     {
         $name = (new R4Name())->setLegacy(new R4Leaf('removed'));
@@ -772,6 +981,266 @@ class TranslationRuntimeTest extends TestCase
         $this->expectException(MissingXverDefinitionException::class);
         $this->expectExceptionMessage('Patient.name.legacy');
         (new Translator())->translate($source, new R5Version());
+    }
+
+    /**
+     * @param array<string, XverExtension> $extensions
+     */
+    private static function xverHopMap(VersionInterface $target, array $extensions): HopMapInterface
+    {
+        return new class($target, $extensions) implements HopMapInterface {
+            public function __construct(
+                private readonly VersionInterface $target,
+                private readonly array $extensions,
+            ) {
+            }
+
+            public function getSourceVersion(): VersionInterface
+            {
+                return new R4Version();
+            }
+
+            public function getTargetVersion(): VersionInterface
+            {
+                return $this->target;
+            }
+
+            public function getRemovedTypes(): array
+            {
+                return [];
+            }
+
+            public function getCodeMaps(): array
+            {
+                return [];
+            }
+
+            public function getXverExtensions(): array
+            {
+                return $this->extensions;
+            }
+        };
+    }
+
+    /**
+     * @param array<string, XverExtension> $extensions
+     */
+    private static function translatePatientWithXver(
+        R4Patient $source,
+        array $extensions,
+        VersionInterface $target = new R5Version(),
+        OnUnmappableFieldEnum $policy = OnUnmappableFieldEnum::EXTENSION,
+        null|TranslationNoticeCollector $notices = null,
+    ): TypeInterface {
+        $context = new TranslationContext(
+            new R4Version(),
+            $target,
+            new TranslationConfig($policy),
+            'Patient',
+            new TypeTranslatorDispatcher(),
+            $notices ?? new TranslationNoticeCollector(),
+            self::xverHopMap($target, $extensions),
+        );
+        $translated = $context->translate($source);
+        self::assertNotNull($translated);
+
+        return $translated;
+    }
+
+    private static function r4Concept(string $code): R4CodeableConcept
+    {
+        return (new R4CodeableConcept())->setCoding(
+            (new R4Coding())->setSystem(new R4Leaf('http://example.org/cs'))->setCode(new R4Leaf($code)),
+        );
+    }
+
+    public function testExtensionPolicyEmitsASimpleValueFromTheHopMapDefinition(): void
+    {
+        $url = 'http://example.org/ext/currency';
+        $notices = new TranslationNoticeCollector();
+        $translated = self::translatePatientWithXver(
+            (new R4Patient())->setCurrency(self::r4Concept('USD')),
+            ['Patient.currency' => new XverExtension($url, 'currency', false, ['CodeableConcept'], [], null)],
+            notices: $notices,
+        );
+
+        self::assertInstanceOf(R5Patient::class, $translated);
+        self::assertSame([], $translated->getModifierExtension());
+        self::assertCount(1, $translated->getExtension());
+        $extension = $translated->getExtension()[0];
+        self::assertInstanceOf(R5Extension::class, $extension);
+        self::assertSame($url, $extension->getUrl()->getValue());
+        self::assertInstanceOf(R5CodeableConcept::class, $extension->getValueCodeableConcept());
+        self::assertSame('USD', $extension->getValueCodeableConcept()->getCoding()[0]->getCode()->getValue());
+        self::assertSame([], $notices->getNotices(), 'A carried field is not reported as lost.');
+    }
+
+    public function testExtensionPolicyEmitsOneExtensionPerRepeatingValueInOrder(): void
+    {
+        $translated = self::translatePatientWithXver(
+            (new R4Patient())->setCategories(self::r4Concept('a'), self::r4Concept('b')),
+            ['Patient.categories' => new XverExtension('http://example.org/ext/categories', 'categories', false, ['CodeableConcept'], [], null)],
+        );
+
+        self::assertInstanceOf(R5Patient::class, $translated);
+        self::assertSame(
+            ['a', 'b'],
+            array_map(
+                static fn(R5Extension $e): string => $e->getValueCodeableConcept()->getCoding()[0]->getCode()->getValue(),
+                $translated->getExtension(),
+            ),
+        );
+    }
+
+    public function testModifierDefinitionsAreEmittedAsModifierExtensions(): void
+    {
+        $translated = self::translatePatientWithXver(
+            (new R4Patient())->setCurrency(self::r4Concept('USD')),
+            ['Patient.currency' => new XverExtension('http://example.org/ext/currency', 'currency', true, ['CodeableConcept'], [], null)],
+        );
+
+        self::assertInstanceOf(R5Patient::class, $translated);
+        self::assertSame([], $translated->getExtension());
+        self::assertCount(1, $translated->getModifierExtension());
+    }
+
+    public function testEnumBoundValuesAreEmittedAsPlainCodes(): void
+    {
+        $translated = self::translatePatientWithXver(
+            (new R4Patient())->setStatus(new R4Status(FixtureStatusEnum::ACTIVE)),
+            ['Patient.status' => new XverExtension('http://example.org/ext/status', 'status', false, ['code'], [], null)],
+        );
+
+        self::assertInstanceOf(R5Patient::class, $translated);
+        self::assertSame('active', $translated->getExtension()[0]->getValueCode()->getValue());
+    }
+
+    public function testChoiceDefinitionsCarryAnyOfTheirValueTypes(): void
+    {
+        $translated = self::translatePatientWithXver(
+            (new R4Patient())->setFlag((new R4Coding())->setCode(new R4Leaf('flagged'))),
+            ['Patient.flag' => new XverExtension('http://example.org/ext/flag', 'flag', false, ['CodeableConcept', 'Coding'], [], null)],
+        );
+
+        self::assertInstanceOf(R5Patient::class, $translated);
+        self::assertSame('flagged', $translated->getExtension()[0]->getValueCoding()->getCode()->getValue());
+    }
+
+    public function testComplexDefinitionsEmitNestedExtensionsInDefinitionOrder(): void
+    {
+        $balance = (new R4Balance())
+            ->setTerm(self::r4Concept('long'))
+            ->setTags(self::r4Concept('t1'), self::r4Concept('t2'))
+            ->setDetail((new R4BalanceDetail())->setNote(self::r4Concept('n')));
+        $codeable = ['CodeableConcept'];
+        $definition = new XverExtension('http://example.org/ext/balance', 'balance', false, [], [
+            new XverExtension('detail', 'detail', false, [], [new XverExtension('note', 'note', false, $codeable, [], null)], null),
+            new XverExtension('term', 'term', false, $codeable, [], null),
+            new XverExtension('tags', 'tags', false, $codeable, [], null),
+        ], 'Money');
+
+        $translated = self::translatePatientWithXver((new R4Patient())->setBalance($balance), ['Patient.balance' => $definition]);
+
+        self::assertInstanceOf(R5Patient::class, $translated);
+        self::assertCount(1, $translated->getExtension());
+        $top = $translated->getExtension()[0];
+        self::assertSame('http://example.org/ext/balance', $top->getUrl()->getValue());
+        self::assertNull($top->getValueCodeableConcept());
+        self::assertSame(
+            ['detail', 'term', 'tags', 'tags', 'http://hl7.org/fhir/StructureDefinition/_datatype'],
+            array_map(static fn(R5Extension $e): string => $e->getUrl()->getValue(), $top->getExtension()),
+        );
+        $children = $top->getExtension();
+        self::assertSame('note', $children[0]->getExtension()[0]->getUrl()->getValue());
+        self::assertSame('n', $children[0]->getExtension()[0]->getValueCodeableConcept()->getCoding()[0]->getCode()->getValue());
+        self::assertSame('long', $children[1]->getValueCodeableConcept()->getCoding()[0]->getCode()->getValue());
+        self::assertSame('t2', $children[3]->getValueCodeableConcept()->getCoding()[0]->getCode()->getValue());
+        self::assertSame('Money', $children[4]->getValueString()->getValue());
+    }
+
+    public function testNothingIsEmittedWhenADefinitionCannotCarryEveryValue(): void
+    {
+        $balance = (new R4Balance())->setTerm(self::r4Concept('long'))->setUncarried(self::r4Concept('lost'));
+        $definition = new XverExtension('http://example.org/ext/balance', 'balance', false, [], [
+            new XverExtension('term', 'term', false, ['CodeableConcept'], [], null),
+        ], null);
+
+        $this->expectException(MissingXverDefinitionException::class);
+        $this->expectExceptionMessage('Patient.balance');
+        self::translatePatientWithXver((new R4Patient())->setBalance($balance), ['Patient.balance' => $definition]);
+    }
+
+    public function testAValueTypeTheDefinitionDoesNotAllowFallsBackToThePolicy(): void
+    {
+        $this->expectException(MissingXverDefinitionException::class);
+        $this->expectExceptionMessage('Patient.flag');
+        self::translatePatientWithXver(
+            (new R4Patient())->setFlag((new R4Coding())->setCode(new R4Leaf('flagged'))),
+            ['Patient.flag' => new XverExtension('http://example.org/ext/flag', 'flag', false, ['CodeableConcept'], [], null)],
+        );
+    }
+
+    public function testATargetWithoutExtensionFieldsFallsBackToThePolicy(): void
+    {
+        $this->expectException(MissingXverDefinitionException::class);
+        $this->expectExceptionMessage('Patient.currency');
+        self::translatePatientWithXver(
+            (new R4Patient())->setCurrency(self::r4Concept('USD')),
+            ['Patient.currency' => new XverExtension('http://example.org/ext/currency', 'currency', false, ['CodeableConcept'], [], null)],
+            new R4BVersion(),
+        );
+    }
+
+    public function testOnlyTheExtensionPolicyEmitsExtensions(): void
+    {
+        $extensions = ['Patient.currency' => new XverExtension('http://example.org/ext/currency', 'currency', false, ['CodeableConcept'], [], null)];
+        $source = (new R4Patient())->setCurrency(self::r4Concept('USD'));
+
+        $notices = new TranslationNoticeCollector();
+        $translated = self::translatePatientWithXver($source, $extensions, new R5Version(), OnUnmappableFieldEnum::DROP, $notices);
+        self::assertInstanceOf(R5Patient::class, $translated);
+        self::assertSame([], $translated->getExtension());
+        self::assertSame(['Patient.currency'], array_map(
+            static fn(TranslationNotice $notice): string => $notice->getPath(),
+            $notices->getNotices(),
+        ));
+
+        $this->expectException(UnmappableFieldException::class);
+        self::translatePatientWithXver($source, $extensions, new R5Version(), OnUnmappableFieldEnum::THROW);
+    }
+
+    public function testEmissionAppendsToExtensionsThatAreAlreadyPresent(): void
+    {
+        $url = 'http://example.org/ext/currency';
+        $existing = (new R5Extension())->setUrl('http://example.org/ext/existing');
+        $target = (new R5Patient())->setExtension($existing);
+        $context = new TranslationContext(
+            new R4Version(),
+            new R5Version(),
+            new TranslationConfig(OnUnmappableFieldEnum::EXTENSION),
+            'Patient',
+            new TypeTranslatorDispatcher(),
+            new TranslationNoticeCollector(),
+            self::xverHopMap(new R5Version(), [
+                'Patient.currency' => new XverExtension($url, 'currency', false, ['CodeableConcept'], [], null),
+            ]),
+        );
+        $metadataFactory = new FieldMetadataFactory();
+
+        $emitted = (new XverExtensionEmitter($metadataFactory))->emit(
+            new R4Patient(),
+            $target,
+            $metadataFactory->forType($target),
+            'currency',
+            self::r4Concept('USD'),
+            $context,
+        );
+
+        self::assertTrue($emitted);
+        self::assertSame(
+            ['http://example.org/ext/existing', $url],
+            array_map(static fn(R5Extension $e): string => $e->getUrl()->getValue(), $target->getExtension()),
+        );
     }
 
     public function testNestedTranslatorMustReturnTheTargetVersion(): void
@@ -807,7 +1276,8 @@ class TranslationRuntimeTest extends TestCase
                      TranslationResult::class => ['resource', 'notices'],
                      Translator::class => ['config', 'dispatcher'],
                      FieldMetadata::class => ['type', 'collection', 'getter', 'setter'],
-                     GenericTypeTranslator::class => ['metadataFactory'],
+                     CodeMapResult::class => ['sourceSystem', 'targetSystem', 'targetCode'],
+                     GenericTypeTranslator::class => ['metadataFactory', 'codingCodeMapper', 'xverEmitter', 'xverUnfolder'],
                      TypeTranslatorDispatcher::class => ['defaultTranslator'],
                  ] as $class => $properties) {
             $reflection = new \ReflectionClass($class);

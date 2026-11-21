@@ -20,9 +20,11 @@ namespace DCarbone\PHPFHIRTests\Fixtures\Translation;
 
 use TranslationRuntimeGenerated\Encoding\SerializeConfig;
 use TranslationRuntimeGenerated\Encoding\UnserializeConfig;
+use TranslationRuntimeGenerated\Encoding\ValueXmlLocationEnum;
 use TranslationRuntimeGenerated\Encoding\XMLWriter;
 use TranslationRuntimeGenerated\FHIRVersion;
 use TranslationRuntimeGenerated\Types\LeafTypeInterface;
+use TranslationRuntimeGenerated\Types\PrimitiveContainerTypeInterface;
 use TranslationRuntimeGenerated\Types\ResourceIDTypeInterface;
 use TranslationRuntimeGenerated\Types\ResourceTypeInterface;
 use TranslationRuntimeGenerated\Types\TypeInterface;
@@ -179,6 +181,14 @@ abstract class FixtureLeaf extends FixtureType implements LeafTypeInterface
     }
 }
 
+final class FixturePrimitive extends FixtureLeaf
+{
+    public function _getFHIRVersion(): FHIRVersion
+    {
+        return \TranslationRuntimeGenerated\Versions\R4\Version::getFHIRVersion();
+    }
+}
+
 abstract class FixtureName extends FixtureType
 {
     #[FixtureLeaf]
@@ -225,6 +235,9 @@ abstract class FixtureCoding extends FixtureType
     #[FixtureLeaf]
     protected null|FixtureLeaf $code = null;
 
+    #[FixtureLeaf]
+    protected null|FixtureLeaf $version = null;
+
     public function _getFHIRTypeName(): string
     {
         return 'Coding';
@@ -249,6 +262,17 @@ abstract class FixtureCoding extends FixtureType
     public function setCode(FixtureLeaf $code): self
     {
         $this->code = $code;
+        return $this;
+    }
+
+    public function getVersion(): null|FixtureLeaf
+    {
+        return $this->version;
+    }
+
+    public function setVersion(FixtureLeaf $version): self
+    {
+        $this->version = $version;
         return $this;
     }
 }
@@ -346,6 +370,356 @@ abstract class FixturePatient extends FixtureType implements ResourceTypeInterfa
     ): ResourceTypeInterface
     {
         throw new \BadMethodCallException();
+    }
+}
+
+enum FixtureStatusEnum: string
+{
+    case ACTIVE = 'active';
+    case INACTIVE = 'inactive';
+}
+
+/** An enum-bound element, like a generated FHIRAccountStatus. */
+abstract class FixtureStatus extends FixtureType implements PrimitiveContainerTypeInterface
+{
+    public function __construct(private null|FixtureStatusEnum $value = null)
+    {
+    }
+
+    public function _getFHIRTypeName(): string
+    {
+        return 'AccountStatus';
+    }
+
+    public function getValue(): null|FixtureLeaf
+    {
+        return null === $this->value ? null : new FixturePrimitive($this->value->value);
+    }
+
+    public function _getValueAsString(): string
+    {
+        return $this->value?->value ?? '';
+    }
+
+    public function _nonValueFieldDefined(): bool
+    {
+        return false;
+    }
+
+    public function xmlSerialize(XMLWriter $xw, SerializeConfig $config, null|ValueXmlLocationEnum $valueLocation = null): void
+    {
+        throw new \BadMethodCallException();
+    }
+}
+
+abstract class FixtureExtension extends FixtureType
+{
+    #[FixtureLeaf]
+    protected null|FixtureLeaf $url = null;
+
+    #[FixtureLeaf]
+    protected null|FixtureLeaf $valueString = null;
+
+    #[FixtureLeaf]
+    protected null|FixtureLeaf $valueCode = null;
+
+    #[FixtureCodeableConcept]
+    protected null|FixtureCodeableConcept $valueCodeableConcept = null;
+
+    #[FixtureCoding]
+    protected null|FixtureCoding $valueCoding = null;
+
+    /** @var \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureExtension[] */
+    #[FixtureExtension]
+    protected array $extension = [];
+
+    abstract protected function newLeaf(string $value): FixtureLeaf;
+
+    public function _getFHIRTypeName(): string
+    {
+        return 'Extension';
+    }
+
+    public function getUrl(): null|FixtureLeaf
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string|FixtureLeaf $url): self
+    {
+        $this->url = is_string($url) ? $this->newLeaf($url) : $url;
+        return $this;
+    }
+
+    public function getValueString(): null|FixtureLeaf
+    {
+        return $this->valueString;
+    }
+
+    public function setValueString(string|FixtureLeaf $valueString): self
+    {
+        $this->valueString = is_string($valueString) ? $this->newLeaf($valueString) : $valueString;
+        return $this;
+    }
+
+    public function getValueCode(): null|FixtureLeaf
+    {
+        return $this->valueCode;
+    }
+
+    public function setValueCode(string|FixtureLeaf $valueCode): self
+    {
+        $this->valueCode = is_string($valueCode) ? $this->newLeaf($valueCode) : $valueCode;
+        return $this;
+    }
+
+    public function getValueCodeableConcept(): null|FixtureCodeableConcept
+    {
+        return $this->valueCodeableConcept;
+    }
+
+    public function setValueCodeableConcept(FixtureCodeableConcept $valueCodeableConcept): self
+    {
+        $this->valueCodeableConcept = $valueCodeableConcept;
+        return $this;
+    }
+
+    public function getValueCoding(): null|FixtureCoding
+    {
+        return $this->valueCoding;
+    }
+
+    public function setValueCoding(FixtureCoding $valueCoding): self
+    {
+        $this->valueCoding = $valueCoding;
+        return $this;
+    }
+
+    /** @return \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureExtension[] */
+    public function getExtension(): array
+    {
+        return $this->extension;
+    }
+
+    public function setExtension(FixtureExtension ...$extension): self
+    {
+        $this->extension = $extension;
+        return $this;
+    }
+}
+
+/** Gives a resource the extension fields that a generated resource inherits from its base type. */
+trait FixtureExtensionHolder
+{
+    /** @var \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureExtension[] */
+    #[FixtureExtension]
+    protected array $extension = [];
+
+    /** @var \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureExtension[] */
+    #[FixtureExtension]
+    protected array $modifierExtension = [];
+
+    /** @return \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureExtension[] */
+    public function getExtension(): array
+    {
+        return $this->extension;
+    }
+
+    public function setExtension(FixtureExtension ...$extension): self
+    {
+        $this->extension = $extension;
+        return $this;
+    }
+
+    /** @return \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureExtension[] */
+    public function getModifierExtension(): array
+    {
+        return $this->modifierExtension;
+    }
+
+    public function setModifierExtension(FixtureExtension ...$modifierExtension): self
+    {
+        $this->modifierExtension = $modifierExtension;
+        return $this;
+    }
+}
+
+abstract class FixtureBalanceDetail extends FixtureType
+{
+    #[FixtureCodeableConcept]
+    protected null|FixtureCodeableConcept $note = null;
+
+    public function _getFHIRTypeName(): string
+    {
+        return 'Patient.balance.detail';
+    }
+
+    public function getNote(): null|FixtureCodeableConcept
+    {
+        return $this->note;
+    }
+
+    public function setNote(FixtureCodeableConcept $note): self
+    {
+        $this->note = $note;
+        return $this;
+    }
+}
+
+abstract class FixtureBalance extends FixtureType
+{
+    #[FixtureCodeableConcept]
+    protected null|FixtureCodeableConcept $term = null;
+
+    /** @var \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureCodeableConcept[] */
+    #[FixtureCodeableConcept]
+    protected array $tags = [];
+
+    #[FixtureBalanceDetail]
+    protected null|FixtureBalanceDetail $detail = null;
+
+    /** Deliberately has no slice in the test definitions, so it cannot be carried. */
+    #[FixtureCodeableConcept]
+    protected null|FixtureCodeableConcept $uncarried = null;
+
+    public function _getFHIRTypeName(): string
+    {
+        return 'Patient.balance';
+    }
+
+    public function getTerm(): null|FixtureCodeableConcept
+    {
+        return $this->term;
+    }
+
+    public function setTerm(FixtureCodeableConcept $term): self
+    {
+        $this->term = $term;
+        return $this;
+    }
+
+    /** @return \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureCodeableConcept[] */
+    public function getTags(): array
+    {
+        return $this->tags;
+    }
+
+    public function setTags(FixtureCodeableConcept ...$tags): self
+    {
+        $this->tags = $tags;
+        return $this;
+    }
+
+    public function getDetail(): null|FixtureBalanceDetail
+    {
+        return $this->detail;
+    }
+
+    public function setDetail(FixtureBalanceDetail $detail): self
+    {
+        $this->detail = $detail;
+        return $this;
+    }
+
+    public function getUncarried(): null|FixtureCodeableConcept
+    {
+        return $this->uncarried;
+    }
+
+    public function setUncarried(FixtureCodeableConcept $uncarried): self
+    {
+        $this->uncarried = $uncarried;
+        return $this;
+    }
+}
+
+/** Fields that exist only in the source version of the extension-emission tests. */
+trait FixtureSourceOnlyFields
+{
+    #[FixtureStatus]
+    protected null|FixtureStatus $status = null;
+
+    #[FixtureBalance]
+    protected null|FixtureBalance $balance = null;
+
+    #[FixtureCodeableConcept]
+    protected null|FixtureCodeableConcept $currency = null;
+
+    /** @var \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureCodeableConcept[] */
+    #[FixtureCodeableConcept]
+    protected array $categories = [];
+
+    #[FixtureCoding]
+    protected null|FixtureCoding $flag = null;
+
+    #[FixtureLeaf]
+    protected null|FixtureLeaf $undescribed = null;
+
+    public function getStatus(): null|FixtureStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(FixtureStatus $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getBalance(): null|FixtureBalance
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(FixtureBalance $balance): self
+    {
+        $this->balance = $balance;
+        return $this;
+    }
+
+    public function getCurrency(): null|FixtureCodeableConcept
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(FixtureCodeableConcept $currency): self
+    {
+        $this->currency = $currency;
+        return $this;
+    }
+
+    /** @return \DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureCodeableConcept[] */
+    public function getCategories(): array
+    {
+        return $this->categories;
+    }
+
+    public function setCategories(FixtureCodeableConcept ...$categories): self
+    {
+        $this->categories = $categories;
+        return $this;
+    }
+
+    public function getFlag(): null|FixtureCoding
+    {
+        return $this->flag;
+    }
+
+    public function setFlag(FixtureCoding $flag): self
+    {
+        $this->flag = $flag;
+        return $this;
+    }
+
+    public function getUndescribed(): null|FixtureLeaf
+    {
+        return $this->undescribed;
+    }
+
+    public function setUndescribed(FixtureLeaf $undescribed): self
+    {
+        $this->undescribed = $undescribed;
+        return $this;
     }
 }
 
@@ -454,11 +828,15 @@ final class VersionTypeMap extends FixtureTypeMap
 
 namespace TranslationRuntimeGenerated\Versions\R4\Types;
 
+use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureBalance;
+use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureBalanceDetail;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureCodeableConcept;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureCoding;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureLeaf;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureName;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixturePatient;
+use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureSourceOnlyFields;
+use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureStatus;
 use TranslationRuntimeGenerated\FHIRVersion;
 use TranslationRuntimeGenerated\Versions\R4\Version;
 
@@ -495,6 +873,22 @@ final class Name extends FixtureName
 }
 
 final class Patient extends FixturePatient
+{
+    use VersionedType;
+    use FixtureSourceOnlyFields;
+}
+
+final class Status extends FixtureStatus
+{
+    use VersionedType;
+}
+
+final class Balance extends FixtureBalance
+{
+    use VersionedType;
+}
+
+final class BalanceDetail extends FixtureBalanceDetail
 {
     use VersionedType;
 }
@@ -664,6 +1058,7 @@ use TranslationRuntimeGenerated\Versions\R5\Types\Name;
 use TranslationRuntimeGenerated\Versions\R5\Types\Patient;
 use TranslationRuntimeGenerated\Versions\R5\Types\Coding;
 use TranslationRuntimeGenerated\Versions\R5\Types\CodeableConcept;
+use TranslationRuntimeGenerated\Versions\R5\Types\Extension;
 
 final class Version extends FixtureVersion
 {
@@ -681,6 +1076,7 @@ final class VersionTypeMap extends FixtureTypeMap
         'HumanName' => Name::class,
         'Coding' => Coding::class,
         'CodeableConcept' => CodeableConcept::class,
+        'Extension' => Extension::class,
         'string-primitive' => Leaf::class,
     ];
 }
@@ -689,6 +1085,8 @@ namespace TranslationRuntimeGenerated\Versions\R5\Types;
 
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureCodeableConcept;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureCoding;
+use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureExtension;
+use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureExtensionHolder;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureLeaf;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixtureName;
 use DCarbone\PHPFHIRTests\Fixtures\Translation\FixturePatient;
@@ -716,6 +1114,17 @@ final class Name extends FixtureName
 final class Patient extends FixturePatient
 {
     use VersionedType;
+    use FixtureExtensionHolder;
+}
+
+final class Extension extends FixtureExtension
+{
+    use VersionedType;
+
+    protected function newLeaf(string $value): FixtureLeaf
+    {
+        return new Leaf($value);
+    }
 }
 
 final class Coding extends FixtureCoding

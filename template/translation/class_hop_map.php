@@ -17,6 +17,7 @@
  */
 
 use DCarbone\PHPFHIR\Builder\Imports;
+use DCarbone\PHPFHIR\Translation\XverExtensionDefinition;
 use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 /** @var \DCarbone\PHPFHIR\Version $source */
@@ -34,13 +35,15 @@ $versionInterface = $imports->addCoreFileImport(
 $hopMapInterface = $imports->addCoreFileImport(
     $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_INTERFACE_HOP_MAP),
 )->getImportedName();
-$fieldRule = $imports->addCoreFileImport(
-    $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_ENUM_FIELD_RULE),
-)->getImportedName();
 $codeMapCoreFile = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_CODE_MAP);
 $codeMapClass = null;
 if ([] !== $definition->getCodeMaps()) {
     $codeMapClass = $imports->addCoreFileImport($codeMapCoreFile)->getImportedName();
+}
+$xverExtensionCoreFile = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_XVER_EXTENSION);
+$xverExtensionClass = null;
+if ([] !== $definition->getXverExtensions()) {
+    $xverExtensionClass = $imports->addCoreFileImport($xverExtensionCoreFile)->getImportedName();
 }
 // Source and target version classes share a short name; Imports assigns the second one an alias.
 $sourceVersion = $imports->addCoreFileImport(
@@ -49,6 +52,37 @@ $sourceVersion = $imports->addCoreFileImport(
 $targetVersion = $imports->addCoreFileImport(
     $target->getVersionCoreFiles()->getCoreFileByEntityName(PHPFHIR_VERSION_CLASSNAME_VERSION),
 )->getImportedName();
+
+$renderStrings = static fn(array $values): string => '[' . implode(', ', array_map(
+    static fn(string $value): string => var_export($value, true),
+    $values,
+)) . ']';
+
+$renderXverExtension = static function (XverExtensionDefinition $extension, string $indent) use (
+    &$renderXverExtension,
+    $renderStrings,
+    $xverExtensionClass,
+): string {
+    $children = '[]';
+    if ([] !== $extension->children) {
+        $childIndent = $indent . '    ';
+        $children = "[\n";
+        foreach ($extension->children as $child) {
+            $children .= $childIndent . $renderXverExtension($child, $childIndent) . ",\n";
+        }
+        $children .= $indent . ']';
+    }
+    return sprintf(
+        'new %s(%s, %s, %s, %s, %s, %s)',
+        $xverExtensionClass,
+        var_export($extension->url, true),
+        var_export($extension->field, true),
+        var_export($extension->modifier, true),
+        $renderStrings($extension->valueTypes),
+        $children,
+        var_export($extension->datatype, true),
+    );
+};
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -62,20 +96,6 @@ namespace <?php echo $namespace; ?>;
 final class <?php echo $className; ?> implements <?php echo $hopMapInterface; ?>
 
 {
-    private const _FIELD_RULES = [
-<?php foreach ($definition->getFieldRules() as $typeName => $fields) : ?>
-        <?php echo var_export($typeName, true); ?> => [
-<?php foreach ($fields as $fieldName => $rule) : ?>
-            <?php echo var_export($fieldName, true); ?> => <?php echo $fieldRule; ?>::<?php echo $rule->name; ?>,
-<?php endforeach; ?>
-        ],
-<?php endforeach; ?>
-    ];
-    private const _TYPE_RENAMES = [
-<?php foreach ($definition->getTypeRenames() as $sourceType => $targetType) : ?>
-        <?php echo var_export($sourceType, true); ?> => <?php echo var_export($targetType, true); ?>,
-<?php endforeach; ?>
-    ];
     private const _REMOVED_TYPES = [
 <?php foreach ($definition->getRemovedTypes() as $removedType) : ?>
         <?php echo var_export($removedType, true); ?>,
@@ -83,6 +103,8 @@ final class <?php echo $className; ?> implements <?php echo $hopMapInterface; ?>
     ];
     /** @var null|<?php echo $codeMapCoreFile->getFullyQualifiedName(true); ?>[] */
     private static null|array $_codeMaps = null;
+    /** @var null|array<string, <?php echo $xverExtensionCoreFile->getFullyQualifiedName(true); ?>> */
+    private static null|array $_xverExtensions = null;
 
     public function getSourceVersion(): <?php echo $versionInterface; ?>
 
@@ -94,16 +116,6 @@ final class <?php echo $className; ?> implements <?php echo $hopMapInterface; ?>
 
     {
         return new <?php echo $targetVersion; ?>();
-    }
-
-    public function getFieldRules(): array
-    {
-        return self::_FIELD_RULES;
-    }
-
-    public function getTypeRenames(): array
-    {
-        return self::_TYPE_RENAMES;
     }
 
     public function getRemovedTypes(): array
@@ -125,6 +137,18 @@ final class <?php echo $className; ?> implements <?php echo $hopMapInterface; ?>
             ];
         }
         return self::$_codeMaps;
+    }
+
+    public function getXverExtensions(): array
+    {
+        if (null === self::$_xverExtensions) {
+            self::$_xverExtensions = [
+<?php foreach ($definition->getXverExtensions() as $key => $extension) : ?>
+                <?php echo var_export($key, true); ?> => <?php echo $renderXverExtension($extension, '                '); ?>,
+<?php endforeach; ?>
+            ];
+        }
+        return self::$_xverExtensions;
     }
 }
 <?php return ob_get_clean();

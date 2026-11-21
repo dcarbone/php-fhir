@@ -23,7 +23,7 @@ use DCarbone\PHPFHIR\Utilities\ImportUtils;
 
 $versionInterface = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_INTERFACE_VERSION);
 $codeMap = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_CODE_MAP);
-$fieldRule = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_ENUM_FIELD_RULE);
+$xverExtension = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_XVER_EXTENSION);
 $imports = $coreFile->getImports();
 $imports->addCoreFileImports($versionInterface);
 
@@ -43,16 +43,17 @@ interface <?php echo $coreFile; ?>
 
     public function getTargetVersion(): VersionInterface;
 
-    /** @return array<string, array<string, <?php echo $fieldRule->getFullyQualifiedName(true); ?>>> type name => field name => rule */
-    public function getFieldRules(): array;
-
-    /** @return array<string, string> source type name => target type name */
-    public function getTypeRenames(): array;
-
     /** @return string[] */
     public function getRemovedTypes(): array;
 
     /** @return <?php echo $codeMap->getFullyQualifiedName(true); ?>[] */
     public function getCodeMaps(): array;
+
+    /**
+     * Official cross-version extensions that carry source fields the target version lacks.
+     *
+     * @return array<string, <?php echo $xverExtension->getFullyQualifiedName(true); ?>> Indexed by "<source type FHIR name>.<source field>".
+     */
+    public function getXverExtensions(): array;
 }
 <?php return ob_get_clean();

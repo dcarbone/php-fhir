@@ -19,6 +19,7 @@ namespace DCarbone\PHPFHIRTests\Translation;
  */
 
 use DCarbone\PHPFHIR\Config\TranslationPackageConfig;
+use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
 use DCarbone\PHPFHIR\Translation\CodeMapDefinition;
 use DCarbone\PHPFHIR\Translation\TranslationPackageReader;
 use DCarbone\PHPFHIRTests\Profiles\PackageFixtures;
@@ -93,6 +94,51 @@ class TranslationPackageReaderTest extends TestCase
                 'related' => null,
             ], $codeMaps[0]->getCodeMappings());
         }
+    }
+
+    public function testSameSourceCodeMappedDifferentlyByAnotherConceptMapIsAmbiguous(): void
+    {
+        $conceptMap = static fn(string $id, string $target): array => [
+            'resourceType' => 'ConceptMap',
+            'id' => $id,
+            'group' => [[
+                'source' => 'http://example.org/source',
+                'target' => 'http://example.org/target',
+                'element' => [
+                    ['code' => '7', 'target' => [['code' => $target, 'relationship' => 'equivalent']]],
+                    ['code' => 'same', 'target' => [['code' => 'stable', 'relationship' => 'equivalent']]],
+                ],
+            ]],
+        ];
+        $source = self::writePackageDir($this->_root . '/dir', [
+            'package.json' => self::manifest('example.xver'),
+            'ConceptMap-one.json' => $conceptMap('one', 'first'),
+            'ConceptMap-two.json' => $conceptMap('two', 'second'),
+        ]);
+
+        $codeMaps = (new TranslationPackageReader())->readCodeMaps(TranslationPackageConfig::fromArray([
+            'sourceVersion' => 'R4',
+            'targetVersion' => 'R5',
+            'source' => $source,
+        ]));
+
+        $this->assertCount(1, $codeMaps);
+        $this->assertSame(['7' => null, 'same' => 'stable'], $codeMaps[0]->getCodeMappings());
+    }
+
+    public function testMalformedConceptMapIsRejected(): void
+    {
+        $source = self::writePackageDir($this->_root . '/dir', [
+            'package.json' => self::manifest('example.xver'),
+            'ConceptMap-bad.json' => ['resourceType' => 'ConceptMap', 'id' => 'bad', 'group' => 'nope'],
+        ]);
+
+        $this->expectException(ProfileDefinitionException::class);
+        (new TranslationPackageReader())->readCodeMaps(TranslationPackageConfig::fromArray([
+            'sourceVersion' => 'R4',
+            'targetVersion' => 'R5',
+            'source' => $source,
+        ]));
     }
 
     public function testMergingCodeMapsCombinesCodesAndMarksConflictsUnmappable(): void

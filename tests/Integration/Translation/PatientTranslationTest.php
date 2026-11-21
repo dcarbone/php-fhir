@@ -20,6 +20,7 @@ namespace DCarbone\PHPFHIRTests\Integration\Translation;
 
 use DCarbone\PHPFHIRGenerated\Translation\OnUnmappableFieldEnum;
 use DCarbone\PHPFHIRGenerated\Translation\TranslationConfig;
+use DCarbone\PHPFHIRGenerated\Translation\TranslationNotice;
 use DCarbone\PHPFHIRGenerated\Translation\Translator;
 use DCarbone\PHPFHIRGenerated\Versions\DSTU1\Types\FHIRResource\FHIRPatient as DSTU1Patient;
 use DCarbone\PHPFHIRGenerated\Versions\DSTU2\Types\FHIRResource\FHIRDomainResource\FHIRPatient as DSTU2Patient;
@@ -110,6 +111,23 @@ class PatientTranslationTest extends AbstractTranslationIntegrationTestCase
             self::decode($result->getResource()),
         );
         self::assertSame([], $result->getNotices());
+    }
+
+    public function testDateTimeWithTimePrecisionIsUnmappableToFHIRDate(): void
+    {
+        $source = self::parse(
+            'DSTU1',
+            '{"resourceType":"Patient","birthDate":"1970-01-02T12:34:56Z"}',
+        );
+        $result = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::DROP)))
+            ->translate($source, self::version('R5'));
+        $noticePaths = array_map(
+            static fn(TranslationNotice $notice): string => $notice->getPath(),
+            $result->getNotices(),
+        );
+
+        self::assertArrayNotHasKey('birthDate', self::decode($result->getResource()));
+        self::assertContains('Patient.birthDate.value', $noticePaths);
     }
 
     public function testR5PatientChainsAllTheWayToDSTU1(): void

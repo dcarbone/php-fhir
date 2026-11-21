@@ -28,6 +28,7 @@ use DCarbone\PHPFHIR\Profiles\ValueSetExpander;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Translation\HopMapBuilder;
 use DCarbone\PHPFHIR\Translation\TranslationPackageReader;
+use DCarbone\PHPFHIR\Translation\XverExtensionReader;
 use DCarbone\PHPFHIR\Utilities\CopyrightUtils;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Version\Definition\Type;
@@ -334,7 +335,9 @@ class Builder
         }
 
         $codeMapsByHop = [];
+        $xverExtensionsByHop = [];
         $packageReader = new TranslationPackageReader();
+        $xverReader = new XverExtensionReader();
         foreach ($this->config->getTranslationPackages() as $package) {
             $sourceVersion = $package->getSourceVersion();
             $targetVersion = $package->getTargetVersion();
@@ -343,8 +346,10 @@ class Builder
             }
 
             $hopKey = $sourceVersion . "\0" . $targetVersion;
+            // The reverse map is generated as well so extensions carried across this hop can be unfolded again.
             if (!isset($adjacentVersionPairs[$hopKey])) {
                 $mapPairsByHop[$hopKey] = [$versionsByName[$sourceVersion], $versionsByName[$targetVersion]];
+                $mapPairsByHop[$targetVersion . "\0" . $sourceVersion] = [$versionsByName[$targetVersion], $versionsByName[$sourceVersion]];
             }
 
             foreach ($packageReader->readCodeMaps($package) as $codeMap) {
@@ -355,11 +360,38 @@ class Builder
                     $codeMapsByHop[$hopKey][$systemPairKey] = $codeMap;
                 }
             }
+
+            $xverExtensions = $xverReader->read(
+                $package,
+                $versionsByName[$sourceVersion]->getDefinition()->getTypes(),
+            );
+            foreach ($xverExtensions as $fieldKey => $xverExtension) {
+                if (isset($xverExtensionsByHop[$hopKey][$fieldKey])) {
+                    throw new \LogicException(sprintf(
+                        'Multiple translation packages define a cross-version extension for "%s" when translating %s to %s.',
+                        $fieldKey,
+                        $sourceVersion,
+                        $targetVersion,
+                    ));
+                }
+                $xverExtensionsByHop[$hopKey][$fieldKey] = $xverExtension;
+            }
+            $this->log->info(sprintf(
+                'Translation package "%s": %d cross-version extensions for %s to %s',
+                $package->getSource(),
+                count($xverExtensions),
+                $sourceVersion,
+                $targetVersion,
+            ));
         }
         foreach ($codeMapsByHop as &$codeMaps) {
             $codeMaps = array_values($codeMaps);
         }
         unset($codeMaps);
+        foreach ($xverExtensionsByHop as &$hopExtensions) {
+            ksort($hopExtensions, SORT_STRING);
+        }
+        unset($hopExtensions);
 
         $mapBuilder = new HopMapBuilder();
         $hopMapClasses = [];
@@ -379,7 +411,12 @@ class Builder
             FileUtils::mkdirRecurse($filePath);
             $this->writeFile(
                 $filePath,
-                $mapBuilder->renderMap($source, $target, $codeMapsByHop[$hopKey] ?? []),
+                $mapBuilder->renderMap(
+                    $source,
+                    $target,
+                    $codeMapsByHop[$hopKey] ?? [],
+                    $xverExtensionsByHop[$hopKey] ?? [],
+                ),
             );
             $hopMapClasses[$hopKey] = $fullyQualifiedName;
         }

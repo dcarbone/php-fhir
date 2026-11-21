@@ -62,6 +62,27 @@ class CodeMappingTranslationTest extends AbstractTranslationIntegrationTestCase
         );
     }
 
+    public function testCodeSystemChangeDropsTheSourceSystemVersion(): void
+    {
+        $source = self::parse(
+            'R5',
+            '{"resourceType":"Basic","code":{"coding":[{"system":"http://hl7.org/fhir/fhir-types",'
+            . '"version":"source-version","code":"DeviceUsage"}]}}',
+        );
+
+        $result = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::DROP)))
+            ->translate($source, self::version('R4'));
+        $coding = self::decode($result->getResource())['code']['coding'][0];
+
+        self::assertSame('http://hl7.org/fhir/resource-types', $coding['system']);
+        self::assertSame('DeviceUseStatement', $coding['code']);
+        self::assertArrayNotHasKey('version', $coding);
+        self::assertContains(
+            'Basic.code.coding.version R5->R4',
+            self::noticePaths($result),
+        );
+    }
+
     public function testCodingPrimitiveContainersAreUnwrappedWhenTheHopHasCodeMaps(): void
     {
         $source = self::parse(

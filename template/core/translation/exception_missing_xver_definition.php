@@ -31,7 +31,7 @@ class <?php echo $coreFile; ?> extends \RuntimeException
     public function __construct(string $path, string $sourceVersion, string $targetVersion)
     {
         parent::__construct(sprintf(
-            'No official HL7 xver extension definition is available for "%s" when translating %s to %s.',
+            'The unmappable-field policy is EXTENSION but no official HL7 xver extension can carry "%s" when translating %s to %s.',
             $path,
             $sourceVersion,
             $targetVersion,

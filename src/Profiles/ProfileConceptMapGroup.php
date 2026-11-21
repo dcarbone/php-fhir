@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace DCarbone\PHPFHIR\Enum;
+namespace DCarbone\PHPFHIR\Profiles;
 
 /*
- * Copyright 2026 Daniel Carbone (daniel.p.carbone@gmail.com)
+ * Copyright 2016-2026 Daniel Carbone (daniel.p.carbone@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,17 @@ namespace DCarbone\PHPFHIR\Enum;
  */
 
 /**
- * Field rules recorded in generated translation hop maps.  This is the single source of truth for the generated
- * FieldRuleEnum's cases.
+ * The elements of a ConceptMap mapping the codes of one code system to those of another.
  */
-enum TranslationFieldRuleEnum: string
+final class ProfileConceptMapGroup
 {
-    case UNMAPPABLE = 'unmappable';
+    /**
+     * @param list<ProfileConceptMapElement> $elements
+     */
+    public function __construct(
+        public readonly string $source,
+        public readonly string $target,
+        public readonly array $elements,
+    ) {
+    }
 }

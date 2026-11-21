@@ -21,14 +21,15 @@ namespace DCarbone\PHPFHIRTests;
 use DCarbone\PHPFHIR\Builder;
 use DCarbone\PHPFHIR\Config;
 use DCarbone\PHPFHIR\Config\TranslationPackageConfig;
-use DCarbone\PHPFHIR\Enum\TranslationFieldRuleEnum;
 use DCarbone\PHPFHIR\Render\Templates;
 use DCarbone\PHPFHIR\Translation\CodeMapDefinition;
 use DCarbone\PHPFHIR\Translation\HopMapBuilder;
 use DCarbone\PHPFHIR\Translation\HopMapDefinition;
 use DCarbone\PHPFHIR\Translation\TranslationPackageReader;
+use DCarbone\PHPFHIR\Translation\XverExtensionDefinition;
 use DCarbone\PHPFHIR\Utilities\FileUtils;
 use DCarbone\PHPFHIR\Version\Definition;
+use DCarbone\PHPFHIR\Version\Definition\Enumeration\EnumerationValue;
 use DCarbone\PHPFHIR\Version\Definition\Property;
 use DCarbone\PHPFHIR\Version\Definition\Type;
 use DCarbone\PHPFHIR\Version\Definition\Types;
@@ -106,7 +107,7 @@ class BuilderTranslationTest extends TestCase
         $translatorContents = file_get_contents($translator->getFilepath());
         self::assertIsString($translatorContents);
         self::assertStringNotContainsString('registerFactory', $translatorContents);
-        self::assertStringContainsString('$this->dispatcher->translate($resource, $context)', $translatorContents);
+        self::assertStringContainsString('$context->translate($resource)', $translatorContents);
 
         $registryFile = $config->getCoreFiles()
             ->getCoreFileByEntityName(PHPFHIR_TRANSLATION_CLASSNAME_VERSION_REGISTRY);
@@ -161,7 +162,7 @@ class BuilderTranslationTest extends TestCase
         }
     }
 
-    public function testHopMapBuilderRecordsRemovedTypesAndFields(): void
+    public function testHopMapBuilderRecordsRemovedTypes(): void
     {
         $config = $this->config();
         $r4 = $config->getVersion('R4');
@@ -169,68 +170,54 @@ class BuilderTranslationTest extends TestCase
         $sourceTypes = new Types($r4);
         $targetTypes = new Types($r5);
 
-        $sourcePatient = new Type($r4, 'Patient');
-        $sourcePatient->getProperties()->addOrReturnProperty(new Property(
-            $sourcePatient,
-            new \SimpleXMLElement('<element name="active"/>'),
-            '',
-            name: 'active',
-        ));
-        $sourcePatient->getProperties()->addOrReturnProperty(new Property(
-            $sourcePatient,
-            new \SimpleXMLElement('<element name="name"/>'),
-            '',
-            name: 'name',
-        ));
-        $sourceTypes->addOrReturnType($sourcePatient);
+        $sourceTypes->addOrReturnType(new Type($r4, 'Patient'));
         $sourceTypes->addOrReturnType(new Type($r4, 'OldResource'));
-
-        $targetPatient = new Type($r5, 'Patient');
-        $targetPatient->getProperties()->addOrReturnProperty(new Property(
-            $targetPatient,
-            new \SimpleXMLElement('<element name="name"/>'),
-            '',
-            name: 'name',
-        ));
-        $targetTypes->addOrReturnType($targetPatient);
+        $targetTypes->addOrReturnType(new Type($r5, 'Patient'));
 
         $builder = new HopMapBuilder();
         $definition = $builder->build($sourceTypes, $targetTypes);
 
         self::assertInstanceOf(HopMapDefinition::class, $definition);
         self::assertSame(['OldResource'], $definition->getRemovedTypes());
-        self::assertSame(['Patient' => ['active' => TranslationFieldRuleEnum::UNMAPPABLE]], $definition->getFieldRules());
-        self::assertSame([], $definition->getTypeRenames());
 
         $generated = $builder->renderMapDefinition($r4, $r5, $definition);
         self::assertNotEmpty(token_get_all($generated, TOKEN_PARSE));
         self::assertStringContainsString('final class HopMap_R4ToR5', $generated);
-        self::assertStringContainsString("'Patient' =>", $generated);
-        self::assertStringContainsString("'active' => FieldRuleEnum::UNMAPPABLE", $generated);
         self::assertStringContainsString("'OldResource',", $generated);
+        self::assertStringNotContainsString('getFieldRules', $generated);
         $reverse = $builder->build($targetTypes, $sourceTypes);
         self::assertSame([], $reverse->getRemovedTypes());
-        self::assertSame([], $reverse->getFieldRules());
-        self::assertSame([], $reverse->getTypeRenames());
         $reverseGenerated = $builder->renderMapDefinition($r5, $r4, $reverse);
         self::assertNotEmpty(token_get_all($reverseGenerated, TOKEN_PARSE));
         self::assertStringContainsString('final class HopMap_R5ToR4', $reverseGenerated);
     }
 
+    public function testHopMapBuilderDoesNotTreatRenamedValueSetEnumerationsAsRemoved(): void
+    {
+        $config = $this->config();
+        $r4 = $config->getVersion('R4');
+        $r5 = $config->getVersion('R5');
+        $sourceTypes = new Types($r4);
+        $targetTypes = new Types($r5);
+
+        $list = new Type($r4, 'AdministrativeGender-list');
+        $list->addEnumerationValue(new EnumerationValue('male'));
+        $sourceTypes->addOrReturnType($list);
+        $sourceTypes->addOrReturnType(new Type($r4, 'OldResource'));
+
+        $builder = new HopMapBuilder();
+
+        self::assertSame(['OldResource'], $builder->build($sourceTypes, $targetTypes)->getRemovedTypes());
+    }
+
     public function testHopMapDefinitionIsAnImmutableTypedDescriptor(): void
     {
         $definition = new HopMapDefinition(
-            fieldRules: ['Patient' => ['active' => TranslationFieldRuleEnum::UNMAPPABLE]],
-            typeRenames: ['OldType' => 'NewType'],
             removedTypes: ['OldResource'],
         );
 
-        $fieldRules = $definition->getFieldRules();
-        $fieldRules['Patient']['active'] = 'changed';
-        self::assertSame(['Patient' => ['active' => TranslationFieldRuleEnum::UNMAPPABLE]], $definition->getFieldRules());
-        self::assertSame(['OldType' => 'NewType'], $definition->getTypeRenames());
         self::assertSame(['OldResource'], $definition->getRemovedTypes());
-        foreach (['fieldRules', 'typeRenames', 'removedTypes'] as $name) {
+        foreach (['removedTypes', 'codeMaps', 'xverExtensions'] as $name) {
             self::assertTrue((new \ReflectionProperty(HopMapDefinition::class, $name))->isReadOnly());
         }
     }
@@ -240,8 +227,6 @@ class BuilderTranslationTest extends TestCase
         $config = $this->config();
         $builder = new HopMapBuilder();
         $definition = new HopMapDefinition(
-            fieldRules: [],
-            typeRenames: [],
             removedTypes: [],
             codeMaps: [
                 new CodeMapDefinition('http://example.org/source', 'http://example.org/target', [
@@ -257,6 +242,46 @@ class BuilderTranslationTest extends TestCase
         self::assertStringContainsString("'legacy' => 'current'", $generated);
         self::assertStringContainsString("'unmapped' => NULL", $generated);
         self::assertStringContainsString('public function getCodeMaps(): array', $generated);
+    }
+
+    public function testHopMapRendererIncludesTypedXverExtensionDefinitions(): void
+    {
+        $config = $this->config();
+        $builder = new HopMapBuilder();
+        $definition = new HopMapDefinition(
+            removedTypes: [],
+            xverExtensions: [
+                'Account.currency' => new XverExtensionDefinition(
+                    url: 'http://hl7.org/fhir/4.0/StructureDefinition/extension-Account.currency',
+                    field: 'currency',
+                    valueTypes: ['CodeableConcept'],
+                ),
+                'Account.diagnosis' => new XverExtensionDefinition(
+                    url: 'http://hl7.org/fhir/4.0/StructureDefinition/extension-Account.diagnosis',
+                    field: 'diagnosis',
+                    modifier: true,
+                    children: [
+                        new XverExtensionDefinition(url: 'condition', field: 'condition', datatype: 'CodeableReference'),
+                    ],
+                ),
+            ],
+        );
+
+        $generated = $builder->renderMapDefinition($config->getVersion('R4'), $config->getVersion('R5'), $definition);
+        self::assertNotEmpty(token_get_all($generated, TOKEN_PARSE));
+        self::assertStringContainsString('public function getXverExtensions(): array', $generated);
+        self::assertStringContainsString("'Account.currency' => new XverExtension(", $generated);
+        self::assertStringContainsString("'Account.diagnosis' => new XverExtension(", $generated);
+        self::assertStringContainsString("'CodeableReference'", $generated);
+
+        $empty = $builder->renderMapDefinition(
+            $config->getVersion('R4'),
+            $config->getVersion('R5'),
+            new HopMapDefinition(removedTypes: []),
+        );
+        self::assertNotEmpty(token_get_all($empty, TOKEN_PARSE));
+        self::assertStringContainsString('public function getXverExtensions(): array', $empty);
+        self::assertStringNotContainsString('new XverExtension(', $empty);
     }
 
     public function testConfiguredTranslationPackageIsWiredIntoItsDirectionalHopMap(): void
@@ -291,6 +316,36 @@ class BuilderTranslationTest extends TestCase
             ]],
         ], JSON_THROW_ON_ERROR));
 
+        file_put_contents($packagePath . '/StructureDefinition-extension-Account.currency.json', json_encode([
+            'resourceType' => 'StructureDefinition',
+            'id' => 'extension-Account.currency',
+            'url' => 'http://hl7.org/fhir/4.0/StructureDefinition/extension-Account.currency',
+            'name' => 'AccountCurrency',
+            'kind' => 'complex-type',
+            'abstract' => false,
+            'type' => 'Extension',
+            'baseDefinition' => 'http://hl7.org/fhir/StructureDefinition/Extension',
+            'derivation' => 'constraint',
+            'context' => [['type' => 'element', 'expression' => 'Account']],
+            'differential' => ['element' => [
+                ['id' => 'Extension', 'path' => 'Extension', 'min' => 0, 'max' => '*'],
+                [
+                    'id' => 'Extension.url',
+                    'path' => 'Extension.url',
+                    'min' => 1,
+                    'max' => '1',
+                    'fixedUri' => 'http://hl7.org/fhir/4.0/StructureDefinition/extension-Account.currency',
+                ],
+                [
+                    'id' => 'Extension.value[x]',
+                    'path' => 'Extension.value[x]',
+                    'min' => 0,
+                    'max' => '1',
+                    'type' => [['code' => 'CodeableConcept']],
+                ],
+            ]],
+        ], JSON_THROW_ON_ERROR));
+
         $config = Config::fromArray([
             'libraryPath' => $libraryPath,
             'libraryNamespacePrefix' => 'BuilderTranslationPackageGenerated',
@@ -307,8 +362,19 @@ class BuilderTranslationTest extends TestCase
         ]);
         foreach (['R4', 'R4B', 'R5'] as $versionName) {
             $version = $config->getVersion($versionName);
+            $types = new Types($version);
+            if ('R4' === $versionName) {
+                $account = $types->addOrReturnType(new Type($version, 'Account'));
+                $account->getProperties()->addOrReturnProperty(new Property(
+                    $account,
+                    new \SimpleXMLElement('<element/>'),
+                    '',
+                    name: 'currency',
+                    valueFHIRTypeName: 'CodeableConcept',
+                ));
+            }
             (new \ReflectionProperty(Definition::class, '_types'))
-                ->setValue($version->getDefinition(), new Types($version));
+                ->setValue($version->getDefinition(), $types);
         }
 
         (new Builder($config))->writeLibraryTranslationMaps();
@@ -318,10 +384,20 @@ class BuilderTranslationTest extends TestCase
         $forward = file_get_contents($forwardPath);
         self::assertIsString($forward);
         self::assertStringContainsString("'legacy' => 'current'", $forward);
-        self::assertFalse(file_exists(FileUtils::buildClassFilepath(
+        self::assertStringContainsString("'Account.currency' => new XverExtension(", $forward);
+        self::assertStringContainsString(
+            "'http://hl7.org/fhir/4.0/StructureDefinition/extension-Account.currency'",
+            $forward,
+        );
+        $reversePath = FileUtils::buildClassFilepath(
             $libraryPath,
             $config->getFullyQualifiedName(false, 'Translation', 'Maps', 'HopMap_R5ToR4'),
-        )));
+        );
+        self::assertFileExists($reversePath);
+        $reverse = file_get_contents($reversePath);
+        self::assertIsString($reverse);
+        self::assertStringContainsString('final class HopMap_R5ToR4', $reverse);
+        self::assertStringNotContainsString("'legacy' => 'current'", $reverse);
     }
 
     public function testTranslationPackageReaderKeepsNumericCodesAsStrings(): void
@@ -359,41 +435,10 @@ class BuilderTranslationTest extends TestCase
         $generated = (new HopMapBuilder())->renderMapDefinition(
             $this->config()->getVersion('R4'),
             $this->config()->getVersion('R5'),
-            new HopMapDefinition([], [], [], $codeMaps),
+            new HopMapDefinition([], $codeMaps),
         );
         self::assertStringContainsString("100 => '123'", $generated);
         self::assertStringContainsString("'b' => '7'", $generated);
-    }
-
-    public function testHopMapDefinitionRejectsUntypedFieldRules(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Field rule for "Patient.active" must be a');
-        new HopMapDefinition(['Patient' => ['active' => 'unmappable']], [], []);
-    }
-
-    public function testGeneratedFieldRuleEnumAndHopMapRenderGeneratorEnumCases(): void
-    {
-        $config = $this->config();
-        (new Builder($config))->writeLibraryCoreEntities(['R4', 'R5']);
-
-        $enumFile = $config->getCoreFiles()->getCoreFileByEntityName(PHPFHIR_TRANSLATION_ENUM_FIELD_RULE);
-        $enum = file_get_contents($enumFile->getFilepath());
-        self::assertIsString($enum);
-        foreach (TranslationFieldRuleEnum::cases() as $case) {
-            self::assertStringContainsString(
-                sprintf('case %s = %s;', $case->name, var_export($case->value, true)),
-                $enum,
-            );
-        }
-
-        $generated = (new HopMapBuilder())->renderMapDefinition(
-            $config->getVersion('R4'),
-            $config->getVersion('R5'),
-            new HopMapDefinition(['Patient' => ['active' => TranslationFieldRuleEnum::UNMAPPABLE]], [], []),
-        );
-        self::assertStringContainsString('return self::_FIELD_RULES;', $generated);
-        self::assertStringNotContainsString('::from(', $generated);
     }
 
     public function testVersionRegistryMatchesNestedVersionNamespacesMostSpecificFirst(): void

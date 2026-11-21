@@ -73,6 +73,13 @@ class ProfileElementTest extends TestCase
         $this->assertTrue($prohibited->isProhibited());
     }
 
+    public function testModifierFlag(): void
+    {
+        $this->assertFalse((new ProfileElement(['id' => 'A.b', 'path' => 'A.b']))->isModifier());
+        $this->assertFalse((new ProfileElement(['id' => 'A.b', 'path' => 'A.b', 'isModifier' => false]))->isModifier());
+        $this->assertTrue((new ProfileElement(['id' => 'A.b', 'path' => 'A.b', 'isModifier' => true]))->isModifier());
+    }
+
     public static function invalidElementProvider(): array
     {
         return [

@@ -19,6 +19,9 @@ namespace DCarbone\PHPFHIR\Translation;
  */
 
 use DCarbone\PHPFHIR\Config\TranslationPackageConfig;
+use DCarbone\PHPFHIR\Enum\ProfileResourceTypeEnum;
+use DCarbone\PHPFHIR\Profiles\ProfileDefinitionException;
+use DCarbone\PHPFHIR\Profiles\ProfilePackageException;
 use DCarbone\PHPFHIR\Profiles\ProfilePackageReader;
 
 final class TranslationPackageReader
@@ -30,74 +33,22 @@ final class TranslationPackageReader
      * non-equivalent targets are retained as null mappings so runtime translation can apply policy.
      *
      * @return \DCarbone\PHPFHIR\Translation\CodeMapDefinition[]
+     * @throws ProfilePackageException
+     * @throws ProfileDefinitionException
      */
     public function readCodeMaps(TranslationPackageConfig $config): array
     {
-        $resources = ProfilePackageReader::readResources($config->getSource(), 'ConceptMap');
+        $package = ProfilePackageReader::readSource($config->getSource(), ProfileResourceTypeEnum::CONCEPT_MAP);
         $grouped = [];
-        foreach ($resources as $resource) {
-            $groups = $resource['group'] ?? [];
-            if (!is_array($groups)) {
-                throw new \UnexpectedValueException(sprintf(
-                    'ConceptMap "%s" has a non-array "group" value.',
-                    $resource['id'] ?? '(unknown)',
-                ));
-            }
-            foreach ($groups as $group) {
-                if (!is_array($group)
-                    || !isset($group['source'], $group['target'])
-                    || !is_string($group['source'])
-                    || !is_string($group['target'])
-                    || '' === $group['source']
-                    || '' === $group['target']) {
-                    continue;
-                }
-
-                $elements = $group['element'] ?? [];
-                if (!is_array($elements)) {
-                    throw new \UnexpectedValueException(sprintf(
-                        'ConceptMap "%s" has a non-array group "element" value.',
-                        $resource['id'] ?? '(unknown)',
-                    ));
-                }
-                foreach ($elements as $element) {
-                    if (!is_array($element) || !isset($element['code']) || !is_string($element['code'])) {
-                        throw new \UnexpectedValueException(sprintf(
-                            'ConceptMap "%s" contains an element without a string source code.',
-                            $resource['id'] ?? '(unknown)',
-                        ));
-                    }
-
-                    $equivalentTargets = [];
-                    $targets = $element['target'] ?? [];
-                    if (!is_array($targets)) {
-                        throw new \UnexpectedValueException(sprintf(
-                            'ConceptMap "%s" contains a non-array target list.',
-                            $resource['id'] ?? '(unknown)',
-                        ));
-                    }
-                    foreach ($targets as $target) {
-                        if (!is_array($target) || !isset($target['code']) || !is_string($target['code'])) {
-                            continue;
-                        }
-                        $relationship = $target['relationship'] ?? $target['equivalence'] ?? null;
-                        if ('equivalent' === $relationship) {
-                            $equivalentTargets[$target['code']] = true;
-                        }
-                    }
-                    // Numeric codes become integer array keys, so restore them to strings.
-                    $targetCodes = array_keys($equivalentTargets);
-                    $targetCode = 1 === count($targetCodes) ? (string)$targetCodes[0] : null;
-
-                    $sourceSystem = $group['source'];
-                    $targetSystem = $group['target'];
-                    $existing = $grouped[$sourceSystem][$targetSystem][$element['code']] ?? null;
-                    if (array_key_exists($element['code'], $grouped[$sourceSystem][$targetSystem] ?? [])) {
-                        if ($existing !== $targetCode) {
-                            $grouped[$sourceSystem][$targetSystem][$element['code']] = null;
-                        }
-                    } else {
-                        $grouped[$sourceSystem][$targetSystem][$element['code']] = $targetCode;
+        foreach ($package->getConceptMaps() as $conceptMap) {
+            foreach ($conceptMap->groups as $group) {
+                foreach ($group->elements as $element) {
+                    $targetCode = 1 === count($element->equivalentTargets) ? $element->equivalentTargets[0] : null;
+                    if (!array_key_exists($element->code, $grouped[$group->source][$group->target] ?? [])) {
+                        $grouped[$group->source][$group->target][$element->code] = $targetCode;
+                    } elseif ($grouped[$group->source][$group->target][$element->code] !== $targetCode) {
+                        // the same source code mapped differently by another ConceptMap is ambiguous.
+                        $grouped[$group->source][$group->target][$element->code] = null;
                     }
                 }
             }
