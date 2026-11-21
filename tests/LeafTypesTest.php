@@ -83,6 +83,31 @@ class LeafTypesTest extends TestCase
         self::assertArrayHasKey(PHPFHIR_TYPES_INTERFACE_LEAF_TYPE, $xhtml->getDirectlyImplementedInterfaces());
     }
 
+    public function testOnlyConcretePropertyTypesAreMarkedAsAttributes(): void
+    {
+        file_put_contents(
+            $this->_tmpdir->path('fhir-base.xsd'),
+            "<!--\nGenerated on 2022-01-01 for FHIR v4.0.1\n-->\n",
+        );
+        $version = $this->_config->getVersion('R4');
+        $abstract = (new Type($version, 'Base'))->setKind(TypeKindEnum::ELEMENT)->setUsedAsProperty();
+        $concrete = (new Type($version, 'Element'))->setKind(TypeKindEnum::ELEMENT)->setUsedAsProperty();
+        $unused = (new Type($version, 'Unused'))->setKind(TypeKindEnum::ELEMENT);
+
+        $rendered = Templates::renderVersionTypeClass($version, $abstract);
+        self::assertStringContainsString('abstract class FHIRBase', $rendered);
+        self::assertStringNotContainsString('#[\\Attribute(', $rendered);
+        self::assertNotEmpty(token_get_all($rendered, TOKEN_PARSE));
+
+        $rendered = Templates::renderVersionTypeClass($version, $concrete);
+        self::assertStringContainsString('#[\\Attribute(\\Attribute::TARGET_PROPERTY)]', $rendered);
+        self::assertStringNotContainsString('abstract class', $rendered);
+        self::assertNotEmpty(token_get_all($rendered, TOKEN_PARSE));
+
+        $rendered = Templates::renderVersionTypeClass($version, $unused);
+        self::assertStringNotContainsString('#[\\Attribute(', $rendered);
+    }
+
     public function testGeneratedMarkerPreservesPrimitiveAndXHTMLContracts(): void
     {
         (new Builder($this->_config))->writeLibraryCoreEntities();
