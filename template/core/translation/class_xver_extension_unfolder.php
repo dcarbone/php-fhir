@@ -95,7 +95,8 @@ final class <?php echo $coreFile; ?>
 
             $remaining = [];
             foreach ($extensions as $extension) {
-                if (!$extension instanceof TypeInterface || !$this->unfoldExtension($target, $targetFields, $extension, $modifier, $index)) {
+                if (!$extension instanceof TypeInterface
+                    || !$this->unfoldExtension($target, $targetFields, $extension, $modifier, $index, $context)) {
                     $remaining[] = $extension;
                 }
             }
@@ -118,6 +119,7 @@ final class <?php echo $coreFile; ?>
         TypeInterface $extension,
         bool $modifier,
         array $index,
+        TranslationContext $context,
     ): bool {
         $populated = $this->populated($extension);
         $url = $this->urlOf($populated);
@@ -138,7 +140,7 @@ final class <?php echo $coreFile; ?>
             if (!$field->isCollection() && null !== $current) {
                 continue;
             }
-            $value = $this->unfoldValue($definition, $field->getType(), $populated);
+            $value = $this->unfoldValue($definition, $field->getType(), $populated, $context);
             if (null === $value) {
                 continue;
             }
@@ -157,11 +159,16 @@ final class <?php echo $coreFile; ?>
      * @param class-string $fieldType
      * @param array<string, mixed> $populated Populated fields of the extension, keyed by field name.
      */
-    private function unfoldValue(XverExtension $definition, string $fieldType, array $populated): null|TypeInterface
+    private function unfoldValue(
+        XverExtension $definition,
+        string $fieldType,
+        array $populated,
+        TranslationContext $context,
+    ): null|TypeInterface
     {
         unset($populated['url']);
         if ($definition->isComplex()) {
-            return $this->unfoldChildren($definition, $fieldType, $populated);
+            return $this->unfoldChildren($definition, $fieldType, $populated, $context);
         }
 
         if (1 !== count($populated)) {
@@ -178,28 +185,101 @@ final class <?php echo $coreFile; ?>
 
         // Enum-bound elements (e.g. Account.status) are carried as plain codes.
         if ('valueCode' !== $name
+            || !$value instanceof PrimitiveContainerTypeInterface
             || !is_a($fieldType, PrimitiveContainerTypeInterface::class, true)
-            || !method_exists($fieldType, 'setValue')
-            || !method_exists($value, 'getValue')
-            || ['value'] !== array_keys($this->populated($value))) {
+            || !method_exists($fieldType, 'setValue')) {
             return null;
         }
-        $primitive = $value->getValue();
-        $code = $primitive instanceof TypeInterface && method_exists($primitive, 'getValue') ? $primitive->getValue() : null;
-        if (!is_string($code)) {
-            return null;
-        }
-        $enumerated = new $fieldType();
-        $enumerated->setValue($code);
+        return $this->translateEnumValue($value, $fieldType, $context);
+    }
 
-        return $enumerated;
+    /**
+     * Converts a plain code primitive to an enum-bound container, translating its element metadata.
+     *
+     * @param class-string<TypeInterface> $targetClass
+     */
+    private function translateEnumValue(
+        PrimitiveContainerTypeInterface $source,
+        string $targetClass,
+        TranslationContext $context,
+    ): null|TypeInterface {
+        $value = method_exists($source, 'getValue') ? $source->getValue() : null;
+        $valueType = $value instanceof TypeInterface ? $value->_getFHIRTypeName() : null;
+        if ($value instanceof TypeInterface && method_exists($value, 'getValue')) {
+            $value = $value->getValue();
+        }
+        if ($value instanceof \BackedEnum) {
+            $value = $value->value;
+        }
+        if (!is_string($value)) {
+            return null;
+        }
+
+        if (!(new \ReflectionClass($targetClass))->isInstantiable()) {
+            $typeMap = $context->getTargetVersion()->getTypeMap();
+            $concreteClass = null === $valueType ? null : $typeMap::getTypeClassname($valueType);
+            if (null === $concreteClass || !is_a($concreteClass, $targetClass, true)) {
+                return null;
+            }
+            $targetClass = $concreteClass;
+        }
+
+        $target = new $targetClass();
+        if (!$target instanceof PrimitiveContainerTypeInterface || !method_exists($target, 'setValue')) {
+            return null;
+        }
+        $target->setValue($value);
+
+        $sourceFields = $this->metadataFactory->forType($source);
+        $targetFields = $this->metadataFactory->forType($target);
+        foreach ($sourceFields as $fieldName => $sourceField) {
+            if ('value' === $fieldName) {
+                continue;
+            }
+            $sourceValue = $source->{$sourceField->getGetter()}();
+            if (null === $sourceValue || [] === $sourceValue) {
+                continue;
+            }
+            $targetField = $targetFields[$fieldName] ?? null;
+            if (null === $targetField) {
+                return null;
+            }
+
+            $translatedValues = [];
+            foreach (is_array($sourceValue) ? $sourceValue : [$sourceValue] as $sourceItem) {
+                if (!$sourceItem instanceof TypeInterface) {
+                    return null;
+                }
+                $translatedItem = $context->translateField($fieldName, $sourceItem, $targetField->getType());
+                if (null === $translatedItem || !is_a($translatedItem, $targetField->getType())) {
+                    return null;
+                }
+                $translatedValues[] = $translatedItem;
+            }
+            if ([] === $translatedValues) {
+                continue;
+            }
+
+            if ($targetField->isCollection()) {
+                $target->{$targetField->getSetter()}(...$translatedValues);
+            } else {
+                $target->{$targetField->getSetter()}($translatedValues[0]);
+            }
+        }
+
+        return $target;
     }
 
     /**
      * @param class-string $fieldType
      * @param array<string, mixed> $populated
      */
-    private function unfoldChildren(XverExtension $definition, string $fieldType, array $populated): null|TypeInterface
+    private function unfoldChildren(
+        XverExtension $definition,
+        string $fieldType,
+        array $populated,
+        TranslationContext $context,
+    ): null|TypeInterface
     {
         $children = $populated['extension'] ?? null;
         if (1 !== count($populated) || !is_array($children) || !is_a($fieldType, TypeInterface::class, true)) {
@@ -228,7 +308,7 @@ final class <?php echo $coreFile; ?>
                 if ($childDefinition->getUrl() !== $name || null === $field) {
                     continue;
                 }
-                $value = $this->unfoldValue($childDefinition, $field->getType(), $childPopulated);
+                $value = $this->unfoldValue($childDefinition, $field->getType(), $childPopulated, $context);
                 if (null !== $value) {
                     $collected[$childDefinition->getField()][] = $value;
                     $matched = true;

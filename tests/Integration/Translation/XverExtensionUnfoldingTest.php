@@ -113,16 +113,21 @@ class XverExtensionUnfoldingTest extends AbstractTranslationIntegrationTestCase
 
     public function testAnEnumBoundCodeIsRestored(): void
     {
-        $json = '{"resourceType":"Coverage","id":"c1","status":"active","kind":"insurance",'
+        $json = '{"resourceType":"Coverage","id":"c1","status":"active","kind":"insurance","_kind":{"id":"kind-id",'
+            . '"extension":[{"url":"http://example.org/kind-note","valueString":"preserve"}]},'
             . '"beneficiary":{"reference":"Patient/1"}}';
 
         $carried = (new Translator())->translate(self::parse('R5', $json), self::version('R4'));
         $extensions = self::decode($carried->getResource())['extension'];
         self::assertSame('http://hl7.org/fhir/5.0/StructureDefinition/extension-Coverage.kind', $extensions[0]['url']);
         self::assertSame('insurance', $extensions[0]['valueCode']);
+        self::assertSame('kind-id', $extensions[0]['_valueCode']['id']);
+        self::assertSame('preserve', $extensions[0]['_valueCode']['extension'][0]['valueString']);
 
         $coverage = self::roundTrip($json, 'R5', 'R4');
         self::assertSame('insurance', $coverage['kind']);
+        self::assertSame('kind-id', $coverage['_kind']['id']);
+        self::assertSame('preserve', $coverage['_kind']['extension'][0]['valueString']);
         self::assertArrayNotHasKey('extension', $coverage);
     }
 

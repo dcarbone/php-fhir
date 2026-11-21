@@ -22,8 +22,10 @@ use DCarbone\PHPFHIRGenerated\Translation\GenericTypeTranslator;
 use DCarbone\PHPFHIRGenerated\Translation\TranslationContext;
 use DCarbone\PHPFHIRGenerated\Translation\TypeTranslatorInterface;
 use DCarbone\PHPFHIRGenerated\Types\TypeInterface;
+use DCarbone\PHPFHIRGenerated\Versions\DSTU1\Types\FHIRIdPrimitive as DSTU1IdPrimitive;
 use DCarbone\PHPFHIRGenerated\Versions\DSTU1\Types\FHIRElement\FHIRCodeableConcept as DSTU1CodeableConcept;
 use DCarbone\PHPFHIRGenerated\Versions\DSTU1\Types\FHIRElement\FHIRCoding as DSTU1Coding;
+use DCarbone\PHPFHIRGenerated\Versions\DSTU1\Types\FHIRElement\FHIRExtension as DSTU1Extension;
 use DCarbone\PHPFHIRGenerated\Versions\DSTU1\Types\FHIRResource\FHIRPatient as DSTU1Patient;
 use DCarbone\PHPFHIRGenerated\Versions\DSTU2\Types\FHIRResource\FHIRDomainResource\FHIRPatient as DSTU2Patient;
 
@@ -50,13 +52,40 @@ final class DSTU2ToDSTU1PatientGenderTranslator implements TypeTranslatorInterfa
         if (!$source instanceof DSTU2Patient || null === $source->getGender()) {
             return $this->default->translate($source, $context);
         }
-        $gender = (string)$source->getGender();
+        $sourceGender = $source->getGender();
+        $gender = (string)$sourceGender;
+        if (!isset(self::GENDER_MAP[$gender])) {
+            return $this->default->translate($source, $context);
+        }
         $withoutGender = clone $source;
         $withoutGender->setGender(null);
         $target = $this->default->translate($withoutGender, $context);
-        if ($target instanceof DSTU1Patient && isset(self::GENDER_MAP[$gender])) {
+        if ($target instanceof DSTU1Patient) {
             [$code, $display] = self::GENDER_MAP[$gender];
-            $target->setGender((new DSTU1CodeableConcept())->addCoding(
+            $targetGender = new DSTU1CodeableConcept();
+            $sourceId = $sourceGender->getId();
+            if (null !== $sourceId) {
+                $translatedId = $context->translateField('gender.id', $sourceId, DSTU1IdPrimitive::class);
+                if (!$translatedId instanceof DSTU1IdPrimitive) {
+                    throw new \UnexpectedValueException('Translated Patient.gender id has an unexpected type.');
+                }
+                $targetGender->setId($translatedId);
+            }
+            $extensions = [];
+            foreach ($sourceGender->getExtension() as $extension) {
+                if (!$extension instanceof TypeInterface) {
+                    throw new \UnexpectedValueException('Patient.gender extension has an unexpected type.');
+                }
+                $translated = $context->translateField('gender.extension', $extension, DSTU1Extension::class);
+                if (null !== $translated) {
+                    if (!$translated instanceof DSTU1Extension) {
+                        throw new \UnexpectedValueException('Translated Patient.gender extension has an unexpected type.');
+                    }
+                    $extensions[] = $translated;
+                }
+            }
+            $targetGender->setExtension(...$extensions);
+            $target->setGender($targetGender->addCoding(
                 (new DSTU1Coding())->setSystem(self::GENDER_SYSTEM)->setCode($code)->setDisplay($display),
             ));
         }

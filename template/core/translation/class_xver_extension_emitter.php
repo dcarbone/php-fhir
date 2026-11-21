@@ -161,15 +161,119 @@ final class <?php echo $coreFile; ?>
         // Enum-bound elements (e.g. Account.status) are described as plain codes by the extension definition.
         $codeField = $extensionFields['valueCode'] ?? null;
         if (null !== $codeField && $item instanceof PrimitiveContainerTypeInterface && in_array('code', $valueTypes, true)) {
-            $enum = method_exists($item, 'getValue') ? $item->getValue() : null;
-            $code = $enum instanceof TypeInterface && method_exists($enum, 'getValue') ? $enum->getValue() : null;
-            if (is_string($code)) {
-                $extension->{$codeField->getSetter()}($code);
+            $translated = $this->translateEnumValue($item, $codeField->getType(), $context);
+            if (null !== $translated && is_a($translated, $codeField->getType())) {
+                $extension->{$codeField->getSetter()}($translated);
+                return true;
+            }
+            if (!$this->hasPrimitiveMetadata($item)) {
+                $value = method_exists($item, 'getValue') ? $item->getValue() : null;
+                if ($value instanceof TypeInterface && method_exists($value, 'getValue')) {
+                    $value = $value->getValue();
+                }
+                if ($value instanceof \BackedEnum) {
+                    $value = $value->value;
+                }
+                if (is_string($value)) {
+                    $extension->{$codeField->getSetter()}($value);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private function hasPrimitiveMetadata(PrimitiveContainerTypeInterface $source): bool
+    {
+        foreach ($this->metadataFactory->forType($source) as $fieldName => $field) {
+            if ('value' === $fieldName) {
+                continue;
+            }
+            $value = $source->{$field->getGetter()}();
+            if (null !== $value && [] !== $value) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Converts an enum-bound primitive container to a plain code, translating its element metadata.
+     *
+     * @param class-string<TypeInterface> $targetClass
+     */
+    private function translateEnumValue(
+        PrimitiveContainerTypeInterface $source,
+        string $targetClass,
+        TranslationContext $context,
+    ): null|TypeInterface {
+        $value = method_exists($source, 'getValue') ? $source->getValue() : null;
+        $valueType = $value instanceof TypeInterface ? $value->_getFHIRTypeName() : null;
+        if ($value instanceof TypeInterface && method_exists($value, 'getValue')) {
+            $value = $value->getValue();
+        }
+        if ($value instanceof \BackedEnum) {
+            $value = $value->value;
+        }
+        if (!is_string($value)) {
+            return null;
+        }
+
+        if (!(new \ReflectionClass($targetClass))->isInstantiable()) {
+            $typeMap = $context->getTargetVersion()->getTypeMap();
+            $concreteClass = null === $valueType ? null : $typeMap::getTypeClassname($valueType);
+            if (null === $concreteClass || !is_a($concreteClass, $targetClass, true)) {
+                return null;
+            }
+            $targetClass = $concreteClass;
+        }
+
+        $target = new $targetClass();
+        if (!$target instanceof PrimitiveContainerTypeInterface || !method_exists($target, 'setValue')) {
+            return null;
+        }
+        $target->setValue($value);
+
+        $sourceFields = $this->metadataFactory->forType($source);
+        $targetFields = $this->metadataFactory->forType($target);
+        foreach ($sourceFields as $fieldName => $sourceField) {
+            if ('value' === $fieldName) {
+                continue;
+            }
+            $sourceValue = $source->{$sourceField->getGetter()}();
+            if (null === $sourceValue || [] === $sourceValue) {
+                continue;
+            }
+            $targetField = $targetFields[$fieldName] ?? null;
+            if (null === $targetField) {
+                return null;
+            }
+
+            $translatedValues = [];
+            foreach (is_array($sourceValue) ? $sourceValue : [$sourceValue] as $sourceItem) {
+                if (!$sourceItem instanceof TypeInterface) {
+                    return null;
+                }
+                $translatedItem = $context->translateField($fieldName, $sourceItem, $targetField->getType());
+                if (null === $translatedItem || !is_a($translatedItem, $targetField->getType())) {
+                    return null;
+                }
+                $translatedValues[] = $translatedItem;
+            }
+            if ([] === $translatedValues) {
+                continue;
+            }
+
+            if ($targetField->isCollection()) {
+                $target->{$targetField->getSetter()}(...$translatedValues);
+            } else {
+                $target->{$targetField->getSetter()}($translatedValues[0]);
+            }
+        }
+
+        return $target;
     }
 
     /**

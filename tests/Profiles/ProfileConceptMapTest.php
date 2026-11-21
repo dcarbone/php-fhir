@@ -63,6 +63,29 @@ class ProfileConceptMapTest extends TestCase
         $this->assertSame([], $group->elements[3]->equivalentTargets);
     }
 
+    public function testSkipsValueSetElementsWithoutDiscardingCodeBasedMappings(): void
+    {
+        $map = ProfileConceptMap::fromResource([
+            'resourceType' => 'ConceptMap',
+            'id' => 'value-set-source',
+            'group' => [[
+                'source' => 'http://example.org/source',
+                'target' => 'http://example.org/target',
+                'element' => [
+                    ['code' => 'source-code', 'target' => [['code' => 'target-code', 'relationship' => 'equivalent']]],
+                    [
+                        'valueSet' => 'http://example.org/ValueSet/source-codes',
+                        'target' => [['valueSet' => 'http://example.org/ValueSet/target-codes', 'relationship' => 'equivalent']],
+                    ],
+                ],
+            ]],
+        ]);
+
+        self::assertCount(1, $map->groups[0]->elements);
+        self::assertSame('source-code', $map->groups[0]->elements[0]->code);
+        self::assertSame(['target-code'], $map->groups[0]->elements[0]->equivalentTargets);
+    }
+
     public function testSkipsGroupsThatDoNotMapOneCodeSystemToAnother(): void
     {
         $map = ProfileConceptMap::fromResource([
@@ -170,7 +193,7 @@ class ProfileConceptMapTest extends TestCase
         return [
             'group not a list' => [['id' => 'cm', 'group' => 'nope'], 'has a non-array "group" value'],
             'element not a list' => [$group(['element' => 'nope']), 'has a non-array group "element" value'],
-            'element without code' => [$group(['element' => [['target' => []]]]), 'without a string source code'],
+            'element without code or value set' => [$group(['element' => [['target' => []]]]), 'without a string source code or a supported value set'],
             'element code not a string' => [$group(['element' => [['code' => 1]]]), 'without a string source code'],
             'target not a list' => [$group(['element' => [['code' => 'a', 'target' => 'nope']]]), 'non-array target list'],
             'source version not a string' => [$group(['sourceVersion' => 1]), 'invalid "sourceVersion"'],

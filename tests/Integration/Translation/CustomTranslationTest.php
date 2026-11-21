@@ -61,6 +61,76 @@ class CustomTranslationTest extends AbstractTranslationIntegrationTestCase
         self::assertSame([], $result->getNotices());
     }
 
+    public function testRegisteredTranslatorPreservesMappedStatusMetadata(): void
+    {
+        $json = '{"resourceType":"Encounter","id":"e1","status":"on-hold","_status":{"id":"status-id",'
+            . '"extension":[{"url":"http://example.org/status-note","valueString":"preserve"}]}}';
+        $translator = (new Translator())->register(
+            self::version('R5'),
+            self::version('R4'),
+            'Encounter',
+            new R5ToR4EncounterStatusTranslator(),
+        );
+
+        $result = $translator->translate(self::parse('R5', $json), self::version('R4'));
+        $status = self::decode($result->getResource())['_status'];
+
+        self::assertSame('status-id', $status['id']);
+        self::assertSame('preserve', $status['extension'][0]['valueString']);
+        self::assertSame('onleave', self::decode($result->getResource())['status']);
+    }
+
+    public function testUnmappedGenderDelegatesToConfiguredPolicy(): void
+    {
+        $translator = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::THROW)))->register(
+            self::version('DSTU2'),
+            self::version('DSTU1'),
+            'Patient',
+            new DSTU2ToDSTU1PatientGenderTranslator(),
+        );
+        $source = self::parse('DSTU2', '{"resourceType":"Patient","gender":"unknown"}');
+
+        try {
+            $translator->translate($source, self::version('DSTU1'));
+            self::fail('Expected the THROW policy to reject an unmapped gender.');
+        } catch (\DCarbone\PHPFHIRGenerated\Translation\UnmappableFieldException $exception) {
+            self::assertStringContainsString('Patient.gender', $exception->getMessage());
+        }
+
+        $dropTranslator = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::DROP)))->register(
+            self::version('DSTU2'),
+            self::version('DSTU1'),
+            'Patient',
+            new DSTU2ToDSTU1PatientGenderTranslator(),
+        );
+        $result = $dropTranslator->translate($source, self::version('DSTU1'));
+
+        self::assertArrayNotHasKey('gender', self::decode($result->getResource()));
+        self::assertSame(
+            ['Patient.gender.value DSTU2->DSTU1', 'Patient.gender DSTU2->DSTU1'],
+            self::noticePaths($result),
+        );
+    }
+
+    public function testRegisteredGenderTranslatorPreservesMetadataOnMappedValue(): void
+    {
+        $json = '{"resourceType":"Patient","gender":"female","_gender":{"id":"gender-id",'
+            . '"extension":[{"url":"http://example.org/gender-note","valueString":"preserve"}]}}';
+        $translator = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::THROW)))->register(
+            self::version('DSTU2'),
+            self::version('DSTU1'),
+            'Patient',
+            new DSTU2ToDSTU1PatientGenderTranslator(),
+        );
+
+        $result = $translator->translate(self::parse('DSTU2', $json), self::version('DSTU1'));
+        $gender = self::decode($result->getResource())['gender'];
+
+        self::assertSame('gender-id', $gender['id']);
+        self::assertSame('preserve', $gender['extension'][0]['valueString']);
+        self::assertSame('F', $gender['coding'][0]['code']);
+    }
+
     public function testRegisteredTranslatorParticipatesInMultiHopChain(): void
     {
         $translator = (new Translator(new TranslationConfig(OnUnmappableFieldEnum::THROW)))->register(

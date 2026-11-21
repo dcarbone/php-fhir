@@ -96,9 +96,18 @@ final class ProfileConceptMap
         }
         $elements = [];
         foreach ($rawElements as $rawElement) {
-            if (!is_array($rawElement) || !isset($rawElement['code']) || !is_string($rawElement['code'])) {
+            if (!is_array($rawElement)) {
                 throw new ProfileDefinitionException(sprintf(
-                    'ConceptMap "%s" contains an element without a string source code.',
+                    'ConceptMap "%s" contains a non-array source element.',
+                    $id,
+                ));
+            }
+            if (!isset($rawElement['code']) || !is_string($rawElement['code'])) {
+                if (isset($rawElement['valueSet']) && is_string($rawElement['valueSet']) && '' !== $rawElement['valueSet']) {
+                    continue;
+                }
+                throw new ProfileDefinitionException(sprintf(
+                    'ConceptMap "%s" contains an element without a string source code or a supported value set.',
                     $id,
                 ));
             }

@@ -243,7 +243,8 @@ Creating an element uses the same declared-type resolution as ordinary field tra
 Both helpers share the generic translator's metadata factory. The emitter operates only under
 `EXTENSION` and only on fields absent from the target. It builds simple `value[x]` payloads,
 enum-bound `valueCode` payloads, and supported nested extension slices from the hop's immutable
-`XverExtension` descriptors.
+`XverExtension` descriptors. Enum values are converted to plain codes while retaining their
+primitive element ID and extensions; unfolding restores that metadata with the enum value.
 
 The unfolder runs under every policy. It obtains definitions from
 `HopMapRegistry::getMap(targetVersion, sourceVersion)`, not by inverting the current hop's

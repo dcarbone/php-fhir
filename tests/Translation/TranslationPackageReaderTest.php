@@ -76,6 +76,10 @@ class TranslationPackageReaderTest extends TestCase
                             ],
                         ],
                         ['code' => 'related', 'target' => [['code' => 'related', 'relationship' => 'related-to']]],
+                        [
+                            'valueSet' => 'http://example.org/ValueSet/source-codes',
+                            'target' => [['valueSet' => 'http://example.org/ValueSet/target-codes', 'relationship' => 'equivalent']],
+                        ],
                     ],
                 ],
             ],

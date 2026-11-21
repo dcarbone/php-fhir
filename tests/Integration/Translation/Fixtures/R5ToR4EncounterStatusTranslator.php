@@ -51,7 +51,11 @@ final class R5ToR4EncounterStatusTranslator implements TypeTranslatorInterface
         }
         $status = (string)$source->getStatus();
         if (isset(self::STATUS_MAP[$status])) {
-            $target->setStatus(self::STATUS_MAP[$status]);
+            $targetStatus = $target->getStatus()?->getValue();
+            if (!$targetStatus instanceof TypeInterface || !method_exists($targetStatus, 'setValue')) {
+                throw new \UnexpectedValueException('Translated Encounter.status must expose a mutable value.');
+            }
+            $targetStatus->setValue(self::STATUS_MAP[$status]);
         }
         return $target;
     }
