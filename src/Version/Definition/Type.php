@@ -430,6 +430,12 @@ class Type
         return $this->getKind()->isOneOf(TypeKindEnum::PRIMITIVE);
     }
 
+    public function isLeafType(): bool
+    {
+        return $this->getKind()->isOneOf(TypeKindEnum::PRIMITIVE, TypeKindEnum::PHPFHIR_XHTML)
+            || $this->hasPrimitiveTypeParent();
+    }
+
     public function hasPrimitiveTypeParent(): bool
     {
         foreach ($this->getParentTypes() as $parentType) {
@@ -650,6 +656,10 @@ class Type
                     ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_PRIMITIVE_TYPE)
                     ->getFullyQualifiedNamespace(false);
             }
+        } else if ($this->getKind() === TypeKindEnum::PHPFHIR_XHTML) {
+            $interfaces[PHPFHIR_TYPES_INTERFACE_LEAF_TYPE] = $coreFiles
+                ->getCoreFileByEntityName(PHPFHIR_TYPES_INTERFACE_LEAF_TYPE)
+                ->getFullyQualifiedNamespace(false);
         } else if ($this->isPrimitiveContainer()) {
             if (!$this->hasPrimitiveContainerParent()) {
                 if ('id' === $this->getFHIRName()) {

@@ -112,9 +112,8 @@ foreach ($type->getProperties()->getIndexedIterator() as $i => $property) :
         }
 <?php
     endif;
-    if ($propType->isPrimitiveType() || $propType->hasPrimitiveTypeParent()
-        || $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()
-        || $propTypeKind === TypeKindEnum::PHPFHIR_XHTML) : ?>
+    if ($propType->isLeafType()
+        || $propType->isPrimitiveContainer() || $propType->hasPrimitiveContainerParent()) : ?>
         if (!($<?php echo $propertyName; ?> instanceof <?php echo $propTypeClassname; ?>)) {
             $<?php echo $propertyName; ?> = new <?php echo $propTypeClassname; ?>(value: $<?php echo $propertyName; ?>);
         }

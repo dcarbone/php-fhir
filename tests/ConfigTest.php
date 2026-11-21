@@ -132,4 +132,48 @@ class ConfigTest extends TestCase
         $this->assertCount(1, $c->getVersionsIterator());
         $this->assertInstanceOf(Version::class, $c->getVersion('Mock'));
     }
+
+    public function testCanConfigureLocalTranslationPackagesForVersionPairs(): void
+    {
+        $c = Config::fromArray([
+            'libraryPath' => $this->_tmpdir->path(),
+            'libraryNamespacePrefix' => __NAMESPACE__ . '\\' . __CLASS__,
+            'versions' => [
+                ['name' => 'R4', 'schemaPath' => $this->_tmpdir->path()],
+                ['name' => 'R5', 'schemaPath' => $this->_tmpdir->path()],
+            ],
+            'translationPackages' => [
+                [
+                    'sourceVersion' => 'R4',
+                    'targetVersion' => 'R5',
+                    'source' => $this->_tmpdir->path(),
+                ],
+            ],
+        ]);
+
+        $packages = $c->getTranslationPackages();
+        $this->assertCount(1, $packages);
+        $this->assertSame('R4', $packages[0]->getSourceVersion());
+        $this->assertSame('R5', $packages[0]->getTargetVersion());
+        $this->assertSame($this->_tmpdir->path(), $packages[0]->getSource());
+    }
+
+    public function testTranslationPackagesMustReferenceConfiguredVersions(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Config::fromArray([
+            'libraryPath' => $this->_tmpdir->path(),
+            'versions' => [
+                ['name' => 'R4', 'schemaPath' => $this->_tmpdir->path()],
+                ['name' => 'R5', 'schemaPath' => $this->_tmpdir->path()],
+            ],
+            'translationPackages' => [
+                [
+                    'sourceVersion' => 'R4',
+                    'targetVersion' => 'R6',
+                    'source' => $this->_tmpdir->path(),
+                ],
+            ],
+        ]);
+    }
 }

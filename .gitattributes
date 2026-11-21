@@ -28,5 +28,6 @@
 # Documentation lives in the wiki; consumers do not need a lockfile for a library
 /README.md export-ignore
 /composer.lock export-ignore
+/docs export-ignore
 
 fhir_test_resources.tar.gz export-ignore

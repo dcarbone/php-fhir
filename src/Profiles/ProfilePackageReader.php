@@ -68,6 +68,69 @@ class ProfilePackageReader
     }
 
     /**
+     * Reads selected resource types from a local FHIR NPM package directory or archive.
+     *
+     * @return array<int, array> Decoded resources in package filename order.
+     */
+    public static function readResources(string $source, string ...$resourceTypes): array
+    {
+        if ([] === $resourceTypes) {
+            throw new \InvalidArgumentException('At least one FHIR resource type must be requested.');
+        }
+        $allowedTypes = array_fill_keys($resourceTypes, true);
+        $files = self::_listFiles($source);
+        if (!isset($files[self::_MANIFEST_FILENAME])) {
+            throw new ProfilePackageException(sprintf(
+                'FHIR package source "%s" does not contain a "%s" file.',
+                $source,
+                self::_MANIFEST_FILENAME,
+            ));
+        }
+        $manifest = self::_decode(
+            self::_readFile($files[self::_MANIFEST_FILENAME], $source),
+            self::_MANIFEST_FILENAME,
+            $source,
+        );
+        foreach (['name', 'version'] as $key) {
+            if (!isset($manifest[$key]) || !is_string($manifest[$key]) || '' === $manifest[$key]) {
+                throw new ProfilePackageException(sprintf(
+                    'FHIR package manifest in "%s" is missing required string field "%s".',
+                    $source,
+                    $key,
+                ));
+            }
+        }
+
+        $indexed = isset($files[self::_INDEX_FILENAME])
+            ? self::_indexedTypes(self::_decode(self::_readFile($files[self::_INDEX_FILENAME], $source), self::_INDEX_FILENAME, $source))
+            : [];
+        $pattern = '{^(?:' . implode('|', array_map('preg_quote', $resourceTypes)) . ')-}';
+        $resourceTypePattern = '{"resourceType"\s*:\s*"(?:' . implode('|', array_map('preg_quote', $resourceTypes)) . ')"}';
+        $resources = [];
+        foreach ($files as $name => $path) {
+            if (self::_MANIFEST_FILENAME === $name || self::_INDEX_FILENAME === $name) {
+                continue;
+            }
+            $conventional = 1 === preg_match($pattern, $name);
+            if (!$conventional && isset($indexed[$name]) && !isset($allowedTypes[$indexed[$name]])) {
+                continue;
+            }
+            $contents = self::_readFile($path, $source);
+            if (!$conventional && !isset($indexed[$name])) {
+                $pos = strpos($contents, '"resourceType"');
+                if (false === $pos || 1 !== preg_match($resourceTypePattern, $contents, $match, 0, $pos)) {
+                    continue;
+                }
+            }
+            $resource = self::_decode($contents, $name, $source);
+            if (isset($resource['resourceType']) && is_string($resource['resourceType']) && isset($allowedTypes[$resource['resourceType']])) {
+                $resources[] = $resource;
+            }
+        }
+        return $resources;
+    }
+
+    /**
      * Compares two FHIR version strings on Major.Minor only, ignoring any pre-release suffix.
      */
     public static function isFHIRVersionCompatible(string $packageFHIRVersion, string $fhirVersion): bool

@@ -20,8 +20,10 @@ use DCarbone\PHPFHIR\Utilities\FileUtils;
 
 /** @var \DCarbone\PHPFHIR\Config $config */
 /** @var \DCarbone\PHPFHIR\CoreFile $coreFile */
+/** @var array<string, class-string> $hopMapClasses */
 
 $coreFiles = $config->getCoreFiles();
+$hopMapClasses ??= [];
 
 ob_start();
 echo '<?php ';?>declare(strict_types=1);
@@ -55,6 +57,13 @@ abstract class <?php echo $coreFile; ?>
         $config->getFullyQualifiedName(false),
         $cf->getFullyQualifiedName(false),
     ); ?>,
+<?php endforeach; ?>
+        // translation hop maps
+<?php foreach ($hopMapClasses as $className) : ?>
+        <?php echo var_export($className, true); ?> => <?php echo FileUtils::buildAutoloaderRelativeFilepath(
+            $config->getFullyQualifiedName(false),
+            $className,
+        ); ?>,
 <?php endforeach; ?>    ];
 
     private static bool $_registered = false;
