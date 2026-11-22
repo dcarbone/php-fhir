@@ -226,6 +226,11 @@ jobs:
           # Copy freshly generated files.
           cp -r output/src/.   generated-repo/src/
           cp -r output/tests/. generated-repo/tests/
+          
+          # output/src and output/tests carry placeholder .gitignore files that ignore everything
+          # so generated code is never committed to this repo. Copied into generated-repo they make
+          # `git add --all` skip every newly generated file, so they must not be published.
+          rm -f generated-repo/src/.gitignore generated-repo/tests/.gitignore
 
       - name: 'Commit and push to php-fhir-generated main'
         id: "commit"
@@ -241,6 +246,15 @@ jobs:
           git config user.signingkey "${SSH_SIGNING_KEY_PATH}"
           
           git add --all -- src/ tests/
+          
+          # Fail rather than publish a partial tree if any generated file was left unstaged
+          # (e.g. excluded by an ignore rule).
+          _unstaged="$(git ls-files --others -- src/ tests/)"
+          if [ -n "${_unstaged}" ]; then
+            echo "::error::Generated files were not staged:" >&2
+            printf '%s\n' "${_unstaged}" | head -50 >&2
+            exit 1
+          fi
           
           if git diff --cached --quiet; then
             echo "No changes to commit – generated output is identical to current main."
